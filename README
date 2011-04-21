@@ -40,6 +40,10 @@ For now,  the best reference service demo script can be run like this:
 
 % cd CRDS_server
 % python test_service.py `cat ../CRDS/hst/gentools/files_acs_warren`
+====> Best references for '../../testdata/acs/warren/j6ll01ycq_raw.fits'
+{'idctab': 'q2h2010pj_idc.fits', 'darkfile': 'n2o0732tj_drk.fits', 'atodtab': 'kcb1734hj_a2d.fits', 'cfltfile': 'NOT FOUND "Key DETECTOR=WFC not in valid values (\'HRC\',)"', 'spottab': 'NOT FOUND "Key DETECTOR=WFC not in valid values (\'HRC\',)"', 'mlintab': 'k9c13374j_lin.fits', 'dgeofile': 'qbu16424j_dxy.fits', 'bpixtab': 'n9p09145j_bpx.fits', 'oscntab': 'lch1459bj_osc.fits', 'ccdtab': 'o1515068j_ccd.fits', 'crrejtab': 'n4e12511j_crr.fits', 'pfltfile': 'nar1136pj_pfl.fits', 'biasfile': 'm991609nj_bia.fits', 'mdriztab': 'ub21537aj_mdz.fits'}
+...
+
 
 test_service is written to operate on a list of relative filepaths and
 FITS headers which are already known and cached by the
