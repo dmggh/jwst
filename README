@@ -1,0 +1,53 @@
+This directory contains the files associated with a Django web server
+/ project organized in the standard fashion.  It is installed as the
+crds.server package with a crds.server.lookup Django site.  The
+nominal purpose of this code is to support services supplied by an
+HTTP server at STScI and hence the code is not intended for
+distribution in the same manner as the CRDS core library.  Presently
+it has only been configured for and tested with Django's dev server,
+not Apache/mod_wsgi/mod_python.
+
+Running the test server requires an independent installation of the CRDS
+library:
+
+% svn co https://subversion.assembla.com/svn/crds/trunk  CRDS
+% cd CRDS
+% ./install
+
+The CRDS server package can be installed like this:
+
+% svn co https://subversion.assembla.com/svn/crds_server/trunk CRDS_server
+% cd CRDS_server
+% python setup.py install
+
+NOTE: the crds.server package installs as crds/server not crds_server
+as you might expect from the subversion.  The source code for
+crds.server is kept separate from the rest of the crds package to keep
+it private to STScI.
+
+The development server is run like this:
+
+% cd CRDS_server
+% python manage.py runserver
+Validating models...
+0 errors found
+
+Django version 1.2.4, using settings 'CRDS_server.settings'
+Development server is running at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+
+For now,  the best reference service demo script can be run like this:
+
+% cd CRDS_server
+% python test_service.py `cat ../CRDS/hst/gentools/files_acs_warren`
+
+test_service is written to operate on a list of relative filepaths and
+FITS headers which are already known and cached by the
+crds.hst.gentools package.  The upside of this arrangement is that the
+demo can be run without gigabytes of test datasets and without half a
+terabyte of reference files.  The downside is that the caches have to
+be updated by someone with access to any extra datasets and reference
+files if additional tests are required.  This demo is not for testing
+for testing web features, in particular the lookup service, not for
+testing CRDS answers.
+

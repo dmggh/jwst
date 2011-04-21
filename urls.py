@@ -1,6 +1,7 @@
 from django.conf.urls.defaults import *
 from jsonrpc import jsonrpc_site
-import server.lookup.views
+
+import crds.server.lookup.views
 
 urlpatterns = patterns('',
   url(r'^json/browse/', 'jsonrpc.views.browse', name="jsonrpc_browser"), # for the graphical browser/web console only, omissible

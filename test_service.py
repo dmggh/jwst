@@ -1,6 +1,6 @@
 import sys
 import StringIO
-import crds.hst.lookup as hst_lookup
+import crds.hst.gentools.lookup as hst_lookup
 
 sys.stdout = StringIO.StringIO()
 from jsonrpc.proxy import ServiceProxy
@@ -22,6 +22,5 @@ def test_get_best_refs(fname):
 
 if __name__ == "__main__":
     for fname in sys.argv[1:]:
+        print "====> Best references for", repr(fname)
         print test_get_best_refs(fname)
-
-

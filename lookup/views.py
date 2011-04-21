@@ -1,7 +1,7 @@
 from jsonrpc import jsonrpc_method
 from jsonrpc.exceptions import OtherError
 
-import crds.hst.lookup as hst_lookup
+import crds.hst.gentools.lookup as hst_lookup
 
 @jsonrpc_method('get_best_refs(Object)')
 def get_best_refs(request, header):
