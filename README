@@ -51,7 +51,7 @@ crds.hst.gentools package.  The upside of this arrangement is that the
 demo can be run without gigabytes of test datasets and without half a
 terabyte of reference files.  The downside is that the caches have to
 be updated by someone with access to any extra datasets and reference
-files if additional tests are required.  This demo is not for testing
-for testing web features, in particular the lookup service, not for
-testing CRDS answers.
+files if additional tests are required.  This demo is for testing for
+testing web features, i.e. the lookup service, not for testing CRDS
+answers.
 

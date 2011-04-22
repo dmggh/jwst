@@ -17,7 +17,7 @@ def test_sayHello():
 def test_get_best_refs(fname):
     S = ServiceProxy(URL)
     header = hst_lookup.get_header_union(fname)
-    references = S.get_best_refs(header)["result"]
+    references = S.get_best_refs("hst", header)["result"]
     return references
 
 if __name__ == "__main__":
