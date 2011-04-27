@@ -4,28 +4,28 @@ from jsonrpc.exceptions import OtherError
 import crds.rmap as rmap
 
 @jsonrpc_method('get_best_refs(String, Object)')
-def get_best_refs(request, observatory, header):
-    return rmap.get_best_refs(header, observatory)
+def get_best_refs(request, context, header):
+    return rmap.get_best_refs(header, context)
 
 @jsonrpc_method('get_mapping_names(String)')
 def get_mapping_names(request, context):
-    ctx = rmap.get_pipeline_context("hst", context)
+    ctx = rmap.get_pipeline_context(context)
     return ctx.mapping_names()
 
 @jsonrpc_method('get_reference_names(String)')
 def get_reference_names(request, context):
-    ctx = rmap.get_pipeline_context("hst", context)
+    ctx = rmap.get_pipeline_context(context)
     return ctx.reference_names()
 
 @jsonrpc_method('get_mapping_data(String, String)')
 def get_mapping_data(request, context, mapping):
-    ctx = rmap.get_pipeline_context("hst", context)
+    ctx = rmap.get_pipeline_context(context)
     filepath = ctx.locate_mapping(mapping)
     return open(filepath).read()
 
 @jsonrpc_method('get_reference_data(String, String)')
 def get_reference_data(request, context, reference):
-    ctx = rmap.get_pipeline_context("hst", context)
+    ctx = rmap.get_pipeline_context(context)
     filepath = ctx.locate_reference(reference)
     return open(filepath).read()
 
