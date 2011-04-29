@@ -2,6 +2,7 @@ from jsonrpc import jsonrpc_method
 from jsonrpc.exceptions import OtherError
 
 import crds.rmap as rmap
+import base64
 
 @jsonrpc_method('get_best_refs(String, Object)')
 def get_best_refs(request, context, header):
@@ -27,7 +28,8 @@ def get_mapping_data(request, context, mapping):
 def get_reference_data(request, context, reference):
     ctx = rmap.get_pipeline_context(context)
     filepath = ctx.locate_reference(reference)
-    return open(filepath).read()
+    refdata = open(filepath).read()
+    return base64.b64encode(refdata)
 
 #@jsonrpc_method('lookup.sayHello')
 #def whats_the_time(request, name='Lester'):
