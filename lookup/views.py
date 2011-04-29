@@ -21,15 +21,25 @@ def get_reference_names(request, context):
 @jsonrpc_method('get_mapping_data(String, String)')
 def get_mapping_data(request, context, mapping):
     ctx = rmap.get_pipeline_context(context)
-    filepath = ctx.locate_mapping(mapping)
+    filepath = ctx.locate.locate_mapping(mapping)
     return open(filepath).read()
+
+@jsonrpc_method('get_mapping_url(String, String)')
+def get_mapping_url(request, context, mapping):
+    ctx = rmap.get_pipeline_context(context)
+    return ctx.locate.mapping_url("http://" + request.get_host(), mapping)
 
 @jsonrpc_method('get_reference_data(String, String)')
 def get_reference_data(request, context, reference):
     ctx = rmap.get_pipeline_context(context)
-    filepath = ctx.locate_reference(reference)
+    filepath = ctx.locate.locate_reference(reference)
     refdata = open(filepath).read()
     return base64.b64encode(refdata)
+
+@jsonrpc_method('get_reference_url(String, String)')
+def get_reference_url(request, context, reference):
+    ctx = rmap.get_pipeline_context(context)
+    return ctx.locate.reference_url("http://" + request.get_host(), reference)
 
 #@jsonrpc_method('lookup.sayHello')
 #def whats_the_time(request, name='Lester'):
