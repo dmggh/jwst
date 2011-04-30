@@ -6,7 +6,7 @@ import base64
 
 @jsonrpc_method('get_best_refs(String, Object)')
 def get_best_refs(request, context, header):
-    return rmap.get_best_refs(header, context)
+    return rmap.get_best_refs(context, header)
 
 @jsonrpc_method('get_mapping_names(String)')
 def get_mapping_names(request, context):
