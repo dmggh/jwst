@@ -1,6 +1,7 @@
 from jsonrpc import jsonrpc_method
 from jsonrpc.exceptions import OtherError
 
+import crds.server.config as config
 import crds.rmap as rmap
 import base64
 
@@ -21,25 +22,25 @@ def get_reference_names(request, context):
 @jsonrpc_method('get_mapping_data(String, String)')
 def get_mapping_data(request, context, mapping):
     ctx = rmap.get_cached_mapping(context)
-    filepath = ctx.locate.locate_mapping(mapping)
+    filepath = ctx.locate.locate_server_mapping(mapping)
     return open(filepath).read()
 
 @jsonrpc_method('get_mapping_url(String, String)')
 def get_mapping_url(request, context, mapping):
     ctx = rmap.get_cached_mapping(context)
-    return ctx.locate.mapping_url("http://" + request.get_host(), mapping)
+    return ctx.locate.mapping_url(config.CRDS_MAPPING_URL, mapping)
 
 @jsonrpc_method('get_reference_data(String, String)')
 def get_reference_data(request, context, reference):
     ctx = rmap.get_cached_mapping(context)
-    filepath = ctx.locate.locate_reference(reference)
+    filepath = ctx.locate.locate_server_reference(reference)
     refdata = open(filepath).read()
     return base64.b64encode(refdata)
 
 @jsonrpc_method('get_reference_url(String, String)')
 def get_reference_url(request, context, reference):
     ctx = rmap.get_cached_mapping(context)
-    return ctx.locate.reference_url("http://" + request.get_host(), reference)
+    return ctx.locate.reference_url(config.CRDS_REFERENCE_URL, reference)
 
 #@jsonrpc_method('lookup.sayHello')
 #def whats_the_time(request, name='Lester'):
