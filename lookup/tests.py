@@ -30,7 +30,7 @@ class ServiceApiTest(TestCase):
     def get_bestrefs(self):
         header = self.get_header()
         os.environ["CRDS_REFPATH"] = HERE + "/test_references"
-        return api.get_best_refs(self.context, header)
+        return api.get_best_references(self.context, header)
 
     def purge_mappings(self):
         pysh.sh("rm -rf " + HERE + "/test_mappings")        

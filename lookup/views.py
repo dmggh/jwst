@@ -5,9 +5,9 @@ import crds.server.config as config
 import crds.rmap as rmap
 import base64
 
-@jsonrpc_method('get_best_refs(String, Object)')
-def get_best_refs(request, context, header):
-    return rmap.get_best_refs(context, header)
+@jsonrpc_method('get_best_references(String, Object)')
+def get_best_references(request, context, header):
+    return rmap.get_best_references(context, header)
 
 @jsonrpc_method('get_mapping_names(String)')
 def get_mapping_names(request, context):
