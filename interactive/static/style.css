@@ -1,0 +1,248 @@
+body {
+    min-width: 640px;
+    /* background-image: url(OrionBelt2.jpg); */
+    background: #282840;
+    background-repeat: repeat;
+}
+
+div {
+    background-color: transparent;
+}
+
+hr {
+    color: grey;
+}
+
+#page_header, #header_menu, #top-level-tabs {
+    overflow: hidden;
+    display: inline-block;
+    background-color: #282848;
+    background: transparent;
+}
+
+#page_header {
+    font-size: 28pt;
+    font-weight: normal;
+    color: orange;
+    text-align: center;
+    float: left;
+    width: 85%;
+    margin-top: 0.1in;
+    margin-left: 0.1in;
+    margin-bottom: 0.1in;
+    margin-right: 0.0in;
+}
+
+#header_menu {
+    float: left;
+    width: 10%;
+    margin-top: 0.1in;
+    margin-left: 0.0in;
+    margin-bottom: 0.1in;
+    margin-right: 0.1in;
+}
+
+#top-level-tabs {
+    float: left;
+    width: 99%;
+    background-color: transparent;
+    border: none;
+    }
+
+.column1 {
+    float: left;
+    width: 45%;
+    margin: 0px 10px 10px 10px;
+    background-color: transparent;
+}
+
+.column2 {
+    float: left;
+    width: 45%;
+    margin: 0px 10px 10px 10px;
+    background-color: transparent;
+}
+
+.column11 {
+    float: left;
+    width: 25%;
+    border: 1px solid black;
+    padding: 1px 1px 1px 1px;
+    margin-top: 0px;
+    margin-left: 5px;
+    margin-bottom: 5px;
+    margin-right: 5%;
+    background-color: transparent;
+}
+
+.column12 {
+    float: left;
+    width: 20%;
+    border: 1px solid black;
+    padding: 1px 1px 1px 1px;
+    margin-right: 35%;
+    background-color: transparent;
+}
+
+label {
+    font-size: 1.1em;
+    font-weight: normal;
+    color:  orange;
+    padding-top: 20px;
+    padding-bottom: 10px;
+    padding-left: 0px;
+    padding-right: 10px;
+    margin-bottom: 5px;
+    margin-right: 10px;
+}
+
+.checkbox, span {
+    font-size: 1em;
+    font-weight: normal;
+    color: orange;
+}
+
+.field_error, .errorlist {
+    font-size: 14pt;
+    color: red;
+    padding-top: 10px
+}
+
+.datafile {
+    text-decoration: underline;
+    font-size: 14pt;
+    font-weight: normal;
+    color: blue;
+    background-color: white;
+    padding: 4px 4px 4px 4px;
+    border: grey solid 2px;
+    border-radius: 6px;
+    margin: 2px 2px 2px 2px;
+}
+
+.filter, .tagname {
+    font-size: 14pt;
+    font-weight: normal;
+    color: grey;
+    background: white;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    border: grey solid 2px;
+}
+
+.tab_info, .inline_directions {
+    color: orange;
+    font-size: 1em;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    background-color: transparent;
+}
+
+#tooltip {
+    position:absolute;
+    border:1px solid #333;
+    background:#f7f5d1;
+    padding:2px 5px;
+    color:#333;
+    display:none;
+    font-family: Helvetica, Arial, FreeSans, sans-serif;
+    font-size: 10pt;
+    font-weight: bold;
+    }
+
+th.obsv {
+    border-radius: 6px;
+    border-top: 2px solid #ddd;
+    border-bottom: 2px solid #ddd;
+    border-left: 2px solid #ddd;
+    border-right: 2px solid #ddd;
+    font-weight: bold;
+    color: black;
+    align: center;
+    background:white;
+}
+
+p.obsv {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+td.obsv, td.obsv_ck {
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    font-weight: normal;
+    color: #89AAA6;
+    text-align: center;
+    background:white;
+    padding: 2px 2px 2px 2px;
+}
+
+td.obsv {
+    font-size: 0.8em;
+}
+
+input.obsv {
+    border: none;
+    font-weight: normal;
+    text-align: center;
+    color: green;
+    background:white;
+    size: 16;
+    maxlength: 16;
+}
+
+input.obsv_button {
+    border: grey solid 2px;
+    font-weight: normal;
+    align: right;
+    color: black;
+    background:white;
+    size: 4;
+    maxlength: 4;
+}
+
+input {
+    size: 8;
+    maxlength: 8;
+    border: grey solid 2px;
+    border-radius: 6px;
+    margin: 2px 2px 2px 2px;
+    background: solid;
+    background-color: white;
+}
+
+.ui-tabs, .ui-tabs-panel, .ui-widge, .ui-widget-content, .ui-widget-header {
+    background-color: #282840;
+    background: none;
+}
+
+.ui-state-active {
+    background: none;
+}
+
+.data_tab { color: #282840; }
+
+.ui-widget-content a { color: blue; }
+.ui-widget-content { color: black; }
+
+.program {
+    font-size: 12pt;
+    color: black;
+    background-color: white;
+}
+
+select, textarea {
+    border: grey solid 2px;
+    border-radius: 6px;
+}
+
+img.plot {
+    border: grey solid 2px;
+}
+
+#help_contents {
+    background-color: white;
+}
+

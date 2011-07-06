@@ -45,21 +45,23 @@ USE_L10N = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = '/Users/jmiller/work/workspace_crds/CRDS_server/media'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = ''
+MEDIA_URL = 'http://localhost:8000/media/'
 
 STATIC_URL = '/static/'
 
-STATICFILE_DIRS = ['/Users/jmiller/work/workspace_crds/static']
+STATICFILE_DIRS = ['/Users/jmiller/work/workspace_crds/CRDS_server/static/',
+                   '/Users/jmiller/work/workspace_crds/CRDS_server/interactive/static/',
+                   ]
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/media/'
+ADMIN_MEDIA_PREFIX = '/static/'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'zae_r-rn0arv9c_z*b41_y2qzvqgs+082)ao#6^nxsp*qf(!16'
@@ -86,6 +88,7 @@ TEMPLATE_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     "./templates",
+    "./interactive/templates",
 )
 
 INSTALLED_APPS = (
@@ -96,6 +99,8 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     
     'django.contrib.staticfiles',
+    
+    "interactive",
 
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',

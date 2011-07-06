@@ -1,0 +1,1 @@
+setenv DJANGO_SETTINGS_MODULE crds.server.settings

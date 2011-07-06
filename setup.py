@@ -15,6 +15,8 @@ setup(name="crds.server",
 
       packages=[
         'crds.server',
+        'crds.server.interactive',
+        'crds.server.interactive.templatetags',
         'crds.server.lookup',
         'crds.server.lookup.templatetags'
         ],
@@ -23,6 +25,8 @@ setup(name="crds.server",
         'crds.server':'.',
         'crds.server.lookup':'./lookup',
         'crds.server.lookup.templatetags':'./lookup/templatetags',
+        'crds.server.interactive':'./interactive',
+        'crds.server.interactive.templatetags':'./interactive/templatetags',
         },
 
       package_data = {
