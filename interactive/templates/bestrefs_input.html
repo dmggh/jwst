@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block head_additions %}
+{% endblock head_additions %}
+
+{% block contents %}
+
+<div id="contents">
+	<form action="/ui/bestrefs/compute">
+		<input type="hidden" name="instrument-context" value="{{ctx.filename}}"/>
+		<p><span class="label">Header Values:</span></p>
+		<table>
+		{% for key in required_keys %}
+			<tr>
+				<td><span class="label">{{key}}:</span></td>
+				<td><input type="text" value="" /></td>
+			</tr>
+		{% endfor %}
+		</table>
+		<p></p>
+		<input type="submit" value="Get References" />
+	</form>
+</div>
+
+{% endblock contents %}

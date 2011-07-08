@@ -42,7 +42,7 @@ hr {
     margin-right: 0.1in;
 }
 
-#top-level-tabs {
+#top-level-tabs, #contents {
     float: left;
     width: 99%;
     background-color: transparent;
