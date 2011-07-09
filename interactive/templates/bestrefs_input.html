@@ -6,16 +6,31 @@
 {% block contents %}
 
 <div id="contents">
-	<form action="/ui/bestrefs/compute">
+	<h2>Get Best References ({{ctx.filename}})</h2>
+	<form method="post" action="/ui/bestrefs/compute/{{ctx.filename}}"> {% csrf_token %}
 		<input type="hidden" name="instrument-context" value="{{ctx.filename}}"/>
 		<p><span class="label">Header Values:</span></p>
 		<table>
-		{% for key in required_keys %}
+		{% for key, choices in parkey_map_items %}
 			<tr>
 				<td><span class="label">{{key}}:</span></td>
-				<td><input type="text" value="" /></td>
+				<td>
+					<select name="{{key}}">
+					{% for opt in choices %}
+						<option>{{opt}}</option>
+					{% endfor %} 
+					</select>
+				</td>
 			</tr>
 		{% endfor %}
+			<tr>
+				<td><span class="label">DATE-OBS:</span></td>
+				<td><input type="text" name="DATE-OBS" /><td/>
+			</tr>
+			<tr>
+				<td><span class="label">TIME-OBS:</span></td>
+				<td><input type="text" name="TIME-OBS" /><td/>
+			</tr>
 		</table>
 		<p></p>
 		<input type="submit" value="Get References" />

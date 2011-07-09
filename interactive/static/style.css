@@ -84,6 +84,10 @@ hr {
     background-color: transparent;
 }
 
+h1, h2, h3, h4 {
+    color: orange;
+}
+
 label {
     font-size: 1.1em;
     font-weight: normal;

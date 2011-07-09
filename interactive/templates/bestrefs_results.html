@@ -6,6 +6,18 @@
 {% block contents %}
 
 <div id="contents">
+
+<h2>Best References</h2>
+
+	<table>
+	{% for reftype, fname in bestrefs_items %}
+		<tr>
+			<td class="label">{{reftype}}</td>
+			<td class="label">{{fname}}</td>
+		</tr>
+	{% endfor %}
+	</table>
+	
 </div>
 
 {% endblock contents %}
