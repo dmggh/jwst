@@ -30,5 +30,6 @@ def bestrefs_compute(request, imap):
             key = key[1:]
         header[str(key)] = str(request.POST[key])
     bestrefs = ctx.get_best_references(header)
+    header_items = sorted(header.items())
     bestrefs_items = [ (key.upper(), val) for (key, val) in sorted(bestrefs.items())]
     return render(request, "bestrefs_results.html", locals())

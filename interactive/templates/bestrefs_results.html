@@ -7,9 +7,20 @@
 
 <div id="contents">
 
-<h2>Best References</h2>
+<h2>Header Parameters</h2>
+	<table>
+	{% for key, val in header_items %}
+		<tr>
+			<td class="label">{{key}}</td>
+			<td class="label">{{val}}</td>
+		</tr>
+	{% endfor %}
+	</table>
 
 	<table>
+
+<h2>Best References</h2>
+
 	{% for reftype, fname in bestrefs_items %}
 		<tr>
 			<td class="label">{{reftype}}</td>

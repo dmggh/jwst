@@ -8,8 +8,7 @@
 <div id="contents">
 	<h2>Get Best References ({{ctx.filename}})</h2>
 	<form method="post" action="/ui/bestrefs/compute/{{ctx.filename}}"> {% csrf_token %}
-		<input type="hidden" name="instrument-context" value="{{ctx.filename}}"/>
-		<p><span class="label">Header Values:</span></p>
+		<p><span class="label">Header Parameters</span></p>
 		<table>
 		{% for key, choices in parkey_map_items %}
 			<tr>
