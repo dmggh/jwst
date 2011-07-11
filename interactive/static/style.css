@@ -1,7 +1,8 @@
 body {
     min-width: 640px;
     /* background-image: url(OrionBelt2.jpg); */
-    background: #282840;
+    /* background: #282840; */
+    background: white;
     background-repeat: repeat;
 }
 
@@ -23,7 +24,7 @@ hr {
 #page_header {
     font-size: 28pt;
     font-weight: normal;
-    color: orange;
+    color: darkblue;
     text-align: center;
     float: left;
     width: 85%;
@@ -85,13 +86,13 @@ hr {
 }
 
 h1, h2, h3, h4, td {
-    color: orange;
+    color: darkblue;
 }
 
 label, .label {
     font-size: 1.1em;
     font-weight: normal;
-	color:  orange;
+	color:  darkblue;
 /*    padding-top: 20px;
     padding-bottom: 10px;
     padding-left: 0px;
@@ -124,7 +125,7 @@ label, .label {
 .checkbox, span {
     font-size: 1em;
     font-weight: normal;
-    color: orange;
+    color: darkblue;
 }
 
 .field_error, .errorlist {
@@ -156,7 +157,7 @@ label, .label {
 }
 
 .tab_info, .inline_directions {
-    color: orange;
+    color: darkblue;
     font-size: 1em;
     padding-top: 2px;
     padding-bottom: 2px;

@@ -25,11 +25,14 @@ def bestrefs_input(request, imap):
 
 def bestref_link(ctx, reference):
     """Return an appropriate anchor tag for `reference`."""
-    try:
-        url = ctx.locate.reference_url(config.CRDS_REFERENCE_URL, reference)
-        return '<a href="%s">%s</a>' % (url, reference)
-    except:
-        return reference
+    if not reference.startswith("NOT FOUND"):
+        try:
+            url = ctx.locate.reference_url(config.CRDS_REFERENCE_URL, reference)
+            return '<a href="%s">%s</a>' % (url, reference)
+        except:
+            return reference
+    else:
+        return reference[len("NOT FOUND "):][1:-1]
     
 def bestrefs_compute(request, imap):
     ctx = _get_ctx(imap)

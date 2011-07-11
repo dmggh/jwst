@@ -9,11 +9,11 @@
 
 	<div class="column1">
 		<h2>Header Parameters</h2>
-		<table>
+		<table width="100%">
 		{% for key, val in header_items %}
 			<tr>
-				<td class="label">{{key}}</td>
-				<td class="value">{{val}}</td>
+				<td class="label" width="30%">{{key}}</td>
+				<td class="value" width="60%">{{val}}</td>
 			</tr>
 		{% endfor %}
 		</table>
@@ -21,14 +21,14 @@
 	
 	<div class="column2">
 		<h2>Best References</h2>
-		<table>	
+		<table width="100%">	
 			{% for reftype, fname in bestrefs_items %}
 				<tr>
-					<td class="label">{{reftype}}</td>
+					<td class="label" width="30%">{{reftype}}</td>
 					{% if ".fits" in fname %}
-						<td class="value">{{fname|safe}}</td>
+						<td class="value" width="60%">{{fname|safe}}</td>
 					{% else %}
-						<td class="error">{{fname}}</td>
+						<td class="error" width="60%">{{fname}}</td>
 					{% endif %}
 				</tr>
 			{% endfor %}
