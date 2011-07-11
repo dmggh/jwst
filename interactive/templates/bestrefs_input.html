@@ -6,34 +6,36 @@
 {% block contents %}
 
 <div id="contents">
-	<h2>Get Best References <span class="value">({{ctx.filename}})</span></h2>
-	<form method="post" action="/bestrefs/compute/{{ctx.filename}}"> {% csrf_token %}
-		<h3>Header Parameters</h3>
-		<table>
-		{% for key, choices in parkey_map_items %}
-			<tr>
-				<td><span class="label">{{key}}:</span></td>
-				<td>
-					<select name="{{key}}">
-					{% for opt in choices %}
-						<option>{{opt}}</option>
-					{% endfor %} 
-					</select>
-				</td>
-			</tr>
-		{% endfor %}
-			<tr>
-				<td><span class="label">DATE-OBS:</span></td>
-				<td><input type="text" name="DATE-OBS" /><td/>
-			</tr>
-			<tr>
-				<td><span class="label">TIME-OBS:</span></td>
-				<td><input type="text" name="TIME-OBS" /><td/>
-			</tr>
-		</table>
-		<p></p>
-		<input type="submit" value="Get References" />
-	</form>
+	<div class="column1">
+		<h2>Get Best References <span class="value">({{ctx.filename}})</span></h2>
+		<form method="post" action="/bestrefs/compute/{{ctx.filename}}"> {% csrf_token %}
+			<h3>Header Parameters</h3>
+			<table width="100%">
+			{% for key, choices in parkey_map_items %}
+				<tr>
+					<td class="label" width="30%"><span class="label">{{key}}:</span></td>
+					<td width="60%">
+						<select name="{{key}}">
+						{% for opt in choices %}
+							<option>{{opt}}</option>
+						{% endfor %} 
+						</select>
+					</td>
+				</tr>
+			{% endfor %}
+				<tr>
+					<td class="label" width="30%">DATE-OBS:</td>
+					<td width="60%"><input type="text" name="DATE-OBS" /><td/>
+				</tr>
+				<tr>
+					<td><span class="label" width="30%">TIME-OBS:</span></td>
+					<td width="60%"><input type="text" name="TIME-OBS" /><td/>
+				</tr>
+			</table>
+			<p></p>
+			<input type="submit" value="Get References" />
+		</form>
+	</div>
 </div>
 
 {% endblock contents %}
