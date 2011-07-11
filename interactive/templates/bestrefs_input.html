@@ -6,9 +6,9 @@
 {% block contents %}
 
 <div id="contents">
-	<h2>Get Best References ({{ctx.filename}})</h2>
-	<form method="post" action="/ui/bestrefs/compute/{{ctx.filename}}"> {% csrf_token %}
-		<p><span class="label">Header Parameters</span></p>
+	<h2>Get Best References <span class="value">({{ctx.filename}})</span></h2>
+	<form method="post" action="/bestrefs/compute/{{ctx.filename}}"> {% csrf_token %}
+		<h3>Header Parameters</h3>
 		<table>
 		{% for key, choices in parkey_map_items %}
 			<tr>

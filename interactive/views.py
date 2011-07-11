@@ -1,10 +1,13 @@
 # Create your views here.
+import os.path
 
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 import crds.rmap as rmap
+
+import crds.server.config as config
 
 def _get_ctx(imap):
     ctx = rmap.get_cached_mapping(imap)
@@ -20,6 +23,14 @@ def bestrefs_input(request, imap):
     parkey_map_items = sorted(ctx.get_parkey_map().items())
     return render(request, "bestrefs_input.html", locals())
 
+def bestref_link(ctx, reference):
+    """Return an appropriate anchor tag for `reference`."""
+    try:
+        url = ctx.locate.reference_url(config.CRDS_REFERENCE_URL, reference)
+        return '<a href="%s">%s</a>' % (url, reference)
+    except:
+        return reference
+    
 def bestrefs_compute(request, imap):
     ctx = _get_ctx(imap)
     header = {}
@@ -31,5 +42,5 @@ def bestrefs_compute(request, imap):
         header[str(key)] = str(request.POST[key])
     bestrefs = ctx.get_best_references(header)
     header_items = sorted(header.items())
-    bestrefs_items = [ (key.upper(), val) for (key, val) in sorted(bestrefs.items())]
+    bestrefs_items = [ (key.upper(), bestref_link(ctx, val)) for (key, val) in sorted(bestrefs.items())]
     return render(request, "bestrefs_results.html", locals())

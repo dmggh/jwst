@@ -7,28 +7,34 @@
 
 <div id="contents">
 
-<h2>Header Parameters</h2>
-	<table>
-	{% for key, val in header_items %}
-		<tr>
-			<td class="label">{{key}}</td>
-			<td class="label">{{val}}</td>
-		</tr>
-	{% endfor %}
-	</table>
-
-	<table>
-
-<h2>Best References</h2>
-
-	{% for reftype, fname in bestrefs_items %}
-		<tr>
-			<td class="label">{{reftype}}</td>
-			<td class="label">{{fname}}</td>
-		</tr>
-	{% endfor %}
-	</table>
+	<div class="column1">
+		<h2>Header Parameters</h2>
+		<table>
+		{% for key, val in header_items %}
+			<tr>
+				<td class="label">{{key}}</td>
+				<td class="value">{{val}}</td>
+			</tr>
+		{% endfor %}
+		</table>
+	</div>
 	
+	<div class="column2">
+		<h2>Best References</h2>
+		<table>	
+			{% for reftype, fname in bestrefs_items %}
+				<tr>
+					<td class="label">{{reftype}}</td>
+					{% if ".fits" in fname %}
+						<td class="value">{{fname|safe}}</td>
+					{% else %}
+						<td class="error">{{fname}}</td>
+					{% endif %}
+				</tr>
+			{% endfor %}
+		</table>	
+	</div>
+
 </div>
 
 {% endblock contents %}

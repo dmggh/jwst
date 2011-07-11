@@ -88,16 +88,37 @@ h1, h2, h3, h4, td {
     color: orange;
 }
 
-label {
+label, .label {
     font-size: 1.1em;
     font-weight: normal;
-    color:  orange;
-    padding-top: 20px;
+	color:  orange;
+/*    padding-top: 20px;
     padding-bottom: 10px;
     padding-left: 0px;
     padding-right: 10px;
     margin-bottom: 5px;
     margin-right: 10px;
+*/
+}
+
+.value {
+    font-size: 1.1em;
+    font-weight: normal;
+	color: grey;
+/*
+	padding-top: 20px;
+    padding-bottom: 10px;
+    padding-left: 0px;
+    padding-right: 10px;
+    margin-bottom: 5px;
+    margin-right: 10px;
+*/
+}
+
+.error {
+    font-size: 1.1em;
+    font-weight: normal;
+	color: red;
 }
 
 .checkbox, span {
