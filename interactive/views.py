@@ -9,16 +9,35 @@ import crds.rmap as rmap
 
 import crds.server.config as config
 
-def _get_ctx(imap):
+def _get_imap(request):
+    """Convert a request into an instrument context name."""
+    post = dict([(str(key), str(val)) for (key,val) in request.POST.items()])
+    print post
+    try:
+        mode = post["context-mode"]
+        print mode
+    except KeyError:
+        return post["instrument-context"]
+    else:
+        return post["context-user"] if mode == "user" else post["context-default"]
+
+def _get_ctx(request):
+    """Convert a request into an instrument context object."""
+    imap = _get_imap(request)
     ctx = rmap.get_cached_mapping(imap)
     assert isinstance(ctx, rmap.InstrumentContext), "Invalid instrument context " + repr(imap)
     return ctx
 
 def render(request, template, dict_):
+    """Top level index page."""
     return render_to_response(template, RequestContext(request, dict_))
 
-def bestrefs_input(request, imap):
-    ctx = _get_ctx(imap)
+def bestrefs_index(request):
+    return render(request, "bestrefs_index.html", {})
+
+def bestrefs_input(request):
+    """Prompt for best ref inputs."""
+    ctx = _get_ctx(request)
     required_keys = list(ctx.get_required_parkeys())
     parkey_map_items = sorted(ctx.get_parkey_map().items())
     return render(request, "bestrefs_input.html", locals())
@@ -34,8 +53,9 @@ def bestref_link(ctx, reference):
     else:
         return reference[len("NOT FOUND "):][1:-1]
     
-def bestrefs_compute(request, imap):
-    ctx = _get_ctx(imap)
+def bestrefs_compute(request):
+    """Compute and display best reference results."""
+    ctx = _get_ctx(request)
     header = {}
     needed_keys = list(ctx.get_required_parkeys())
     needed_keys.remove("REFTYPE")

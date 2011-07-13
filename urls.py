@@ -11,8 +11,9 @@ urlpatterns = patterns('',
   url(r'^json/', jsonrpc_site.dispatch, name="jsonrpc_mountpoint"),
   url(r'^json/(?P<method>[a-zA-Z0-9.]+)$', jsonrpc_site.dispatch), # for HTTP GET only, also omissible
   
-  url(r'^bestrefs/(?P<imap>[A-Za-z0-9._]+)$', 'interactive.views.bestrefs_input'),          
-  url(r'^bestrefs/compute/(?P<imap>[A-Za-z0-9._]+)$', 'interactive.views.bestrefs_compute'),
+  url(r'^bestrefs/$', 'interactive.views.bestrefs_index'),          
+  url(r'^bestrefs/input/$', 'interactive.views.bestrefs_input'),          
+  url(r'^bestrefs/compute/$', 'interactive.views.bestrefs_compute'),
           
 #        (r'site_media/(?P<path>.*)$', 'django.views.static.serve',
 #         {'document_root': settings.MEDIA_ROOT }),

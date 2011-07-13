@@ -103,7 +103,7 @@ label, .label {
 }
 
 .value {
-    font-size: 1.1em;
+    font-size: 0.9em;
     font-weight: normal;
 	color: grey;
 /*
@@ -114,6 +114,12 @@ label, .label {
     margin-bottom: 5px;
     margin-right: 10px;
 */
+}
+
+.hint {
+    font-size: 0.8em;
+    font-weight: normal;
+	color: grey;
 }
 
 .error {
