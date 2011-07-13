@@ -7,12 +7,11 @@
 
 <div id="contents">
 	<form action="/bestrefs/input/" method="post""> {% csrf_token %}
+		<h2>Get Best References</h2>
+		<h3>Instrument Context:</h3>
 		<table>
 			<tr>
-				<td class="label">Instrument Context:</td>
-			</tr>
-			<tr>
-				<td><input type="radio" name="context-mode" value="default">default</td>
+				<td><input type="radio" name="context-mode" value="default" checked>default</td>
 			    <td align="right">
 			    	<select name="context-default" />
 						<option>hst_acs.imap</option>
