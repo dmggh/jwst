@@ -101,7 +101,8 @@ INSTALLED_APPS = (
     
     'django.contrib.staticfiles',
     
-    "interactive",
+    "crds.server.interactive",
+    "crds.server.lookup",
 
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
