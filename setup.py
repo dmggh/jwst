@@ -11,14 +11,14 @@ setup(name="crds.server",
         'crds.server',
         'crds.server.interactive',
         'crds.server.interactive.templatetags',
-        'crds.server.lookup',
-        'crds.server.lookup.templatetags'
+        'crds.server.jsonapi',
+        'crds.server.jsonapi.templatetags'
         ],
 
       package_dir = {
         'crds.server':'.',
-        'crds.server.lookup':'./lookup',
-        'crds.server.lookup.templatetags':'./lookup/templatetags',
+        'crds.server.jsonapi':'./jsonapi',
+        'crds.server.jsonapi.templatetags':'./jsonapi/templatetags',
         'crds.server.interactive':'./interactive',
         'crds.server.interactive.templatetags':'./interactive/templatetags',
         },

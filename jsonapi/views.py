@@ -42,10 +42,10 @@ def get_reference_url(request, context, reference):
     ctx = rmap.get_cached_mapping(context)
     return ctx.locate.reference_url(config.CRDS_REFERENCE_URL, reference)
 
-#@jsonrpc_method('lookup.sayHello')
+#@jsonrpc_method('jsonapi.sayHello')
 #def whats_the_time(request, name='Lester'):
 #  return "Hello %s" % name
 
-#@jsonrpc_method('lookup.gimmeThat', authenticated=True)
+#@jsonrpc_method('jsonapi.gimmeThat', authenticated=True)
 #def something_special(request, secret_data):
 #  return {'sauce': ['authenticated', 'sauce']}

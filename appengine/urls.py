@@ -16,7 +16,7 @@ from django.conf.urls.defaults import *
 
 from jsonrpc import jsonrpc_site
 
-import lookup.views
+import jsonapi.views
 import crds.server.interactive.views
 
 import crds.server.settings as settings
