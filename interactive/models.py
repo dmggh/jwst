@@ -1,8 +1,27 @@
+import os.path
+import re
+import hashlib
+
 from django.db import models
 
 # Create your models here.
 
 from crds.compat import literal_eval, namedtuple
+
+# ============================================================================
+
+OBSERVATORIES = ["hst"]
+
+INSTRUMENTS = ["acs","cos","stis","wfc3"]
+
+REFTYPES = ['apdstab', 'apertab', 'atodtab', 'badttab', 'biasfile', 'bpixtab',
+            'brftab', 'brsttab', 'ccdtab', 'cdstab', 'cfltfile', 'crrejtab',
+            'darkfile', 'deadtab', 'dgeofile', 'disptab', 'echsctab', 'exstab',
+            'flatfile', 'geofile', 'halotab', 'idctab', 'inangtab',
+            'lamptab', 'lfltfile', 'mdriztab', 'mlintab', 'mofftab', 'nlinfile',
+            'oscntab', 'pctab', 'pfltfile', 'phatab', 'phottab', 'riptab',
+            'sdctab', 'spottab', 'sptrctab', 'srwtab', 'tdctab',
+            'tdstab', 'wcptab', 'xtractab']
 
 # ============================================================================
 
@@ -42,6 +61,9 @@ BlobField = namedtuple("BlobField", "type,help,default")
 
 # ============================================================================
 
+class FieldError(Exception):
+    """Blob field value did not meet its constraint."""
+    
 class Blob(object):
     """Generic base class for BlobModel live instances.   BlobModels load
     from the database into Blobs.   Blobs can be customized without changing
@@ -63,7 +85,7 @@ class Blob(object):
             
     def __repr__(self):
         rep = self.__class__.__name__ + "(" 
-        for field in self._fields:
+        for field in sorted(self._fields):
             rep += field + "=" + repr(self._values[field]) + ", "
         rep = rep[:-2] + ")"
         return rep
@@ -78,10 +100,34 @@ class Blob(object):
     
     def __setattr__(self, attr, value):
         if attr in self._fields:
-            self._values[attr] = self._fields[attr].type(value)
+            self._values[attr] = self.enforce_type(attr, value)
         else:
             object.__setattr__(self, attr, value)
             
+    def enforce_type(self, attr, value):
+        """Ensure `value` meets the constraints for field `attr`.  Return
+        a possibly coerced `value` if it's legal,  else raise an exception.
+        """
+        type_ = self._fields[attr].type
+        if isinstance(type_, str):   # treat str-types as regexes for value
+            if re.match(type_, str(value)):
+                return value
+            else:
+                raise FieldError("Value for " + repr(attr) + 
+                                 " didn't match " + repr(type_))
+        elif isinstance(type_, list): # treat lists as literal legal values
+            if value in type_:
+                return value
+            else:
+                raise FieldError("Value for " + repr(attr) + 
+                                 " was not one of " + repr(type_))
+        else: # try to use field type as a type converter
+            try:
+                return type_(value)
+            except Exception:
+                raise FieldError("Value for " + repr(attr) +
+                                 " not convertible to " + repr(type_))
+
     def save(self, name):
         if self._id is None:
             obj = BlobModel()
@@ -105,7 +151,13 @@ class Blob(object):
             model = candidates[0] 
             blob = model.thaw()
             return cls(blob=blob)
-    
+        
+    @classmethod
+    def exists(cls, name):
+        """Return True if `name` exists.
+        """
+        candidates = BlobModel.objects.filter(kind=cls.__name__, name=name)
+        return len(candidates) >= 1
 
 # ============================================================================
 
@@ -113,15 +165,41 @@ class FileBlob(Blob):
     """Represents a delivered file,  either a reference or a mapping.
     """
     _fields = dict(
-            filename = BlobField(str, "name of the uploaded file", ""),
-            deliverer = BlobField(str, "person who uploaded the file", ""),
-            email = BlobField(str, "deliverer's e-mail", ""),
-            observatory = BlobField(str, "observatory associated with file", "hst"),
-            instrument = BlobField(str, "instrument associated with file", "none"),
-            reftype = BlobField(str, "reference type associated with file", "none"),
-            sha1sum = BlobField(str, "checksum of file at upload time", "none")
+        pathname = BlobField("^[A-Za-z0-9_./]+$", 
+                             "path to CRDS master copy of file", "None"),
+        uploaded_as = BlobField("^[A-Za-z0-9_.]+$", "original upload name", ""),
+        description = BlobField(str, "brief description of this delivery",""),
+        modifier = BlobField(str, "person who made these changes",""),
+        deliverer = BlobField(str, "person who uploaded the file", ""),
+        delivery_date = BlobField(str, "date file was delivered to CRDS", ""),
+        email = BlobField(str, "deliverer's e-mail", ""),
+        observatory = BlobField(OBSERVATORIES, 
+                                "observatory associated with file", "hst"),
+        instrument = BlobField(INSTRUMENTS, 
+                               "instrument associated with file", "None"),
+        reftype = BlobField(REFTYPES, 
+                            "reference type associated with file", "None"),
+        sha1sum = BlobField(str, "checksum of file at upload time", "None"),
         )
+    
+    @property
+    def filename(self):
+        return os.path.basename(self.pathname)
     
     def save(self):
         Blob.save(self, self.filename)
+        
+    def checksum(self):
+        return hashlib.sha1(open(self.pathname).read()).hexdigest()
+    
+    def verify(self):
+        assert self.checksum() == self.sha1sum, "checksum error"
+        
+class MappingBlob(FileBlob):
+    pass
+
+class ReferenceBlob(FileBlob):
+    pass
+
+
 

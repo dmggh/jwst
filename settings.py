@@ -73,6 +73,12 @@ TEMPLATE_LOADERS = (
 #     'django.template.loaders.eggs.Loader',
 )
 
+FILE_UPLOAD_HANDLERS = ( 
+    # submit_file view logic *requires* temporary files, not memory files.
+    # "django.core.files.uploadhandler.MemoryFileUploadHandler",
+     "django.core.files.uploadhandler.TemporaryFileUploadHandler",
+)
+
 MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.common.CommonMiddleware',

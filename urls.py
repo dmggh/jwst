@@ -14,6 +14,8 @@ urlpatterns = patterns('',
   url(r'^bestrefs/$', 'interactive.views.bestrefs_index'),          
   url(r'^bestrefs/input/$', 'interactive.views.bestrefs_input'),          
   url(r'^bestrefs/compute/$', 'interactive.views.bestrefs_compute'),
+
+  url(r'^submit/file/$', 'interactive.views.submit_file'),          
           
 #        (r'site_media/(?P<path>.*)$', 'django.views.static.serve',
 #         {'document_root': settings.MEDIA_ROOT }),
