@@ -165,14 +165,17 @@ class FileBlob(Blob):
     """Represents a delivered file,  either a reference or a mapping.
     """
     _fields = dict(
-        pathname = BlobField("^[A-Za-z0-9_./]+$", 
-                             "path to CRDS master copy of file", "None"),
-        uploaded_as = BlobField("^[A-Za-z0-9_.]+$", "original upload name", ""),
+        # User supplied fields
+        uploaded_as = BlobField("^[A-Za-z0-9_.]+$", "original upload filename", ""),
         description = BlobField(str, "brief description of this delivery",""),
-        modifier = BlobField(str, "person who made these changes",""),
-        deliverer = BlobField(str, "person who uploaded the file", ""),
+        modifier_name = BlobField(str, "person who made these changes",""),
+        deliverer_name = BlobField(str, "person who uploaded the file", ""),
+        deliverer_email = BlobField(str, "deliverer's e-mail", ""),
+        
+        # Automatically generated fields
+        pathname = BlobField("^[A-Za-z0-9_./]+$", 
+                             "path/filename to CRDS master copy of file", "None"),
         delivery_date = BlobField(str, "date file was delivered to CRDS", ""),
-        email = BlobField(str, "deliverer's e-mail", ""),
         observatory = BlobField(OBSERVATORIES, 
                                 "observatory associated with file", "hst"),
         instrument = BlobField(INSTRUMENTS, 
