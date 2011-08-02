@@ -1,6 +1,7 @@
 # Create your views here.
 import os.path
 import hashlib
+import xml.sax.saxutils as saxutils
 
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
@@ -102,6 +103,10 @@ def create_blob(request, upload_name, permanent_location):
     blob.pathname = permanent_location
     blob.delivery_date = timestamp.now()
     blob.sha1sum = blob.checksum()
+    blob.deliverer_name = request.POST["deliverer_name"]
+    blob.deliverer_email = request.POST["deliverer_email"]
+    blob.modifier_name = request.POST["modifier_name"]
+    blob.description = request.POST["description"]
     blob.save()
     
 def submit_failed(request, message, permanent_location=None):
