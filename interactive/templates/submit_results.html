@@ -9,6 +9,9 @@
   <div class="column1">
     <h2>Submit File</h2>
     <h3>{{status}}</h3>
+    {% for line in certification_lines %}
+    <h3>{{line}}</h3>
+    {% endfor %}
   </div>
   <div class="column2">
   </div>

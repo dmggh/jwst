@@ -11,6 +11,7 @@ from crds import (rmap, utils, certify, timestamp)
 
 import crds.server.config as config
 import crds.server.interactive.models as models
+import crds.pysh as pysh
 
 def _get_imap(request):
     """Convert a request into an instrument context name."""
@@ -97,7 +98,7 @@ def create_blob(request, upload_name, permanent_location):
     """
     if upload_name.endswith(".fits"):
         blob = models.ReferenceBlob()
-    elif blob.endswith((".pmap", ".imap", ".rmap")):
+    elif upload_name.endswith((".pmap", ".imap", ".rmap")):
         blob = models.MappingBlob()
     blob.uploaded_as = upload_name
     blob.pathname = permanent_location
@@ -109,44 +110,47 @@ def create_blob(request, upload_name, permanent_location):
     blob.description = request.POST["description"]
     blob.save()
     
-def submit_failed(request, message, permanent_location=None):
-    """Handle cleanup and results formatting when a submission fails.
-    """
-    return render(request, "submit_results.html", 
-        {"status" : "Failed: " + message})
-    
-
 def submit_file(request):
     """Handle file submission."""
     if request.method == 'POST':
-        ufile = request.FILES['filename']
-        legal_exts = (".fits",".pmap",".imap",".rmap")
-        if not ufile.name.endswith(legal_exts):
-            return submit_failed(request, 
-                "file extension for " + repr(str(ufile.name)) + 
-                " not one of " + repr(legal_exts))
-
-        # determine where to store
-        permanent_location = create_crds_path(
-                ufile.temporary_file_path, ufile.name)
-        baseperm = os.path.basename(permanent_location)
-        if os.path.exists(permanent_location) or \
-            models.FileBlob.exists(baseperm):
-            return submit_failed(
-                request, "file " + repr(baseperm) + " already exists.",
-                permanent_location)
-        upload_file(ufile, permanent_location)
-        try:
-            certify.certify(permanent_location)
-        except Exception, exc:
-            return submit_failed(
-                request, 
-                "certification error(s): " + repr(exc) + " " + str(exc),
-                permanent_location)        
-        create_blob(request, ufile.name, permanent_location)
-        
-        return render(request, 'submit_results.html',
-                      {"status" : "Succeeded."})
+        submit_vars = submit_file_post(request)
+        return render(request, 'submit_results.html', submit_vars)
     else: # GET
         return render(request, 'submit_input.html')
 
+def submit_file_post(request):
+    """Handle the POST case of submit_file,   returning dict of template vars.
+    """
+    status = "succeeded."
+    certification_lines = []
+    
+    ufile = request.FILES['filename']
+    legal_exts = (".fits",".pmap",".imap",".rmap")
+    if not ufile.name.endswith(legal_exts):
+        status = "failed: file extension for " + repr(str(ufile.name)) + \
+                 " not one of " + repr(legal_exts)
+        return locals()
+
+    # determine where to store
+    permanent_location = create_crds_path(ufile.temporary_file_path(), ufile.name)
+    baseperm = os.path.basename(permanent_location)
+    if os.path.exists(permanent_location) or models.FileBlob.exists(baseperm):
+        status = "failed: file " + repr(baseperm) + " already exists."
+        return locals()
+    
+    upload_location = ufile.temporary_file_path()
+    try:
+        if rmap.is_mapping(ufile.name):
+            certify.certify_mapping(upload_location)
+        else:
+            certify.certify_fits(upload_location)
+    except Exception, exc:
+        certification_lines = [repr(exc)]
+        status = "failed: certification error(s)"
+        return locals()
+           
+    upload_file(ufile, permanent_location)
+
+    create_blob(request, ufile.name, permanent_location)
+    
+    return locals()
