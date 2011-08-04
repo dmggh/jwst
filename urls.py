@@ -11,6 +11,8 @@ urlpatterns = patterns('',
   url(r'^json/', jsonrpc_site.dispatch, name="jsonrpc_mountpoint"),
   url(r'^json/(?P<method>[a-zA-Z0-9.]+)$', jsonrpc_site.dispatch), # for HTTP GET only, also omissible
   
+  url(r'^$', 'interactive.views.index'),          
+
   url(r'^bestrefs/$', 'interactive.views.bestrefs_index'),          
   url(r'^bestrefs/input/$', 'interactive.views.bestrefs_input'),          
   url(r'^bestrefs/compute/$', 'interactive.views.bestrefs_compute'),

@@ -38,6 +38,10 @@ def render(request, template, dict_=None):
     return render_to_response(template, RequestContext(request, dict_))
 
 # ===========================================================================
+def index(request):
+    return render(request, "index.html", {})
+
+# ===========================================================================
 
 def bestrefs_index(request):
     return render(request, "bestrefs_index.html", {})
@@ -141,7 +145,7 @@ def submit_file_post(request):
     upload_location = ufile.temporary_file_path()
     try:
         if rmap.is_mapping(ufile.name):
-            certify.certify_mapping(upload_location)
+            certify.certify_mapping(upload_location, check_references=False)
         else:
             certify.certify_fits(upload_location)
     except Exception, exc:
