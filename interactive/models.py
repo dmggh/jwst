@@ -38,6 +38,11 @@ class BlobModel(models.Model):
             max_length = 64,
             help_text = "descriptive string uniquely identifying this instance")
 
+#    key1 = models.CharField(max_length=64, help_text="unencoded search key 1")
+#    key2 = models.CharField(max_length=64, help_text="unencoded search key 2")
+#    key3 = models.CharField(max_length=64, help_text="unencoded search key 3")
+#    key4 = models.CharField(max_length=64, help_text="unencoded search key 4")
+
     contents  = models.TextField( 
             help_text  = "repr() of value of this blob,  probably repr(dict).")
     
@@ -150,7 +155,7 @@ class Blob(object):
         else:
             model = candidates[0] 
             blob = model.thaw()
-            return cls(blob=blob)
+            return cls(blob=blob, id=model.id)
         
     @classmethod
     def exists(cls, name):
