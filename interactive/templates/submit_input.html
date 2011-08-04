@@ -1,13 +1,9 @@
 {% extends "base.html" %}
 
-{% block head_additions %}
-{% endblock head_additions %}
-
 {% block contents %}
 
-<div id="contents">
   <div class="column1">
-    <h2>Submit File<span class="value"></span></h2>
+    <h2>Submit File</h2>
     <form method="post" action="/submit/" enctype="multipart/form-data"> 
       {% csrf_token %}
       <table width="100%">
@@ -46,6 +42,5 @@
       <input type="submit" value="Submit File">
     </form>
   </div>
-</div>
 
 {% endblock contents %}

@@ -191,9 +191,20 @@ def blacklist_file(request):
 @login_required
 def certify_file(request):
     if request.method == "GET":
-        return render(request, "certify_file_inputs.html")
+        return render(request, "certify_input.html")
     else:
-        return render(request, "certify_file_results.html")
+        certified_file = check_value(request.POST["certified_file"], 
+            "[A-Za-z0-9._]+", 
+            "Filename must consist of letters, numbers, periods, "
+            "or underscores.")
+        check_references = request.POST.get("check_references", False)
+        shallow = "--shallow" if not check_references else ""
+        certify_lines = pysh.lines(
+                "python -m crds.certify ${certified_file} ${shallow}" )
+        status = "OK" if "0 errors \n" in certify_lines else "certify failed."
+        certify_lines = [line for line in certify_lines if \
+            line.startswith("ERROR") or line.startswith("WARNING")]
+        return render(request, "certify_results.html", locals())
 
 # ===========================================================================
 

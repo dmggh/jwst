@@ -125,7 +125,13 @@ label, .label {
 .error {
     font-size: 1.1em;
     font-weight: normal;
-	color: red;
+    color: red;
+}
+
+.success {
+    font-size: 1.1em;
+    font-weight: normal;
+    color: green;
 }
 
 .checkbox, span {
@@ -181,59 +187,6 @@ label, .label {
     font-size: 10pt;
     font-weight: bold;
     }
-
-th.obsv {
-    border-radius: 6px;
-    border-top: 2px solid #ddd;
-    border-bottom: 2px solid #ddd;
-    border-left: 2px solid #ddd;
-    border-right: 2px solid #ddd;
-    font-weight: bold;
-    color: black;
-    align: center;
-    background:white;
-}
-
-p.obsv {
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
-}
-
-td.obsv, td.obsv_ck {
-    border-top: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-    border-left: 1px solid #ddd;
-    border-right: 1px solid #ddd;
-    font-weight: normal;
-    color: #89AAA6;
-    text-align: center;
-    background:white;
-    padding: 2px 2px 2px 2px;
-}
-
-td.obsv {
-    font-size: 0.8em;
-}
-
-input.obsv {
-    border: none;
-    font-weight: normal;
-    text-align: center;
-    color: green;
-    background:white;
-    size: 16;
-    maxlength: 16;
-}
-
-input.obsv_button {
-    border: grey solid 2px;
-    font-weight: normal;
-    align: right;
-    color: black;
-    background:white;
-    size: 4;
-    maxlength: 4;
-}
 
 input {
     size: 8;

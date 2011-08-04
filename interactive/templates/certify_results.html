@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block head_additions %}
+{% endblock head_additions %}
+
+{% block contents %}
+
+    <h2>Certify File '{{certified_file}}'</h2>
+    {% if status == "OK" %}
+    <h3 class="success">
+    {% else %}
+    <h3 class="error">
+    {% endif %}
+    {{status}}
+    </h3>
+    
+    {% for line in certify_lines %}
+    <p>{{line}}</p>
+    {% endfor %}
+
+{% endblock contents %}
