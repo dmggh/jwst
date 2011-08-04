@@ -7,11 +7,16 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
+import django.contrib.auth
+from django.contrib.auth.decorators import login_required
+
 from crds import (rmap, utils, certify, timestamp)
 
 import crds.server.config as config
 import crds.server.interactive.models as models
 import crds.pysh as pysh
+
+# ===========================================================================
 
 def _get_imap(request):
     """Convert a request into an instrument context name."""
@@ -35,12 +40,20 @@ def _get_ctx(request):
 def render(request, template, dict_=None):
     """Top level index page."""
     dict_ = {} if dict_ is None else dict_
+    dict_["authenticated"] = request.user.is_authenticated()
     return render_to_response(template, RequestContext(request, dict_))
 
 # ===========================================================================
+
 def index(request):
     return render(request, "index.html", {})
 
+# ===========================================================================
+
+def logout(request):
+    django.contrib.auth.logout(request)
+    return render(request, "logout.html", {})
+        
 # ===========================================================================
 
 def bestrefs_index(request):
@@ -81,39 +94,7 @@ def bestrefs_compute(request):
 
 # ============================================================================
 
-def upload_file(ufile, where):
-    """Copy the Django UploadedFile to it's permanent location.
-    """
-    utils.ensure_dir_exists(where)
-    destination = open(where, 'wb+')
-    for chunk in ufile.chunks():
-        destination.write(chunk)
-    destination.close()
-    
-def create_crds_path(temp_path, upload_name):
-    """Given the temporary upload path and filename,  determine where the file 
-    should be stored on a permanent basis,  assigning it both an appropriate 
-    path and (possibly) a unique name.
-    """
-    return upload_name   # XXX Fake for now
-
-def create_blob(request, upload_name, permanent_location):
-    """Make a record of this delivery in the CRDS database.
-    """
-    if upload_name.endswith(".fits"):
-        blob = models.ReferenceBlob()
-    elif upload_name.endswith((".pmap", ".imap", ".rmap")):
-        blob = models.MappingBlob()
-    blob.uploaded_as = upload_name
-    blob.pathname = permanent_location
-    blob.delivery_date = timestamp.now()
-    blob.sha1sum = blob.checksum()
-    blob.deliverer_name = request.POST["deliverer_name"]
-    blob.deliverer_email = request.POST["deliverer_email"]
-    blob.modifier_name = request.POST["modifier_name"]
-    blob.description = request.POST["description"]
-    blob.save()
-    
+@login_required
 def submit_file(request):
     """Handle file submission."""
     if request.method == 'POST':
@@ -158,3 +139,70 @@ def submit_file_post(request):
     create_blob(request, ufile.name, permanent_location)
     
     return locals()
+
+def upload_file(ufile, where):
+    """Copy the Django UploadedFile to it's permanent location.
+    """
+    utils.ensure_dir_exists(where)
+    destination = open(where, 'wb+')
+    for chunk in ufile.chunks():
+        destination.write(chunk)
+    destination.close()
+    
+def create_crds_path(temp_path, upload_name):
+    """Given the temporary upload path and filename,  determine where the file 
+    should be stored on a permanent basis,  assigning it both an appropriate 
+    path and (possibly) a unique name.
+    """
+    return upload_name   # XXX Fake for now
+
+def create_blob(request, upload_name, permanent_location):
+    """Make a record of this delivery in the CRDS database.
+    """
+    if upload_name.endswith(".fits"):
+        blob = models.ReferenceBlob()
+    elif upload_name.endswith((".pmap", ".imap", ".rmap")):
+        blob = models.MappingBlob()
+    blob.uploaded_as = upload_name
+    blob.pathname = permanent_location
+    blob.delivery_date = timestamp.now()
+    blob.sha1sum = blob.checksum()
+    blob.deliverer_name = request.POST["deliverer_name"]
+    blob.deliverer_email = request.POST["deliverer_email"]
+    blob.modifier_name = request.POST["modifier_name"]
+    blob.description = request.POST["description"]
+    blob.save()
+
+# ===========================================================================
+@login_required
+def blacklist_file(request):
+    if request.method == "GET":
+        return render(request, "blacklist_file_inputs.html")
+    else:
+        return render(request, "blacklist_file_results.html")
+
+# ===========================================================================
+
+@login_required
+def certify_file(request):
+    if request.method == "GET":
+        return render(request, "certify_file_inputs.html")
+    else:
+        return render(request, "certify_file_results.html")
+
+# ===========================================================================
+
+def using_file(request):
+    if request.method == "GET":
+        return render(request, "using_file_inputs.html")
+    else:
+        return render(request, "using_file_results.html")
+
+# ===========================================================================
+
+def difference_files(request):
+    if request.method == "GET":
+        return render(request, "difference_files_inputs.html")
+    else:
+        return render(request, "difference_files_results.html")
+

@@ -54,9 +54,11 @@ MEDIA_URL = 'http://localhost:8000/media/'
 
 STATIC_URL = '/static/'
 
-STATICFILE_DIRS = ['/Users/jmiller/work/workspace_crds/CRDS_server/static/',
-                   '/Users/jmiller/work/workspace_crds/CRDS_server/interactive/static/',
-                   ]
+#STATICFILE_DIRS = ['/Users/jmiller/work/workspace_crds/CRDS_server/static/',
+#                   '/Users/jmiller/work/workspace_crds/CRDS_server/interactive/static/',
+#                   '/home/jmiller/work/workspace_crds/CRDS_server/static/',
+#                   '/home/jmiller/work/workspace_crds/CRDS_server/interactive/static/',
+#                   ]
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
@@ -65,6 +67,8 @@ ADMIN_MEDIA_PREFIX = '/static/'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'zae_r-rn0arv9c_z*b41_y2qzvqgs+082)ao#6^nxsp*qf(!16'
+
+LOGIN_URL = "/login/"
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (

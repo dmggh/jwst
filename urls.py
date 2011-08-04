@@ -13,11 +13,18 @@ urlpatterns = patterns('',
   
   url(r'^$', 'interactive.views.index'),          
 
+  url(r'^login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}),          
+  url(r'^logout/$', 'interactive.views.logout'),          
+
   url(r'^bestrefs/$', 'interactive.views.bestrefs_index'),          
   url(r'^bestrefs/input/$', 'interactive.views.bestrefs_input'),          
   url(r'^bestrefs/compute/$', 'interactive.views.bestrefs_compute'),
 
-  url(r'^submit/file/$', 'interactive.views.submit_file'),          
+  url(r'^submit/$', 'interactive.views.submit_file'),          
+  url(r'^blacklist/$', 'interactive.views.blacklist_file'),          
+  url(r'^using/$', 'interactive.views.using_file'),          
+  url(r'^certify/$', 'interactive.views.certify_file'),          
+  url(r'^difference/$', 'interactive.views.difference_files'),          
           
 #        (r'site_media/(?P<path>.*)$', 'django.views.static.serve',
 #         {'document_root': settings.MEDIA_ROOT }),
@@ -26,4 +33,9 @@ urlpatterns = patterns('',
 #         {'document_root': settings.MEDIA_ROOT }),
 
 )
+
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+urlpatterns += staticfiles_urlpatterns()
+
+
 

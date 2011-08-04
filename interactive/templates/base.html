@@ -2,7 +2,7 @@
       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-     <head>
+  <head>
        <title>Calibration Reference Data System (CRDS)</title>
 
       <!-- jquery.ui -->
@@ -14,7 +14,7 @@
       <link type="text/css" rel="stylesheet" href="/static/style.css" />
 
       {% block head_additions %} 
-       {% endblock %}
+      {% endblock %}
   </head>
 
   <body>
@@ -22,13 +22,19 @@
       <h2>This page requires JavaScript to be enabled.</h2>
     </noscript>
 
-  <div id="page_header">
-    <h1>Calibration and Reference Data System (CRDS)</h1>
-  </div>
+    <div id="page_header">
+        <h1>Calibration and Reference Data System (CRDS)</h1>
+    </div>
 
-  <div id="header_menu">
-  </div>
-
+    <div id="header_menu">
+       {% if authenticated %}
+        <a href="/logout/">logout</a>
+       {% endif %}
+    </div>
+    
+    <div id="contents">
     {% block contents %} {% endblock %}
+    </div>
+    
   </body>
 </html>
