@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block head_additions %}
+{% endblock head_additions %}
+
+{% block contents %}
+
+<div id="contents">
+  <div class="column1">
+    <h2>Files of '{{observatory}}' referring to '{{referred_file}}'</h2>
+    <table>
+    {% for line in uses_files %}
+    <tr><td>{{line}}</td></tr>
+    {% endfor %}
+    </table>
+  </div>
+  <div class="column2">
+  </div>
+</div>
+
+{% endblock contents %}

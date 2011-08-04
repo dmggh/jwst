@@ -1,5 +1,6 @@
 # Create your views here.
 import os.path
+import re
 import hashlib
 import xml.sax.saxutils as saxutils
 
@@ -10,7 +11,7 @@ from django.template import RequestContext
 import django.contrib.auth
 from django.contrib.auth.decorators import login_required
 
-from crds import (rmap, utils, certify, timestamp)
+from crds import (rmap, utils, certify, timestamp, uses)
 
 import crds.server.config as config
 import crds.server.interactive.models as models
@@ -20,8 +21,6 @@ import crds.pysh as pysh
 
 def _get_imap(request):
     """Convert a request into an instrument context name."""
-    post = dict([(str(key), str(val)) for (key,val) in request.POST.items()])
-    print post
     try:
         mode = post["context-mode"]
         print mode
@@ -37,10 +36,16 @@ def _get_ctx(request):
     assert isinstance(ctx, rmap.InstrumentContext), "Invalid instrument context " + repr(imap)
     return ctx
 
+def check_value(value, pattern, msg):
+    if not re.match(pattern, value):
+        raise IllegalValueError(msg)
+    return value
+
 def render(request, template, dict_=None):
     """Top level index page."""
     dict_ = {} if dict_ is None else dict_
-    dict_["authenticated"] = request.user.is_authenticated()
+    dict_.pop("request", None)  # remove request object if present
+    dict_["is_authenticated"] = request.user.is_authenticated()
     return render_to_response(template, RequestContext(request, dict_))
 
 # ===========================================================================
@@ -196,7 +201,14 @@ def using_file(request):
     if request.method == "GET":
         return render(request, "using_file_inputs.html")
     else:
-        return render(request, "using_file_results.html")
+        observatory = check_value(request.POST["observatory"], 
+            "hst|jwst", "Invalid value for observatory.")
+        referred_file = check_value(request.POST["referred_file"], 
+            "[A-Za-z0-9._]+", 
+            "Filename must consist of letters, numbers, periods, "
+            "or underscores.")
+        uses_files = uses.uses([referred_file], observatory)
+        return render(request, "using_file_results.html", locals())
 
 # ===========================================================================
 

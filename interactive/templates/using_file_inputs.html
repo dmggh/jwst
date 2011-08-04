@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block head_additions %}
+{% endblock head_additions %}
+
+{% block contents %}
+
+<div id="contents">
+	<form action="/using/" method="post""> {% csrf_token %}
+		<h2>List Mapping Files Referring to a File</h2>
+		<h3>Observatory:</h3>
+		<select name="observatory" />
+			<option>hst</option>
+			<option>jwst</option>
+		</select>
+		<h3>File:</h3>
+		<input type="text" name="referred_file"/>
+		<br/>
+		<input type="submit" value="Submit" />
+	</form>
+</div>
+
+{% endblock contents %}
