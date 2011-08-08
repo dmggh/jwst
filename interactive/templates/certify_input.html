@@ -1,9 +1,6 @@
 {% extends "base.html" %}
 
-{% block contents %}
-
-<div id="contents">
-  <div class="column1">
+{% block column1 %}
     <h2>Certify File</h2>
     <form method="post" action="/certify/" enctype="multipart/form-data"> 
       {% csrf_token %}
@@ -24,7 +21,4 @@
       <p></p>
       <input type="submit" value="Certify File">
     </form>
-  </div>
-</div>
-
-{% endblock contents %}
+{% endblock column1 %}

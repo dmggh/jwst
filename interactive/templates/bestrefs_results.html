@@ -1,39 +1,31 @@
 {% extends "base.html" %}
 
-{% block head_additions %}
-{% endblock head_additions %}
+{% block column1 %}
+    <h2>Get Best References</h2>
+    <h3>Input Parameters</h3>
+    <table width="100%">
+    {% for key, val in header_items %}
+      <tr>
+        <td class="label" width="30%">{{key}}:</td>
+        <td class="value" width="60%">{{val}}</td>
+      </tr>
+    {% endfor %}
+    </table>
+{% endblock column1 %}
 
-{% block contents %}
-
-<div id="contents">
-	<div class="column1">
-		<h2>Get Best References</h2>
-		<h3>Input Parameters</h3>
-		<table width="100%">
-		{% for key, val in header_items %}
-			<tr>
-				<td class="label" width="30%">{{key}}:</td>
-				<td class="value" width="60%">{{val}}</td>
-			</tr>
-		{% endfor %}
-		</table>
-	</div>
-	<div class="column2">
-		<h2>&nbsp;</h2>
-		<h3>Results</h3>
-		<table width="100%">	
-			{% for reftype, fname in bestrefs_items %}
-				<tr>
-					<td class="label" width="30%">{{reftype}}:</td>
-					{% if ".fits" in fname %}
-						<td class="value" width="60%">{{fname|safe}}</td>
-					{% else %}
-						<td class="error" width="60%">{{fname}}</td>
-					{% endif %}
-				</tr>
-			{% endfor %}
-		</table>	
-	</div>
-</div>
-
-{% endblock contents %}
+{% block column2 %}
+    <h2>&nbsp;</h2>
+    <h3>Recommended Files</h3>
+    <table width="100%">	
+      {% for reftype, fname in bestrefs_items %}
+        <tr>
+          <td class="label" width="30%">{{reftype}}:</td>
+          {% if ".fits" in fname %}
+            <td class="value" width="60%">{{fname|safe}}</td>
+          {% else %}
+            <td class="error" width="60%">{{fname}}</td>
+          {% endif %}
+        </tr>
+      {% endfor %}
+    </table>	
+{% endblock column2 %}

@@ -1,20 +1,11 @@
 {% extends "base.html" %}
 
-{% block head_additions %}
-{% endblock head_additions %}
+{% block column1 %}
 
-{% block contents %}
-
-<div id="contents">
-  <div class="column1">
     <h2>Submit File</h2>
     <h3>{{status}}</h3>
     {% for line in certification_lines %}
     <h3>{{line}}</h3>
     {% endfor %}
-  </div>
-  <div class="column2">
-  </div>
-</div>
 
-{% endblock contents %}
+{% endblock column1 %}

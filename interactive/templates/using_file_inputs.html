@@ -1,23 +1,24 @@
 {% extends "base.html" %}
 
-{% block head_additions %}
-{% endblock head_additions %}
+{% block column1 %}
 
-{% block contents %}
+<form action="/using/" method="post""> {% csrf_token %}
+    <h2>List Mapping Files Referring to a File</h2>
+    <table>
+      <tr>
+        <td class="label" width="50%">Observatory:</td>
+        <td align="right"><select name="observatory" />
+                <option>hst</option>
+                <option>jwst</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+            <td class="label" width="50%">File:</td>
+            <td align="right"><input type="text" name="referred_file"/></td>
+      </tr>
+      <tr><td><input type="submit" value="Submit" /></td></tr>
+    </table>
+</form>
 
-<div id="contents">
-	<form action="/using/" method="post""> {% csrf_token %}
-		<h2>List Mapping Files Referring to a File</h2>
-		<h3>Observatory:</h3>
-		<select name="observatory" />
-			<option>hst</option>
-			<option>jwst</option>
-		</select>
-		<h3>File:</h3>
-		<input type="text" name="referred_file"/>
-		<br/>
-		<input type="submit" value="Submit" />
-	</form>
-</div>
-
-{% endblock contents %}
+{% endblock column1 %}

@@ -24,6 +24,7 @@ from crds.server.interactive.models import FieldError, MissingInputError
 
 def _get_imap(request):
     """Convert a request into an instrument context name."""
+    post = request.POST
     try:
         mode = post["context-mode"]
         print mode
@@ -55,7 +56,7 @@ def render(request, template, dict_=None):
         rdict[key] = safestring.mark_for_escaping(value)
     if dict_ is not None:
         for key, value in dict_.items():
-            rdict[key] = safestring.mark_for_escaping(value)
+            rdict[key] = value
     rdict["is_authenticated"] = request.user.is_authenticated()
     return render_to_response(template, RequestContext(request, rdict))
 
@@ -113,7 +114,7 @@ def bestref_link(ctx, reference):
         except:
             return reference
     else:
-        return reference[len("NOT FOUND "):][1:-1]
+        return reference[len("NOT FOUND "):]
     
 def bestrefs_compute(request):
     """Compute and display best reference results."""
@@ -255,6 +256,7 @@ def using_file(request):
             "Filename must consist of letters, numbers, periods, "
             "or underscores.")
         uses_files = uses.uses([referred_file], observatory)
+        print uses_files
         return render(request, "using_file_results.html", locals())
 
 # ===========================================================================

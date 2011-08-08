@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 
-{% block contents %}
-
-  <div class="column1">
+{% block column1 %}
     <h2>Submit File</h2>
     <form method="post" action="/submit/" enctype="multipart/form-data"> 
       {% csrf_token %}
@@ -44,12 +42,4 @@
       <p></p>
       <input type="submit" value="Submit File">
     </form>
-  </div>
-  
-  <div class="column2">
-    <div class="error">
-        {{error_message}}
-    </div>
-  </div>
-
-{% endblock contents %}
+{% endblock column1 %}

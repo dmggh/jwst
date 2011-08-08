@@ -1,9 +1,6 @@
 {% extends "base.html" %}
 
-{% block head_additions %}
-{% endblock head_additions %}
-
-{% block contents %}
+{% block column1 %}
 
     <h2>Certify File '{{certified_file}}'</h2>
     {% if status == "OK" %}
@@ -18,4 +15,4 @@
     <p>{{line}}</p>
     {% endfor %}
 
-{% endblock contents %}
+{% endblock column1 %}
