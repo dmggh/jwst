@@ -1,11 +1,15 @@
 {% extends "base.html" %}
 
 {% block column1 %}
-
     <h2>Submit File</h2>
-    <h3>{{status}}</h3>
-    {% for line in certification_lines %}
-    <h3>{{line}}</h3>
-    {% endfor %}
-
+    {% if error_messages %}
+    <div class="error">
+     <p>Submission Failed.</p>
+    </div>
+    {% else %}
+    <div class="success">
+     <p>Delivered!</p>
+    </div>    
+    {% endif %}
 {% endblock column1 %}
+

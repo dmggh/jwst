@@ -62,20 +62,20 @@ def render(request, template, dict_=None):
 
 # ===========================================================================
 
+class CrdsError(Exception):
+    """Something bad but understood happened in CRDS processing."""
+
 def error_trap(template):
-    """A 'decorator maker' returning a decorator which traps exceptions in POST
-    views and re-issues the input `template` with an appropriate error message
-    so the user can try again.
-    
-    So `template` is an HTML template which is initially rendered and submitted
-    by the user.    When the form is processed,  if an error is encountered
-    the POST view just raises an exception which is trapped by `trap` which
-    re-issues the input form with an error message and the current values.
+    """error_trap() is a 'decorator maker' which returns a decorator which traps 
+    exceptions in views and re-issues the input `template` with an 
+    appropriate error message so the user can try again.
     """
     def decorator(func):
         def trap(request, *args, **keys):
             try:
                 return func(request, *args, **keys)
+            except CrdsError, exc:
+                return render(request, template, {"error_message" : str(exc)})
             except FieldError, exc:
                 return render(request, template, {"error_message" : str(exc)})
         trap.func_name = func.func_name
@@ -138,63 +138,79 @@ def bestrefs_compute(request):
 def submit_file(request):
     """Handle file submission."""
     if request.method == 'POST':
-        submit_vars = submit_file_post(request)
-        return render(request, 'submit_results.html', submit_vars)
+        submit_file_post(request)
+        return render(request, 'submit_results.html')
     else: # GET
         return render(request, 'submit_input.html')
-
+    
 def submit_file_post(request):
     """Handle the POST case of submit_file,   returning dict of template vars.
     """
-    status = "succeeded."
-    certification_lines = []
-    
-    try:
-        ufile = request.FILES['filename']
-    except KeyError:
-        raise MissingInputError("Specify a file to upload and submit.")
-    
-    legal_exts = (".fits",".pmap",".imap",".rmap")
-    if not ufile.name.endswith(legal_exts):
-        raise FieldError("File extension for " + repr(str(ufile.name)) + \
-                 " not one of " + ", ".join(legal_exts))
+    # Get the UploadedFile object
+    ufile = get_uploaded_file(request, "filename")
 
-    # determine where to store
-    permanent_location = create_crds_path(ufile.temporary_file_path(), ufile.name)
-    baseperm = os.path.basename(str(permanent_location))
-    if os.path.exists(permanent_location) or models.FileBlob.exists(baseperm):
-        raise FieldError("File " + repr(baseperm) + " already exists.")
-    
-    upload_location = ufile.temporary_file_path()
+    # Determine the temporary and permanent file paths, keeping file temporary.
+    upload_location, permanent_location = handle_crds_locations(ufile)
+
+    # Check the file,  leaving no server state if it fails.  Give error results.
     try:
         if rmap.is_mapping(ufile.name):
             certify.certify_mapping(upload_location, check_references=False)
         else:
             certify.certify_fits(upload_location)
     except Exception, exc:
-        certification_lines = [repr(exc)]
-        status = "failed: certification error(s)"
-        return locals()
-           
+        raise CrdsError(repr(exc))
+
+    # Copy the temporary file to its permanent location.
     upload_file(ufile, permanent_location)
 
+    # Make a database record of this delivery.
     create_blob(request, ufile.name, permanent_location)
-    
-    return locals()
+
+def get_uploaded_file(
+    request, formvar, legal_exts=(".fits", ".pmap", ".imap", ".rmap")):
+    """Return the DJango UploadedFile associated with `request` and `formavar`,
+    raising an exception if it's original name does not end with one of
+    `legal_exts` file extensions.
+    """
+    try:
+        ufile = request.FILES[formvar]
+    except KeyError:
+        raise MissingInputError("Specify a file to upload.")
+    if not ufile.name.endswith(legal_exts):
+        raise FieldError("File extension for " + repr(str(ufile.name)) + \
+                 " not one of: " + ", ".join(legal_exts))
+    return ufile
+
+def handle_crds_locations(uploaded_file, clobber=False):
+    """Given a Django `uploaded_file` object, determine where it should reside
+    permanently.  If `clobber` is False ensure that the permanent filename does
+    not already exist on the file system or in the database,  raising an
+    exception if it does exist.   Return both the temporary upload path and
+    the location the file should reside permanently.
+    """
+    # determine where to store
+    upload_location = uploaded_file.temporary_file_path()
+    permanent_location = create_crds_name(upload_location, uploaded_file.name)
+    baseperm = os.path.basename(str(permanent_location))
+    if not clobber and \
+       (os.path.exists(permanent_location) or models.FileBlob.exists(baseperm)):
+        raise FieldError("File " + repr(baseperm) + " already exists.")    
+    return upload_location, permanent_location
 
 def upload_file(ufile, where):
-    """Copy the Django UploadedFile to it's permanent location.
-    """
+    """Copy the Django UploadedFile to it's permanent location."""
     utils.ensure_dir_exists(where)
     destination = open(where, 'wb+')
     for chunk in ufile.chunks():
         destination.write(chunk)
     destination.close()
     
-def create_crds_path(temp_path, upload_name):
-    """Given the temporary upload path and filename,  determine where the file 
-    should be stored on a permanent basis,  assigning it both an appropriate 
-    path and (possibly) a unique name.
+def create_crds_name(upload_location, upload_name):
+    """Determine where a file should be stored on a permanent basis,  assigning
+    it both an appropriate path and (possibly) a unique name.  `upload_location`
+    is the file's temporary upload path.  upload_name is how the file was named
+    on the user's computer,  not the temporary file.
     """
     return upload_name   # XXX Fake for now
 

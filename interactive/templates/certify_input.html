@@ -6,15 +6,25 @@
       {% csrf_token %}
       <table width="100%">
         <tr>
-          <td width="25%" class="label">File:</td>
+          <td width="5%"><input type="radio" name="filemode" checked /></td>
+          <td width="25%" class="label">Known File:</td>
           <td width="25%">
-            <input type='text' name='certified_file' size="40">
+            <input type='text' name='certified_file_known' size="32">
           </td>
         </tr>
         <tr>
+          <td width="5%"><input type="radio" name="filemode" /></td>
+          <td width="25%" class="label">Uploaded File:</td>
+          <td width="25%">
+            <input type='file' name='certified_file_uploaded' size="32">
+          </td>
+        </tr>
+        <tr></tr>
+        <tr>
+          <td width="5%">&nbsp;</td>
           <td width="25%" class="label">Check References:</td>
           <td width="25%">
-            <input type='checkbox' name='check_references' CHECKED>
+            <input type='checkbox' name='check_references' checked>
           </td>
         </tr>
       </table>
