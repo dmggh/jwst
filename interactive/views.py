@@ -153,19 +153,23 @@ def submit_file_post(request):
     upload_location, permanent_location = handle_crds_locations(ufile)
 
     # Check the file,  leaving no server state if it fails.  Give error results.
-    try:
-        if rmap.is_mapping(ufile.name):
-            certify.certify_mapping(upload_location, check_references=False)
-        else:
-            certify.certify_fits(upload_location)
-    except Exception, exc:
-        raise CrdsError(repr(exc))
-
+    do_certify_file(ufile.name, upload_location)
+    
     # Copy the temporary file to its permanent location.
     upload_file(ufile, permanent_location)
 
     # Make a database record of this delivery.
     create_blob(request, ufile.name, permanent_location)
+    
+def do_certify_file(basename, certifypath, check_references=False):
+    try:
+        if rmap.is_mapping(basename):
+            certify.certify_mapping(
+                certifypath, check_references=check_references)
+        else:
+            certify.certify_fits(certifypath)
+    except Exception, exc:
+        raise CrdsError(repr(exc))
 
 def get_uploaded_file(
     request, formvar, legal_exts=(".fits", ".pmap", ".imap", ".rmap")):
@@ -246,18 +250,40 @@ def certify_file(request):
     if request.method == "GET":
         return render(request, "certify_input.html")
     else:
-        certified_file = check_value(request.POST["certified_file"], 
+        return certify_post(request)
+
+def certify_post(request):
+    if request.POST["filemode"] == "file_known":
+        # certified_file is a basename,  but CRDS figures out where it is.
+        original_name = request.POST["file_known"]
+        certified_file = check_value(original_name, 
             "[A-Za-z0-9._]+", 
             "Filename must consist of letters, numbers, periods, "
             "or underscores.")
-        check_references = request.POST.get("check_references", False)
-        shallow = "--shallow" if not check_references else ""
-        certify_lines = pysh.lines(
-                "python -m crds.certify ${certified_file} ${shallow}" )
-        status = "OK" if "0 errors \n" in certify_lines else "certify failed."
-        certify_lines = [line for line in certify_lines if \
-            line.startswith("ERROR") or line.startswith("WARNING")]
-        return render(request, "certify_results.html", locals())
+    else:
+        ufile = get_uploaded_file(request, "file_uploaded")
+        certified_file = ufile.temporary_file_path()
+        original_name = ufile.name
+            
+    check_references = request.POST.get("check_references", False)
+    shallow = "--shallow" if not check_references else ""
+    mapping = "--mapping" if rmap.is_mapping(original_name) else ""
+
+    certify_lines = pysh.lines(
+        "python -m crds.certify ${certified_file} ${shallow} ${mapping}")
+        
+    status = "OK" if "0 errors \n" in certify_lines else "certify failed."    
+
+    if request.POST["filemode"] == "file_uploaded":
+        try:
+            os.path.remove(certified_file)
+        except:
+            pass
+            
+    return render(request, "certify_results.html", 
+            {"status":status, 
+             "certify_lines":certify_lines,
+             "certified_file":original_name})
 
 # ===========================================================================
 

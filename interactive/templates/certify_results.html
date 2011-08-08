@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block column1 %}
+{% block contents %}
 
     <h2>Certify File '{{certified_file}}'</h2>
     {% if status == "OK" %}
@@ -15,4 +15,4 @@
     <p>{{line}}</p>
     {% endfor %}
 
-{% endblock column1 %}
+{% endblock contents %}
