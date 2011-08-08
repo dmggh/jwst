@@ -10,37 +10,46 @@
         <tr>
           <td width="25%" class="label">File:</td>
           <td width="25%">
-            <input type='file' name='filename' size="40">
+            <input type='file' name='filename' size="40" value="{{filename}}">
           </td>
         </tr>
         <tr>
           <td width="25%" class="label">Deliverer's Name:</td>
           <td width="25%">
-            <input type='text' name='deliverer_name' size="40">
+            <input type='text' name='deliverer_name' size="40"
+                    value="{{deliverer_name}}">
           </td>
         </tr>
         <tr>
           <td width="25%" class="label">Deliverer's E-mail:</td>
           <td width="25%">
-            <input type='text' name='deliverer_email' size="40">
+            <input type='text' name='deliverer_email' size="40"
+                value="{{deliverer_email}}">
           </td>
         </tr>
         <tr>
           <td width="25%" class="label">Creator/Modifier's Name:</td>
           <td width="25%">
-            <input type='text' name='modifier_name' size="40">
+            <input type='text' name='modifier_name' size="40"
+                value="{{modifier_name}}">
           </td>
         </tr>
         <tr>
           <td width="25%" class="label">Description:</td>
           <td width="25%">
-            <textarea name='description' rows="4" cols="50"></textarea>
+            <textarea name='description' rows="4" cols="50">{{description}}</textarea>
           </td>
         </tr>
       </table>
       <p></p>
       <input type="submit" value="Submit File">
     </form>
+  </div>
+  
+  <div class="column2">
+    <div class="error">
+        {{error_message}}
+    </div>
   </div>
 
 {% endblock contents %}

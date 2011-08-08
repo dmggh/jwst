@@ -7,6 +7,7 @@ import xml.sax.saxutils as saxutils
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+import django.utils.safestring as safestring
 
 import django.contrib.auth
 from django.contrib.auth.decorators import login_required
@@ -16,6 +17,8 @@ from crds import (rmap, utils, certify, timestamp, uses)
 import crds.server.config as config
 import crds.server.interactive.models as models
 import crds.pysh as pysh
+
+from crds.server.interactive.models import FieldError, MissingInputError
 
 # ===========================================================================
 
@@ -43,10 +46,40 @@ def check_value(value, pattern, msg):
 
 def render(request, template, dict_=None):
     """Top level index page."""
-    dict_ = {} if dict_ is None else dict_
-    dict_.pop("request", None)  # remove request object if present
-    dict_["is_authenticated"] = request.user.is_authenticated()
-    return render_to_response(template, RequestContext(request, dict_))
+    rdict = {}
+    for key, value in request.GET.items():
+        rdict[key] = safestring.mark_for_escaping(value)
+    for key, value in request.POST.items():
+        rdict[key] = safestring.mark_for_escaping(value)
+    for key, value in request.FILES.items():
+        rdict[key] = safestring.mark_for_escaping(value)
+    if dict_ is not None:
+        for key, value in dict_.items():
+            rdict[key] = safestring.mark_for_escaping(value)
+    rdict["is_authenticated"] = request.user.is_authenticated()
+    return render_to_response(template, RequestContext(request, rdict))
+
+# ===========================================================================
+
+def error_trap(template):
+    """A 'decorator maker' returning a decorator which traps exceptions in POST
+    views and re-issues the input `template` with an appropriate error message
+    so the user can try again.
+    
+    So `template` is an HTML template which is initially rendered and submitted
+    by the user.    When the form is processed,  if an error is encountered
+    the POST view just raises an exception which is trapped by `trap` which
+    re-issues the input form with an error message and the current values.
+    """
+    def decorator(func):
+        def trap(request, *args, **keys):
+            try:
+                return func(request, *args, **keys)
+            except FieldError, exc:
+                return render(request, template, {"error_message" : str(exc)})
+        trap.func_name = func.func_name
+        return trap
+    return decorator
 
 # ===========================================================================
 
@@ -99,6 +132,7 @@ def bestrefs_compute(request):
 
 # ============================================================================
 
+@error_trap("submit_input.html")
 @login_required
 def submit_file(request):
     """Handle file submission."""
@@ -114,19 +148,21 @@ def submit_file_post(request):
     status = "succeeded."
     certification_lines = []
     
-    ufile = request.FILES['filename']
+    try:
+        ufile = request.FILES['filename']
+    except KeyError:
+        raise MissingInputError("Specify a file to upload and submit.")
+    
     legal_exts = (".fits",".pmap",".imap",".rmap")
     if not ufile.name.endswith(legal_exts):
-        status = "failed: file extension for " + repr(str(ufile.name)) + \
-                 " not one of " + repr(legal_exts)
-        return locals()
+        raise FieldError("File extension for " + repr(str(ufile.name)) + \
+                 " not one of " + ", ".join(legal_exts))
 
     # determine where to store
     permanent_location = create_crds_path(ufile.temporary_file_path(), ufile.name)
-    baseperm = os.path.basename(permanent_location)
+    baseperm = os.path.basename(str(permanent_location))
     if os.path.exists(permanent_location) or models.FileBlob.exists(baseperm):
-        status = "failed: file " + repr(baseperm) + " already exists."
-        return locals()
+        raise FieldError("File " + repr(baseperm) + " already exists.")
     
     upload_location = ufile.temporary_file_path()
     try:

@@ -60,14 +60,21 @@ class BlobModel(models.Model):
 
 # ============================================================================
 
-# Basic properties for the fields of a Blob
-
-BlobField = namedtuple("BlobField", "type,help,default")
+class BlobField(object):
+    """Basic properties for a field of a Blob."""
+    def __init__(self, type, help, default, nonblank=True):
+        self.type = type
+        self.help = help
+        self.default = default
+        self.nonblank = nonblank
 
 # ============================================================================
 
 class FieldError(Exception):
     """Blob field value did not meet its constraint."""
+    
+class MissingInputError(FieldError):
+    """A required input field was not specified in a form submission."""
     
 class Blob(object):
     """Generic base class for BlobModel live instances.   BlobModels load
@@ -114,6 +121,8 @@ class Blob(object):
         a possibly coerced `value` if it's legal,  else raise an exception.
         """
         type_ = self._fields[attr].type
+        if self._fields[attr].nonblank and not value.strip():
+            raise FieldError("Required field " + repr(attr) + " is blank.")
         if isinstance(type_, str):   # treat str-types as regexes for value
             if re.match(type_, str(value)):
                 return value
@@ -167,8 +176,7 @@ class Blob(object):
 # ============================================================================
 
 class FileBlob(Blob):
-    """Represents a delivered file,  either a reference or a mapping.
-    """
+    """Represents a delivered file,  either a reference or a mapping."""
     _fields = dict(
         # User supplied fields
         uploaded_as = BlobField("^[A-Za-z0-9_.]+$", "original upload filename", ""),
@@ -179,15 +187,19 @@ class FileBlob(Blob):
         
         # Automatically generated fields
         pathname = BlobField("^[A-Za-z0-9_./]+$", 
-                             "path/filename to CRDS master copy of file", "None"),
-        delivery_date = BlobField(str, "date file was delivered to CRDS", ""),
+            "path/filename to CRDS master copy of file", "None"),
+        delivery_date = BlobField(str, 
+            "date file was delivered to CRDS", ""),
         observatory = BlobField(OBSERVATORIES, 
-                                "observatory associated with file", "hst"),
+            "observatory associated with file", "hst"),
         instrument = BlobField(INSTRUMENTS, 
-                               "instrument associated with file", "None"),
+            "instrument associated with file", "None"),
         reftype = BlobField(REFTYPES, 
-                            "reference type associated with file", "None"),
-        sha1sum = BlobField(str, "checksum of file at upload time", "None"),
+            "reference type associated with file", "None"),
+        sha1sum = BlobField(str, 
+            "checksum of file at upload time", "None"),
+        blacklisted = BlobField(bool, 
+            "If True this file should no longer be used.", False)
         )
     
     @property
@@ -204,10 +216,12 @@ class FileBlob(Blob):
         assert self.checksum() == self.sha1sum, "checksum error"
         
 class MappingBlob(FileBlob):
-    pass
-
+    """Represents a CRDS mapping file, i.e. a pipeline or instrument context,
+    or an rmap.   Records delivery info, status, and location.
+    """
+    
 class ReferenceBlob(FileBlob):
-    pass
+    """Represents a reference data file managed by CRDS."""
 
 
 
