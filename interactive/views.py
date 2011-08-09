@@ -147,6 +147,9 @@ def submit_file(request):
 def submit_file_post(request):
     """Handle the POST case of submit_file,   returning dict of template vars.
     """
+    observatory = check_value(request.POST["observatory"], 
+            "hst|jwst", "Invalid value for observatory.")
+    
     # Get the UploadedFile object
     ufile = get_uploaded_file(request, "filename")
 
@@ -160,7 +163,7 @@ def submit_file_post(request):
     upload_file(ufile, permanent_location)
 
     # Make a database record of this delivery.
-    create_delivery_blob(request, ufile.name, permanent_location)
+    create_delivery_blob(request, observatory, ufile.name, permanent_location)
     
 def do_certify_file(basename, certifypath, check_references=False):
     try:
@@ -219,7 +222,7 @@ def create_crds_name(upload_location, upload_name):
     """
     return upload_name   # XXX Fake for now
 
-def create_delivery_blob(request, upload_name, permanent_location):
+def create_delivery_blob(request, observatory, upload_name, permanent_location):
     """Make a record of this delivery in the CRDS database.
     """
     if upload_name.endswith(".fits"):
@@ -230,10 +233,16 @@ def create_delivery_blob(request, upload_name, permanent_location):
     blob.pathname = permanent_location
     blob.delivery_date = timestamp.now()
     blob.sha1sum = blob.checksum()
-    blob.deliverer_name = request.POST["deliverer_name"]
-    blob.deliverer_email = request.POST["deliverer_email"]
+    blob.deliverer_user = request.user
+    blob.deliverer_email = request.user.email
     blob.modifier_name = request.POST["modifier_name"]
     blob.description = request.POST["description"]
+    instrument, filekind, serial = utils.get_file_properties(
+            observatory, permanent_location)
+    blob.observatory = observatory
+    blob.instrument = instrument
+    blob.filekind= filekind
+    blob.serial = serial
     blob.save()
 
 # ===========================================================================

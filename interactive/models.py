@@ -167,21 +167,28 @@ class Blob(object):
             raise LookupError("Found more than one " + cls.__name__ + 
                               " named " + repr(name))
         else:
-            model = candidates[0] 
-            blob = model.thaw()
-            return cls(blob=blob, id=model.id)
+            return cls.from_model(candidates[0])
+        
+    @classmethod
+    def from_model(cls, model):
+        """Reconstitute a BlobModel `model` as an instance of this `cls`."""
+        return cls(blob=model.thaw(), id=model.id)
   
     @classmethod
-    def filter(cls, **conditions):
-        """Return the blobs of this class which satisfy the filter `conditions`.
-        """
-        models = BlobModel.objects.filter(kind=cls.__name__, **conditions)
-        return [cls(blob=model.thaw(), id=model.id) for model in models]
+    def filter(cls, **matches):
+        """Return the Blobs of this `cls` which match the filter `matches`."""
+        for model in BlobModel.objects.filter(kind=cls.__name__):
+            candidate = cls.from_model(model)
+            for key, val in matches.items():
+                cval = getattr(candidate, key, None)
+                if val != cval:
+                    break
+            else:
+                yield candidate
 
     @classmethod
     def exists(cls, name):
-        """Return True if `name` exists.
-        """
+        """Return True if `name` exists."""
         candidates = BlobModel.objects.filter(kind=cls.__name__, name=name)
         return len(candidates) >= 1
 
@@ -194,8 +201,8 @@ class FileBlob(Blob):
         uploaded_as = BlobField("^[A-Za-z0-9_.]+$", "original upload filename", ""),
         description = BlobField(str, "brief description of this delivery",""),
         modifier_name = BlobField(str, "person who made these changes",""),
-        deliverer_name = BlobField(str, "person who uploaded the file", ""),
-        deliverer_email = BlobField(str, "deliverer's e-mail", ""),
+        deliverer_user = BlobField(str, "username who uploaded the file", ""),
+        deliverer_email = BlobField(str, "person's e-mail who uploaded the file", ""),
         
         blacklisted = BlobField(bool, 
             "If True this file should no longer be used.", False),
@@ -208,9 +215,11 @@ class FileBlob(Blob):
         observatory = BlobField(OBSERVATORIES, 
             "observatory associated with file", "hst"),
         instrument = BlobField(INSTRUMENTS, 
-            "instrument associated with file", "None"),
-        reftype = BlobField(REFTYPES, 
-            "reference type associated with file", "None"),
+            "instrument associated with file", ""),
+        filekind = BlobField(REFTYPES, 
+            "dataset keyword associated with this file", ""),
+        serial = BlobField("[A-Za-z0-9_]*",
+            "file id or serial number for this file", "", nonblank=False),
         sha1sum = BlobField(str, 
             "checksum of file at upload time", "None"),
     )
