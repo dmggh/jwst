@@ -24,7 +24,8 @@ urlpatterns = patterns('',
   url(r'^blacklist/$', 'interactive.views.blacklist_file'),          
   url(r'^using/$', 'interactive.views.using_file'),          
   url(r'^certify/$', 'interactive.views.certify_file'),          
-  url(r'^difference/$', 'interactive.views.difference_files'),          
+  url(r'^difference/$', 'interactive.views.difference_files'),
+  url(r'^browse/$', 'interactive.views.browse_files')        
           
 #        (r'site_media/(?P<path>.*)$', 'django.views.static.serve',
 #         {'document_root': settings.MEDIA_ROOT }),

@@ -41,8 +41,9 @@ def _get_ctx(request):
     return ctx
 
 def check_value(value, pattern, msg):
+    value = str(value)
     if not re.match(pattern, value):
-        raise IllegalValueError(msg)
+        raise FieldError(msg)
     return value
 
 def render(request, template, dict_=None):
@@ -159,7 +160,7 @@ def submit_file_post(request):
     upload_file(ufile, permanent_location)
 
     # Make a database record of this delivery.
-    create_blob(request, ufile.name, permanent_location)
+    create_delivery_blob(request, ufile.name, permanent_location)
     
 def do_certify_file(basename, certifypath, check_references=False):
     try:
@@ -218,7 +219,7 @@ def create_crds_name(upload_location, upload_name):
     """
     return upload_name   # XXX Fake for now
 
-def create_blob(request, upload_name, permanent_location):
+def create_delivery_blob(request, upload_name, permanent_location):
     """Make a record of this delivery in the CRDS database.
     """
     if upload_name.endswith(".fits"):
@@ -236,13 +237,41 @@ def create_blob(request, upload_name, permanent_location):
     blob.save()
 
 # ===========================================================================
+
+@error_trap("blacklist_input.html")
 @login_required
 def blacklist_file(request):
     if request.method == "GET":
-        return render(request, "blacklist_file_inputs.html")
+        return render(request, "blacklist_input.html")
     else:
-        return render(request, "blacklist_file_results.html")
+        return blacklist_file_post(request)
 
+def blacklist_file_post(request):
+    observatory = check_value(request.POST["observatory"], 
+            "hst|jwst", "Invalid value for observatory.")
+    blacklisted = check_value(request.POST["file_known"],
+            "[A-Za-z0-9._]+", 
+            "Filename must consist of letters, numbers, periods, "
+            "or underscores.")
+    badflag = check_value(request.POST["badflag"], "bad|ok",
+            "badflag must be either 'bad' or 'ok'")
+    why = request.POST["why"]
+    try: 
+        if rmap.is_mapping(blacklisted):
+            blob = models.MappingBlob.load(blacklisted)
+        elif blacklisted.endswith(".fits"):
+            blob = models.ReferenceBlob.load(blacklisted)
+        else:
+            raise FieldError("Bad file extension for file " + repr(blacklisted))
+    except LookupError:
+        raise FieldError("Unknown file " + repr(blacklisted))
+    blob.blacklisted = badflag == "bad"
+    models.AuditBlob.create_record(request.user, "blacklist", blacklisted, why, 
+                                   "marked as" + badflag)
+    blob.save()
+    return render(request, "blacklist_results.html")
+    
+        
 # ===========================================================================
 
 @login_required

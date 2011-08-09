@@ -5,7 +5,7 @@ import hashlib
 from django.db import models
 
 # Create your models here.
-
+import crds.timestamp
 from crds.compat import literal_eval, namedtuple
 
 # ============================================================================
@@ -35,7 +35,7 @@ class BlobModel(models.Model):
             help_text = "class of this blob")
     
     name = models.CharField(
-            max_length = 64,
+            max_length = 64, default="(none)",
             help_text = "descriptive string uniquely identifying this instance")
 
 #    key1 = models.CharField(max_length=64, help_text="unencoded search key 1")
@@ -121,7 +121,7 @@ class Blob(object):
         a possibly coerced `value` if it's legal,  else raise an exception.
         """
         type_ = self._fields[attr].type
-        if self._fields[attr].nonblank and not value.strip():
+        if self._fields[attr].nonblank and not str(value).strip():
             raise FieldError("Required field " + repr(attr) + " is blank.")
         if isinstance(type_, str):   # treat str-types as regexes for value
             if re.match(type_, str(value)):
@@ -142,18 +142,23 @@ class Blob(object):
                 raise FieldError("Value for " + repr(attr) +
                                  " not convertible to " + repr(type_))
 
-    def save(self, name):
+    def save(self, name=None):
+        """Save a blob named `name`,  or else an anonymous blob.
+        """
         if self._id is None:
             obj = BlobModel()
             self._id = obj.id
         else:
             obj = BlobModel.objects.get(id=self._id)
         obj.kind = self.__class__.__name__
-        obj.name = name 
+        if name is not None:
+            obj.name = name 
         obj.freeze(self._values)
         
     @classmethod
     def load(cls, name):
+        """Load the blob named `name`.
+        """
         candidates = BlobModel.objects.filter(kind=cls.__name__, name=name)
         if len(candidates) == 0:
             raise LookupError("Couldn't find " + cls.__name__ + 
@@ -165,7 +170,14 @@ class Blob(object):
             model = candidates[0] 
             blob = model.thaw()
             return cls(blob=blob, id=model.id)
-        
+  
+    @classmethod
+    def filter(cls, **conditions):
+        """Return the blobs of this class which satisfy the filter `conditions`.
+        """
+        models = BlobModel.objects.filter(kind=cls.__name__, **conditions)
+        return [cls(blob=model.thaw(), id=model.id) for model in models]
+
     @classmethod
     def exists(cls, name):
         """Return True if `name` exists.
@@ -185,6 +197,9 @@ class FileBlob(Blob):
         deliverer_name = BlobField(str, "person who uploaded the file", ""),
         deliverer_email = BlobField(str, "deliverer's e-mail", ""),
         
+        blacklisted = BlobField(bool, 
+            "If True this file should no longer be used.", False),
+
         # Automatically generated fields
         pathname = BlobField("^[A-Za-z0-9_./]+$", 
             "path/filename to CRDS master copy of file", "None"),
@@ -198,10 +213,8 @@ class FileBlob(Blob):
             "reference type associated with file", "None"),
         sha1sum = BlobField(str, 
             "checksum of file at upload time", "None"),
-        blacklisted = BlobField(bool, 
-            "If True this file should no longer be used.", False)
-        )
-    
+    )
+        
     @property
     def filename(self):
         return os.path.basename(self.pathname)
@@ -223,5 +236,30 @@ class MappingBlob(FileBlob):
 class ReferenceBlob(FileBlob):
     """Represents a reference data file managed by CRDS."""
 
+# ============================================================================
 
-
+class AuditBlob(Blob):
+    """Maintains an audit trail of important actions indicating who did them,
+    when, and why.
+    """
+    _fields = dict(
+        # User supplied fields
+        user = BlobField(str, "user performing this action", ""),
+        date = BlobField(str, "date action performed", ""),
+        kind = BlobField("blacklist", "name of action performed", ""),        
+        why = BlobField(str, "reason this action was performed",""),
+        affected_file = BlobField("^[A-Za-z0-9_./]+$", 
+                "file affected by this action", "None"),
+    )
+    
+    @classmethod
+    def create_record(cls, user, kind, affected_file, why, details):
+        """Save a record of an action in the database."""
+        rec = cls()
+        rec.user = user
+        rec.date = crds.timestamp.now()
+        rec.kind = kind
+        rec.affected_file = affected_file
+        rec.why = why
+        rec.details = details
+        rec.save()
