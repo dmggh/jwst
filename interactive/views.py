@@ -139,8 +139,8 @@ def bestrefs_compute(request):
 def submit_file(request):
     """Handle file submission."""
     if request.method == 'POST':
-        submit_file_post(request)
-        return render(request, 'submit_results.html')
+        baseperm = submit_file_post(request)
+        return render(request, 'submit_results.html', {"baseperm":baseperm})
     else: # GET
         return render(request, 'submit_input.html')
     
@@ -164,6 +164,8 @@ def submit_file_post(request):
 
     # Make a database record of this delivery.
     create_delivery_blob(request, observatory, ufile.name, permanent_location)
+    
+    return os.path.basename(permanent_location)
     
 def do_certify_file(basename, certifypath, check_references=False):
     try:
@@ -346,4 +348,12 @@ def difference_files(request):
         return render(request, "difference_files_inputs.html")
     else:
         return render(request, "difference_files_results.html")
+
+# ===========================================================================
+
+def browse_files(request):
+    if request.method == "GET":
+        return render(request, "browse_files_inputs.html")
+    else:
+        return render(request, "browse_files_results.html")
 

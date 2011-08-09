@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 
+{% load stdtags %}
+
 {% block contents %}
 
-    <h2>Certify File '{{certified_file}}'</h2>
+    <h2>Certify File {{certified_file|grey}}</h2>
     {% if status == "OK" %}
     <h3 class="success">
     {% else %}

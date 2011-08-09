@@ -92,28 +92,13 @@ h1, h2, h3, h4, td {
 label, .label {
     font-size: 1.1em;
     font-weight: normal;
-  color:  darkblue;
-/*    padding-top: 20px;
-    padding-bottom: 10px;
-    padding-left: 0px;
-    padding-right: 10px;
-    margin-bottom: 5px;
-    margin-right: 10px;
-*/
+    color:  darkblue;
 }
 
-.value {
+.value, .grey {
     font-size: 0.9em;
     font-weight: normal;
-  color: grey;
-/*
-  padding-top: 20px;
-    padding-bottom: 10px;
-    padding-left: 0px;
-    padding-right: 10px;
-    margin-bottom: 5px;
-    margin-right: 10px;
-*/
+    color: grey;
 }
 
 .hint {

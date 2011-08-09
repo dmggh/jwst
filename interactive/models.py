@@ -215,13 +215,13 @@ class FileBlob(Blob):
         observatory = BlobField(OBSERVATORIES, 
             "observatory associated with file", "hst"),
         instrument = BlobField(INSTRUMENTS, 
-            "instrument associated with file", ""),
+            "instrument associated with file", "", nonblank=False),
         filekind = BlobField(REFTYPES, 
-            "dataset keyword associated with this file", ""),
+            "dataset keyword associated with this file", "", nonblank=False),
         serial = BlobField("[A-Za-z0-9_]*",
             "file id or serial number for this file", "", nonblank=False),
         sha1sum = BlobField(str, 
-            "checksum of file at upload time", "None"),
+            "checksum of file at upload time", "", nonblank=False),
     )
         
     @property
