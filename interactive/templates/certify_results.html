@@ -14,7 +14,7 @@
     </h3>
     
     {% for line in certify_lines %}
-    <p>{{line}}</p>
+    <p>{{line|safe}}</p>
     {% endfor %}
 
 {% endblock contents %}

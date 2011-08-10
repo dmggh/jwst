@@ -7,7 +7,7 @@
     <h2>Difference {{file1|grey}} from {{file2|grey}}</h2>
     
     {% for line in diff_lines %}
-    <p>{{line}}</p>
+    <p>{{line|safe}}</p>
     {% endfor %}
 
 {% endblock contents %}

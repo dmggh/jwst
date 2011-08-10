@@ -348,33 +348,28 @@ def certify_file(request):
         return certify_post(request)
 
 def certify_post(request):
-    if request.POST["filemode"] == "file_known":
-        # certified_file is a basename,  but CRDS figures out where it is.
-        original_name = request.POST["file_known"]
-        certified_file = check_value(original_name, 
-            "[A-Za-z0-9._]+", 
-            "Filename must consist of letters, numbers, periods, "
-            "or underscores.")
-    else:
-        ufile = get_uploaded_file(request, "file_uploaded")
-        certified_file = ufile.temporary_file_path()
-        original_name = ufile.name
 
+    uploaded, original_name, certified_file = handle_known_or_uploaded_file(
+        request, "File", "filemode", "file_known", "file_uploaded")
+            
     check_references = request.POST.get("check_references", False)
     shallow = "--shallow" if not check_references else ""
     mapping = "--mapping" if rmap.is_mapping(original_name) else ""
 
-    certify_lines = pysh.lines(
+    certify_lines = ["<h3>CRDS Certify</h3>"]
+    certify_lines += pysh.lines(
         "python -m crds.certify ${certified_file} ${shallow} ${mapping}")
-        
-    status = "OK" if "0 errors \n" in certify_lines else "certify failed."    
+    status = "OK" if "0 errors \n" in certify_lines else "Failed."    
+    
+    if not rmap.is_mapping(original_name):
+        fitscheck_lines = pysh.lines("fitscheck ${certified_file}")
+        certify_lines += ["<h3>Fitscheck</h3>"] + fitscheck_lines
+        status = "OK" if (status=="OK") and \
+            "0 errors \n" in fitscheck_lines else "Failed."
 
-    if request.POST["filemode"] == "file_uploaded":
-        try:
-            os.path.remove(certified_file)
-        except:
-            pass
-            
+    if uploaded:
+        remove_temporary(certified_file)
+
     return render(request, "certify_results.html", 
             {"status":status, 
              "certify_lines":certify_lines,
@@ -418,8 +413,10 @@ def difference_files(request):
         if rmap.is_mapping(file1_orig) and rmap.is_mapping(file2_orig) and \
             extension(file1_orig) == extension(file2_orig):
             diff_lines = pysh.lines("diff ${file1_path} ${file2_path}")
+            diff_lines = format_mappingdiffs(diff_lines, file1_path, file2_path)
         elif file1_orig.endswith(".fits") and file2_orig.endswith(".fits"):
             diff_lines = pysh.lines("fitsdiff ${file1_path} ${file2_path}")
+            diff_lines = format_fitsdiffs(diff_lines, file1_path, file2_path)
         else:
             raise CrdsError("Files should be either CRDS mappings of the same type or .fits files")
         
@@ -437,6 +434,30 @@ def difference_files(request):
                        "file1" : file1_orig,
                        "file2" : file2_orig,
                        })
+
+def format_fitsdiffs(lines, file1, file2):
+    """Add some colorization to output `lines` from fitsdiff, replacing
+    `file1` and `file2` with their basenames.
+    """
+    for i in range(len(lines)):
+        lines[i] = clean_path(lines[i], file1)
+        lines[i] = clean_path(lines[i], file2)
+        if "Primary HDU" in lines[i] or re.search("Extension \d+ HDU", lines[i]):
+            lines[i] = "<h3>" + lines[i] + "</h3>"
+        lines[i] = re.sub(r"([Kk]eyword)\s*([A-Za-z0-9_]*)",
+                          r"\1 <span class='green'>\2</span>",
+                          lines[i])
+    return lines
+
+def format_mappingdiffs(lines, file1, file2):
+    return lines
+
+def clean_path(line, path):
+    """Replace occurrences of `path` in `line` with a greyed version of
+    the `path`s basename.
+    """
+    base = "<span class='grey'>" + os.path.basename(path) + "</span>"
+    return line.replace(path, base)
 
 # ===========================================================================
 
