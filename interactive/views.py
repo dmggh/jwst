@@ -61,6 +61,58 @@ def render(request, template, dict_=None):
     rdict["is_authenticated"] = request.user.is_authenticated()
     return render_to_response(template, RequestContext(request, rdict))
 
+def handle_known_or_uploaded_file(request, name, modevar, knownvar, uploadvar):
+    """Process file variables for a file which is either known to CRDS
+    and simply named,  or which is uploaded by the user.
+    
+    Return (uploaded_flag, name_on_users_system,  temporary_file_path)
+    """
+    if request.POST[modevar] == knownvar:
+        # certified_file is a basename,  but CRDS figures out where it is.
+        original_name = check_value(request.POST[knownvar],
+            "[A-Za-z0-9._]+", 
+            "Filename " + name + " must consist of letters, numbers, periods, "
+            "or underscores.")
+        if rmap.is_mapping(original_name):
+            try:
+                filepath = models.MappingBlob.load(original_name).pathname
+            except LookupError:
+                try:
+                    loc = utils.get_locator_module("hst")
+                    filepath = loc.locate_server_mapping(original_name)
+                except Exception, exc:
+                    raise FieldError(
+                        "Couldn't find mapping " + original_name)
+        elif original_name.endswith(".fits"):
+            try:
+                filepath = models.ReferenceBlob.load(original_name).pathname
+            except LookupError:
+                try:
+                    loc = utils.get_locator_module("hst")
+                    filepath = loc.locate_server_reference(original_name)
+                except Exception, exc:
+                    print repr(exc) + " : " + str(exc)
+                    raise FieldError(
+                        "Couldn't find reference file " + original_name)
+        else:
+            raise FieldError(
+                name + " should have .pmap, .imap, .rmap, or .fits extension.")
+        uploaded = False
+    else:
+        ufile = get_uploaded_file(request, uploadvar)
+        filepath = ufile.temporary_file_path()
+        original_name = ufile.name
+        uploaded = True
+    return uploaded, original_name, filepath
+
+def remove_temporary(filepath):
+    """Attempt to remove `filepath`.  Ignore errors."""
+    try:
+        os.remove(filepath)
+    except OSError:
+        pass
+    
+
 # ===========================================================================
 
 class CrdsError(Exception):
@@ -285,8 +337,11 @@ def blacklist_file_post(request):
         
 # ===========================================================================
 
+@error_trap("certify_input.html")
 @login_required
 def certify_file(request):
+    """Check for the existence and validity
+    """
     if request.method == "GET":
         return render(request, "certify_input.html")
     else:
@@ -304,7 +359,7 @@ def certify_post(request):
         ufile = get_uploaded_file(request, "file_uploaded")
         certified_file = ufile.temporary_file_path()
         original_name = ufile.name
-            
+
     check_references = request.POST.get("check_references", False)
     shallow = "--shallow" if not check_references else ""
     mapping = "--mapping" if rmap.is_mapping(original_name) else ""
@@ -327,6 +382,7 @@ def certify_post(request):
 
 # ===========================================================================
 
+@error_trap("using_file_inputs.html")
 def using_file(request):
     if request.method == "GET":
         return render(request, "using_file_inputs.html")
@@ -338,22 +394,56 @@ def using_file(request):
             "Filename must consist of letters, numbers, periods, "
             "or underscores.")
         uses_files = uses.uses([referred_file], observatory)
-        print uses_files
+        if not "".join(uses_files).strip():
+            uses_files = ["no files"]
         return render(request, "using_file_results.html", locals())
 
 # ===========================================================================
 
+def extension(filename): 
+    """Return the file extension of `filename`."""
+    return os.path.splitext(filename)[1]
+
+@error_trap("difference_input.html")
 def difference_files(request):
+    """Compare two files,  either known or uploaded,  and display the diffs."""
     if request.method == "GET":
-        return render(request, "difference_files_inputs.html")
+        return render(request, "difference_input.html")
     else:
-        return render(request, "difference_files_results.html")
+        uploaded1, file1_orig, file1_path = handle_known_or_uploaded_file(
+            request, "File1", "filemode1", "file_known1", "file_uploaded1")
+        uploaded2, file2_orig, file2_path = handle_known_or_uploaded_file(
+            request, "File2", "filemode2", "file_known2", "file_uploaded2")
+        
+        if rmap.is_mapping(file1_orig) and rmap.is_mapping(file2_orig) and \
+            extension(file1_orig) == extension(file2_orig):
+            diff_lines = pysh.lines("diff ${file1_path} ${file2_path}")
+        elif file1_orig.endswith(".fits") and file2_orig.endswith(".fits"):
+            diff_lines = pysh.lines("fitsdiff ${file1_path} ${file2_path}")
+        else:
+            raise CrdsError("Files should be either CRDS mappings of the same type or .fits files")
+        
+        if uploaded1: 
+            remove_temporary(file1_path)
+        if uploaded2:
+            remove_temporary(file2_path)
+            
+        if not "".join(diff_lines).strip():
+            diff_lines = ["no differences"]
+
+        return render(request, "difference_results.html", 
+                      {
+                       "diff_lines" : diff_lines,
+                       "file1" : file1_orig,
+                       "file2" : file2_orig,
+                       })
 
 # ===========================================================================
 
+@error_trap("browse_input.html")
 def browse_files(request):
     if request.method == "GET":
-        return render(request, "browse_files_inputs.html")
+        return render(request, "browse_input.html")
     else:
-        return render(request, "browse_files_results.html")
+        return render(request, "browse_results.html")
 
