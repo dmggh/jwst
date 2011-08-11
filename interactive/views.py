@@ -108,6 +108,8 @@ def handle_known_or_uploaded_file(request, name, modevar, knownvar, uploadvar):
 def remove_temporary(filepath):
     """Attempt to remove `filepath`.  Ignore errors."""
     try:
+        assert not filepath.startswith("/grp"), \
+            "ERROR -- attempt to delete from Central Store"
         os.remove(filepath)
     except OSError:
         pass
