@@ -1,0 +1,511 @@
+:
+#
+
+if [ X$1 = X-r ]
+then
+	rc=1
+else
+	rc=0
+fi
+
+if [ "$rc" = 0 ]
+then
+	echo YOU ARE A DEVELOPER
+
+	add_library_path=''
+
+	# find where the third-party software should be on this host, even
+	# though we might not use it.
+	case `hostname`
+	in
+	quagga.stsci.edu)
+		third_party=/data1/pyetc_third_party_3
+		. $third_party/third_party_select.sh
+		;;
+	chicha.stsci.edu)
+		third_party=/Users/sosey/dev/ssb/PyETC/pyetc_third_party
+		;;
+	daisy.stsci.edu)
+		third_party=/Users/lindsay/dev/ssb/PyETC/pyetc_third_party_leopard
+		;;
+	arzach.stsci.edu)
+		third_party=/eng/ssb/pyetc/pyetc_third_party_rhe4
+		add_library_path=/eng/ssb/pyetc/pyetc_third_party_rhe4/lib
+		;;
+	etc-dev1.stsci.edu)
+		third_party=/eng/ssb/pyetc/pyetc_third_party_rhe4
+		add_library_path=/eng/ssb/pyetc/pyetc_third_party_rhe4/lib
+		;;
+	gaudete.stsci.edu)
+		third_party=/eng/ssb/pyetc/pyetc_third_party_rhe4
+		add_library_path=/eng/ssb/pyetc/pyetc_third_party_rhe4/lib
+		;;
+	thor.stsci.edu)
+		third_party=/eng/ssb/pyetc/pyetc_third_party_rhe4
+		add_library_path=/eng/ssb/pyetc/pyetc_third_party_rhe4/lib
+		;;
+	## copy/paste the next three lines and edit them to show the name
+	## of your machine and where you extracted the third_party tar file
+	banana.stsci.edu)
+		third_party=/eng/ssb/pyetc/pyetc_third_party_leopard
+		;;
+	cadeau.stsci.edu)
+		third_party=/Users/iraf/pyetc_third_party
+		;;
+	wonkabar.stsci.edu)
+		third_party=/eng/ssb/pyetc/pyetc_third_party_rhe4
+		add_library_path=/eng/ssb/pyetc/pyetc_third_party_rhe4/lib
+		;;
+	*)
+		third_party=./this_does_not_exist
+		;;
+	esac
+
+
+	# see if we already have django.  If so, use it.  If not, try
+	# to find it in the $third_party directory.
+
+	if python -c 'import django'
+	then
+		:
+	else
+		if [ -d $third_party ]
+		then
+			echo ''
+			echo using default django in $third_party
+			echo ''
+			PYTHONPATH=$third_party/lib/python:$PYTHONPATH
+			export PYTHONPATH
+		else
+			echo ''
+			echo no django on PYTHONPATH - please fix and try again
+			echo ''
+			exit 1
+		fi
+	fi
+
+	#
+
+	if echo $LD_LIBRARY_PATH  | grep -q -s "$add_library_path"
+	then
+		:
+	else
+		LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$add_library_path
+		export LD_LIBRARY_PATH
+	fi
+fi # rc
+
+
+if python -c 'import django'
+then
+        :
+else
+        echo still no django
+        exit 1
+fi
+
+###
+### fetch some of our config information from the config file
+###
+
+if [ "$rc" = 0 ]
+then
+	if [ ! -f etc_web/config.py ]
+	then
+		echo ''
+		echo 'creating default config file'
+		echo ''
+		cp  etc_web/configs/config.dev.py etc_web/config.py
+	fi
+fi
+
+###
+### make sure there is an install dir set
+###
+if grep -q -s ^install_dir= etc_web/config.py
+then
+        :
+else
+	if [ "$rc" = 0 ]
+	then
+		echo "install_dir='`pwd`/webserver'" > etc_web/tmp
+		cat etc_web/config.py >> etc_web/tmp
+		mv etc_web/tmp etc_web/config.py
+	else 
+		echo no install_dir in config file
+		exit 1
+	fi
+fi
+
+
+###
+### gather config values that we need in this script
+###
+
+python etc_web/sh_config.py install_dir port PYSYN_CDBS servertype dbtype debug data_dir debug_javascript noreload > tmp
+. ./tmp
+rm -f tmp
+
+case "$noreload"
+in
+[tT]rue)        noreload="--noreload"
+        ;;
+esac
+
+###
+### eliminate excess verbosity in the setup.py steps so we can see any
+### other errors that come out
+###
+pyquiet=-q
+
+###
+### create the install directory
+###
+
+mkdir -p $install_dir $data_dir
+
+
+if echo $PYTHONPATH | grep -q -s $install_dir'/python/lib/python'
+then
+        :
+else
+        PYTHONPATH=$install_dir'/python/lib/python:'$PYTHONPATH
+        export PYTHONPATH
+fi
+
+if [ "$rc" = 0 ]
+then
+	# if debug is true AND there is a debug_python directory
+	if [ "$debug" = "True" ]
+	then
+		if [ -d $third_party/debug_python ]
+		then
+			echo ''
+			echo 'USING DEBUG PYTHON MODULES in ' $third_party/debug_python
+			echo ''
+			PYTHONPATH=$third_party/debug_python:$PYTHONPATH
+			export PYTHONPATH
+		fi
+	else
+		echo NO DEBUG
+		PYTHONPATH=`echo $PYTHONPATH | tr ':' '\n' | sed "\?$third_party/debug_python?d" | tr '\n' ':' `
+		export PYTHONPATH
+	fi
+fi
+
+PYTHONPATH=$install_dir/python/lib/python/pyetc:$install_dir/thirdparty/lib/python:$PYTHONPATH
+export PYTHONPATH
+
+PATH=$install_dir/python/bin:$PATH
+export PATH
+
+mkdir -p $install_dir/python/bin
+
+(
+        echo '#!/bin/csh'
+        echo 'setenv PYTHONPATH '$PYTHONPATH
+        if [ "$LD_LIBRARY_PATH" != "" ]
+        then
+                echo 'setenv LD_LIBRARY_PATH '${LD_LIBRARY_PATH}
+        fi
+        echo 'unsetenv DJANGO_SETTINGS_MODULE PYSYN_CDBS PYETC_DJANGO_SERVER'
+	echo 'setenv SERVER_PORT '$port
+
+	echo 'setenv PATH '$PATH
+
+) > env.csh
+
+
+# This is a place for matplotlib to store cache files.  We don't actually
+# try to put any config there, and only the apache server knows to use it.
+mkdir -p $install_dir/mplconfigdir
+
+
+###
+### special cases for each type of web server we might be using
+###
+case "$servertype"
+in
+
+# apache with mod_python
+mod_python)
+
+        mkdir -p $install_dir/server/logs $install_dir/server/run $install_dir/server/conf
+
+        cp servers/httpd.mod_python.conf $install_dir/server/conf/httpd.conf
+
+	apache_version=`/usr/sbin/httpd -v | sed -n 's?Server version: Apache/??p'`
+	case "$apache_version"
+	in
+	2.2.*)
+		dso_version=2.2
+		;;
+	2.0.*)
+		dso_version=2.0
+		;;
+	*)
+		echo do not have a config for this apache version -"$apache_version"-
+		exit 1
+		;;
+	esac
+
+	cat servers/apache_dso.$dso_version >>  $install_dir/server/conf/httpd.conf
+
+        python etc_web/sh_config.py add_ldap_auth > tmp
+        . tmp
+
+	if [ "$apachemod" = "" ]
+	then
+		apachemod=$third/lib/apache
+		export apachemod
+		if [ ! -f $apachemod/mod_python.so ]
+		then
+			echo NO MOD_PYTHON FOUND
+			echo must setenv apachemod to a directory that contains the mod_python.so file
+			exit 1
+		fi
+	fi
+
+
+        if [ "$add_ldap_auth" = "True" ]
+        then
+		if [ "$rc" = 1 ]
+		then
+			echo do not use authentication in a release candidate system
+			exit 1
+		fi
+                cat servers/httpd.add_ldap >> $install_dir/server/conf/httpd.conf
+        fi
+
+        if [ "$debug" = "True" ]
+        then
+                cat servers/httpd.redirect_debug >> $install_dir/server/conf/httpd.conf
+        else
+                cat servers/httpd.redirect_nodebug >> $install_dir/server/conf/httpd.conf
+        fi
+
+        sed -e "s?SUB_APACHEMOD?$apachemod?g" -e "s?SUB_DIR?$install_dir?g" -e "s?SUB_PORT?$port?g" -e "s?SUB_CDBS?$PYSYN_CDBS?g"  < $install_dir/server/conf/httpd.conf > tmp
+        mv tmp $install_dir/server/conf/httpd.conf
+
+
+        # create the shell script that runs the server.  We want everything that
+        # has gotten in to env.csh so far, but nothing that comes later.  (Everything
+        # that comes later is for debug environments; we don't want to contaminate
+        # our production environment with possible dependencies on that data.)
+        (
+        echo '#!/bin/csh'
+        cat env.csh
+        echo "/usr/sbin/httpd -f $install_dir/server/conf/httpd.conf"
+        ) > run
+
+        echo 'kill `cat '$install_dir'/server/run/httpd.pid` ' > stop
+
+
+        ln -fs /etc/httpd/modules $install_dir/server/
+
+        ln -fs /etc/httpd/conf/magic $install_dir/server/conf/
+
+        # add debug-only values to env.csh
+        (
+        echo 'setenv DJANGO_SETTINGS_MODULE pyetc.etc_web.settings'
+        echo 'setenv PYSYN_CDBS '$PYSYN_CDBS
+        ) >> env.csh
+
+        ;;
+
+# django development server
+django)
+	if [ "$rc" = 1 ]
+	then
+		echo do not use django server for release candidate
+		exit 1
+	fi
+
+        hostname=`hostname`
+        (
+        echo 'setenv DJANGO_SETTINGS_MODULE pyetc.etc_web.settings'
+        echo '# we are runnning in the context of the django test server'
+        echo 'setenv PYSYN_CDBS '$PYSYN_CDBS
+        echo 'setenv PYETC_DJANGO_SERVER 1'
+        ) >> env.csh
+
+        (
+        echo '#!/bin/csh'
+        echo 'source env.csh'
+        echo "cd $install_dir/python/lib/python/pyetc/etc_web"
+        echo "exec python manage.py runserver $noreload $hostname:$port"
+        ) > run
+        (
+        # yes, it's ugly.
+
+        # It turns into python -c to load /shutdown from the server.  In the server,
+        # the process sends itself a signal to cause a shutdown.  This means that
+        # we never get an HTTP response, so the python script prints an exception,
+        # which is redirected to /dev/null
+
+        echo python -c '"'import urllib ';' urllib.urlopen'('"'"http://$hostname':'$port/shutdown"'"')"' '>& /dev/null'
+
+        ) > stop
+
+        ;;
+
+# apache with mod_wsgi
+wsgi)
+        echo ''
+        echo wsgi server not implemented
+        echo ''
+        exit 1
+        ;;
+
+# anything else is unrecognized
+*)
+        echo ''
+        echo unknown server type $servertype
+        echo ''
+        # do not need a default case for server type after this
+        exit 1
+        ;;
+esac
+
+#
+chmod 755 ./run ./stop
+
+# copy over the static files
+if [ `uname` = 'Linux' ]
+then
+        cpio_quiet='--quiet'
+else
+        cpio_quiet=''
+fi
+
+find htdocs | grep -v '\.svn' | cpio $cpio_quiet -oc | ( cd $install_dir ; cpio $cpio_quiet -icdum  )
+
+case "$rc"
+in
+1)	rm -f $install_dir/htdocs/status.shtml
+	;;
+esac
+
+case "$debug_javascript"
+in
+[Tt]rue)
+        # copy the debug value into the
+        sed 's/^enable_debug=.*$/enable_debug=true;/' <  htdocs/etcstatic/validate_general.1.js  > $install_dir/htdocs/etcstatic/validate_general.1.js
+        ;;
+esac
+
+###
+### install the python packages that we use
+###
+
+# prevent the user from having .pydistutilsrc that hurts us
+here=`pwd`
+
+for x in etc_web etc_engine etc_instruments test_utilities pysynphot pandokia instruments web engine
+do
+	if [ ! -d $x ]
+	then
+		echo WARNING: NO SOURCE DIRECTORY FOR $x
+	else
+		(
+			HOME=$here
+			export HOME
+			cd $x
+			rm -rf build
+			# --no-deps
+			python setup.py $pyquiet install --home $install_dir/python
+		)
+	fi
+done
+
+cp test_utilities/*.py $install_dir/python/lib/python
+python -m py_compile $install_dir/python/lib/python/*.py
+cp test_utilities/bin/*  $install_dir/python/bin
+
+###
+### install the special data files that are not in cdbs and not in sources
+###
+
+if [ ! -d rundata ]
+then
+	echo NO rundata directory - you need to svn update
+	exit 1
+fi
+
+( 
+	# preserve compatibility with old method of getting these files, in case we need it.
+	# the old system does not have directories in rundata, so it is ok not to copy them.
+	cd rundata
+	for x in *
+	do
+		if [ ! -d $x ] 
+		then
+			cp $x $install_dir/python/lib/python/pyetc/etc_engine/data/
+		fi
+	done
+)
+
+
+###
+### maybe, initialize the database
+###
+
+case "$dbtype"
+in
+
+sqlite)
+        ( cd $install_dir/python/lib/python/pyetc/etc_web ; python manage.py syncdb )
+        if [ "$servertype" = 'mod_python' ]
+        then
+                echo ''
+                echo ERROR: the sqlite database driver hangs when run in a mod_python server
+                echo ''
+        fi
+        ;;
+
+pyetc[12])
+        ( cd $install_dir/python/lib/python/pyetc/etc_web ; python manage.py syncdb )
+        ;;
+
+production:*)
+        ( cd $install_dir/python/lib/python/pyetc/etc_web ; python manage.py syncdb )
+        ;;
+
+*)
+        echo ""
+        echo "install does not recognize dbtype $dbtype"
+        echo "you may need to:"
+        echo " source env.csh"
+        echo " cd $install_dir/python/lib/python/pyetc/etc_web ; python manage.py syncdb "
+        echo "but probably you just have an error in config.py"
+        echo ""
+        ;;
+
+esac
+
+###
+### tell the user what we did
+###
+
+echo ''
+echo Installed in:
+echo '  '$install_dir
+echo URL is
+echo '  'http://`hostname`:$port
+echo 'to start the server:'
+echo '  './run
+echo 'to stop the server:'
+case "$servertype"
+in
+django)
+        echo '  'type control-c
+        ;;
+*)
+        echo '  './stop
+        ;;
+esac
+
+echo 'to get an environment like the web server will see:'
+echo '  source env.csh'
+
+echo ''
