@@ -110,7 +110,7 @@ telescopes = [ 'hst', 'jwst' ]
 
 import pwd
 version_prefix=pwd.getpwuid(os.getuid())[0]
-install_dir='/home/jmiller/workspace_crds/CRDS_server/webserver'
+install_dir='/home/jmiller/CRDS/CRDS_server/webserver'
 CRDS_REFERENCE_URL = "ftp://ftp.stsci.edu/cdbs/"   # .e.g http://crds_refs.stsci.edu
 CRDS_MAPPING_URL =   "http://localhost:8000"
 

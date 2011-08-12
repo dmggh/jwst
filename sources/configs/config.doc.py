@@ -103,7 +103,7 @@ version_prefix = 'config.doc.'
 
 telescopes = [ 'hst', 'jwst' ]
 
-install_dir='/home/jmiller/workspace_crds/CRDS_server/webserver'
+install_dir='/home/jmiller/CRDS/CRDS_server/webserver'
 CRDS_REFERENCE_URL = "ftp://ftp.stsci.edu/cdbs/"   # .e.g http://crds_refs.stsci.edu
-CRDS_MAPPING_URL =   "http://localhost:8000"
+CRDS_MAPPING_URL =   "http://etcbrady.stsci.edu:8000"
 
