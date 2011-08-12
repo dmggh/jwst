@@ -375,7 +375,7 @@ esac
 # prevent the user from having .pydistutilsrc that hurts us
 here=`pwd`
 
-for x in sources
+for x in sources ../CRDS/lib ../CRDS/hst ../CRDS/client
 do
 	if [ ! -d $x ]
 	then
