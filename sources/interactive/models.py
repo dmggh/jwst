@@ -81,37 +81,36 @@ class Blob(object):
     from the database into Blobs.   Blobs can be customized without changing
     the database schema.
     """
-    _blob_kind = "Blob"
-    _fields = {}   # BlobFields
+    fields = {}   # BlobFields
     
     def __init__(self, blob=None, id=None, **keys):
         if blob is None:
             blob = {}
         self._values = {}
         self._id = id
-        for fieldname in self._fields:
-            self._values[fieldname] = self._fields[fieldname].default
+        for fieldname in self.fields:
+            self._values[fieldname] = self.fields[fieldname].default
         self._values.update(blob)
         for key in keys:
             self._values[key] = keys[key]
             
     def __repr__(self):
         rep = self.__class__.__name__ + "(" 
-        for field in sorted(self._fields):
+        for field in sorted(self.fields):
             rep += field + "=" + repr(self._values[field]) + ", "
         rep = rep[:-2] + ")"
         return rep
     
     def __getattr__(self, attr):
-        if attr in self._fields:
+        if attr in self.fields:
             if attr not in self._values:
-                self._values[attr] = self._fields[attr].default
+                self._values[attr] = self.fields[attr].default
             return self._values[attr]
         else:
             return object.__getattr__(self, attr)
     
     def __setattr__(self, attr, value):
-        if attr in self._fields:
+        if attr in self.fields:
             self._values[attr] = self.enforce_type(attr, value)
         else:
             object.__setattr__(self, attr, value)
@@ -120,8 +119,8 @@ class Blob(object):
         """Ensure `value` meets the constraints for field `attr`.  Return
         a possibly coerced `value` if it's legal,  else raise an exception.
         """
-        type_ = self._fields[attr].type
-        if self._fields[attr].nonblank and not str(value).strip():
+        type_ = self.fields[attr].type
+        if self.fields[attr].nonblank and not str(value).strip():
             raise FieldError("Required field " + repr(attr) + " is blank.")
         if isinstance(type_, str):   # treat str-types as regexes for value
             if re.match(type_, str(value)):
@@ -196,7 +195,7 @@ class Blob(object):
 
 class FileBlob(Blob):
     """Represents a delivered file,  either a reference or a mapping."""
-    _fields = dict(
+    fields = dict(
         # User supplied fields
         uploaded_as = BlobField("^[A-Za-z0-9_.]+$", "original upload filename", ""),
         description = BlobField(str, "brief description of this delivery",""),
@@ -251,7 +250,7 @@ class AuditBlob(Blob):
     """Maintains an audit trail of important actions indicating who did them,
     when, and why.
     """
-    _fields = dict(
+    fields = dict(
         # User supplied fields
         user = BlobField(str, "user performing this action", ""),
         date = BlobField(str, "date action performed", ""),

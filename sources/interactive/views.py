@@ -73,29 +73,7 @@ def handle_known_or_uploaded_file(request, name, modevar, knownvar, uploadvar):
             "[A-Za-z0-9._]+", 
             "Filename " + name + " must consist of letters, numbers, periods, "
             "or underscores.")
-        if rmap.is_mapping(original_name):
-            try:
-                filepath = models.MappingBlob.load(original_name).pathname
-            except LookupError:
-                try:
-                    loc = utils.get_locator_module("hst")
-                    filepath = loc.locate_server_mapping(original_name)
-                except Exception, exc:
-                    raise FieldError(
-                        "Couldn't find mapping " + original_name)
-        elif original_name.endswith(".fits"):
-            try:
-                filepath = models.ReferenceBlob.load(original_name).pathname
-            except LookupError:
-                try:
-                    loc = utils.get_locator_module("hst")
-                    filepath = loc.locate_server_reference(original_name)
-                except Exception, exc:
-                    raise FieldError(
-                        "Couldn't find reference file " + original_name)
-        else:
-            raise FieldError(
-                name + " should have .pmap, .imap, .rmap, or .fits extension.")
+        filepath = get_known_filepath(original_name)
         uploaded = False
     else:
         ufile = get_uploaded_file(request, uploadvar)
@@ -103,6 +81,33 @@ def handle_known_or_uploaded_file(request, name, modevar, knownvar, uploadvar):
         original_name = ufile.name
         uploaded = True
     return uploaded, original_name, filepath
+
+def get_known_filepath(original_name):
+    if rmap.is_mapping(original_name):
+        try:
+            filepath = models.MappingBlob.load(original_name).pathname
+        except LookupError:
+            try:
+                loc = utils.get_locator_module("hst")
+                filepath = loc.locate_server_mapping(original_name)
+            except Exception, exc:
+                raise FieldError(
+                    "Couldn't find mapping " + original_name)
+    elif original_name.endswith(".fits"):
+        try:
+            filepath = models.ReferenceBlob.load(original_name).pathname
+        except LookupError:
+            try:
+                loc = utils.get_locator_module("hst")
+                filepath = loc.locate_server_reference(original_name)
+            except Exception, exc:
+                raise FieldError(
+                    "Couldn't find reference file " + original_name)
+    else:
+        raise FieldError(
+            name + " should have .pmap, .imap, .rmap, or .fits extension.")
+    return filepath
+
 
 def remove_temporary(filepath):
     """Attempt to remove `filepath`.  Ignore errors."""
@@ -467,5 +472,96 @@ def browse_files(request):
     if request.method == "GET":
         return render(request, "browse_input.html")
     else:
-        return render(request, "browse_results.html")
+        return browse_files_post(request)
+    
+def browse_files_post(request):
+    uploaded, original_name, browsed_file = handle_known_or_uploaded_file(
+        request, "File", "filemode", "file_known", "file_uploaded")
+    return browse_files_post_guts(
+        request, uploaded, original_name, browsed_file)
 
+def browse_files_post_guts(request, uploaded, original_name, browsed_file):
+    if not uploaded:
+        browse_lines = get_database_lines(original_name, browsed_file)      
+    else:
+        browse_lines = ["<h3>Uploaded file <span class='grey'>%s</span></h3>"]
+    
+    browse_lines += ["<h3>File Contents</h3>"]
+    
+    if rmap.is_mapping(original_name):
+        browse_lines += browsify_mapping(original_name, browsed_file)
+    else:
+        browse_lines += browsify_reference(original_name, browsed_file)
+    
+    if uploaded:
+        remove_temporary(browsed_file)
+
+    return render(request, "browse_results.html", 
+            {"browse_lines":browse_lines,
+             "browsed_file":original_name})
+
+def get_database_lines(original_name, browsed_file):
+    """Return the CRDS database information for this file as a list of HTML
+    table lines.
+    """
+    browse_lines = ["<h3>CRDS Database</h3>"]
+    try:
+        if rmap.is_mapping(original_name):
+            blob = models.MappingBlob.load(os.path.basename(browsed_file))
+        else:
+            blob = models.ReferenceBlob.load(os.path.basename(browsed_file))
+    except LookupError:
+        return browse_lines + ['<h3 class="error">database entry not found</h3>']
+     
+    browse_lines += ["<table>"]
+    for fld in blob.fields:
+        browse_lines += "<tr><td>%s</td><td>%s</td></tr>" % \
+            (fld, getattr(blob, fld))
+    browse_lines += ["</table>"]
+    
+    return browse_lines
+
+def browsify_mapping(original_name, browsed_file):
+    lines = []
+    try:
+        linegen = open(browsed_file).readlines()
+    except OSError:
+        return ["<h3 class='error'>File <span class='grey'>%s<span> not found</h3>" % \
+                (original_name,)]
+    for line in linegen:
+        lines.append(browsify_mapping_line(line))
+    return lines
+
+def browsify_mapping_line(line):
+    # header
+    line = re.sub(r"(header)(\s*=\s*)",
+                  r"<span class='green'>\1</span>\2",
+                  line)
+    # selector
+    line = re.sub(r"(selector)(\s*=\s*)",
+                  r"<span class='green'>\1</span>\2",
+                  line) 
+    # Match
+    line = re.sub(r"(Match)(\()",
+                  r"<span class='green'>\1</span>\2",
+                  line)
+    # UseAfter
+    line = re.sub(r"(UseAfter)(\()",
+                  r"<span class='green'>\1</span>\2",
+                  line)
+    # mapping or reference filename
+    line = re.sub(r"'([A-Za-z_0-9]+.(fits|pmap|imap|rmap))'",
+                  r"""<a href='/browse/\1'>'\1'</a>""",
+                  line)
+    return line
+
+# Using TPN,  extract interesting header keywords or tables???
+def browsify_reference(original_name, browsed_file):
+    return []
+
+@error_trap("browse_known_file_error.html")
+def browse_known_file(request, original_name):
+    browsed_file = get_known_filepath(original_name)
+    uploaded = False
+    return browse_files_post_guts(
+        request, uploaded, original_name, browsed_file)

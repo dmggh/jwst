@@ -25,7 +25,9 @@ urlpatterns = patterns('',
   url(r'^using/$', 'crds.server.interactive.views.using_file'),          
   url(r'^certify/$', 'crds.server.interactive.views.certify_file'),          
   url(r'^difference/$', 'crds.server.interactive.views.difference_files'),
-  url(r'^browse/$', 'crds.server.interactive.views.browse_files')        
+  url(r'^browse/$', 'crds.server.interactive.views.browse_files'),        
+  url(r'^browse/(?P<original_name>[A-Za-z0-9_.]+(fits|imap|rmap|pmap))$', 
+      'crds.server.interactive.views.browse_known_file'),
           
 #        (r'site_media/(?P<path>.*)$', 'django.views.static.serve',
 #         {'document_root': settings.MEDIA_ROOT }),
