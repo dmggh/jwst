@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% load stdtags %}
+
+{% block contents %}
+
+    <h2>Blacklist {{file_known|grey}} of {{observatory|grey}}</h2>
+    <h3 class="success">File marked as {{badflag|grey}}.</h3>
+    
+{% endblock contents %}

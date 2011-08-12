@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+       <title>Calibration Reference Data System (CRDS)</title>
+
+      <!-- jquery.ui -->
+      <link type="text/css" href="/static/jquery-ui/css/smoothness/jquery-ui-1.8.14.custom.css" rel="stylesheet" />
+      <script type="text/javascript" src="/static/jquery-ui/js/jquery-1.5.1.min.js"></script>
+       <script type="text/javascript" src="/static/jquery-ui/js/jquery-ui-1.8.14.custom.min.js"></script>
+      <script type="text/javascript" src="/static/jquery.cookie.js"></script>
+
+      <link type="text/css" rel="stylesheet" href="/static/style.css" />
+
+      {% block head_additions %} 
+      {% endblock %}
+  </head>
+
+  <body>
+    <noscript>
+      <h2>This page requires JavaScript to be enabled.</h2>
+    </noscript>
+
+    <div id="page_header">
+        <h1>Calibration and Reference Data System (CRDS)</h1>
+    </div>
+
+    <div id="header_menu">
+       {% if is_authenticated %}
+        <a href="/logout/" class="tiny">logout</a>
+       {% endif %}
+    </div>
+    
+    <div id="contents">
+    {% block contents %} 
+        <div class="column1">
+        {% block column1 %}
+        {% endblock %}
+        </div>
+        <div class="column2">
+        {% block column2 %}
+            <div class="error">
+            {{error_message}}
+            </div>
+        {% endblock %}
+        </div>
+    {% endblock %}
+    </div>   
+  </body>
+</html>

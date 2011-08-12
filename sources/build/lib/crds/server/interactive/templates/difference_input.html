@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block column1 %}
+    <h2>Difference File</h2>
+    <form method="post" action="/difference/" enctype="multipart/form-data"> 
+      {% csrf_token %}
+      <table width="100%">
+        <tr>
+          <td width="5%">File1:</td>
+          <td width="25%" class="label"></td>
+          <td width="25%"></td>
+        </tr>
+        <tr>
+          <td width="5%">
+                <input type="radio" name="filemode1" 
+                        value="file_known1" checked />
+          </td>
+          <td width="25%" class="label">Known:</td>
+          <td width="25%">
+            <input type='text' name='file_known1' size="32">
+          </td>
+        </tr>
+        <tr>
+          <td width="5%">
+                <input type="radio" name="filemode1" 
+                        value="file_uploaded1" />
+          </td>
+          <td width="25%" class="label">Uploaded:</td>
+          <td width="25%">
+            <input type='file' name='file_uploaded1' size="32">
+          </td>
+        </tr>
+        <tr>
+          <td width="5%">File2:</td>
+          <td width="25%" class="label"></td>
+          <td width="25%"></td>
+        </tr>
+          <tr>
+          <td width="5%">
+                <input type="radio" name="filemode2" 
+                        value="file_known2" checked />
+          </td>
+          <td width="25%" class="label">Known:</td>
+          <td width="25%">
+            <input type='text' name='file_known2' size="32">
+          </td>
+        </tr>
+        <tr>
+          <td width="5%">
+                <input type="radio" name="filemode2" 
+                        value="file_uploaded2" />
+          </td>
+          <td width="25%" class="label">Uploaded:</td>
+          <td width="25%">
+            <input type='file' name='file_uploaded2' size="32">
+          </td>
+        </tr>
+      </table>
+      <p></p>
+      <input type="submit" value="Difference Files">
+    </form>
+{% endblock column1 %}

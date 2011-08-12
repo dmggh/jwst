@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block column1 %}
+
+<form action="/using/" method="post""> {% csrf_token %}
+    <h2>List Mapping Files Referring to a File</h2>
+    <table>
+      <tr>
+        <td class="label" width="50%">Observatory:</td>
+        <td align="right"><select name="observatory" />
+                <option>hst</option>
+                <option>jwst</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+            <td class="label" width="50%">File:</td>
+            <td align="right"><input type="text" name="referred_file"/></td>
+      </tr>
+      <tr><td><input type="submit" value="Submit" /></td></tr>
+    </table>
+</form>
+
+{% endblock column1 %}

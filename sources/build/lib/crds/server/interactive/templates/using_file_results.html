@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% load stdtags %}
+
+{% block contents %}
+    <h2>Files of {{observatory|grey}} referring to {{referred_file|grey}}</h2>
+    <table>
+    {% for line in uses_files %}
+    <tr><td class="success">{{line}}</td></tr>
+    {% endfor %}
+    </table>
+{% endblock contents %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% load stdtags %}
+
+{% block contents %}
+
+    <h2>Certify File {{certified_file|grey}}</h2>
+    {% if status == "OK" %}
+    <h3 class="success">
+    {% else %}
+    <h3 class="error">
+    {% endif %}
+    {{status}}
+    </h3>
+    
+    {% for line in certify_lines %}
+    <p>{{line|safe}}</p>
+    {% endfor %}
+
+{% endblock contents %}

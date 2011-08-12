@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block column1 %}
+    <h2>Enable or disable file (Blacklisting)</h2>
+    <form method="post" action="/blacklist/" enctype="multipart/form-data"> 
+      {% csrf_token %}
+      <table width="100%">
+        <tr>
+            <td class="label" width="15%">Observatory:</td>
+            <td width="25%"><select name="observatory" />
+                <option>hst</option>
+                <option>jwst</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+          <td width="15%" class="label">File:</td>
+          <td width="25%">
+            <input type='text' name='file_known' size="40" />
+          </td>
+        </tr>
+        <tr>
+          <td width="15%" class="label">Mark as:</td>
+          <td width="25%">
+            <select name='badflag'/>
+                <option>bad</option>
+                <option>ok</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td width="15%" class="label">Reason:</td>
+          <td width="30%"><textarea name="why" rows="4" cols="40"></textarea>
+          </td>
+        </tr>
+      </table>
+      <p></p>
+      <input type="submit" value="Submit">
+    </form>
+{% endblock column1 %}
