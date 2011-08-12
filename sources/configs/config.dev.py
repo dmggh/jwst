@@ -1,4 +1,3 @@
-install_dir='/Users/jmiller/work/workspace_pyetc/pyetc/webserver'
 #
 # This is a config file for developers running pyetc.
 #
@@ -38,7 +37,7 @@ import os
 #   wsgi
 #       configure to use apache with wsgi - not implemented yet
 #
-servertype = 'mod_python'
+servertype = 'django'
 
 #
 # http_port is the port number that the web server should listen on. 
@@ -86,6 +85,9 @@ dbtype='sqlite'
 #
 #
 # install_dir="/data1/sienkiew/arf"
+
+install_dir=os.getcwd()
+
 #
 #
 # If the install script has to create the config.py to use by copying
@@ -108,3 +110,7 @@ telescopes = [ 'hst', 'jwst' ]
 
 import pwd
 version_prefix=pwd.getpwuid(os.getuid())[0]
+install_dir='/home/jmiller/workspace_crds/CRDS_server/webserver'
+CRDS_REFERENCE_URL = "ftp://ftp.stsci.edu/cdbs/"   # .e.g http://crds_refs.stsci.edu
+CRDS_MAPPING_URL =   "http://localhost:8000"
+

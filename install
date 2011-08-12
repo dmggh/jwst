@@ -1,5 +1,9 @@
-:
-#
+#! /bin/sh -x
+
+# This install script is heavily based on the PyETC install script
+# CRDS is intended to use the same LAMP stack as pyetc, with emphasis on Python
+
+export SERVER_SOURCES=sources   # CRDS_server/sources
 
 if [ X$1 = X-r ]
 then
@@ -18,41 +22,10 @@ then
 	# though we might not use it.
 	case `hostname`
 	in
-	quagga.stsci.edu)
-		third_party=/data1/pyetc_third_party_3
-		. $third_party/third_party_select.sh
-		;;
 	chicha.stsci.edu)
 		third_party=/Users/sosey/dev/ssb/PyETC/pyetc_third_party
 		;;
-	daisy.stsci.edu)
-		third_party=/Users/lindsay/dev/ssb/PyETC/pyetc_third_party_leopard
-		;;
-	arzach.stsci.edu)
-		third_party=/eng/ssb/pyetc/pyetc_third_party_rhe4
-		add_library_path=/eng/ssb/pyetc/pyetc_third_party_rhe4/lib
-		;;
 	etc-dev1.stsci.edu)
-		third_party=/eng/ssb/pyetc/pyetc_third_party_rhe4
-		add_library_path=/eng/ssb/pyetc/pyetc_third_party_rhe4/lib
-		;;
-	gaudete.stsci.edu)
-		third_party=/eng/ssb/pyetc/pyetc_third_party_rhe4
-		add_library_path=/eng/ssb/pyetc/pyetc_third_party_rhe4/lib
-		;;
-	thor.stsci.edu)
-		third_party=/eng/ssb/pyetc/pyetc_third_party_rhe4
-		add_library_path=/eng/ssb/pyetc/pyetc_third_party_rhe4/lib
-		;;
-	## copy/paste the next three lines and edit them to show the name
-	## of your machine and where you extracted the third_party tar file
-	banana.stsci.edu)
-		third_party=/eng/ssb/pyetc/pyetc_third_party_leopard
-		;;
-	cadeau.stsci.edu)
-		third_party=/Users/iraf/pyetc_third_party
-		;;
-	wonkabar.stsci.edu)
 		third_party=/eng/ssb/pyetc/pyetc_third_party_rhe4
 		add_library_path=/eng/ssb/pyetc/pyetc_third_party_rhe4/lib
 		;;
@@ -110,27 +83,27 @@ fi
 
 if [ "$rc" = 0 ]
 then
-	if [ ! -f etc_web/config.py ]
+	if [ ! -f ${SERVER_SOURCES}/config.py ]
 	then
 		echo ''
 		echo 'creating default config file'
 		echo ''
-		cp  etc_web/configs/config.dev.py etc_web/config.py
+		cp  ${SERVER_SOURCES}/configs/config.dev.py ${SERVER_SOURCES}/config.py
 	fi
 fi
 
 ###
 ### make sure there is an install dir set
 ###
-if grep -q -s ^install_dir= etc_web/config.py
+if grep -q -s ^install_dir= ${SERVER_SOURCES}/config.py
 then
         :
 else
 	if [ "$rc" = 0 ]
 	then
-		echo "install_dir='`pwd`/webserver'" > etc_web/tmp
-		cat etc_web/config.py >> etc_web/tmp
-		mv etc_web/tmp etc_web/config.py
+		echo "install_dir='`pwd`/webserver'" > ${SERVER_SOURCES}/tmp
+		cat ${SERVER_SOURCES}/config.py >> ${SERVER_SOURCES}/tmp
+		mv ${SERVER_SOURCES}/tmp ${SERVER_SOURCES}/config.py
 	else 
 		echo no install_dir in config file
 		exit 1
@@ -142,7 +115,7 @@ fi
 ### gather config values that we need in this script
 ###
 
-python etc_web/sh_config.py install_dir port PYSYN_CDBS servertype dbtype debug data_dir debug_javascript noreload > tmp
+python ${SERVER_SOURCES}/sh_config.py install_dir port PYSYN_CDBS servertype dbtype debug data_dir debug_javascript noreload > tmp
 . ./tmp
 rm -f tmp
 
@@ -193,7 +166,7 @@ then
 	fi
 fi
 
-PYTHONPATH=$install_dir/python/lib/python/pyetc:$install_dir/thirdparty/lib/python:$PYTHONPATH
+PYTHONPATH=$install_dir/python/lib/python/crds/server:$install_dir/thirdparty/lib/python:$PYTHONPATH
 export PYTHONPATH
 
 PATH=$install_dir/python/bin:$PATH
@@ -208,7 +181,7 @@ mkdir -p $install_dir/python/bin
         then
                 echo 'setenv LD_LIBRARY_PATH '${LD_LIBRARY_PATH}
         fi
-        echo 'unsetenv DJANGO_SETTINGS_MODULE PYSYN_CDBS PYETC_DJANGO_SERVER'
+        echo 'unsetenv DJANGO_SETTINGS_MODULE PYSYN_CDBS CRDS_DJANGO_SERVER'
 	echo 'setenv SERVER_PORT '$port
 
 	echo 'setenv PATH '$PATH
@@ -251,7 +224,7 @@ mod_python)
 
 	cat servers/apache_dso.$dso_version >>  $install_dir/server/conf/httpd.conf
 
-        python etc_web/sh_config.py add_ldap_auth > tmp
+        python ${SERVER_SOURCES}/sh_config.py add_ldap_auth > tmp
         . tmp
 
 	if [ "$apachemod" = "" ]
@@ -307,7 +280,7 @@ mod_python)
 
         # add debug-only values to env.csh
         (
-        echo 'setenv DJANGO_SETTINGS_MODULE pyetc.etc_web.settings'
+        echo 'setenv DJANGO_SETTINGS_MODULE crds.server.settings'
         echo 'setenv PYSYN_CDBS '$PYSYN_CDBS
         ) >> env.csh
 
@@ -321,18 +294,19 @@ django)
 		exit 1
 	fi
 
-        hostname=`hostname`
+        # hostname=`hostname`
+	hostname=localhost
         (
-        echo 'setenv DJANGO_SETTINGS_MODULE pyetc.etc_web.settings'
+        echo 'setenv DJANGO_SETTINGS_MODULE crds.server.settings'
         echo '# we are runnning in the context of the django test server'
         echo 'setenv PYSYN_CDBS '$PYSYN_CDBS
-        echo 'setenv PYETC_DJANGO_SERVER 1'
+        echo 'setenv CRDS_DJANGO_SERVER 1'
         ) >> env.csh
 
         (
         echo '#!/bin/csh'
         echo 'source env.csh'
-        echo "cd $install_dir/python/lib/python/pyetc/etc_web"
+        echo "cd $install_dir/python/lib/python/crds/server"
         echo "exec python manage.py runserver $noreload $hostname:$port"
         ) > run
         (
@@ -378,7 +352,7 @@ else
         cpio_quiet=''
 fi
 
-find htdocs | grep -v '\.svn' | cpio $cpio_quiet -oc | ( cd $install_dir ; cpio $cpio_quiet -icdum  )
+# find htdocs | grep -v '\.svn' | cpio $cpio_quiet -oc | ( cd $install_dir ; cpio $cpio_quiet -icdum  )
 
 case "$rc"
 in
@@ -401,7 +375,7 @@ esac
 # prevent the user from having .pydistutilsrc that hurts us
 here=`pwd`
 
-for x in etc_web etc_engine etc_instruments test_utilities pysynphot pandokia instruments web engine
+for x in sources
 do
 	if [ ! -d $x ]
 	then
@@ -418,32 +392,32 @@ do
 	fi
 done
 
-cp test_utilities/*.py $install_dir/python/lib/python
-python -m py_compile $install_dir/python/lib/python/*.py
-cp test_utilities/bin/*  $install_dir/python/bin
+# cp test_utilities/*.py $install_dir/python/lib/python
+# ???? python -m py_compile $install_dir/python/lib/python/*.py
+# cp test_utilities/bin/*  $install_dir/python/bin
 
 ###
 ### install the special data files that are not in cdbs and not in sources
 ###
-
-if [ ! -d rundata ]
-then
-	echo NO rundata directory - you need to svn update
-	exit 1
-fi
-
-( 
+#
+#if [ ! -d rundata ]
+#then
+#	echo NO rundata directory - you need to svn update
+#	exit 1
+#fi
+#
+#( 
 	# preserve compatibility with old method of getting these files, in case we need it.
 	# the old system does not have directories in rundata, so it is ok not to copy them.
-	cd rundata
-	for x in *
-	do
-		if [ ! -d $x ] 
-		then
-			cp $x $install_dir/python/lib/python/pyetc/etc_engine/data/
-		fi
-	done
-)
+#	cd rundata
+#	for x in *
+#	do
+#		if [ ! -d $x ] 
+#		then
+#			cp $x $install_dir/python/lib/python/crds/data/
+#		fi
+#	done
+#)
 
 
 ###
@@ -454,7 +428,7 @@ case "$dbtype"
 in
 
 sqlite)
-        ( cd $install_dir/python/lib/python/pyetc/etc_web ; python manage.py syncdb )
+        ( cd $install_dir/python/lib/python/crds/server ; python manage.py syncdb )
         if [ "$servertype" = 'mod_python' ]
         then
                 echo ''
@@ -463,12 +437,12 @@ sqlite)
         fi
         ;;
 
-pyetc[12])
-        ( cd $install_dir/python/lib/python/pyetc/etc_web ; python manage.py syncdb )
+crds[12])
+        ( cd $install_dir/python/lib/python/crds/server ; python manage.py syncdb )
         ;;
 
 production:*)
-        ( cd $install_dir/python/lib/python/pyetc/etc_web ; python manage.py syncdb )
+        ( cd $install_dir/python/lib/python/crds/server ; python manage.py syncdb )
         ;;
 
 *)
@@ -476,7 +450,7 @@ production:*)
         echo "install does not recognize dbtype $dbtype"
         echo "you may need to:"
         echo " source env.csh"
-        echo " cd $install_dir/python/lib/python/pyetc/etc_web ; python manage.py syncdb "
+        echo " cd $install_dir/python/lib/python/crds/server ; python manage.py syncdb "
         echo "but probably you just have an error in config.py"
         echo ""
         ;;
