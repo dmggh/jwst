@@ -1,0 +1,48 @@
+#!/bin/sh
+#
+# This is the rc script that starts pyetc instances at system boot time.
+# The file init_rc is meant to be installed by root, but it just runs
+# this script as the user "iraf".
+#
+# The file "active" contains a list of directory names where the system
+# should start pyetc as user "iraf".  The directory name is the directory
+# of pyetc/ where you find the ./run and ./stop scripts
+#
+
+cd `dirname $0`
+
+looping() {
+	for dir in `cat active`
+	do
+		echo 'XXXXX'
+		echo $dir
+		( 
+		set -x
+		set -e
+		cd $dir
+		$1
+		echo OK
+		)
+	done
+}
+	
+stat_fn() {
+	sed 's/^/PID=/' < webserver/server/run/httpd.pid
+}
+
+case "$1" in
+  start)
+	looping ./run
+        ;;
+  stop)
+	looping ./stop
+        ;;
+  status)
+	looping stat_fn
+        ;;
+  *)
+        echo "Usage: $0 {start|stop|status}"
+        exit 1
+esac
+
+exit 0

@@ -250,12 +250,12 @@ mod_python)
                 cat servers/httpd.add_ldap >> $install_dir/server/conf/httpd.conf
         fi
 
-        if [ "$debug" = "True" ]
-        then
-                cat servers/httpd.redirect_debug >> $install_dir/server/conf/httpd.conf
-        else
-                cat servers/httpd.redirect_nodebug >> $install_dir/server/conf/httpd.conf
-        fi
+#        if [ "$debug" = "True" ]
+#        then
+#                cat servers/httpd.redirect_debug >> $install_dir/server/conf/httpd.conf
+#        else
+#                cat servers/httpd.redirect_nodebug >> $install_dir/server/conf/httpd.conf
+#        fi
 
         sed -e "s?SUB_APACHEMOD?$apachemod?g" -e "s?SUB_DIR?$install_dir?g" -e "s?SUB_PORT?$port?g" -e "s?SUB_CDBS?$PYSYN_CDBS?g"  < $install_dir/server/conf/httpd.conf > tmp
         mv tmp $install_dir/server/conf/httpd.conf
@@ -352,7 +352,7 @@ else
         cpio_quiet=''
 fi
 
-# find htdocs | grep -v '\.svn' | cpio $cpio_quiet -oc | ( cd $install_dir ; cpio $cpio_quiet -icdum  )
+find htdocs | grep -v '\.svn' | cpio $cpio_quiet -oc | ( cd $install_dir ; cpio $cpio_quiet -icdum  )
 
 case "$rc"
 in
@@ -391,6 +391,13 @@ do
 		)
 	fi
 done
+
+echo "Instaling django-json-rpc"
+tar zxf third_party/django-json-rpc-0.6.1.pygz
+cd django-json*
+python setup.py install --home $install_dir/python >/dev/null
+cd ..
+rm -rf django-json-rpc*
 
 # cp test_utilities/*.py $install_dir/python/lib/python
 # ???? python -m py_compile $install_dir/python/lib/python/*.py

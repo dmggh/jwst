@@ -1,0 +1,44 @@
+The apache config file is created by catting together these files in
+this order, then editing various SUB_ values to insert config items.
+
+servers/httpd.mod_python.conf
+	basic config
+
+servers/apache_dso.$dso_version
+	list of LoadModule commands - dso_version is 2.2 for RHE 5
+
+servers/httpd.add_ldap
+	only if the config file asks for authentication - probably
+	will be obsolete soon
+
+one of:
+	servers/httpd.redirect_debug
+	servers/httpd.redirect_nodebug
+		create redirects from / to get you to the app
+
+
+Values that are substituted in the created config file are:
+
+SUB_APACHEMOD
+	directory to load apache modules that we compile 
+
+SUB_DIR
+	install directory
+
+SUB_PORT
+	port number to listen on
+
+SUB_CDBS
+	value for PYSYN_CDBS
+
+
+--
+
+init_rc is a script for use in /etc/rc.d; it runs as root, but
+does "su iraf -c" for everything
+
+rc_script is a script to install in /data1/boot/rc_script.  It starts
+pyetc in the directories listed in the file /data1/boot/active
+
+See the comments in rc_script for more details
+

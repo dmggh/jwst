@@ -1,0 +1,12 @@
+<Location />
+# here is how you get authentication from ldap
+#
+# I stole this from Leigh McCuen's config file on greenink.
+AuthType Basic
+        AuthName "LDAP"
+        AuthLDAPURL ldap://ldap.stsci.edu/o=stsci.edu?uid?sub?(&(objectClass=person)(!(employeeType=inactive)))
+        Require valid-user
+        require ldap-filter &(uid=*)
+
+</Location>
+
