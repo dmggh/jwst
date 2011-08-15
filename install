@@ -392,7 +392,7 @@ do
 	fi
 done
 
-echo "Instaling django-json-rpc"
+echo "Installing django-json-rpc"
 tar zxf third_party/django-json-rpc-0.6.1.pygz
 cd django-json*
 python setup.py install --home $install_dir/python >/dev/null
