@@ -211,21 +211,35 @@ def submit_file_post(request):
     # Get the UploadedFile object
     ufile = get_uploaded_file(request, "filename")
 
+    original_name = ufile.name
+
     # Determine the temporary and permanent file paths, keeping file temporary.
     upload_location, permanent_location = handle_crds_locations(ufile)
 
     # Check the file,  leaving no server state if it fails.  Give error results.
-    do_certify_file(ufile.name, upload_location)
+    do_certify_file(original_name, upload_location)
     
     # Copy the temporary file to its permanent location.
     upload_file(ufile, permanent_location)
+    
+    modifier_name = check_value(request.POST["modifier_name"], "[A-Za-z0-9 _.@]+",
+                              "Invalid modifier name.")
+
+    description = check_value(request.POST["description"], "[^<>]+",
+                              "Invalid description.")
 
     # Make a database record of this delivery.
-    create_delivery_blob(request, observatory, ufile.name, permanent_location)
+    create_delivery_blob(observatory, original_name, permanent_location,
+        request.user, request.user.email, modifier_name, description)
     
     return os.path.basename(permanent_location)
-    
+
+
 def do_certify_file(basename, certifypath, check_references=False):
+    """Run un-trapped components of crds.certify and re-raise any exception
+    as a CrdsError which will be displayed as a form error on the submission
+    page.
+    """
     try:
         if rmap.is_mapping(basename):
             certify.certify_mapping(
@@ -233,7 +247,7 @@ def do_certify_file(basename, certifypath, check_references=False):
         else:
             certify.certify_fits(certifypath)
     except Exception, exc:
-        raise CrdsError(repr(exc))
+        raise CrdsError(str(exc))
 
 def get_uploaded_file(
     request, formvar, legal_exts=(".fits", ".pmap", ".imap", ".rmap")):
@@ -282,7 +296,8 @@ def create_crds_name(upload_location, upload_name):
     """
     return upload_name   # XXX Fake for now
 
-def create_delivery_blob(request, observatory, upload_name, permanent_location):
+def create_delivery_blob(observatory, upload_name, permanent_location, 
+        deliverer_user, deliverer_email, modifier_name, description):
     """Make a record of this delivery in the CRDS database.
     """
     if upload_name.endswith(".fits"):
@@ -293,10 +308,10 @@ def create_delivery_blob(request, observatory, upload_name, permanent_location):
     blob.pathname = permanent_location
     blob.delivery_date = timestamp.now()
     blob.sha1sum = blob.checksum()
-    blob.deliverer_user = request.user
-    blob.deliverer_email = request.user.email
-    blob.modifier_name = request.POST["modifier_name"]
-    blob.description = request.POST["description"]
+    blob.deliverer_user = deliverer_user
+    blob.deliverer_email = deliverer_email
+    blob.modifier_name = modifier_name
+    blob.description = description
     instrument, filekind, serial = utils.get_file_properties(
             observatory, permanent_location)
     blob.observatory = observatory
