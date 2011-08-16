@@ -26,15 +26,15 @@ def submit_mappings(context,
                     description="Initial mass database import"):
     ctx = rmap.get_cached_mapping(context)
     for mapping in ctx.mapping_names():
-        existing_location = rmap.locate_mapping(mapping)
-        observatory = utils.context_to_observatory(context)
+        existing_location = rmap.locate_file(
+            ctx.observatory, mapping, mode="server")
         try:
             blob = models.MappingBlob.load(mapping)
             log.info("Skipping existing mapping", repr(mapping))
         except LookupError:
             log.info("Submitting", repr(mapping), "from", repr(existing_location))
             views.create_delivery_blob(
-                observatory, 
+                observatory=ctx.observatory, 
                 upload_name=mapping, 
                 permanent_location=existing_location, 
                 deliverer_user=deliverer_user, 
@@ -42,8 +42,36 @@ def submit_mappings(context,
                 modifier_name=modifier_name, 
                 description=description)
 
+def submit_references(context, 
+                    deliverer_user,
+                    deliverer_email="support@stsci.edu", 
+                    modifier_name="Unknown", 
+                    description="Initial mass database import"):
+    ctx = rmap.get_cached_mapping(context)
+    for reference in ctx.reference_names():
+        existing_location = rmap.locate_file(
+            ctx.observatory, reference, mode="server")
+        try:
+            blob = models.ReferenceBlob.load(reference)
+            log.info("Skipping existing reference", repr(reference))
+        except LookupError:
+            log.info("Submitting", repr(reference), "from", repr(existing_location))
+            try:
+                views.create_delivery_blob(
+                    observatory=ctx.observatory, 
+                    upload_name=reference, 
+                    permanent_location=existing_location, 
+                    deliverer_user=deliverer_user, 
+                    deliverer_email=deliverer_email, 
+                    modifier_name=modifier_name, 
+                    description=description)
+            except Exception:
+                log.error("Submission FAILED")
+                
 def main(args):
     submit_mappings(args[0], deliverer_user=args[1], deliverer_email=args[2],
+                    modifier_name=args[3], description=args[4])
+    submit_references(args[0], deliverer_user=args[1], deliverer_email=args[2],
                     modifier_name=args[3], description=args[4])
     
 if __name__ == "__main__":
