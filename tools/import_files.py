@@ -49,8 +49,12 @@ def submit_references(context,
                     description="Initial mass database import"):
     ctx = rmap.get_cached_mapping(context)
     for reference in ctx.reference_names():
-        existing_location = rmap.locate_file(
-            ctx.observatory, reference, mode="server")
+        try:
+            existing_location = rmap.locate_file(
+                    ctx.observatory, reference, mode="server")
+        except Exception:
+            log.error("Can't locate", repr(reference))
+            existing_location = "unknown"
         try:
             blob = models.ReferenceBlob.load(reference)
             log.info("Skipping existing reference", repr(reference))
@@ -66,14 +70,15 @@ def submit_references(context,
                     modifier_name=modifier_name, 
                     description=description)
             except Exception:
-                log.error("Submission FAILED")
+                log.error("Submission FAILED for", repr(reference))
                 
 def main(args):
     submit_mappings(args[0], deliverer_user=args[1], deliverer_email=args[2],
                     modifier_name=args[3], description=args[4])
     submit_references(args[0], deliverer_user=args[1], deliverer_email=args[2],
                     modifier_name=args[3], description=args[4])
-    
+    log.standard_status()
+
 if __name__ == "__main__":
     if len(sys.argv) == 1:
         print >>sys.stderr, "usage: import_files.py <context> <deliverer> <email> <modifier> <description>"
