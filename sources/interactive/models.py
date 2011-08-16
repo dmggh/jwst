@@ -17,7 +17,7 @@ INSTRUMENTS = ["acs","cos","stis","wfc3"]
 REFTYPES = ['apdstab', 'apertab', 'atodtab', 'badttab', 'biasfile', 'bpixtab',
             'brftab', 'brsttab', 'ccdtab', 'cdstab', 'cfltfile', 'crrejtab',
             'darkfile', 'deadtab', 'dgeofile', 'disptab', 'echsctab', 'exstab',
-            'flatfile', 'geofile', 'halotab', 'idctab', 'inangtab',
+            'flatfile', 'gactab', 'geofile', 'halotab', 'idctab', 'inangtab',
             'lamptab', 'lfltfile', 'mdriztab', 'mlintab', 'mofftab', 'nlinfile',
             'oscntab', 'pctab', 'pfltfile', 'phatab', 'phottab', 'riptab',
             'sdctab', 'spottab', 'sptrctab', 'srwtab', 'tdctab',
@@ -120,8 +120,11 @@ class Blob(object):
         a possibly coerced `value` if it's legal,  else raise an exception.
         """
         type_ = self.fields[attr].type
-        if self.fields[attr].nonblank and not str(value).strip():
-            raise FieldError("Required field " + repr(attr) + " is blank.")
+        if not str(value).strip():
+            if self.fields[attr].nonblank: 
+                raise FieldError("Required field " + repr(attr) + " is blank.")
+            else:
+                return ""
         if isinstance(type_, str):   # treat str-types as regexes for value
             if re.match(type_, str(value)):
                 return value
