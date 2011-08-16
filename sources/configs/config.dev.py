@@ -87,8 +87,12 @@ dbtype='sqlite'
 #
 #
 # install_dir="/data1/sienkiew/arf"
+# install_dir=os.getcwd() + "/webserver"
 
-install_dir=os.getcwd()
+# if not defined,  install_dir is defined by the install script essentially
+# as os.getcwd() + "/webserver" at the time of running ./install from trunk
+# Note that os.getcwd() is not valid in the later context of running the server
+# so install_dir needs to be fixed at install time.
 
 #
 #
@@ -112,7 +116,7 @@ telescopes = [ 'hst', 'jwst' ]
 
 import pwd
 version_prefix=pwd.getpwuid(os.getuid())[0]
-install_dir='/home/jmiller/work/workspace_crds/CRDS_server/webserver'
+
 CRDS_REFERENCE_URL = "ftp://ftp.stsci.edu/cdbs/"   # .e.g http://crds_refs.stsci.edu
 CRDS_MAPPING_URL =   "http://localhost:"+str(port)
 
