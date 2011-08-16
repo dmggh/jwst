@@ -499,10 +499,11 @@ def browse_files_post_guts(request, uploaded, original_name, browsed_file):
     if not uploaded:
         browse_lines = get_database_lines(original_name, browsed_file)      
     else:
-        browse_lines = ["<h3>Uploaded file <span class='grey'>%s</span></h3>"]
-    
+        browse_lines = [
+            "<h3>Uploaded file <span class='grey'>%s</span></h3>" % uploaded 
+        ]
+        
     browse_lines += ["<h3>File Contents</h3>"]
-    
     if rmap.is_mapping(original_name):
         browse_lines += browsify_mapping(original_name, browsed_file)
     else:
@@ -529,9 +530,11 @@ def get_database_lines(original_name, browsed_file):
         return browse_lines + ['<h3 class="error">database entry not found</h3>']
      
     browse_lines += ["<table>"]
-    for fld in blob.fields:
-        browse_lines += "<tr><td>%s</td><td>%s</td></tr>" % \
-            (fld, getattr(blob, fld))
+    for fld in sorted(blob.fields):
+        browse_lines += [
+            "<tr><td class='label''>%s</td>"
+            "<td class='value'>%s</td></tr>" % (fld, getattr(blob, fld))
+        ]
     browse_lines += ["</table>"]
     
     return browse_lines
@@ -564,11 +567,23 @@ def browsify_mapping_line(line):
     line = re.sub(r"(UseAfter)(\()",
                   r"<span class='green'>\1</span>\2",
                   line)
-    # mapping or reference filename
+    
+    # Tabs -->   4 spaces
+    line = re.sub(r"\t", r"&nbsp;"*4, line)
+    
+    # HACK:  replace any sequence of whitespace with one "tab"
+    line = re.sub(r"^\s+", r"&nbsp;"*4, line)
+    
+    # HACK:  add an extra level of indentation to any line ending with .fits',
+    line = re.sub(r"'(.*\.fits',)$",
+                  r"&nbsp;"*4 + r"\1",
+                  line)
+    # mapping or reference filename --> /browse/<file> link
     line = re.sub(r"'([A-Za-z_0-9]+.(fits|pmap|imap|rmap))'",
                   r"""<a href='/browse/\1'>'\1'</a>""",
                   line)
-    return line
+
+    return "<p>" + line + "</p>"
 
 # Using TPN,  extract interesting header keywords or tables???
 def browsify_reference(original_name, browsed_file):
