@@ -188,6 +188,9 @@ mkdir -p $install_dir/python/bin
 
 ) > env.csh
 
+# Add client settings 
+cat ../CRDS/env.csh >> env.csh
+
 
 # This is a place for matplotlib to store cache files.  We don't actually
 # try to put any config there, and only the apache server knows to use it.

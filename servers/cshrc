@@ -10,3 +10,5 @@ setenv apachemod /data1/pyetc_third_party_5/lib/apache/
 
 setenv EDITOR emacs
 
+alias crds "cd /home/jmiller/CRDS/CRDS_server"
+
