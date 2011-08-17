@@ -1,4 +1,4 @@
-install_dir='/Users/jmiller/work/workspace_crds/CRDS_server/webserver'
+install_dir='/home/jmiller/workspace_crds/CRDS_server/webserver'
 #
 # This is a config file for developers running pyetc.
 #
@@ -88,10 +88,12 @@ dbtype='sqlite'
 #
 #
 # install_dir="/data1/sienkiew/arf"
-
 # install_dir=os.getcwd() + "/webserver"
 
-database_file = install_dir + '/python/lib/python/crds/server/sqlite3.db'
+# if not defined,  install_dir is defined by the install script essentially
+# as os.getcwd() + "/webserver" at the time of running ./install from trunk
+# Note that os.getcwd() is not valid in the later context of running the server
+# so install_dir needs to be fixed at install time.
 
 #
 #

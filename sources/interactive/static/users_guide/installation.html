@@ -1,0 +1,208 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Installation &mdash; CRDS Users Manual v1.0a documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="CRDS Users Manual v1.0a documentation" href="index.html" />
+    <link rel="next" title="Client Usage" href="client_use.html" />
+    <link rel="prev" title="Release Notes for CRDS 0.1" href="release_notes.html" />
+<link rel="stylesheet" href="_static/style.css"  type="text/css">
+
+  </head>
+  <body>
+<div id="header" class="related">
+  <a href="/"><img ALT="Hubble Space Telescope" SRC="_static/HSTBlackTitle.jpg" style="border-style: none"></a>
+    <h2>Calibration and Reference Data System (CRDS)</h2>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="package-overview">
+<h2>Package Overview<a class="headerlink" href="#package-overview" title="Permalink to this headline">¶</a></h2>
+<p>From the perspective of an end user,  CRDS consists of 3 or more Python
+packages which implement different capabilities:</p>
+<blockquote>
+<ul>
+<li><dl class="first docutils">
+<dt>crds</dt>
+<dd><ul class="first last simple">
+<li>core package enabling local use and development of mappings
+and reference files.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>crds.client</dt>
+<dd><ul class="first last simple">
+<li>network client library for interacting with the central CRDS server.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>crds.hst</dt>
+<dd><ul class="first last simple">
+<li>observatory personality package for HST,  with initial mappings for
+bootstrapping CRDS and defining how HST files are named, located, and
+certified.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>crds.jwst</dt>
+<dd><ul class="first last simple">
+<li>analogous to crds.hst,  for JWST,  not yet developed.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</blockquote>
+</div>
+<div class="section" id="getting-the-source-code">
+<h2>Getting the Source Code<a class="headerlink" href="#getting-the-source-code" title="Permalink to this headline">¶</a></h2>
+<p>At this stage of development,  installing CRDS is accomplished by checking
+CRDS source code out from subversion:</p>
+<div class="highlight-python"><pre>% svn co https://subversion.assembla.com/svn/crds/trunk  crds
+% cd crds</pre>
+</div>
+</div>
+<div class="section" id="setting-up-your-environment">
+<h2>Setting up your Environment<a class="headerlink" href="#setting-up-your-environment" title="Permalink to this headline">¶</a></h2>
+<p>The CRDS checkout has a template file for the C-shell which defines
+environment variables, env.csh.</p>
+<ul class="simple">
+<li>CRDS_MAPPATH defines the root location where your mappings files
+will be stored.  If left undefined mappings are installed/cached
+relative to the crds.&lt;observatory&gt; package directory, .e.g. crds.hst.</li>
+<li>CRDS_REFPATH defines the root location where locally cached reference
+files will be stored.   If left undefined references files are cached
+relative to the crds.&lt;observatory&gt;.references package directory.</li>
+<li>CRDS_SERVER_URL defines the base URL for accessing CRDS network
+services.  For non-developers this will always be set to the current
+operational CRDS server in env.csh and need not be changed.</li>
+</ul>
+<p>Edit env.csh according to your preferences for where to put CRDS files.
+Then source env.csh to define the variables in your environment:</p>
+<div class="highlight-python"><pre>% source env.csh</pre>
+</div>
+</div>
+<div class="section" id="run-the-install-script">
+<h2>Run the Install Script<a class="headerlink" href="#run-the-install-script" title="Permalink to this headline">¶</a></h2>
+<p>CRDS is partitioned into 3-4 Python packages each of which has it&#8217;s own
+setup.py script.   To make things easier,  the top level directory has a
+single &#8220;install&#8221; script which runs all the individual setup.py scripts
+for you:</p>
+<div class="highlight-python"><pre>% ./install
+Installing lib
+Installing hst
+Installing client
+Installing django-json-rpc
+zip_safe flag not set; analyzing archive contents...</pre>
+</div>
+</div>
+<div class="section" id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<p>CRDS was developed in and for an STSCI Python environment suitable for pipeline
+processing.   CRDS requires these additional packages to be installed in your
+Python environment:</p>
+<blockquote>
+<ul class="simple">
+<li>numpy</li>
+<li>pyfits</li>
+</ul>
+</blockquote>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+   <a href="index.html"><h2>Top</h2></a>
+   <br/>
+   
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Installation</a><ul>
+<li><a class="reference internal" href="#package-overview">Package Overview</a></li>
+<li><a class="reference internal" href="#getting-the-source-code">Getting the Source Code</a></li>
+<li><a class="reference internal" href="#setting-up-your-environment">Setting up your Environment</a></li>
+<li><a class="reference internal" href="#run-the-install-script">Run the Install Script</a></li>
+<li><a class="reference internal" href="#dependencies">Dependencies</a></li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="release_notes.html"
+                        title="previous chapter">Release Notes for CRDS 0.1</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="client_use.html"
+                        title="next chapter">Client Usage</a></p>
+
+   
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+   <br>
+   <a href="/"><h2>Return to CRDS</h2></a>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+<div class="footer" >
+  <p align="left">
+    If you have any questions regarding CRDS, please contact the
+    STScI Help Desk <a HREF="mailto:help@stsci.edu">(help@stsci.edu)</a>.
+  </p>
+  
+  <p align="left"> <a HREF="http://www.stsci.edu/institute/Copyright">Copyright Notice</a> </p>
+  
+  <p align="left"> <img BORDER="0" ALT="STScI" SRC="_static/HSTBanner.gif"/> </p>
+</div>
+
+  </body>
+</html>
