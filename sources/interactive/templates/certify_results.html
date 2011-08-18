@@ -5,16 +5,29 @@
 {% block contents %}
 
     <h2>Certify File {{certified_file|grey}}</h2>
-    {% if status == "OK" %}
-    <h3 class="success">
+    {% if certify_status == "OK" %}
+        <h3 class="success">
     {% else %}
-    <h3 class="error">
+        <h3 class="error">
     {% endif %}
-    {{status}}
-    </h3>
-    
+        {{certify_status}}
+        </h3>
     {% for line in certify_lines %}
-    <p>{{line|safe}}</p>
+        <p>{{line|safe}}</p>
     {% endfor %}
+
+    {% if is_reference %}
+        <h2>Fitscheck File</h2>
+        {% if fitscheck_status == "OK" %}
+            <h3 class="success">
+        {% else %}
+            <h3 class="error">
+        {% endif %}
+            {{fitscheck_status}}
+            </h3>
+        {% for line in fitscheck_lines %}
+            <p>{{line|safe}}</p>
+        {% endfor %}
+    {% endif %}
 
 {% endblock contents %}

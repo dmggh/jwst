@@ -377,23 +377,28 @@ def certify_post(request):
     shallow = "--shallow" if not check_references else ""
     mapping = "--mapping" if rmap.is_mapping(original_name) else ""
 
-    certify_lines = ["<h3>CRDS Certify</h3>"]
-    certify_lines += pysh.lines(
+    certify_lines = pysh.lines(
         "python -m crds.certify ${certified_file} ${shallow} ${mapping}")
-    status = "OK" if "0 errors \n" in certify_lines else "Failed."    
+    certify_status = "OK" if "0 errors" in \
+        [ x.strip() for x in certify_lines] else "Failed."    
     
     if not rmap.is_mapping(original_name):
         fitscheck_lines = pysh.lines("fitscheck ${certified_file}")
-        certify_lines += ["<h3>Fitscheck</h3>"] + fitscheck_lines
-        status = "OK" if (status=="OK") and \
-            "0 errors \n" in fitscheck_lines else "Failed."
+        fitscheck_status = "OK" if "0 errors" in \
+            [x.strip() for x in fitscheck_lines] else "Failed."
+    else:
+        fitscheck_status = ""
+        fitscheck_lines = []
 
     if uploaded:
         remove_temporary(certified_file)
 
     return render(request, "certify_results.html", 
-            {"status":status, 
+            {"certify_status":certify_status,
+             "fitscheck_status":fitscheck_status, 
+             "is_reference": not rmap.is_mapping(original_name),
              "certify_lines":certify_lines,
+             "fitscheck_lines":fitscheck_lines,
              "certified_file":original_name})
 
 # ===========================================================================
