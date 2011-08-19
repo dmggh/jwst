@@ -1,0 +1,14 @@
+#! /bin/csh
+
+cd `dirname $0`
+
+svn update
+
+(cd ../CRDS; svn update)
+
+./stop  >& /dev/null
+
+./install
+
+./run
+
