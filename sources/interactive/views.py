@@ -297,7 +297,8 @@ def create_crds_name(upload_location, upload_name):
     return upload_name   # XXX Fake for now
 
 def create_delivery_blob(observatory, upload_name, permanent_location, 
-        deliverer_user, deliverer_email, modifier_name, description):
+        deliverer_user, deliverer_email, modifier_name, description, 
+        add_slow_fields=True):
     """Make a record of this delivery in the CRDS database.
     """
     if upload_name.endswith(".fits"):
@@ -307,17 +308,18 @@ def create_delivery_blob(observatory, upload_name, permanent_location,
     blob.uploaded_as = upload_name
     blob.pathname = permanent_location
     blob.delivery_date = timestamp.now()
-    blob.sha1sum = blob.checksum()
     blob.deliverer_user = deliverer_user
     blob.deliverer_email = deliverer_email
     blob.modifier_name = modifier_name
     blob.description = description
-    instrument, filekind, serial = utils.get_file_properties(
-            observatory, permanent_location)
     blob.observatory = observatory
-    blob.instrument = instrument
-    blob.filekind= filekind
-    blob.serial = serial
+    if add_slow_fields:
+        blob.sha1sum = blob.checksum()
+        instrument, filekind, serial = utils.get_file_properties(
+                observatory, permanent_location)
+        blob.instrument = instrument
+        blob.filekind= filekind
+        blob.serial = serial
     blob.save()
 
 # ===========================================================================
@@ -340,6 +342,19 @@ def blacklist_file_post(request):
     badflag = check_value(request.POST["badflag"], "bad|ok",
             "badflag must be either 'bad' or 'ok'")
     why = request.POST["why"]
+    
+    # Figure out all files which indirectly or directly reference `blacklisted`
+    uses_files = uses.uses([blacklisted], observatory)
+
+    all_blacklisted_files = [blacklisted] + uses_files
+    
+    for also_blacklisted in all_blacklisted_files:
+        do_blacklist(also_blacklisted)
+
+    return render(request, "blacklist_results.html")
+
+def do_blacklist(blacklisted, badflag, why):
+    """Mark one file, `blacklisted`, with status `badflag` and reason `why`."""
     try: 
         if rmap.is_mapping(blacklisted):
             blob = models.MappingBlob.load(blacklisted)
@@ -353,7 +368,6 @@ def blacklist_file_post(request):
     models.AuditBlob.create_record(request.user, "blacklist", blacklisted, why, 
                                    "marked as" + badflag)
     blob.save()
-    return render(request, "blacklist_results.html")
     
         
 # ===========================================================================

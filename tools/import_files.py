@@ -23,7 +23,8 @@ def submit_mappings(context,
                     deliverer_user,
                     deliverer_email="support@stsci.edu", 
                     modifier_name="Unknown", 
-                    description="Initial mass database import"):
+                    description="Initial mass database import",
+                    add_slow_fields=False):
     ctx = rmap.get_cached_mapping(context)
     for mapping in ctx.mapping_names():
         existing_location = rmap.locate_file(
@@ -40,13 +41,15 @@ def submit_mappings(context,
                 deliverer_user=deliverer_user, 
                 deliverer_email=deliverer_email, 
                 modifier_name=modifier_name, 
-                description=description)
+                description=description,
+                add_slow_fields=add_slow_fields)
 
 def submit_references(context, 
                     deliverer_user,
                     deliverer_email="support@stsci.edu", 
                     modifier_name="Unknown", 
-                    description="Initial mass database import"):
+                    description="Initial mass database import",
+                    add_slow_fields=False):
     ctx = rmap.get_cached_mapping(context)
     for reference in ctx.reference_names():
         try:
@@ -68,21 +71,23 @@ def submit_references(context,
                     deliverer_user=deliverer_user, 
                     deliverer_email=deliverer_email, 
                     modifier_name=modifier_name, 
-                    description=description)
+                    description=description,
+                    add_slow_fields=add_slow_fields)
             except Exception:
                 log.error("Submission FAILED for", repr(reference))
                 
 def main(args):
     submit_mappings(args[0], deliverer_user=args[1], deliverer_email=args[2],
-                    modifier_name=args[3], description=args[4])
+                    modifier_name=args[3], description=args[4], add_slow_fields=int(args[5]))
     submit_references(args[0], deliverer_user=args[1], deliverer_email=args[2],
-                    modifier_name=args[3], description=args[4])
+                    modifier_name=args[3], description=args[4],add_slow_fields=int(args[5]))
     log.standard_status()
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
-        print >>sys.stderr, "usage: import_files.py <context> <deliverer> <email> <modifier> <description>"
+        print >>sys.stderr, "usage: import_files.py <context> <deliverer> <email> <modifier> <description> <add_slow_fields>"
     else:
-        main(sys.argv[1:])
+        import cProfile
+        cProfile.runctx("main(sys.argv[1:])", globals(), globals())
 
  
