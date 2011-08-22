@@ -1,0 +1,10 @@
+#! /bin/sh
+
+# This is the command line I use to initialize a developer database for the
+# first time.  It creates database blobs for every file under the closure of
+# hst.pmap,  references as well as mappings.   By default, potentially slow or
+# non-essential stuff (sha1sum, instrument, filekind, serial) is not added by
+# the trailing "0" flag.  Switch to "1" to add those.
+
+python import_files.py hst.pmap jmiller jmiller@stsci.edu unknown "Initial import" 0
+
