@@ -3,8 +3,13 @@
 {% load stdtags %}
 
 {% block contents %}
-
     <h2>Blacklist {{file_known|grey}} of {{observatory|grey}}</h2>
-    <h3 class="success">File marked as {{badflag|grey}}.</h3>
-    
+    <h3 class="success">Files marked as {{badflag|grey}}.</h3>
+    <h3>Affected Files</h3>
+    <table>
+    {% for alsofile in all_blacklisted %}
+        <tr><td>{{alsofile}}</td></tr>
+    {% endfor %}
+    </table>
 {% endblock contents %}
+

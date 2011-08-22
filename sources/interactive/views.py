@@ -235,7 +235,7 @@ def submit_file_post(request):
     return os.path.basename(permanent_location)
 
 
-def do_certify_file(basename, certifypath, check_references=False):
+def do_certify_file(basename, certifypath, check_references=True):
     """Run un-trapped components of crds.certify and re-raise any exception
     as a CrdsError which will be displayed as a form error on the submission
     page.
@@ -306,6 +306,7 @@ def create_delivery_blob(observatory, upload_name, permanent_location,
     elif upload_name.endswith((".pmap", ".imap", ".rmap")):
         blob = models.MappingBlob()
     blob.uploaded_as = upload_name
+    blob.name = os.path.basename(permanent_location)
     blob.pathname = permanent_location
     blob.delivery_date = timestamp.now()
     blob.deliverer_user = deliverer_user
@@ -341,19 +342,23 @@ def blacklist_file_post(request):
             "or underscores.")
     badflag = check_value(request.POST["badflag"], "bad|ok",
             "badflag must be either 'bad' or 'ok'")
-    why = request.POST["why"]
+    why = check_value(request.POST["why"],
+            "[A-Za-z0-9._ ]+", 
+            "Reason description is limited to letters, "
+            "numbers, period, underscore and space.")
     
     # Figure out all files which indirectly or directly reference `blacklisted`
     uses_files = uses.uses([blacklisted], observatory)
 
-    all_blacklisted_files = [blacklisted] + uses_files
+    all_blacklisted = [blacklisted] + uses_files
     
-    for also_blacklisted in all_blacklisted_files:
-        do_blacklist(also_blacklisted)
+    for also_blacklisted in all_blacklisted:
+        do_blacklist(also_blacklisted, badflag, why, request.user)
 
-    return render(request, "blacklist_results.html")
+    return render(request, "blacklist_results.html", 
+                  { "all_blacklisted": all_blacklisted })
 
-def do_blacklist(blacklisted, badflag, why):
+def do_blacklist(blacklisted, badflag, why, user):
     """Mark one file, `blacklisted`, with status `badflag` and reason `why`."""
     try: 
         if rmap.is_mapping(blacklisted):
@@ -365,7 +370,7 @@ def do_blacklist(blacklisted, badflag, why):
     except LookupError:
         raise FieldError("Unknown file " + repr(blacklisted))
     blob.blacklisted = badflag == "bad"
-    models.AuditBlob.create_record(request.user, "blacklist", blacklisted, why, 
+    models.AuditBlob.create_record(user, "blacklist", blacklisted, why, 
                                    "marked as" + badflag)
     blob.save()
     
