@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block column1 %}
+    <h2>Reserve Filename</h2>
+    <form method="post" action="/reserve_name/" enctype="multipart/form-data"> 
+      {% csrf_token %}
+      <table width="100%">
+        <tr>
+          <td width="5%">
+                <input type="radio" name="filemode" 
+                        value="file_known" checked />
+          </td>
+          <td width="25%" class="label">Known File:</td>
+          <td width="25%">
+            <input type='text' name='file_known' size="32">
+          </td>
+        </tr>
+        <tr>
+          <td width="5%">
+                <input type="radio" name="filemode" 
+                        value="by_field" />
+          </td>
+          <td width="25%" class="label">By Parts:</td>
+          <td width="25%">
+          </td>
+        </tr>
+        <tr>
+          <td width="5%">
+          </td>
+          <td width="25%" class="label">Observatory</td>
+          <td width="25%">
+            <select name="observatory">
+                <option>hst</option>
+                <option>jwst</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td width="5%">
+          </td>
+          <td width="25%" class="label">Instrument</td>
+          <td width="25%">
+            <select name="instrument">
+            {% for instr in instruments %}
+            <option>{{instr}}</option>
+            {% endfor %}
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td width="5%">
+          </td>
+          <td width="25%" class="label">Filekind</td>
+          <td width="25%">
+            <select name="filekind">
+            {% for fk in filekinds %}
+                <option>{{fk}}</option>
+            {% endfor %}
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td width="5%">
+          </td>
+          <td width="25%" class="label">Type/Extension</td>
+          <td width="25%">
+            <select name="extension">
+                {% for ext in extensions %}
+                <option>{{ext}}</option>
+                {% endfor %}
+            </select>
+          </td>
+        </tr>
+        <tr></tr>
+      </table>
+      <p></p>
+      <input type="submit" value="Reserve Name">
+    </form>
+{% endblock column1 %}

@@ -505,6 +505,58 @@ def using_file(request):
 
 # ===========================================================================
 
+@error_trap("reserve_name_input.html")
+@login_required
+def reserve_name(request):
+    if request.method == "GET":
+        return render(request, "reserve_name_input.html",
+                      {"instruments":models.INSTRUMENTS+[""],
+                       "filekinds":models.FILEKINDS+[""],
+                       "extensions":models.EXTENSIONS})
+    else:
+        return reserve_name_post(request)
+
+def reserve_name_post(request):
+    observatory = check_value(request.POST["observatory"], 
+            "hst|jwst", "Invalid value for observatory.")
+    mode = check_value(request.POST["filemode"], "file_known|by_field", "Invalid input mode")
+    if mode == "file_known":
+        known_file = check_value(request.POST["file_known"],
+                                 "[A-Za-z0-9_.]+", "Invalid known filename.")
+        instrument, filekind, serial = utils.get_file_properties(
+                observatory, rmap.locate_file(observatory, known_file))
+        extension = os.path.splitext(known_file)[-1]
+    else:
+        instrument = request.POST["instrument"]
+        filekind = request.POST["filekind"]
+        extension = request.POST["extension"]
+    
+    instrument = check_value(instrument, "|".join(models.INSTRUMENTS+[""]), "Invalid instrument")
+    filekind = check_value(filekind, "|".join(models.FILEKINDS+[""]), "Invalid file kind")
+    extension = check_value(extension, "|".join(models.EXTENSIONS), "Invalid file extension")
+    
+    try:
+        if extension == ".pmap":
+            assert instrument == "", "Instrument must be blank for .pmap"
+            assert filekind == "", "File kind must be blank for .pmap"
+        elif extension == ".imap":
+            assert filekind == "", "File kind must be blank for .imap"
+        elif extension in [".rmap",".fits"]:
+            assert instrument != "", "Instrument must be specified for .rmap, .fits"
+            assert filekind != "", "File kind must be specified for .rmap, .fits"
+    except AssertionError, exc:
+        raise CrdsError(str(exc))
+    
+    num = models.CounterBlob.next(observatory, extension, instrument, filekind)
+    
+    parts = [x for x in [observatory, instrument, filekind, "%04d" % num] if x]
+    reserved_name = "_".join(parts) + extension
+    
+    return render(request, "reserve_name_results.html",
+                  {"reserved_name" : reserved_name})
+
+# ===========================================================================
+
 def extension(filename): 
     """Return the file extension of `filename`."""
     return os.path.splitext(filename)[1]

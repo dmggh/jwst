@@ -14,7 +14,7 @@ OBSERVATORIES = ["hst"]
 
 INSTRUMENTS = ["acs","cos","stis","wfc3"]
 
-REFTYPES = ['apdstab', 'apertab', 'atodtab', 'badttab', 'biasfile', 'bpixtab',
+FILEKINDS = ['apdstab', 'apertab', 'atodtab', 'badttab', 'biasfile', 'bpixtab',
             'brftab', 'brsttab', 'ccdtab', 'cdstab', 'cfltfile', 'crrejtab',
             'darkfile', 'deadtab', 'dgeofile', 'disptab', 'echsctab', 'exstab',
             'flatfile', 'gactab', 'geofile', 'halotab', 'idctab', 'inangtab',
@@ -22,6 +22,8 @@ REFTYPES = ['apdstab', 'apertab', 'atodtab', 'badttab', 'biasfile', 'bpixtab',
             'oscntab', 'pctab', 'pfltfile', 'phatab', 'phottab', 'riptab',
             'sdctab', 'spottab', 'sptrctab', 'srwtab', 'tdctab',
             'tdstab', 'wcptab', 'xtractab']
+
+EXTENSIONS = [".pmap",".imap",".rmap",".fits"]
 
 # ============================================================================
 
@@ -205,6 +207,8 @@ class FileBlob(Blob):
         modifier_name = BlobField(str, "person who made these changes",""),
         deliverer_user = BlobField(str, "username who uploaded the file", ""),
         deliverer_email = BlobField(str, "person's e-mail who uploaded the file", ""),
+        status = BlobField(["operational","pending archive","blacklisted","bad"], 
+                           "operational status of this file.", "pending archive"),
         blacklisted_by = BlobField(list, 
             "Comma separated list of files marking this"
             " file as bad,  possibly self.", []),
@@ -217,7 +221,7 @@ class FileBlob(Blob):
             "observatory associated with file", "hst"),
         instrument = BlobField(INSTRUMENTS, 
             "instrument associated with file", "", nonblank=False),
-        filekind = BlobField(REFTYPES, 
+        filekind = BlobField(FILEKINDS, 
             "dataset keyword associated with this file", "", nonblank=False),
         serial = BlobField("[A-Za-z0-9_]*",
             "file id or serial number for this file", "", nonblank=False),
@@ -294,3 +298,54 @@ class AuditBlob(Blob):
         rec.why = why
         rec.details = details
         rec.save()
+
+# ============================================================================
+
+class CounterBlob(Blob):
+    """The serial number counter for a single kind of file,  named:
+            <observatory> _ <instrument> _ <filekind>
+            
+    Automatically generates a new counter if it doesn't already exist:
+    use with care.
+    """
+    fields = dict(
+        counter = BlobField(int, "an integer counter", 0),
+    )
+    
+    @classmethod
+    def _setup(cls, args):
+        name = "_".join(args)
+        try:
+            blob = cls.load(name)
+        except LookupError:
+            blob = CounterBlob()
+        return name, blob
+    
+    @classmethod
+    def next(cls, *args):
+        """Return the next integer in the series identified by `args`,  
+        which are nominally class, observatory, instrument, filekind.
+        .e.g.  mapping, hst, acs, biasfile
+               reference, jwst, miri, biasfile
+        """
+        name, blob = cls._setup(args)
+        blob.counter += 1
+        blob.save(name)
+        return blob.counter
+
+    @classmethod
+    def last(cls, *args):
+        """Like next,  but return the last number issued."""
+        name, blob = cls._setup(args)
+        return blob.counter
+
+    @classmethod
+    def set(cls, *args): 
+        """Like next,  but set the counter identified by args[:-1] to args[-1]
+        """
+        # nominally class, observatory, instrument, filekind, number
+        num = int(args[-1])
+        name, blob = cls._setup(args[:-1])
+        blob.counter = num
+        blob.save(name)
+

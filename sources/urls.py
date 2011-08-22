@@ -20,15 +20,17 @@ urlpatterns = patterns('',
   url(r'^bestrefs/input/$', 'crds.server.interactive.views.bestrefs_input'),          
   url(r'^bestrefs/compute/$', 'crds.server.interactive.views.bestrefs_compute'),
 
-  url(r'^submit/$', 'crds.server.interactive.views.submit_file'),          
-  url(r'^blacklist/$', 'crds.server.interactive.views.blacklist_file'),          
-  url(r'^using/$', 'crds.server.interactive.views.using_file'),          
-  url(r'^certify/$', 'crds.server.interactive.views.certify_file'),          
-  url(r'^difference/$', 'crds.server.interactive.views.difference_files'),
+  url(r'^submit/$',       'crds.server.interactive.views.submit_file'),          
+  url(r'^blacklist/$',    'crds.server.interactive.views.blacklist_file'),          
+  url(r'^using/$',        'crds.server.interactive.views.using_file'),          
+  url(r'^certify/$',      'crds.server.interactive.views.certify_file'),          
+  url(r'^difference/$',   'crds.server.interactive.views.difference_files'),
+  url(r'^reserve_name/$', 'crds.server.interactive.views.reserve_name'),        
+          
   url(r'^browse/$', 'crds.server.interactive.views.browse_files'),        
   url(r'^browse/(?P<original_name>[A-Za-z0-9_.]+(fits|imap|rmap|pmap))$', 
       'crds.server.interactive.views.browse_known_file'),
-          
+
 #        (r'site_media/(?P<path>.*)$', 'django.views.static.serve',
 #         {'document_root': settings.MEDIA_ROOT }),
 #        
