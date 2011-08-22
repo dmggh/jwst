@@ -105,7 +105,7 @@ def get_known_filepath(original_name):
                     "Couldn't find reference file " + original_name)
     else:
         raise FieldError(
-            name + " should have .pmap, .imap, .rmap, or .fits extension.")
+            original_name + " should have .pmap, .imap, .rmap, or .fits extension.")
     return filepath
 
 
@@ -219,6 +219,15 @@ def submit_file_post(request):
     # Check the file,  leaving no server state if it fails.  Give error results.
     do_certify_file(original_name, upload_location)
     
+    # Make sure none of the dependencies are blacklisted,  else fail w/o state.
+    blacklisted_by, exceptions = get_blacklists(original_name, upload_location)
+    if blacklisted_by:
+        raise CrdsError("File " + repr(original_name) + 
+                        " is blacklisted by " + repr(blacklisted_by))
+    if exceptions:
+        raise CrdsError("Exceptions during blacklisting check: " + 
+                        repr(exceptions))
+
     # Copy the temporary file to its permanent location.
     upload_file(ufile, permanent_location)
     
@@ -249,6 +258,45 @@ def do_certify_file(basename, certifypath, check_references=True):
     except Exception, exc:
         raise CrdsError(str(exc))
 
+def get_blacklists(basename, certifypath, ignore_self=True):
+    """Raise an exception if any of the child mappings or references of
+    `basename` are blacklisted,  i.e. don't allow submissions which reference
+    blacklisted files.
+    """
+    if rmap.is_mapping(basename):
+        blacklisted_by = set()
+        try:
+            mapping = rmap.load_mapping(certifypath)
+        except Exception, exc:
+            raise CrdsError("Error loading " + repr(basename) + 
+                            "for blacklist checking." + str(exc))
+        map_names = mapping.mapping_names()
+        exceptions = []
+        for child in map_names:
+            if ignore_self and child == os.path.basename(certifypath): 
+                continue
+            try:
+                child_blob = models.MappingBlob.load(child)
+            except LookupError:
+                exceptions.append("File " + repr(child) + 
+                                  " is not known to CRDS.")
+            if child_blob.blacklisted_by:
+                blacklisted_by = blacklisted_by.union(
+                                    set(child_blob.blacklisted_by))
+        ref_names = mapping.reference_names()
+        for child in ref_names:
+            try:
+                child_blob = models.ReferenceBlob.load(child)
+            except LookupError:
+                exceptions.append("File " + repr(child) + 
+                                  " is not known to CRDS.")
+            if child_blob.blacklisted_by:  # must be blacklisted by self
+                blacklisted_by = blacklisted_by.union(
+                                    set(child_blob.blacklisted_by)) 
+        return sorted(list(blacklisted_by)), []
+    else:
+        return [], []
+    
 def get_uploaded_file(
     request, formvar, legal_exts=(".fits", ".pmap", ".imap", ".rmap")):
     """Return the DJango UploadedFile associated with `request` and `formavar`,
@@ -299,14 +347,15 @@ def create_crds_name(upload_location, upload_name):
 def create_delivery_blob(observatory, upload_name, permanent_location, 
         deliverer_user, deliverer_email, modifier_name, description, 
         add_slow_fields=True):
-    """Make a record of this delivery in the CRDS database.
-    """
+    """Make a record of this delivery in the CRDS database."""
     if upload_name.endswith(".fits"):
         blob = models.ReferenceBlob()
-    elif upload_name.endswith((".pmap", ".imap", ".rmap")):
+    elif rmap.is_mapping(upload_name):
         blob = models.MappingBlob()
+    else:
+        raise ValueError("Unknown file extension for " + repr(upload_name) +
+                         " should be one of: .fits, .pmap, .imap, .rmap")
     blob.uploaded_as = upload_name
-    blob.name = os.path.basename(permanent_location)
     blob.pathname = permanent_location
     blob.delivery_date = timestamp.now()
     blob.deliverer_user = deliverer_user
@@ -321,6 +370,7 @@ def create_delivery_blob(observatory, upload_name, permanent_location,
         blob.instrument = instrument
         blob.filekind= filekind
         blob.serial = serial
+    blob.blacklisted_by = []
     blob.save()
 
 # ===========================================================================
@@ -336,7 +386,7 @@ def blacklist_file(request):
 def blacklist_file_post(request):
     observatory = check_value(request.POST["observatory"], 
             "hst|jwst", "Invalid value for observatory.")
-    blacklisted = check_value(request.POST["file_known"],
+    blacklist_root = check_value(request.POST["file_known"],
             "[A-Za-z0-9._]+", 
             "Filename must consist of letters, numbers, periods, "
             "or underscores.")
@@ -345,20 +395,24 @@ def blacklist_file_post(request):
     why = check_value(request.POST["why"],
             "[A-Za-z0-9._ ]+", 
             "Reason description is limited to letters, "
-            "numbers, period, underscore and space.")
+            "numbers, period, underscore and space.   Cannot be blank.")
     
-    # Figure out all files which indirectly or directly reference `blacklisted`
-    uses_files = uses.uses([blacklisted], observatory)
+    # Figure out all files which indirectly or directly reference `blacklist_root`
+    uses_files = uses.uses([blacklist_root], observatory)
 
-    all_blacklisted = [blacklisted] + uses_files
+    all_blacklisted = [blacklist_root] + uses_files
     
     for also_blacklisted in all_blacklisted:
-        do_blacklist(also_blacklisted, badflag, why, request.user)
+        do_blacklist(
+            blacklist_root, also_blacklisted, badflag, why, request.user)
+
+    models.AuditBlob.create_record(request.user, "blacklist", blacklist_root, why, 
+                                   "marked as" + badflag)
 
     return render(request, "blacklist_results.html", 
                   { "all_blacklisted": all_blacklisted })
 
-def do_blacklist(blacklisted, badflag, why, user):
+def do_blacklist(blacklist_root, blacklisted, badflag, why, user):
     """Mark one file, `blacklisted`, with status `badflag` and reason `why`."""
     try: 
         if rmap.is_mapping(blacklisted):
@@ -369,9 +423,12 @@ def do_blacklist(blacklisted, badflag, why, user):
             raise FieldError("Bad file extension for file " + repr(blacklisted))
     except LookupError:
         raise FieldError("Unknown file " + repr(blacklisted))
-    blob.blacklisted = badflag == "bad"
-    models.AuditBlob.create_record(user, "blacklist", blacklisted, why, 
-                                   "marked as" + badflag)
+    if badflag == "bad":
+        if blacklist_root not in blob.blacklisted_by:
+            blob.blacklisted_by.append(blacklist_root)
+    else:
+        while blacklist_root in blob.blacklisted_by:
+            blob.blacklisted_by.remove(blacklist_root)
     blob.save()
     
         
@@ -408,16 +465,24 @@ def certify_post(request):
     else:
         fitscheck_status = ""
         fitscheck_lines = []
-
+        
+    blacklisted_by, blacklist_exceptions = get_blacklists(
+        original_name, certified_file, ignore_self=False)
+    blacklist_status = "OK" if not (blacklisted_by or blacklist_exceptions) \
+        else "BLACKLISTED"
+    
     if uploaded:
         remove_temporary(certified_file)
-
+        
     return render(request, "certify_results.html", 
             {"certify_status":certify_status,
              "fitscheck_status":fitscheck_status, 
+             "blacklist_status":blacklist_status,
              "is_reference": not rmap.is_mapping(original_name),
              "certify_lines":certify_lines,
              "fitscheck_lines":fitscheck_lines,
+             "blacklisted_by" : blacklisted_by,
+             "blacklist_exceptions" : blacklist_exceptions,
              "certified_file":original_name})
 
 # ===========================================================================

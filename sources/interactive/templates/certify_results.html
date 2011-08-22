@@ -4,27 +4,54 @@
 
 {% block contents %}
 
-    <h2>Certify File {{certified_file|grey}}</h2>
+    <h2>Certifying File {{certified_file|grey}}</h2>
+    <h3>Certify Status:
     {% if certify_status == "OK" %}
-        <h3 class="success">
+        <span class="success">
     {% else %}
-        <h3 class="error">
+        <span class="error">
     {% endif %}
         {{certify_status}}
-        </h3>
+        </span>
+    </h3>
     {% for line in certify_lines %}
         <p>{{line|safe}}</p>
     {% endfor %}
 
+    <h3>Blacklist Status:
+    {% if blacklist_status == "OK" %}
+        <span class="success">
+    {% else %}
+        <span class="error">
+    {% endif %}
+        {{blacklist_status}}
+        </span>
+    </h3>
+    
+    {% if blacklisted_by %}
+        <p>Dependent on blacklisted files:</p> 
+        {% for line in blacklisted_by %}
+            <p>{{line|safe|grey}}</p>
+        {% endfor %}
+    {% endif %}
+    
+    {% if blacklist_exceptions %}
+        <p class="error">Errors during blacklist check:</p>
+        {% for line in blacklist_exceptions %}
+            <p>{{line|safe}}</p>    
+        {% endfor %}
+    {% endif %}
+
     {% if is_reference %}
-        <h2>Fitscheck File</h2>
+        <h3>Fitscheck Status: 
         {% if fitscheck_status == "OK" %}
-            <h3 class="success">
+            <span class="success">
         {% else %}
-            <h3 class="error">
+            <span class="error">
         {% endif %}
             {{fitscheck_status}}
-            </h3>
+            </span>
+        </h3>
         {% for line in fitscheck_lines %}
             <p>{{line|safe}}</p>
         {% endfor %}

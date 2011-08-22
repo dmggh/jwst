@@ -205,10 +205,9 @@ class FileBlob(Blob):
         modifier_name = BlobField(str, "person who made these changes",""),
         deliverer_user = BlobField(str, "username who uploaded the file", ""),
         deliverer_email = BlobField(str, "person's e-mail who uploaded the file", ""),
-        
-        blacklisted = BlobField(bool, 
-            "If True this file should no longer be used.", False),
-
+        blacklisted_by = BlobField(list, 
+            "Comma separated list of files marking this"
+            " file as bad,  possibly self.", []),
         # Automatically generated fields
         pathname = BlobField("^[A-Za-z0-9_./]+$", 
             "path/filename to CRDS master copy of file", "None"),
@@ -225,7 +224,28 @@ class FileBlob(Blob):
         sha1sum = BlobField(str, 
             "checksum of file at upload time", "", nonblank=False),
     )
-        
+    
+
+    """
+    @property
+    def instrument(self):
+        instr, filekind, serialno = utils.get_file_properties(
+                observatory, permanent_location)
+        return instr
+    
+    @property
+    def filekind(self):
+        instr, kind, serialno = utils.get_file_properties(
+                observatory, permanent_location)
+        return kind
+    
+    @property
+    def instrument(self):
+        instr, filekind, serialno = utils.get_file_properties(
+                observatory, permanent_location)
+        return serialno
+    """
+    
     @property
     def filename(self):
         return os.path.basename(self.pathname)
