@@ -26,6 +26,7 @@ urlpatterns = patterns('',
   url(r'^certify/$',      'crds.server.interactive.views.certify_file'),          
   url(r'^difference/$',   'crds.server.interactive.views.difference_files'),
   url(r'^reserve_name/$', 'crds.server.interactive.views.reserve_name'),        
+  url(r'^recent_activity/$', 'crds.server.interactive.views.recent_activity'),        
           
   url(r'^browse/$', 'crds.server.interactive.views.browse_files'),        
   url(r'^browse/(?P<original_name>[A-Za-z0-9_.]+(fits|imap|rmap|pmap))$', 

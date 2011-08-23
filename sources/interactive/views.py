@@ -42,9 +42,23 @@ def _get_ctx(request):
 
 def check_value(value, pattern, msg):
     value = str(value)
+    if isinstance(pattern, list):
+        for choice in pattern:
+            assert "|" not in choice, "Found | in choice " + repr(choice) + \
+                " seen as regex special char"
+        pattern = "|".join(pattern)
     if not re.match(pattern, value):
         raise FieldError(msg)
     return value
+
+def validate_post(request, variable, choices):
+    value = request.POST[variable]
+    return check_value(value, choices, "Invalid value " + repr(value) + 
+                                        " for " + repr(variable))
+def validate_get(request, variable, choices):
+    value = request.GET[variable]
+    return check_value(value, choices, "Invalid value " + repr(value) + 
+                                        " for " + repr(variable))
 
 def render(request, template, dict_=None):
     """Top level index page."""
@@ -372,6 +386,11 @@ def create_delivery_blob(observatory, upload_name, permanent_location,
         blob.serial = serial
     blob.blacklisted_by = []
     blob.save()
+    
+    # XXX some redundancy here
+    models.AuditBlob.create_record(
+        deliverer_user, "submit file", blob.filename, description, "",
+        date=blob.delivery_date)
 
 # ===========================================================================
 
@@ -407,7 +426,7 @@ def blacklist_file_post(request):
             blacklist_root, also_blacklisted, badflag, why, request.user)
 
     models.AuditBlob.create_record(request.user, "blacklist", blacklist_root, why, 
-                                   "marked as" + badflag)
+                                   "marked as " + badflag)
 
     return render(request, "blacklist_results.html", 
                   { "all_blacklisted": all_blacklisted })
@@ -502,58 +521,6 @@ def using_file(request):
         if not "".join(uses_files).strip():
             uses_files = ["no files"]
         return render(request, "using_file_results.html", locals())
-
-# ===========================================================================
-
-@error_trap("reserve_name_input.html")
-@login_required
-def reserve_name(request):
-    if request.method == "GET":
-        return render(request, "reserve_name_input.html",
-                      {"instruments":models.INSTRUMENTS+[""],
-                       "filekinds":models.FILEKINDS+[""],
-                       "extensions":models.EXTENSIONS})
-    else:
-        return reserve_name_post(request)
-
-def reserve_name_post(request):
-    observatory = check_value(request.POST["observatory"], 
-            "hst|jwst", "Invalid value for observatory.")
-    mode = check_value(request.POST["filemode"], "file_known|by_field", "Invalid input mode")
-    if mode == "file_known":
-        known_file = check_value(request.POST["file_known"],
-                                 "[A-Za-z0-9_.]+", "Invalid known filename.")
-        instrument, filekind, serial = utils.get_file_properties(
-                observatory, rmap.locate_file(observatory, known_file))
-        extension = os.path.splitext(known_file)[-1]
-    else:
-        instrument = request.POST["instrument"]
-        filekind = request.POST["filekind"]
-        extension = request.POST["extension"]
-    
-    instrument = check_value(instrument, "|".join(models.INSTRUMENTS+[""]), "Invalid instrument")
-    filekind = check_value(filekind, "|".join(models.FILEKINDS+[""]), "Invalid file kind")
-    extension = check_value(extension, "|".join(models.EXTENSIONS), "Invalid file extension")
-    
-    try:
-        if extension == ".pmap":
-            assert instrument == "", "Instrument must be blank for .pmap"
-            assert filekind == "", "File kind must be blank for .pmap"
-        elif extension == ".imap":
-            assert filekind == "", "File kind must be blank for .imap"
-        elif extension in [".rmap",".fits"]:
-            assert instrument != "", "Instrument must be specified for .rmap, .fits"
-            assert filekind != "", "File kind must be specified for .rmap, .fits"
-    except AssertionError, exc:
-        raise CrdsError(str(exc))
-    
-    num = models.CounterBlob.next(observatory, extension, instrument, filekind)
-    
-    parts = [x for x in [observatory, instrument, filekind, "%04d" % num] if x]
-    reserved_name = "_".join(parts) + extension
-    
-    return render(request, "reserve_name_results.html",
-                  {"reserved_name" : reserved_name})
 
 # ===========================================================================
 
@@ -736,3 +703,104 @@ def browse_known_file(request, original_name):
     uploaded = False
     return browse_files_post_guts(
         request, uploaded, original_name, browsed_file)
+
+# ===========================================================================
+
+@error_trap("reserve_name_input.html")
+@login_required
+def reserve_name(request):
+    if request.method == "GET":
+        return render(request, "reserve_name_input.html",
+                      {"instruments":models.INSTRUMENTS+[""],
+                       "filekinds":models.FILEKINDS+[""],
+                       "extensions":models.EXTENSIONS})
+    else:
+        return reserve_name_post(request)
+
+def reserve_name_post(request):
+    observatory = check_value(request.POST["observatory"], 
+            "hst|jwst", "Invalid value for observatory.")
+    mode = check_value(request.POST["filemode"], "file_known|by_field", "Invalid input mode")
+    if mode == "file_known":
+        known_file = check_value(request.POST["file_known"],
+                                 "[A-Za-z0-9_.]+", "Invalid known filename.")
+        instrument, filekind, serial = utils.get_file_properties(
+                observatory, rmap.locate_file(observatory, known_file))
+        extension = os.path.splitext(known_file)[-1]
+    else:
+        instrument = request.POST["instrument"]
+        filekind = request.POST["filekind"]
+        extension = request.POST["extension"]
+    
+    instrument = check_value(instrument, "|".join(models.INSTRUMENTS+[""]), "Invalid instrument")
+    filekind = check_value(filekind, "|".join(models.FILEKINDS+[""]), "Invalid file kind")
+    extension = check_value(extension, "|".join(models.EXTENSIONS), "Invalid file extension")
+    
+    try:
+        if extension == ".pmap":
+            assert instrument == "", "Instrument must be blank for .pmap"
+            assert filekind == "", "File kind must be blank for .pmap"
+        elif extension == ".imap":
+            assert filekind == "", "File kind must be blank for .imap"
+        elif extension in [".rmap",".fits"]:
+            assert instrument != "", "Instrument must be specified for .rmap, .fits"
+            assert filekind != "", "File kind must be specified for .rmap, .fits"
+    except AssertionError, exc:
+        raise CrdsError(str(exc))
+    
+    num = models.CounterBlob.next(observatory, extension, instrument, filekind)
+    
+    parts = [x for x in [observatory, instrument, filekind, "%04d" % num] if x]
+    reserved_name = "_".join(parts) + extension
+    
+    models.AuditBlob.create_record(request.user, "reserve name", reserved_name, 
+                                   "", "")
+
+    return render(request, "reserve_name_results.html",
+                  {"reserved_name" : reserved_name})
+
+# ===========================================================================
+
+@error_trap("recent_activity_input.html")
+@login_required
+def recent_activity(request):
+    if request.method == "GET":
+        return render(request, "recent_activity_input.html", {
+            "actions":["*"]+models.AUDITED_ACTIONS,
+            "observatories":["*"]+models.OBSERVATORIES,
+            "instruments":["*"]+models.INSTRUMENTS,
+            "filekinds":["*"]+models.FILEKINDS,
+            "extensions":["*"]+models.EXTENSIONS,
+            })
+    else:
+        return recent_activity_post(request)
+
+def recent_activity_post(request):
+    action = validate_post(
+        request, "action", models.AUDITED_ACTIONS+[r"\*"])
+    observatory = validate_post(
+        request, "observatory", models.OBSERVATORIES+[r"\*"])
+    instrument = validate_post(
+        request, "instrument", models.INSTRUMENTS+[r"\*"])
+    filekind = validate_post(
+        request, "filekind", models.FILEKINDS+[r"\*"])
+    extension = validate_post(
+        request, "extension", models.EXTENSIONS+[r"\*"])
+    filename = validate_post(
+        request, "filename", r"[A-Za-z0-9_.\*]+")
+    user = validate_post(
+        request, "user", r"[A-Za-z0-9_.\*]+")
+    filters = {}
+    for var in ["action","observatory","instrument","filekind","extension",
+                "filename","user"]:
+        value = locals()[var]
+        if value != "*":
+            filters[var] = value
+    filtered_activities = models.AuditBlob.filter(**filters)
+    columns = ["date", "action", "user", "why", "details"]
+    return render(request, "recent_activity_results.html", {
+                "filters": filters,
+                "filtered_activities" : filtered_activities,
+                "columns" : columns,
+            })
+

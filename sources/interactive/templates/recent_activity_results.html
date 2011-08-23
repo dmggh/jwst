@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% load stdtags %}
+
+{% block contents %}
+
+    <h2>Recent Activity</h2>
+
+    <h3>Filters</h3>
+    {% if filters %}
+       <table>
+        {% for filter_name, filter_value in filters %}
+        <tr>
+            <td>{{filter_name}}</td>
+            <td>{{filter_value}}</td>
+        </tr>
+        {% endfor %}
+       </table>
+    {% else %}
+       <p>No filters.</p>
+    {% endif %}
+    
+    <h3>Activity</h3>
+    <table border="1">
+        <tr>
+            <th width="15%" align="center">date</th>
+            <th width="10%" align="center">action</th>
+            <th width="10%" align="center">user</th>
+            <th width="45%" align="center">why</th>
+            <th width="20%" align="center">details</th>
+        </tr>
+        {% for activity in filtered_activities %}
+        <tr>
+            <td align="center">{{activity.date|minutes}}</td>
+            <td align="center">{{activity.action}}</td>
+            <td align="center">{{activity.user}}</td>
+            <td align="center">{{activity.why}}</td>
+            <td align="center">{{activity.details}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+{% endblock contents %}

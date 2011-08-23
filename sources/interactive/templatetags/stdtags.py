@@ -35,3 +35,15 @@ def red(value):
     return mark_safe("<span class='red'>" + value + "</span>")
 red.is_safe = True
 
+@register.filter(name="minutes")
+@stringfilter
+def minutes(value):  # handle str(datetime.datetime.now())
+    parts = value.split(":")
+    return ":".join(parts[:-1])
+
+@register.filter(name="seconds")
+@stringfilter
+def minutes(value):  # handle str(datetime.datetime.now())
+    parts = value.split(".")
+    return ".".join(parts[:-1])
+

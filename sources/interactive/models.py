@@ -273,6 +273,8 @@ class ReferenceBlob(FileBlob):
 
 # ============================================================================
 
+AUDITED_ACTIONS = ["blacklist","submit file","reserve name"]
+
 class AuditBlob(Blob):
     """Maintains an audit trail of important actions indicating who did them,
     when, and why.
@@ -281,19 +283,22 @@ class AuditBlob(Blob):
         # User supplied fields
         user = BlobField(str, "user performing this action", ""),
         date = BlobField(str, "date action performed", ""),
-        kind = BlobField("blacklist", "name of action performed", ""),        
-        why = BlobField(str, "reason this action was performed",""),
+        action = BlobField(AUDITED_ACTIONS,"name of action performed", ""),        
         affected_file = BlobField("^[A-Za-z0-9_./]+$", 
                 "file affected by this action", "None"),
+        why = BlobField(str, "reason this action was performed",""),
+        details = BlobField(str, "supplementary info", "", nonblank=False)
     )
     
     @classmethod
-    def create_record(cls, user, kind, affected_file, why, details):
+    def create_record(cls, user, action, affected_file, why, details, date=None):
         """Save a record of an action in the database."""
         rec = cls()
         rec.user = user
-        rec.date = crds.timestamp.now()
-        rec.kind = kind
+        if date is None:
+            date = crds.timestamp.now()
+        rec.date = date
+        rec.action = action
         rec.affected_file = affected_file
         rec.why = why
         rec.details = details
