@@ -793,8 +793,8 @@ def recent_activity_post(request):
     filters = {}
     for var in ["action","observatory","instrument","filekind","extension",
                 "filename","user"]:
-        value = locals()[var]
-        if value != "*":
+        value = locals()[var].strip()
+        if value not in ["*",""]:
             filters[var] = value
     filtered_activities = models.AuditBlob.filter(**filters)
     return render(request, "recent_activity_results.html", {

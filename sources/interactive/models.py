@@ -5,12 +5,12 @@ import hashlib
 from django.db import models
 
 # Create your models here.
-import crds.timestamp
-from crds.compat import literal_eval, namedtuple
+from crds import (timestamp, rmap)
+from crds.compat import (literal_eval, namedtuple)
 
 # ============================================================================
 
-OBSERVATORIES = ["hst"]
+OBSERVATORIES = ["hst","jwst"]
 
 INSTRUMENTS = ["acs","cos","stis","wfc3"]
 
@@ -85,6 +85,8 @@ class Blob(object):
     """
     fields = {}   # BlobFields
     
+    repr_list = None
+    
     def __init__(self, blob=None, id=None, **keys):
         if blob is None:
             blob = {}
@@ -98,7 +100,7 @@ class Blob(object):
             
     def __repr__(self):
         rep = self.__class__.__name__ + "(" 
-        for field in sorted(self.fields):
+        for field in repr_list or sorted(self.fields):
             rep += field + "=" + repr(self._values[field]) + ", "
         rep = rep[:-2] + ")"
         return rep
@@ -229,31 +231,15 @@ class FileBlob(Blob):
             "checksum of file at upload time", "", nonblank=False),
     )
     
-
-    """
-    @property
-    def instrument(self):
-        instr, filekind, serialno = utils.get_file_properties(
-                observatory, permanent_location)
-        return instr
-    
-    @property
-    def filekind(self):
-        instr, kind, serialno = utils.get_file_properties(
-                observatory, permanent_location)
-        return kind
-    
-    @property
-    def instrument(self):
-        instr, filekind, serialno = utils.get_file_properties(
-                observatory, permanent_location)
-        return serialno
-    """
-    
     @property
     def filename(self):
         return os.path.basename(self.pathname)
     
+    @property
+    def extension(self):
+        parts = os.path.splitext(self.filename)
+        return parts[-1]
+
     def save(self):
         Blob.save(self, self.filename)
         
@@ -287,7 +273,7 @@ class AuditBlob(Blob):
         filename = BlobField("^[A-Za-z0-9_./]+$", 
                 "file affected by this action", "None"),
         why = BlobField(str, "reason this action was performed",""),
-        details = BlobField(str, "supplementary info", "", nonblank=False)
+        details = BlobField(str, "supplementary info", "", nonblank=False),
     )
     
     @classmethod
@@ -295,15 +281,34 @@ class AuditBlob(Blob):
         """Save a record of an action in the database."""
         rec = cls()
         rec.user = user
-        if date is None:
-            date = crds.timestamp.now()
-        rec.date = date
         rec.action = action
         rec.filename = affected_file
         rec.why = why
         rec.details = details
+        if date is None:
+            date = crds.timestamp.now()
+        rec.date = date
         rec.save()
 
+    @property
+    def fileblob(self):
+        if rmap.is_mapping(self.filename):   # code smell here...  :-(
+            return MappingBlob.load(self.filename)
+        else:
+            return ReferenceBlob.load(self.filename)
+
+    @property
+    def observatory(self): return self.fileblob.observatory
+    
+    @property
+    def instrument(self): return self.fileblob.instrument
+
+    @property
+    def filekind(self):  return self.fileblob.filekind
+
+    @property
+    def extension(self):  return self.fileblob.extension
+    
 # ============================================================================
 
 class CounterBlob(Blob):
