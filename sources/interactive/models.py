@@ -100,7 +100,7 @@ class Blob(object):
             
     def __repr__(self):
         rep = self.__class__.__name__ + "(" 
-        for field in repr_list or sorted(self.fields):
+        for field in self.repr_list or sorted(self.fields):
             rep += field + "=" + repr(self._values[field]) + ", "
         rep = rep[:-2] + ")"
         return rep
@@ -274,10 +274,17 @@ class AuditBlob(Blob):
                 "file affected by this action", "None"),
         why = BlobField(str, "reason this action was performed",""),
         details = BlobField(str, "supplementary info", "", nonblank=False),
+        observatory = BlobField(
+            OBSERVATORIES, "associated observatory", "", nonblank=False),
+        instrument = BlobField(
+            INSTRUMENTS, "associated instrument", "", nonblank=False),
+        filekind = BlobField(
+            FILEKINDS, "associated filekind", "", nonblank=False),
     )
     
     @classmethod
-    def create_record(cls, user, action, affected_file, why, details, date=None):
+    def create_record(cls, user, action, affected_file, why, details, date=None,
+                      fileblob=None):
         """Save a record of an action in the database."""
         rec = cls()
         rec.user = user
@@ -288,26 +295,24 @@ class AuditBlob(Blob):
         if date is None:
             date = crds.timestamp.now()
         rec.date = date
+        if fileblob is None:
+            fileblob = rec.fileblob
+        rec.observatory = fileblob.observatory
+        rec.instrument = fileblob.instrument
+        rec.filekind = fileblob.filekind
         rec.save()
 
     @property
     def fileblob(self):
-        if rmap.is_mapping(self.filename):   # code smell here...  :-(
-            return MappingBlob.load(self.filename)
-        else:
-            return ReferenceBlob.load(self.filename)
+        if not hasattr(self, "_fileblob"):
+            if rmap.is_mapping(self.filename):   # code smell here...  :-(
+                self._fileblob = MappingBlob.load(self.filename)
+            else:
+                self._fileblob = ReferenceBlob.load(self.filename)
+        return self._fileblob
 
     @property
-    def observatory(self): return self.fileblob.observatory
-    
-    @property
-    def instrument(self): return self.fileblob.instrument
-
-    @property
-    def filekind(self):  return self.fileblob.filekind
-
-    @property
-    def extension(self):  return self.fileblob.extension
+    def extension(self):  return os.path.splitext(self.filename)[-1]
     
 # ============================================================================
 

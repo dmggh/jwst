@@ -390,7 +390,7 @@ def create_delivery_blob(observatory, upload_name, permanent_location,
     # XXX some redundancy here
     models.AuditBlob.create_record(
         deliverer_user, "submit file", blob.filename, description, "",
-        date=blob.delivery_date)
+        date=blob.delivery_date, fileblob=blob)
 
 # ===========================================================================
 
