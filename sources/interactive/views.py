@@ -797,10 +797,13 @@ def recent_activity_post(request):
         if value != "*":
             filters[var] = value
     filtered_activities = models.AuditBlob.filter(**filters)
-    columns = ["date", "action", "user", "why", "details"]
     return render(request, "recent_activity_results.html", {
                 "filters": filters,
                 "filtered_activities" : filtered_activities,
-                "columns" : columns,
             })
+
+# ===========================================================================
+
+def common_updates(request):
+    return render(request, "common_updates.html", {})
 

@@ -284,7 +284,7 @@ class AuditBlob(Blob):
         user = BlobField(str, "user performing this action", ""),
         date = BlobField(str, "date action performed", ""),
         action = BlobField(AUDITED_ACTIONS,"name of action performed", ""),        
-        affected_file = BlobField("^[A-Za-z0-9_./]+$", 
+        filename = BlobField("^[A-Za-z0-9_./]+$", 
                 "file affected by this action", "None"),
         why = BlobField(str, "reason this action was performed",""),
         details = BlobField(str, "supplementary info", "", nonblank=False)
@@ -299,7 +299,7 @@ class AuditBlob(Blob):
             date = crds.timestamp.now()
         rec.date = date
         rec.action = action
-        rec.affected_file = affected_file
+        rec.filename = affected_file
         rec.why = why
         rec.details = details
         rec.save()
