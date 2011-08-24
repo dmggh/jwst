@@ -379,11 +379,11 @@ def create_delivery_blob(observatory, upload_name, permanent_location,
     blob.observatory = observatory
     if add_slow_fields:
         blob.sha1sum = blob.checksum()
-        instrument, filekind, serial = utils.get_file_properties(
-                observatory, permanent_location)
-        blob.instrument = instrument
-        blob.filekind= filekind
-        blob.serial = serial
+    instrument, filekind, serial = utils.get_file_properties(
+        observatory, permanent_location)
+    blob.instrument = instrument
+    blob.filekind= filekind
+    blob.serial = serial
     blob.blacklisted_by = []
     blob.save()
     
@@ -806,4 +806,39 @@ def recent_activity_post(request):
 
 def common_updates(request):
     return render(request, "common_updates.html", {})
+
+@error_trap("create_contexts_input.html")
+@login_required
+def create_contexts(request):
+    if request.method == "GET":
+        return render(request, "create_contexts_input.html")
+    else:
+        return create_contexts_post(request)
+
+def create_contexts_post(request):
+    action = validate_post(
+        request, "action", models.AUDITED_ACTIONS+[r"\*"])
+    observatory = validate_post(
+        request, "observatory", models.OBSERVATORIES+[r"\*"])
+    instrument = validate_post(
+        request, "instrument", models.INSTRUMENTS+[r"\*"])
+    filekind = validate_post(
+        request, "filekind", models.FILEKINDS+[r"\*"])
+    extension = validate_post(
+        request, "extension", models.EXTENSIONS+[r"\*"])
+    filename = validate_post(
+        request, "filename", r"[A-Za-z0-9_.\*]+")
+    user = validate_post(
+        request, "user", r"[A-Za-z0-9_.\*]+")
+    filters = {}
+    for var in ["action","observatory","instrument","filekind","extension",
+                "filename","user"]:
+        value = locals()[var].strip()
+        if value not in ["*",""]:
+            filters[var] = value
+    filtered_activities = models.AuditBlob.filter(**filters)
+    return render(request, "create_contexts_results.html", {
+                "filters": filters,
+                "filtered_activities" : filtered_activities,
+            })
 

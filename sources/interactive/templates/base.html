@@ -43,8 +43,14 @@
         </div>
         <div class="column2">
         {% block column2 %}
+            <div class="help">
+                <p>
+                {% block help %}
+                {% endblock help %}
+                </p>
+            </div>
             <div class="error">
-            {{error_message}}
+                {{error_message}}
             </div>
         {% endblock %}
         </div>

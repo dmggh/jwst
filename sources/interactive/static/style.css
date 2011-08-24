@@ -230,7 +230,7 @@ img.plot {
     border: grey solid 2px;
 }
 
-#help_contents {
-    background-color: white;
+.help {
+  color: grey;
 }
 

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block column1 %}
+
+<form action="/create_contexts/" method="post""> {% csrf_token %}
+    <h2>Create Parent Contexts</h2>
+    <table>
+      <tr><h3>Baseline Context</h3></tr>
+      <tr>
+        <td class="label" width="25%">Pipeline</td>
+        <td align="left">
+            <input type="text" name="pipeline" value="{{pipeline}}" size="45"/>
+        </td>
+      </tr>
+      <tr>
+        <td></td>
+        <td align="left"><p class="hint">e.g. hst_00001.pmap</p></td>
+      </tr>
+      <tr><td colspan="3"><h3>Updated Rmaps</h3></td></tr>
+      <tr><td colspan="2"><textarea name="rmaps" cols="60" rows="10">{{rmaps}}</textarea></td></tr>
+      <tr><td><h3>Description</h3></td></tr>
+      <tr><td colspan="2"><textarea name="description" cols="60" rows="10">{{description}}</textarea></td></tr> 
+      </table>
+      <br/>
+      <input type="submit" value="Create Parent Contexts" style="font-size:1.1em;"/>
+</form>
+
+{% endblock column1 %}
+
+{% block help %}
+<p>Create Parent Contexts automatically generates new pipeline and instrument 
+contexts which refer to your updated rmaps based upon the prior context you give.
+The new instrument context file will substitute the updated rmap files you list
+for the previous equivalents.   The new pipeline context file will substitute 
+the new instrument imap for the corresponding prior imap.
+<p>
+<p>Updated Rmaps can be listed one file per line, separated by spaces,
+or seperated by commas.
+<p>
+<p>The description should document the rationale or purpose for the new contexts,
+i.e. describe the overall changes in the rmaps.
+{% endblock help %}

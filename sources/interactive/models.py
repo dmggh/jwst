@@ -99,6 +99,9 @@ class Blob(object):
             self._values[key] = keys[key]
             
     def __repr__(self):
+        """Display values of fields in `self.repr_list` else display
+        values of all fields in name-sorted order.
+        """
         rep = self.__class__.__name__ + "(" 
         for field in self.repr_list or sorted(self.fields):
             rep += field + "=" + repr(self._values[field]) + ", "
@@ -106,14 +109,14 @@ class Blob(object):
         return rep
     
     def __getattr__(self, attr):
+        """Handle fields specially."""
         if attr in self.fields:
-            if attr not in self._values:
-                self._values[attr] = self.fields[attr].default
             return self._values[attr]
         else:
             return object.__getattr__(self, attr)
     
     def __setattr__(self, attr, value):
+        """Handle fields specially,  enforcing legal values."""
         if attr in self.fields:
             self._values[attr] = self.enforce_type(attr, value)
         else:
@@ -163,7 +166,8 @@ class Blob(object):
         
     @classmethod
     def load(cls, name):
-        """Load the blob named `name`.
+        """Load the blob named `name`.   Note that "anonymous" blobs cannot
+        be load()'ed.
         """
         candidates = BlobModel.objects.filter(kind=cls.__name__, name=name)
         if len(candidates) == 0:
@@ -197,6 +201,56 @@ class Blob(object):
         """Return True if `name` exists."""
         candidates = BlobModel.objects.filter(kind=cls.__name__, name=name)
         return len(candidates) >= 1
+
+# ============================================================================
+
+class CounterBlob(Blob):
+    """The serial number counter for a single kind of file,  named:
+            <observatory> _ <instrument> _ <filekind>
+            
+    Automatically generates a new counter if it doesn't already exist:
+    use with care.
+    """
+    fields = dict(
+        counter = BlobField(int, "an integer counter", 0),
+    )
+    
+    @classmethod
+    def _setup(cls, args):
+        name = "_".join(args)
+        try:
+            blob = cls.load(name)
+        except LookupError:
+            blob = CounterBlob()
+        return name, blob
+    
+    @classmethod
+    def next(cls, *args):
+        """Return the next integer in the series identified by `args`,  
+        which are nominally class, observatory, instrument, filekind.
+        .e.g.  mapping, hst, acs, biasfile
+               reference, jwst, miri, biasfile
+        """
+        name, blob = cls._setup(args)
+        blob.counter += 1
+        blob.save(name)
+        return blob.counter
+
+    @classmethod
+    def last(cls, *args):
+        """Like next,  but return the last number issued."""
+        name, blob = cls._setup(args)
+        return blob.counter
+
+    @classmethod
+    def set(cls, *args): 
+        """Like next,  but set the counter identified by args[:-1] to args[-1]
+        """
+        # nominally class, observatory, instrument, filekind, number
+        num = int(args[-1])
+        name, blob = cls._setup(args[:-1])
+        blob.counter = num
+        blob.save(name)
 
 # ============================================================================
 
@@ -314,53 +368,3 @@ class AuditBlob(Blob):
     @property
     def extension(self):  return os.path.splitext(self.filename)[-1]
     
-# ============================================================================
-
-class CounterBlob(Blob):
-    """The serial number counter for a single kind of file,  named:
-            <observatory> _ <instrument> _ <filekind>
-            
-    Automatically generates a new counter if it doesn't already exist:
-    use with care.
-    """
-    fields = dict(
-        counter = BlobField(int, "an integer counter", 0),
-    )
-    
-    @classmethod
-    def _setup(cls, args):
-        name = "_".join(args)
-        try:
-            blob = cls.load(name)
-        except LookupError:
-            blob = CounterBlob()
-        return name, blob
-    
-    @classmethod
-    def next(cls, *args):
-        """Return the next integer in the series identified by `args`,  
-        which are nominally class, observatory, instrument, filekind.
-        .e.g.  mapping, hst, acs, biasfile
-               reference, jwst, miri, biasfile
-        """
-        name, blob = cls._setup(args)
-        blob.counter += 1
-        blob.save(name)
-        return blob.counter
-
-    @classmethod
-    def last(cls, *args):
-        """Like next,  but return the last number issued."""
-        name, blob = cls._setup(args)
-        return blob.counter
-
-    @classmethod
-    def set(cls, *args): 
-        """Like next,  but set the counter identified by args[:-1] to args[-1]
-        """
-        # nominally class, observatory, instrument, filekind, number
-        num = int(args[-1])
-        name, blob = cls._setup(args[:-1])
-        blob.counter = num
-        blob.save(name)
-
