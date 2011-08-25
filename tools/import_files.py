@@ -57,7 +57,7 @@ def submit_references(context,
                     ctx.observatory, reference, mode="server")
         except Exception:
             log.error("Can't locate", repr(reference))
-            existing_location = "unknown location for " + reference
+            existing_location = "unknown_location_for_" + reference
         try:
             blob = models.ReferenceBlob.load(reference)
             log.info("Skipping existing reference", repr(reference))
