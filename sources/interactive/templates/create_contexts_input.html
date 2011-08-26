@@ -28,15 +28,25 @@
 {% endblock column1 %}
 
 {% block help %}
-<p>Create Parent Contexts automatically generates new pipeline and instrument 
-contexts which refer to your updated rmaps based upon the prior context you give.
-The new instrument context file will substitute the updated rmap files you list
-for the previous equivalents.   The new pipeline context file will substitute 
-the new instrument imap for the corresponding prior imap.
+<p><b>Create Parent Contexts automatically generates and submits new pipeline 
+and instrument contexts which refer to your updated rmaps.</b>
+
+<p>The Baseline Context pipeline mapping defines the starting context which
+will be adjusted for the new rmaps.
+
+<p>
+<p>Files you list in the Updated Rmaps box will be substituted into the existing
+instrument contexts generating new ones.
+
+<p>
+<p>A new pipeline context will be generated substituting the new instrument
+contexts for the corresponding old ones.
+
 <p>
 <p>Updated Rmaps can be listed one file per line, separated by spaces,
 or seperated by commas.
+
 <p>
-<p>The description should document the rationale or purpose for the new contexts,
-i.e. describe the overall changes in the rmaps.
+<p>The description should document the general rationale or purpose behind the
+set of rmap updates.
 {% endblock help %}

@@ -347,7 +347,7 @@ class AuditBlob(Blob):
         rec.why = why
         rec.details = details
         if date is None:
-            date = crds.timestamp.now()
+            date = timestamp.now()
         rec.date = date
         if fileblob is None:
             fileblob = rec.fileblob

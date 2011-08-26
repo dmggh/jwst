@@ -294,6 +294,7 @@ def get_blacklists(basename, certifypath, ignore_self=True):
             except LookupError:
                 exceptions.append("File " + repr(child) + 
                                   " is not known to CRDS.")
+                continue
             if child_blob.blacklisted_by:
                 blacklisted_by = blacklisted_by.union(
                                     set(child_blob.blacklisted_by))
@@ -304,6 +305,7 @@ def get_blacklists(basename, certifypath, ignore_self=True):
             except LookupError:
                 exceptions.append("File " + repr(child) + 
                                   " is not known to CRDS.")
+                continue
             if child_blob.blacklisted_by:  # must be blacklisted by self
                 blacklisted_by = blacklisted_by.union(
                                     set(child_blob.blacklisted_by)) 
@@ -748,16 +750,23 @@ def reserve_name_post(request):
     except AssertionError, exc:
         raise CrdsError(str(exc))
     
-    num = models.CounterBlob.next(observatory, extension, instrument, filekind)
+    num = get_new_serial(observatory, instrument, filekind, extension)
     
     parts = [x for x in [observatory, instrument, filekind, "%04d" % num] if x]
     reserved_name = "_".join(parts) + extension
     
-    models.AuditBlob.create_record(request.user, "reserve name", reserved_name, 
-                                   "", "")
+    models.AuditBlob.create_record(
+        request.user, "reserve name", reserved_name, "none", "none")
 
     return render(request, "reserve_name_results.html",
                   {"reserved_name" : reserved_name})
+    
+def get_new_serial(observatory, instrument, filekind, extension):
+    """Return the next reference or mapping serial number associated with the
+    given parameters and update the database.
+    """
+    return models.CounterBlob.next(observatory, instrument, filekind, extension)
+    
 
 # ===========================================================================
 
