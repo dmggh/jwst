@@ -313,7 +313,7 @@ class ReferenceBlob(FileBlob):
 
 # ============================================================================
 
-AUDITED_ACTIONS = ["blacklist","submit file","reserve name"]
+AUDITED_ACTIONS = ["blacklist","submit file","reserve name","new context"]
 
 class AuditBlob(Blob):
     """Maintains an audit trail of important actions indicating who did them,

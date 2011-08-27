@@ -843,6 +843,15 @@ def create_contexts_post(request):
     
     new_contexts = newcontext.generate_new_contexts(
         pipeline, updates_by_instrument, new_name_map)
+
+    models.AuditBlob.create_record(
+        request.user, "new context", new_contexts[0], description, 
+        ", ".join(new_contexts[1:]))
+
+    observatory = rmap.get_cached_mapping(pipeline).observatory
+    for ctx in new_contexts:
+        create_delivery_blob(observatory, ctx, rmap.locate_mapping(ctx), 
+            request.user, request.user.email, "generated", description)
     
     return render(request, "create_contexts_results.html", {
                 "new_contexts" : new_contexts,
