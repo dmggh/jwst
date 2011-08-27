@@ -57,11 +57,11 @@ def check_value(value, pattern, msg):
     return value
 
 def validate_post(request, variable, choices):
-    value = request.POST[variable]
+    value = str(request.POST[variable])
     return check_value(value, choices, "Invalid value " + repr(value) + 
                                         " for " + repr(variable))
 def validate_get(request, variable, choices):
-    value = request.GET[variable]
+    value = str(request.GET[variable])
     return check_value(value, choices, "Invalid value " + repr(value) + 
                                         " for " + repr(variable))
 
