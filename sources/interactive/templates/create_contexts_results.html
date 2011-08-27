@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% load stdtags %}
+
+{% block contents %}
+    <h2>Create New Contexts</h2>
+    <h3>Created</h3>
+    {% for ctx in new_contexts %}
+        <p class="success">{{ctx}}</p>
+    {% endfor %}
+{% endblock contents %}

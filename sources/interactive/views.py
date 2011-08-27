@@ -12,7 +12,7 @@ import django.utils.safestring as safestring
 import django.contrib.auth
 from django.contrib.auth.decorators import login_required
 
-from crds import (rmap, utils, certify, timestamp, uses)
+from crds import (rmap, utils, certify, timestamp, uses, newcontext)
 
 import crds.server.config as config
 import crds.server.interactive.models as models
@@ -42,7 +42,12 @@ def _get_ctx(request):
 
 def check_value(value, pattern, msg):
     value = str(value)
-    if isinstance(pattern, list):
+    if isinstance(pattern, type(check_value)):
+        try: 
+            return pattern(value)
+        except AssertionError, exc:
+            raise FieldError(msg + " : " + str(exc))
+    elif isinstance(pattern, list):
         for choice in pattern:
             assert "|" not in choice, "Found | in choice " + repr(choice) + \
                 " seen as regex special char"
@@ -825,29 +830,85 @@ def create_contexts(request):
         return create_contexts_post(request)
 
 def create_contexts_post(request):
-    action = validate_post(
-        request, "action", models.AUDITED_ACTIONS+[r"\*"])
-    observatory = validate_post(
-        request, "observatory", models.OBSERVATORIES+[r"\*"])
-    instrument = validate_post(
-        request, "instrument", models.INSTRUMENTS+[r"\*"])
-    filekind = validate_post(
-        request, "filekind", models.FILEKINDS+[r"\*"])
-    extension = validate_post(
-        request, "extension", models.EXTENSIONS+[r"\*"])
-    filename = validate_post(
-        request, "filename", r"[A-Za-z0-9_.\*]+")
-    user = validate_post(
-        request, "user", r"[A-Za-z0-9_.\*]+")
-    filters = {}
-    for var in ["action","observatory","instrument","filekind","extension",
-                "filename","user"]:
-        value = locals()[var].strip()
-        if value not in ["*",""]:
-            filters[var] = value
-    filtered_activities = models.AuditBlob.filter(**filters)
+    pipeline = validate_post(
+            request, "pipeline", is_pipeline_mapping)
+    updated_rmaps = validate_post(
+            request, "rmaps", is_list_of_rmaps)
+    description = validate_post(request, "description", "[^<>]+")
+
+    updates_by_instrument = newcontext.get_update_map(
+        pipeline, updated_rmaps)
+    
+    new_name_map = generate_new_names(pipeline, updates_by_instrument)
+    
+    new_contexts = newcontext.generate_new_contexts(
+        pipeline, updates_by_instrument, new_name_map)
+    
     return render(request, "create_contexts_results.html", {
-                "filters": filters,
-                "filtered_activities" : filtered_activities,
+                "new_contexts" : new_contexts,
             })
+
+def is_pipeline_mapping(filename):
+    """Verify that `filename` names a known CRDS pipeline mapping.
+    Otherwise raise AssertionError.
+    """
+    assert re.match("\w+\.pmap", filename), "invalid pipeline mapping filename."
+    try:
+        rmap.get_cached_mapping(filename)
+    except Exception:
+        assert False, "can't load.   Must name a known CRDS pipeline mapping."
+    return filename
+
+def is_reference_mapping(filename):
+    """Verify that `filename` names a known CRDS reference mapping.
+    Otherwise raise AssertionError.
+    """
+    assert re.match("\w+\.rmap", filename), "invalid reference mapping filename."
+    try:
+        rmap.get_cached_mapping(filename)
+    except Exception:
+        assert False, "can't load.   Must name a known CRDS reference mapping."
+    return filename
+
+def is_list_of_rmaps(text):
+    """Assert that `text` contains a list of comma for newline separated rmap
+    names.
+    """
+    text = str(text)
+    text = text.replace("\n"," ")
+    text = text.replace("\r", "")
+    text = " ".join(text.split(","))
+    rmaps = [r.strip() for r in text.split()]
+    for rmap in rmaps:
+        is_reference_mapping(rmap)
+    return rmaps
+
+def generate_new_names(old_pipeline, updates):
+    """Generate a map from old pipeline and instrument context names to the
+    names for their replacements.
+    """
+    new_names = {}
+    new_names[old_pipeline] = new_name(old_pipeline)
+    for old_imap in updates:
+        new_names[old_imap] = new_name(old_imap)
+    return new_names
+
+def new_name(old_map):
+    """Given and old mapping name, `old_map`, adjust the serial number to 
+    create a new mapping name of the same series.
+    """
+    observatory = rmap.get_cached_mapping(old_map).observatory
+    instrument, filekind, serial = utils.get_file_properties(observatory, old_map)
+    extension = os.path.splitext(old_map)[-1]
+    newserial = get_new_serial(observatory, instrument, filekind, extension)
+    if re.search(r"_\d+\.[pir]map", old_map):
+        new_map = re.sub(r"_\d+(\.[pir]map)", r"_%04d\1" % newserial, old_map)
+    elif re.match(r"\w+\.[pir]map", old_map):   # if no serial,  start off existing sequence as 0
+        parts = os.path.splitext(old_map)
+        new_map = parts[0] + "_%04d" % newserial + parts[1]
+    else:
+        raise ValueError("Unrecognized mapping filename " + repr(old_map))
+    assert not os.path.exists(rmap.locate_mapping(new_map)), \
+        "Program error.  New mapping already exists."
+    return new_map
 
