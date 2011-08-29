@@ -327,7 +327,7 @@ def get_uploaded_file(
     try:
         ufile = request.FILES[formvar]
     except KeyError:
-        raise MissingInputError("Specify a file to upload.")
+        raise MissingInputError("Specify a file to upload for " + repr(formvar))
     if not ufile.name.endswith(legal_exts):
         raise FieldError("File extension for " + repr(str(ufile.name)) + \
                  " not one of: " + ", ".join(legal_exts))
@@ -490,7 +490,8 @@ def certify_post(request):
         [ x.strip() for x in certify_lines] else "Failed."    
     
     if not rmap.is_mapping(original_name):
-        fitscheck_lines = pysh.lines("fitscheck ${certified_file}")
+        fitscheck_lines = pysh.lines(
+            "fitscheck --ignore-missing ${certified_file}")
         fitscheck_status = "OK" if "0 errors" in \
             [x.strip() for x in fitscheck_lines] else "Failed."
     else:

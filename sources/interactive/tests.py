@@ -3,6 +3,9 @@
 
 from django.test import TestCase
 
+import crds.rmap as rmap
+import crds.server.interactive.views as views
+
 """
   url(r'^$', 'crds.server.interactive.views.index'),          
 
@@ -104,6 +107,16 @@ class SimpleTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_blacklist_post(self):
+        views.create_delivery_blob(
+            "hst", "hst.pmap", rmap.locate_mapping("hst.pmap"), 
+            "homer", "homer@simpsons.com", "marge", "delivered by the man")
+        views.create_delivery_blob(
+            "hst", "hst_acs.imap", rmap.locate_mapping("hst_acs.imap"), 
+            "homer", "homer@simpsons.com", "marge", "delivered by the man")
+        views.create_delivery_blob(
+            "hst", "hst_acs_biasfile.rmap", 
+            rmap.locate_mapping("hst_acs_biasfile.rmap"), 
+            "homer", "homer@simpsons.com", "marge", "delivered by the man")
         self.authenticate()
         response = self.client.post("/blacklist/", {
             "observatory" : "hst",
@@ -134,7 +147,7 @@ class SimpleTest(TestCase):
         response = self.client.get("/certify/")
         self.assertEqual(response.status_code, 200)
 
-    def test_certify_post_fits(self):
+    def test_certify_post_fits_known(self):
         self.authenticate()
         response = self.client.post("/certify/", {
             "filemode" : "file_known",
@@ -144,37 +157,57 @@ class SimpleTest(TestCase):
         self.assertTrue(response.content.count("OK") == 2)
         self.assertTrue("0 errors" in response.content)
 
-    def test_certify_post_rmap(self):
+    def test_certify_post_rmap_known(self):
         self.authenticate()
         response = self.client.post("/certify/", {
             "filemode" : "file_known",
             "file_known" : "hst_cos_deadtab.rmap",
         })
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.content.count("0 errors") == 2)
+        self.assertTrue(response.content.count("0 errors") == 1)
         self.assertTrue("Failed" not in response.content)
-        self.assertTrue(response.content.count("OK") == 3)
+        self.assertTrue(response.content.count("OK") == 2)
 
-"""
-    def test_difference(self):
-        self.assertTrue(False)
+#    def test_certify_post_rmap_uploaded(self):
+#        self.authenticate()
+#        response = self.client.post("/certify/", {
+#            "filemode" : "file_uploaded",
+#            "file_uploaded" : "interactive/hst_cos_deadmap.rmap",
+#        })
+#        print response.content
+#        self.assertEqual(response.status_code, 200)
+#        self.assertTrue(response.content.count("0 errors") == 1)
+#        self.assertTrue("Failed" not in response.content)
+#        self.assertTrue(response.content.count("OK") == 2)
+
+    def test_difference_get(self):
+        response = self.client.get("/difference/")
+        self.assertEqual(response.status_code, 200)
     
-    def test_reserve_name(self):
-        self.assertTrue(False)
+    def test_reserve_name_get(self):
+        self.authenticate()
+        response = self.client.get("/reserve_name/")
+        self.assertEqual(response.status_code, 200)
     
-    def test_recent_activity(self):
-        self.assertTrue(False)
-    
+    def test_recent_activity_get(self):
+        self.authenticate()
+        response = self.client.get("/recent_activity/")
+        self.assertEqual(response.status_code, 200)
+
     def test_common_updates(self):
-        self.assertTrue(False)
+        self.authenticate()
+        response = self.client.get("/common_updates/")
+        self.assertEqual(response.status_code, 200)
     
     def test_create_contexts(self):
-        self.assertTrue(False)
+        self.authenticate()
+        response = self.client.get("/create_contexts/")
+        self.assertEqual(response.status_code, 200)
     
     def test_browse(self):
-        self.assertTrue(False)
+        response = self.client.get("/browse/")
+        self.assertEqual(response.status_code, 200)
 
     def test_browse_file(self):
-        self.assertTrue(False)
-
-"""
+        response = self.client.get("/browse/hst.pmap")
+        self.assertEqual(response.status_code, 200)

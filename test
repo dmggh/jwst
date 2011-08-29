@@ -1,0 +1,7 @@
+#! /bin/bash
+
+echo "installing..."
+./install &> /dev/null
+cd sources
+python manage.py test $* --verbosity=2
+
