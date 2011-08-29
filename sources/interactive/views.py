@@ -397,7 +397,8 @@ def create_delivery_blob(observatory, upload_name, permanent_location,
     # XXX some redundancy here
     models.AuditBlob.create_record(
         deliverer_user, "submit file", blob.filename, description, "",
-        date=blob.delivery_date, fileblob=blob)
+        observatory=observatory, instrument=instrument,  filekind=filekind,
+        date=blob.delivery_date,)
 
 # ===========================================================================
 
@@ -431,9 +432,13 @@ def blacklist_file_post(request):
     for also_blacklisted in all_blacklisted:
         do_blacklist(
             blacklist_root, also_blacklisted, badflag, why, request.user)
+    
+    instrument, filekind, serial = utils.get_file_properties(
+            observatory, blacklist_root)
 
-    models.AuditBlob.create_record(request.user, "blacklist", blacklist_root, why, 
-                                   "marked as " + badflag)
+    models.AuditBlob.create_record(
+        request.user, "blacklist", blacklist_root, why, "marked as " + badflag,
+        observatory=observatory, instrument=instrument, filekind=filekind)
 
     return render(request, "blacklist_results.html", 
                   { "all_blacklisted": all_blacklisted })
@@ -761,7 +766,8 @@ def reserve_name_post(request):
     reserved_name = "_".join(parts) + extension
     
     models.AuditBlob.create_record(
-        request.user, "reserve name", reserved_name, "none", "none")
+        request.user, "reserve name", reserved_name, "none", "none",
+        observatory=observatory, instrument=instrument, filekind=filekind)
 
     return render(request, "reserve_name_results.html",
                   {"reserved_name" : reserved_name})
@@ -836,23 +842,32 @@ def create_contexts_post(request):
             request, "rmaps", is_list_of_rmaps)
     description = validate_post(request, "description", "[^<>]+")
 
+    # Get the mapping from old imap to new rmap, basically the imaps that
+    # must be updated onto the list of rmap updates to do.
     updates_by_instrument = newcontext.get_update_map(
         pipeline, updated_rmaps)
     
+    # For each imap being edited,  and the pipeline context,  reserve new
+    # official names and return the dictionary { old_mapping : new_mapping }.
     new_name_map = generate_new_names(pipeline, updates_by_instrument)
     
+    # Actually generate the new mappings,  by first copying the old mappings 
+    # and then substituting old names with their updated equivalents.
     new_contexts = newcontext.generate_new_contexts(
         pipeline, updates_by_instrument, new_name_map)
 
-    models.AuditBlob.create_record(
-        request.user, "new context", new_contexts[0], description, 
-        ", ".join(new_contexts[1:]))
-
+    # Create delivery records for each of the new files
     observatory = rmap.get_cached_mapping(pipeline).observatory
     for ctx in new_contexts:
         create_delivery_blob(observatory, ctx, rmap.locate_mapping(ctx), 
             request.user, request.user.email, "generated", description)
     
+    # Track this since it generates two or more new official mappings.
+    models.AuditBlob.create_record(
+        request.user, "new context", new_contexts[0], description, 
+        ", ".join(new_contexts[1:]), observatory=observatory, 
+        instrument="", filekind="")
+
     return render(request, "create_contexts_results.html", {
                 "new_contexts" : new_contexts,
             })

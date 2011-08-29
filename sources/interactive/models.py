@@ -337,8 +337,8 @@ class AuditBlob(Blob):
     )
     
     @classmethod
-    def create_record(cls, user, action, affected_file, why, details, date=None,
-                      fileblob=None):
+    def create_record(cls, user, action, affected_file, why, details, 
+                      observatory, instrument, filekind, date=None):
         """Save a record of an action in the database."""
         rec = cls()
         rec.user = user
@@ -349,11 +349,9 @@ class AuditBlob(Blob):
         if date is None:
             date = timestamp.now()
         rec.date = date
-        if fileblob is None:
-            fileblob = rec.fileblob
-        rec.observatory = fileblob.observatory
-        rec.instrument = fileblob.instrument
-        rec.filekind = fileblob.filekind
+        rec.observatory = observatory
+        rec.instrument = instrument
+        rec.filekind = filekind
         rec.save()
 
     @property
