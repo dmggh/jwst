@@ -34,7 +34,7 @@
         {% for activity in filtered_activities %}
         <tr>
             <td align="center">{{activity.date|minutes}}</td>
-            <td align="center">{{activity.filename}}</td>
+            <td align="center"><a href="/browse/{{activity.filename}}">{{activity.filename}}</a></td>
             <td align="center">{{activity.action}}</td>
             <td align="center">{{activity.user}}</td>
             <td align="center">{{activity.why}}</td>

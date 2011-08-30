@@ -612,31 +612,13 @@ def browse_files(request):
 def browse_files_post(request):
     uploaded, original_name, browsed_file = handle_known_or_uploaded_file(
         request, "File", "filemode", "file_known", "file_uploaded")
-    return browse_files_post_guts(
+    response = browse_files_post_guts(
         request, uploaded, original_name, browsed_file)
-
-def browse_files_post_guts(request, uploaded, original_name, browsed_file):
-
-    fileblob = get_database_blob(original_name, browsed_file)
-        
-    if rmap.is_mapping(original_name):
-        file_contents = browsify_mapping(original_name, browsed_file)
-    else:
-        file_contents = browsify_reference(original_name, browsed_file)
-    
     if uploaded:
         remove_temporary(browsed_file)
+    return response
 
-    return render(request, "browse_results.html", 
-            { "uploaded" : uploaded,
-             "fileblob" : fileblob,
-             "file_contents":file_contents,
-             "browsed_file":original_name})
-
-def get_database_blob(original_name, browsed_file):
-    """Return the CRDS database information for this file as a list of HTML
-    table lines.
-    """
+def browse_files_post_guts(request, uploaded, original_name, browsed_file):
     try:
         if rmap.is_mapping(original_name):
             blob = models.MappingBlob.load(os.path.basename(browsed_file))
@@ -644,7 +626,17 @@ def get_database_blob(original_name, browsed_file):
             blob = models.ReferenceBlob.load(os.path.basename(browsed_file))
     except LookupError:
         blob = None
-    return blob
+
+    if rmap.is_mapping(original_name):
+        file_contents = browsify_mapping(original_name, browsed_file)
+    else:
+        file_contents = browsify_reference(original_name, browsed_file)
+    
+    return render(request, "browse_results.html", 
+            { "uploaded" : uploaded,
+             "fileblob" : blob,
+             "file_contents":file_contents,
+             "browsed_file":original_name})
 
 def browsify_mapping(original_name, browsed_file):
     lines = []

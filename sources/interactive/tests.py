@@ -299,6 +299,7 @@ class SimpleTest(TestCase):
                 "extension": "*",
                 "filename": "hst.pmap",
                 "user": "*",
+                "status":"*",
             })
         self.assertEqual(response.status_code, 200)
         self.assertTrue('hst.pmap' in response.content)

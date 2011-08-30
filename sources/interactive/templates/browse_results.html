@@ -44,9 +44,13 @@
                  <tr>
                     <td width="20%" align="left" class="label">Blacklisted By</td>
                     <td>
-                        {% for bl in fileblob.blacklisted_by %}
-                        {{bl}},&nbsp;
-                        {% endfor %}
+                        {% if fileblob.blacklisted_by %}
+                            {% for bl in fileblob.blacklisted_by %}
+                                <a href="/browse/{{bl}}">{{bl}}</a>,&nbsp;
+                            {% endfor %}
+                        {% else %}
+                            none
+                        {% endif %}
                     </td>
                  </tr>
                  <tr>
