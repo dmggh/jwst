@@ -915,22 +915,53 @@ def is_pipeline_mapping(filename):
     """Verify that `filename` names a known CRDS pipeline mapping.
     Otherwise raise AssertionError.
     """
-    assert re.match("\w+\.pmap", filename), "invalid pipeline mapping filename."
+    assert re.match("\w+\.pmap", filename), \
+        "invalid pipeline mapping filename: " + repr(filename)
     try:
         rmap.get_cached_mapping(filename)
     except Exception:
-        assert False, "can't load.   Must name a known CRDS pipeline mapping."
+        assert False, \
+            "can't load " + repr(filename) + \
+            ".  Must name a known CRDS pipeline mapping."
     return filename
 
 def is_reference_mapping(filename):
     """Verify that `filename` names a known CRDS reference mapping.
     Otherwise raise AssertionError.
     """
-    assert re.match("\w+\.rmap", filename), "invalid reference mapping filename."
+    assert re.match("\w+\.rmap", filename), \
+        "invalid reference mapping filename " + repr(filename)
     try:
         rmap.get_cached_mapping(filename)
     except Exception:
-        assert False, "can't load.   Must name a known CRDS reference mapping."
+        assert False, "can't load " + repr(filename) + \
+            ".  Must name a known CRDS reference mapping."
+    return filename
+
+def is_mapping(filename):
+    """Verify that `filename` names a known CRDS mapping.
+    Otherwise raise AssertionError.
+    """
+    assert re.match("\w+\.[pir]map", filename), \
+        "invalid reference mapping filename " + repr(filename)
+    try:
+        rmap.get_cached_mapping(filename)
+    except Exception:
+        assert False, "can't load " + repr(filename) + \
+            ".  Must name a known CRDS pipeline, instrument, or reference mapping."
+    return filename
+
+def is_reference_file(filename):
+    """Verify that `filename` names a known CRDS reference file.
+    Otherwise raise AssertionError.
+    """
+    assert re.match("\w+\.fits", filename), \
+        "invalid reference filename " + repr(filename)
+    try:
+        models.ReferenceBlob.load(filename)
+    except Exception:
+        assert False, "can't load " + repr(filename) + \
+            ".  Must name a known CRDS reference file."
     return filename
 
 def is_list_of_rmaps(text):
@@ -974,4 +1005,57 @@ def new_name(old_map):
     assert not os.path.exists(rmap.locate_mapping(new_map)), \
         "Program error.  New mapping " + repr(new_map) + " already exists."
     return new_map
+
+# ===========================================================================
+
+@error_trap("replace_file_input.html")
+@login_required
+def replace_file(request):
+    if request.method == "GET":
+        return render(request, "replace_file_input.html")
+    else:
+        return replace_file_post(request)
+
+def replace_file_post(request):
+    original_mapping = validate_post(
+        request, "original_mapping", is_reference_mapping)
+    old_file = validate_post(request, "old_reference", is_reference_file)
+    new_file = validate_post(request, "new_reference", is_reference_file)
+    description = validate_post(request, "description", "[^<>]+")
+    
+    assert old_file in open(rmap.locate_mapping(original_mapping)).read(), \
+        "File " + old_file + " isn't anywhere in " + repr(original_mapping)
+
+    """
+    # Get the mapping from old imap to new rmap, basically the imaps that
+    # must be updated onto the list of rmap updates to do.
+    updates_by_instrument = newcontext.get_update_map(
+        pipeline, updated_rmaps)
+    
+    # For each imap being edited,  and the pipeline context,  reserve new
+    # official names and return the dictionary { old_mapping : new_mapping }.
+    new_name_map = generate_new_names(pipeline, updates_by_instrument)
+    
+    # Actually generate the new mappings,  by first copying the old mappings 
+    # and then substituting old names with their updated equivalents.
+    new_contexts = newcontext.generate_new_contexts(
+        pipeline, updates_by_instrument, new_name_map)
+
+    # Create delivery records for each of the new files
+    observatory = rmap.get_cached_mapping(pipeline).observatory
+    for ctx in new_contexts:
+        create_delivery_blob(observatory, ctx, rmap.locate_mapping(ctx), 
+            request.user, request.user.email, "generated", description)
+    
+    # Track this since it generates two or more new official mappings.
+    models.AuditBlob.create_record(
+        request.user, "new context", new_contexts[0], description, 
+        ", ".join(new_contexts[1:]), observatory=observatory, 
+        instrument="", filekind="")
+    """
+
+    return render(request, "replace_file_results.html", {
+                "new_mapping" : new_mapping,
+            })
+
 
