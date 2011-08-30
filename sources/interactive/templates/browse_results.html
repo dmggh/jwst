@@ -46,7 +46,7 @@
                     <td>
                         {% if fileblob.blacklisted_by %}
                             {% for bl in fileblob.blacklisted_by %}
-                                <a href="/browse/{{bl}}">{{bl}}</a>,&nbsp;
+                                {{bl|browse}} ,&nbsp;
                             {% endfor %}
                         {% else %}
                             none

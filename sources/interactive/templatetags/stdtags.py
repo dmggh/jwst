@@ -47,3 +47,8 @@ def minutes(value):  # handle str(datetime.datetime.now())
     parts = value.split(".")
     return ".".join(parts[:-1])
 
+@register.filter(name="browse")
+@stringfilter
+def browse(name):  # handle str(datetime.datetime.now())
+    return mark_safe("<a href='/browse/%s'>%s</a>" % (name, name))
+browse.is_safe = True
