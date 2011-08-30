@@ -262,6 +262,7 @@ FILE_STATUS_MAP = {
 
 class FileBlob(Blob):
     """Represents a delivered file,  either a reference or a mapping."""
+    
     fields = dict(
         # User supplied fields
         uploaded_as = BlobField("^[A-Za-z0-9_.]+$", "original upload filename", ""),
@@ -317,8 +318,9 @@ class FileBlob(Blob):
     def checksum(self):
         return hashlib.sha1(open(self.pathname).read()).hexdigest()
     
-    def verify(self):
-        assert self.checksum() == self.sha1sum, "checksum error"
+    @property
+    def checksum_ok(self):
+        return self.checksum() == self.sha1sum
         
 class MappingBlob(FileBlob):
     """Represents a CRDS mapping file, i.e. a pipeline or instrument context,

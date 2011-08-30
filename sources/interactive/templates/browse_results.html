@@ -13,7 +13,70 @@
     {{status}}
     </h3>
     
-    {% for line in browse_lines %}
+    {% if not uploaded %}
+        <h3>CRDS Database</h3>
+        {% if fileblob %}        
+            <table border="1">
+                 <tr>
+                    <td width="20%" align="left" class="label">Delivery Date</td>
+                    <td>{{fileblob.delivery_date|seconds}}</td>
+                 </tr>
+                 <tr>
+                    <td width="20%" align="left" class="label">Path</td>
+                    <td>{{fileblob.pathname}}</td>
+                 </tr>
+                 <tr>
+                    <td width="20%" align="left" class="label">Status</td>
+                    <td class="{{fileblob.status_class}}">{{fileblob.status}}</td>
+                 </tr>
+                 <tr>
+                    <td width="20%" align="left" class="label">Deliverer</td>
+                    <td>{{fileblob.deliverer_user}}</td>
+                 </tr>
+                 <tr>
+                    <td width="20%" align="left" class="label">Deliverer Email</td>
+                    <td>{{fileblob.deliverer_email}}</td>
+                 </tr>
+                 <tr>
+                    <td width="20%" align="left" class="label">Author/Modifier</td>
+                    <td>{{fileblob.modifier_name}}</td>
+                 </tr>
+                 <tr>
+                    <td width="20%" align="left" class="label">Blacklisted By</td>
+                    <td>
+                        {% for bl in fileblob.blacklisted_by %}
+                        {{bl}},&nbsp;
+                        {% endfor %}
+                    </td>
+                 </tr>
+                 <tr>
+                    <td width="20%" align="left" class="label">Description</td>
+                    <td>{{fileblob.description}}</td>
+                 </tr>
+                 <tr>
+                    <td width="20%" align="left" class="label">Sha1sum</td>
+                    {% if fileblob.sha1sum %}
+                        {% if fileblob.checksum_ok %}
+                           <td class="success">{{fileblob.sha1sum}}</td>
+                        {% else %}
+                           <td class="error">{{fileblob.sha1sum}}</td>
+                        {% endif %}
+                    {% else %}
+                           <td class="orange">undefined</td>
+                    {% endif %}
+                 </tr>
+            </table>
+        {% else %}
+            <p class="error">Error loading database record for 
+                <span class="grey">{{browsed_file}}</span>
+            </p>
+        {% endif %}
+    {% else %}
+        <h3>No Database (uploaded)</h3>
+    {% endif %}
+    
+    <h3>File Contents</h3>
+    {% for line in file_contents %}
     {{line|safe}}
     {% endfor %}
 

@@ -616,48 +616,35 @@ def browse_files_post(request):
         request, uploaded, original_name, browsed_file)
 
 def browse_files_post_guts(request, uploaded, original_name, browsed_file):
-    if not uploaded:
-        browse_lines = get_database_lines(original_name, browsed_file)      
-    else:
-        browse_lines = [
-            "<h3>Uploaded file <span class='grey'>%s</span></h3>" % uploaded 
-        ]
+
+    fileblob = get_database_blob(original_name, browsed_file)
         
-    browse_lines += ["<h3>File Contents</h3>"]
     if rmap.is_mapping(original_name):
-        browse_lines += browsify_mapping(original_name, browsed_file)
+        file_contents = browsify_mapping(original_name, browsed_file)
     else:
-        browse_lines += browsify_reference(original_name, browsed_file)
+        file_contents = browsify_reference(original_name, browsed_file)
     
     if uploaded:
         remove_temporary(browsed_file)
 
     return render(request, "browse_results.html", 
-            {"browse_lines":browse_lines,
+            { "uploaded" : uploaded,
+             "fileblob" : fileblob,
+             "file_contents":file_contents,
              "browsed_file":original_name})
 
-def get_database_lines(original_name, browsed_file):
+def get_database_blob(original_name, browsed_file):
     """Return the CRDS database information for this file as a list of HTML
     table lines.
     """
-    browse_lines = ["<h3>CRDS Database</h3>"]
     try:
         if rmap.is_mapping(original_name):
             blob = models.MappingBlob.load(os.path.basename(browsed_file))
         else:
             blob = models.ReferenceBlob.load(os.path.basename(browsed_file))
     except LookupError:
-        return browse_lines + ['<h3 class="error">database entry not found</h3>']
-     
-    browse_lines += ["<table>"]
-    for fld in sorted(blob.fields):
-        browse_lines += [
-            "<tr><td class='label''>%s</td>"
-            "<td class='value'>%s</td></tr>" % (fld, getattr(blob, fld))
-        ]
-    browse_lines += ["</table>"]
-    
-    return browse_lines
+        blob = None
+    return blob
 
 def browsify_mapping(original_name, browsed_file):
     lines = []
