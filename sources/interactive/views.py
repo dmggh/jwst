@@ -159,6 +159,21 @@ def error_trap(template):
         return trap
     return decorator
 
+
+# ===========================================================================
+
+import cProfile
+def profile(func):
+    def profile_request(request, *args, **keys):
+        def runit():
+            global PROFILE_DECORATOR_RESULT
+            PROFILE_DECORATOR_RESULT = func(request, *args, **keys)
+        cProfile.runctx("runit()", locals(), locals())
+        return PROFILE_DECORATOR_RESULT
+    return profile_request
+
+# ===========================================================================
+# ===========================================================================
 # ===========================================================================
 
 def index(request):
@@ -464,6 +479,7 @@ def do_blacklist(blacklist_root, blacklisted, badflag, why, user):
         
 # ===========================================================================
 
+# @profile
 @error_trap("certify_input.html")
 @login_required
 def certify_file(request):
