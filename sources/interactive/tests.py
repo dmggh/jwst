@@ -284,3 +284,23 @@ class SimpleTest(TestCase):
     def test_browse_file(self):
         response = self.client.get("/browse/hst.pmap")
         self.assertEqual(response.status_code, 200)
+
+    def test_browse_db_get(self):
+        self.authenticate()
+        response = self.client.get("/browse_db/")
+        self.assertEqual(response.status_code, 200)
+
+    def test_browse_db_post(self):
+        self.authenticate()
+        response = self.client.post("/browse_db/", {
+                "observatory" : "hst",
+                "instrument" : "*",
+                "filekind" : "*",
+                "extension": "*",
+                "filename": "hst.pmap",
+                "user": "*",
+            })
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('hst.pmap' in response.content)
+        self.assertEqual(response.content.count("<tr>"), 4)
+

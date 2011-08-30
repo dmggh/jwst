@@ -254,6 +254,12 @@ class CounterBlob(Blob):
 
 # ============================================================================
 
+FILE_STATUS_MAP = {
+    "operational" : "green",
+    "pending archive" : "orange",
+    "blacklisted" : "red",
+}
+
 class FileBlob(Blob):
     """Represents a delivered file,  either a reference or a mapping."""
     fields = dict(
@@ -263,8 +269,8 @@ class FileBlob(Blob):
         modifier_name = BlobField(str, "person who made these changes",""),
         deliverer_user = BlobField(str, "username who uploaded the file", ""),
         deliverer_email = BlobField(str, "person's e-mail who uploaded the file", ""),
-        status = BlobField(["operational","pending archive","blacklisted","bad"], 
-                           "operational status of this file.", "pending archive"),
+        state = BlobField(FILE_STATUS_MAP.keys(), 
+            "operational status of this file.", "pending archive"),
         blacklisted_by = BlobField(list, 
             "Comma separated list of files marking this"
             " file as bad,  possibly self.", []),
@@ -288,6 +294,17 @@ class FileBlob(Blob):
     @property
     def filename(self):
         return os.path.basename(self.pathname)
+    
+    @property
+    def status(self):
+        if self.blacklisted_by:
+            return "blacklisted"
+        else:
+            return self.state
+
+    @property
+    def status_class(self):
+        return FILE_STATUS_MAP[self.status]
     
     @property
     def extension(self):

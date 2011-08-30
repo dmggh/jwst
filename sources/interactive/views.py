@@ -824,6 +824,50 @@ def recent_activity_post(request):
 
 # ===========================================================================
 
+@error_trap("browse_db_input.html")
+@login_required
+def browse_db(request):
+    if request.method == "GET":
+        return render(request, "browse_db_input.html", {
+            "observatories":["*"]+models.OBSERVATORIES,
+            "instruments":["*"]+models.INSTRUMENTS,
+            "filekinds":["*"]+models.FILEKINDS,
+            "extensions":["*"]+models.EXTENSIONS,
+            "status":["*"]+models.FILE_STATUS_MAP.keys(),
+            })
+    else:
+        return browse_db_post(request)
+
+def browse_db_post(request):
+    observatory = validate_post(
+        request, "observatory", models.OBSERVATORIES+[r"\*"])
+    instrument = validate_post(
+        request, "instrument", models.INSTRUMENTS+[r"\*"])
+    filekind = validate_post(
+        request, "filekind", models.FILEKINDS+[r"\*"])
+    extension = validate_post(
+        request, "extension", models.EXTENSIONS+[r"\*"])
+    filename = validate_post(
+        request, "filename", r"[A-Za-z0-9_.\*]+")
+    user = validate_post(
+        request, "user", r"[A-Za-z0-9_.\*]+")
+    status = validate_post(
+        request, "status", r"[A-Za-z0-9_.\*]+")
+    filters = {}
+    for var in ["observatory","instrument","filekind","extension",
+                "filename","user","status"]:
+        value = locals()[var].strip()
+        if value not in ["*",""]:
+            filters[var] = value
+    filtered_db = [x for x in models.MappingBlob.filter(**filters)] + \
+                 [x for x in models.ReferenceBlob.filter(**filters)]
+    return render(request, "browse_db_results.html", {
+                "filters": filters,
+                "filtered_db" : filtered_db,
+            })
+
+# ===========================================================================
+
 def common_updates(request):
     return render(request, "common_updates.html", {})
 

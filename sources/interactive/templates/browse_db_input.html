@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block column1 %}
+
+<form action="/browse_db/" method="post""> {% csrf_token %}
+    <h2>List Database Entries</h2>
+    <h3>Filters</h3>
+    <table>
+      <tr>
+        <td class="label" width="50%">Observatory:</td>
+        <td align="right">
+            <select name="observatory" value="*"/>
+                {% for observatory in observatories %}
+                    <option>{{observatory}}</option>
+                {% endfor %}
+            </select>
+        </td>
+      </tr>
+      <tr>
+        <td class="label" width="50%">Instrument:</td>
+        <td align="right">
+            <select name="instrument" value="*"/>
+                {% for instrument in instruments %}
+                    <option>{{instrument}}</option>
+                {% endfor %}
+            </select>
+        </td>
+      </tr>
+      <tr>
+        <td class="label" width="50%">File Kind:</td>
+        <td align="right">
+            <select name="filekind" value="*"/>
+                {% for filekind in filekinds %}
+                    <option>{{filekind}}</option>
+                {% endfor %}
+            </select>
+        </td>
+      </tr>
+      <tr>
+        <td class="label" width="50%">Extension:</td>
+        <td align="right">
+            <select name="extension" value="*"/>
+                {% for extension in extensions %}
+                    <option>{{extension}}</option>
+                {% endfor %}
+            </select>
+        </td>
+      </tr>
+      <tr>
+        <td class="label" width="50%">Status:</td>
+        <td align="right">
+            <select name="status" value="*"/>
+                {% for stat in status %}
+                    <option>{{stat}}</option>
+                {% endfor %}
+            </select>
+        </td>
+      </tr>
+      <tr>
+            <td class="label" width="50%">Filename:</td>
+            <td align="right"><input type="text" name="filename" value="*"/></td>
+      </tr>
+      <tr>
+            <td class="label" width="50%">User:</td>
+            <td align="right"><input type="text" name="user" value="*"/></td>
+      </tr>
+    </table>
+    <input type="submit" value="Submit" />
+</form>
+
+{% endblock column1 %}

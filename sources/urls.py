@@ -35,6 +35,8 @@ urlpatterns = patterns('',
   url(r'^browse/(?P<original_name>[A-Za-z0-9_.]+(fits|imap|rmap|pmap))$', 
       'crds.server.interactive.views.browse_known_file'),
 
+  url(r'^browse_db/$', 'crds.server.interactive.views.browse_db'),        
+
 #        (r'site_media/(?P<path>.*)$', 'django.views.static.serve',
 #         {'document_root': settings.MEDIA_ROOT }),
 #        
