@@ -27,7 +27,6 @@ def _get_imap(request):
     post = request.POST
     try:
         mode = post["context-mode"]
-        print mode
     except KeyError:
         return post["instrument-context"]
     else:
@@ -452,7 +451,7 @@ def do_blacklist(blacklist_root, blacklisted, badflag, why, user):
             blob = models.ReferenceBlob.load(blacklisted)
         else:
             raise FieldError("Bad file extension for file " + repr(blacklisted))
-    except LookupError:
+    except LookupError, exc:
         raise FieldError("Unknown file " + repr(blacklisted))
     if badflag == "bad":
         if blacklist_root not in blob.blacklisted_by:
@@ -733,7 +732,7 @@ def reserve_name(request):
 def reserve_name_post(request):
     observatory = check_value(request.POST["observatory"], 
             "hst|jwst", "Invalid value for observatory.")
-    mode = check_value(request.POST["filemode"], "file_known|by_field", "Invalid input mode")
+    mode = check_value(request.POST["filemode"], "file_known|by_parts", "Invalid input mode")
     if mode == "file_known":
         known_file = check_value(request.POST["file_known"],
                                  "[A-Za-z0-9_.]+", "Invalid known filename.")
@@ -934,6 +933,6 @@ def new_name(old_map):
     else:
         raise ValueError("Unrecognized mapping filename " + repr(old_map))
     assert not os.path.exists(rmap.locate_mapping(new_map)), \
-        "Program error.  New mapping already exists."
+        "Program error.  New mapping " + repr(new_map) + " already exists."
     return new_map
 

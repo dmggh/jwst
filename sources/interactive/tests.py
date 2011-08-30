@@ -1,5 +1,6 @@
 """Unit tests to exercise the interactive portions of the CRDS server.
 """
+import os
 
 from django.test import TestCase
 
@@ -36,12 +37,24 @@ from django.contrib.auth.models import User
 
 class SimpleTest(TestCase):
     def setUp(self): 
-       User.objects.create_user('homer', 'ho...@simpson.net', 'simpson')     
+        User.objects.create_user('homer', 'ho...@simpson.net', 'simpson')     
+
+    def tearDown(self):
+        self.del_maps(["hst_0001.pmap","hst_cos_0001.imap",
+                       "hst_acs_0001.imap"])
 
     def authenticate(self):
         login = self.client.login(username="homer", password="simpson")
         self.assertTrue(login)
-    
+        
+    def del_maps(self, maps):
+        for map in maps:
+            where = rmap.locate_mapping(map)
+            try:
+                os.remove(where)
+            except OSError:
+                pass
+
     def test_index(self):
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
@@ -107,6 +120,7 @@ class SimpleTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_blacklist_post(self):
+        # Make database entries for files we know will be blacklisted
         views.create_delivery_blob(
             "hst", "hst.pmap", rmap.locate_mapping("hst.pmap"), 
             "homer", "homer@simpsons.com", "marge", "delivered by the man")
@@ -125,6 +139,7 @@ class SimpleTest(TestCase):
             "why" : "just had a feeling.",
             })
         self.assertEqual(response.status_code, 200)
+        # print response.content
         self.assertTrue("hst.pmap" in response.content)
         self.assertTrue("hst_acs.imap" in response.content)
 
@@ -183,15 +198,61 @@ class SimpleTest(TestCase):
     def test_difference_get(self):
         response = self.client.get("/difference/")
         self.assertEqual(response.status_code, 200)
+
+    def test_difference_post(self):
+        response = self.client.post("/difference/", {
+            "filemode1": "file_known1",
+            "file_known1" : "hst_acs.imap",
+            "filemode2": "file_known2",
+            "file_known2" : "hst_cos.imap"
+        })
+        self.assertEqual(response.status_code, 200)
     
     def test_reserve_name_get(self):
         self.authenticate()
         response = self.client.get("/reserve_name/")
         self.assertEqual(response.status_code, 200)
     
+    def test_reserve_name_post_known(self):
+        self.authenticate()
+        response = self.client.post("/reserve_name/", {
+                "observatory" : "hst",
+                "filemode" : "file_known",
+                "file_known" : "hst.pmap"
+            })
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue("hst_0001.pmap" in response.content)
+
+    def test_reserve_name_post_parts(self):
+        self.authenticate()
+        response = self.client.post("/reserve_name/", {
+                "observatory" : "hst",
+                "instrument" : "acs",
+                "filekind" : "biasfile",
+                "extension" : ".rmap",
+                "filemode" : "by_parts",
+                "file_known" : "hst.pmap"
+            })
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue("hst_acs_biasfile_0001.rmap" in response.content)
+
+
     def test_recent_activity_get(self):
         self.authenticate()
         response = self.client.get("/recent_activity/")
+        self.assertEqual(response.status_code, 200)
+
+    def test_recent_activity_post(self):
+        self.authenticate()
+        response = self.client.post("/recent_activity/", {
+                "action" : "reserve name",
+                "observatory" : "*",
+                "instrument" : "*",
+                "filekind" : "*",
+                "extension" : "*",
+                "filename" : "*",
+                "user" : "*",
+            })
         self.assertEqual(response.status_code, 200)
 
     def test_common_updates(self):
@@ -203,6 +264,18 @@ class SimpleTest(TestCase):
         self.authenticate()
         response = self.client.get("/create_contexts/")
         self.assertEqual(response.status_code, 200)
+
+    def test_create_contexts_post(self):
+        self.authenticate()
+        response = self.client.post("/create_contexts/", {
+                "pipeline" : "hst.pmap",
+                "rmaps" : "hst_acs_biasfile.rmap, hst_cos_deadtab.rmap",
+                "description" : "updated ACS biasfile and COS deadtab rmaps"
+            })
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue("hst_0001.pmap" in response.content)
+        self.assertTrue("hst_acs_0001.imap" in response.content)
+        self.assertTrue("hst_cos_0001.imap" in response.content)
     
     def test_browse(self):
         response = self.client.get("/browse/")
