@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% load stdtags %}
+
+{% block contents %}
+    <h2>Add UseAfter File</h2>
+    <p>Created {{new_mapping|browse}} by adding 
+
+    {{useafter_date}} : {{useafter_file|browse}} 
+
+    to copy of 
+
+    {{old_mapping|browse}}
+
+    </p>
+
+    <p>{{modification}}
+    
+{% endblock contents %}

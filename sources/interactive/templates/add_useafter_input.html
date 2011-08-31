@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block column1 %}
+
+<h2>Add UseAfter File</h2>
+<form action="/add_useafter/" method="post""> {% csrf_token %}
+    <table>
+      <tr>
+        <td class="label" width="25%">Old Mapping</td>
+        <td align="left">
+            <input type="text" name="old_mapping" 
+                   value="{{old_mapping}}" size="30"/>
+        </td>
+        <td align="left" class="hint">e.g. hst_acs_dgeofile_0001.rmap</td>
+      </tr>
+      <tr>
+        <td class="label" width="25%">Match Tuple</td>
+        <td align="left">
+            <input type="text" name="match_tuple" 
+                   value="{{match_tuple}}" size="30"/>
+        </td>
+        <td align="left" class="hint">e.g. ('HRC', 'CLEAR1S', 'F220W')</td>
+      </tr>
+      <tr>
+        <td class="label" width="25%">UseAfter Date</td>
+        <td align="left">
+            <input type="text" name="useafter_date" 
+                   value="{{useafter_date}}" size="30"/>
+        </td>
+        <td align="left" class="hint">e.g. 2002-03-01 00:00:00</td>
+      </tr>
+      <tr>
+        <td class="label" width="25%">UseAfter File</td>
+        <td align="left">
+            <input type="text" name="useafter_file" 
+                   value="{{useafter_file}}" size="30"/>
+        </td>
+        <td align="left" class="hint">e.g. o8u2214fj_dxy.fits</td>
+      </tr>
+      <tr>
+        <td></td>
+      </tr>
+      <tr><td><h3>Description</h3></td></tr>
+      <tr><td colspan="3"><textarea name="description" cols="60" rows="10">{{description}}</textarea></td></tr> 
+      </table>
+      <br/>
+      <input type="submit" value="Add UseAfter" style="font-size:1.1em;"/>
+</form>
+
+{% endblock column1 %}
+
+{% block help %}
+<p><b>Replace File modifies an existing reference mapping by replacing a
+single reference file with a new one.   A new reference mapping will be
+automatically generated and submitted.</b>
+
+<p>Old Mapping is the reference mapping which will be copied from.
+
+<p><p>Old Reference should appear somewhere in the old rmap and will
+be replaced.
+
+<p><p>New Reference will be substituted into a copy of the old rmap in place 
+of the old reference file.
+
+<p><p>Description should document the reason for this substitution.
+
+{% endblock help %}

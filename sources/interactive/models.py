@@ -358,8 +358,8 @@ class ReferenceBlob(FileBlob):
 # ============================================================================
 
 AUDITED_ACTIONS = [
-    "submit file","blacklist","reserve name","new context","replace reference",
-    "mass import"
+    "submit file", "blacklist", "reserve name", "mass import", 
+    "new context", "replace reference", "add useafter",
     ]
 
 class AuditBlob(Blob):

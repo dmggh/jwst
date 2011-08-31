@@ -13,6 +13,7 @@ import django.contrib.auth
 from django.contrib.auth.decorators import login_required
 
 from crds import (rmap, utils, certify, timestamp, uses, newcontext)
+from crds.compat import literal_eval
 
 import crds.server.config as config
 import crds.server.interactive.models as models
@@ -909,7 +910,7 @@ def is_mapping(filename, extension=r"\.[pir]map"):
         models.MappingBlob.load(filename)
     except Exception:
         assert False, "can't load " + repr(filename) + \
-            ".  Must name a known CRDS pipeline, instrument, or reference mapping."
+            ".  Must name a known CRDS mapping."
     return filename
 
 def is_reference_file(filename):
@@ -1007,3 +1008,102 @@ def replace_reference_post(request):
             })
 
 
+# ===========================================================================
+
+@error_trap("add_useafter_input.html")
+@login_required
+def add_useafter(request):
+    if request.method == "GET":
+        return render(request, "add_useafter_input.html")
+    else:
+        return add_useafter_post(request)
+
+def add_useafter_post(request):
+    old_mapping = validate_post(request, "old_mapping", is_reference_mapping)
+    match_tuple = validate_post(request, "match_tuple", is_match_tuple)
+    useafter_date = validate_post(request, "useafter_date", is_datetime)
+    useafter_file = validate_post(request, "useafter_file", is_reference_file)
+    description = validate_post(request, "description", "[^<>]+")
+
+    new_mapping = new_name(old_mapping)
+    new_location = rmap.locate_mapping(new_mapping)
+    
+    modification = make_new_useafter_rmap(
+        old_mapping, new_location, match_tuple, useafter_date, useafter_file)
+    
+    observatory = rmap.get_cached_mapping(old_mapping).observatory
+    blob = models.add_crds_file(
+        observatory, new_mapping, new_location, 
+        request.user, request.user.email, "crds", description, 
+        "add useafter")
+
+    return render(request, "add_useafter_results.html", {
+                "old_mapping" : old_mapping,
+                "new_mapping" : new_mapping,
+                "useafter_date" : useafter_date,
+                "useafter_file" : useafter_file,
+                "modification" : modification,
+            })
+
+def is_match_tuple(tuple_str):
+    """Raise an AssertionError if `tuple_str` is does not literal eval to a tuple.
+    Otherwise return the tuple.
+    """
+    try:
+        tup = literal_eval(tuple_str)
+        assert isinstance(tup, tuple), "Enter a tuple to match against."
+    except Exception:
+        raise AssertionError("Enter a tuple to match against.")
+    return tup
+
+DATETIME_RE_STR = "(\d\d\d\d\-\d\d\-\d\d\s+\d\d:\d\d:\d\d)"
+
+def is_datetime(datetime_str):
+    """Raise an assertion error if `datetime_str` doesn't look like a CRDS date.
+    Otherwise return `datetime_str`.
+    """
+    assert re.match(DATETIME_RE_STR, datetime_str), \
+        "Invalid date/time.  Should be YYYY-MM-DD HH:MM:SS"
+    return datetime_str
+
+def make_new_useafter_rmap(old_mapping, new_location, match_tuple, 
+                           useafter_date, useafter_file):
+    """Add one new useafter date / file to the `match_tuple` case of
+    `old_mapping`,  writing the modified rmap out to `new_location`.   If
+    `match_tuple` doesn't exist in `old_mapping`,  add it as well.
+    """
+    assert not os.path.exists(new_location), "add useafter file already exists"
+    new_mapping_file = open(new_location, "w")    
+    state = "find tuple"
+    for line in open(rmap.locate_mapping(old_mapping)):
+        line = line.strip()
+        if state == "find tuple" and "UseAfter" in line:
+            #     ('HRC', 'CLEAR1S', 'F435W') : UseAfter({ 
+            ix = line.index(": UseAfter({")
+            tuple_str = line[:ix]
+            line_tuple = literal_eval(tuple_str)
+            if match_tuple == line_tuple:
+                state = "find useafter"
+        elif state == "find useafter" and line.endswith(".fits',"):
+            # '2002-03-01 00:00:00' : 'oai16328j_cfl.fits', 
+            line_date = re.search(DATETIME_RE_STR, line)
+            if line_date.group(1) < useafter_date:
+                # Found useafter insertion point inside existing match case
+                new_mapping_file.write(line + "\n")
+                new_mapping_file.write("\t'%s' : '%s',\n" % \
+                    (useafter_date, useafter_file))
+                state = "copy remainder"
+                modification = "Inserted useafter into existing match case."
+                continue
+        elif state == "find tuple" and line.strip() == "})":
+            # Never found match tuple,  so add that case as well as useafter.
+            new_mapping_file.write("%s : UseAfter({\n" % repr(match_tuple))
+            new_mapping_file.write("\t'%s' : '%s',\n" % \
+                (useafter_date, useafter_file))
+            new_mapping_file.write("\t}),\n")
+            new_mapping_file.write(line + "\n")
+            state = "copy remainder"  # should be done anyway.
+            modification = "Added new match case with given useafter clause."
+            continue
+        new_mapping_file.write(line + "\n")
+    return modification
