@@ -663,7 +663,7 @@ def browsify_mapping_line(line):
     line = re.sub(r"^\s+", r"&nbsp;"*4, line)
     
     # HACK:  add an extra level of indentation to any line ending with .fits',
-    line = re.sub(r"'(.*\.fits',)$",
+    line = re.sub(r"('.*\.fits',)$",
                   r"&nbsp;"*4 + r"\1",
                   line)
     # mapping or reference filename --> /browse/<file> link
