@@ -5,21 +5,20 @@
 <form action="/create_contexts/" method="post""> {% csrf_token %}
     <h2>Create Parent Contexts</h2>
     <table>
-      <tr><h3>Baseline Context</h3></tr>
       <tr>
-        <td class="label" width="25%">Pipeline</td>
+        <td><h3>Pipeline</h3></td>
         <td align="left">
-            <input type="text" name="pipeline" value="{{pipeline}}" size="45"/>
+            <input type="text" name="pipeline" value="{{pipeline}}" size="30"/>
         </td>
+        <td align="left"><p class="hint">e.g. hst_0001.pmap</p></td>
       </tr>
       <tr>
         <td></td>
-        <td align="left"><p class="hint">e.g. hst_00001.pmap</p></td>
       </tr>
-      <tr><td colspan="3"><h3>Updated Rmaps</h3></td></tr>
-      <tr><td colspan="2"><textarea name="rmaps" cols="60" rows="10">{{rmaps}}</textarea></td></tr>
+      <tr><td colspan="3"><h3>New Rmaps</h3></td></tr>
+      <tr><td colspan="3"><textarea name="rmaps" cols="60" rows="10">{{rmaps}}</textarea></td></tr>
       <tr><td><h3>Description</h3></td></tr>
-      <tr><td colspan="2"><textarea name="description" cols="60" rows="10">{{description}}</textarea></td></tr> 
+      <tr><td colspan="3"><textarea name="description" cols="60" rows="10">{{description}}</textarea></td></tr> 
       </table>
       <br/>
       <input type="submit" value="Create Parent Contexts" style="font-size:1.1em;"/>
@@ -29,24 +28,16 @@
 
 {% block help %}
 <p><b>Create Parent Contexts automatically generates and submits new pipeline 
-and instrument contexts which refer to your updated rmaps.</b>
+and instrument contexts which refer to your new rmaps.</b>  
 
-<p>The Baseline Context pipeline mapping defines the starting context which
-will be adjusted for the new rmaps.
+<p><b>Pipeline</b> defines the starting context which will be updated to refer
+to new rmaps.  The pipeline context refers to a set of existing instrument 
+contexts.  
 
-<p>
-<p>Files you list in the Updated Rmaps box will be substituted into the existing
-instrument contexts generating new ones.
+<p><p>Files you list in the <b>New Rmaps</b> box will be substituted into 
+copies of the existing instrument contexts generating new ones.    Updated Rmaps
+can be listed one file per line, separated by spaces, or seperated by commas.
 
-<p>
-<p>A new pipeline context will be generated substituting the new instrument
-contexts for the corresponding old ones.
-
-<p>
-<p>Updated Rmaps can be listed one file per line, separated by spaces,
-or seperated by commas.
-
-<p>
-<p>The description should document the general rationale or purpose behind the
-set of rmap updates.
+<p><p><b>Description</b> should document the general rationale or purpose 
+behind the set of rmap updates.
 {% endblock help %}

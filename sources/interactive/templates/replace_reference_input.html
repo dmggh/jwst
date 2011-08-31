@@ -2,19 +2,19 @@
 
 {% block column1 %}
 
-<form action="/replace_file/" method="post""> {% csrf_token %}
+<form action="/replace_reference/" method="post""> {% csrf_token %}
     <h2>Replace Reference File</h2>
     <table>
       <tr>
-        <td class="label" width="25%">Baseline Rmap</td>
+        <td class="label" width="25%">Old Mapping</td>
         <td align="left">
-            <input type="text" name="original_mapping" 
-                   value="{{original_mapping}}" size="30"/>
+            <input type="text" name="old_mapping" 
+                   value="{{old_mapping}}" size="30"/>
         </td>
         <td align="left" class="hint">e.g. hst_acs_biasfile_0001.rmap</td>
       </tr>
       <tr>
-        <td class="label" width="25%">Old FITS</td>
+        <td class="label" width="25%">Old Reference</td>
         <td align="left">
             <input type="text" name="old_reference" 
                    value="{{old_reference}}" size="30"/>
@@ -22,7 +22,7 @@
         <td align="left" class="hint">e.g. q9e1206gj_bia.fits</td>
       </tr>
       <tr>
-        <td class="label" width="25%">New FITS</td>
+        <td class="label" width="25%">New Reference</td>
         <td align="left">
             <input type="text" name="new_reference" 
                    value="{{new_reference}}" size="30"/>
@@ -46,16 +46,14 @@
 single reference file with a new one.   A new reference mapping will be
 automatically generated and submitted.</b>
 
-<p>Baseline Rmap is the reference mapping which will be edited.   A new Rmap
-in the same series will be generated.
+<p>Old Mapping is the reference mapping which will be copied from.
 
-<p><p>Old FITS File should appear somewhere in the baseline rmap and will
+<p><p>Old Reference should appear somewhere in the old rmap and will
 be replaced.
 
-<p><p>New FITS File will be substituted into the baseline reference mapping
-in place of the old reference file.
+<p><p>New Reference will be substituted into a copy of the old rmap in place 
+of the old reference file.
 
-<p><p>Description should document the general rationale or purpose behind the
-new reference mapping.
+<p><p>Description should document the reason for this substitution.
 
 {% endblock help %}

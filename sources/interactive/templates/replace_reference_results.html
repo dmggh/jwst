@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% load stdtags %}
+
+{% block contents %}
+    <h2>Replace Reference File</h2>
+    <p>Created {{new_mapping|browse}} by replacing {{old_reference|browse}} 
+        with {{new_reference|browse}} in {{old_mapping|browse}}
+    </p>
+{% endblock contents %}

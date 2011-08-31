@@ -40,8 +40,11 @@ class SimpleTest(TestCase):
         User.objects.create_user('homer', 'ho...@simpson.net', 'simpson')     
 
     def tearDown(self):
-        self.del_maps(["hst_0001.pmap","hst_cos_0001.imap",
-                       "hst_acs_0001.imap"])
+        self.del_maps(["hst_0001.pmap",
+                       "hst_cos_0001.imap",
+                       "hst_acs_0001.imap",
+                       "hst_acs_biasfile_0001.rmap",
+                       ])
 
     def authenticate(self):
         login = self.client.login(username="homer", password="simpson")
@@ -54,6 +57,13 @@ class SimpleTest(TestCase):
                 os.remove(where)
             except OSError:
                 pass
+
+    def fake_database_files(self, files, observatory="hst"):
+        for filename in files:
+            models.add_crds_file(
+                observatory, filename, rmap.locate_file(observatory, filename), 
+                "homer", "homer@simpsons.com", "marge", "delivered by the man",
+                "mass import", add_slow_fields=False)
 
     def test_index(self):
         response = self.client.get('/')
@@ -121,19 +131,8 @@ class SimpleTest(TestCase):
 
     def test_blacklist_post(self):
         # Make database entries for files we know will be blacklisted
-        models.add_crds_file(
-            "hst", "hst.pmap", rmap.locate_mapping("hst.pmap"), 
-            "homer", "homer@simpsons.com", "marge", "delivered by the man",
-            "mass import")
-        models.add_crds_file(
-            "hst", "hst_acs.imap", rmap.locate_mapping("hst_acs.imap"), 
-            "homer", "homer@simpsons.com", "marge", "delivered by the man",
-            "mass import")
-        models.add_crds_file(
-            "hst", "hst_acs_biasfile.rmap", 
-            rmap.locate_mapping("hst_acs_biasfile.rmap"), 
-            "homer", "homer@simpsons.com", "marge", "delivered by the man",
-            "mass import")
+        self.fake_database_files([
+                "hst.pmap", "hst_acs.imap", "hst_acs_biasfile.rmap"])
         self.authenticate()
         response = self.client.post("/blacklist/", {
             "observatory" : "hst",
@@ -270,6 +269,8 @@ class SimpleTest(TestCase):
 
     def test_create_contexts_post(self):
         self.authenticate()
+        self.fake_database_files(["hst.pmap", "hst_acs_biasfile.rmap",
+                                 "hst_cos_deadtab.rmap"])
         response = self.client.post("/create_contexts/", {
                 "pipeline" : "hst.pmap",
                 "rmaps" : "hst_acs_biasfile.rmap, hst_cos_deadtab.rmap",
@@ -280,6 +281,28 @@ class SimpleTest(TestCase):
         self.assertTrue("hst_acs_0001.imap" in response.content)
         self.assertTrue("hst_cos_0001.imap" in response.content)
     
+    def test_replace_reference(self):
+        self.authenticate()
+        response = self.client.get("/replace_reference/")
+        self.assertEqual(response.status_code, 200)
+
+    def test_replace_reference_post(self):
+        self.authenticate()
+        self.fake_database_files([
+            "hst_acs_biasfile.rmap", 
+            "t4o1454bj_bia.fits", 
+            "t4o1454jj_bia.fits",
+            ])
+        response = self.client.post("/replace_reference/", {
+                "old_mapping" : "hst_acs_biasfile.rmap",
+                "old_reference" : "t4o1454bj_bia.fits",
+                "new_reference" : "t4o1454jj_bia.fits",
+                "description" : "test reference replacement",
+            })
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue("Created" in response.content)
+        self.assertTrue("hst_acs_biasfile_0001.rmap" in response.content)
+
     def test_browse(self):
         response = self.client.get("/browse/")
         self.assertEqual(response.status_code, 200)

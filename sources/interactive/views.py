@@ -881,37 +881,28 @@ def is_pipeline_mapping(filename):
     """Verify that `filename` names a known CRDS pipeline mapping.
     Otherwise raise AssertionError.
     """
-    assert re.match("\w+\.pmap", filename), \
-        "invalid pipeline mapping filename: " + repr(filename)
-    try:
-        rmap.get_cached_mapping(filename)
-    except Exception:
-        assert False, \
-            "can't load " + repr(filename) + \
-            ".  Must name a known CRDS pipeline mapping."
-    return filename
+    return is_mapping(filename, r"\.pmap")
+
+def is_instrument_mapping(filename):
+    """Verify that `filename` names a known CRDS instrument mapping.
+    Otherwise raise AssertionError.
+    """
+    return is_mapping(filename, r"\.imap")
 
 def is_reference_mapping(filename):
     """Verify that `filename` names a known CRDS reference mapping.
     Otherwise raise AssertionError.
     """
-    assert re.match("\w+\.rmap", filename), \
-        "invalid reference mapping filename " + repr(filename)
-    try:
-        rmap.get_cached_mapping(filename)
-    except Exception:
-        assert False, "can't load " + repr(filename) + \
-            ".  Must name a known CRDS reference mapping."
-    return filename
+    return is_mapping(filename, r"\.rmap")
 
-def is_mapping(filename):
+def is_mapping(filename, extension=r"\.[pir]map"):
     """Verify that `filename` names a known CRDS mapping.
     Otherwise raise AssertionError.
     """
-    assert re.match("\w+\.[pir]map", filename), \
+    assert re.match("\w+" + extension, filename), \
         "invalid reference mapping filename " + repr(filename)
     try:
-        rmap.get_cached_mapping(filename)
+        models.MappingBlob.load(filename)
     except Exception:
         assert False, "can't load " + repr(filename) + \
             ".  Must name a known CRDS pipeline, instrument, or reference mapping."
@@ -925,7 +916,7 @@ def is_reference_file(filename):
         "invalid reference filename " + repr(filename)
     try:
         models.ReferenceBlob.load(filename)
-    except Exception:
+    except LookupError:
         assert False, "can't load " + repr(filename) + \
             ".  Must name a known CRDS reference file."
     return filename
@@ -974,40 +965,40 @@ def new_name(old_map):
 
 # ===========================================================================
 
-@error_trap("replace_file_input.html")
+@error_trap("replace_reference_input.html")
 @login_required
-def replace_file(request):
+def replace_reference(request):
     if request.method == "GET":
-        return render(request, "replace_file_input.html")
+        return render(request, "replace_reference_input.html")
     else:
-        return replace_file_post(request)
+        return replace_reference_post(request)
 
-def replace_file_post(request):
-    original_mapping = validate_post(
-        request, "original_mapping", is_reference_mapping)
+def replace_reference_post(request):
+    old_mapping = validate_post(
+        request, "old_mapping", is_reference_mapping)
     old_file = validate_post(request, "old_reference", is_reference_file)
     new_file = validate_post(request, "new_reference", is_reference_file)
     description = validate_post(request, "description", "[^<>]+")
     
-    assert old_file in open(rmap.locate_mapping(original_mapping)).read(), \
-        "File " + old_file + " isn't anywhere in " + repr(original_mapping)
+    assert old_file in open(rmap.locate_mapping(old_mapping)).read(), \
+        "File " + old_file + " isn't anywhere in " + repr(old_mapping)
         
-    new_mapping = new_name(original_mapping)
+    new_mapping = new_name(old_mapping)
     
-    contents = open(rmap.locate_mapping(original_mapping)).read()
-    new_contents.replace(old_file, new_file)
+    contents = open(rmap.locate_mapping(old_mapping)).read()
+    new_contents = contents.replace(old_file, new_file)
     assert contents != new_contents, "File replacement failed.  no difference."
     new_location = rmap.locate_mapping(new_mapping)
     open(new_location, "w+").write(new_contents)
     
-    observatory = rmap.get_cached_mapping(original_mapping).observatory
+    observatory = rmap.get_cached_mapping(old_mapping).observatory
 
     blob = models.add_crds_file(
         observatory, new_mapping, new_location, 
         request.user, request.user.email, "crds", description, 
         "replace reference")
 
-    return render(request, "replace_file_results.html", {
+    return render(request, "replace_reference_results.html", {
                 "new_mapping" : new_mapping,
             })
 

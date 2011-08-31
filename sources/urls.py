@@ -30,7 +30,7 @@ urlpatterns = patterns('',
 
   url(r'^common_updates/$', 'crds.server.interactive.views.common_updates'),        
   url(r'^create_contexts/$', 'crds.server.interactive.views.create_contexts'),        
-  url(r'^replace_file/$', 'crds.server.interactive.views.replace_file'),        
+  url(r'^replace_reference/$', 'crds.server.interactive.views.replace_reference'),        
           
   url(r'^browse/$', 'crds.server.interactive.views.browse_files'),        
   url(r'^browse/(?P<original_name>[A-Za-z0-9_.]+(fits|imap|rmap|pmap))$', 

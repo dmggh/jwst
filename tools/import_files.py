@@ -29,12 +29,11 @@ def submit_mappings(context,
     for mapping in ctx.mapping_names():
         existing_location = rmap.locate_file(
             ctx.observatory, mapping, mode="server")
-        try:
-            blob = models.MappingBlob.load(mapping)
+        if models.MappingBlob.exists(mapping):
             log.info("Skipping existing mapping", repr(mapping))
-        except LookupError:
+        else:
             log.info("Submitting", repr(mapping), "from", repr(existing_location))
-            views.create_delivery_blob(
+            blob = models.add_crds_file(
                 observatory=ctx.observatory, 
                 upload_name=mapping, 
                 permanent_location=existing_location, 
@@ -42,6 +41,7 @@ def submit_mappings(context,
                 deliverer_email=deliverer_email, 
                 modifier_name=modifier_name, 
                 description=description,
+                creation_method="mass import",
                 add_slow_fields=add_slow_fields)
 
 def submit_references(context, 
@@ -58,13 +58,12 @@ def submit_references(context,
         except Exception:
             log.error("Can't locate", repr(reference))
             existing_location = "unknown_location_for_" + reference
-        try:
-            blob = models.ReferenceBlob.load(reference)
+        if models.ReferenceBlob.exists(reference):
             log.info("Skipping existing reference", repr(reference))
-        except LookupError:
+        else:
             log.info("Submitting", repr(reference), "from", repr(existing_location))
             try:
-                views.create_delivery_blob(
+                blob = models.add_crds_file(
                     observatory=ctx.observatory, 
                     upload_name=reference, 
                     permanent_location=existing_location, 
@@ -72,10 +71,11 @@ def submit_references(context,
                     deliverer_email=deliverer_email, 
                     modifier_name=modifier_name, 
                     description=description,
+                    creation_method="mass import",
                     add_slow_fields=add_slow_fields)
             except Exception:
                 log.error("Submission FAILED for", repr(reference))
-                
+    
 def main(args):
     submit_mappings(args[0], deliverer_user=args[1], deliverer_email=args[2],
                     modifier_name=args[3], description=args[4], add_slow_fields=int(args[5]))
