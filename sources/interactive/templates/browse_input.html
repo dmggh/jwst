@@ -14,6 +14,7 @@
           <td width="25%">
             <input type='text' name='file_known' size="32">
           </td>
+          <td class="hint">e.g. hst_0001.pmap</td>
         </tr>
         <tr>
           <td width="5%">
@@ -29,3 +30,9 @@
       <input type="submit" value="Browse">
     </form>
 {% endblock column1 %}
+
+{% block help %}
+<p><b>Enter the name of a mapping or reference file to examine.  
+Follow links for information on other related files.</b>
+{% endblock help %}
+

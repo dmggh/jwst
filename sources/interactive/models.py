@@ -5,7 +5,7 @@ import hashlib
 from django.db import models
 
 # Create your models here.
-from crds import (timestamp, rmap)
+from crds import (timestamp, rmap, utils)
 from crds.compat import (literal_eval, namedtuple)
 
 # ============================================================================
@@ -292,6 +292,31 @@ class FileBlob(Blob):
             "checksum of file at upload time", "", nonblank=False),
     )
     
+    @classmethod
+    def new(cls, observatory, upload_name, permanent_location, 
+            deliverer_user, deliverer_email, modifier_name, description, 
+            add_slow_fields=True):
+        """Create a new FileBlob or subclass."""
+        blob = cls()
+        blob.observatory = observatory
+        blob.uploaded_as = upload_name
+        blob.pathname = permanent_location
+        blob.deliverer_user = deliverer_user
+        blob.deliverer_email = deliverer_email
+        blob.modifier_name = modifier_name
+        blob.description = description
+        blob.delivery_date = timestamp.now()
+        if add_slow_fields:
+            blob.sha1sum = blob.checksum()
+        instrument, filekind, serial = utils.get_file_properties(
+            observatory, permanent_location)
+        blob.instrument = instrument
+        blob.filekind= filekind
+        blob.serial = serial
+        blob.blacklisted_by = []
+        blob.save()
+        return blob
+
     @property
     def filename(self):
         return os.path.basename(self.pathname)
@@ -332,7 +357,10 @@ class ReferenceBlob(FileBlob):
 
 # ============================================================================
 
-AUDITED_ACTIONS = ["blacklist","submit file","reserve name","new context"]
+AUDITED_ACTIONS = [
+    "submit file","blacklist","reserve name","new context","replace reference",
+    "mass import"
+    ]
 
 class AuditBlob(Blob):
     """Maintains an audit trail of important actions indicating who did them,
@@ -356,22 +384,23 @@ class AuditBlob(Blob):
     )
     
     @classmethod
-    def create_record(cls, user, action, affected_file, why, details, 
-                      observatory, instrument, filekind, date=None):
+    def new(cls, user, action, affected_file, why, details, 
+            observatory, instrument, filekind, date=None):
         """Save a record of an action in the database."""
-        rec = cls()
-        rec.user = user
-        rec.action = action
-        rec.filename = affected_file
-        rec.why = why
-        rec.details = details
+        blob = cls()
+        blob.user = user
+        blob.action = action
+        blob.filename = affected_file
+        blob.why = why
+        blob.details = details
         if date is None:
             date = timestamp.now()
-        rec.date = date
-        rec.observatory = observatory
-        rec.instrument = instrument
-        rec.filekind = filekind
-        rec.save()
+        blob.date = date
+        blob.observatory = observatory
+        blob.instrument = instrument
+        blob.filekind = filekind
+        blob.save()
+        return blob
 
     @property
     def fileblob(self):
@@ -384,4 +413,29 @@ class AuditBlob(Blob):
 
     @property
     def extension(self):  return os.path.splitext(self.filename)[-1]
+
+
+def add_crds_file(observatory, upload_name, permanent_location, 
+            deliverer_user, deliverer_email, modifier_name, description, 
+            creation_method, audit_details="", add_slow_fields=True):
+    "Make a database record for this file.  Track the action of creating it."""
+    if rmap.is_mapping(permanent_location):
+        blob_class = MappingBlob
+    else:
+        blob_class = ReferenceBlob
+        
+    fileblob = blob_class.new(
+        observatory, upload_name, permanent_location, 
+        deliverer_user, deliverer_email, modifier_name, description,
+        add_slow_fields)
     
+    # Redundancy, database record of how file got here, important action
+    AuditBlob.new(
+        deliverer_user, creation_method, fileblob.filename, 
+        description, audit_details,
+        observatory=fileblob.observatory, instrument=fileblob.instrument,  
+        filekind=fileblob.filekind, date=fileblob.delivery_date,)
+        
+
+
+

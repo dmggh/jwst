@@ -270,10 +270,14 @@ def submit_file_post(request):
     description = check_value(request.POST["description"], "[^<>]+",
                               "Invalid description.")
 
-    # Make a database record of this delivery.
-    create_delivery_blob(observatory, original_name, permanent_location,
-        request.user, request.user.email, modifier_name, description)
-    
+    # Make a database record for this file.
+    if rmap.is_mapping(permanent_location):
+        blob_class = models.MappingBlob
+    else:
+        blob_class = models.ReferenceBlob
+    fileblob = blob_class.new(observatory, original_name, permanent_location,
+                          request.user, request.user.email, modifier_name, 
+                          description, "submit file")
     return os.path.basename(permanent_location)
 
 
@@ -379,41 +383,6 @@ def create_crds_name(upload_location, upload_name):
     """
     return upload_name   # XXX Fake for now
 
-def create_delivery_blob(observatory, upload_name, permanent_location, 
-        deliverer_user, deliverer_email, modifier_name, description, 
-        add_slow_fields=True):
-    """Make a record of this delivery in the CRDS database."""
-    if upload_name.endswith(".fits"):
-        blob = models.ReferenceBlob()
-    elif rmap.is_mapping(upload_name):
-        blob = models.MappingBlob()
-    else:
-        raise ValueError("Unknown file extension for " + repr(upload_name) +
-                         " should be one of: .fits, .pmap, .imap, .rmap")
-    blob.uploaded_as = upload_name
-    blob.pathname = permanent_location
-    blob.delivery_date = timestamp.now()
-    blob.deliverer_user = deliverer_user
-    blob.deliverer_email = deliverer_email
-    blob.modifier_name = modifier_name
-    blob.description = description
-    blob.observatory = observatory
-    if add_slow_fields:
-        blob.sha1sum = blob.checksum()
-    instrument, filekind, serial = utils.get_file_properties(
-        observatory, permanent_location)
-    blob.instrument = instrument
-    blob.filekind= filekind
-    blob.serial = serial
-    blob.blacklisted_by = []
-    blob.save()
-    
-    # XXX some redundancy here
-    models.AuditBlob.create_record(
-        deliverer_user, "submit file", blob.filename, description, "",
-        observatory=observatory, instrument=instrument,  filekind=filekind,
-        date=blob.delivery_date,)
-
 # ===========================================================================
 
 @error_trap("blacklist_input.html")
@@ -450,7 +419,7 @@ def blacklist_file_post(request):
     instrument, filekind, serial = utils.get_file_properties(
             observatory, blacklist_root)
 
-    models.AuditBlob.create_record(
+    models.AuditBlob.new(
         request.user, "blacklist", blacklist_root, why, "marked as " + badflag,
         observatory=observatory, instrument=instrument, filekind=filekind)
 
@@ -760,7 +729,7 @@ def reserve_name_post(request):
     parts = [x for x in [observatory, instrument, filekind, "%04d" % num] if x]
     reserved_name = "_".join(parts) + extension
     
-    models.AuditBlob.create_record(
+    models.AuditBlob.new(
         request.user, "reserve name", reserved_name, "none", "none",
         observatory=observatory, instrument=instrument, filekind=filekind)
 
@@ -898,14 +867,11 @@ def create_contexts_post(request):
     # Create delivery records for each of the new files
     observatory = rmap.get_cached_mapping(pipeline).observatory
     for ctx in new_contexts:
-        create_delivery_blob(observatory, ctx, rmap.locate_mapping(ctx), 
-            request.user, request.user.email, "generated", description)
+        models.add_crds_file(
+            observatory, ctx, rmap.locate_mapping(ctx),  request.user, 
+            request.user.email, "crds", description, "new context")
     
-    # Track this since it generates two or more new official mappings.
-    models.AuditBlob.create_record(
-        request.user, "new context", new_contexts[0], description, 
-        ", ".join(new_contexts[1:]), observatory=observatory, 
-        instrument="", filekind="")
+    # ", ".join(new_contexts[1:])
 
     return render(request, "create_contexts_results.html", {
                 "new_contexts" : new_contexts,
@@ -1025,34 +991,21 @@ def replace_file_post(request):
     
     assert old_file in open(rmap.locate_mapping(original_mapping)).read(), \
         "File " + old_file + " isn't anywhere in " + repr(original_mapping)
+        
+    new_mapping = new_name(original_mapping)
+    
+    contents = open(rmap.locate_mapping(original_mapping)).read()
+    new_contents.replace(old_file, new_file)
+    assert contents != new_contents, "File replacement failed.  no difference."
+    new_location = rmap.locate_mapping(new_mapping)
+    open(new_location, "w+").write(new_contents)
+    
+    observatory = rmap.get_cached_mapping(original_mapping).observatory
 
-    """
-    # Get the mapping from old imap to new rmap, basically the imaps that
-    # must be updated onto the list of rmap updates to do.
-    updates_by_instrument = newcontext.get_update_map(
-        pipeline, updated_rmaps)
-    
-    # For each imap being edited,  and the pipeline context,  reserve new
-    # official names and return the dictionary { old_mapping : new_mapping }.
-    new_name_map = generate_new_names(pipeline, updates_by_instrument)
-    
-    # Actually generate the new mappings,  by first copying the old mappings 
-    # and then substituting old names with their updated equivalents.
-    new_contexts = newcontext.generate_new_contexts(
-        pipeline, updates_by_instrument, new_name_map)
-
-    # Create delivery records for each of the new files
-    observatory = rmap.get_cached_mapping(pipeline).observatory
-    for ctx in new_contexts:
-        create_delivery_blob(observatory, ctx, rmap.locate_mapping(ctx), 
-            request.user, request.user.email, "generated", description)
-    
-    # Track this since it generates two or more new official mappings.
-    models.AuditBlob.create_record(
-        request.user, "new context", new_contexts[0], description, 
-        ", ".join(new_contexts[1:]), observatory=observatory, 
-        instrument="", filekind="")
-    """
+    blob = models.add_crds_file(
+        observatory, new_mapping, new_location, 
+        request.user, request.user.email, "crds", description, 
+        "replace reference")
 
     return render(request, "replace_file_results.html", {
                 "new_mapping" : new_mapping,

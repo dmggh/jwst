@@ -5,7 +5,7 @@ import os
 from django.test import TestCase
 
 import crds.rmap as rmap
-import crds.server.interactive.views as views
+import crds.server.interactive.models as models
 
 """
   url(r'^$', 'crds.server.interactive.views.index'),          
@@ -121,16 +121,19 @@ class SimpleTest(TestCase):
 
     def test_blacklist_post(self):
         # Make database entries for files we know will be blacklisted
-        views.create_delivery_blob(
+        models.add_crds_file(
             "hst", "hst.pmap", rmap.locate_mapping("hst.pmap"), 
-            "homer", "homer@simpsons.com", "marge", "delivered by the man")
-        views.create_delivery_blob(
+            "homer", "homer@simpsons.com", "marge", "delivered by the man",
+            "mass import")
+        models.add_crds_file(
             "hst", "hst_acs.imap", rmap.locate_mapping("hst_acs.imap"), 
-            "homer", "homer@simpsons.com", "marge", "delivered by the man")
-        views.create_delivery_blob(
+            "homer", "homer@simpsons.com", "marge", "delivered by the man",
+            "mass import")
+        models.add_crds_file(
             "hst", "hst_acs_biasfile.rmap", 
             rmap.locate_mapping("hst_acs_biasfile.rmap"), 
-            "homer", "homer@simpsons.com", "marge", "delivered by the man")
+            "homer", "homer@simpsons.com", "marge", "delivered by the man",
+            "mass import")
         self.authenticate()
         response = self.client.post("/blacklist/", {
             "observatory" : "hst",
