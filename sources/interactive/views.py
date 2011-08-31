@@ -420,7 +420,8 @@ def blacklist_file_post(request):
             observatory, blacklist_root)
 
     models.AuditBlob.new(
-        request.user, "blacklist", blacklist_root, why, "marked as " + badflag,
+        request.user, "blacklist", blacklist_root, why, 
+        "marked as " + repr(badflag.upper()),
         observatory=observatory, instrument=instrument, filekind=filekind)
 
     return render(request, "blacklist_results.html", 
@@ -612,6 +613,8 @@ def browse_files_post_guts(request, uploaded, original_name, browsed_file):
     except LookupError:
         blob = None
 
+    related_actions = models.AuditBlob.filter(filename=blob.filename)
+    
     if rmap.is_mapping(original_name):
         file_contents = browsify_mapping(original_name, browsed_file)
     else:
@@ -620,6 +623,7 @@ def browse_files_post_guts(request, uploaded, original_name, browsed_file):
     return render(request, "browse_results.html", 
             { "uploaded" : uploaded,
              "fileblob" : blob,
+             "related_actions":related_actions,
              "file_contents":file_contents,
              "browsed_file":original_name})
 
