@@ -8,7 +8,7 @@
     <h3>Affected Files</h3>
     <table>
     {% for alsofile in all_blacklisted %}
-        <tr><td>{{alsofile}}</td></tr>
+        <tr><td>{{alsofile|browse}}</td></tr>
     {% endfor %}
     </table>
 {% endblock contents %}
