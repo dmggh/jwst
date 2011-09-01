@@ -1038,10 +1038,7 @@ def add_useafter_post(request):
         "add useafter")
 
     return render(request, "add_useafter_results.html", {
-                "old_mapping" : old_mapping,
                 "new_mapping" : new_mapping,
-                "useafter_date" : useafter_date,
-                "useafter_file" : useafter_file,
                 "modification" : modification,
             })
 
@@ -1076,34 +1073,40 @@ def make_new_useafter_rmap(old_mapping, new_location, match_tuple,
     new_mapping_file = open(new_location, "w")    
     state = "find tuple"
     for line in open(rmap.locate_mapping(old_mapping)):
-        line = line.strip()
-        if state == "find tuple" and "UseAfter" in line:
-            #     ('HRC', 'CLEAR1S', 'F435W') : UseAfter({ 
-            ix = line.index(": UseAfter({")
-            tuple_str = line[:ix]
-            line_tuple = literal_eval(tuple_str)
-            if match_tuple == line_tuple:
-                state = "find useafter"
-        elif state == "find useafter" and line.endswith(".fits',"):
-            # '2002-03-01 00:00:00' : 'oai16328j_cfl.fits', 
-            line_date = re.search(DATETIME_RE_STR, line)
-            if line_date.group(1) < useafter_date:
-                # Found useafter insertion point inside existing match case
-                new_mapping_file.write(line + "\n")
+        if state == "find tuple":
+            if "UseAfter" in line:
+                #     ('HRC', 'CLEAR1S', 'F435W') : UseAfter({ 
+                ix = line.index(": UseAfter({")
+                tuple_str = line[:ix]
+                line_tuple = literal_eval(tuple_str.strip())
+                if match_tuple == line_tuple:
+                    state = "find useafter"
+            elif line.strip() == "})":   # end of rmap
+                # Never found match tuple,  so add that case as well as useafter.
+                new_mapping_file.write("%s : UseAfter({\n" % repr(match_tuple))
                 new_mapping_file.write("\t'%s' : '%s',\n" % \
                     (useafter_date, useafter_file))
+                new_mapping_file.write("\t}),\n")
+                state = "copy remainder"  # should be done anyway.
+                modification = "Added new match case with given useafter clause."
+        elif state == "find useafter":
+            if line.strip().endswith(".fits',"):
+                # Handle a standard useafter clause
+                # '2002-03-01 00:00:00' : 'oai16328j_cfl.fits', 
+                line_date = re.search(DATETIME_RE_STR, line)
+                if useafter_date < line_date.group(1):
+                    # Found useafter insertion point inside existing match case
+                    new_mapping_file.write("\t'%s' : '%s',\n" % \
+                        (useafter_date, useafter_file))
+                    state = "copy remainder"
+                    modification = "Inserted useafter into existing match case."
+            elif line.strip() == "}),":
+                # Never found < useafter before next Match tuple
+                new_mapping_file.write("\t'%s' : '%s',\n" % \
+                                           (useafter_date, useafter_file))
                 state = "copy remainder"
-                modification = "Inserted useafter into existing match case."
-                continue
-        elif state == "find tuple" and line.strip() == "})":
-            # Never found match tuple,  so add that case as well as useafter.
-            new_mapping_file.write("%s : UseAfter({\n" % repr(match_tuple))
-            new_mapping_file.write("\t'%s' : '%s',\n" % \
-                (useafter_date, useafter_file))
-            new_mapping_file.write("\t}),\n")
-            new_mapping_file.write(line + "\n")
-            state = "copy remainder"  # should be done anyway.
-            modification = "Added new match case with given useafter clause."
-            continue
-        new_mapping_file.write(line + "\n")
+                modification = "Appended useafter to existing match case."
+        new_mapping_file.write(line)
+    assert state == "copy remainder", \
+        "CRDS logic error, no useafter insertion performed"
     return modification
