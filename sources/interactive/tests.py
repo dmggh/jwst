@@ -309,7 +309,7 @@ class SimpleTest(TestCase):
         response = self.client.get("/add_useafter/")
         self.assertEqual(response.status_code, 200)
 
-    def test_add_useafter_post(self):
+    def test_add_useafter_post_insert(self):
         self.authenticate()
         self.fake_database_files([
             "hst_acs_dgeofile.rmap", 
@@ -323,9 +323,42 @@ class SimpleTest(TestCase):
                 "description" : "test add useafter",
             })
         self.assertEqual(response.status_code, 200)
-        print response.content
         self.assertTrue("Created" in response.content)
         self.assertTrue("Inserted useafter into existing match case." in response.content)
+
+    def test_add_useafter_post_append(self):
+        self.authenticate()
+        self.fake_database_files([
+            "hst_acs_dgeofile.rmap", 
+            "o8u2214fj_dxy.fits", 
+            ])
+        response = self.client.post("/add_useafter/", {
+                "old_mapping" : "hst_acs_dgeofile.rmap",
+                "match_tuple" : "('HRC', 'CLEAR1S', 'F220W')",
+                "useafter_date" : "2012-01-27 00:00:00",
+                "useafter_file" : "o8u2214fj_dxy.fits",
+                "description" : "test add useafter",
+            })
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue("Created" in response.content)
+        self.assertTrue("Appended useafter to existing match case." in response.content)
+
+    def test_add_useafter_post_nomatch(self):
+        self.authenticate()
+        self.fake_database_files([
+            "hst_acs_dgeofile.rmap", 
+            "o8u2214fj_dxy.fits", 
+            ])
+        response = self.client.post("/add_useafter/", {
+                "old_mapping" : "hst_acs_dgeofile.rmap",
+                "match_tuple" : "('HRC', 'CLEAR1S', 'F220Q')",  #Q made up!!!
+                "useafter_date" : "2012-01-27 00:00:00",
+                "useafter_file" : "o8u2214fj_dxy.fits",
+                "description" : "test add useafter",
+            })
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue("Created" in response.content)
+        self.assertTrue("Added new match case with given useafter clause." in response.content)
 
     def test_browse(self):
         response = self.client.get("/browse/")

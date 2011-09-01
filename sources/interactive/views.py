@@ -235,7 +235,10 @@ def submit_file(request):
         return render(request, 'submit_results.html', {"baseperm":baseperm})
     else: # GET
         return render(request, 'submit_input.html')
-    
+
+
+# XXX Add reserved name checking and join to authorized user
+
 def submit_file_post(request):
     """Handle the POST case of submit_file,   returning dict of template vars.
     """
@@ -1031,6 +1034,8 @@ def add_useafter(request):
     else:
         return add_useafter_post(request)
 
+# XXX add value checking to match tuple vs. observatory TPN's
+
 def add_useafter_post(request):
     old_mapping = validate_post(request, "old_mapping", is_reference_mapping)
     match_tuple = validate_post(request, "match_tuple", is_match_tuple)
@@ -1078,6 +1083,10 @@ def is_datetime(datetime_str):
     """
     assert re.match(DATETIME_RE_STR, datetime_str), \
         "Invalid date/time.  Should be YYYY-MM-DD HH:MM:SS"
+    try:
+        timestamp.parse_date(datetime_str)
+    except ValueError, exc:
+        raise CrdsError(str(exc))
     return datetime_str
 
 def make_new_useafter_rmap(old_mapping, new_location, match_tuple, 
