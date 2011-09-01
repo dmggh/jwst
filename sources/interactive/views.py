@@ -1,10 +1,9 @@
 # Create your views here.
 import os.path
 import re
-import hashlib
-import xml.sax.saxutils as saxutils
+import cProfile
 
-from django.http import HttpResponse
+# from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 import django.utils.safestring as safestring
@@ -12,13 +11,11 @@ import django.utils.safestring as safestring
 import django.contrib.auth
 from django.contrib.auth.decorators import login_required
 
-from crds import (rmap, utils, certify, timestamp, uses, newcontext, checksum)
-from crds.compat import literal_eval
+from crds import (rmap, utils, certify, timestamp, uses, newcontext, checksum,
+                  pysh, compat)
 
 import crds.server.config as config
 import crds.server.interactive.models as models
-import crds.pysh as pysh
-
 from crds.server.interactive.models import FieldError, MissingInputError
 
 # ===========================================================================
@@ -37,10 +34,20 @@ def _get_ctx(request):
     """Convert a request into an instrument context object."""
     imap = _get_imap(request)
     ctx = rmap.get_cached_mapping(imap)
-    assert isinstance(ctx, rmap.InstrumentContext), "Invalid instrument context " + repr(imap)
+    assert isinstance(ctx, rmap.InstrumentContext), \
+        "Invalid instrument context " + repr(imap)
     return ctx
 
 def check_value(value, pattern, msg):
+    """Ensure that `value` satisifies the conditions implied by `pattern`,
+    otherwise raise a FieldError containing `msg`.
+    
+    If pattern is a function,  call it and trap for assertions, adjust value.
+    If pattern is a list,  `value` must be in it.
+    If pattern is a string, it is a regex which `value` must match.
+    
+    Return `value` if it checks out OK.
+    """
     value = str(value)
     if isinstance(pattern, type(check_value)):
         try: 
@@ -56,14 +63,108 @@ def check_value(value, pattern, msg):
         raise FieldError(msg)
     return value
 
-def validate_post(request, variable, choices):
+def validate_post(request, variable, pattern):
+    """Check a POST `variable` from `request`,  ensuring that it meets the
+    check_value() conditions specified by `pattern`.
+    """
     value = str(request.POST[variable])
-    return check_value(value, choices, "Invalid value " + repr(value) + 
+    return check_value(value, pattern, "Invalid value " + repr(value) + 
                                         " for " + repr(variable))
-def validate_get(request, variable, choices):
+def validate_get(request, variable, pattern):
+    """Check a GET `variable` from `request`,  ensuring that it meets the
+    check_value() conditions specified by `pattern`.
+    """
     value = str(request.GET[variable])
-    return check_value(value, choices, "Invalid value " + repr(value) + 
+    return check_value(value, pattern, "Invalid value " + repr(value) + 
                                         " for " + repr(variable))
+
+# ===========================================================================
+
+# "pattern" functions for validate_post/get
+
+def is_pipeline_mapping(filename):
+    """Verify that `filename` names a known CRDS pipeline mapping.
+    Otherwise raise AssertionError.
+    """
+    return is_mapping(filename, r"\.pmap")
+
+def is_instrument_mapping(filename):
+    """Verify that `filename` names a known CRDS instrument mapping.
+    Otherwise raise AssertionError.
+    """
+    return is_mapping(filename, r"\.imap")
+
+def is_reference_mapping(filename):
+    """Verify that `filename` names a known CRDS reference mapping.
+    Otherwise raise AssertionError.
+    """
+    return is_mapping(filename, r"\.rmap")
+
+def is_mapping(filename, extension=r"\.[pir]map"):
+    """Verify that `filename` names a known CRDS mapping.
+    Otherwise raise AssertionError.
+    """
+    assert re.match("\w+" + extension, filename), \
+        "invalid reference mapping filename " + repr(filename)
+    try:
+        models.MappingBlob.load(filename)
+    except Exception:
+        assert False, "can't load " + repr(filename) + \
+            ".  Must name a known CRDS mapping."
+    return filename
+
+def is_reference_file(filename):
+    """Verify that `filename` names a known CRDS reference file.
+    Otherwise raise AssertionError.
+    """
+    assert re.match("\w+\.fits", filename), \
+        "invalid reference filename " + repr(filename)
+    try:
+        models.ReferenceBlob.load(filename)
+    except LookupError:
+        assert False, "can't load " + repr(filename) + \
+            ".  Must name a known CRDS reference file."
+    return filename
+
+def is_list_of_rmaps(text):
+    """Assert that `text` contains a list of comma for newline separated rmap
+    names.
+    """
+    text = str(text)
+    text = text.replace("\n"," ")
+    text = text.replace("\r", "")
+    text = " ".join(text.split(","))
+    rmaps = [r.strip() for r in text.split()]
+    for rmap in rmaps:
+        is_reference_mapping(rmap)
+    return rmaps
+
+def is_match_tuple(tuple_str):
+    """Raise an AssertionError if `tuple_str` is does not literal eval to a 
+    tuple.  Otherwise return the tuple.
+    """
+    try:
+        tup = compat.literal_eval(tuple_str.upper())
+        assert isinstance(tup, tuple), "Enter a tuple to match against."
+    except Exception:
+        raise AssertionError("Enter a tuple to match against.")
+    return tup
+
+DATETIME_RE_STR = "(\d\d\d\d\-\d\d\-\d\d\s+\d\d:\d\d:\d\d)"
+
+def is_datetime(datetime_str):
+    """Raise an assertion error if `datetime_str` doesn't look like a CRDS date.
+    Otherwise return `datetime_str`.
+    """
+    assert re.match(DATETIME_RE_STR, datetime_str), \
+        "Invalid date/time.  Should be YYYY-MM-DD HH:MM:SS"
+    try:
+        timestamp.parse_date(datetime_str)
+    except ValueError, exc:
+        raise CrdsError(str(exc))
+    return datetime_str
+
+# ===========================================================================
 
 def render(request, template, dict_=None):
     """Top level index page."""
@@ -79,6 +180,8 @@ def render(request, template, dict_=None):
             rdict[key] = value
     rdict["is_authenticated"] = request.user.is_authenticated()
     return render_to_response(template, RequestContext(request, rdict))
+
+# ===========================================================================
 
 def handle_known_or_uploaded_file(request, name, modevar, knownvar, uploadvar):
     """Process file variables for a file which is either known to CRDS
@@ -123,8 +226,8 @@ def get_known_filepath(original_name):
                 raise FieldError(
                     "Couldn't find reference file " + original_name)
     else:
-        raise FieldError(
-            original_name + " should have .pmap, .imap, .rmap, or .fits extension.")
+        raise FieldError(original_name + " should have .pmap, .imap, .rmap, " \
+                        "or .fits extension.")
     return filepath
 
 
@@ -149,7 +252,9 @@ def error_trap(template):
     appropriate error message so the user can try again.
     """
     def decorator(func):
+        """decorator is bound to the template parameter of error_trap()."""
         def trap(request, *args, **keys):
+            """trap() is bound to the func parameter of decorator()."""
             try:
                 return func(request, *args, **keys)
             except CrdsError, exc:
@@ -162,9 +267,10 @@ def error_trap(template):
 
 
 # ===========================================================================
-
-import cProfile
+PROFILE_DECORATOR_RESULT = None
 def profile(func):
+    """Decorate a view with @profile to run cProfile when the view is accessed.
+    """
     def profile_request(request, *args, **keys):
         def runit():
             global PROFILE_DECORATOR_RESULT
@@ -178,21 +284,24 @@ def profile(func):
 # ===========================================================================
 
 def index(request):
+    """Return the top level page for all of interactive CRDS."""
     return render(request, "index.html", {})
 
 # ===========================================================================
 
 def logout(request):
+    """View to get rid of authentication state and become nobody again."""
     django.contrib.auth.logout(request)
     return render(request, "logout.html", {})
         
 # ===========================================================================
 
 def bestrefs_index(request):
+    """View to get the instrument context for best references."""
     return render(request, "bestrefs_index.html", {})
 
 def bestrefs_input(request):
-    """Prompt for best ref inputs."""
+    """View to get best reference dataset parameters."""
     ctx = _get_ctx(request)
     required_keys = list(ctx.get_required_parkeys())
     parkey_map_items = sorted(ctx.get_parkey_map().items())
@@ -221,7 +330,8 @@ def bestrefs_compute(request):
         header[str(key)] = str(request.POST[key])
     bestrefs = ctx.get_best_references(header)
     header_items = sorted(header.items())
-    bestrefs_items = [ (key.upper(), bestref_link(ctx, val)) for (key, val) in sorted(bestrefs.items())]
+    bestrefs_items = [ (key.upper(), bestref_link(ctx, val)) \
+                      for (key, val) in sorted(bestrefs.items())]
     return render(request, "bestrefs_results.html", locals())
 
 # ============================================================================
@@ -242,9 +352,11 @@ def submit_file(request):
 def submit_file_post(request):
     """Handle the POST case of submit_file,   returning dict of template vars.
     """
-    observatory = check_value(request.POST["observatory"], 
-            "hst|jwst", "Invalid value for observatory.")
-    
+    observatory = validate_post(
+        request, "observatory", "|".join(models.OBSERVATORIES))    
+    modifier_name = validate_post(request, "modifier_name", "[A-Za-z0-9 _.@]+")
+    description = validate_post(request, "description", "[^<>]+")
+
     # Get the UploadedFile object
     ufile = get_uploaded_file(request, "filename")
 
@@ -268,12 +380,6 @@ def submit_file_post(request):
     # Copy the temporary file to its permanent location.
     upload_file(ufile, permanent_location)
     
-    modifier_name = check_value(request.POST["modifier_name"], "[A-Za-z0-9 _.@]+",
-                              "Invalid modifier name.")
-
-    description = check_value(request.POST["description"], "[^<>]+",
-                              "Invalid description.")
-
     # Make a database record for this file.
     if rmap.is_mapping(permanent_location):
         blob_class = models.MappingBlob
@@ -392,12 +498,14 @@ def create_crds_name(upload_location, upload_name):
 @error_trap("blacklist_input.html")
 @login_required
 def blacklist_file(request):
+    """Serve the blacklist input form or process the POST."""
     if request.method == "GET":
         return render(request, "blacklist_input.html")
     else:
         return blacklist_file_post(request)
 
 def blacklist_file_post(request):
+    """View fragment to process the blacklist POST."""
     observatory = check_value(request.POST["observatory"], 
             "hst|jwst", "Invalid value for observatory.")
     blacklist_root = check_value(request.POST["file_known"],
@@ -411,7 +519,7 @@ def blacklist_file_post(request):
             "Reason description is limited to letters, "
             "numbers, period, underscore and space.   Cannot be blank.")
     
-    # Figure out all files which indirectly or directly reference `blacklist_root`
+    # Determine files which indirectly or directly reference `blacklist_root`
     uses_files = uses.uses([blacklist_root], observatory)
 
     all_blacklisted = [blacklist_root] + uses_files
@@ -457,15 +565,14 @@ def do_blacklist(blacklist_root, blacklisted, badflag, why, user):
 @error_trap("certify_input.html")
 @login_required
 def certify_file(request):
-    """Check for the existence and validity
-    """
+    """View to return certify input form or process POST."""
     if request.method == "GET":
         return render(request, "certify_input.html")
     else:
         return certify_post(request)
 
 def certify_post(request):
-
+    """View fragment to process file certification POSTs."""
     uploaded, original_name, certified_file = handle_known_or_uploaded_file(
         request, "File", "filemode", "file_known", "file_uploaded")
             
@@ -510,29 +617,35 @@ def certify_post(request):
 
 @error_trap("using_file_inputs.html")
 def using_file(request):
+    """View to return using_file input form or process POST."""
     if request.method == "GET":
         return render(request, "using_file_inputs.html")
     else:
-        observatory = check_value(request.POST["observatory"], 
-            "hst|jwst", "Invalid value for observatory.")
-        referred_file = check_value(request.POST["referred_file"], 
-            "[A-Za-z0-9._]+", 
-            "Filename must consist of letters, numbers, periods, "
-            "or underscores.")
-        uses_files = uses.uses([referred_file], observatory)
-        if not "".join(uses_files).strip():
-            uses_files = ["no files"]
-        return render(request, "using_file_results.html", locals())
+        return using_file_post(request)
+    
+def using_file_post(request):
+    """View fragment to process using_file POSTs."""
+    observatory = check_value(request.POST["observatory"], 
+        "hst|jwst", "Invalid value for observatory.")
+    referred_file = check_value(request.POST["referred_file"], 
+        "[A-Za-z0-9._]+", 
+        "Filename must consist of letters, numbers, periods, "
+        "or underscores.")
+    uses_files = uses.uses([referred_file], observatory)
+    if not "".join(uses_files).strip():
+        uses_files = ["no files"]
+    return render(request, "using_file_results.html", locals())
 
 # ===========================================================================
-
-def extension(filename): 
-    """Return the file extension of `filename`."""
-    return os.path.splitext(filename)[1]
 
 @error_trap("difference_input.html")
 def difference_files(request):
     """Compare two files,  either known or uploaded,  and display the diffs."""
+
+    def extension(filename): 
+        """Return the file extension of `filename`."""
+        return os.path.splitext(filename)[1]
+    
     if request.method == "GET":
         return render(request, "difference_input.html")
     else:
@@ -549,7 +662,8 @@ def difference_files(request):
             diff_lines = pysh.lines("fitsdiff ${file1_path} ${file2_path}")
             diff_lines = format_fitsdiffs(diff_lines, file1_path, file2_path)
         else:
-            raise CrdsError("Files should be either CRDS mappings of the same type or .fits files")
+            raise CrdsError("Files should be either CRDS mappings "
+                            "of the same type or .fits files")
         
         if uploaded1: 
             remove_temporary(file1_path)
@@ -571,13 +685,13 @@ def format_fitsdiffs(lines, file1, file2):
     `file1` and `file2` with their basenames.
     """
     for i in range(len(lines)):
-        lines[i] = clean_path(lines[i], file1)
-        lines[i] = clean_path(lines[i], file2)
-        if "Primary HDU" in lines[i] or re.search("Extension \d+ HDU", lines[i]):
-            lines[i] = "<h3>" + lines[i] + "</h3>"
-        lines[i] = re.sub(r"([Kk]eyword)\s*([A-Za-z0-9_]*)",
-                          r"\1 <span class='green'>\2</span>",
-                          lines[i])
+        line = clean_path(lines[i], file1)
+        line = clean_path(line, file2)
+        if "Primary HDU" in line or re.search("Extension \d+ HDU", line):
+            line = "<h3>" + line + "</h3>"
+        line = re.sub(r"([Kk]eyword)\s*([A-Za-z0-9_]*)",
+                      r"\1 <span class='green'>\2</span>", line)
+        lines[i] = line
     return lines
 
 def format_mappingdiffs(lines, file1, file2):
@@ -594,12 +708,14 @@ def clean_path(line, path):
 
 @error_trap("browse_input.html")
 def browse_files(request):
+    """View to return browse input form or process browse POSTs."""
     if request.method == "GET":
         return render(request, "browse_input.html")
     else:
         return browse_files_post(request)
     
 def browse_files_post(request):
+    """View fragment to process browse_files POSTs."""
     uploaded, original_name, browsed_file = handle_known_or_uploaded_file(
         request, "File", "filemode", "file_known", "file_uploaded")
     response = browse_files_post_guts(
@@ -636,8 +752,8 @@ def browsify_mapping(original_name, browsed_file):
     try:
         linegen = open(browsed_file).readlines()
     except OSError:
-        return ["<h3 class='error'>File <span class='grey'>%s<span> not found</h3>" % \
-                (original_name,)]
+        return ["<h3 class='error'>File " 
+                "<span class='grey'>%s<span> not found</h3>" % (original_name,)]
     for line in linegen:
         lines.append(browsify_mapping_line(line))
     return lines
@@ -704,7 +820,8 @@ def reserve_name(request):
 def reserve_name_post(request):
     observatory = check_value(request.POST["observatory"], 
             "hst|jwst", "Invalid value for observatory.")
-    mode = check_value(request.POST["filemode"], "file_known|by_parts", "Invalid input mode")
+    mode = check_value(
+        request.POST["filemode"], "file_known|by_parts", "Invalid input mode")
     if mode == "file_known":
         known_file = check_value(request.POST["file_known"],
                                  "[A-Za-z0-9_.]+", "Invalid known filename.")
@@ -716,9 +833,12 @@ def reserve_name_post(request):
         filekind = request.POST["filekind"]
         extension = request.POST["extension"]
     
-    instrument = check_value(instrument, "|".join(models.INSTRUMENTS+[""]), "Invalid instrument")
-    filekind = check_value(filekind, "|".join(models.FILEKINDS+[""]), "Invalid file kind")
-    extension = check_value(extension, "|".join(models.EXTENSIONS), "Invalid file extension")
+    instrument = check_value(
+            instrument, "|".join(models.INSTRUMENTS+[""]), "Invalid instrument")
+    filekind = check_value(
+            filekind, "|".join(models.FILEKINDS+[""]), "Invalid file kind")
+    extension = check_value(
+            extension, "|".join(models.EXTENSIONS), "Invalid file extension")
     
     try:
         if extension == ".pmap":
@@ -783,8 +903,8 @@ def recent_activity_post(request):
     user = validate_post(
         request, "user", r"[A-Za-z0-9_.\*]+")
     filters = {}
-    for var in ["action","observatory","instrument","filekind","extension",
-                "filename","user"]:
+    for var in ["action", "observatory", "instrument", "filekind", "extension",
+                "filename", "user"]:
         value = locals()[var].strip()
         if value not in ["*",""]:
             filters[var] = value
@@ -826,8 +946,8 @@ def browse_db_post(request):
     status = validate_post(
         request, "status", r"[A-Za-z0-9_.\*]+")
     filters = {}
-    for var in ["observatory","instrument","filekind","extension",
-                "filename","user","status"]:
+    for var in ["observatory", "instrument", "filekind", "extension",
+                "filename", "user", "status"]:
         value = locals()[var].strip()
         if value not in ["*",""]:
             filters[var] = value
@@ -886,63 +1006,6 @@ def create_contexts_post(request):
                 "new_contexts" : new_contexts,
             })
 
-def is_pipeline_mapping(filename):
-    """Verify that `filename` names a known CRDS pipeline mapping.
-    Otherwise raise AssertionError.
-    """
-    return is_mapping(filename, r"\.pmap")
-
-def is_instrument_mapping(filename):
-    """Verify that `filename` names a known CRDS instrument mapping.
-    Otherwise raise AssertionError.
-    """
-    return is_mapping(filename, r"\.imap")
-
-def is_reference_mapping(filename):
-    """Verify that `filename` names a known CRDS reference mapping.
-    Otherwise raise AssertionError.
-    """
-    return is_mapping(filename, r"\.rmap")
-
-def is_mapping(filename, extension=r"\.[pir]map"):
-    """Verify that `filename` names a known CRDS mapping.
-    Otherwise raise AssertionError.
-    """
-    assert re.match("\w+" + extension, filename), \
-        "invalid reference mapping filename " + repr(filename)
-    try:
-        models.MappingBlob.load(filename)
-    except Exception:
-        assert False, "can't load " + repr(filename) + \
-            ".  Must name a known CRDS mapping."
-    return filename
-
-def is_reference_file(filename):
-    """Verify that `filename` names a known CRDS reference file.
-    Otherwise raise AssertionError.
-    """
-    assert re.match("\w+\.fits", filename), \
-        "invalid reference filename " + repr(filename)
-    try:
-        models.ReferenceBlob.load(filename)
-    except LookupError:
-        assert False, "can't load " + repr(filename) + \
-            ".  Must name a known CRDS reference file."
-    return filename
-
-def is_list_of_rmaps(text):
-    """Assert that `text` contains a list of comma for newline separated rmap
-    names.
-    """
-    text = str(text)
-    text = text.replace("\n"," ")
-    text = text.replace("\r", "")
-    text = " ".join(text.split(","))
-    rmaps = [r.strip() for r in text.split()]
-    for rmap in rmaps:
-        is_reference_mapping(rmap)
-    return rmaps
-
 def generate_new_names(old_pipeline, updates):
     """Generate a map from old pipeline and instrument context names to the
     names for their replacements.
@@ -958,12 +1021,14 @@ def new_name(old_map):
     create a new mapping name of the same series.
     """
     observatory = rmap.get_cached_mapping(old_map).observatory
-    instrument, filekind, serial = utils.get_file_properties(observatory, old_map)
+    instrument, filekind, _serial = utils.get_file_properties(
+        observatory, old_map)
     extension = os.path.splitext(old_map)[-1]
     newserial = get_new_serial(observatory, instrument, filekind, extension)
     if re.search(r"_\d+\.[pir]map", old_map):
         new_map = re.sub(r"_\d+(\.[pir]map)", r"_%04d\1" % newserial, old_map)
-    elif re.match(r"\w+\.[pir]map", old_map):   # if no serial,  start off existing sequence as 0
+    elif re.match(r"\w+\.[pir]map", old_map):   
+        # if no serial,  start off existing sequence as 0
         parts = os.path.splitext(old_map)
         new_map = parts[0] + "_%04d" % newserial + parts[1]
     else:
@@ -997,7 +1062,7 @@ def replace_reference_post(request):
 
     observatory = rmap.get_cached_mapping(old_mapping).observatory
 
-    blob = models.add_crds_file(
+    models.add_crds_file(
         observatory, new_mapping, new_location, 
         request.user, request.user.email, "crds", description, 
         "replace reference", 
@@ -1050,44 +1115,16 @@ def add_useafter_post(request):
         old_mapping, new_location, match_tuple, useafter_date, useafter_file)
     
     observatory = rmap.get_cached_mapping(old_mapping).observatory
-    blob = models.add_crds_file(
+    models.add_crds_file(
         observatory, new_mapping, new_location, 
         request.user, request.user.email, "crds", description, 
-        "add useafter", 
-        repr(old_mapping) + " : " +
-        repr(match_tuple) + " : " + 
-        repr(useafter_date) + " : " + 
-        repr(useafter_file))
+        "add useafter", repr(old_mapping) + " : " + repr(match_tuple) + " : " + 
+        repr(useafter_date) + " : " + repr(useafter_file))
 
     return render(request, "add_useafter_results.html", {
                 "new_mapping" : new_mapping,
                 "modification" : modification,
             })
-
-def is_match_tuple(tuple_str):
-    """Raise an AssertionError if `tuple_str` is does not literal eval to a tuple.
-    Otherwise return the tuple.
-    """
-    try:
-        tup = literal_eval(tuple_str.upper())
-        assert isinstance(tup, tuple), "Enter a tuple to match against."
-    except Exception:
-        raise AssertionError("Enter a tuple to match against.")
-    return tup
-
-DATETIME_RE_STR = "(\d\d\d\d\-\d\d\-\d\d\s+\d\d:\d\d:\d\d)"
-
-def is_datetime(datetime_str):
-    """Raise an assertion error if `datetime_str` doesn't look like a CRDS date.
-    Otherwise return `datetime_str`.
-    """
-    assert re.match(DATETIME_RE_STR, datetime_str), \
-        "Invalid date/time.  Should be YYYY-MM-DD HH:MM:SS"
-    try:
-        timestamp.parse_date(datetime_str)
-    except ValueError, exc:
-        raise CrdsError(str(exc))
-    return datetime_str
 
 def make_new_useafter_rmap(old_mapping, new_location, match_tuple, 
                            useafter_date, useafter_file):
@@ -1104,7 +1141,7 @@ def make_new_useafter_rmap(old_mapping, new_location, match_tuple,
                 #     ('HRC', 'CLEAR1S', 'F435W') : UseAfter({ 
                 ix = line.index(": UseAfter({")
                 tuple_str = line[:ix]
-                line_tuple = literal_eval(tuple_str.strip())
+                line_tuple = compat.literal_eval(tuple_str.strip())
                 if match_tuple == line_tuple:
                     state = "find useafter"
             elif line.strip() == "})":   # end of rmap
@@ -1114,7 +1151,7 @@ def make_new_useafter_rmap(old_mapping, new_location, match_tuple,
                     (useafter_date, useafter_file))
                 new_mapping_file.write("\t}),\n")
                 state = "copy remainder"  # should be done anyway.
-                modification = "Added new match case with given useafter clause."
+                modification = "Added new match case for given useafter clause."
         elif state == "find useafter":
             if line.strip().endswith(".fits',"):
                 # Handle a standard useafter clause

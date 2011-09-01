@@ -435,7 +435,8 @@ def add_crds_file(observatory, upload_name, permanent_location,
         description, audit_details,
         observatory=fileblob.observatory, instrument=fileblob.instrument,  
         filekind=fileblob.filekind, date=fileblob.delivery_date,)
-        
+    
+    return fileblob
 
 
 
