@@ -1,3 +1,7 @@
+"""This module defines the Django view functions which respond to HTTP requests
+and return HTTP response objects.
+"""
+
 # Create your views here.
 import os.path
 import re
@@ -28,7 +32,10 @@ def _get_imap(request):
     except KeyError:
         return post["instrument-context"]
     else:
-        return post["context-user"] if mode == "user" else post["context-default"]
+        if mode == "user":
+            return post["context-user"] 
+        else:
+            return post["context-default"]
 
 def _get_ctx(request):
     """Convert a request into an instrument context object."""
@@ -108,8 +115,8 @@ def is_mapping(filename, extension=r"\.[pir]map"):
         "invalid reference mapping filename " + repr(filename)
     try:
         models.MappingBlob.load(filename)
-    except Exception:
-        assert False, "can't load " + repr(filename) + \
+    except LookupError:
+        assert False, "no database for " + repr(filename) + \
             ".  Must name a known CRDS mapping."
     return filename
 
@@ -122,7 +129,7 @@ def is_reference_file(filename):
     try:
         models.ReferenceBlob.load(filename)
     except LookupError:
-        assert False, "can't load " + repr(filename) + \
+        assert False, "no database for " + repr(filename) + \
             ".  Must name a known CRDS reference file."
     return filename
 
@@ -135,8 +142,8 @@ def is_list_of_rmaps(text):
     text = text.replace("\r", "")
     text = " ".join(text.split(","))
     rmaps = [r.strip() for r in text.split()]
-    for rmap in rmaps:
-        is_reference_mapping(rmap)
+    for rmp in rmaps:
+        is_reference_mapping(rmp)
     return rmaps
 
 def is_match_tuple(tuple_str):
@@ -205,6 +212,9 @@ def handle_known_or_uploaded_file(request, name, modevar, knownvar, uploadvar):
     return uploaded, original_name, filepath
 
 def get_known_filepath(original_name):
+    """Given the basename of a mapping or reference file, `original_name`,
+    determine the full path of the file on the server.
+    """
     if rmap.is_mapping(original_name):
         try:
             filepath = models.MappingBlob.load(original_name).pathname
@@ -212,7 +222,7 @@ def get_known_filepath(original_name):
             try:
                 loc = utils.get_locator_module("hst")
                 filepath = loc.locate_server_mapping(original_name)
-            except Exception, exc:
+            except Exception:
                 raise FieldError(
                     "Couldn't find mapping " + original_name)
     elif original_name.endswith(".fits"):
@@ -222,7 +232,7 @@ def get_known_filepath(original_name):
             try:
                 loc = utils.get_locator_module("hst")
                 filepath = loc.locate_server_reference(original_name)
-            except Exception, exc:
+            except Exception:
                 raise FieldError(
                     "Couldn't find reference file " + original_name)
     else:
@@ -247,8 +257,8 @@ class CrdsError(Exception):
     """Something bad but understood happened in CRDS processing."""
 
 def error_trap(template):
-    """error_trap() is a 'decorator maker' which returns a decorator which traps 
-    exceptions in views and re-issues the input `template` with an 
+    """error_trap() is a 'decorator maker' which returns a decorator which 
+    traps exceptions in views and re-issues the input `template` with an 
     appropriate error message so the user can try again.
     """
     def decorator(func):
@@ -272,7 +282,11 @@ def profile(func):
     """Decorate a view with @profile to run cProfile when the view is accessed.
     """
     def profile_request(request, *args, **keys):
+        """profile_request runs the runit() hack under the profiler and
+        extracts the function result from a global.
+        """
         def runit():
+            """executes a function and stores the result globally."""
             global PROFILE_DECORATOR_RESULT
             PROFILE_DECORATOR_RESULT = func(request, *args, **keys)
         cProfile.runctx("runit()", locals(), locals())
@@ -313,7 +327,7 @@ def bestref_link(ctx, reference):
         try:
             url = ctx.locate.reference_url(config.CRDS_REFERENCE_URL, reference)
             return '<a href="%s">%s</a>' % (url, reference)
-        except:
+        except Exception:
             return reference
     else:
         return reference[len("NOT FOUND "):]
@@ -748,6 +762,7 @@ def browse_files_post_guts(request, uploaded, original_name, browsed_file):
              "browsed_file":original_name})
 
 def browsify_mapping(original_name, browsed_file):
+    """Format a CRDS mapping file as colorized and cross-linked HTML."""
     lines = []
     try:
         linegen = open(browsed_file).readlines()
@@ -793,12 +808,17 @@ def browsify_mapping_line(line):
 
     return "<p>" + line + "</p>"
 
-# Using TPN,  extract interesting header keywords or tables???
+# XXX Using TPN,  extract interesting header keywords or tables???
 def browsify_reference(original_name, browsed_file):
+    """Format a CRDS reference file for HTML display.   Return HTML lines.
+    """
     return []
 
 @error_trap("browse_known_file_error.html")
 def browse_known_file(request, original_name):
+    """special view which accepts browse file from a URL parameter,  required
+    by cross links like /browse/some_file.rmap
+    """
     browsed_file = get_known_filepath(original_name)
     uploaded = False
     return browse_files_post_guts(
@@ -809,6 +829,7 @@ def browse_known_file(request, original_name):
 @error_trap("reserve_name_input.html")
 @login_required
 def reserve_name(request):
+    """reserve_name is a view to get officially registered CRDS filenames."""
     if request.method == "GET":
         return render(request, "reserve_name_input.html",
                       {"instruments":models.INSTRUMENTS+[""],
@@ -818,6 +839,7 @@ def reserve_name(request):
         return reserve_name_post(request)
 
 def reserve_name_post(request):
+    """View fragment handling reserve_name POST."""
     observatory = check_value(request.POST["observatory"], 
             "hst|jwst", "Invalid value for observatory.")
     mode = check_value(
@@ -847,8 +869,8 @@ def reserve_name_post(request):
         elif extension == ".imap":
             assert filekind == "", "File kind must be blank for .imap"
         elif extension in [".rmap",".fits"]:
-            assert instrument != "", "Instrument must be specified for .rmap, .fits"
-            assert filekind != "", "File kind must be specified for .rmap, .fits"
+            assert instrument != "", "Instrument required for .rmap, .fits"
+            assert filekind != "", "Filekind required for .rmap, .fits"
     except AssertionError, exc:
         raise CrdsError(str(exc))
     
@@ -876,6 +898,7 @@ def get_new_serial(observatory, instrument, filekind, extension):
 @error_trap("recent_activity_input.html")
 @login_required
 def recent_activity(request):
+    """recent_activity displays records from the AuditBlob database."""
     if request.method == "GET":
         return render(request, "recent_activity_input.html", {
             "actions":["*"]+models.AUDITED_ACTIONS,
@@ -888,6 +911,7 @@ def recent_activity(request):
         return recent_activity_post(request)
 
 def recent_activity_post(request):
+    """View fragment handling recent_activity POST case."""
     action = validate_post(
         request, "action", models.AUDITED_ACTIONS+[r"\*"])
     observatory = validate_post(
@@ -919,6 +943,7 @@ def recent_activity_post(request):
 @error_trap("browse_db_input.html")
 @login_required
 def browse_db(request):
+    """browse_db displays records from the FileBlob (subclasses) database."""
     if request.method == "GET":
         return render(request, "browse_db_input.html", {
             "observatories":["*"]+models.OBSERVATORIES,
@@ -931,6 +956,7 @@ def browse_db(request):
         return browse_db_post(request)
 
 def browse_db_post(request):
+    """View fragment handling browse_db POST case."""
     observatory = validate_post(
         request, "observatory", models.OBSERVATORIES+[r"\*"])
     instrument = validate_post(
@@ -961,21 +987,24 @@ def browse_db_post(request):
 # ===========================================================================
 
 def common_updates(request):
+    """common_updates displays a page showing all the one-step rmap hacks."""
     return render(request, "common_updates.html", {})
 
 @error_trap("create_contexts_input.html")
 @login_required
 def create_contexts(request):
+    """create_contexts generates a new pmap and imaps given an existing pmap
+    and set of new rmaps.   Note that the "new" rmaps must already be in CRDS.
+    """
     if request.method == "GET":
         return render(request, "create_contexts_input.html")
     else:
         return create_contexts_post(request)
 
 def create_contexts_post(request):
-    pipeline = validate_post(
-            request, "pipeline", is_pipeline_mapping)
-    updated_rmaps = validate_post(
-            request, "rmaps", is_list_of_rmaps)
+    """View fragment handling create_contexts POST case."""
+    pipeline = validate_post(request, "pipeline", is_pipeline_mapping)
+    updated_rmaps = validate_post(request, "rmaps", is_list_of_rmaps)
     description = validate_post(request, "description", "[^<>]+")
 
     # Get the mapping from old imap to new rmap, basically the imaps that
@@ -1042,12 +1071,16 @@ def new_name(old_map):
 @error_trap("replace_reference_input.html")
 @login_required
 def replace_reference(request):
+    """replace_reference generates a new rmap given an existing rmap and a
+    substitution pair of reference files.
+    """
     if request.method == "GET":
         return render(request, "replace_reference_input.html")
     else:
         return replace_reference_post(request)
 
 def replace_reference_post(request):
+    """View fragment handling replace_reference POST case."""
     old_mapping = validate_post(
         request, "old_mapping", is_reference_mapping)
     old_file = validate_post(request, "old_reference", is_reference_file)
@@ -1094,6 +1127,11 @@ def make_new_replace_file_rmap(old_mapping, old_file, new_file):
 @error_trap("add_useafter_input.html")
 @login_required
 def add_useafter(request):
+    """add_useafter generates a new rmap given an existing rmap,  a matching
+    tuple,  a useafter date,  and a fits file.   The specified useafter clause,
+    date and file,  are inserted into a clone of the original rmap,  inside the
+    appropriate match tuple.
+    """
     if request.method == "GET":
         return render(request, "add_useafter_input.html")
     else:
@@ -1102,6 +1140,7 @@ def add_useafter(request):
 # XXX add value checking to match tuple vs. observatory TPN's
 
 def add_useafter_post(request):
+    """View fragment handling add_useafter POST case."""
     old_mapping = validate_post(request, "old_mapping", is_reference_mapping)
     match_tuple = validate_post(request, "match_tuple", is_match_tuple)
     useafter_date = validate_post(request, "useafter_date", is_datetime)
@@ -1139,19 +1178,19 @@ def make_new_useafter_rmap(old_mapping, new_location, match_tuple,
         if state == "find tuple":
             if "UseAfter" in line:
                 #     ('HRC', 'CLEAR1S', 'F435W') : UseAfter({ 
-                ix = line.index(": UseAfter({")
-                tuple_str = line[:ix]
+                index = line.index(": UseAfter({")
+                tuple_str = line[:index]
                 line_tuple = compat.literal_eval(tuple_str.strip())
                 if match_tuple == line_tuple:
                     state = "find useafter"
             elif line.strip() == "})":   # end of rmap
-                # Never found match tuple,  so add that case as well as useafter.
+                # Never found match,  so add that tuple as well as useafter.
                 new_mapping_file.write("%s : UseAfter({\n" % repr(match_tuple))
                 new_mapping_file.write("\t'%s' : '%s',\n" % \
                     (useafter_date, useafter_file))
                 new_mapping_file.write("\t}),\n")
                 state = "copy remainder"  # should be done anyway.
-                modification = "Added new match case for given useafter clause."
+                modification = "Added new match case for useafter clause."
         elif state == "find useafter":
             if line.strip().endswith(".fits',"):
                 # Handle a standard useafter clause

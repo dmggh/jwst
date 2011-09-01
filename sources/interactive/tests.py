@@ -358,7 +358,7 @@ class SimpleTest(TestCase):
             })
         self.assertEqual(response.status_code, 200)
         self.assertTrue("Created" in response.content)
-        self.assertTrue("Added new match case for given useafter clause." in response.content)
+        self.assertTrue("Added new match case for useafter clause." in response.content)
 
     def test_browse(self):
         response = self.client.get("/browse/")
