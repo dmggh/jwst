@@ -30,14 +30,17 @@
 <p><b>Create Parent Contexts automatically generates and submits new pipeline 
 and instrument contexts which refer to your new rmaps.</b>  
 
-<p><b>Pipeline</b> defines the starting context which will be updated to refer
-to new rmaps.  The pipeline context refers to a set of existing instrument 
-contexts.  
+<p><b>Pipeline</b> defines the context which will be derived from.  The 
+pipeline context refers to a set of instrument contexts.   New instrument contexts
+will be derived from the existing contexts by updating them to refer to the New
+Rmaps.   A new pipeline context will be generated to refer to the new instrument
+contexts.
 
-<p><p>Files you list in the <b>New Rmaps</b> box will be substituted into 
-copies of the existing instrument contexts generating new ones.    Updated Rmaps
-can be listed one file per line, separated by spaces, or seperated by commas.
+<p><p><b>New Rmaps</b> will replace their equivalents in the instrument contexts
+identified by the pipeline context.   Each file in New Rmaps must have already 
+been accepted by CRDS. New Rmaps can be listed one file per line, separated by 
+spaces, or seperated by commas.
 
 <p><p><b>Description</b> should document the general rationale or purpose 
-behind the set of rmap updates.
+behind the set of New Rmaps.
 {% endblock help %}

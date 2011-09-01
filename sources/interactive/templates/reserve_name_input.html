@@ -77,3 +77,16 @@
       <input type="submit" value="Reserve Name">
     </form>
 {% endblock column1 %}
+
+{% block help %}
+    <p><b>Reserve Filename helps keep track of reference or mapping files
+    which are under development but not yet submitted to CRDS.</b>
+    
+    <p><p><b>Known File</b> Lets you use a known CRDS reference or mapping file as
+    a template for the new filename.   The next name in the series will be
+    generated and returned.
+    
+    <p><p><b>By Parts</b> Lets you specify key pieces of a filename to define 
+    the series from which the reserved filename will be generated and returned.
+    
+{% endblock help %}

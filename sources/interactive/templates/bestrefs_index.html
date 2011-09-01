@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block contents %}
+{% block column1 %}
   <form action="/bestrefs/input/" method="post""> {% csrf_token %}
     <h2>Get Best References</h2>
     <h3>Instrument Context:</h3>
@@ -25,4 +25,16 @@
     <br/>
     <input type="submit" value="Submit" />
   </form>
-{% endblock contents %}
+{% endblock column1 %}
+
+{% block help %}
+    <p><b>Get Best References lets you interactively explore best reference
+    selections made by CRDS given particular dataset parameters.</b>
+    
+    <p><p><b>Instrument Context</b> defines the context for which best references
+    will be determined.  It defines the parameter choices which will be 
+    available as well as the reference mappings which will be used to infer
+    best references.
+    
+    <p><p>Only instrument contexts already known to CRDS can be specified.
+{% endblock help %}

@@ -50,18 +50,21 @@
 {% endblock column1 %}
 
 {% block help %}
-<p><b>Replace File modifies an existing reference mapping by replacing a
-single reference file with a new one.   A new reference mapping will be
-automatically generated and submitted.</b>
+<p><b>Add UseAfter derives a new reference mapping from an old one by inserting
+a new useafter clause into the specified match case. </b> A new reference mapping 
+will be automatically generated and submitted.
 
-<p>Old Mapping is the reference mapping which will be copied from.
+<p><b>Old Mapping</b> is the reference mapping to which the useafter clause will be
+added,  producing a new mapping.
 
-<p><p>Old Reference should appear somewhere in the old rmap and will
-be replaced.
+<p><p><b>Match Tuple</b> is a set of parameters which a dataset must match for the
+new useafter clause to be applicable.
 
-<p><p>New Reference will be substituted into a copy of the old rmap in place 
-of the old reference file.
+<p><p><b>UseAfter Date</b> is the date after which the new reference file is 
+applicable.
 
-<p><p>Description should document the reason for this substitution.
+<p><p><b>UseAfter File</b> is the filename of the reference file being added.
+
+<p><p><b>Description</b> should document the reason for this substitution.
 
 {% endblock help %}

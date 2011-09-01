@@ -36,7 +36,7 @@
       <tr><td colspan="3"><textarea name="description" cols="60" rows="10">{{description}}</textarea></td></tr> 
       </table>
       <br/>
-      <input type="submit" value="Replace File" style="font-size:1.1em;"/>
+      <input type="submit" value="Replace Reference" style="font-size:1.1em;"/>
 </form>
 
 {% endblock column1 %}
@@ -46,14 +46,14 @@
 single reference file with a new one.   A new reference mapping will be
 automatically generated and submitted.</b>
 
-<p>Old Mapping is the reference mapping which will be copied from.
+<p><b>Old Mapping</b> is the reference mapping which will be copied from.
 
-<p><p>Old Reference should appear somewhere in the old rmap and will
+<p><p><b>Old Reference</b> should appear somewhere in the old rmap and will
 be replaced.
 
-<p><p>New Reference will be substituted into a copy of the old rmap in place 
+<p><p><b>New Reference</b> will be substituted into a copy of the old rmap in place 
 of the old reference file.
 
-<p><p>Description should document the reason for this substitution.
+<p><p><b>Description</b> should document the reason for this substitution.
 
 {% endblock help %}

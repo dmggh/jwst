@@ -11,12 +11,9 @@
       </tr>
     {% endfor %}
     </table>
-{% endblock column1 %}
-
-{% block column2 %}
-    <h2>&nbsp;</h2>
+    
     <h3>Recommended Files</h3>
-    <table width="100%">	
+    <table width="100%">    
       {% for reftype, fname in bestrefs_items %}
         <tr>
           <td class="label" width="30%">{{reftype}}:</td>
@@ -27,5 +24,9 @@
           {% endif %}
         </tr>
       {% endfor %}
-    </table>	
-{% endblock column2 %}
+    </table>    
+
+{% endblock column1 %}
+
+{% block help %}
+{% endblock  %}

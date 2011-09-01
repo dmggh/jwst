@@ -44,6 +44,7 @@ class SimpleTest(TestCase):
                        "hst_cos_0001.imap",
                        "hst_acs_0001.imap",
                        "hst_acs_biasfile_0001.rmap",
+                       "hst_acs_dgeofile_0001.rmap",
                        ])
 
     def authenticate(self):
@@ -302,6 +303,29 @@ class SimpleTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue("Created" in response.content)
         self.assertTrue("hst_acs_biasfile_0001.rmap" in response.content)
+
+    def test_add_useafter(self):
+        self.authenticate()
+        response = self.client.get("/add_useafter/")
+        self.assertEqual(response.status_code, 200)
+
+    def test_add_useafter_post(self):
+        self.authenticate()
+        self.fake_database_files([
+            "hst_acs_dgeofile.rmap", 
+            "o8u2214fj_dxy.fits", 
+            ])
+        response = self.client.post("/add_useafter/", {
+                "old_mapping" : "hst_acs_dgeofile.rmap",
+                "match_tuple" : "('HRC', 'CLEAR1S', 'F220W')",
+                "useafter_date" : "2001-01-27 12:00:09",
+                "useafter_file" : "o8u2214fj_dxy.fits",
+                "description" : "test add useafter",
+            })
+        self.assertEqual(response.status_code, 200)
+        print response.content
+        self.assertTrue("Created" in response.content)
+        self.assertTrue("Inserted useafter into existing match case." in response.content)
 
     def test_browse(self):
         response = self.client.get("/browse/")

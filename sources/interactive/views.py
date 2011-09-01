@@ -1064,7 +1064,7 @@ def is_match_tuple(tuple_str):
     Otherwise return the tuple.
     """
     try:
-        tup = literal_eval(tuple_str)
+        tup = literal_eval(tuple_str.upper())
         assert isinstance(tup, tuple), "Enter a tuple to match against."
     except Exception:
         raise AssertionError("Enter a tuple to match against.")
