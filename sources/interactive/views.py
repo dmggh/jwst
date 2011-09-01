@@ -12,7 +12,7 @@ import django.utils.safestring as safestring
 import django.contrib.auth
 from django.contrib.auth.decorators import login_required
 
-from crds import (rmap, utils, certify, timestamp, uses, newcontext)
+from crds import (rmap, utils, certify, timestamp, uses, newcontext, checksum)
 from crds.compat import literal_eval
 
 import crds.server.config as config
@@ -615,7 +615,7 @@ def browse_files_post_guts(request, uploaded, original_name, browsed_file):
         blob = None
 
     related_actions = models.AuditBlob.filter(filename=blob.filename)
-    
+
     if rmap.is_mapping(original_name):
         file_contents = browsify_mapping(original_name, browsed_file)
     else:
@@ -874,7 +874,8 @@ def create_contexts_post(request):
     for ctx in new_contexts:
         models.add_crds_file(
             observatory, ctx, rmap.locate_mapping(ctx),  request.user, 
-            request.user.email, "crds", description, "new context")
+            request.user.email, "crds", description, "new context",
+            repr(pipeline) + " : " + ",".join([repr(x) for x in updated_rmaps]))
     
     # ", ".join(new_contexts[1:])
 
@@ -987,26 +988,38 @@ def replace_reference_post(request):
     
     assert old_file in open(rmap.locate_mapping(old_mapping)).read(), \
         "File " + old_file + " isn't anywhere in " + repr(old_mapping)
-        
-    new_mapping = new_name(old_mapping)
-    
-    contents = open(rmap.locate_mapping(old_mapping)).read()
-    new_contents = contents.replace(old_file, new_file)
-    assert contents != new_contents, "File replacement failed.  no difference."
-    new_location = rmap.locate_mapping(new_mapping)
-    open(new_location, "w+").write(new_contents)
-    
+
+    new_mapping, new_location  = make_new_replace_file_rmap(
+        old_mapping, old_file, new_file)
+
     observatory = rmap.get_cached_mapping(old_mapping).observatory
 
     blob = models.add_crds_file(
         observatory, new_mapping, new_location, 
         request.user, request.user.email, "crds", description, 
-        "replace reference")
+        "replace reference", 
+        repr(old_mapping) + " : " + repr(old_file) + " --> " + repr(new_file))
 
     return render(request, "replace_reference_results.html", {
                 "new_mapping" : new_mapping,
             })
 
+def make_new_replace_file_rmap(old_mapping, old_file, new_file):
+    """Execute the replace_file operation,  cloning `new_mapping` from 
+    `old_mapping` and substituting `new_file` for `old_file.`.
+    """
+    new_mapping = new_name(old_mapping)
+    new_location = rmap.locate_mapping(new_mapping)
+    contents = open(rmap.locate_mapping(old_mapping)).read()
+    new_contents = contents.replace(old_file, new_file)
+    assert contents != new_contents, "File replacement failed.  no difference."
+    assert not os.path.exists(new_location), "replacement file already exists."
+    file = open(new_location, "w")
+    file.write(new_contents)
+    file.close()
+    checksum.update_checksum(new_location)
+    do_certify_file(new_location, new_location, check_references=False)
+    return new_mapping, new_location
 
 # ===========================================================================
 
@@ -1035,7 +1048,11 @@ def add_useafter_post(request):
     blob = models.add_crds_file(
         observatory, new_mapping, new_location, 
         request.user, request.user.email, "crds", description, 
-        "add useafter")
+        "add useafter", 
+        repr(old_mapping) + " : " +
+        repr(match_tuple) + " : " + 
+        repr(useafter_date) + " : " + 
+        repr(useafter_file))
 
     return render(request, "add_useafter_results.html", {
                 "new_mapping" : new_mapping,
@@ -1067,7 +1084,7 @@ def make_new_useafter_rmap(old_mapping, new_location, match_tuple,
                            useafter_date, useafter_file):
     """Add one new useafter date / file to the `match_tuple` case of
     `old_mapping`,  writing the modified rmap out to `new_location`.   If
-    `match_tuple` doesn't exist in `old_mapping`,  add it as well.
+    `match_tuple` doesn't exist in `old_mapping`,  add `match_tuple` as well.
     """
     assert not os.path.exists(new_location), "add useafter file already exists"
     new_mapping_file = open(new_location, "w")    
@@ -1107,6 +1124,8 @@ def make_new_useafter_rmap(old_mapping, new_location, match_tuple,
                 state = "copy remainder"
                 modification = "Appended useafter to existing match case."
         new_mapping_file.write(line)
-    assert state == "copy remainder", \
-        "CRDS logic error, no useafter insertion performed"
+    assert state == "copy remainder", "no useafter insertion performed"
+    new_mapping_file.close()
+    checksum.update_checksum(new_location)
+    do_certify_file(new_location, new_location, check_references=False)
     return modification

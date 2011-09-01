@@ -308,6 +308,9 @@ class SimpleTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_browse_file(self):
+        self.fake_database_files([
+            "hst.pmap", 
+            ])
         response = self.client.get("/browse/hst.pmap")
         self.assertEqual(response.status_code, 200)
 
