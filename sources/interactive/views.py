@@ -424,15 +424,17 @@ def get_blacklists(basename, certifypath, ignore_self=True):
     `basename` are blacklisted,  i.e. don't allow submissions which reference
     blacklisted files.
     """
+    basename = str(basename)
     if rmap.is_mapping(basename):
+        exceptions = []
         blacklisted_by = set()
         try:
             mapping = rmap.load_mapping(certifypath)
         except Exception, exc:
-            raise CrdsError("Error loading " + repr(basename) + 
-                            "for blacklist checking." + str(exc))
+            exceptions.append("Error loading " + repr(basename) + 
+                              " for blacklist checking.  " + str(exc))
+            return [], exceptions
         map_names = mapping.mapping_names()
-        exceptions = []
         for child in map_names:
             if ignore_self and child == os.path.basename(certifypath): 
                 continue
@@ -610,8 +612,13 @@ def certify_post(request):
         
     blacklisted_by, blacklist_exceptions = get_blacklists(
         original_name, certified_file, ignore_self=False)
-    blacklist_status = "OK" if not (blacklisted_by or blacklist_exceptions) \
-        else "BLACKLISTED"
+
+    if blacklist_exceptions:
+        blacklist_status = "Error"
+    elif blacklisted_by:
+        blacklist_status = "Blacklisted"
+    else:
+        blacklist_status = "OK"
     
     if uploaded:
         remove_temporary(certified_file)
@@ -747,8 +754,9 @@ def browse_files_post_guts(request, uploaded, original_name, browsed_file):
     except LookupError:
         blob = None
 
-    related_actions = models.AuditBlob.filter(filename=blob.filename)
-
+    if blob is not None:
+        related_actions = models.AuditBlob.filter(filename=blob.filename)
+    
     if rmap.is_mapping(original_name):
         file_contents = browsify_mapping(original_name, browsed_file)
     else:
