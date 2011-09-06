@@ -8,17 +8,17 @@
         <tr>
           <td width="5%">
                 <input type="radio" name="filemode" 
-                        value="file_known" checked />
+                        value="file_known" />
           </td>
           <td width="25%" class="label">Known File:</td>
           <td width="25%">
-            <input type='text' name='file_known' size="32">
+            <input type='text' name='file_known' size="32" 
+                value="{{file_known}}">
           </td>
         </tr>
         <tr>
           <td width="5%">
-                <input type="radio" name="filemode" 
-                        value="file_uploaded" />
+            <input type="radio" name="filemode" value="file_uploaded" checked />
           </td>
           <td width="25%" class="label">Uploaded File:</td>
           <td width="25%">
@@ -30,7 +30,8 @@
           <td width="5%">&nbsp;</td>
           <td width="25%" class="label">Check References:</td>
           <td width="25%">
-            <input type='checkbox' name='check_references'>
+            <input type='checkbox' name='check_references' 
+                value='{{check_references}}'>
           </td>
         </tr>
       </table>
@@ -38,3 +39,28 @@
       <input type="submit" value="Certify File">
     </form>
 {% endblock column1 %}
+
+{% block help %}
+
+<p><b>Certify</b> lets you check a file as you develop,  before you're finished 
+and ready to submit.  Certify can check references or mappings.   Mappings are
+checked to ensure they exist and their syntax and basic structure is valid.   
+References are checked to ensure they exist and satisfy well defined constraints.
+
+<p><p><b>Uploaded File</b> lets you temporarily upload a prototype reference or 
+mapping to the CRDS server for certification.   This is the nominal use case.
+
+<p><p><b>Known File</b> lets you enter the name of a mapping or reference
+which has already been submitted to CRDS.   Hence you can re-certify a file(s)
+and to some degree check the integrity of CRDS.
+
+<p><p><b>Check References</b> essentially turns on "deep" certification in which
+the reference files implied by a mapping can themselves be certified.
+
+<p><p>NOTE: rather than uploading to the server, you can locally check the 
+basic syntax of a mapping file by simply running it with Python,  like this:
+<pre>% python hst_acs_biasfile_0001.rmap</pre>
+<p>If you have installed CRDS,  you can certify files locally like this:
+<pre>% python -m crds.certify ./hst_acs_biasfile_0001.rmap</pre> 
+<pre>% python -m crds.certify ./myfile.fits</pre>
+{% endblock help %}
