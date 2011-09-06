@@ -24,7 +24,8 @@ def submit_mappings(context,
                     deliverer_email="support@stsci.edu", 
                     modifier_name="Unknown", 
                     description="Initial mass database import",
-                    add_slow_fields=False):
+                    add_slow_fields=False,
+                    index=None):
     ctx = rmap.get_cached_mapping(context)
     for mapping in ctx.mapping_names():
         existing_location = rmap.locate_file(
@@ -42,14 +43,16 @@ def submit_mappings(context,
                 modifier_name=modifier_name, 
                 description=description,
                 creation_method="mass import",
-                add_slow_fields=add_slow_fields)
+                add_slow_fields=add_slow_fields,
+                index=index)
 
 def submit_references(context, 
                     deliverer_user,
                     deliverer_email="support@stsci.edu", 
                     modifier_name="Unknown", 
                     description="Initial mass database import",
-                    add_slow_fields=False):
+                    add_slow_fields=False,
+                    index=None):
     ctx = rmap.get_cached_mapping(context)
     for reference in ctx.reference_names():
         try:
@@ -72,15 +75,38 @@ def submit_references(context,
                     modifier_name=modifier_name, 
                     description=description,
                     creation_method="mass import",
-                    add_slow_fields=add_slow_fields)
+                    add_slow_fields=add_slow_fields,
+                    index=index)
             except Exception:
                 log.error("Submission FAILED for", repr(reference))
-    
+
+def create_index(observatory):    
+    """Create an empty file index for `observatory` if one does not already
+    exist.  File indices track the existence of files in a single blob for
+    the sake of speed.
+    """
+    try:
+        index = models.FileIndexBlob.load(observatory)
+    except LookupError:
+        index = models.FileIndexBlob()
+        index.save(observatory)
+    return index
+
+
 def main(args):
+    
+    ctx = rmap.get_cached_mapping(args[0])
+    index = create_index(ctx.observatory)
+
     submit_mappings(args[0], deliverer_user=args[1], deliverer_email=args[2],
-                    modifier_name=args[3], description=args[4], add_slow_fields=int(args[5]))
+                    modifier_name=args[3], description=args[4], add_slow_fields=int(args[5]),
+                    index = index)
+
     submit_references(args[0], deliverer_user=args[1], deliverer_email=args[2],
-                    modifier_name=args[3], description=args[4],add_slow_fields=int(args[5]))
+                    modifier_name=args[3], description=args[4],add_slow_fields=int(args[5]),
+                    index = index)
+    
+    index.save()    
     log.standard_status()
 
 if __name__ == "__main__":

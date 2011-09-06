@@ -295,7 +295,7 @@ class FileBlob(Blob):
     @classmethod
     def new(cls, observatory, upload_name, permanent_location, 
             deliverer_user, deliverer_email, modifier_name, description, 
-            add_slow_fields=True):
+            add_slow_fields=True, index=None):
         """Create a new FileBlob or subclass."""
         blob = cls()
         blob.observatory = observatory
@@ -315,6 +315,14 @@ class FileBlob(Blob):
         blob.serial = serial
         blob.blacklisted_by = []
         blob.save()
+        
+        if index is None:
+            index = FileIndexBlob.load(observatory)
+            index.add_file(blob.filename)
+            index.save()
+        else:  # caller takes responsibility for loading/saving
+            index.add_file(blob.filename)
+
         return blob
 
     @property
@@ -354,6 +362,24 @@ class MappingBlob(FileBlob):
     
 class ReferenceBlob(FileBlob):
     """Represents a reference data file managed by CRDS."""
+    
+class FileIndexBlob(Blob):
+    """Blob which records the names of all known CRDS files,  nominally
+    one instance per observatory.   This eliminates the need to load a
+    blob just to check that the file exists.   A file that is in CRDS is
+    assumed to be good unless it appears on a blacklist.
+    """
+    fields = dict(
+        known_files = BlobField(list, "original upload filename", []),
+        )
+
+    def add_file(self, filename):
+        if filename not in self.known_files:
+            self.known_files.append(filename)
+
+    def exists(self, filename):
+        return filename in self.known_files
+
 
 # ============================================================================
 
@@ -417,7 +443,7 @@ class AuditBlob(Blob):
 
 def add_crds_file(observatory, upload_name, permanent_location, 
             deliverer_user, deliverer_email, modifier_name, description, 
-            creation_method, audit_details="", add_slow_fields=True):
+            creation_method, audit_details="", add_slow_fields=True, index=None):
     "Make a database record for this file.  Track the action of creating it."""
     if rmap.is_mapping(permanent_location):
         blob_class = MappingBlob
@@ -427,7 +453,7 @@ def add_crds_file(observatory, upload_name, permanent_location,
     fileblob = blob_class.new(
         observatory, upload_name, permanent_location, 
         deliverer_user, deliverer_email, modifier_name, description,
-        add_slow_fields)
+        add_slow_fields, index=index)
     
     # Redundancy, database record of how file got here, important action
     AuditBlob.new(
