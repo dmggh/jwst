@@ -1,7 +1,10 @@
-#! /bin/bash
+#! /bin/tcsh
+
+source env.csh
 
 echo "installing..."
-./install &> /dev/null
+./install >& /dev/null
+
 cd sources
 python manage.py test $* --verbosity=2
 
