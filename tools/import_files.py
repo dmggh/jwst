@@ -92,8 +92,18 @@ def create_index(observatory):
         index.save(observatory)
     return index
 
+def hack_sqlite3_performance():
+    """These pragmas make a huge difference on Fedora 15.  Mac OS-X seems to
+    have good performance (perhaps these are already turned on) by default.
+    """
+    from django.db import connection
+    cursor = connection.cursor()
+    cursor.execute('PRAGMA temp_store = MEMORY;')
+    cursor.execute('PRAGMA synchronous=OFF')
 
 def main(args):
+    
+    hack_sqlite3_performance()
     
     ctx = rmap.get_cached_mapping(args[0])
     index = create_index(ctx.observatory)
