@@ -38,6 +38,8 @@ from django.contrib.auth.models import User
 class SimpleTest(TestCase):
     def setUp(self): 
         User.objects.create_user('homer', 'ho...@simpson.net', 'simpson')     
+        index = models.create_index("hst")
+        index.save()
 
     def tearDown(self):
         self.del_maps(["hst_0001.pmap",

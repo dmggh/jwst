@@ -397,13 +397,10 @@ def submit_file_post(request):
     upload_file(ufile, permanent_location)
     
     # Make a database record for this file.
-    if rmap.is_mapping(permanent_location):
-        blob_class = models.MappingBlob
-    else:
-        blob_class = models.ReferenceBlob
-    fileblob = blob_class.new(observatory, original_name, permanent_location,
-                          request.user, request.user.email, modifier_name, 
-                          description, "submit file")
+    models.add_crds_file(observatory, original_name, permanent_location, 
+            request.user, request.user.email, modifier_name, description, 
+            "submit file", audit_details="")
+
     return os.path.basename(permanent_location)
 
 
@@ -509,19 +506,21 @@ def create_crds_name(upload_location, upload_name):
     is the file's temporary upload path.  upload_name is how the file was named
     on the user's computer,  not the temporary file.
     """
-    return upload_name   # XXX Fake for now
+    return str(upload_name)   # XXX Fake for now
 
 def check_name_reservation(user, filename):
     """Raise an exception if `filename` has not been reserved or was reserved
     by someone other than `user`.
     """
-    try:
-        ablob = models.AuditBlob.filter(name=filename, action="reserve name")
-    except LookupError:
+    ablob = [x for x in models.AuditBlob.filter(
+                            filename=filename, action="reserve name")]
+    if len(ablob) != 1:
+        print "check reservation:", ablob
         raise CrdsError("Reserve an official name before submitting.")
-    if ablob.user != user:
-        raise CrdsError("User " + repr(user) + " already reserved name " + 
-                        repr(filename))
+    ablob = ablob[0]
+    if ablob.user != str(user):
+        raise CrdsError("User " + repr(str(ablob.user)) + " already reserved " + 
+                        repr(filename) + ". Try reserving a different name.")
 
 # ===========================================================================
 

@@ -464,5 +464,19 @@ def add_crds_file(observatory, upload_name, permanent_location,
     
     return fileblob
 
+def create_index(observatory):    
+    """Create an empty file index for `observatory` if one does not already
+    exist.  File indices track the existence of files in a single blob for
+    the sake of speed.
+    """
+    try:
+        index = FileIndexBlob.load(observatory)
+    except LookupError:
+        index = FileIndexBlob()
+        index.save(observatory)
+    return index
+
+
+
 
 
