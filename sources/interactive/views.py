@@ -378,6 +378,8 @@ def submit_file_post(request):
 
     # Determine the temporary and permanent file paths, keeping file temporary.
     upload_location, permanent_location = handle_crds_locations(ufile)
+    
+    check_name_reservation(request.user, os.path.basename(permanent_location))
 
     # Check the file,  leaving no server state if it fails.  Give error results.
     do_certify_file(original_name, upload_location)
@@ -508,6 +510,18 @@ def create_crds_name(upload_location, upload_name):
     on the user's computer,  not the temporary file.
     """
     return upload_name   # XXX Fake for now
+
+def check_name_reservation(user, filename):
+    """Raise an exception if `filename` has not been reserved or was reserved
+    by someone other than `user`.
+    """
+    try:
+        ablob = models.AuditBlob.filter(name=filename, action="reserve name")
+    except LookupError:
+        raise CrdsError("Reserve an official name before submitting.")
+    if ablob.user != user:
+        raise CrdsError("User " + repr(user) + " already reserved name " + 
+                        repr(filename))
 
 # ===========================================================================
 
