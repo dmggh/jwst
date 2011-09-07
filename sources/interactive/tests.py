@@ -45,6 +45,7 @@ class SimpleTest(TestCase):
         self.del_maps(["hst_0001.pmap",
                        "hst_cos_0001.imap",
                        "hst_acs_0001.imap",
+                       "hst_cos_deadtab_0001.rmap",
                        "hst_acs_biasfile_0001.rmap",
                        "hst_acs_dgeofile_0001.rmap",
                        ])
@@ -68,28 +69,32 @@ class SimpleTest(TestCase):
                 "homer", "homer@simpsons.com", "marge", "delivered by the man",
                 "mass import", add_slow_fields=False)
 
+    def assert_no_errors(self, response):
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("ERROR:", response.content)
+
     def test_index(self):
         response = self.client.get('/')
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
 
 #    def test_login(self):
 #        response = self.client.post("/login/", 
 #                {"username":"you", "password":"lemme guess"})
-#        self.assertEqual(response.status_code, 200)
+#self.assert_no_errors(response)
     
     def test_logout(self):
         response = self.client.get("/logout/") 
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
     
     def test_bestrefs_index(self):
         response = self.client.get("/bestrefs/")
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
     
     def test_bestrefs_input(self):
         response = self.client.post("/bestrefs/input/", {
             "instrument-context":"hst_acs.imap",
             })  
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
     
     def test_bestrefs_compute(self):
         response = self.client.post("/bestrefs/compute/", {
@@ -110,32 +115,40 @@ class SimpleTest(TestCase):
             "DATE-OBS" : "1-1-2011",
             "TIME-OBS" : "12:00:00",
         }) 
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
     
     def test_submit_get(self):
         self.authenticate()
         response = self.client.get("/submit/")
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
 
-    def test_submit_input(self):
+    def test_submit_post(self):
         self.authenticate()
+        response = self.client.post("/reserve_name/", {
+                "observatory" : "hst",
+                "filemode" : "file_known",
+                "file_known" : "hst_cos_deadtab.rmap"
+            })
+        self.assert_no_errors(response)
+        self.assertIn("hst_cos_deadtab_0001.rmap", response.content)
         response = self.client.post("/submit/", {
             "observatory" : "hst",
-            "filename" : "interactive/hst2.pmap",
+            "filename" : open("interactive/hst_cos_deadtab_0001.rmap"),
             "modifier_name" : "zaphod",
             "description" : "an identical pmap with a different name is still different"
             })
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
+        self.assertIn("hst_cos_deadtab_0001.rmap", response.content)
     
     def test_blacklist_get(self):
         self.authenticate()
         response = self.client.get("/blacklist/")
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
 
     def test_blacklist_post(self):
         # Make database entries for files we know will be blacklisted
         self.fake_database_files([
-                "hst.pmap", "hst_acs.imap", "hst_acs_biasfile.rmap"])
+                "hst.pmap", "hst_acs.imap", "hst_acs_biasfile.rmap"]) 
         self.authenticate()
         response = self.client.post("/blacklist/", {
             "observatory" : "hst",
@@ -143,21 +156,21 @@ class SimpleTest(TestCase):
             "badflag" : "bad",
             "why" : "just had a feeling.",
             })
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
         # print response.content
         self.assertTrue("hst.pmap" in response.content)
         self.assertTrue("hst_acs.imap" in response.content)
 
     def test_using_get(self):
         response = self.client.get("/using/")
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
     
     def test_using_post(self):
         response = self.client.post("/using/", {
                 "observatory" : "hst",
                 "referred_file": "v5419453j_bia.fits",
             })
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
         self.assertTrue("hst.pmap" in response.content)
         self.assertTrue("hst_acs.imap" in response.content)
         self.assertTrue("hst_acs_biasfile.rmap" in response.content)
@@ -165,7 +178,7 @@ class SimpleTest(TestCase):
     def test_certify_get(self):
         self.authenticate()
         response = self.client.get("/certify/")
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
 
     def test_certify_post_fits_known(self):
         self.authenticate()
@@ -173,9 +186,9 @@ class SimpleTest(TestCase):
             "filemode" : "file_known",
             "file_known" : "s7g1700gl_dead.fits",
         })
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.content.count("OK") == 2)
-        self.assertTrue("0 errors" in response.content)
+        self.assert_no_errors(response)
+        self.assertEqual(response.content.count("OK"), 2)
+        self.assertIn("0 errors", response.content)
 
     def test_certify_post_rmap_known(self):
         self.authenticate()
@@ -183,10 +196,10 @@ class SimpleTest(TestCase):
             "filemode" : "file_known",
             "file_known" : "hst_cos_deadtab.rmap",
         })
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
         self.assertTrue(response.content.count("0 errors") == 1)
-        self.assertTrue("Failed" not in response.content)
-        self.assertTrue(response.content.count("OK") == 2)
+        self.assertNotIn("Failed", response.content)
+        self.assertEqual(response.content.count("OK"), 2)
 
 #    def test_certify_post_rmap_uploaded(self):
 #        self.authenticate()
@@ -195,14 +208,14 @@ class SimpleTest(TestCase):
 #            "file_uploaded" : "interactive/hst_cos_deadmap.rmap",
 #        })
 #        print response.content
-#        self.assertEqual(response.status_code, 200)
+#        self.assert_no_errors(response)
 #        self.assertTrue(response.content.count("0 errors") == 1)
 #        self.assertTrue("Failed" not in response.content)
 #        self.assertTrue(response.content.count("OK") == 2)
 
     def test_difference_get(self):
         response = self.client.get("/difference/")
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
 
     def test_difference_post(self):
         response = self.client.post("/difference/", {
@@ -211,12 +224,12 @@ class SimpleTest(TestCase):
             "filemode2": "file_known2",
             "file_known2" : "hst_cos.imap"
         })
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
     
     def test_reserve_name_get(self):
         self.authenticate()
         response = self.client.get("/reserve_name/")
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
     
     def test_reserve_name_post_known(self):
         self.authenticate()
@@ -225,7 +238,7 @@ class SimpleTest(TestCase):
                 "filemode" : "file_known",
                 "file_known" : "hst.pmap"
             })
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
         self.assertTrue("hst_0001.pmap" in response.content)
 
     def test_reserve_name_post_parts(self):
@@ -238,14 +251,14 @@ class SimpleTest(TestCase):
                 "filemode" : "by_parts",
                 "file_known" : "hst.pmap"
             })
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
         self.assertTrue("hst_acs_biasfile_0001.rmap" in response.content)
 
 
     def test_recent_activity_get(self):
         self.authenticate()
         response = self.client.get("/recent_activity/")
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
 
     def test_recent_activity_post(self):
         self.authenticate()
@@ -258,17 +271,17 @@ class SimpleTest(TestCase):
                 "filename" : "*",
                 "user" : "*",
             })
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
 
     def test_common_updates(self):
         self.authenticate()
         response = self.client.get("/common_updates/")
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
     
     def test_create_contexts(self):
         self.authenticate()
         response = self.client.get("/create_contexts/")
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
 
     def test_create_contexts_post(self):
         self.authenticate()
@@ -279,7 +292,7 @@ class SimpleTest(TestCase):
                 "rmaps" : "hst_acs_biasfile.rmap, hst_cos_deadtab.rmap",
                 "description" : "updated ACS biasfile and COS deadtab rmaps"
             })
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
         self.assertTrue("hst_0001.pmap" in response.content)
         self.assertTrue("hst_acs_0001.imap" in response.content)
         self.assertTrue("hst_cos_0001.imap" in response.content)
@@ -287,7 +300,7 @@ class SimpleTest(TestCase):
     def test_replace_reference(self):
         self.authenticate()
         response = self.client.get("/replace_reference/")
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
 
     def test_replace_reference_post(self):
         self.authenticate()
@@ -302,14 +315,14 @@ class SimpleTest(TestCase):
                 "new_reference" : "t4o1454jj_bia.fits",
                 "description" : "test reference replacement",
             })
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
         self.assertTrue("Created" in response.content)
         self.assertTrue("hst_acs_biasfile_0001.rmap" in response.content)
 
     def test_add_useafter(self):
         self.authenticate()
         response = self.client.get("/add_useafter/")
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
 
     def test_add_useafter_post_insert(self):
         self.authenticate()
@@ -324,7 +337,7 @@ class SimpleTest(TestCase):
                 "useafter_file" : "o8u2214fj_dxy.fits",
                 "description" : "test add useafter",
             })
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
         self.assertTrue("Created" in response.content)
         self.assertTrue("Inserted useafter into existing match case." in response.content)
 
@@ -341,7 +354,7 @@ class SimpleTest(TestCase):
                 "useafter_file" : "o8u2214fj_dxy.fits",
                 "description" : "test add useafter",
             })
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
         self.assertTrue("Created" in response.content)
         self.assertTrue("Appended useafter to existing match case." in response.content)
 
@@ -358,25 +371,25 @@ class SimpleTest(TestCase):
                 "useafter_file" : "o8u2214fj_dxy.fits",
                 "description" : "test add useafter",
             })
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
         self.assertTrue("Created" in response.content)
         self.assertTrue("Added new match case for useafter clause." in response.content)
 
     def test_browse(self):
         response = self.client.get("/browse/")
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
 
     def test_browse_file(self):
         self.fake_database_files([
             "hst.pmap", 
             ])
         response = self.client.get("/browse/hst.pmap")
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
 
     def test_browse_db_get(self):
         self.authenticate()
         response = self.client.get("/browse_db/")
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
 
     def test_browse_db_post(self):
         self.authenticate()
@@ -389,7 +402,7 @@ class SimpleTest(TestCase):
                 "user": "*",
                 "status":"*",
             })
-        self.assertEqual(response.status_code, 200)
+        self.assert_no_errors(response)
         self.assertTrue('hst.pmap' in response.content)
         self.assertEqual(response.content.count("<tr>"), 4)
 

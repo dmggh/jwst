@@ -268,9 +268,11 @@ def error_trap(template):
             try:
                 return func(request, *args, **keys)
             except CrdsError, exc:
-                return render(request, template, {"error_message" : str(exc)})
+                msg = "ERROR: " + str(exc)
+                return render(request, template, {"error_message" : msg})
             except FieldError, exc:
-                return render(request, template, {"error_message" : str(exc)})
+                msg = "ERROR: " + str(exc)
+                return render(request, template, {"error_message" : msg})
         trap.func_name = func.func_name
         return trap
     return decorator
@@ -515,7 +517,6 @@ def check_name_reservation(user, filename):
     ablob = [x for x in models.AuditBlob.filter(
                             filename=filename, action="reserve name")]
     if len(ablob) != 1:
-        print "check reservation:", ablob
         raise CrdsError("Reserve an official name before submitting.")
     ablob = ablob[0]
     if ablob.user != str(user):
