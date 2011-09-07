@@ -1206,13 +1206,8 @@ def make_new_useafter_rmap(old_mapping, new_location, match_tuple,
                 if match_tuple == line_tuple:
                     state = "find useafter"
             elif line.strip() == "})":   # end of rmap
-                # Never found match,  so add that tuple as well as useafter.
-                new_mapping_file.write("%s : UseAfter({\n" % repr(match_tuple))
-                new_mapping_file.write("\t'%s' : '%s',\n" % \
-                    (useafter_date, useafter_file))
-                new_mapping_file.write("\t}),\n")
-                state = "copy remainder"  # should be done anyway.
-                modification = "Added new match case for useafter clause."
+                # Never found match,  report an error.
+                raise CrdsError("Couldn't find match tuple " + repr(match_tuple))
         elif state == "find useafter":
             if line.strip().endswith(".fits',"):
                 # Handle a standard useafter clause

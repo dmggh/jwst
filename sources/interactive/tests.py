@@ -61,6 +61,10 @@ class SimpleTest(TestCase):
                 os.remove(where)
             except OSError:
                 pass
+            try:
+                os.remove(map)
+            except OSError:
+                pass
 
     def fake_database_files(self, files, observatory="hst"):
         for filename in files:
@@ -72,6 +76,12 @@ class SimpleTest(TestCase):
     def assert_no_errors(self, response):
         self.assertEqual(response.status_code, 200)
         self.assertNotIn("ERROR:", response.content)
+        
+    def assert_has_error(self, response, msg=None):
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("ERROR:", response.content)
+        if msg is not None:
+            self.assertIn(msg, response.content)
 
     def test_index(self):
         response = self.client.get('/')
@@ -371,9 +381,7 @@ class SimpleTest(TestCase):
                 "useafter_file" : "o8u2214fj_dxy.fits",
                 "description" : "test add useafter",
             })
-        self.assert_no_errors(response)
-        self.assertTrue("Created" in response.content)
-        self.assertTrue("Added new match case for useafter clause." in response.content)
+        self.assert_has_error(response, "Couldn&#39;t find match tuple")
 
     def test_browse(self):
         response = self.client.get("/browse/")

@@ -80,18 +80,6 @@ def submit_references(context,
             except Exception:
                 log.error("Submission FAILED for", repr(reference))
 
-def create_index(observatory):    
-    """Create an empty file index for `observatory` if one does not already
-    exist.  File indices track the existence of files in a single blob for
-    the sake of speed.
-    """
-    try:
-        index = models.FileIndexBlob.load(observatory)
-    except LookupError:
-        index = models.FileIndexBlob()
-        index.save(observatory)
-    return index
-
 def hack_sqlite3_performance():
     """These pragmas make a huge difference on Fedora 15.  Mac OS-X seems to
     have good performance (perhaps these are already turned on) by default.
@@ -106,7 +94,7 @@ def main(args):
     hack_sqlite3_performance()
     
     ctx = rmap.get_cached_mapping(args[0])
-    index = create_index(ctx.observatory)
+    index = models.create_index(ctx.observatory)
 
     submit_mappings(args[0], deliverer_user=args[1], deliverer_email=args[2],
                     modifier_name=args[3], description=args[4], add_slow_fields=int(args[5]),
