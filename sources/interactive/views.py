@@ -616,10 +616,10 @@ def certify_post(request):
         [ x.strip() for x in certify_lines] else "Failed."    
     
     if not rmap.is_mapping(original_name):
-        fitscheck_lines = pysh.lines(
-            "fitscheck --ignore-missing ${certified_file}")
-        fitscheck_status = "OK" if "0 errors" in \
-            [x.strip() for x in fitscheck_lines] else "Failed."
+        fitscheck_lines = [x.strip() for x in pysh.lines(
+            "fitscheck --ignore-missing ${certified_file}")]
+        fitscheck_status = "OK" if (not fitscheck_lines) or \
+                ("0 errors" in fitscheck_lines) else "Failed."
     else:
         fitscheck_status = ""
         fitscheck_lines = []
