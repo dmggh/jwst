@@ -12,8 +12,13 @@
           </td>
           <td width="25%" class="label">Known File:</td>
           <td width="25%">
-            <input type='text' name='file_known' size="32">
+            <input type='text' name='file_known' size="25">
           </td>
+        </tr>
+        <tr>
+          <td/>
+          <td/>
+          <td class="hint">.e.g. hst_acs_biasfile_0001.rmap</td>
         </tr>
         <tr>
           <td width="5%">
@@ -79,14 +84,15 @@
 {% endblock column1 %}
 
 {% block help %}
-    <p><b>Reserve Filename helps keep track of reference or mapping files
-    which are under development but not yet submitted to CRDS.</b>
+    <p><b>Reserve Filename let's you reserve the version name of a reference or 
+    mapping file while you develop it.  Once reserved,  only you can submit a 
+    file with that name.</b> 
     
-    <p><p><b>Known File</b> Lets you use a known CRDS reference or mapping file as
-    a template for the new filename.   The next name in the series will be
-    generated and returned,  NOT the name you enter here.
+    <p><p><b>Known File</b> Lets you use the name of an existing file as a
+    template.   The next name in the official series will be generated and 
+    returned.
     
-    <p><p><b>By Parts</b> Lets you specify key pieces of a filename to define 
-    the series from which the reserved filename will be generated and returned.
+    <p><p><b>By Parts</b> Lets you specify parameters to define the series from
+    which the reserved filename will be generated and returned.
     
 {% endblock help %}

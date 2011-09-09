@@ -925,7 +925,7 @@ def get_new_serial(observatory, instrument, filekind, extension):
 # ===========================================================================
 
 @error_trap("recent_activity_input.html")
-@login_required
+# @login_required
 def recent_activity(request):
     """recent_activity displays records from the AuditBlob database."""
     if request.method == "GET":
@@ -970,7 +970,7 @@ def recent_activity_post(request):
 # ===========================================================================
 
 @error_trap("browse_db_input.html")
-@login_required
+# @login_required
 def browse_db(request):
     """browse_db displays records from the FileBlob (subclasses) database."""
     if request.method == "GET":
@@ -996,13 +996,13 @@ def browse_db_post(request):
         request, "extension", models.EXTENSIONS+[r"\*"])
     filename = validate_post(
         request, "filename", r"[A-Za-z0-9_.\*]+")
-    user = validate_post(
-        request, "user", r"[A-Za-z0-9_.\*]+")
+    deliverer_user = validate_post(
+        request, "deliverer_user", r"[A-Za-z0-9_.\*]+")
     status = validate_post(
         request, "status", r"[A-Za-z0-9_.\*]+")
     filters = {}
     for var in ["observatory", "instrument", "filekind", "extension",
-                "filename", "user", "status"]:
+                "filename", "deliverer_user", "status"]:
         value = locals()[var].strip()
         if value not in ["*",""]:
             filters[var] = value
