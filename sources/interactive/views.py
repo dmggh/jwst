@@ -517,6 +517,10 @@ def create_crds_name(upload_location, upload_name):
     """
     return str(upload_name)   # XXX Fake for now
 
+# XXX Allow arbitrary name as longs as:
+#   a) the name is not reserved.
+#   b) the name does not already exist.
+
 def check_name_reservation(user, filename):
     """Raise an exception if `filename` has not been reserved or was reserved
     by someone other than `user`.
@@ -866,6 +870,9 @@ def reserve_name(request):
                        "extensions":models.EXTENSIONS})
     else:
         return reserve_name_post(request)
+
+# XXX if unreserved names are allowed:
+#  keep generating names until a non-existent name is found.
 
 def reserve_name_post(request):
     """View fragment handling reserve_name POST."""
