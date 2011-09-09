@@ -9,7 +9,15 @@ from django import template
 from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
 
+from crds import (rmap, utils)
+from crds.server import (config)
+
 register = template.Library()
+
+# ===========================================================================
+
+# Inline styles might be better than classes.   At least these filters isolate
+# that...
 
 @register.filter(name='grey')
 @stringfilter
@@ -35,20 +43,62 @@ def red(value):
     return mark_safe("<span class='red'>" + value + "</span>")
 red.is_safe = True
 
-@register.filter(name="minutes")
+# ===========================================================================
+
+@register.filter
 @stringfilter
 def minutes(value):  # handle str(datetime.datetime.now())
+    """Return date & time formatted to minutes."""
     parts = value.split(":")
     return ":".join(parts[:-1])
 
-@register.filter(name="seconds")
+@register.filter
 @stringfilter
-def minutes(value):  # handle str(datetime.datetime.now())
+def seconds(value):  # handle str(datetime.datetime.now())
+    """Return date & time formatted to seconds."""
     parts = value.split(".")
     return ".".join(parts[:-1])
 
-@register.filter(name="browse")
+# ===========================================================================
+
+@register.filter
 @stringfilter
 def browse(name):  # handle str(datetime.datetime.now())
     return mark_safe("<a href='/browse/%s'>%s</a>" % (name, name))
 browse.is_safe = True
+
+# ===========================================================================
+
+# Because of multiple projects this is uncomfortably complicated.  Sorry.
+#  1. Both client and server observatory "personality" live in a single package.
+#  2. The core library knows how to transform observatory -> personality.
+#  3. This code knows how to convert a filter expression to an anchor.
+
+def get_url(observatory, filename):
+    locator = utils.get_locator_module(observatory)
+    if rmap.is_mapping(filename):
+        url = locator.mapping_url(config.CRDS_MAPPING_URL, filename)
+    else:
+        url = locator.reference_url(config.CRDS_REFERENCE_URL, filename)
+    return url
+
+@register.filter
+def download_url(filename, observatory):
+    """Return the URL for downloading `file` of `observatory`,  optionally
+    using `text` as the visible portion of the link.
+    
+        {{file|download_url:observatory}}
+    
+        {{"hst.pmap"|download_url:"hst"}} --> 
+            http://localhost:8000/static/mappings/hst/hst.pmap
+    """
+    parts = observatory.split()
+    observatory = parts[0]
+    text = " ".join(parts[1:])
+    if not text:
+        text = filename
+    url = get_url(observatory, filename)
+    return url
+#     return mark_safe(url)
+# download.is_safe = True
+

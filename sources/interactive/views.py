@@ -174,18 +174,27 @@ def is_datetime(datetime_str):
 # ===========================================================================
 
 def render(request, template, dict_=None):
-    """Top level index page."""
+    """Render a template,  making same-named inputs from request available
+    for echoing.
+    """
     rdict = {}
+
+    # echo escaped inputs.
     for key, value in request.GET.items():
         rdict[key] = safestring.mark_for_escaping(value)
     for key, value in request.POST.items():
         rdict[key] = safestring.mark_for_escaping(value)
     for key, value in request.FILES.items():
         rdict[key] = safestring.mark_for_escaping(value)
+
+    # include view outputs
     if dict_ is not None:
         for key, value in dict_.items():
             rdict[key] = value
+            
+    # This is only for the purpose of showing/hiding logout.
     rdict["is_authenticated"] = request.user.is_authenticated()
+
     return render_to_response(template, RequestContext(request, rdict))
 
 # ===========================================================================
@@ -362,8 +371,6 @@ def submit_file(request):
     else: # GET
         return render(request, 'submit_input.html')
 
-
-# XXX Add reserved name checking and join to authorized user
 
 def submit_file_post(request):
     """Handle the POST case of submit_file,   returning dict of template vars.
@@ -1004,6 +1011,7 @@ def browse_db_post(request):
     return render(request, "browse_db_results.html", {
                 "filters": filters,
                 "filtered_db" : filtered_db,
+                "observatory" : observatory,
             })
 
 # ===========================================================================

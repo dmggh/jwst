@@ -4,7 +4,11 @@
 
 {% block contents %}
 
-    <h2>Browse {{browsed_file|grey}}</h2>
+    <h2>Browse 
+        <a href='{{browsed_file|download_url:"hst"}}'>
+            {{browsed_file|grey}}
+        </a>
+    </h2> 
     {% if status == "OK" %}
     <h3 class="success">
     {% else %}
@@ -83,7 +87,6 @@
     <table border="1">
         <tr>
             <th width="15%" align="center">Date</th>
-            <th width="15%" align="center">Filename</th>
             <th width="10%" align="center">Action</th>
             <th width="10%" align="center">User</th>
             <th width="30%" align="center">Why</th>
@@ -92,7 +95,6 @@
         {% for action in related_actions %}
         <tr>
             <td align="center">{{action.date|minutes}}</td>
-            <td align="center">{{action.filename|browse}}</a></td>
             <td align="center">{{action.action}}</td>
             <td align="center">{{action.user}}</td>
             <td align="center">{{action.why}}</td>
@@ -102,7 +104,7 @@
     </table>
 
     <h3>File Contents</h3>
-    <div style="font-family: monospace; font-size:1.0em;">
+    <div style="font-family: monospace; font-size:1.0em; background-color:lightyellow;">
     {% for line in file_contents %}
     {{line|safe}}
     {% endfor %}
