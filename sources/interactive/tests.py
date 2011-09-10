@@ -407,7 +407,7 @@ class SimpleTest(TestCase):
                 "filekind" : "*",
                 "extension": "*",
                 "filename": "hst.pmap",
-                "user": "*",
+                "deliverer_user": "*",
                 "status":"*",
             })
         self.assert_no_errors(response)

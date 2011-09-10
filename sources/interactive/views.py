@@ -133,6 +133,18 @@ def is_reference_file(filename):
             ".  Must name a known CRDS reference file."
     return filename
 
+def is_known_file(filename):
+    """Verify that `filename` identifies a file already known to CRDS."""
+    try:
+        if rmap.is_mapping(filename):
+            result = is_mapping(filename)
+        else:
+            result = is_reference(filename)
+    except LookupError:
+        raise AssertionError("no database for " + repr(filename) + 
+                             ".  Must name a known CRDS reference or mapping.")
+    return result
+    
 def is_list_of_rmaps(text):
     """Assert that `text` contains a list of comma for newline separated rmap
     names.
@@ -365,12 +377,10 @@ def bestrefs_compute(request):
 @login_required
 def submit_file(request):
     """Handle file submission."""
-    if request.method == 'POST':
-        baseperm = submit_file_post(request)
-        return render(request, 'submit_results.html', {"baseperm":baseperm})
-    else: # GET
+    if request.method == "GET":
         return render(request, 'submit_input.html')
-
+    else:
+        return submit_file_post(request)
 
 def submit_file_post(request):
     """Handle the POST case of submit_file,   returning dict of template vars.
@@ -410,7 +420,9 @@ def submit_file_post(request):
             request.user, request.user.email, modifier_name, description, 
             "submit file", audit_details="")
 
-    return os.path.basename(permanent_location)
+    return render(request, 'submit_results.html', {
+                "baseperm":os.path.basename(permanent_location),
+                })
 
 
 def do_certify_file(basename, certifypath, check_references=True):
@@ -871,9 +883,6 @@ def reserve_name(request):
     else:
         return reserve_name_post(request)
 
-# XXX if unreserved names are allowed:
-#  keep generating names until a non-existent name is found.
-
 def reserve_name_post(request):
     """View fragment handling reserve_name POST."""
     observatory = check_value(request.POST["observatory"], 
@@ -909,11 +918,8 @@ def reserve_name_post(request):
             assert filekind != "", "Filekind required for .rmap, .fits"
     except AssertionError, exc:
         raise CrdsError(str(exc))
-    
-    num = get_new_serial(observatory, instrument, filekind, extension)
-    
-    parts = [x for x in [observatory, instrument, filekind, "%04d" % num] if x]
-    reserved_name = "_".join(parts) + extension
+
+    reserved_name = get_new_name(observatory, instrument, filekind, extension)
     
     models.AuditBlob.new(
         request.user, "reserve name", reserved_name, "none", "none",
@@ -924,10 +930,36 @@ def reserve_name_post(request):
     
 def get_new_serial(observatory, instrument, filekind, extension):
     """Return the next reference or mapping serial number associated with the
-    given parameters and update the database.
+    given parameters and update the database.   There's no guarantee the
+    number isn't already taken by an ad hoc filename.
     """
     return models.CounterBlob.next(observatory, instrument, filekind, extension)
+
+def _get_new_name(observatory, instrument, filekind, extension):
+    """Generate a candidate new name,  possibly with an existing serial number.
+    """
+    num = get_new_serial(observatory, instrument, filekind, extension)
+    parts = [x for x in [observatory, instrument, filekind, "%04d" % num] if x]
+    return "_".join(parts) + extension
+
+def get_new_name(observatory, instrument, filekind, extension):
+    """get_new_name() iterates over candidate serial numbers until it finds
+    one which does not already exist and composes a new filename based on its
+    parameters.   For a rigid naming scheme,  the first try should work.   For 
+    more free-form names,   multiple tries may be required to get an unused 
+    serial number.
     
+    get_new_name() works by guaranteeing that:
+    1) Any generated name is not already "reserved" using the CounterBlob.
+    2) No generated name has already been submitted by using FileBlobs.
+    """
+    known_files = models.FileIndexBlob.load(observatory).known_files
+
+    name = _get_new_name(observatory, instrument, filekind, extension)
+    while name in known_files:
+        name = _get_new_name(observatory, instrument, filekind, extension)
+    
+    return name
 
 # ===========================================================================
 
@@ -1090,15 +1122,7 @@ def new_name(old_map):
     instrument, filekind, _serial = utils.get_file_properties(
         observatory, old_map)
     extension = os.path.splitext(old_map)[-1]
-    newserial = get_new_serial(observatory, instrument, filekind, extension)
-    if re.search(r"_\d+\.[pir]map", old_map):
-        new_map = re.sub(r"_\d+(\.[pir]map)", r"_%04d\1" % newserial, old_map)
-    elif re.match(r"\w+\.[pir]map", old_map):   
-        # if no serial,  start off existing sequence as 0
-        parts = os.path.splitext(old_map)
-        new_map = parts[0] + "_%04d" % newserial + parts[1]
-    else:
-        raise ValueError("Unrecognized mapping filename " + repr(old_map))
+    new_map = get_new_name(observatory, instrument, filekind, extension)
     assert not os.path.exists(rmap.locate_mapping(new_map)), \
         "Program error.  New mapping " + repr(new_map) + " already exists."
     return new_map
