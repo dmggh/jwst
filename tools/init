@@ -10,5 +10,5 @@ cd `dirname $0`
 
 source ../env.csh
 
-python import_files.py hst.pmap jmiller jmiller@stsci.edu unknown "Initial import" 0
+python import_files.py hst.pmap jmiller jmiller@stsci.edu "Initial import" 0
 
