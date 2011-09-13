@@ -138,7 +138,7 @@ class SimpleTest(TestCase):
         response = self.client.post("/reserve_name/", {
                 "observatory" : "hst",
                 "filemode" : "file_known",
-                "file_known" : "hst_cos_deadtab.rmap"
+                "file_known" : "hst_cos_deadtab_0001.rmap"
             })
         self.assert_no_errors(response)
         self.assertIn("hst_cos_deadtab_0001.rmap", response.content)
@@ -249,7 +249,7 @@ class SimpleTest(TestCase):
         response = self.client.post("/reserve_name/", {
                 "observatory" : "hst",
                 "filemode" : "file_known",
-                "file_known" : "hst.pmap"
+                "file_known" : "hst_0001.pmap"
             })
         self.assert_no_errors(response)
         self.assertTrue("hst_0001.pmap" in response.content)

@@ -453,14 +453,14 @@ class AuditBlob(Blob):
         observatory = BlobField(
             OBSERVATORIES, "associated observatory", "", nonblank=False),
         instrument = BlobField(
-            INSTRUMENTS, "associated instrument", "", nonblank=False),
+            INSTRUMENTS + ["unknown"], "associated instrument", "", nonblank=False),
         filekind = BlobField(
-            FILEKINDS, "associated filekind", "", nonblank=False),
+            FILEKINDS + ["unknown"], "associated filekind", "", nonblank=False),
     )
     
     @classmethod
     def new(cls, user, action, affected_file, why, details, 
-            observatory, instrument, filekind, date=None):
+            observatory, instrument="unknown", filekind="unknown", date=None):
         """Save a record of an action in the database."""
         blob = cls()
         blob.user = user

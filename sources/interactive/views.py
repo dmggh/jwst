@@ -89,6 +89,8 @@ def validate_get(request, variable, pattern):
 
 # "pattern" functions for validate_post/get
 
+FILE_RE = r"\w+(\.fits|\.pmap|\.imap|\.rmap)"
+
 def is_pipeline_mapping(filename):
     """Verify that `filename` names a known CRDS pipeline mapping.
     Otherwise raise AssertionError.
@@ -289,6 +291,9 @@ def error_trap(template):
             """trap() is bound to the func parameter of decorator()."""
             try:
                 return func(request, *args, **keys)
+            except AssertionError, exc:
+                msg = "ERROR: " + str(exc)
+                return render(request, template, {"error_message" : msg})
             except CrdsError, exc:
                 msg = "ERROR: " + str(exc)
                 return render(request, template, {"error_message" : msg})
@@ -902,45 +907,40 @@ def reserve_name(request):
 
 def reserve_name_post(request):
     """View fragment handling reserve_name POST."""
-    observatory = check_value(request.POST["observatory"], 
-            "hst|jwst", "Invalid value for observatory.")
-    mode = check_value(
-        request.POST["filemode"], "file_known|by_parts", "Invalid input mode")
-    if mode == "file_known":
-        known_file = check_value(request.POST["file_known"],
-                                 "[A-Za-z0-9_.]+", "Invalid known filename.")
-        instrument, filekind, serial = utils.get_file_properties(
-                observatory, rmap.locate_file(observatory, known_file))
-        extension = os.path.splitext(known_file)[-1]
-    else:
-        instrument = request.POST["instrument"]
-        filekind = request.POST["filekind"]
-        extension = request.POST["extension"]
-    
-    instrument = check_value(
-            instrument, "|".join(models.INSTRUMENTS+[""]), "Invalid instrument")
-    filekind = check_value(
-            filekind, "|".join(models.FILEKINDS+[""]), "Invalid file kind")
-    extension = check_value(
-            extension, "|".join(models.EXTENSIONS), "Invalid file extension")
-    
-    try:
-        if extension == ".pmap":
-            assert instrument == "", "Instrument must be blank for .pmap"
-            assert filekind == "", "File kind must be blank for .pmap"
-        elif extension == ".imap":
-            assert filekind == "", "File kind must be blank for .imap"
-        elif extension in [".rmap",".fits"]:
-            assert instrument != "", "Instrument required for .rmap, .fits"
-            assert filekind != "", "Filekind required for .rmap, .fits"
-    except AssertionError, exc:
-        raise CrdsError(str(exc))
+    observatory = validate_post(request, "observatory", models.OBSERVATORIES) 
+    mode = validate_post(request, "filemode", ["file_known","by_parts"])
 
-    reserved_name = get_new_name(observatory, instrument, filekind, extension)
-    
-    models.AuditBlob.new(
-        request.user, "reserve name", reserved_name, "none", "none",
-        observatory=observatory, instrument=instrument, filekind=filekind)
+    if mode == "file_known":  # Use the user's name exactly if unknown.
+        reserved_name = validate_post(request, "file_known", FILE_RE)
+        known_files = models.FileIndexBlob.load(observatory).known_files
+        audits = [x for x in models.AuditBlob.filter(filename=reserved_name)]
+        assert (reserved_name not in known_files) and len(audits) == 0, \
+            "Name " + repr(reserved_name) + " is already in CRDS."
+        models.AuditBlob.new(
+            request.user, "reserve name", reserved_name, "none", "none",
+            observatory=observatory)
+
+    else:  # Make up the next name based on properties.
+        instrument = validate_post(request, "instrument", models.INSTRUMENTS+[""])
+        filekind = validate_post(request, "filekind", models.FILEKINDS+[""])
+        extension = validate_post(request, "extension", models.EXTENSIONS)
+        try:
+            if extension == ".pmap":
+                assert instrument == "", "Instrument must be blank for .pmap"
+                assert filekind == "", "File kind must be blank for .pmap"
+            elif extension == ".imap":
+                assert filekind == "", "File kind must be blank for .imap"
+            elif extension in [".rmap",".fits"]:
+                assert instrument != "", "Instrument required for .rmap, .fits"
+                assert filekind != "", "Filekind required for .rmap, .fits"
+        except AssertionError, exc:
+            raise CrdsError(str(exc))
+        reserved_name = get_new_name(
+            observatory, instrument, filekind, extension)
+
+        models.AuditBlob.new(
+            request.user, "reserve name", reserved_name, "none", "none",
+            observatory=observatory, instrument=instrument, filekind=filekind)
 
     return render(request, "reserve_name_results.html",
                   {"reserved_name" : reserved_name})

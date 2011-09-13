@@ -42,25 +42,20 @@
 
 {% block help %}
 
-<p><b>Certify</b> lets you check a file as you develop,  before you're finished 
-and ready to submit.  Certify can check references or mappings.   Mappings are
-checked to ensure they exist and their syntax and basic structure is valid.   
-References are checked to ensure they exist and satisfy well defined constraints.
+<p><b>Certify</b> Certify runs the same checks required for submission and
+presents any errors as well as provenance information for review.
 
 <p><p><b>Uploaded File</b> lets you temporarily upload a prototype reference or 
 mapping to the CRDS server for certification.   This is the nominal use case.
 
-<p><p><b>Known File</b> lets you enter the name of a mapping or reference
-which has already been submitted to CRDS.   Hence you can re-certify a file(s)
-and to some degree check the integrity of CRDS.
+<p><p><b>Known File</b> lets you re-certify a mapping or reference
+which has already been submitted to CRDS.
 
 <p><p><b>Check References</b> essentially turns on "deep" certification in which
 the reference files implied by a mapping can themselves be certified.
 
-<p><p>NOTE: rather than uploading to the server, you can locally check the 
-basic syntax of a mapping file by simply running it with Python,  like this:
-<pre>% python hst_acs_biasfile_0001.rmap</pre>
-<p>If you have installed CRDS,  you can certify files locally like this:
+<p><p>NOTE: If you have installed CRDS,  you can certify files locally like 
+this:
 <pre>% python -m crds.certify ./hst_acs_biasfile_0001.rmap</pre> 
-<pre>% python -m crds.certify ./myfile.fits</pre>
+<pre>% python -m crds.certify --dump-provenance ./myfile.fits</pre>
 {% endblock help %}
