@@ -20,9 +20,8 @@ def create_delivery_blob(observatory, upload_name, permanent_location,
 """
 
 def submit_mappings(context, 
-                    deliverer_user,
+                    deliverer,
                     deliverer_email="support@stsci.edu", 
-                    modifier_name="Unknown", 
                     description="Initial mass database import",
                     add_slow_fields=False,
                     index=None):
@@ -38,18 +37,16 @@ def submit_mappings(context,
                 observatory=ctx.observatory, 
                 upload_name=mapping, 
                 permanent_location=existing_location, 
-                deliverer_user=deliverer_user, 
+                deliverer=deliverer, 
                 deliverer_email=deliverer_email, 
-                modifier_name=modifier_name, 
                 description=description,
                 creation_method="mass import",
                 add_slow_fields=add_slow_fields,
                 index=index)
 
 def submit_references(context, 
-                    deliverer_user,
+                    deliverer,
                     deliverer_email="support@stsci.edu", 
-                    modifier_name="Unknown", 
                     description="Initial mass database import",
                     add_slow_fields=False,
                     index=None):
@@ -70,9 +67,8 @@ def submit_references(context,
                     observatory=ctx.observatory, 
                     upload_name=reference, 
                     permanent_location=existing_location, 
-                    deliverer_user=deliverer_user, 
+                    deliverer=deliverer, 
                     deliverer_email=deliverer_email, 
-                    modifier_name=modifier_name, 
                     description=description,
                     creation_method="mass import",
                     add_slow_fields=add_slow_fields,
@@ -96,12 +92,12 @@ def main(args):
     ctx = rmap.get_cached_mapping(args[0])
     index = models.create_index(ctx.observatory)
 
-    submit_mappings(args[0], deliverer_user=args[1], deliverer_email=args[2],
-                    modifier_name=args[3], description=args[4], add_slow_fields=int(args[5]),
+    submit_mappings(args[0], deliverer=args[1], deliverer_email=args[2],
+                    description=args[3], add_slow_fields=int(args[4]),
                     index = index)
 
-    submit_references(args[0], deliverer_user=args[1], deliverer_email=args[2],
-                    modifier_name=args[3], description=args[4],add_slow_fields=int(args[5]),
+    submit_references(args[0], deliverer=args[1], deliverer_email=args[2],
+                    description=args[3],add_slow_fields=int(args[4]),
                     index = index)
     
     index.save()    

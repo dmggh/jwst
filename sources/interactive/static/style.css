@@ -223,9 +223,9 @@ input {
 .ui-widget-content { color: black; }
 
 .program {
-    font-size: 12pt;
-    color: black;
-    background-color: white;
+    font-family: monospace; 
+    font-size:1.0em; 
+    background-color:lightyellow;
 }
 
 select, textarea {

@@ -70,8 +70,9 @@ class SimpleTest(TestCase):
         for filename in files:
             models.add_crds_file(
                 observatory, filename, rmap.locate_file(observatory, filename), 
-                "homer", "homer@simpsons.com", "marge", "delivered by the man",
-                "mass import", add_slow_fields=False)
+                deliverer="homer", deliverer_email="homer@simpsons.com", 
+                description="delivered by the man",
+                creation_method="mass import", add_slow_fields=False)
 
     def assert_no_errors(self, response):
         self.assertEqual(response.status_code, 200)
@@ -143,9 +144,11 @@ class SimpleTest(TestCase):
         self.assertIn("hst_cos_deadtab_0001.rmap", response.content)
         response = self.client.post("/submit/", {
             "observatory" : "hst",
-            "filename" : open("interactive/hst_cos_deadtab_0001.rmap"),
-            "modifier_name" : "zaphod",
-            "description" : "an identical pmap with a different name is still different"
+            "comparison_file" : "",
+            "submitted_file" : open("interactive/hst_cos_deadtab_0001.rmap"),
+            "description" : "an identical pmap with a different name is still different",
+            "change_level" : "SEVERE",
+            "opus_flag" : "Y",
             })
         self.assert_no_errors(response)
         self.assertIn("hst_cos_deadtab_0001.rmap", response.content)
@@ -197,7 +200,7 @@ class SimpleTest(TestCase):
             "file_known" : "s7g1700gl_dead.fits",
         })
         self.assert_no_errors(response)
-        self.assertEqual(response.content.count("OK"), 2)
+        self.assertEqual(response.content.count("OK"), 3)
         self.assertIn("0 errors", response.content)
 
     def test_certify_post_rmap_known(self):

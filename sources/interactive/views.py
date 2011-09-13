@@ -120,7 +120,7 @@ def is_mapping(filename, extension=r"\.[pir]map"):
             ".  Must name a known CRDS mapping."
     return filename
 
-def is_reference_file(filename):
+def is_reference(filename):
     """Verify that `filename` names a known CRDS reference file.
     Otherwise raise AssertionError.
     """
@@ -182,6 +182,7 @@ def is_datetime(datetime_str):
     except ValueError, exc:
         raise CrdsError(str(exc))
     return datetime_str
+
 
 # ===========================================================================
 
@@ -386,14 +387,27 @@ def submit_file_post(request):
     """Handle the POST case of submit_file,   returning dict of template vars.
     """
     observatory = validate_post(
-        request, "observatory", "|".join(models.OBSERVATORIES))    
-    modifier_name = validate_post(request, "modifier_name", "[A-Za-z0-9 _.@]+")
-    description = validate_post(request, "description", "[^<>]+")
+        request, "observatory", "|".join(models.OBSERVATORIES)) 
 
     # Get the UploadedFile object
-    ufile = get_uploaded_file(request, "filename")
-
+    ufile = get_uploaded_file(request, "submitted_file")    
     original_name = ufile.name
+
+    description = validate_post(request, "description", "[^<>]+")
+
+    if request.POST["comparison_file"].strip():
+        comparison_file = validate_post(
+            request, "comparison_file", is_known_file)
+    else:
+        comparison_file = ""
+
+    if not rmap.is_mapping(original_name):
+        opus_flag = validate_post(request, "opus_flag", "Y|N")
+        change_level = validate_post(
+            request, "change_level", models.CHANGE_LEVELS)
+    else:
+        opus_flag = "Y"
+        change_level = "SEVERE"    
 
     # Determine the temporary and permanent file paths, keeping file temporary.
     upload_location, permanent_location = handle_crds_locations(ufile)
@@ -411,19 +425,21 @@ def submit_file_post(request):
     if exceptions:
         raise CrdsError("Exceptions during blacklisting check: " + 
                         repr(exceptions))
-
+    
     # Copy the temporary file to its permanent location.
     upload_file(ufile, permanent_location)
     
     # Make a database record for this file.
-    models.add_crds_file(observatory, original_name, permanent_location, 
-            request.user, request.user.email, modifier_name, description, 
-            "submit file", audit_details="")
+    blob = models.add_crds_file(observatory, original_name, permanent_location, 
+            request.user, request.user.email, description, 
+            creation_method="submit file", audit_details="", 
+            change_level=change_level, opus_flag=opus_flag,)
 
+    # blob.mode_values = utils.get_critical_header_parameters(permanent_location)
+    
     return render(request, 'submit_results.html', {
                 "baseperm":os.path.basename(permanent_location),
                 })
-
 
 def do_certify_file(basename, certifypath, check_references=True):
     """Run un-trapped components of crds.certify and re-raise any exception
@@ -634,7 +650,8 @@ def certify_post(request):
     mapping = "--mapping" if rmap.is_mapping(original_name) else ""
 
     certify_lines = pysh.lines(
-        "python -m crds.certify ${certified_file} ${shallow} ${mapping}")
+        "python -m crds.certify ${certified_file} ${shallow} ${mapping} " \
+        "--dump-provenance")
     certify_status = "OK" if "0 errors" in \
         [ x.strip() for x in certify_lines] else "Failed."    
     
@@ -1095,7 +1112,7 @@ def create_contexts_post(request):
     for ctx in new_contexts:
         models.add_crds_file(
             observatory, ctx, rmap.locate_mapping(ctx),  request.user, 
-            request.user.email, "crds", description, "new context",
+            request.user.email, description, "new context",
             repr(pipeline) + " : " + ",".join([repr(x) for x in updated_rmaps]))
     
     # ", ".join(new_contexts[1:])
@@ -1144,8 +1161,8 @@ def replace_reference_post(request):
     """View fragment handling replace_reference POST case."""
     old_mapping = validate_post(
         request, "old_mapping", is_reference_mapping)
-    old_file = validate_post(request, "old_reference", is_reference_file)
-    new_file = validate_post(request, "new_reference", is_reference_file)
+    old_file = validate_post(request, "old_reference", is_reference)
+    new_file = validate_post(request, "new_reference", is_reference)
     description = validate_post(request, "description", "[^<>]+")
     
     assert old_file in open(rmap.locate_mapping(old_mapping)).read(), \
@@ -1158,7 +1175,7 @@ def replace_reference_post(request):
 
     models.add_crds_file(
         observatory, new_mapping, new_location, 
-        request.user, request.user.email, "crds", description, 
+        request.user, request.user.email, description, 
         "replace reference", 
         repr(old_mapping) + " : " + repr(old_file) + " --> " + repr(new_file))
 
@@ -1205,7 +1222,7 @@ def add_useafter_post(request):
     old_mapping = validate_post(request, "old_mapping", is_reference_mapping)
     match_tuple = validate_post(request, "match_tuple", is_match_tuple)
     useafter_date = validate_post(request, "useafter_date", is_datetime)
-    useafter_file = validate_post(request, "useafter_file", is_reference_file)
+    useafter_file = validate_post(request, "useafter_file", is_reference)
     description = validate_post(request, "description", "[^<>]+")
 
     new_mapping = new_name(old_mapping)
@@ -1217,8 +1234,9 @@ def add_useafter_post(request):
     observatory = rmap.get_cached_mapping(old_mapping).observatory
     models.add_crds_file(
         observatory, new_mapping, new_location, 
-        request.user, request.user.email, "crds", description, 
-        "add useafter", repr(old_mapping) + " : " + repr(match_tuple) + " : " + 
+        request.user, request.user.email, description, 
+        creation_method="add useafter", 
+        audit_details=repr(old_mapping) + " : " + repr(match_tuple) + " : " + 
         repr(useafter_date) + " : " + repr(useafter_file))
 
     return render(request, "add_useafter_results.html", {

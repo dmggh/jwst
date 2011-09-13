@@ -4,6 +4,8 @@ import hashlib
 
 from django.db import models
 
+import pyfits
+
 # Create your models here.
 from crds import (timestamp, rmap, utils)
 from crds.compat import (literal_eval, namedtuple)
@@ -136,20 +138,20 @@ class Blob(object):
             if re.match(type_, str(value)):
                 return value
             else:
-                raise FieldError("Value for " + repr(attr) + 
-                                 " didn't match " + repr(type_))
+                raise FieldError("Value for " + repr(attr) + " of " + 
+                                 repr(value) + " didn't match " + repr(type_))
         elif isinstance(type_, list): # treat lists as literal legal values
             if value in type_:
                 return value
             else:
-                raise FieldError("Value for " + repr(attr) + 
-                                 " was not one of " + repr(type_))
+                raise FieldError("Value for " + repr(attr) + " of " + 
+                                 repr(value) + " was not one of " + repr(type_))
         else: # try to use field type as a type converter
             try:
                 return type_(value)
             except Exception:
-                raise FieldError("Value for " + repr(attr) +
-                                 " not convertible to " + repr(type_))
+                raise FieldError("Value for " + repr(attr) + " of " + 
+                                 repr(value) + " not convertible to " + repr(type_))
 
     def save(self, name=None):
         """Save a blob named `name`,  or else an anonymous blob.
@@ -260,16 +262,23 @@ FILE_STATUS_MAP = {
     "blacklisted" : "red",
 }
 
+PEDIGREES = ["INFLIGHT","GROUND","DUMMY","MODEL"]
+CHANGE_LEVELS = ["SEVERE", "MEDIUM", "TRIVIAL"]
+COMMENT_MODES = ["Y","N","APPEND"]
+
+FILENAME_RE = "^[A-Za-z0-9_.]+$"
+
 class FileBlob(Blob):
     """Represents a delivered file,  either a reference or a mapping."""
     
     fields = dict(
         # User supplied fields
-        uploaded_as = BlobField("^[A-Za-z0-9_.]+$", "original upload filename", ""),
-        description = BlobField(str, "brief description of this delivery",""),
+        uploaded_as = BlobField(FILENAME_RE, "original upload filename", ""),
         modifier_name = BlobField(str, "person who made these changes",""),
         deliverer_user = BlobField(str, "username who uploaded the file", ""),
         deliverer_email = BlobField(str, "person's e-mail who uploaded the file", ""),
+        description = BlobField(
+            str, "Brief rationale for changes to this file.", "", nonblank=False),
         state = BlobField(FILE_STATUS_MAP.keys(), 
             "operational status of this file.", "pending archive"),
         blacklisted_by = BlobField(list, 
@@ -290,20 +299,47 @@ class FileBlob(Blob):
             "file id or serial number for this file", "", nonblank=False),
         sha1sum = BlobField(str, 
             "checksum of file at upload time", "", nonblank=False),
+
+        comparison_file = BlobField(
+            FILENAME_RE, 
+            "Name of existing file to compare to for mode coverage.", ""),
+        pedigree = BlobField(
+            PEDIGREES, 
+            "What's the source of this file?", ""),
+        opus_flag = BlobField(
+            ["Y","N"], 
+            "Should file be delivered to OPUS and archive?", "Y"),
+        change_level = BlobField(
+            CHANGE_LEVELS,
+            "Do the changes to this file force recalibration of science data?",
+            "SEVERE"),
+        useafter_date = BlobField(
+            str,  "Date after which this reference should be used", ""),
+            
+        observation_begin_date = BlobField(
+            str, "Start of INFLIGHT observation." , ""),
+        observation_end_date = BlobField(
+            str, "End of INFLIGHT observation.", ""),
+        mode_values = BlobField(
+            dict, "Mapping from critical FITS header "
+                "parameters to their values.", {}),
     )
     
     @classmethod
     def new(cls, observatory, upload_name, permanent_location, 
-            deliverer_user, deliverer_email, modifier_name, description, 
+            deliverer_user, deliverer_email, description, 
+            change_level="SEVERE", opus_flag="N",
             add_slow_fields=True, index=None):
         """Create a new FileBlob or subclass."""
+        
+        assert isinstance(add_slow_fields, (bool,int)), "parameter type error"
+        
         blob = cls()
         blob.observatory = observatory
         blob.uploaded_as = upload_name
         blob.pathname = permanent_location
         blob.deliverer_user = deliverer_user
         blob.deliverer_email = deliverer_email
-        blob.modifier_name = modifier_name
         blob.description = description
         blob.delivery_date = timestamp.now()
         if add_slow_fields:
@@ -314,6 +350,17 @@ class FileBlob(Blob):
         blob.filekind= filekind
         blob.serial = serial
         blob.blacklisted_by = []
+
+        # These need to be checked before the file is copied and the blob is made.
+        if not rmap.is_mapping(upload_name):
+            blob.change_level = change_level
+            blob.opus_flag = opus_flag
+#            blob.pedigree = pyfits.getval(permanent_location, "PEDIGREE")
+#            blob.useafter_date = pyfits.getval(permanent_location, "USEAFTER")
+            if blob.pedigree.strip().startswith("INFLIGHT"):
+                # XXX fill in observation_begin_date, observation_end_date
+                pass
+        
         blob.save()
         
         if index is None:
@@ -363,6 +410,8 @@ class MappingBlob(FileBlob):
 class ReferenceBlob(FileBlob):
     """Represents a reference data file managed by CRDS."""
     
+# ============================================================================
+
 class FileIndexBlob(Blob):
     """Blob which records the names of all known CRDS files,  nominally
     one instance per observatory.   This eliminates the need to load a
@@ -442,8 +491,10 @@ class AuditBlob(Blob):
 
 
 def add_crds_file(observatory, upload_name, permanent_location, 
-            deliverer_user, deliverer_email, modifier_name, description, 
-            creation_method, audit_details="", add_slow_fields=True, index=None):
+            deliverer, deliverer_email, description, 
+            creation_method, audit_details="", 
+            change_level="SEVERE", opus_flag="N",
+            add_slow_fields=True, index=None):
     "Make a database record for this file.  Track the action of creating it."""
     if rmap.is_mapping(permanent_location):
         blob_class = MappingBlob
@@ -452,12 +503,13 @@ def add_crds_file(observatory, upload_name, permanent_location,
         
     fileblob = blob_class.new(
         observatory, upload_name, permanent_location, 
-        deliverer_user, deliverer_email, modifier_name, description,
-        add_slow_fields, index=index)
+        deliverer, deliverer_email, description,
+        change_level=change_level, opus_flag=opus_flag,
+        add_slow_fields=add_slow_fields, index=index)
     
     # Redundancy, database record of how file got here, important action
     AuditBlob.new(
-        deliverer_user, creation_method, fileblob.filename, 
+        deliverer, creation_method, fileblob.filename, 
         description, audit_details,
         observatory=fileblob.observatory, instrument=fileblob.instrument,  
         filekind=fileblob.filekind, date=fileblob.delivery_date,)
