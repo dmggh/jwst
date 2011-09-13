@@ -74,14 +74,14 @@ def validate_post(request, variable, pattern):
     """Check a POST `variable` from `request`,  ensuring that it meets the
     check_value() conditions specified by `pattern`.
     """
-    value = str(request.POST[variable])
+    value = str(request.POST[variable]).strip()
     return check_value(value, pattern, "Invalid value " + repr(value) + 
                                         " for " + repr(variable))
 def validate_get(request, variable, pattern):
     """Check a GET `variable` from `request`,  ensuring that it meets the
     check_value() conditions specified by `pattern`.
     """
-    value = str(request.GET[variable])
+    value = str(request.GET[variable]).strip()
     return check_value(value, pattern, "Invalid value " + repr(value) + 
                                         " for " + repr(variable))
 
