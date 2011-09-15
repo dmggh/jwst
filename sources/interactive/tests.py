@@ -183,11 +183,12 @@ class SimpleTest(TestCase):
         response = self.client.get("/certify/")
         self.assert_no_errors(response)
 
-    def test_certify_post_fits_known(self):
+    def test_certify_post_fits_uploaded(self):
         self.authenticate()
+        self.fake_database_files(["s7g1700gl_dead.fits"])
         response = self.client.post("/certify/", {
-            "filemode" : "file_known",
-            "file_known" : "s7g1700gl_dead.fits",
+            "filemode" : "file_uploaded",
+            "file_uploaded" : open("interactive/test_data/s7g1700gl_dead.fits"),
         })
         self.assert_no_errors(response)
         self.assertEqual(response.content.count("OK"), 3)
@@ -195,6 +196,7 @@ class SimpleTest(TestCase):
 
     def test_certify_post_rmap_known(self):
         self.authenticate()
+        self.fake_database_files(["hst_cos_deadtab.rmap"])
         response = self.client.post("/certify/", {
             "filemode" : "file_known",
             "file_known" : "hst_cos_deadtab.rmap",
@@ -221,6 +223,7 @@ class SimpleTest(TestCase):
         self.assert_no_errors(response)
 
     def test_difference_post(self):
+        self.fake_database_files(["hst_acs.imap", "hst_cos.imap"])
         response = self.client.post("/difference/", {
             "filemode1": "file_known1",
             "file_known1" : "hst_acs.imap",

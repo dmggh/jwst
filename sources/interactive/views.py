@@ -124,7 +124,7 @@ def is_mapping(filename, extension=r"\.[pir]map"):
     try:
         models.MappingBlob.load(filename)
     except LookupError:
-        raise CrdsError("no database for " + repr(filename) + \
+        raise CrdsError("No database entry for " + repr(filename) + \
             ".  Must name a known CRDS mapping.")
     return filename
 
@@ -137,7 +137,7 @@ def is_reference(filename, extension=r"\.fits"):
     try:
         models.ReferenceBlob.load(filename)
     except LookupError:
-        raise CrdsError("No database for " + repr(filename) + 
+        raise CrdsError("No database entry for " + repr(filename) + 
                         ".  Must name a known CRDS reference file.")
     return filename
 
@@ -149,7 +149,7 @@ def is_known_file(filename):
         else:
             result = is_reference(filename)
     except LookupError:
-        raise CrdsError("no database for " + repr(filename) + 
+        raise CrdsError("No database entry for " + repr(filename) + 
                         ".  Must name a known CRDS reference or mapping.")
     return result
     
@@ -228,10 +228,7 @@ def handle_known_or_uploaded_file(request, name, modevar, knownvar, uploadvar):
     """
     if request.POST[modevar] == knownvar:
         # certified_file is a basename,  but CRDS figures out where it is.
-        original_name = check_value(request.POST[knownvar],
-            "[A-Za-z0-9._]+", 
-            "Filename " + name + " must consist of letters, numbers, periods, "
-            "or underscores.")
+        original_name = validate_post(request, knownvar, is_known_file)
         filepath = get_known_filepath(original_name)
         uploaded = False
     else:
@@ -370,6 +367,7 @@ def logout(request):
         
 # ===========================================================================
 
+@error_trap("bestrefs_index2.html")
 def bestrefs(request):
     """View to get the instrument context for best references."""
     if request.method == "GET":
@@ -422,17 +420,6 @@ def bestrefs_post(request):
             "bestrefs_items" : bestrefs_items,
         })
 
-def bestref_link(ctx, reference):
-    """Return an appropriate anchor tag for `reference`."""
-    if not reference.startswith("NOT FOUND"):
-        try:
-            url = ctx.locate.reference_url(config.CRDS_REFERENCE_URL, reference)
-            return '<a href="%s">%s</a>' % (url, reference)
-        except Exception:
-            return reference
-    else:
-        return reference[len("NOT FOUND "):]
-    
 # ============================================================================
 
 @error_trap("submit_input.html")
@@ -769,7 +756,7 @@ def difference_files(request):
         
         if rmap.is_mapping(file1_orig) and rmap.is_mapping(file2_orig) and \
             extension(file1_orig) == extension(file2_orig):
-            diff_lines = pysh.lines("diff ${file1_path} ${file2_path}")
+            diff_lines = pysh.lines("diff -b -c ${file1_path} ${file2_path}")
             diff_lines = format_mappingdiffs(diff_lines, file1_path, file2_path)
         elif file1_orig.endswith(".fits") and file2_orig.endswith(".fits"):
             diff_lines = pysh.lines("fitsdiff ${file1_path} ${file2_path}")
