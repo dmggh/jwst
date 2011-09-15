@@ -16,9 +16,7 @@ urlpatterns = patterns('',
   url(r'^login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}),          
   url(r'^logout/$', 'crds.server.interactive.views.logout'),          
 
-  url(r'^bestrefs/$', 'crds.server.interactive.views.bestrefs_index'),          
-  url(r'^bestrefs/input/$', 'crds.server.interactive.views.bestrefs_input'),          
-  url(r'^bestrefs/compute/$', 'crds.server.interactive.views.bestrefs_compute'),
+  url(r'^bestrefs/$', 'crds.server.interactive.views.bestrefs'),          
 
   url(r'^submit/$',       'crds.server.interactive.views.submit_file'),          
   url(r'^blacklist/$',    'crds.server.interactive.views.blacklist_file'),          

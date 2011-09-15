@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 
+{% load stdtags %}
+
 {% block column1 %}
-    <h2>Get Best References</h2>
+    <h2>Get Best References {{dataset_name|grey}}</h2>
     <h3>Input Parameters</h3>
     <table width="100%">
     {% for key, val in header_items %}
@@ -12,13 +14,25 @@
     {% endfor %}
     </table>
     
+{% endblock column1 %}
+
+{% block column2 %}
+    <br/>
+    <br/>
+    <br/>
     <h3>Recommended Files</h3>
     <table width="100%">    
       {% for reftype, fname in bestrefs_items %}
         <tr>
           <td class="label" width="30%">{{reftype}}:</td>
           {% if ".fits" in fname %}
-            <td class="value" width="60%">{{fname|safe}}</td>
+            <td width="60%">
+                 {% if observatory == "hst" %}   {# filtering weak! #}
+                    <a href='{{fname|download_url:"hst"}}'>{{fname}}</a>
+                 {% else %}
+                    <a href='{{fname|download_url:"jwst"}}'>{{fname}}</a>            
+                 {% endif %}
+            </td>
           {% else %}
             <td class="error" width="60%">{{fname}}</td>
           {% endif %}
@@ -26,7 +40,7 @@
       {% endfor %}
     </table>    
 
-{% endblock column1 %}
+{% endblock column2 %}
 
 {% block help %}
 {% endblock  %}

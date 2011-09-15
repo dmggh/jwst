@@ -97,35 +97,25 @@ class SimpleTest(TestCase):
         response = self.client.get("/logout/") 
         self.assert_no_errors(response)
     
-    def test_bestrefs_index(self):
+    def test_bestrefs(self):
         response = self.client.get("/bestrefs/")
         self.assert_no_errors(response)
     
-    def test_bestrefs_input(self):
-        response = self.client.post("/bestrefs/input/", {
-            "instrument-context":"hst_acs.imap",
-            })  
-        self.assert_no_errors(response)
+    # XXX Implement bestrefs tests
+    def test_bestrefs_post_archive_dataset(self):
+        pass
     
-    def test_bestrefs_compute(self):
-        response = self.client.post("/bestrefs/compute/", {
-            "instrument-context":"hst_acs.imap",
-            "CCDAMP" : "ABCD",
-            "CCDGAIN" : "0.0",
-            "DETECTOR" : "HRC",
-            "FILTER1" : "CLEAR1S",
-            "FILTER2" : "CLEAR2S",
-            "FW1OFFST" : "-1.0",
-            "FW2OFFST" : "-1.0",
-            "FWSOFFST" : "0.0",
-            "LTV1" : "*",
-            "LTV2" : "*",
-            "NAXIS1" : "*",
-            "NAXIS2" : "*",
-            "OBSTYPE" : "IMAGING",
-            "DATE-OBS" : "1-1-2011",
-            "TIME-OBS" : "12:00:00",
-        }) 
+    def test_bestrefs_post_default_context(self):
+        pass
+    
+    def test_bestrefs_post_uploaded_dataset(self):
+        self.fake_database_files(["hst.pmap"])
+        response = self.client.post("/bestrefs/", {
+            "context_mode" : "context_user",
+            "context_user" : "hst.pmap",
+            "dataset_mode" : "dataset_uploaded",
+            "dataset_uploaded" : open("interactive/test_data/j8bt05njq_raw.fits"),
+            })  
         self.assert_no_errors(response)
     
     def test_submit_get(self):
@@ -145,7 +135,7 @@ class SimpleTest(TestCase):
         response = self.client.post("/submit/", {
             "observatory" : "hst",
             "comparison_file" : "",
-            "submitted_file" : open("interactive/hst_cos_deadtab_0001.rmap"),
+            "submitted_file" : open("interactive/test_data/hst_cos_deadtab_0001.rmap"),
             "description" : "an identical pmap with a different name is still different",
             "change_level" : "SEVERE",
             "opus_flag" : "Y",

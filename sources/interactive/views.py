@@ -109,30 +109,36 @@ def is_reference_mapping(filename):
     """
     return is_mapping(filename, r"\.rmap")
 
+def is_instrument_or_pipeline_mapping(filename):
+    """Verify that `filename` names a known CRDS instrument or pipeline
+    mapping and return it.   Otherwise,  AssertionError.
+    """
+    return is_mapping(filename, r"\.[ip]map")
+
 def is_mapping(filename, extension=r"\.[pir]map"):
     """Verify that `filename` names a known CRDS mapping.
     Otherwise raise AssertionError.
     """
-    assert re.match("\w+" + extension, filename), \
-        "invalid reference mapping filename " + repr(filename)
+    if not re.match("\w+" + extension, filename):
+        raise CrdsError("Invalid mapping filename " + repr(filename))
     try:
         models.MappingBlob.load(filename)
     except LookupError:
-        assert False, "no database for " + repr(filename) + \
-            ".  Must name a known CRDS mapping."
+        raise CrdsError("no database for " + repr(filename) + \
+            ".  Must name a known CRDS mapping.")
     return filename
 
-def is_reference(filename):
+def is_reference(filename, extension=r"\.fits"):
     """Verify that `filename` names a known CRDS reference file.
     Otherwise raise AssertionError.
     """
-    assert re.match("\w+\.fits", filename), \
-        "invalid reference filename " + repr(filename)
+    if not re.match(r"\w+"+extension, filename):
+        raise CrdsError("invalid reference filename " + repr(filename))
     try:
         models.ReferenceBlob.load(filename)
     except LookupError:
-        assert False, "no database for " + repr(filename) + \
-            ".  Must name a known CRDS reference file."
+        raise CrdsError("No database for " + repr(filename) + 
+                        ".  Must name a known CRDS reference file.")
     return filename
 
 def is_known_file(filename):
@@ -143,8 +149,8 @@ def is_known_file(filename):
         else:
             result = is_reference(filename)
     except LookupError:
-        raise AssertionError("no database for " + repr(filename) + 
-                             ".  Must name a known CRDS reference or mapping.")
+        raise CrdsError("no database for " + repr(filename) + 
+                        ".  Must name a known CRDS reference or mapping.")
     return result
     
 def is_list_of_rmaps(text):
@@ -234,6 +240,31 @@ def handle_known_or_uploaded_file(request, name, modevar, knownvar, uploadvar):
         original_name = ufile.name
         uploaded = True
     return uploaded, original_name, filepath
+
+def get_uploaded_file(
+    request, formvar, legal_exts=(".fits", ".pmap", ".imap", ".rmap")):
+    """Return the DJango UploadedFile associated with `request` and `formvar`,
+    raising an exception if it's original name does not end with one of
+    `legal_exts` file extensions.   Handles <input type='file'>, part 1.
+    """
+    try:
+        ufile = request.FILES[formvar]
+    except KeyError:
+        raise MissingInputError("Specify a file to upload for " + repr(formvar))
+    if not ufile.name.endswith(legal_exts):
+        raise FieldError("File extension for " + repr(str(ufile.name)) + \
+                 " not one of: " + ", ".join(legal_exts))
+    return ufile
+
+def upload_file(ufile, where):
+    """Copy the Django UploadedFile to it's permanent location.
+    Handle's <input type='file'> part 2.
+    """
+    utils.ensure_dir_exists(where)
+    destination = open(where, 'wb+')
+    for chunk in ufile.chunks():
+        destination.write(chunk)
+    destination.close()
 
 def get_known_filepath(original_name):
     """Given the basename of a mapping or reference file, `original_name`,
@@ -339,16 +370,57 @@ def logout(request):
         
 # ===========================================================================
 
-def bestrefs_index(request):
+def bestrefs(request):
     """View to get the instrument context for best references."""
-    return render(request, "bestrefs_index.html", {})
+    if request.method == "GET":
+        return render(request, "bestrefs_index2.html", {})
+    else:
+        return bestrefs_post(request)
 
-def bestrefs_input(request):
+def bestrefs_post(request):
     """View to get best reference dataset parameters."""
-    ctx = _get_ctx(request)
-    required_keys = list(ctx.get_required_parkeys())
-    parkey_map_items = sorted(ctx.get_parkey_map().items())
-    return render(request, "bestrefs_input.html", locals())
+    
+    context_mode = validate_post(
+        request, "context_mode", "context_default|context_user")
+    if context_mode == "context_user":
+        context_user = validate_post(
+            request, "context_user", is_instrument_or_pipeline_mapping)
+        context = rmap.get_cached_mapping(context_user)
+    else:
+        raise CrdsError("Default context not yet implemented.")
+    
+    dataset_mode = validate_post(
+        request, "dataset_mode", "dataset_archive|dataset_uploaded")
+    if dataset_mode == "dataset_uploaded":
+        uploaded_file = get_uploaded_file(request, "dataset_uploaded")
+        dataset_path = uploaded_file.temporary_file_path()
+        dataset_name = uploaded_file.name
+        remove_temp_flag = True
+    else:
+        remove_temp_flag = True   # Assuming temp copy from archive.
+        raise CrdsError("Archive interface not yet implemented.")
+    
+    # base on the context and datset,  compute best references
+    header = context.get_minimum_header(dataset_path)
+    bestrefs = context.get_best_references(header)
+    
+#    if remove_temp_flag:
+#        remove_temporary(dataset_path)
+
+    # organize and format results for HTML display    
+    header_items = sorted(header.items())
+    bestrefs_items = []
+    for key, val in sorted(bestrefs.items()):
+        if val.startswith("NOT FOUND"):
+            val = val[len("NOT FOUND"):]
+        bestrefs_items.append((key.upper, val))
+    
+    return render(request, "bestrefs_results.html", {
+            "observatory" : context.observatory,
+            "dataset_name" : dataset_name,
+            "header_items" : header_items,
+            "bestrefs_items" : bestrefs_items,
+        })
 
 def bestref_link(ctx, reference):
     """Return an appropriate anchor tag for `reference`."""
@@ -361,22 +433,6 @@ def bestref_link(ctx, reference):
     else:
         return reference[len("NOT FOUND "):]
     
-def bestrefs_compute(request):
-    """Compute and display best reference results."""
-    ctx = _get_ctx(request)
-    header = {}
-    needed_keys = list(ctx.get_required_parkeys())
-    needed_keys.remove("REFTYPE")
-    for key in needed_keys:
-        if key.startswith("*"):
-            key = key[1:]
-        header[str(key)] = str(request.POST[key])
-    bestrefs = ctx.get_best_references(header)
-    header_items = sorted(header.items())
-    bestrefs_items = [ (key.upper(), bestref_link(ctx, val)) \
-                      for (key, val) in sorted(bestrefs.items())]
-    return render(request, "bestrefs_results.html", locals())
-
 # ============================================================================
 
 @error_trap("submit_input.html")
@@ -503,21 +559,6 @@ def get_blacklists(basename, certifypath, ignore_self=True):
     else:
         return [], []
     
-def get_uploaded_file(
-    request, formvar, legal_exts=(".fits", ".pmap", ".imap", ".rmap")):
-    """Return the DJango UploadedFile associated with `request` and `formavar`,
-    raising an exception if it's original name does not end with one of
-    `legal_exts` file extensions.
-    """
-    try:
-        ufile = request.FILES[formvar]
-    except KeyError:
-        raise MissingInputError("Specify a file to upload for " + repr(formvar))
-    if not ufile.name.endswith(legal_exts):
-        raise FieldError("File extension for " + repr(str(ufile.name)) + \
-                 " not one of: " + ", ".join(legal_exts))
-    return ufile
-
 def handle_crds_locations(uploaded_file, clobber=False):
     """Given a Django `uploaded_file` object, determine where it should reside
     permanently.  If `clobber` is False ensure that the permanent filename does
@@ -534,14 +575,6 @@ def handle_crds_locations(uploaded_file, clobber=False):
         raise FieldError("File " + repr(baseperm) + " already exists.")    
     return upload_location, permanent_location
 
-def upload_file(ufile, where):
-    """Copy the Django UploadedFile to it's permanent location."""
-    utils.ensure_dir_exists(where)
-    destination = open(where, 'wb+')
-    for chunk in ufile.chunks():
-        destination.write(chunk)
-    destination.close()
-    
 def create_crds_name(upload_location, upload_name):
     """Determine where a file should be stored on a permanent basis,  assigning
     it both an appropriate path and (possibly) a unique name.  `upload_location`
