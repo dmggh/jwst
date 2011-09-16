@@ -598,6 +598,8 @@ def blacklist_file(request):
     else:
         return blacklist_file_post(request)
 
+# XXX Add "archive/catalog" action resulting from blacklisting
+
 def blacklist_file_post(request):
     """View fragment to process the blacklist POST."""
     observatory = check_value(request.POST["observatory"], 
