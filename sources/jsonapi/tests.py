@@ -42,9 +42,9 @@ class ServiceApiTest(TestCase):
         references = self.api.get_reference_names(self.context)
         self.failUnlessEqual(len(references), 5754)
         
-    def test_api_cache_mappings(self):
+    def test_api_dump_mappings(self):
         os.environ["CRDS_MAPPATH"] = HERE + "/test_mappings" 
-        self.api.cache_mappings(self.context)
+        self.api.dump_mappings(self.context)
         self.purge_mappings()
         
     def test_api_get_bestrefs(self):
