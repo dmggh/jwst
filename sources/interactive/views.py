@@ -766,7 +766,7 @@ def difference_files(request):
         else:
             raise CrdsError("Files should be either CRDS mappings "
                             "of the same type or .fits files")
-        
+            
         if uploaded1: 
             remove_temporary(file1_path)
         if uploaded2:
@@ -797,7 +797,7 @@ def format_fitsdiffs(lines, file1, file2):
     return lines
 
 def format_mappingdiffs(lines, file1, file2):
-    return lines
+    return [line.rstrip() for line in lines]
 
 def clean_path(line, path):
     """Replace occurrences of `path` in `line` with a greyed version of
