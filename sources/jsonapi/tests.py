@@ -36,9 +36,26 @@ class ServiceApiTest(TestCase):
          'OBSMODE': 'ACCUM',
          'OBSTYPE': 'IMAGING',
          'SUBARRAY': 'F',
-         'TIME-OBS': '15:56:09'
+         'TIME-OBS': '15:56:09',
         }
         return header
+    
+    def expected_references(self):
+        exp = {}
+        for key, value in {
+        # 'ATODTAB': 'IREF$N9N16196I_A2D.FITS',  # disabled in CDBS web table
+         'BIASFILE': 'IREF$U1R1346RI_BIA.FITS',
+         'BPIXTAB': 'IREF$U5D2012LI_BPX.FITS',
+         'CCDTAB': 'IREF$T291659MI_CCD.FITS',
+         'CRREJTAB': 'IREF$N9I1435LI_CRR.FITS',
+         'DARKFILE': 'IREF$T3420177I_DRK.FITS',
+         'IDCTAB': 'IREF$UAB1537BI_IDC.FITS',
+         'MDRIZTAB': 'IREF$UBI1853QI_MDZ.FITS',
+         'OSCNTAB': 'IREF$Q911321OI_OSC.FITS',
+         'PFLTFILE': 'IREF$T4T1832NI_PFL.FITS',
+        }.items():  # hack off IREF$ and switch to lower case
+            exp[key.lower()] = value.lower().split("$")[1]
+        return exp
 
     def get_bestrefs(self):
         header = self.get_header()
@@ -66,9 +83,9 @@ class ServiceApiTest(TestCase):
         
     def test_api_get_bestrefs(self):
         bestrefs = self.get_bestrefs()
-        for key,value in bestrefs.items():
-            if key in self.get_header():
-                self.assertEqual(header[key], value)
+        for key, value in self.expected_references().items():
+            self.assertIn(key, bestrefs)
+            self.assertEqual(bestrefs[key], value)
                 
     def test_api_cache_references(self):
         bestrefs = {'idctab': 'uab1537bi_idc.fits', 'darkfile': 't3420177i_drk.fits'}
