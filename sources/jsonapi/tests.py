@@ -8,11 +8,8 @@ from django.test import TestCase
 
 import crds.pysh as pysh
 import crds.client.api as api
-import crds.hst.gentools.lookup as lookup
 
 HERE = os.path.dirname(__file__) or "."
-
-lookup.load_header_cache()
 
 class ServiceApiTest(TestCase):
     def setUp(self):
@@ -20,7 +17,27 @@ class ServiceApiTest(TestCase):
         self.context = "hst.pmap"
 
     def get_header(self):
-        header = lookup.get_header_union("../../testdata/wfc3/howard/iaai01rtq_raw.fits")
+        # header = crds.client.api.get_minimum_header(
+        #    "../../testdata/wfc3/howard/iaai01rtq_raw.fits")
+        header = {
+         'APERTURE': 'UVIS',
+         'BINAXIS1': '1.0',
+         'BINAXIS2': '1.0',
+         'CCDAMP': 'ABCD',
+         'CCDGAIN': '1.5',
+         'DATE-OBS': '2009-07-14',
+         'DETECTOR': 'UVIS',
+         'FILTER': 'F555W',
+         'INSTRUME': 'WFC3',
+         'LTV1': '25.0',
+         'LTV2': '0.0',
+         'NAXIS1': '4206.0',
+         'NAXIS2': '2070.0',
+         'OBSMODE': 'ACCUM',
+         'OBSTYPE': 'IMAGING',
+         'SUBARRAY': 'F',
+         'TIME-OBS': '15:56:09'
+        }
         return header
 
     def get_bestrefs(self):
