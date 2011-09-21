@@ -659,7 +659,6 @@ def do_blacklist(blacklist_root, blacklisted, badflag, why, user):
 
 # @profile
 @error_trap("certify_input.html")
-@login_required
 def certify_file(request):
     """View to return certify input form or process POST."""
     if request.method == "GET":
@@ -672,13 +671,10 @@ def certify_post(request):
     uploaded, original_name, certified_file = handle_known_or_uploaded_file(
         request, "File", "filemode", "file_known", "file_uploaded")
             
-    check_references = request.POST.get("check_references", False)
-    shallow = "--shallow" if not check_references else ""
     mapping = "--mapping" if rmap.is_mapping(original_name) else ""
 
     certify_lines = pysh.lines(
-        "python -m crds.certify ${certified_file} ${shallow} ${mapping} " \
-        "--dump-provenance")
+        "python -m crds.certify ${certified_file} ${mapping} --dump-provenance")
     certify_status = "OK" if "0 errors" in \
         [ x.strip() for x in certify_lines] else "Failed."    
     
