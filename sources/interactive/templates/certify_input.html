@@ -7,6 +7,15 @@
       <table width="100%">
         <tr>
           <td width="5%">
+            <input type="radio" name="filemode" value="file_uploaded" checked />
+          </td>
+          <td width="25%" class="label">Uploaded File:</td>
+          <td width="25%">
+            <input type='file' name='file_uploaded' size="32">
+          </td>
+        </tr>
+        <tr>
+          <td width="5%">
                 <input type="radio" name="filemode" 
                         value="file_known" />
           </td>
@@ -14,15 +23,6 @@
           <td width="25%">
             <input type='text' name='file_known' size="32" 
                 value="{{file_known}}">
-          </td>
-        </tr>
-        <tr>
-          <td width="5%">
-            <input type="radio" name="filemode" value="file_uploaded" checked />
-          </td>
-          <td width="25%" class="label">Uploaded File:</td>
-          <td width="25%">
-            <input type='file' name='file_uploaded' size="32">
           </td>
         </tr>
         <tr></tr>
@@ -38,7 +38,7 @@
 presents any errors as well as provenance information for review.
 
 <p><p><b>Uploaded File</b> lets you temporarily upload a prototype reference or 
-mapping to the CRDS server for certification.   This is the nominal use case.
+mapping to the CRDS server for certification.
 
 <p><p><b>Known File</b> lets you re-certify a mapping or reference
 which has already been submitted to CRDS.
