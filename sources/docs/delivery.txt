@@ -1,0 +1,42 @@
+Meeting notes from 9-21-2011 with Mike Swam
+
+CDBS does deliveries using a "sendit" script.
+
+Basic scheme is hard-link driven from a single copy of a delivered file.   
+
+Recipients do whatever they need to do to copy and ingest the file and
+then remove the hard link from their delivery directory.   Hence polling
+the delivery directory can be used by CRDS to verify that a file has been 
+fully delivered.
+
+The last link made by sendit is a "catalog" or overall delivery link.
+It serves as a kind of semaphore and no reference will be picked up
+until the catalog file is there, ensuring that the references are
+fully present before they're copied.
+
+OPUS handles delivery to both the HST archive and the remote sister
+archives which receive HST data.   Hence delivering to OPUS accomplishes all 
+that.
+
+CDBS certify is CPP-ified C code but the linux port has the code which is
+actively in use.
+
+CDBS fitsverify has source code and is derived from cfitsio.  
+
+farris_fitsverify has no source code.  
+
+CDBS fitsverify is actually dumbed down to pass non-standard aspects
+of HST data INS wanted to keep anyway.  fitsverify is also enhanced
+for some OPUS constructs.
+
+New repos for linux port of CDBS:
+
+SVN:  https://svn.stsci.edu/svn/newcdbs
+TRAC: https://trac.stsci.edu/trac/newcdbs
+
+Plan to review sendit, certify, and fitsverify to:
+
+1. Come up with a CRDS delivery scheme which mostly follows the existing
+CDBS / OPUS hard-link protocols.
+2. Make sure CRDS certify encompasses existing checks.
+
