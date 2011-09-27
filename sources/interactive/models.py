@@ -257,8 +257,9 @@ class CounterBlob(Blob):
 # ============================================================================
 
 FILE_STATUS_MAP = {
+    "submitted" : "orange",
+    "delivered" : "blue",     # pending archive
     "operational" : "green",
-    "pending archive" : "orange",
     "blacklisted" : "red",
 }
 
@@ -280,7 +281,7 @@ class FileBlob(Blob):
         description = BlobField(
             str, "Brief rationale for changes to this file.", "", nonblank=False),
         state = BlobField(FILE_STATUS_MAP.keys(), 
-            "operational status of this file.", "pending archive"),
+            "operational status of this file.", "submitted"),
         blacklisted_by = BlobField(list, 
             "Comma separated list of files marking this"
             " file as bad,  possibly self.", []),
@@ -434,7 +435,7 @@ class FileIndexBlob(Blob):
 
 AUDITED_ACTIONS = [
     "submit file", "blacklist", "reserve name", "mass import", 
-    "new context", "replace reference", "add useafter",
+    "new context", "replace reference", "add useafter", "deliver"
     ]
 
 class AuditBlob(Blob):
@@ -446,7 +447,7 @@ class AuditBlob(Blob):
         user = BlobField(str, "user performing this action", ""),
         date = BlobField(str, "date action performed", ""),
         action = BlobField(AUDITED_ACTIONS,"name of action performed", ""),        
-        filename = BlobField("^[A-Za-z0-9_./]+$", 
+        filename = BlobField("^[A-Za-z0-9_./]*$", 
                 "file affected by this action", "None"),
         why = BlobField(str, "reason this action was performed",""),
         details = BlobField(str, "supplementary info", "", nonblank=False),
@@ -529,6 +530,18 @@ def create_index(observatory):
     return index
 
 
+# ============================================================================
 
-
+class DeliveryBlob(Blob):
+    fields = dict(
+        # User supplied fields
+        delivery_name = BlobField(FILENAME_RE, "name of this delivery.", ""),
+        file_list = BlobField(list, "list of names of delivered files", []),
+        user = BlobField(str, "user performing this action", ""),
+        date = BlobField(str, "date action performed", ""),
+        description = BlobField(str, "general commentary on delivery",""),
+        observatory = BlobField(
+            OBSERVATORIES, "associated observatory", "", nonblank=False),
+    )
+    
 

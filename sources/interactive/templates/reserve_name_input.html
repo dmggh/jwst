@@ -20,6 +20,7 @@
           <td/>
           <td class="hint">.e.g. hst_acs_biasfile_0001.rmap</td>
         </tr>
+        <tr></tr>
         <tr>
           <td width="5%">
                 <input type="radio" name="filemode" 
@@ -34,7 +35,7 @@
           </td>
           <td width="25%" class="label">Observatory</td>
           <td width="25%">
-            <select name="observatory">
+            <select name="observatory" value="{{observatory}}">
                 <option>hst</option>
                 <option>jwst</option>
             </select>
@@ -45,7 +46,7 @@
           </td>
           <td width="25%" class="label">Instrument</td>
           <td width="25%">
-            <select name="instrument">
+            <select name="instrument" value="{{instrument}}">
             {% for instr in instruments %}
             <option>{{instr}}</option>
             {% endfor %}
@@ -57,7 +58,7 @@
           </td>
           <td width="25%" class="label">Filekind</td>
           <td width="25%">
-            <select name="filekind">
+            <select name="filekind" value="{{filekind}}">
             {% for fk in filekinds %}
                 <option>{{fk}}</option>
             {% endfor %}
@@ -69,14 +70,13 @@
           </td>
           <td width="25%" class="label">Type/Extension</td>
           <td width="25%">
-            <select name="extension">
+            <select name="extension" value="{{extension}}">
                 {% for ext in extensions %}
                 <option>{{ext}}</option>
                 {% endfor %}
             </select>
           </td>
         </tr>
-        <tr></tr>
       </table>
       <p></p>
       <input type="submit" value="Reserve Name">
@@ -84,15 +84,13 @@
 {% endblock column1 %}
 
 {% block help %}
-    <p><b>Reserve Filename let's you reserve the version name of a reference or 
+    <p><b>Reserve Filename</b> let's you reserve the name of a reference or 
     mapping file while you develop it.  Once reserved,  only you can submit a 
-    file with that name.</b> 
+    file with that name.
     
-    <p><p><b>Known File</b> Lets you use the name of an existing file as a
-    template.   The next name in the official series will be generated and 
-    returned.
+    <p><p><b>Known File</b> Lets you enter unique non-standard names.
     
-    <p><p><b>By Parts</b> Lets you specify parameters to define the series from
-    which the reserved filename will be generated and returned.
-    
+    <p><p><b>By Parts</b> Lets you specify parameters to generate a
+    new standard CRDS name.
+        
 {% endblock help %}

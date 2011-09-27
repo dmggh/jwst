@@ -24,27 +24,6 @@ from crds.server.interactive.models import FieldError, MissingInputError
 
 # ===========================================================================
 
-def _get_imap(request):
-    """Convert a request into an instrument context name."""
-    post = request.POST
-    try:
-        mode = post["context-mode"]
-    except KeyError:
-        return post["instrument-context"]
-    else:
-        if mode == "user":
-            return post["context-user"] 
-        else:
-            return post["context-default"]
-
-def _get_ctx(request):
-    """Convert a request into an instrument context object."""
-    imap = _get_imap(request)
-    ctx = rmap.get_cached_mapping(imap)
-    assert isinstance(ctx, rmap.InstrumentContext), \
-        "Invalid instrument context " + repr(imap)
-    return ctx
-
 def check_value(value, pattern, msg):
     """Ensure that `value` satisifies the conditions implied by `pattern`,
     otherwise raise a FieldError containing `msg`.
@@ -198,8 +177,12 @@ def render(request, template, dict_=None):
     """Render a template,  making same-named inputs from request available
     for echoing.
     """
-    rdict = {}
-
+    rdict = {   # standard template variables
+        "observatories":models.OBSERVATORIES,
+        "instruments":models.INSTRUMENTS+["*"],
+        "filekinds":models.FILEKINDS+["*"],
+        "extensions":models.EXTENSIONS+["*"],
+    }
     # echo escaped inputs.
     for key, value in request.GET.items():
         rdict[key] = safestring.mark_for_escaping(value)
@@ -916,10 +899,16 @@ def browse_known_file(request, original_name):
 def reserve_name(request):
     """reserve_name is a view to get officially registered CRDS filenames."""
     if request.method == "GET":
-        return render(request, "reserve_name_input.html",
-                      {"instruments":models.INSTRUMENTS+[""],
-                       "filekinds":models.FILEKINDS+[""],
-                       "extensions":models.EXTENSIONS})
+        return render(request, "reserve_name_input.html", {
+        "observatories":models.OBSERVATORIES,
+        "instruments":[""]+models.INSTRUMENTS,
+        "filekinds":[""]+models.FILEKINDS,
+        "extensions":models.EXTENSIONS,
+        "observatory":"hst",
+        "instrument":"",
+        "filekind":"",
+        "extension":".pmap",
+        })
     else:
         return reserve_name_post(request)
 
@@ -933,7 +922,7 @@ def reserve_name_post(request):
         known_files = models.FileIndexBlob.load(observatory).known_files
         audits = [x for x in models.AuditBlob.filter(filename=reserved_name)]
         assert (reserved_name not in known_files) and len(audits) == 0, \
-            "Name " + repr(reserved_name) + " is already in CRDS."
+            "Name " + repr(reserved_name) + " is already reserved in CRDS."
         models.AuditBlob.new(
             request.user, "reserve name", reserved_name, "none", "none",
             observatory=observatory)
@@ -1306,3 +1295,62 @@ def make_new_useafter_rmap(old_mapping, new_location, match_tuple,
     checksum.update_checksum(new_location)
     do_certify_file(new_location, new_location, check_references=False)
     return modification
+
+# ============================================================================
+
+@error_trap("delivery_options_input.html")
+@login_required
+def delivery_options(request):
+    if request.method == "GET":
+        return render(request, "delivery_options_input.html", {
+            "observatories":models.OBSERVATORIES,
+            "instruments":["*"]+models.INSTRUMENTS,
+            "filekinds":["*"]+models.FILEKINDS,
+            "deliverer_user": str(request.user),
+            "observatory" : "*",
+            "instrument" : "*",
+            "filekind" : "*",
+            "opus_flag" : "Y",
+            "filename" : "*",
+        })
+    else:
+        return delivery_options_post(request)
+
+def delivery_options_post(request):
+    observatory = validate_post(
+        request, "observatory", models.OBSERVATORIES+[r"\*"])
+    instrument = validate_post(
+        request, "instrument", models.INSTRUMENTS+[r"\*"])
+    filekind = validate_post(
+        request, "filekind", models.FILEKINDS+[r"\*"])
+    filename = validate_post(
+        request, "filename", r"[A-Za-z0-9_.\*]+")
+    deliverer_user = validate_post(
+        request, "deliverer_user", r"[A-Za-z0-9_.\*]+")
+    opus_flag = validate_post(
+        request, "opus_flag", r"Y|N|\*")
+    status = "submitted"
+    
+    filters = {}
+    for var in ["observatory", "instrument", "filekind", 
+                "filename", "deliverer_user", "status", "opus_flag"]:
+        value = locals()[var].strip()
+        if value not in ["*",""]:
+            filters[var] = value
+    filtered_db = [x for x in models.MappingBlob.filter(**filters)] + \
+                 [x for x in models.ReferenceBlob.filter(**filters)]
+    return render(request, "delivery_options_results.html", {
+                "filters": filters,
+                "filtered_db" : filtered_db,
+                "observatory" : observatory,
+            })
+
+
+@error_trap("delivery_options.html")
+@login_required
+def delivery_process(request):
+    pass
+
+def delivery_process_post(request):
+    pass
+

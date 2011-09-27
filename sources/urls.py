@@ -19,6 +19,8 @@ urlpatterns = patterns('',
   url(r'^bestrefs/$', 'crds.server.interactive.views.bestrefs'),          
 
   url(r'^submit/$',       'crds.server.interactive.views.submit_file'),          
+  url(r'^delivery_options/$', 'crds.server.interactive.views.delivery_options'),          
+  url(r'^delivery_process/$',   'crds.server.interactive.views.delivery_process'),          
   url(r'^blacklist/$',    'crds.server.interactive.views.blacklist_file'),          
   url(r'^using/$',        'crds.server.interactive.views.using_file'),          
   url(r'^certify/$',      'crds.server.interactive.views.certify_file'),          
