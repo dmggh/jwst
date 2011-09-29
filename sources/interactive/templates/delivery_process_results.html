@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% load stdtags %}
+
+{% block column1 %}
+    <h2>Delivery Results</h2>
+    <h3>Files Delivered</h3>
+    <table border="0">
+        {% for file in delivered_files %}
+        <tr><td class="green">{{file}}</td></tr>
+        {% endfor %}
+    </table>    
+{% endblock column1 %}

@@ -131,6 +131,20 @@ def is_known_file(filename):
         raise CrdsError("No database entry for " + repr(filename) + 
                         ".  Must name a known CRDS reference or mapping.")
     return result
+
+def is_deliverable_file(filename):
+    """Return `filename` iff `filename` names a file suitable for delivery."""
+    try:
+        blob = models.MappingBlob.load(filename)
+    except LookupError:
+        try:
+            blob = models.ReferenceBlob.load(filename)
+        except LookupError:
+            raise CrdsError("File " + repr(filename) + " is not known to CRDS.")
+    assert blob.status == "submitted", "File " + repr(filename) + \
+        " cannot be submitted."
+    assert not blob.blacklisted_by, "File " + repr(filename) + \
+        " is blacklisted by " + repr(blob.blacklisted_by)
     
 def is_list_of_rmaps(text):
     """Assert that `text` contains a list of comma for newline separated rmap
@@ -170,6 +184,7 @@ def is_datetime(datetime_str):
         raise CrdsError(str(exc))
     return datetime_str
 
+DESCRIPTION_RE = "[^<>]+"
 
 # ===========================================================================
 
@@ -424,7 +439,7 @@ def submit_file_post(request):
     ufile = get_uploaded_file(request, "submitted_file")    
     original_name = ufile.name
 
-    description = validate_post(request, "description", "[^<>]+")
+    description = validate_post(request, "description", DESCRIPTION_RE)
 
     if request.POST["comparison_file"].strip():
         comparison_file = validate_post(
@@ -1098,7 +1113,7 @@ def create_contexts_post(request):
     """View fragment handling create_contexts POST case."""
     pipeline = validate_post(request, "pipeline", is_pipeline_mapping)
     updated_rmaps = validate_post(request, "rmaps", is_list_of_rmaps)
-    description = validate_post(request, "description", "[^<>]+")
+    description = validate_post(request, "description", DESCRIPTION_RE)
 
     # Get the mapping from old imap to new rmap, basically the imaps that
     # must be updated onto the list of rmap updates to do.
@@ -1170,7 +1185,7 @@ def replace_reference_post(request):
         request, "old_mapping", is_reference_mapping)
     old_file = validate_post(request, "old_reference", is_reference)
     new_file = validate_post(request, "new_reference", is_reference)
-    description = validate_post(request, "description", "[^<>]+")
+    description = validate_post(request, "description", DESCRIPTION_RE)
     
     assert old_file in open(rmap.locate_mapping(old_mapping)).read(), \
         "File " + old_file + " isn't anywhere in " + repr(old_mapping)
@@ -1230,7 +1245,7 @@ def add_useafter_post(request):
     match_tuple = validate_post(request, "match_tuple", is_match_tuple)
     useafter_date = validate_post(request, "useafter_date", is_datetime)
     useafter_file = validate_post(request, "useafter_file", is_reference)
-    description = validate_post(request, "description", "[^<>]+")
+    description = validate_post(request, "description", DESCRIPTION_RE)
 
     new_mapping = new_name(old_mapping)
     new_location = rmap.locate_mapping(new_mapping)
@@ -1342,15 +1357,39 @@ def delivery_options_post(request):
     return render(request, "delivery_options_results.html", {
                 "filters": filters,
                 "filtered_db" : filtered_db,
-                "observatory" : observatory,
             })
 
 
-@error_trap("delivery_options.html")
+@error_trap("delivery_process_results.html")
 @login_required
 def delivery_process(request):
-    pass
+    if request.method == "GET":
+        raise CrdsError("Invalid delivery processing request.  POST only.")
+    else:
+        return delivery_process_post(request)
 
-def delivery_process_post(request):
-    pass
-
+def delivery_process_post(request):    
+    description = validate_post(request, "description", DESCRIPTION_RE)
+    observatory = validate_post(request, "observatory", models.OBSERVATORIES)
+    delivered_files = []
+    for key in request.POST:
+        if key.startswith("deliver_"):
+            filename = key[len("deliver_"):]
+            check_value(filename, is_deliverable_file, 
+                "File " + repr(filename) + " is not deliverable.")
+            delivered_files.append(filename)
+    delivered_files.sort()
+    
+#    def new(cls, user, action, affected_file, why, details, 
+#        observatory, instrument="unknown", filekind="unknown", date=None):
+#        pass
+#    
+#    models.AuditBlob.new(
+#        request.user, "deliver", "", description, repr(delivered_files),
+#        observatory=
+#    )
+#                         
+        
+    return render(request, "delivery_process_results.html", {
+        "delivered_files" : delivered_files,
+    })
