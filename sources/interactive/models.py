@@ -411,6 +411,12 @@ class MappingBlob(FileBlob):
 class ReferenceBlob(FileBlob):
     """Represents a reference data file managed by CRDS."""
     
+def load_file_blob(filename):
+    if rmap.is_mapping(filename):
+        return MappingBlob.load(filename)
+    else:
+        return ReferenceBlob.load(filename)
+    
 # ============================================================================
 
 class FileIndexBlob(Blob):
@@ -528,20 +534,4 @@ def create_index(observatory):
         index = FileIndexBlob()
         index.save(observatory)
     return index
-
-
-# ============================================================================
-
-class DeliveryBlob(Blob):
-    fields = dict(
-        # User supplied fields
-        delivery_name = BlobField(FILENAME_RE, "name of this delivery.", ""),
-        file_list = BlobField(list, "list of names of delivered files", []),
-        user = BlobField(str, "user performing this action", ""),
-        date = BlobField(str, "date action performed", ""),
-        description = BlobField(str, "general commentary on delivery",""),
-        observatory = BlobField(
-            OBSERVATORIES, "associated observatory", "", nonblank=False),
-    )
-    
 

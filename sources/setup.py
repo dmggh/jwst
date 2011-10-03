@@ -25,6 +25,7 @@ setup(name="crds.server",
 
       package_data = {
         '': [ "templates/*.html",
+              "interactive/*.dat",
               "interactive/templates/*.html",  
               "interactive/static/*.css",  
               "interactive/static/users_guide/*.html", 

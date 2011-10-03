@@ -22,6 +22,8 @@ import crds.server.config as config
 import crds.server.interactive.models as models
 from crds.server.interactive.models import FieldError, MissingInputError
 
+HERE = os.path.dirname(__file__) or "./"
+
 # ===========================================================================
 
 def check_value(value, pattern, msg):
@@ -1354,6 +1356,7 @@ def delivery_options_post(request):
             filters[var] = value
     filtered_db = [x for x in models.MappingBlob.filter(**filters)] + \
                  [x for x in models.ReferenceBlob.filter(**filters)]
+
     return render(request, "delivery_options_results.html", {
                 "filters": filters,
                 "filtered_db" : filtered_db,
@@ -1371,25 +1374,103 @@ def delivery_process(request):
 def delivery_process_post(request):    
     description = validate_post(request, "description", DESCRIPTION_RE)
     observatory = validate_post(request, "observatory", models.OBSERVATORIES)
+
     delivered_files = []
     for key in request.POST:
         if key.startswith("deliver_"):
-            filename = key[len("deliver_"):]
+            filename = str(key[len("deliver_"):])
             check_value(filename, is_deliverable_file, 
                 "File " + repr(filename) + " is not deliverable.")
             delivered_files.append(filename)
     delivered_files.sort()
     
-#    def new(cls, user, action, affected_file, why, details, 
-#        observatory, instrument="unknown", filekind="unknown", date=None):
-#        pass
-#    
-#    models.AuditBlob.new(
-#        request.user, "deliver", "", description, repr(delivered_files),
-#        observatory=
-#    )
-#                         
-        
+    catalog = deliver_file_catalog(observatory, delivered_files, "I")
+    
+    paths = deliver_file_db(
+        request.user, observatory, description, delivered_files)
+                         
+    catalog_link = deliver_make_links(observatory, catalog, paths)
+    
+    models.AuditBlob.new(
+        request.user, "deliver", catalog, description, repr(delivered_files), 
+        observatory)        
+
     return render(request, "delivery_process_results.html", {
         "delivered_files" : delivered_files,
     })
+
+def deliver_file_db(user, observatory, description, files):
+    """Adjust the database to account for this delivery,  marking each file
+    as delivered and creating an audit record for it.   Returns a list of
+    absolute paths to `files`.
+    """
+    paths = []
+    for file in files:
+        blob = models.load_file_blob(file)
+        blob.state = "delivered"
+        blob.save()
+        paths.append(blob.pathname)
+        models.AuditBlob.new(
+            user, "deliver", file, description, repr(files), observatory)        
+    return paths
+
+def deliver_file_catalog(observatory, files, operation="I"):
+    """Generate the delivery catalog file and return its path.   The catalog
+    file is a kind of manifest and semaphore used by OPUS to know that a 
+    delivery has been made and what files are in it.   When OPUS deletes
+    the catalog link,  the file is considered delivered.
+
+    The filepath is something like:
+       /hstdev/store/srefpipe/deliverfilesauto/opus_12314_i.cat    
+
+    Each line of the catalog has the form:
+       <filename> <operation> <kind>
+        .e.g. V9M1422QI_DRK I R
+
+    where operation can be I=insert or D=delete
+    where kind can be M=mapping or R=reference or T=table
+    
+    CRDS uses the catalog file name to name the delivery for auditing.
+    """
+    assert operation in ["I","D"], \
+        "Invalid delivery operation " + repr(operation)
+    id = models.CounterBlob.next(observatory, "delivery_id")
+    catalog = "_".join(["opus",str(id),operation.lower()])+".cat"
+    catdir = os.environ.get("CRDS_SERVER_DATA", HERE) + "/catalogs"
+    catpath = os.path.join(catdir, catalog)
+    utils.ensure_dir_exists(catpath)
+    cat = open(catpath, "w")
+    for file in files:
+        if rmap.is_mapping(file):
+            kind = "M"
+        else:
+            kind = "R"
+        cat.write(file + " " + operation + " " + kind + "\n")
+    cat.close()
+    return catpath
+
+def deliver_make_links(observatory, catalog, paths):
+    """Copy file `paths` of `observatory` to the proper holding area
+    for observatory and then make hard links to each file in each
+    of the delivery site directories.   Return the path of the of
+    the master catalog link;  when the master link is deleted by
+    the recipient the entire delivery is considered complete and
+    the files transition from "delivered" to "operational".
+    """
+    dirs = deliver_link_dirs(observatory)
+    for site in dirs:
+        utils.ensure_dir_exists(site)
+        for file in paths + [catalog]:
+            dest = site +"/" + os.path.basename(file)
+            os.link(file, dest)
+    master_catalog_link = os.path.join(dirs[0], os.path.basename(catalog))
+    return master_catalog_link
+
+def deliver_link_dirs(observatory):
+    """Return a list of directories into which all the files in a delivery
+    are hard linked.   Load list from file, .e.g. ${HERE}/deliver_dirs_hst.dat,
+    where one directory is listed per line.
+    """
+    return [x.strip() for x in \
+            open(HERE + "/deliver_dirs_" + observatory + ".dat") if x]
+

@@ -7,7 +7,7 @@
     <h3>Files Delivered</h3>
     <table border="0">
         {% for file in delivered_files %}
-        <tr><td class="green">{{file}}</td></tr>
+        <tr><td class="green">{{file|browse}}</td></tr>
         {% endfor %}
     </table>    
 {% endblock column1 %}
