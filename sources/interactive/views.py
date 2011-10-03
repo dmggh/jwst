@@ -1392,16 +1392,15 @@ def delivery_process_post(request):
     catalog_link = deliver_make_links(observatory, catalog, paths)
     
     models.AuditBlob.new(
-        request.user, "deliver", catalog, description, repr(delivered_files), 
-        observatory)        
+        request.user, "deliver", os.path.basename(catalog), description, 
+        repr(delivered_files), observatory)        
 
     return render(request, "delivery_process_results.html", {
         "delivered_files" : delivered_files,
     })
 
 def deliver_file_db(user, observatory, description, files):
-    """Adjust the database to account for this delivery,  marking each file
-    as delivered and creating an audit record for it.   Returns a list of
+    """Adjust the database to account for this delivery.   Returns a list of
     absolute paths to `files`.
     """
     paths = []
@@ -1410,8 +1409,8 @@ def deliver_file_db(user, observatory, description, files):
         blob.state = "delivered"
         blob.save()
         paths.append(blob.pathname)
-        models.AuditBlob.new(
-            user, "deliver", file, description, repr(files), observatory)        
+#        models.AuditBlob.new(
+#            user, "deliver", file, description, repr(files), observatory)        
     return paths
 
 def deliver_file_catalog(observatory, files, operation="I"):
