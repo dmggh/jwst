@@ -102,9 +102,7 @@ def is_mapping(filename, extension=r"\.[pir]map"):
     """
     if not re.match("\w+" + extension, filename):
         raise CrdsError("Invalid mapping filename " + repr(filename))
-    try:
-        models.MappingBlob.load(filename)
-    except LookupError:
+    if len(models.FileBlob.filter(filename=filename, type="mapping")) < 1:
         raise CrdsError("No database entry for " + repr(filename) + \
             ".  Must name a known CRDS mapping.")
     return filename
@@ -115,36 +113,28 @@ def is_reference(filename, extension=r"\.fits"):
     """
     if not re.match(r"\w+"+extension, filename):
         raise CrdsError("invalid reference filename " + repr(filename))
-    try:
-        models.ReferenceBlob.load(filename)
-    except LookupError:
-        raise CrdsError("No database entry for " + repr(filename) + 
-                        ".  Must name a known CRDS reference file.")
+    if len(models.FileBlob.filter(filename=filename, type="reference")) < 1:
+        raise CrdsError("No database entry for " + repr(filename) + \
+            ".  Must name a known CRDS reference file.")
     return filename
 
 def is_known_file(filename):
     """Verify that `filename` identifies a file already known to CRDS."""
-    try:
-        if rmap.is_mapping(filename):
-            result = is_mapping(filename)
-        else:
-            result = is_reference(filename)
-    except LookupError:
+    if not re.match(FILE_RE, filename):
+        raise CrdsError("invalid filename " + repr(filename))
+    if len(models.FileBlob.filter(filename=filename)) < 1:
         raise CrdsError("No database entry for " + repr(filename) + 
                         ".  Must name a known CRDS reference or mapping.")
-    return result
+    return filename
 
 def is_deliverable_file(filename):
     """Return `filename` iff `filename` names a file suitable for delivery."""
     try:
-        blob = models.MappingBlob.load(filename)
+        blob = models.FileBlob.load(filename)
     except LookupError:
-        try:
-            blob = models.ReferenceBlob.load(filename)
-        except LookupError:
-            raise CrdsError("File " + repr(filename) + " is not known to CRDS.")
+        raise CrdsError("File " + repr(filename) + " is not known to CRDS.")
     assert blob.status == "submitted", "File " + repr(filename) + \
-        " cannot be submitted."
+        " cannot be delivered."
     assert not blob.blacklisted_by, "File " + repr(filename) + \
         " is blacklisted by " + repr(blob.blacklisted_by)
     
@@ -263,34 +253,15 @@ def upload_file(ufile, where):
         destination.write(chunk)
     destination.close()
 
-def get_known_filepath(original_name):
-    """Given the basename of a mapping or reference file, `original_name`,
+def get_known_filepath(file):
+    """Given the basename of a mapping or reference file, `file`,
     determine the full path of the file on the server.
     """
-    if rmap.is_mapping(original_name):
-        try:
-            filepath = models.MappingBlob.load(original_name).pathname
-        except LookupError:
-            try:
-                loc = utils.get_locator_module("hst")
-                filepath = loc.locate_server_mapping(original_name)
-            except Exception:
-                raise FieldError(
-                    "Couldn't find mapping " + original_name)
-    elif original_name.endswith(".fits"):
-        try:
-            filepath = models.ReferenceBlob.load(original_name).pathname
-        except LookupError:
-            try:
-                loc = utils.get_locator_module("hst")
-                filepath = loc.locate_server_reference(original_name)
-            except Exception:
-                raise FieldError(
-                    "Couldn't find reference file " + original_name)
-    else:
-        raise FieldError(original_name + " should have .pmap, .imap, .rmap, " \
-                        "or .fits extension.")
-    return filepath
+    try:
+        blob = models.FileBlob.load(file)
+    except LookupError:
+        raise FieldError("CRDS doesn't know about file " + repr(file))
+    return blob.pathname
 
 
 def remove_temporary(filepath):
@@ -518,12 +489,11 @@ def get_blacklists(basename, certifypath, ignore_self=True):
             exceptions.append("Error loading " + repr(basename) + 
                               " for blacklist checking.  " + str(exc))
             return [], exceptions
-        map_names = mapping.mapping_names()
-        for child in map_names:
+        for child in mapping.mapping_names() + mapping.reference_names():       
             if ignore_self and child == os.path.basename(certifypath): 
                 continue
             try:
-                child_blob = models.MappingBlob.load(child)
+                child_blob = models.FileBlob.load(child)
             except LookupError:
                 exceptions.append("File " + repr(child) + 
                                   " is not known to CRDS.")
@@ -531,17 +501,6 @@ def get_blacklists(basename, certifypath, ignore_self=True):
             if child_blob.blacklisted_by:
                 blacklisted_by = blacklisted_by.union(
                                     set(child_blob.blacklisted_by))
-        ref_names = mapping.reference_names()
-        for child in ref_names:
-            try:
-                child_blob = models.ReferenceBlob.load(child)
-            except LookupError:
-                exceptions.append("File " + repr(child) + 
-                                  " is not known to CRDS.")
-                continue
-            if child_blob.blacklisted_by:  # must be blacklisted by self
-                blacklisted_by = blacklisted_by.union(
-                                    set(child_blob.blacklisted_by)) 
         return sorted(list(blacklisted_by)), []
     else:
         return [], []
@@ -570,16 +529,11 @@ def create_crds_name(upload_location, upload_name):
     """
     return str(upload_name)   # XXX Fake for now
 
-# XXX Allow arbitrary name as longs as:
-#   a) the name is not reserved.
-#   b) the name does not already exist.
-
 def check_name_reservation(user, filename):
     """Raise an exception if `filename` has not been reserved or was reserved
     by someone other than `user`.
     """
-    ablob = list(models.AuditBlob.filter(
-        filename=filename, action="reserve name"))
+    ablob = models.AuditBlob.filter(filename=filename, action="reserve name")
     if len(ablob) != 1:
         raise CrdsError("Reserve an official name before submitting.")
     ablob = ablob[0]
@@ -637,13 +591,8 @@ def blacklist_file_post(request):
 
 def do_blacklist(blacklist_root, blacklisted, badflag, why, user):
     """Mark one file, `blacklisted`, with status `badflag` and reason `why`."""
-    try: 
-        if rmap.is_mapping(blacklisted):
-            blob = models.MappingBlob.load(blacklisted)
-        elif blacklisted.endswith(".fits"):
-            blob = models.ReferenceBlob.load(blacklisted)
-        else:
-            raise FieldError("Bad file extension for file " + repr(blacklisted))
+    try:
+        blob = models.FileBlob.load(blacklisted)
     except LookupError, exc:
         raise FieldError("Unknown file " + repr(blacklisted))
     if badflag == "bad":
@@ -652,8 +601,7 @@ def do_blacklist(blacklist_root, blacklisted, badflag, why, user):
     else:
         while blacklist_root in blob.blacklisted_by:
             blob.blacklisted_by.remove(blacklist_root)
-    blob.save()
-    
+    blob.save()    
         
 # ===========================================================================
 
@@ -825,9 +773,8 @@ def browse_files_post(request):
 def browse_files_post_guts(request, uploaded, original_name, browsed_file):
     filename = os.path.basename(browsed_file)
     try:
-        blob = models.load_file_blob(filename)
-        related_actions = list(models.AuditBlob.filter(filename=filename))
-        related_actions += models.AuditBlob.delivery(filename)
+        blob = models.FileBlob.load(filename)
+        related_actions = models.AuditBlob.related_to(filename)
     except LookupError:
         blob = None
         related_actions = []
@@ -892,6 +839,7 @@ def browsify_mapping_line(line):
     return "<p>" + line + "</p>"
 
 # XXX Using TPN,  extract interesting header keywords or tables???
+# Also use features in default mappings??
 def browsify_reference(original_name, browsed_file):
     """Format a CRDS reference file for HTML display.   Return HTML lines.
     """
@@ -935,7 +883,7 @@ def reserve_name_post(request):
     if mode == "file_known":  # Use the user's name exactly if unknown.
         reserved_name = validate_post(request, "file_known", FILE_RE)
         known_files = models.FileIndexBlob.load(observatory).known_files
-        audits = list(models.AuditBlob.filter(filename=reserved_name))
+        audits = models.AuditBlob.filter(filename=reserved_name)
         assert (reserved_name not in known_files) and len(audits) == 0, \
             "Name " + repr(reserved_name) + " is already reserved in CRDS."
         models.AuditBlob.new(
@@ -1039,7 +987,7 @@ def recent_activity_post(request):
         value = locals()[var].strip()
         if value not in ["*",""]:
             filters[var] = value
-    filtered_activities = list(models.AuditBlob.filter(**filters))[::-1]
+    filtered_activities = models.AuditBlob.filter(**filters)[::-1]
     return render(request, "recent_activity_results.html", {
                 "filters": filters,
                 "filtered_activities" : filtered_activities,
@@ -1084,8 +1032,7 @@ def browse_db_post(request):
         value = locals()[var].strip()
         if value not in ["*",""]:
             filters[var] = value
-    filtered_db = list(models.MappingBlob.filter(**filters)) + \
-                 list(models.ReferenceBlob.filter(**filters))
+    filtered_db = models.FileBlob.filter(**filters)
     return render(request, "browse_db_results.html", {
                 "filters": filters,
                 "filtered_db" : filtered_db,
@@ -1352,8 +1299,7 @@ def delivery_options_post(request):
         value = locals()[var].strip()
         if value not in ["*",""]:
             filters[var] = value
-    filtered_db = list(models.MappingBlob.filter(**filters)) + \
-                 list(models.ReferenceBlob.filter(**filters))
+    filtered_db = models.FileBlob.filter(**filters)
 
     return render(request, "delivery_options_results.html", {
                 "filters": filters,
@@ -1408,7 +1354,7 @@ def deliver_file_get_paths(observatory, files):
     """
     paths = []
     for file in files:
-        blob = models.load_file_blob(file)
+        blob = models.FileBlob.load(file)
         paths.append(blob.pathname)
     return paths
 
@@ -1423,7 +1369,7 @@ def deliver_file_set_catalog_links(observatory, files, catalog_link):
     available,  not necessarily that the pipeline is currently using the context.
     """
     for file in files:
-        blob = models.load_file_blob(file)
+        blob = models.FileBlob.load(file)
         blob.catalog_link = catalog_link
         blob.state = "delivered"
         blob.save()
@@ -1481,7 +1427,7 @@ def deliver_make_links(observatory, catalog, paths):
             try:
                 os.link(file, dest)
             except Exception:
-                raise CrdsError("Failed to link " + repr(dest))
+                raise CrdsError("failed to link " + repr(dest))
     master_catalog_link = os.path.join(dirs[0], os.path.basename(catalog))
     return master_catalog_link
 
@@ -1490,7 +1436,7 @@ def deliver_remove_fail(observatory, catalog, paths):
     completed delivery.
     """
     dirs = deliver_link_dirs(observatory)
-    for site in dirs:
+    for site in dirs + [catalog]:
         utils.ensure_dir_exists(site)
         for file in paths + [catalog]:
             dest = site +"/" + os.path.basename(file)

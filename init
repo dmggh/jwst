@@ -6,7 +6,7 @@
 # non-essential stuff (sha1sum, instrument, filekind, serial) is not added by
 # the trailing "0" flag.  Switch to "1" to add those.
 
-cd `dirname $0`
+cd `dirname $0`/tools
 
 source ../env.csh
 

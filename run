@@ -1,0 +1,4 @@
+#!/bin/csh
+source env.csh
+cd /home/jmiller/work/workspace_crds/CRDS_server/webserver/python/lib/python/crds/server
+exec python manage.py runserver  localhost:8000

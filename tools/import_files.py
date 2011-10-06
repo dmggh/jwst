@@ -14,28 +14,28 @@ import crds.server.interactive.models
 from crds import (rmap, utils, log)
 from crds.server.interactive import (views, models)
 
-"""
-def create_delivery_blob(observatory, upload_name, permanent_location, 
-    deliverer_user, deliverer_email, modifier_name, description):
-"""
+def submit_files(files, observatory, deliverer, 
+    deliverer_email="support@stsci.edu", 
+    description="Initial mass database import", 
+    add_slow_fields=False, index=None):
+    
+    for file in files:
+        
+        if index and index.exists(file):
+            log.info("Skipping existing file", repr(file))
+            continue
 
-def submit_mappings(context, 
-                    deliverer,
-                    deliverer_email="support@stsci.edu", 
-                    description="Initial mass database import",
-                    add_slow_fields=False,
-                    index=None):
-    ctx = rmap.get_cached_mapping(context)
-    for mapping in ctx.mapping_names():
-        existing_location = rmap.locate_file(
-            ctx.observatory, mapping, mode="server")
-        if models.MappingBlob.exists(mapping):
-            log.info("Skipping existing mapping", repr(mapping))
-        else:
-            log.info("Submitting", repr(mapping), "from", repr(existing_location))
+        try:
+            existing_location = rmap.locate_file(observatory, file, mode="server")
+        except Exception:
+            log.error("Can't locate", repr(file))
+            continue
+
+        log.info("Submitting", repr(file), "from", repr(existing_location))
+        try:
             blob = models.add_crds_file(
-                observatory=ctx.observatory, 
-                upload_name=mapping, 
+                observatory=observatory, 
+                upload_name=file, 
                 permanent_location=existing_location, 
                 deliverer=deliverer, 
                 deliverer_email=deliverer_email, 
@@ -43,39 +43,9 @@ def submit_mappings(context,
                 creation_method="mass import",
                 add_slow_fields=add_slow_fields,
                 index=index)
-
-def submit_references(context, 
-                    deliverer,
-                    deliverer_email="support@stsci.edu", 
-                    description="Initial mass database import",
-                    add_slow_fields=False,
-                    index=None):
-    ctx = rmap.get_cached_mapping(context)
-    for reference in ctx.reference_names():
-        try:
-            existing_location = rmap.locate_file(
-                    ctx.observatory, reference, mode="server")
-        except Exception:
-            log.error("Can't locate", repr(reference))
-            existing_location = "unknown_location_for_" + reference
-        if models.ReferenceBlob.exists(reference):
-            log.info("Skipping existing reference", repr(reference))
-        else:
-            log.info("Submitting", repr(reference), "from", repr(existing_location))
-            try:
-                blob = models.add_crds_file(
-                    observatory=ctx.observatory, 
-                    upload_name=reference, 
-                    permanent_location=existing_location, 
-                    deliverer=deliverer, 
-                    deliverer_email=deliverer_email, 
-                    description=description,
-                    creation_method="mass import",
-                    add_slow_fields=add_slow_fields,
-                    index=index)
-            except Exception:
-                log.error("Submission FAILED for", repr(reference))
-
+        except:
+            log.error("Submission FAILED for", repr(file))
+                
 def hack_sqlite3_performance():
     """These pragmas make a huge difference on Fedora 15.  Mac OS-X seems to
     have good performance (perhaps these are already turned on) by default.
@@ -91,14 +61,11 @@ def main(args):
     
     ctx = rmap.get_cached_mapping(args[0])
     index = models.create_index(ctx.observatory)
+    files = ctx.mapping_names() + ctx.reference_names()
 
-    submit_mappings(args[0], deliverer=args[1], deliverer_email=args[2],
-                    description=args[3], add_slow_fields=int(args[4]),
-                    index = index)
-
-    submit_references(args[0], deliverer=args[1], deliverer_email=args[2],
-                    description=args[3],add_slow_fields=int(args[4]),
-                    index = index)
+    submit_files(files, ctx.observatory, deliverer=args[1], 
+        deliverer_email=args[2], description=args[3], 
+        add_slow_fields=int(args[4]), index = index)
     
     index.save()    
     log.standard_status()

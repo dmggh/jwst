@@ -188,7 +188,8 @@ class Blob(object):
   
     @classmethod
     def filter(cls, **matches):
-        """Return the Blobs of this `cls` which match the filter `matches`."""
+        """Return list of Blobs of this `cls` which match filter `matches`."""
+        filtered = []
         for model in BlobModel.objects.filter(kind=cls.__name__):
             candidate = cls.from_model(model)
             for key, val in matches.items():
@@ -196,7 +197,8 @@ class Blob(object):
                 if val != cval:
                     break
             else:
-                yield candidate
+                filtered.append(candidate)
+        return filtered
 
     @classmethod
     def exists(cls, name):
@@ -275,6 +277,7 @@ class FileBlob(Blob):
     
     fields = dict(
         # User supplied fields
+        type = BlobField("reference|mapping", "type of file", ""),
         uploaded_as = BlobField(FILENAME_RE, "original upload filename", ""),
         modifier_name = BlobField(str, "person who made these changes",""),
         deliverer_user = BlobField(str, "username who uploaded the file", ""),
@@ -340,6 +343,10 @@ class FileBlob(Blob):
         blob = cls()
         blob.observatory = observatory
         blob.uploaded_as = upload_name
+        if rmap.is_mapping(permanent_location):
+            blob.type = "mapping"
+        else:
+            blob.type = "reference"
         blob.pathname = permanent_location
         blob.deliverer_user = deliverer_user
         blob.deliverer_email = deliverer_email
@@ -411,20 +418,6 @@ class FileBlob(Blob):
     @property
     def checksum_ok(self):
         return self.checksum() == self.sha1sum
-        
-class MappingBlob(FileBlob):
-    """Represents a CRDS mapping file, i.e. a pipeline or instrument context,
-    or an rmap.   Records delivery info, status, and location.
-    """
-    
-class ReferenceBlob(FileBlob):
-    """Represents a reference data file managed by CRDS."""
-    
-def load_file_blob(filename):
-    if rmap.is_mapping(filename):
-        return MappingBlob.load(filename)
-    else:
-        return ReferenceBlob.load(filename)
     
 # ============================================================================
 
@@ -495,21 +488,24 @@ class AuditBlob(Blob):
 
     @property
     def fileblob(self):
+        """The FileBlob for the filename associated with this AuditBlob."""
         if not hasattr(self, "_fileblob"):
-            if rmap.is_mapping(self.filename):   # code smell here...  :-(
-                self._fileblob = MappingBlob.load(self.filename)
-            else:
-                self._fileblob = ReferenceBlob.load(self.filename)
+            self._fileblob = FileBlob.load(self.filename)
         return self._fileblob
     
     @classmethod
-    def delivery(self, filename):
-        for audit in AuditBlob.filter(action="deliver"):
-            print "checking delivery", filename, "in", audit
+    def delivery(cls, filename):
+        """Return the AuditBlob associated with delivering `filename`."""
+        for audit in cls.filter(action="deliver"):
             if filename in audit.details:
                 return [audit]
         else:
             return []
+        
+    @classmethod
+    def related_to(cls, filename):
+        """Return all the AuditBlobs pertaining to actions on `filename`."""
+        return cls.filter(filename=filename) + cls.delivery(filename)
 
     @property
     def extension(self):  return os.path.splitext(self.filename)[-1]
@@ -521,12 +517,8 @@ def add_crds_file(observatory, upload_name, permanent_location,
             change_level="SEVERE", opus_flag="N",
             add_slow_fields=True, index=None):
     "Make a database record for this file.  Track the action of creating it."""
-    if rmap.is_mapping(permanent_location):
-        blob_class = MappingBlob
-    else:
-        blob_class = ReferenceBlob
-        
-    fileblob = blob_class.new(
+
+    fileblob = FileBlob.new(
         observatory, upload_name, permanent_location, 
         deliverer, deliverer_email, description,
         change_level=change_level, opus_flag=opus_flag,
