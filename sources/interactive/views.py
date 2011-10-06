@@ -823,16 +823,16 @@ def browse_files_post(request):
     return response
 
 def browse_files_post_guts(request, uploaded, original_name, browsed_file):
+    filename = os.path.basename(browsed_file)
     try:
-        if rmap.is_mapping(original_name):
-            blob = models.MappingBlob.load(os.path.basename(browsed_file))
-        else:
-            blob = models.ReferenceBlob.load(os.path.basename(browsed_file))
+        blob = models.load_file_blob(filename)
+        related_actions = [
+            x for x in models.AuditBlob.filter(filename=filename)
+        ]
+        related_actions += models.AuditBlob.delivery(filename)
     except LookupError:
         blob = None
-
-    if blob is not None:
-        related_actions = models.AuditBlob.filter(filename=blob.filename)
+        related_actions = []
     
     if rmap.is_mapping(original_name):
         file_contents = browsify_mapping(original_name, browsed_file)
@@ -1386,38 +1386,57 @@ def delivery_process_post(request):
     
     catalog = deliver_file_catalog(observatory, delivered_files, "I")
     
-    paths = deliver_file_db(
-        request.user, observatory, description, delivered_files)
-                         
-    catalog_link = deliver_make_links(observatory, catalog, paths)
+    paths = deliver_file_get_paths(observatory, delivered_files)
+                        
+    try:
+        catalog_link = deliver_make_links(observatory, catalog, paths)
+    except Exception, exc:
+        deliver_remove_fail(observatory, catalog, paths)
+        raise CrdsError("Delivery failed: " + str(exc))
+
+    deliver_file_set_catalog_links(observatory, delivered_files, catalog_link)
     
     models.AuditBlob.new(
         request.user, "deliver", os.path.basename(catalog), description, 
-        repr(delivered_files), observatory)        
+        repr([os.path.basename(catalog)] + delivered_files), observatory)        
 
     return render(request, "delivery_process_results.html", {
         "delivered_files" : delivered_files,
     })
 
-def deliver_file_db(user, observatory, description, files):
+def deliver_file_get_paths(observatory, files):
     """Adjust the database to account for this delivery.   Returns a list of
     absolute paths to `files`.
     """
     paths = []
     for file in files:
         blob = models.load_file_blob(file)
+        paths.append(blob.pathname)
+    return paths
+
+def deliver_file_set_catalog_links(observatory, files, catalog_link):
+    """Set the `catalog_link` in each FileBlob in `files` and mark each
+    blob as state="delivered".   This just means that OPUS now has the
+    opportunity to pick up the file.   As long as `catalog_link` exists, it is
+    considered to remain in "delivered" state.  When the catalog_link no longer
+    exists,  it is assumed OPUS has copied the file, deleted the delivery link,
+    and the file transitions from "delivered" to "operational".   Here,
+    "operational" means that OPUS and the archives have the context or file 
+    available,  not necessarily that the pipeline is currently using the context.
+    """
+    for file in files:
+        blob = models.load_file_blob(file)
+        blob.catalog_link = catalog_link
         blob.state = "delivered"
         blob.save()
-        paths.append(blob.pathname)
-#        models.AuditBlob.new(
-#            user, "deliver", file, description, repr(files), observatory)        
-    return paths
 
 def deliver_file_catalog(observatory, files, operation="I"):
     """Generate the delivery catalog file and return its path.   The catalog
-    file is a kind of manifest and semaphore used by OPUS to know that a 
-    delivery has been made and what files are in it.   When OPUS deletes
-    the catalog link,  the file is considered delivered.
+    file is a kind of manifest and semaphore used by OPUS to know that a
+    delivery has been made and what files are in it.   When CRDS links the
+    catalog file and deliveries into the delivery directories,  they are
+    considered "delivered". When OPUS deletes the catalog link,  the file is
+    considered "operational".
 
     The filepath is something like:
        /hstdev/store/srefpipe/deliverfilesauto/opus_12314_i.cat    
@@ -1461,9 +1480,26 @@ def deliver_make_links(observatory, catalog, paths):
         utils.ensure_dir_exists(site)
         for file in paths + [catalog]:
             dest = site +"/" + os.path.basename(file)
-            os.link(file, dest)
+            try:
+                os.link(file, dest)
+            except Exception:
+                raise CrdsError("Failed to link " + repr(dest))
     master_catalog_link = os.path.join(dirs[0], os.path.basename(catalog))
     return master_catalog_link
+
+def deliver_remove_fail(observatory, catalog, paths):
+    """Delete all the delivery links for a failed but possibly partially
+    completed delivery.
+    """
+    dirs = deliver_link_dirs(observatory)
+    for site in dirs:
+        utils.ensure_dir_exists(site)
+        for file in paths + [catalog]:
+            dest = site +"/" + os.path.basename(file)
+            try:
+                os.remove(dest)
+            except Exception:
+                pass
 
 def deliver_link_dirs(observatory):
     """Return a list of directories into which all the files in a delivery

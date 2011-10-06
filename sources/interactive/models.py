@@ -268,6 +268,7 @@ CHANGE_LEVELS = ["SEVERE", "MEDIUM", "TRIVIAL"]
 COMMENT_MODES = ["Y","N","APPEND"]
 
 FILENAME_RE = "^[A-Za-z0-9_.]+$"
+FILEPATH_RE = "^[A-Za-z0-9_./]+$"
 
 class FileBlob(Blob):
     """Represents a delivered file,  either a reference or a mapping."""
@@ -282,6 +283,10 @@ class FileBlob(Blob):
             str, "Brief rationale for changes to this file.", "", nonblank=False),
         state = BlobField(FILE_STATUS_MAP.keys(), 
             "operational status of this file.", "submitted"),
+        catalog_link = BlobField(FILEPATH_RE, 
+            "Path to catalog file listing this file for delivery to OPUS. " \
+            "File transitions from 'delivered' to 'operational' when deleted.",
+            ""),
         blacklisted_by = BlobField(list, 
             "Comma separated list of files marking this"
             " file as bad,  possibly self.", []),
@@ -321,9 +326,6 @@ class FileBlob(Blob):
             str, "Start of INFLIGHT observation." , ""),
         observation_end_date = BlobField(
             str, "End of INFLIGHT observation.", ""),
-        mode_values = BlobField(
-            dict, "Mapping from critical FITS header "
-                "parameters to their values.", {}),
     )
     
     @classmethod
@@ -381,6 +383,13 @@ class FileBlob(Blob):
     def status(self):
         if self.blacklisted_by:
             return "blacklisted"
+        elif self.state == "delivered":
+            if os.path.exists(self.catalog_link):
+                return "delivered"
+            else:
+                self.state = "operational"
+                self.save()
+                return "operational"
         else:
             return self.state
 
@@ -492,6 +501,15 @@ class AuditBlob(Blob):
             else:
                 self._fileblob = ReferenceBlob.load(self.filename)
         return self._fileblob
+    
+    @classmethod
+    def delivery(self, filename):
+        for audit in AuditBlob.filter(action="deliver"):
+            print "checking delivery", filename, "in", audit
+            if filename in audit.details:
+                return [audit]
+        else:
+            return []
 
     @property
     def extension(self):  return os.path.splitext(self.filename)[-1]
