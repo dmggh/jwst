@@ -578,8 +578,8 @@ def check_name_reservation(user, filename):
     """Raise an exception if `filename` has not been reserved or was reserved
     by someone other than `user`.
     """
-    ablob = [x for x in models.AuditBlob.filter(
-                            filename=filename, action="reserve name")]
+    ablob = list(models.AuditBlob.filter(
+        filename=filename, action="reserve name"))
     if len(ablob) != 1:
         raise CrdsError("Reserve an official name before submitting.")
     ablob = ablob[0]
@@ -826,9 +826,7 @@ def browse_files_post_guts(request, uploaded, original_name, browsed_file):
     filename = os.path.basename(browsed_file)
     try:
         blob = models.load_file_blob(filename)
-        related_actions = [
-            x for x in models.AuditBlob.filter(filename=filename)
-        ]
+        related_actions = list(models.AuditBlob.filter(filename=filename))
         related_actions += models.AuditBlob.delivery(filename)
     except LookupError:
         blob = None
@@ -937,7 +935,7 @@ def reserve_name_post(request):
     if mode == "file_known":  # Use the user's name exactly if unknown.
         reserved_name = validate_post(request, "file_known", FILE_RE)
         known_files = models.FileIndexBlob.load(observatory).known_files
-        audits = [x for x in models.AuditBlob.filter(filename=reserved_name)]
+        audits = list(models.AuditBlob.filter(filename=reserved_name))
         assert (reserved_name not in known_files) and len(audits) == 0, \
             "Name " + repr(reserved_name) + " is already reserved in CRDS."
         models.AuditBlob.new(
@@ -1041,7 +1039,7 @@ def recent_activity_post(request):
         value = locals()[var].strip()
         if value not in ["*",""]:
             filters[var] = value
-    filtered_activities = models.AuditBlob.filter(**filters)
+    filtered_activities = list(models.AuditBlob.filter(**filters))[::-1]
     return render(request, "recent_activity_results.html", {
                 "filters": filters,
                 "filtered_activities" : filtered_activities,
@@ -1086,8 +1084,8 @@ def browse_db_post(request):
         value = locals()[var].strip()
         if value not in ["*",""]:
             filters[var] = value
-    filtered_db = [x for x in models.MappingBlob.filter(**filters)] + \
-                 [x for x in models.ReferenceBlob.filter(**filters)]
+    filtered_db = list(models.MappingBlob.filter(**filters)) + \
+                 list(models.ReferenceBlob.filter(**filters))
     return render(request, "browse_db_results.html", {
                 "filters": filters,
                 "filtered_db" : filtered_db,
@@ -1354,8 +1352,8 @@ def delivery_options_post(request):
         value = locals()[var].strip()
         if value not in ["*",""]:
             filters[var] = value
-    filtered_db = [x for x in models.MappingBlob.filter(**filters)] + \
-                 [x for x in models.ReferenceBlob.filter(**filters)]
+    filtered_db = list(models.MappingBlob.filter(**filters)) + \
+                 list(models.ReferenceBlob.filter(**filters))
 
     return render(request, "delivery_options_results.html", {
                 "filters": filters,
