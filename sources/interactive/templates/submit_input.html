@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
 {% block column1 %}
-    <h2>Submit File</h2>
-    <form method="post" action="/submit/" enctype="multipart/form-data"> 
+    <h2>Submit {{crds_filetype|capfirst}} File</h2>
+    <form method="post" action="/submit/{{crds_filetype}}/" enctype="multipart/form-data"> 
       {% csrf_token %}
       <table width="100%">
         <tr>
@@ -22,31 +22,39 @@
           </td>
         </tr>
         <tr>
-          <td width="25%" class="label">Comparison File:</td>
+          <td width="25%" class="label">Auto-rename:</td>
           <td width="25%">
-            <input type='text' name='comparison_file' size="40" 
-                value="{{comparison_file}}">
+            <input type="checkbox" name='auto_rename' >{{auto_rename}}</input>
           </td>
         </tr>
-        <tr>
-          <td width="25%" class="label">OPUS Flag:</td>
-          <td width="25%">
-            <select name='opus_flag' value="{{opus_flag}}">
-                <option>Y</option>
-                <option>N</option>
-            </select>
-          </td>
-        </tr>
-        <tr>
-          <td width="25%" class="label">Change Level:</td>
-          <td width="25%">
-            <select name='change_level' value="{{change_level}}">
-                <option>SEVERE</option>
-                <option>MEDIUM</option>
-                <option>TRIVIAL</option>
-            </select>
-          </td>
-        </tr>
+        {% if crds_filetype == "reference" %}
+            <tr>
+              <td width="25%" class="label">Comparison File:</td>
+              <td width="25%">
+                <input type='text' name='comparison_file' size="40" 
+                    value="{{comparison_file}}">
+              </td>
+            </tr>
+            <tr>
+              <td width="25%" class="label">OPUS Flag:</td>
+              <td width="25%">
+                <select name='opus_flag' value="{{opus_flag}}">
+                    <option>Y</option>
+                    <option>N</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td width="25%" class="label">Change Level:</td>
+              <td width="25%">
+                <select name='change_level' value="{{change_level}}">
+                    <option>SEVERE</option>
+                    <option>MEDIUM</option>
+                    <option>TRIVIAL</option>
+                </select>
+              </td>
+            </tr>
+        {% endif %}
         <tr>
           <td width="25%" class="label">Description:</td>
           <td width="25%">

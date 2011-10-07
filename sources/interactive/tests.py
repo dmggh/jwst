@@ -120,7 +120,7 @@ class SimpleTest(TestCase):
     
     def test_submit_get(self):
         self.authenticate()
-        response = self.client.get("/submit/")
+        response = self.client.get("/submit/reference/")
         self.assert_no_errors(response)
 
     def test_submit_post(self):
@@ -132,7 +132,7 @@ class SimpleTest(TestCase):
             })
         self.assert_no_errors(response)
         self.assertIn("hst_cos_deadtab_0001.rmap", response.content)
-        response = self.client.post("/submit/", {
+        response = self.client.post("/submit/mapping/", {
             "observatory" : "hst",
             "comparison_file" : "",
             "submitted_file" : open("interactive/test_data/hst_cos_deadtab_0001.rmap"),

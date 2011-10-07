@@ -395,14 +395,16 @@ def bestrefs_post(request):
 
 @error_trap("submit_input.html")
 @login_required
-def submit_file(request):
-    """Handle file submission."""
+def submit_file(request, crds_filetype):
+    """Handle file submission,  crds_filetype=reference|mapping."""
     if request.method == "GET":
-        return render(request, 'submit_input.html')
+        return render(request, 'submit_input.html', {
+            "crds_filetype" :  crds_filetype,
+        })
     else:
-        return submit_file_post(request)
+        return submit_file_post(request, crds_filetype)
 
-def submit_file_post(request):
+def submit_file_post(request, crds_filetype):
     """Handle the POST case of submit_file,   returning dict of template vars.
     """
     observatory = validate_post(
@@ -414,22 +416,22 @@ def submit_file_post(request):
 
     description = validate_post(request, "description", DESCRIPTION_RE)
 
-    if request.POST["comparison_file"].strip():
-        comparison_file = validate_post(
-            request, "comparison_file", is_known_file)
-    else:
-        comparison_file = ""
-
-    if not rmap.is_mapping(original_name):
+    if crds_filetype == "reference":
         opus_flag = validate_post(request, "opus_flag", "Y|N")
         change_level = validate_post(
             request, "change_level", models.CHANGE_LEVELS)
+        comparison_file = validate_post(
+            request, "comparison_file", is_known_file)
     else:
         opus_flag = "Y"
-        change_level = "SEVERE"    
+        change_level = "SEVERE"
+        comparison_file = None
+        
+    auto_rename = "auto_rename" in request.POST    
 
-    # Determine the temporary and permanent file paths, keeping file temporary.
-    upload_location, permanent_location = handle_crds_locations(ufile)
+    # Determine the temporary and permanent file paths, not yet copying.
+    upload_location, permanent_location = handle_crds_locations(
+        observatory, ufile, auto_rename)
     
     check_name_reservation(request.user, os.path.basename(permanent_location))
 
@@ -457,6 +459,7 @@ def submit_file_post(request):
     # blob.mode_values = utils.get_critical_header_parameters(permanent_location)
     
     return render(request, 'submit_results.html', {
+                "crds_filetype": crds_filetype,
                 "baseperm":os.path.basename(permanent_location),
                 })
 
@@ -505,28 +508,33 @@ def get_blacklists(basename, certifypath, ignore_self=True):
     else:
         return [], []
     
-def handle_crds_locations(uploaded_file, clobber=False):
+def handle_crds_locations(observatory, uploaded_file, auto_rename):
     """Given a Django `uploaded_file` object, determine where it should reside
-    permanently.  If `clobber` is False ensure that the permanent filename does
-    not already exist on the file system or in the database,  raising an
-    exception if it does exist.   Return both the temporary upload path and
+    permanently.  Return both the temporary upload path and
     the location the file should reside permanently.
     """
     # determine where to store
     upload_location = uploaded_file.temporary_file_path()
-    permanent_location = create_crds_name(upload_location, uploaded_file.name)
+    permanent_location = create_crds_name(
+        observatory, upload_location, uploaded_file.name, auto_rename)
     baseperm = os.path.basename(str(permanent_location))
-    if not clobber and \
-       (os.path.exists(permanent_location) or models.FileBlob.exists(baseperm)):
+    if os.path.exists(permanent_location) or models.FileBlob.exists(baseperm):
         raise FieldError("File " + repr(baseperm) + " already exists.")    
     return upload_location, permanent_location
 
-def create_crds_name(upload_location, upload_name):
+def create_crds_name(observatory, upload_location, upload_name, auto_rename):
     """Determine where a file should be stored on a permanent basis,  assigning
     it both an appropriate path and (possibly) a unique name.  `upload_location`
     is the file's temporary upload path.  upload_name is how the file was named
-    on the user's computer,  not the temporary file.
+    on the user's computer,  not the temporary file.   If auto_rename is true,
+    an appropriate new CRDS name is automatically generated.  Otherwise,  the
+    upload_name will become the CRDS filename.
     """
+    if auto_rename:
+        instrument, filekind, id = utils.get_file_properties(
+            observatory, upload_location)
+    else:
+        pass
     return str(upload_name)   # XXX Fake for now
 
 def check_name_reservation(user, filename):

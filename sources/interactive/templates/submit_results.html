@@ -3,11 +3,11 @@
 {% load stdtags %}
 
 {% block column1 %}
-    <h2>Submit File</h2>
+    <h2>Submit {{crds_filetype|capfirst}} File</h2>
     {% if error_messages %}
      <h3 class="error">Submission for {{filename|grey}} Failed.</h3>
     {% else %}
-     <h3 class="success">Delivered {{filename|grey}} as {{baseperm|grey}}</h3>
+     <h3 class="success">Delivered {{filename|grey}} as {{baseperm|browse}}</h3>
     {% endif %}
 {% endblock column1 %}
 
