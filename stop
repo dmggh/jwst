@@ -1,1 +1,0 @@
-python -c "import urllib ; urllib.urlopen('http://localhost:8000/shutdown')" >& /dev/null
