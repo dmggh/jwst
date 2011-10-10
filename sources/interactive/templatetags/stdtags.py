@@ -77,7 +77,7 @@ browse.is_safe = True
 def get_url(observatory, filename):
     locator = utils.get_locator_module(observatory)
     if rmap.is_mapping(filename):
-        url = locator.mapping_url(config.CRDS_MAPPING_URL, filename)
+        url = rmap.mapping_url(config.CRDS_MAPPING_URL, filename)
     else:
         url = locator.reference_url(config.CRDS_REFERENCE_URL, filename)
     return url

@@ -69,7 +69,7 @@ class SimpleTest(TestCase):
     def fake_database_files(self, files, observatory="hst"):
         for filename in files:
             models.add_crds_file(
-                observatory, filename, rmap.locate_file(observatory, filename), 
+                observatory, filename, rmap.locate_file(filename), 
                 deliverer="homer", deliverer_email="homer@simpsons.com", 
                 description="delivered by the man",
                 creation_method="mass import", add_slow_fields=False)
