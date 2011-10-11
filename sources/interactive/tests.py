@@ -68,8 +68,9 @@ class SimpleTest(TestCase):
 
     def fake_database_files(self, files, observatory="hst"):
         for filename in files:
+            location = filename if os.path.dirname(filename) else rmap.locate_file(filename)
             models.add_crds_file(
-                observatory, filename, rmap.locate_file(filename), 
+                observatory, filename, location, 
                 deliverer="homer", deliverer_email="homer@simpsons.com", 
                 description="delivered by the man",
                 creation_method="mass import", add_slow_fields=False)
@@ -334,7 +335,7 @@ class SimpleTest(TestCase):
         self.authenticate()
         self.fake_database_files([
             "hst_acs_dgeofile.rmap", 
-            "o8u2214fj_dxy.fits", 
+            "interactive/test_data/o8u2214fj_dxy.fits", 
             ])
         response = self.client.post("/add_useafter/", {
                 "old_mapping" : "hst_acs_dgeofile.rmap",
@@ -351,7 +352,7 @@ class SimpleTest(TestCase):
         self.authenticate()
         self.fake_database_files([
             "hst_acs_dgeofile.rmap", 
-            "o8u2214fj_dxy.fits", 
+            "interactive/test_data/o8u2214fj_dxy.fits", 
             ])
         response = self.client.post("/add_useafter/", {
                 "old_mapping" : "hst_acs_dgeofile.rmap",
@@ -368,7 +369,7 @@ class SimpleTest(TestCase):
         self.authenticate()
         self.fake_database_files([
             "hst_acs_dgeofile.rmap", 
-            "o8u2214fj_dxy.fits", 
+            "interactive/test_data/o8u2214fj_dxy.fits", 
             ])
         response = self.client.post("/add_useafter/", {
                 "old_mapping" : "hst_acs_dgeofile.rmap",

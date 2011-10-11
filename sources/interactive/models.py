@@ -304,8 +304,6 @@ class FileBlob(Blob):
             "instrument associated with file", "", nonblank=False),
         filekind = BlobField(FILEKINDS, 
             "dataset keyword associated with this file", "", nonblank=False),
-        serial = BlobField("[A-Za-z0-9_]*",
-            "file id or serial number for this file", "", nonblank=False),
         sha1sum = BlobField(str, 
             "checksum of file at upload time", "", nonblank=False),
 
@@ -354,11 +352,10 @@ class FileBlob(Blob):
         blob.delivery_date = timestamp.now()
         if add_slow_fields:
             blob.sha1sum = blob.checksum()
-        instrument, filekind, serial = utils.get_file_properties(
+        instrument, filekind = utils.get_file_properties(
             observatory, permanent_location)
         blob.instrument = instrument
         blob.filekind= filekind
-        blob.serial = serial
         blob.blacklisted_by = []
 
         # These need to be checked before the file is copied and the blob is made.

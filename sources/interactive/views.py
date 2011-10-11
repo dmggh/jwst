@@ -403,6 +403,11 @@ def submit_file(request, crds_filetype):
         })
     else:
         return submit_file_post(request, crds_filetype)
+    
+def file_exists_somehow(filename):
+    """Return True IFF `filename` really exists or CRDS thinks it does."""
+    return os.path.exists(filename) or \
+        models.FileBlob.exists(os.path.basename(filename))
 
 def submit_file_post(request, crds_filetype):
     """Handle the POST case of submit_file,   returning dict of template vars.
@@ -430,10 +435,19 @@ def submit_file_post(request, crds_filetype):
     auto_rename = "auto_rename" in request.POST    
 
     # Determine the temporary and permanent file paths, not yet copying.
-    upload_location, permanent_location = handle_crds_locations(
-        observatory, ufile, auto_rename)
-    
-    check_name_reservation(request.user, os.path.basename(permanent_location))
+    upload_location = ufile.temporary_file_path()    
+    if auto_rename:
+        permanent_name = auto_rename_file(
+            observatory, ufile.name, upload_location)
+    else:
+        permanent_name = check_name_reservation(request.user, ufile.name)
+
+    # CRDS keeps all new files in a standard layout.   Older files can be
+    # grandfathered in by special calls to add_crds_file.
+    permanent_location = rmap.locate_file(permanent_name, observatory)
+
+    if file_exists_somehow(permanent_location):
+        raise FieldError("File " + repr(baseperm) + " already exists.")    
 
     # Check the file,  leaving no server state if it fails.  Give error results.
     do_certify_file(original_name, upload_location)
@@ -518,8 +532,6 @@ def handle_crds_locations(observatory, uploaded_file, auto_rename):
     permanent_location = create_crds_name(
         observatory, upload_location, uploaded_file.name, auto_rename)
     baseperm = os.path.basename(str(permanent_location))
-    if os.path.exists(permanent_location) or models.FileBlob.exists(baseperm):
-        raise FieldError("File " + repr(baseperm) + " already exists.")    
     return upload_location, permanent_location
 
 def create_crds_name(observatory, upload_location, upload_name, auto_rename):
@@ -531,7 +543,7 @@ def create_crds_name(observatory, upload_location, upload_name, auto_rename):
     upload_name will become the CRDS filename.
     """
     if auto_rename:
-        instrument, filekind, id = utils.get_file_properties(
+        instrument, filekind = utils.get_file_properties(
             observatory, upload_location)
     else:
         pass
@@ -548,6 +560,7 @@ def check_name_reservation(user, filename):
     if ablob.user != str(user):
         raise CrdsError("User " + repr(str(ablob.user)) + " already reserved " + 
                         repr(filename) + ". Try reserving a different name.")
+    return filename
 
 # ===========================================================================
 
@@ -586,7 +599,7 @@ def blacklist_file_post(request):
         do_blacklist(
             blacklist_root, also_blacklisted, badflag, why, request.user)
     
-    instrument, filekind, serial = utils.get_file_properties(
+    instrument, filekind = utils.get_file_properties(
             observatory, blacklist_root)
 
     models.AuditBlob.new(
@@ -956,6 +969,12 @@ def get_new_name(observatory, instrument, filekind, extension):
     
     return name
 
+def auto_rename_file(observatory, upload_name, upload_path):
+    extension = os.path.splitext(upload_name)[-1]
+    instrument, filekind = utils.get_file_properties(
+        observatory, upload_path)
+    return get_new_name(observatory, instrument, filekind, extension)
+
 # ===========================================================================
 
 @error_trap("recent_activity_input.html")
@@ -1109,15 +1128,15 @@ def generate_new_names(old_pipeline, updates):
     return new_names
 
 def new_name(old_map):
-    """Given and old mapping name, `old_map`, adjust the serial number to 
+    """Given an old mapping name, `old_map`, adjust the serial number to 
     create a new mapping name of the same series.
     """
     observatory = rmap.get_cached_mapping(old_map).observatory
-    instrument, filekind, _serial = utils.get_file_properties(
+    instrument, filekind = utils.get_file_properties(
         observatory, old_map)
     extension = os.path.splitext(old_map)[-1]
     new_map = get_new_name(observatory, instrument, filekind, extension)
-    assert not os.path.exists(rmap.locate_mapping(new_map)), \
+    assert not (rmap.mapping_exists(new_map) or models.FileBlob.exists(new_map)), \
         "Program error.  New mapping " + repr(new_map) + " already exists."
     return new_map
 
