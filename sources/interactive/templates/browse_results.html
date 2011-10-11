@@ -62,6 +62,10 @@
                     <td>{{fileblob.description}}</td>
                  </tr>
                  <tr>
+                    <td width="20%" align="left" class="label">Uploaded Name</td>
+                    <td>{{fileblob.uploaded_as}}</td>
+                 </tr>
+                 <tr>
                     <td width="20%" align="left" class="label">Sha1sum</td>
                     {% if fileblob.sha1sum %}
                         {% if fileblob.checksum_ok %}

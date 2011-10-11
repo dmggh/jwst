@@ -1,10 +1,40 @@
+import os.path
+import base64
+
 from jsonrpc import jsonrpc_method
 from jsonrpc.exceptions import OtherError
 
 import crds.server.interactive.models as imodels
 import crds.server.config as config
 import crds.rmap as rmap
-import base64
+
+# ===========================================================================
+
+def get_url(observatory, filename):
+    if rmap.is_mapping(filename):
+        url = mapping_url(filename)
+    else:
+        url = reference_url(filename)
+    return url
+
+def reference_url(reference):
+    """Return a file URL which can be used to retrieve the specified `reference`.
+    """
+    reference = os.path.basename(reference)
+    blob = imodels.FileBlob.load(reference)
+    return config.CRDS_REFERENCE_URL + "/references/" + blob.observatory + \
+        "/" + reference
+
+def mapping_url(mapping):
+    """Return a file URL which can be used to retrieve the specified `mapping`.
+    """
+    mapping = os.path.basename(mapping)
+    blob = models.FileBlob.load(mapping)
+    return config.CRDS_MAPPING_URL + "/mappings/" + blob.observatory + \
+        "/" + mapping
+
+# ===========================================================================
+
 
 @jsonrpc_method('get_best_references(String, Object)')
 def get_best_references(request, context, header):

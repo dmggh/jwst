@@ -11,6 +11,7 @@ from django.utils.safestring import mark_safe
 
 from crds import (rmap, utils)
 from crds.server import (config)
+import crds.server.jsonapi.views as jviews
 
 register = template.Library()
 
@@ -74,14 +75,6 @@ browse.is_safe = True
 #  2. The core library knows how to transform observatory -> personality.
 #  3. This code knows how to convert a filter expression to an anchor.
 
-def get_url(observatory, filename):
-    locator = utils.get_locator_module(observatory)
-    if rmap.is_mapping(filename):
-        url = rmap.mapping_url(config.CRDS_MAPPING_URL, filename)
-    else:
-        url = locator.reference_url(config.CRDS_REFERENCE_URL, filename)
-    return url
-
 @register.filter
 def download_url(filename, observatory):
     """Return the URL for downloading `file` of `observatory`,  optionally
@@ -97,8 +90,8 @@ def download_url(filename, observatory):
     text = " ".join(parts[1:])
     if not text:
         text = filename
-    url = get_url(observatory, filename)
-    return url
+    return jviews.get_url(observatory, filename)
+
 #     return mark_safe(url)
 # download.is_safe = True
 
