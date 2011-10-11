@@ -1,6 +1,7 @@
 from jsonrpc import jsonrpc_method
 from jsonrpc.exceptions import OtherError
 
+import crds.server.interactive.models as imodels
 import crds.server.config as config
 import crds.rmap as rmap
 import base64
@@ -22,19 +23,20 @@ def get_reference_names(request, context):
 @jsonrpc_method('get_mapping_data(String, String)')
 def get_mapping_data(request, context, mapping):
     ctx = rmap.get_cached_mapping(context)
-    filepath = ctx.locate.locate_server_mapping(mapping)
-    return open(filepath).read()
+    where = rmap.locate_mapping(mapping)
+    return open(where).read()
 
 @jsonrpc_method('get_mapping_url(String, String)')
 def get_mapping_url(request, context, mapping):
     ctx = rmap.get_cached_mapping(context)
-    return ctx.locate.mapping_url(config.CRDS_MAPPING_URL, mapping)
+    return rmap.mapping_url(config.CRDS_MAPPING_URL, mapping)
 
 @jsonrpc_method('get_reference_data(String, String)')
 def get_reference_data(request, context, reference):
     ctx = rmap.get_cached_mapping(context)
-    filepath = ctx.locate.locate_server_reference(reference)
-    refdata = open(filepath).read()
+    blob = imodels.FileBlob.load(reference)
+    where = blob.pathname
+    refdata = open(where).read()
     return base64.b64encode(refdata)
 
 @jsonrpc_method('get_reference_url(String, String)')
