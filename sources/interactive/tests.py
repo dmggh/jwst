@@ -68,9 +68,10 @@ class SimpleTest(TestCase):
 
     def fake_database_files(self, files, observatory="hst"):
         for filename in files:
+            name = os.path.basename(filename)
             location = filename if os.path.dirname(filename) else rmap.locate_file(filename)
             models.add_crds_file(
-                observatory, filename, location, 
+                observatory, name, location, 
                 deliverer="homer", deliverer_email="homer@simpsons.com", 
                 description="delivered by the man",
                 creation_method="mass import", add_slow_fields=False)
@@ -186,7 +187,7 @@ class SimpleTest(TestCase):
 
     def test_certify_post_fits_uploaded(self):
         self.authenticate()
-        self.fake_database_files(["s7g1700gl_dead.fits"])
+        self.fake_database_files(["interactive/test_data/s7g1700gl_dead.fits"])
         response = self.client.post("/certify/", {
             "filemode" : "file_uploaded",
             "file_uploaded" : open("interactive/test_data/s7g1700gl_dead.fits"),
@@ -313,8 +314,8 @@ class SimpleTest(TestCase):
         self.authenticate()
         self.fake_database_files([
             "hst_acs_biasfile.rmap", 
-            "t4o1454bj_bia.fits", 
-            "t4o1454jj_bia.fits",
+            "interactive/test_data/t4o1454bj_bia.fits", 
+            "interactive/test_data/t4o1454jj_bia.fits",
             ])
         response = self.client.post("/replace_reference/", {
                 "old_mapping" : "hst_acs_biasfile.rmap",
