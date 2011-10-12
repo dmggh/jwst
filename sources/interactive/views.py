@@ -72,25 +72,25 @@ def validate_get(request, variable, pattern):
 
 FILE_RE = r"\w+(\.fits|\.pmap|\.imap|\.rmap)"
 
-def is_pipeline_mapping(filename):
+def is_pmap(filename):
     """Verify that `filename` names a known CRDS pipeline mapping.
     Otherwise raise AssertionError.
     """
     return is_mapping(filename, r"\.pmap")
 
-def is_instrument_mapping(filename):
+def is_imap(filename):
     """Verify that `filename` names a known CRDS instrument mapping.
     Otherwise raise AssertionError.
     """
     return is_mapping(filename, r"\.imap")
 
-def is_reference_mapping(filename):
+def is_rmap(filename):
     """Verify that `filename` names a known CRDS reference mapping.
     Otherwise raise AssertionError.
     """
     return is_mapping(filename, r"\.rmap")
 
-def is_instrument_or_pipeline_mapping(filename):
+def is_pmap_or_imap(filename):
     """Verify that `filename` names a known CRDS instrument or pipeline
     mapping and return it.   Otherwise,  AssertionError.
     """
@@ -148,7 +148,7 @@ def is_list_of_rmaps(text):
     text = " ".join(text.split(","))
     rmaps = [r.strip() for r in text.split()]
     for rmp in rmaps:
-        is_reference_mapping(rmp)
+        is_rmap(rmp)
     return rmaps
 
 def is_match_tuple(tuple_str):
@@ -353,7 +353,7 @@ def bestrefs_post(request):
         request, "context_mode", "context_default|context_user")
     if context_mode == "context_user":
         context_user = validate_post(
-            request, "context_user", is_instrument_or_pipeline_mapping)
+            request, "context_user", is_pmap_or_imap)
         context = rmap.get_cached_mapping(context_user)
     else:
         raise CrdsError("Default context not yet implemented.")
@@ -694,13 +694,30 @@ def using_file_post(request):
     """View fragment to process using_file POSTs."""
     observatory = check_value(request.POST["observatory"], 
         "hst|jwst", "Invalid value for observatory.")
-    referred_file = check_value(request.POST["referred_file"], 
-        "[A-Za-z0-9._]+", 
-        "Filename must consist of letters, numbers, periods, "
-        "or underscores.")
+    referred_file = validate_post(request, "referred_file", is_known_file)
     uses_files = [x for x in uses.uses([referred_file], observatory) if x]    
     return render(request, "using_file_results.html", {
             'uses_files' : uses_files,
+        })
+
+# ===========================================================================
+
+@error_trap("file_matches_inputs.html")
+def file_matches(request):
+    """View to return file_matches input form or process POST."""
+    if request.method == "GET":
+        return render(request, "file_matches_inputs.html")
+    else:
+        return file_matches_post(request)
+    
+def file_matches_post(request):
+    """View fragment to process file_matches POSTs."""
+    known_context = validate_post(request, "known_context", is_pmap_or_imap)
+    referred_file = validate_post(request, "referred_file", is_known_file)
+    ctx = rmap.get_cached_mapping(known_context)
+    uses_files = [x for x in uses.uses([referred_file], observatory) if x]    
+    return render(request, "file_matches_results.html", {
+            'file_matches' : uses_files,
         })
 
 # ===========================================================================
@@ -1085,7 +1102,7 @@ def create_contexts(request):
 
 def create_contexts_post(request):
     """View fragment handling create_contexts POST case."""
-    pipeline = validate_post(request, "pipeline", is_pipeline_mapping)
+    pipeline = validate_post(request, "pipeline", is_pmap)
     updated_rmaps = validate_post(request, "rmaps", is_list_of_rmaps)
     description = validate_post(request, "description", DESCRIPTION_RE)
 
@@ -1156,7 +1173,7 @@ def replace_reference(request):
 def replace_reference_post(request):
     """View fragment handling replace_reference POST case."""
     old_mapping = validate_post(
-        request, "old_mapping", is_reference_mapping)
+        request, "old_mapping", is_rmap)
     old_file = validate_post(request, "old_reference", is_reference)
     new_file = validate_post(request, "new_reference", is_reference)
     description = validate_post(request, "description", DESCRIPTION_RE)
@@ -1215,7 +1232,7 @@ def add_useafter(request):
 
 def add_useafter_post(request):
     """View fragment handling add_useafter POST case."""
-    old_mapping = validate_post(request, "old_mapping", is_reference_mapping)
+    old_mapping = validate_post(request, "old_mapping", is_rmap)
     match_tuple = validate_post(request, "match_tuple", is_match_tuple)
     useafter_date = validate_post(request, "useafter_date", is_datetime)
     useafter_file = validate_post(request, "useafter_file", is_reference)

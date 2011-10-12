@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% load stdtags %}
+
+{% block contents %}
+    <h2>Uses Files</h2>
+
+    <h3>Files of {{observatory|grey}} referring to {{referred_file|grey}}</h3>
+    <table>
+        {% if uses_files %}
+            {% for line in uses_files %}
+                <tr><td class="success">{{line|browse}}</td></tr>
+            {% endfor %}
+        {% else %}
+            <tr><td><b>no files</b></td></tr>
+        {% endif %}
+    </table>
+
+{% endblock contents %}
