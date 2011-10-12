@@ -171,9 +171,10 @@ class SimpleTest(TestCase):
         self.assert_no_errors(response)
     
     def test_using_post(self):
+        self.fake_database_files(["interactive/test_data/t4o1454bj_bia.fits"])
         response = self.client.post("/using/", {
                 "observatory" : "hst",
-                "referred_file": "v5419453j_bia.fits",
+                "referred_file": "t4o1454bj_bia.fits",
             })
         self.assert_no_errors(response)
         self.assertTrue("hst.pmap" in response.content)

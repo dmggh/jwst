@@ -3,16 +3,25 @@
 {% load stdtags %}
 
 {% block contents %}
-    <h2>Uses Files</h2>
+    <h2>Patterns Matching Reference</h2>
 
-    <h3>Files of {{observatory|grey}} referring to {{referred_file|grey}}</h3>
-    <table>
-        {% if uses_files %}
-            {% for line in uses_files %}
-                <tr><td class="success">{{line|browse}}</td></tr>
+    <h3>Paths through {{known_context|browse}} referring to {{matched_reference|browse}}</h3>
+    <table border="1">
+        {% if match_paths %}
+            {% for match in match_paths %}
+                <tr>
+                {% for item in match %}
+                    <td><b>{{item.0}}</b></td>
+                {% endfor %}
+                </tr>
+                <tr>
+                {% for item in match %}
+                    <td class="success">{{item.1}}</td>
+                {% endfor %}
+                </tr>
             {% endfor %}
         {% else %}
-            <tr><td><b>no files</b></td></tr>
+            <tr><td><b>no matches</b></td></tr>
         {% endif %}
     </table>
 

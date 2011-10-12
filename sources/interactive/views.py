@@ -15,8 +15,8 @@ import django.utils.safestring as safestring
 import django.contrib.auth
 from django.contrib.auth.decorators import login_required
 
-from crds import (rmap, utils, certify, timestamp, uses, newcontext, checksum,
-                  pysh, compat)
+from crds import (rmap, utils, certify, timestamp, uses, matches, newcontext, 
+                  checksum, pysh, compat)
 
 import crds.server.config as config
 import crds.server.interactive.models as models
@@ -713,11 +713,12 @@ def file_matches(request):
 def file_matches_post(request):
     """View fragment to process file_matches POSTs."""
     known_context = validate_post(request, "known_context", is_pmap_or_imap)
-    referred_file = validate_post(request, "referred_file", is_known_file)
-    ctx = rmap.get_cached_mapping(known_context)
-    uses_files = [x for x in uses.uses([referred_file], observatory) if x]    
+    matched_reference = validate_post(request, "matched_reference", is_known_file)
+
+    match_paths = matches.find_match_tuples(known_context, matched_reference)
+    
     return render(request, "file_matches_results.html", {
-            'file_matches' : uses_files,
+            'match_paths' : match_paths,
         })
 
 # ===========================================================================

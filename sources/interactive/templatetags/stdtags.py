@@ -90,7 +90,10 @@ def download_url(filename, observatory):
     text = " ".join(parts[1:])
     if not text:
         text = filename
-    return jviews.get_url(observatory, filename)
+    try:
+        return jviews.get_url(observatory, filename)
+    except Exception:
+        return filename
 
 #     return mark_safe(url)
 # download.is_safe = True

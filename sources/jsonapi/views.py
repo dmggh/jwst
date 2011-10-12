@@ -29,7 +29,7 @@ def mapping_url(mapping):
     """Return a file URL which can be used to retrieve the specified `mapping`.
     """
     mapping = os.path.basename(mapping)
-    blob = models.FileBlob.load(mapping)
+    blob = imodels.FileBlob.load(mapping)
     return config.CRDS_MAPPING_URL + "/mappings/" + blob.observatory + \
         "/" + mapping
 
