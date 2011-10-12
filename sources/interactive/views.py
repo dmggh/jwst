@@ -698,10 +698,10 @@ def using_file_post(request):
         "[A-Za-z0-9._]+", 
         "Filename must consist of letters, numbers, periods, "
         "or underscores.")
-    uses_files = uses.uses([referred_file], observatory)
-    if not "".join(uses_files).strip():
-        uses_files = ["no files"]
-    return render(request, "using_file_results.html", locals())
+    uses_files = [x for x in uses.uses([referred_file], observatory) if x]    
+    return render(request, "using_file_results.html", {
+            'uses_files' : uses_files,
+        })
 
 # ===========================================================================
 
