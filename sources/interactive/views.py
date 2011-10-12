@@ -3,9 +3,11 @@ and return HTTP response objects.
 """
 
 # Create your views here.
+import sys
 import os.path
 import re
 import cProfile
+import cStringIO
 
 # from django.http import HttpResponse
 from django.shortcuts import render_to_response
@@ -14,6 +16,8 @@ import django.utils.safestring as safestring
 
 import django.contrib.auth
 from django.contrib.auth.decorators import login_required
+
+import pyfits
 
 from crds import (rmap, utils, certify, timestamp, uses, matches, newcontext, 
                   checksum, pysh, compat)
@@ -320,6 +324,31 @@ def profile(func):
         cProfile.runctx("runit()", locals(), locals())
         return PROFILE_DECORATOR_RESULT
     return profile_request
+
+# ===================================================================
+
+def capture(func):
+    """Decorate a function with @capture to make it capture and return
+    stdout/stderr as part of it's result.   Returns (original_result, outlines)
+    """
+    def captured(*args, **keys):
+        """Temorarily re-assign stdout/stderr to a StringIO, run func,
+        return captured output.
+        """
+        out = cStringIO.StringIO()
+        oldout, olderr = sys.stdout, sys.stderr
+        sys.stdout, sys.stderr = out, out
+        try:
+            result = func(*args, **keys)
+        finally:
+            sys.stdout, sys.stderr = oldout, olderr
+        out.seek(0)
+        return result, out.readlines()
+    return captured
+
+@capture
+def finfo(filename):
+    pyfits.info(filename)
 
 # ===========================================================================
 # ===========================================================================
@@ -902,13 +931,9 @@ def browsify_reference(original_name, browsed_file):
     
     try:
         info = ["<b>FITS Info</b>", 
-                # "<div class='program'>",
                 "<pre>"]
-        for line in pysh.lines("finfo ${browsed_file}")[1:]:
-            info.append(line)
-        info.extend(["</pre>",
-                     # "</div>"
-                     ])
+        info += [x.rstrip() for x in finfo(browsed_file)[1][1:]]
+        info.extend(["</pre>"])
     except Exception:
         info = []
         
