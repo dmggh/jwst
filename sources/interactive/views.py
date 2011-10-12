@@ -832,7 +832,7 @@ def browse_files_post_guts(request, uploaded, original_name, browsed_file):
 
 def browsify_mapping(original_name, browsed_file):
     """Format a CRDS mapping file as colorized and cross-linked HTML."""
-    lines = []
+    lines = ["<div class='program'>"]
     try:
         linegen = open(browsed_file).readlines()
     except OSError:
@@ -840,6 +840,7 @@ def browsify_mapping(original_name, browsed_file):
                 "<span class='grey'>%s<span> not found</h3>" % (original_name,)]
     for line in linegen:
         lines.append(browsify_mapping_line(line))
+    lines.append("</div>")
     return lines
 
 def browsify_mapping_line(line):
@@ -882,7 +883,36 @@ def browsify_mapping_line(line):
 def browsify_reference(original_name, browsed_file):
     """Format a CRDS reference file for HTML display.   Return HTML lines.
     """
-    return []
+    ### XXX Fix this hack if "default contexts" ever get implemented.
+    ref_blob = models.FileBlob.load(os.path.basename(browsed_file))
+    rmap_blob = models.FileBlob.filter(observatory = ref_blob.observatory, 
+                                filekind = ref_blob.filekind)[0] # arbitrary 0
+    
+    mapping = rmap.get_cached_mapping(rmap_blob.filename)
+    header = mapping.get_minimum_header(browsed_file)
+    lines = ["<b>Header Parameters</b>",
+             "<br/>",
+             "<br/>",
+             "<table border='1'>"]
+    for key, value in sorted(header.items()):
+        lines.append("<tr><td class='label'>%s</td><td>%s</td></tr>" % (key, value))
+    lines.append("</table>")
+    lines.append("<br/>")
+    
+    try:
+        info = ["<b>FITS Info</b>", 
+                "<div class='program'>",
+                "<pre>"]
+        for line in pysh.lines("finfo ${browsed_file}"):
+            info.append(line)
+        info.extend(["</pre>",
+                     "</div>"])
+    except Exception:
+        info = []
+        
+    lines.extend(info)
+    
+    return lines
 
 @error_trap("browse_known_file_error.html")
 def browse_known_file(request, original_name):

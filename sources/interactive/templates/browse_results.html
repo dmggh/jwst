@@ -108,10 +108,9 @@
     </table>
 
     <h3>File Contents</h3>
-    <div class="program">
+
     {% for line in file_contents %}
     {{line|safe}}
     {% endfor %}
-    </div>
 
 {% endblock contents %}
