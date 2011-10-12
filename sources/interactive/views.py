@@ -712,7 +712,7 @@ def file_matches(request):
     
 def file_matches_post(request):
     """View fragment to process file_matches POSTs."""
-    known_context = validate_post(request, "known_context", is_pmap_or_imap)
+    known_context = validate_post(request, "known_context", is_mapping)
     matched_reference = validate_post(request, "matched_reference", is_known_file)
 
     match_paths = matches.find_match_tuples(known_context, matched_reference)
@@ -809,6 +809,7 @@ def browse_files_post(request):
         remove_temporary(browsed_file)
     return response
 
+# @profile
 def browse_files_post_guts(request, uploaded, original_name, browsed_file):
     filename = os.path.basename(browsed_file)
     try:
@@ -901,12 +902,13 @@ def browsify_reference(original_name, browsed_file):
     
     try:
         info = ["<b>FITS Info</b>", 
-                "<div class='program'>",
+                # "<div class='program'>",
                 "<pre>"]
-        for line in pysh.lines("finfo ${browsed_file}"):
+        for line in pysh.lines("finfo ${browsed_file}")[1:]:
             info.append(line)
         info.extend(["</pre>",
-                     "</div>"])
+                     # "</div>"
+                     ])
     except Exception:
         info = []
         

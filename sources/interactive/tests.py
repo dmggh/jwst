@@ -181,6 +181,24 @@ class SimpleTest(TestCase):
         self.assertTrue("hst_acs.imap" in response.content)
         self.assertTrue("hst_acs_biasfile.rmap" in response.content)
 
+    def test_matches_get(self):
+        response = self.client.get("/matches/")
+        self.assert_no_errors(response)
+    
+    def test_matches_post(self):
+        self.fake_database_files([
+                "hst_acs_biasfile.rmap",
+                "interactive/test_data/t4o1454bj_bia.fits"
+            ])
+        response = self.client.post("/matches/", {
+                "known_context" : "hst_acs_biasfile.rmap",
+                "matched_reference": "t4o1454bj_bia.fits",
+            })
+        self.assert_no_errors(response)
+        self.assertTrue("INSTRUME" in response.content)
+        self.assertTrue("DETECTOR" in response.content)
+        self.assertTrue("success" in response.content)
+
     def test_certify_get(self):
         self.authenticate()
         response = self.client.get("/certify/")
