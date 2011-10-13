@@ -327,8 +327,8 @@ def profile(func):
 
 # ===================================================================
 
-def capture(func):
-    """Decorate a function with @capture to make it capture and return
+def capture_output(func):
+    """Decorate a function with @capture_output to make it capture and return
     stdout/stderr as part of it's result.   Returns (original_result, outlines)
     """
     def captured(*args, **keys):
@@ -345,10 +345,6 @@ def capture(func):
         out.seek(0)
         return result, out.readlines()
     return captured
-
-@capture
-def finfo(filename):
-    pyfits.info(filename)
 
 # ===========================================================================
 # ===========================================================================
@@ -385,8 +381,11 @@ def bestrefs_post(request):
             request, "context_user", is_pmap_or_imap)
         context = rmap.get_cached_mapping(context_user)
     else:
-        raise CrdsError("Default context not yet implemented.")
-    
+        observatory = validate_post(
+            request, "observatory", models.OBSERVATORIES)
+        default_mapping = models.get_default_context(observatory)
+        context = rmap.get_cached_mapping(default_mapping)
+        
     dataset_mode = validate_post(
         request, "dataset_mode", "dataset_archive|dataset_uploaded")
     if dataset_mode == "dataset_uploaded":
@@ -908,17 +907,14 @@ def browsify_mapping_line(line):
 
     return "<p>" + line + "</p>"
 
-# XXX Using TPN,  extract interesting header keywords or tables???
-# Also use features in default mappings??
 def browsify_reference(original_name, browsed_file):
     """Format a CRDS reference file for HTML display.   Return HTML lines.
     """
     ### XXX Fix this hack if "default contexts" ever get implemented.
     ref_blob = models.FileBlob.load(os.path.basename(browsed_file))
-    rmap_blob = models.FileBlob.filter(observatory = ref_blob.observatory, 
-                                filekind = ref_blob.filekind)[0] # arbitrary 0
+    mapping = rmap.get_cached_mapping(
+        models.get_default_context(ref_blob.observatory))
     
-    mapping = rmap.get_cached_mapping(rmap_blob.filename)
     header = mapping.get_minimum_header(browsed_file)
     lines = ["<b>Header Parameters</b>",
              "<br/>",
@@ -940,6 +936,12 @@ def browsify_reference(original_name, browsed_file):
     lines.extend(info)
     
     return lines
+
+
+@capture_output
+def finfo(filename):
+    """Capture the output from the pyfits info() function."""
+    pyfits.info(filename)
 
 @error_trap("browse_known_file_error.html")
 def browse_known_file(request, original_name):

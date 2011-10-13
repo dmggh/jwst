@@ -75,6 +75,9 @@ def main(args):
         add_slow_fields=int(args[4]), index = index)
     
     index.save()    
+    
+    models.set_default_context(ctx.observatory, args[0])
+    
     log.standard_status()
 
 if __name__ == "__main__":

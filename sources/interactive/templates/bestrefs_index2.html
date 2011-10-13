@@ -10,6 +10,13 @@
         <td>
             <input type="radio" name="context_mode" value="context_default" checked />Default
         </td>
+        <td align="right">
+            <select name="observatory" value="*"/>
+                {% for observatory in observatories %}
+                    <option>{{observatory}}</option>
+                {% endfor %}
+            </select>
+        </td>
       </tr>
       <tr>
         <td>

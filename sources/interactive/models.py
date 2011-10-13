@@ -508,6 +508,40 @@ class AuditBlob(Blob):
     def extension(self):  return os.path.splitext(self.filename)[-1]
 
 
+# ============================================================================
+
+class ContextBlob(Blob):
+    """Keeps track of which mappings are the default.
+    """
+    fields = dict(
+        # User supplied fields
+        observatory = BlobField(
+            OBSERVATORIES, "associated observatory", "", nonblank=False),
+        context = BlobField("\w+\.pmap", "default pipeline context", ""),
+    )
+    
+    @classmethod
+    def get(cls, observatory):
+        return cls.load(observatory + ".default_context")
+
+    def save(self):
+        return Blob.save(self, self.observatory + ".default_context")
+    
+def set_default_context(observatory, context):
+    assert context.endswith(".pmap"), "context must be a .pmap"
+    ctxblob = FileBlob.load(context)  # make sure it exists
+    try:
+        blob = ContextBlob.get(observatory)
+        blob.context = context
+    except LookupError:
+        blob = ContextBlob(observatory=observatory, context=context)
+    blob.save()
+
+def get_default_context(observatory):
+    return ContextBlob.get(observatory).context
+    
+# =============================================================================
+
 def add_crds_file(observatory, upload_name, permanent_location, 
             deliverer, deliverer_email, description, 
             creation_method, audit_details="", 
