@@ -440,7 +440,8 @@ class FileIndexBlob(Blob):
 
 AUDITED_ACTIONS = [
     "submit file", "blacklist", "reserve name", "mass import", 
-    "new context", "replace reference", "add useafter", "deliver"
+    "new context", "replace reference", "add useafter", "deliver",
+    "set default context"
     ]
 
 class AuditBlob(Blob):
@@ -527,15 +528,21 @@ class ContextBlob(Blob):
     def save(self):
         return Blob.save(self, self.observatory + ".default_context")
     
-def set_default_context(observatory, context):
+def set_default_context(observatory, context, user="crds-system"):
     assert context.endswith(".pmap"), "context must be a .pmap"
     ctxblob = FileBlob.load(context)  # make sure it exists
     try:
         blob = ContextBlob.get(observatory)
+        was = blob.context
         blob.context = context
     except LookupError:
+        was = "undefined"
         blob = ContextBlob(observatory=observatory, context=context)
     blob.save()
+
+    AuditBlob.new(
+        user, "set default context", context, "changed defaults", 
+        "was " + was,  observatory=observatory)
 
 def get_default_context(observatory):
     return ContextBlob.get(observatory).context
