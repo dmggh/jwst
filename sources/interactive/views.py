@@ -75,6 +75,7 @@ def validate_get(request, variable, pattern):
 # "pattern" functions for validate_post/get
 
 FILE_RE = r"\w+(\.fits|\.pmap|\.imap|\.rmap)"
+DESCRIPTION_RE = r"[A-Za-z0-9._ ]+"
 
 def is_pmap(filename):
     """Verify that `filename` names a known CRDS pipeline mapping.
@@ -182,6 +183,8 @@ def is_datetime(datetime_str):
 
 DESCRIPTION_RE = "[^<>]+"
 
+def get_observatory(request):
+    return validate_post(request, "observatory", models.OBSERVATORIES)
 # ===========================================================================
 
 def render(request, template, dict_=None):
@@ -420,8 +423,7 @@ def get_default_or_user_context(request):
     if context_mode == "context_user":
         context = validate_post(request, "context_user", is_pmap_or_imap)
     else:
-        observatory = validate_post(
-            request, "observatory", models.OBSERVATORIES)
+        observatory = get_observatory(request)
         context = models.get_default_context(observatory)
     return context    
 
@@ -446,9 +448,7 @@ def file_exists_somehow(filename):
 def submit_file_post(request, crds_filetype):
     """Handle the POST case of submit_file,   returning dict of template vars.
     """
-    observatory = validate_post(
-        request, "observatory", "|".join(models.OBSERVATORIES)) 
-
+    observatory = get_observatory(request)
     # Get the UploadedFile object
     ufile = get_uploaded_file(request, "submitted_file")    
     original_name = ufile.name
@@ -611,18 +611,10 @@ def blacklist_file(request):
 
 def blacklist_file_post(request):
     """View fragment to process the blacklist POST."""
-    observatory = check_value(request.POST["observatory"], 
-            "hst|jwst", "Invalid value for observatory.")
-    blacklist_root = check_value(request.POST["file_known"],
-            "[A-Za-z0-9._]+", 
-            "Filename must consist of letters, numbers, periods, "
-            "or underscores.")
-    badflag = check_value(request.POST["badflag"], "bad|ok",
-            "badflag must be either 'bad' or 'ok'")
-    why = check_value(request.POST["why"],
-            "[A-Za-z0-9._ ]+", 
-            "Reason description is limited to letters, "
-            "numbers, period, underscore and space.   Cannot be blank.")
+    observatory = get_observatory(request)
+    blacklist_root = validate_post(request, "file_known", is_known_file)
+    badflag = validate_post(request, "badflag", "bad|ok")
+    why = validate_post(request, "why", DESCRIPTION_RE)
     
     # Determine files which indirectly or directly reference `blacklist_root`
     uses_files = uses.uses([blacklist_root], observatory)
@@ -649,7 +641,7 @@ def do_blacklist(blacklist_root, blacklisted, badflag, why, user):
     try:
         blob = models.FileBlob.load(blacklisted)
     except LookupError, exc:
-        raise FieldError("Unknown file " + repr(blacklisted))
+        raise CrdsError("Unknown file " + repr(blacklisted))
     if badflag == "bad":
         if blacklist_root not in blob.blacklisted_by:
             blob.blacklisted_by.append(blacklist_root)
@@ -726,8 +718,7 @@ def using_file(request):
     
 def using_file_post(request):
     """View fragment to process using_file POSTs."""
-    observatory = check_value(request.POST["observatory"], 
-        "hst|jwst", "Invalid value for observatory.")
+    observatory = get_observatory(request)
     referred_file = validate_post(request, "referred_file", is_known_file)
     uses_files = [x for x in uses.uses([referred_file], observatory) if x]    
     return render(request, "using_file_results.html", {
@@ -996,7 +987,7 @@ def reserve_name(request):
 
 def reserve_name_post(request):
     """View fragment handling reserve_name POST."""
-    observatory = validate_post(request, "observatory", models.OBSERVATORIES) 
+    observatory = get_observatory(request)
     mode = validate_post(request, "filemode", ["file_known","by_parts"])
 
     if mode == "file_known":  # Use the user's name exactly if unknown.
@@ -1146,7 +1137,7 @@ def browse_db_post(request):
     extension = validate_post(
         request, "extension", models.EXTENSIONS+[r"\*"])
     filename = validate_post(
-        request, "filename", r"[A-Za-z0-9_.\*]+")
+        request, "filename", FILE_RE)
     deliverer_user = validate_post(
         request, "deliverer_user", r"[A-Za-z0-9_.\*]+")
     status = validate_post(
@@ -1442,7 +1433,7 @@ def delivery_process(request):
 
 def delivery_process_post(request):    
     description = validate_post(request, "description", DESCRIPTION_RE)
-    observatory = validate_post(request, "observatory", models.OBSERVATORIES)
+    observatory = get_observatory(request)
 
     delivered_files = []
     for key in request.POST:

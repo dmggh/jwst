@@ -7,39 +7,19 @@ from django.test import TestCase
 import crds.rmap as rmap
 import crds.server.interactive.models as models
 
-"""
-  url(r'^$', 'crds.server.interactive.views.index'),          
-
-  url(r'^login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}),          
-  url(r'^logout/$', 'crds.server.interactive.views.logout'),          
-
-  url(r'^bestrefs/$', 'crds.server.interactive.views.bestrefs_index'),          
-  url(r'^bestrefs/input/$', 'crds.server.interactive.views.bestrefs_input'),          
-  url(r'^bestrefs/compute/$', 'crds.server.interactive.views.bestrefs_compute'),
-
-  url(r'^submit/$',       'crds.server.interactive.views.submit_file'),          
-  url(r'^blacklist/$',    'crds.server.interactive.views.blacklist_file'),          
-  url(r'^using/$',        'crds.server.interactive.views.using_file'),          
-  url(r'^certify/$',      'crds.server.interactive.views.certify_file'),          
-  url(r'^difference/$',   'crds.server.interactive.views.difference_files'),
-  url(r'^reserve_name/$', 'crds.server.interactive.views.reserve_name'),        
-  url(r'^recent_activity/$', 'crds.server.interactive.views.recent_activity'),        
-
-  url(r'^common_updates/$', 'crds.server.interactive.views.common_updates'),        
-  url(r'^create_contexts/$', 'crds.server.interactive.views.create_contexts'),        
-          
-  url(r'^browse/$', 'crds.server.interactive.views.browse_files'),        
-  url(r'^browse/(?P<original_name>[A-Za-z0-9_.]+(fits|imap|rmap|pmap))$', 
-      'crds.server.interactive.views.browse_known_file'),
-"""
-
 from django.contrib.auth.models import User
 
 class SimpleTest(TestCase):
+    
+    def runTest(self, *args, **keys):
+        pass
+    
     def setUp(self): 
         User.objects.create_user('homer', 'ho...@simpson.net', 'simpson')     
         index = models.create_index("hst")
         index.save()
+        self.fake_database_files(["hst.pmap"])
+        models.set_default_context("hst", "hst.pmap")
 
     def tearDown(self):
         self.del_maps(["hst_0001.pmap",
@@ -111,7 +91,6 @@ class SimpleTest(TestCase):
         pass
     
     def test_bestrefs_post_uploaded_dataset(self):
-        self.fake_database_files(["hst.pmap"])
         response = self.client.post("/bestrefs/", {
             "context_mode" : "context_user",
             "context_user" : "hst.pmap",
@@ -151,9 +130,9 @@ class SimpleTest(TestCase):
         self.assert_no_errors(response)
 
     def test_blacklist_post(self):
-        # Make database entries for files we know will be blacklisted
         self.fake_database_files([
-                "hst.pmap", "hst_acs.imap", "hst_acs_biasfile.rmap"]) 
+                "hst_acs.imap", 
+                "hst_acs_biasfile.rmap"]) 
         self.authenticate()
         response = self.client.post("/blacklist/", {
             "observatory" : "hst",
@@ -161,8 +140,8 @@ class SimpleTest(TestCase):
             "badflag" : "bad",
             "why" : "just had a feeling.",
             })
-        self.assert_no_errors(response)
         # print response.content
+        self.assert_no_errors(response)
         self.assertTrue("hst.pmap" in response.content)
         self.assertTrue("hst_acs.imap" in response.content)
 
@@ -186,12 +165,10 @@ class SimpleTest(TestCase):
         self.assert_no_errors(response)
     
     def test_matches_post(self):
-        self.fake_database_files([
-                "hst_acs_biasfile.rmap",
-                "interactive/test_data/t4o1454bj_bia.fits"
-            ])
+        self.fake_database_files(["interactive/test_data/t4o1454bj_bia.fits"])
         response = self.client.post("/matches/", {
-                "known_context" : "hst_acs_biasfile.rmap",
+                "context_mode" : "context_default",
+                "observatory" : "hst",
                 "matched_reference": "t4o1454bj_bia.fits",
             })
         self.assert_no_errors(response)
@@ -312,8 +289,8 @@ class SimpleTest(TestCase):
 
     def test_create_contexts_post(self):
         self.authenticate()
-        self.fake_database_files(["hst.pmap", "hst_acs_biasfile.rmap",
-                                 "hst_cos_deadtab.rmap"])
+        self.fake_database_files(["hst_acs_biasfile.rmap",
+                                  "hst_cos_deadtab.rmap"])
         response = self.client.post("/create_contexts/", {
                 "pipeline" : "hst.pmap",
                 "rmaps" : "hst_acs_biasfile.rmap, hst_cos_deadtab.rmap",
@@ -405,9 +382,6 @@ class SimpleTest(TestCase):
         self.assert_no_errors(response)
 
     def test_browse_file(self):
-        self.fake_database_files([
-            "hst.pmap", 
-            ])
         response = self.client.get("/browse/hst.pmap")
         self.assert_no_errors(response)
 
@@ -427,7 +401,8 @@ class SimpleTest(TestCase):
                 "deliverer_user": "*",
                 "status":"*",
             })
+        # print response
         self.assert_no_errors(response)
         self.assertTrue('hst.pmap' in response.content)
-        self.assertEqual(response.content.count("<tr>"), 4)
+        self.assertEqual(response.content.count("<tr>"), 5)
 

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block column1 %}
-    <h2>Enable or disable file (Blacklisting)</h2>
+    <h2>Disable or enable file (Blacklisting)</h2>
     <form method="post" action="/blacklist/" enctype="multipart/form-data"> 
       {% csrf_token %}
       <table width="100%">
