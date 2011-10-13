@@ -1146,7 +1146,7 @@ def browse_db_post(request):
     extension = validate_post(
         request, "extension", models.EXTENSIONS+[r"\*"])
     filename = validate_post(
-        request, "filename", FILE_RE)
+        request, "filename", FILE_RE + r"|\*")
     deliverer_user = validate_post(
         request, "deliverer_user", [r"\*"] + usernames())
     status = validate_post(
