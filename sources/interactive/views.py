@@ -15,6 +15,7 @@ from django.template import RequestContext
 import django.utils.safestring as safestring
 
 import django.contrib.auth
+import django.contrib.auth.models
 from django.contrib.auth.decorators import login_required
 
 import pyfits
@@ -185,6 +186,10 @@ DESCRIPTION_RE = "[^<>]+"
 
 def get_observatory(request):
     return validate_post(request, "observatory", models.OBSERVATORIES)
+
+def usernames():
+    return [str(x) for x in django.contrib.auth.models.User.objects.filter()]
+
 # ===========================================================================
 
 def render(request, template, dict_=None):
@@ -1122,6 +1127,7 @@ def browse_db(request):
             "filekinds":["*"]+models.FILEKINDS,
             "extensions":["*"]+models.EXTENSIONS,
             "status":["*"]+models.FILE_STATUS_MAP.keys(),
+            "deliverer_user" : ["*"] + usernames(),
             })
     else:
         return browse_db_post(request)
@@ -1141,7 +1147,7 @@ def browse_db_post(request):
     deliverer_user = validate_post(
         request, "deliverer_user", r"[A-Za-z0-9_.\*]+")
     status = validate_post(
-        request, "status", r"[A-Za-z0-9_.\*]+")
+        request, "status", ["*"] + usernames())
     filters = {}
     for var in ["observatory", "instrument", "filekind", "extension",
                 "filename", "deliverer_user", "status"]:

@@ -62,10 +62,26 @@
       </tr>
       <tr>
             <td class="label" width="50%">Deliverer:</td>
-            <td align="right"><input type="text" name="deliverer_user" value="*"/></td>
+            <td align="right">
+                <select name="deliverer_user" value="*"/>
+                {% for user in users %}
+                    <option>{{user}}</option>
+                {% endfor %}
+                </select>
+            </td>
       </tr>
     </table>
     <input type="submit" value="Submit" />
 </form>
 
 {% endblock column1 %}
+
+{% block help %}
+
+    <p><b>Browse Database</b> Searches the CRDS database for files matching the
+    criteria you specify.   Filters which are set to a value other than * restrict
+    the search to files matching that value.   To ignore a field during search,
+    set it to *.
+    
+{% endblock help %}
+
