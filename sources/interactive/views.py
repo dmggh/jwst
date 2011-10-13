@@ -201,6 +201,7 @@ def render(request, template, dict_=None):
         "instruments":models.INSTRUMENTS+["*"],
         "filekinds":models.FILEKINDS+["*"],
         "extensions":models.EXTENSIONS+["*"],
+        "users": ["*"] + usernames(),
     }
     # echo escaped inputs.
     for key, value in request.GET.items():
@@ -1127,7 +1128,7 @@ def browse_db(request):
             "filekinds":["*"]+models.FILEKINDS,
             "extensions":["*"]+models.EXTENSIONS,
             "status":["*"]+models.FILE_STATUS_MAP.keys(),
-            "deliverer_user" : ["*"] + usernames(),
+            "deliverer_user" : "*",
             })
     else:
         return browse_db_post(request)
