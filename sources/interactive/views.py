@@ -373,18 +373,9 @@ def bestrefs(request):
 
 def bestrefs_post(request):
     """View to get best reference dataset parameters."""
-    
-    context_mode = validate_post(
-        request, "context_mode", "context_default|context_user")
-    if context_mode == "context_user":
-        context_user = validate_post(
-            request, "context_user", is_pmap_or_imap)
-        context = rmap.get_cached_mapping(context_user)
-    else:
-        observatory = validate_post(
-            request, "observatory", models.OBSERVATORIES)
-        default_mapping = models.get_default_context(observatory)
-        context = rmap.get_cached_mapping(default_mapping)
+
+    mapping = get_default_or_user_context(request)
+    context = rmap.get_cached_mapping(mapping)
         
     dataset_mode = validate_post(
         request, "dataset_mode", "dataset_archive|dataset_uploaded")
@@ -418,6 +409,18 @@ def bestrefs_post(request):
             "header_items" : header_items,
             "bestrefs_items" : bestrefs_items,
         })
+
+def get_default_or_user_context(request):
+    """Process standard request parameters for specifying context."""
+    context_mode = validate_post(
+        request, "context_mode", "context_default|context_user")
+    if context_mode == "context_user":
+        context = validate_post(request, "context_user", is_pmap_or_imap)
+    else:
+        observatory = validate_post(
+            request, "observatory", models.OBSERVATORIES)
+        context = models.get_default_context(observatory)
+    return context    
 
 # ============================================================================
 
@@ -740,15 +743,30 @@ def file_matches(request):
     
 def file_matches_post(request):
     """View fragment to process file_matches POSTs."""
-    known_context = validate_post(request, "known_context", is_mapping)
+    
+    known_context = get_default_or_user_context(request)
+
     matched_reference = validate_post(request, "matched_reference", is_known_file)
 
     match_paths = matches.find_match_tuples(known_context, matched_reference)
     
+    match_paths = [flatten(path) for path in match_paths]
+    
     return render(request, "file_matches_results.html", {
             'match_paths' : match_paths,
+            'known_context' : known_context,
         })
 
+def flatten(path):
+    """match paths retain some structure: (top-level, match, useafter) which
+    we ditch here.
+    """
+    newpath = ()
+    for part in path:
+        newpath = newpath + part
+    return newpath
+    
+    
 # ===========================================================================
 
 @error_trap("difference_input.html")

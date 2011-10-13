@@ -6,18 +6,44 @@
 
 <form method="post" action="/matches/" enctype="multipart/form-data"> 
   {% csrf_token %}
+
+    <h3>Context:</h3>
+    <table>
+      <tr>
+        <td>
+            <input type="radio" name="context_mode" value="context_default" checked />Default
+        </td>
+        <td align="right">
+            <select name="observatory" value="*"/>
+                {% for observatory in observatories %}
+                    <option>{{observatory}}</option>
+                {% endfor %}
+            </select>
+        </td>
+      </tr>
+      <tr>
+        <td>
+            <input type="radio" name="context_mode" value="context_user" />User Specified
+        </td>
+        <td>
+            <input type="text" name="context_user" value="{{context_user}}" />
+        </td>
+        <td>
+            <p class="hint">.e.g. hst_acs_0001.imap</p>
+        </td>
+      </tr>
+    </table>
+    
+
+    <h3>Matched Reference:</h3>
+
   <table width="100%">
     <tr>
-        <td class="label" width="40%">Known Context:</td>
-        <td align="left"><input type="text" name="known_context"/></td>
-    </tr>
-    <tr>
-        <td class="label" width="40%">Matched Reference:</td>
         <td align="left"><input type="text" name="matched_reference"/></td>
     </tr>
-    <tr><td><p/></td></tr>
-    <tr><td><input type="submit" value="Submit" /></td></tr>
   </table>
+
+    <br/>  <input type="submit" value="Submit" />
 </form>
 
 {% endblock column1 %}
