@@ -66,3 +66,57 @@
       <input type="submit" value="Submit File">
     </form>
 {% endblock column1 %}
+
+{% block help %}
+
+{% if crds_filetype == "reference" %}
+
+<p><b>Submit Reference File</b> permanently enters a reference file into the 
+CRDS system in a state which is initially unused.   A file must pass CRDS
+certification before it will be accepted.
+
+<p><p><b>Submitted File</b> a new reference file to be added to CRDS.
+
+<p><p><b>Auto-rename</b> when checked, automatically generate a unique CRDS 
+filename and submit the file under that name.  Otherwise,  retain the name of 
+the uploaded file exactly as given.   Automatically renamed files
+will not automatically be corrected in mappings which refer to them.
+
+<p><p><b>Comparison File</b> when specified,  the submitted reference must
+provide the same general coverage as the comparison file.
+
+<p><p><b>Deliver to OPUS</b> a flag to help search for deliverable files.  The
+file must still be "delivered" independently from this submission.
+
+<p><p><b>Change Level</b> a flag to help search for deliverable files.
+
+<p><p><b>Description</b> information about what's new in this file and what
+the expected impacts are.
+
+<p><p>NOTE: All references must be submitted before a mapping which uses any 
+of them can be submitted.  
+
+{% else %}
+
+<p><b>Submit Mapping File</b> permanently enters a mapping file into the 
+CRDS system in a state which is initially unused.   A file must pass CRDS
+certification before it will be accepted.
+
+<p><p><b>Submitted File</b> a new mapping file to be added to CRDS.
+
+<p><p><b>Auto-rename</b> when checked, automatically generate a unique CRDS 
+filename and submit the file under that name.  Otherwise,  retain the name of 
+the uploaded file exactly as given.   Automatically renamed files
+will not automatically be corrected in mappings which refer to them.
+
+<p><p><b>Description</b> information about what's new in this file and what
+the expected impacts are.
+
+<p><p>NOTE: All references must be submitted before a mapping which uses any 
+of them can be submitted.  
+
+{% endif %}
+
+{% endblock help %}
+
+

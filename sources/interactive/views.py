@@ -188,7 +188,10 @@ def get_observatory(request):
     return validate_post(request, "observatory", models.OBSERVATORIES)
 
 def usernames():
-    return [str(x) for x in django.contrib.auth.models.User.objects.filter()]
+    try:
+        return [str(x) for x in django.contrib.auth.models.User.objects.filter()]
+    except Exception:
+        return ["*"]
 
 # ===========================================================================
 
@@ -488,7 +491,6 @@ def submit_file_post(request, crds_filetype):
     # grandfathered in by special calls to add_crds_file.
     permanent_location = rmap.locate_file(permanent_name, observatory)
 
-
     # Check the file,  leaving no server state if it fails.  Give error results.
     do_certify_file(original_name, upload_location)
     
@@ -599,7 +601,7 @@ def check_name_reservation(user, filename):
     ablob = ablob[0]
     if ablob.user != str(user):
         raise CrdsError("User " + repr(str(ablob.user)) + " already reserved " + 
-                        repr(filename) + ". Try reserving a different name.")
+                        repr(filename) + ". Try a different name.")
     return filename
 
 # ===========================================================================
@@ -1146,9 +1148,9 @@ def browse_db_post(request):
     filename = validate_post(
         request, "filename", FILE_RE)
     deliverer_user = validate_post(
-        request, "deliverer_user", r"[A-Za-z0-9_.\*]+")
+        request, "deliverer_user", [r"\*"] + usernames())
     status = validate_post(
-        request, "status", ["*"] + usernames())
+        request, "status",  r"[A-Za-z0-9_.\*]+")
     filters = {}
     for var in ["observatory", "instrument", "filekind", "extension",
                 "filename", "deliverer_user", "status"]:
