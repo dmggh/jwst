@@ -18,7 +18,7 @@ urlpatterns = patterns('',
 
   url(r'^bestrefs/$', 'crds.server.interactive.views.bestrefs'),          
 
-  url(r'^submit/(reference|mapping)/$', 'crds.server.interactive.views.submit_file'),          
+  url(r'^submit/(?P<crds_filetype>reference|mapping)/$', 'crds.server.interactive.views.submit_file'),          
   url(r'^delivery_options/$', 'crds.server.interactive.views.delivery_options'),          
   url(r'^delivery_process/$',   'crds.server.interactive.views.delivery_process'),          
   url(r'^blacklist/$',    'crds.server.interactive.views.blacklist_file'),          

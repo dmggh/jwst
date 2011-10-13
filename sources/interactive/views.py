@@ -296,13 +296,16 @@ def error_trap(template):
                 return func(request, *args, **keys)
             except AssertionError, exc:
                 msg = "ERROR: " + str(exc)
-                return render(request, template, {"error_message" : msg})
+                pars = dict(keys.items() + [("error_message", msg)])
+                return render(request, template, pars)
             except CrdsError, exc:
                 msg = "ERROR: " + str(exc)
-                return render(request, template, {"error_message" : msg})
+                pars = dict(keys.items() + [("error_message", msg)])
+                return render(request, template, pars)
             except FieldError, exc:
                 msg = "ERROR: " + str(exc)
-                return render(request, template, {"error_message" : msg})
+                pars = dict(keys.items() + [("error_message", msg)])
+                return render(request, template, pars)
         trap.func_name = func.func_name
         return trap
     return decorator
@@ -471,14 +474,14 @@ def submit_file_post(request, crds_filetype):
         permanent_name = auto_rename_file(
             observatory, ufile.name, upload_location)
     else:
+        if file_exists_somehow(ufile.name):
+            raise FieldError("File " + repr(ufile.name) + " already exists.")    
         permanent_name = check_name_reservation(request.user, ufile.name)
 
     # CRDS keeps all new files in a standard layout.   Older files can be
     # grandfathered in by special calls to add_crds_file.
     permanent_location = rmap.locate_file(permanent_name, observatory)
 
-    if file_exists_somehow(permanent_location):
-        raise FieldError("File " + repr(baseperm) + " already exists.")    
 
     # Check the file,  leaving no server state if it fails.  Give error results.
     do_certify_file(original_name, upload_location)
