@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block column1 %}
-    <h2>Disable or enable file (Blacklisting)</h2>
+    <h2>Blacklist File</h2>
     <form method="post" action="/blacklist/" enctype="multipart/form-data"> 
       {% csrf_token %}
       <table width="100%">
@@ -38,3 +38,19 @@
       <input type="submit" value="Submit">
     </form>
 {% endblock column1 %}
+
+{% block help %}
+
+    <p><b>Blacklist File</b> Marks a file as "bad" or "ok".   Any  attempt to 
+    use a "bad" file by the CRDS network client or website will generate an error.
+    
+    <p><p><b>Observatory</b> The observatory owning the blacklisted file.
+    
+    <p><p><b>File</b> a known CRDS mapping or reference filename to be blacklisted.
+
+    <p><p><b>Mark as</b> Choose "bad" to disable a file.  Choose "ok" to reenable.
+
+    <p><p><b>Reason</b> Why this file is no longer usable or is usable once again.
+    
+
+{% endblock help %}
