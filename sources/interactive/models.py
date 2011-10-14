@@ -10,22 +10,19 @@ import pyfits
 from crds import (timestamp, rmap, utils)
 from crds.compat import (literal_eval, namedtuple)
 
+import crds.hst
+
 # ============================================================================
 
 OBSERVATORIES = ["hst","jwst"]
 
-INSTRUMENTS = ["acs","cos","stis","wfc3"]
+INSTRUMENTS = crds.hst.INSTRUMENTS  # + crds.jwst...
 
-FILEKINDS = ['apdstab', 'apertab', 'atodtab', 'badttab', 'biasfile', 'bpixtab',
-            'brftab', 'brsttab', 'ccdtab', 'cdstab', 'cfltfile', 'crrejtab',
-            'darkfile', 'deadtab', 'dgeofile', 'disptab', 'echsctab', 'exstab',
-            'flatfile', 'gactab', 'geofile', 'halotab', 'idctab', 'inangtab',
-            'lamptab', 'lfltfile', 'mdriztab', 'mlintab', 'mofftab', 'nlinfile',
-            'oscntab', 'pctab', 'pfltfile', 'phatab', 'phottab', 'riptab',
-            'sdctab', 'spottab', 'sptrctab', 'srwtab', 'tdctab',
-            'tdstab', 'wcptab', 'xtractab']
+FILEKINDS   = crds.hst.FILEKINDS    # + crds.jwst...
 
-EXTENSIONS = [".pmap",".imap",".rmap",".fits"]
+EXTENSIONS  = crds.hst.EXTENSIONS   # + crds.jwst...
+
+
 
 # ============================================================================
 

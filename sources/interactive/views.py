@@ -113,7 +113,7 @@ def is_mapping(filename, extension=r"\.[pir]map"):
             ".  Must name a known CRDS mapping.")
     return filename
 
-def is_reference(filename, extension=r"\.fits"):
+def is_reference(filename, extension=r"\.fits|\.r\dh|\.r\dd"):
     """Verify that `filename` names a known CRDS reference file.
     Otherwise raise AssertionError.
     """
