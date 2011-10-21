@@ -75,7 +75,7 @@ def validate_get(request, variable, pattern):
 
 # "pattern" functions for validate_post/get
 
-FILE_RE = r"\w+(\.fits|\.pmap|\.imap|\.rmap)"
+FILE_RE = r"\w+(\.fits|\.pmap|\.imap|\.rmap|\.r\dh)"
 DESCRIPTION_RE = r"[A-Za-z0-9._ ]+"
 
 def is_pmap(filename):
@@ -244,8 +244,7 @@ def handle_known_or_uploaded_file(request, name, modevar, knownvar, uploadvar):
         uploaded = True
     return uploaded, original_name, filepath
 
-def get_uploaded_file(
-    request, formvar, legal_exts=(".fits", ".pmap", ".imap", ".rmap")):
+def get_uploaded_file(request, formvar):
     """Return the DJango UploadedFile associated with `request` and `formvar`,
     raising an exception if it's original name does not end with one of
     `legal_exts` file extensions.   Handles <input type='file'>, part 1.
@@ -254,9 +253,9 @@ def get_uploaded_file(
         ufile = request.FILES[formvar]
     except KeyError:
         raise MissingInputError("Specify a file to upload for " + repr(formvar))
-    if not ufile.name.endswith(legal_exts):
-        raise FieldError("File extension for " + repr(str(ufile.name)) + \
-                 " not one of: " + ", ".join(legal_exts))
+    if not re.match(FILE_RE, ufile.name):
+        raise FieldError("Unexpected ile extension for " + \
+                            repr(str(ufile.name)))
     return ufile
 
 def upload_file(ufile, where):
@@ -921,7 +920,7 @@ def browsify_mapping_line(line):
                   r"&nbsp;"*4 + r"\1",
                   line)
     # mapping or reference filename --> /browse/<file> link
-    line = re.sub(r"'([A-Za-z_0-9]+.(fits|pmap|imap|rmap))'",
+    line = re.sub(r"'(" + FILE_RE + ")'",
                   r"""<a href='/browse/\1'>'\1'</a>""",
                   line)
 
@@ -945,12 +944,12 @@ def browsify_reference(original_name, browsed_file):
     lines.append("</table>")
     lines.append("<br/>")
     
-    try:
+    if browsed_file.endswith(".fits"):
         info = ["<b>FITS Info</b>", 
                 "<pre>"]
         info += [x.rstrip() for x in finfo(browsed_file)[1][1:]]
         info.extend(["</pre>"])
-    except Exception:
+    else:
         info = []
         
     lines.extend(info)

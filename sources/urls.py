@@ -35,7 +35,7 @@ urlpatterns = patterns('',
   url(r'^add_useafter/$', 'crds.server.interactive.views.add_useafter'),        
           
   url(r'^browse/$', 'crds.server.interactive.views.browse_files'),        
-  url(r'^browse/(?P<original_name>[A-Za-z0-9_.]+(fits|imap|rmap|pmap))$', 
+  url(r'^browse/(?P<original_name>[A-Za-z0-9_.]+(fits|imap|rmap|pmap|r\dh))$', 
       'crds.server.interactive.views.browse_known_file'),
 
   url(r'^browse_db/$', 'crds.server.interactive.views.browse_db'),        
