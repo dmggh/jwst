@@ -8,12 +8,10 @@
     <h3>Paths through {{known_context|browse}} referring to {{matched_reference|browse}}</h3>
     <table border="1">
         {% if match_paths %}
+            {% for item in match_paths.0 %}
+                <td><b>{{item.0}}</b></td>
+            {% endfor %}
             {% for match in match_paths %}
-                <tr>
-                {% for item in match %}
-                    <td><b>{{item.0}}</b></td>
-                {% endfor %}
-                </tr>
                 <tr>
                 {% for item in match %}
                     <td class="success">{{item.1}}</td>
