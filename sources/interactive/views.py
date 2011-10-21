@@ -872,28 +872,36 @@ def browse_files_post_guts(request, uploaded, original_name, browsed_file):
     
     if rmap.is_mapping(original_name):
         file_contents = browsify_mapping(original_name, browsed_file)
+        form_post_action = "/edit_rmap/"
     else:
         file_contents = browsify_reference(original_name, browsed_file)
+        form_post_action = ""
     
     return render(request, "browse_results.html", 
             { "uploaded" : uploaded,
              "fileblob" : blob,
              "related_actions":related_actions,
              "file_contents":file_contents,
+             "form_post_action":form_post_action,
              "browsed_file":original_name})
 
 def browsify_mapping(original_name, browsed_file):
     """Format a CRDS mapping file as colorized and cross-linked HTML."""
-    lines = ["<div class='program'>"]
+
+    contents = ""
+
     try:
         linegen = open(browsed_file).readlines()
     except OSError:
         return ["<h3 class='error'>File " 
                 "<span class='grey'>%s<span> not found</h3>" % (original_name,)]
+
     for line in linegen:
-        lines.append(browsify_mapping_line(line))
-    lines.append("</div>")
-    return lines
+        contents += browsify_mapping_line(line)
+
+    contents += "<input type='submit' value='Submit Rmap Update' />"
+    
+    return contents
 
 def browsify_mapping_line(line):
     # header
@@ -920,15 +928,25 @@ def browsify_mapping_line(line):
     line = re.sub(r"^\s+", r"&nbsp;"*4, line)
     
     # HACK:  add an extra level of indentation to any line ending with .fits',
-    line = re.sub(r"('.*\.fits',)$",
+    line = re.sub(r"('.*\.(fits|r\dh)',)$",
                   r"&nbsp;"*4 + r"\1",
                   line)
     # mapping or reference filename --> /browse/<file> link
     line = re.sub(r"'(" + FILE_RE + ")'",
                   r"""<a href='/browse/\1'>'\1'</a>""",
                   line)
+    
+    # useafter date
+    line = re.sub(r"('\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d')",
+                  r"<span class='grey'>\1</span>",
+                  line)
+    
+    if re.search(FILE_RE, line):
+        line += "<button onclick='add_useafter(this);'>+</button>"
+        line += "<button onclick='del_useafter(this);'>-</button>"
+        line += "<div class='useafter'></div>"
 
-    return "<p>" + line + "</p>"
+    return "<p>" + line.strip() + "</p>\n"
 
 def browsify_reference(original_name, browsed_file):
     """Format a CRDS reference file for HTML display.   Return HTML lines.
@@ -960,7 +978,7 @@ def browsify_reference(original_name, browsed_file):
         
     lines.extend(info)
     
-    return lines
+    return "\n".join(lines)
 
 
 @capture_output
@@ -1298,6 +1316,26 @@ def make_new_replace_file_rmap(old_mapping, old_file, new_file):
     checksum.update_checksum(new_location)
     do_certify_file(new_location, new_location, check_references=False)
     return new_mapping, new_location
+
+# ===========================================================================
+
+@error_trap("edit_rmap_results.html")
+@login_required
+def edit_rmap(request):
+    """"""
+    if request.method == "GET":
+        raise CrdsError("Can't GET this URL")
+    else:
+        return add_useafter_post(request)
+
+def edit_rmap_post(request):
+    """View fragment handling add_useafter POST case."""
+    new_mappings = []
+    actions = []
+    return render(request, "edit_rmap_results.html", {
+                "new_mappings" : new_mappings,
+                "actions" : actions,
+            })
 
 # ===========================================================================
 

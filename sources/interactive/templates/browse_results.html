@@ -4,6 +4,21 @@
 
 {% block contents %}
 
+<script type="text/javascript">
+
+add_useafter = function (button) {
+    useafter = $(button).siblings()[0].innerHTML
+    filename = $(button).siblings()[1].innerHTML
+    match_tuple = $(button).parent().prev().html().split(":")[0]
+    document.write(match_tuple + "   " + useafter + "    " + filename)
+}
+
+del_useafter = function (button) {
+    add_useafter(button)
+}
+
+</script>
+
     <h2>Browse 
         <a href='{{browsed_file|download_url:"hst"}}'>
             {{browsed_file|grey}}
@@ -113,8 +128,13 @@
 
     <h3>File Contents</h3>
 
-    {% for line in file_contents %}
-    {{line|safe}}
-    {% endfor %}
+ <div class='program'>
+<form action='{{form_post_action}}' method='post' enctype='multipart/form-data'> {% csrf_token %}
+ 
+    {{ file_contents|safe }}
+    
+<br/><br/>
+</form>
+</div>
 
 {% endblock contents %}
