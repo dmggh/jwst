@@ -3,6 +3,7 @@ Django template tags so they can be used from HTML.
 """
 
 import sys
+import os.path
 
 from django import template
 
@@ -67,6 +68,13 @@ def seconds(value):  # handle str(datetime.datetime.now())
 def browse(name):  # handle str(datetime.datetime.now())
     return mark_safe("<a href='/browse/%s'>%s</a>" % (name, name))
 browse.is_safe = True
+
+@register.filter
+@stringfilter
+def exists_color(name):  # handle str(datetime.datetime.now())
+    color = "green" if os.path.exists(name) else "red"
+    return mark_safe("<span class='%s'>%s</span>" % (color, name))
+exists_color.is_safe = True
 
 # ===========================================================================
 

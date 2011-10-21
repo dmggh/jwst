@@ -75,8 +75,9 @@ def validate_get(request, variable, pattern):
 
 # "pattern" functions for validate_post/get
 
-FILE_RE = r"\w+(\.fits|\.pmap|\.imap|\.rmap|\.r\dh)"
+FILE_RE = r"\w+(\.fits|\.pmap|\.imap|\.rmap|\.r\d[hd])"
 DESCRIPTION_RE = r"[A-Za-z0-9._ ]+"
+GEIS_HEADER_RE = r"\w+(\.r\dh)"
 
 def is_pmap(filename):
     """Verify that `filename` names a known CRDS pipeline mapping.
@@ -793,6 +794,10 @@ def difference_files(request):
         elif file1_orig.endswith(".fits") and file2_orig.endswith(".fits"):
             diff_lines = pysh.lines("fitsdiff ${file1_path} ${file2_path}")
             diff_lines = format_fitsdiffs(diff_lines, file1_path, file2_path)
+        elif re.match(GEIS_HEADER_RE, file1_orig) and \
+            re.match(GEIS_HEADER_RE, file2_orig) and \
+            extension(file1_orig) == extension(file2_orig):
+            diff_lines = pysh.lines("diff -b -c ${file1_path} ${file2_path}")
         else:
             raise CrdsError("Files should be either CRDS mappings "
                             "of the same type or .fits files")
@@ -929,12 +934,14 @@ def browsify_mapping_line(line):
 def browsify_reference(original_name, browsed_file):
     """Format a CRDS reference file for HTML display.   Return HTML lines.
     """
-    ### XXX Fix this hack if "default contexts" ever get implemented.
     ref_blob = models.FileBlob.load(os.path.basename(browsed_file))
-    mapping = rmap.get_cached_mapping(
-        models.get_default_context(ref_blob.observatory))
+    default_context = models.get_default_context(ref_blob.observatory)
+    mapping = rmap.get_cached_mapping(default_context)
     
-    header = mapping.get_minimum_header(browsed_file)
+    try:
+        header = mapping.get_minimum_header(browsed_file)
+    except IOError:
+        return ["<p class='error'>File unavailable.</p>"]
     lines = ["<b>Header Parameters</b>",
              "<br/>",
              "<br/>",
