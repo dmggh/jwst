@@ -465,20 +465,19 @@ def submit_file_post(request, crds_filetype):
     description = validate_post(request, "description", DESCRIPTION_RE)
 
     if crds_filetype == "reference":
-        opus_flag = validate_post(request, "opus_flag", "Y|N")
         change_level = validate_post(
             request, "change_level", models.CHANGE_LEVELS)
-        comparison_file = validate_post(
-            request, "comparison_file", is_known_file)
+#        comparison_file = validate_post(
+#            request, "comparison_file", is_known_file)
     else:
-        opus_flag = "Y"
         change_level = "SEVERE"
         comparison_file = None
         
-    auto_rename = "auto_rename" in request.POST    
-
     # Determine the temporary and permanent file paths, not yet copying.
     upload_location = ufile.temporary_file_path()    
+    
+    # auto_rename = "auto_rename" in request.POST    
+    auto_rename = True
     if auto_rename:
         permanent_name = auto_rename_file(
             observatory, ufile.name, upload_location)
@@ -510,7 +509,7 @@ def submit_file_post(request, crds_filetype):
     blob = models.add_crds_file(observatory, original_name, permanent_location, 
             request.user, request.user.email, description, 
             creation_method="submit file", audit_details="", 
-            change_level=change_level, opus_flag=opus_flag,)
+            change_level=change_level)
 
     # blob.mode_values = utils.get_critical_header_parameters(permanent_location)
     

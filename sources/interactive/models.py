@@ -8,7 +8,7 @@ import pyfits
 
 # Create your models here.
 from crds import (timestamp, rmap, utils)
-from crds.compat import (literal_eval, namedtuple)
+from crds.compat import (literal_eval, namedtuple, OrderedDict)
 
 import crds.hst
 
@@ -255,12 +255,12 @@ class CounterBlob(Blob):
 
 # ============================================================================
 
-FILE_STATUS_MAP = {
-    "submitted" : "orange",
-    "delivered" : "blue",     # pending archive
-    "operational" : "green",
-    "blacklisted" : "red",
-}
+FILE_STATUS_MAP = OrderedDict([
+    ("submitted", "orange"),   # pending delivery
+    ("delivered", "blue"),     # pending archive
+    ("operational", "green"),
+    ("blacklisted", "red"),    # unusable
+])
 
 PEDIGREES = ["INFLIGHT","GROUND","DUMMY","MODEL"]
 CHANGE_LEVELS = ["SEVERE", "MEDIUM", "TRIVIAL"]
@@ -307,23 +307,20 @@ class FileBlob(Blob):
         comparison_file = BlobField(
             FILENAME_RE, 
             "Name of existing file to compare to for mode coverage.", ""),
-        pedigree = BlobField(
-            PEDIGREES, 
-            "What's the source of this file?", ""),
-        opus_flag = BlobField(
-            ["Y","N"], 
-            "Should file be delivered to OPUS and archive?", "Y"),
         change_level = BlobField(
             CHANGE_LEVELS,
             "Do the changes to this file force recalibration of science data?",
             "SEVERE"),
         useafter_date = BlobField(
             str,  "Date after which this reference should be used", ""),
-            
-        observation_begin_date = BlobField(
-            str, "Start of INFLIGHT observation." , ""),
-        observation_end_date = BlobField(
-            str, "End of INFLIGHT observation.", ""),
+
+#        pedigree = BlobField(
+#            PEDIGREES, 
+#            "What's the source of this file?", ""),
+#        observation_begin_date = BlobField(
+#            str, "Start of INFLIGHT observation." , ""),
+#        observation_end_date = BlobField(
+#            str, "End of INFLIGHT observation.", ""),
     )
     
     @classmethod
@@ -358,12 +355,12 @@ class FileBlob(Blob):
         # These need to be checked before the file is copied and the blob is made.
         if not rmap.is_mapping(upload_name):
             blob.change_level = change_level
-            blob.opus_flag = opus_flag
+
 #            blob.pedigree = pyfits.getval(permanent_location, "PEDIGREE")
 #            blob.useafter_date = pyfits.getval(permanent_location, "USEAFTER")
-            if blob.pedigree.strip().startswith("INFLIGHT"):
-                # XXX fill in observation_begin_date, observation_end_date
-                pass
+#            if blob.pedigree.strip().startswith("INFLIGHT"):
+#                # XXX fill in observation_begin_date, observation_end_date
+#                pass
         
         blob.save()
         
@@ -549,15 +546,13 @@ def get_default_context(observatory):
 def add_crds_file(observatory, upload_name, permanent_location, 
             deliverer, deliverer_email, description, 
             creation_method, audit_details="", 
-            change_level="SEVERE", opus_flag="N",
-            add_slow_fields=True, index=None):
+            change_level="SEVERE", add_slow_fields=True, index=None):
     "Make a database record for this file.  Track the action of creating it."""
 
     fileblob = FileBlob.new(
         observatory, upload_name, permanent_location, 
         deliverer, deliverer_email, description,
-        change_level=change_level, opus_flag=opus_flag,
-        add_slow_fields=add_slow_fields, index=index)
+        change_level=change_level, add_slow_fields=add_slow_fields, index=index)
     
     # Redundancy, database record of how file got here, important action
     AuditBlob.new(

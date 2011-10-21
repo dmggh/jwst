@@ -26,25 +26,29 @@
                     <td>{{fileblob.delivery_date|seconds}}</td>
                  </tr>
                  <tr>
+                    <td width="20%" align="left" class="label">Status</td>
+                    <td class="{{fileblob.status_class}}">{{fileblob.status}}</td>
+                 </tr>
+
+       {% if is_authenticated %}
+                 <tr>
                     <td width="20%" align="left" class="label">Path</td>
                     <td>{{fileblob.pathname|exists_color}}</td>
                  </tr>
                  <tr>
-                    <td width="20%" align="left" class="label">Status</td>
-                    <td class="{{fileblob.status_class}}">{{fileblob.status}}</td>
-                 </tr>
-                 <tr>
-                    <td width="20%" align="left" class="label">Deliverer</td>
+                    <td width="20%" align="left" class="label">Submitter</td>
                     <td>{{fileblob.deliverer_user}}</td>
                  </tr>
                  <tr>
-                    <td width="20%" align="left" class="label">Deliverer Email</td>
+                    <td width="20%" align="left" class="label">Submitter Email</td>
                     <td>{{fileblob.deliverer_email}}</td>
                  </tr>
                  <tr>
                     <td width="20%" align="left" class="label">Author/Modifier</td>
                     <td>{{fileblob.modifier_name}}</td>
                  </tr>
+       {% endif %}
+
                  <tr>
                     <td width="20%" align="left" class="label">Blacklisted By</td>
                     <td>

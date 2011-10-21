@@ -21,27 +21,12 @@
                 value="{{submitted_file}}">
           </td>
         </tr>
-        <tr>
-          <td width="25%" class="label">Auto-rename:</td>
-          <td width="25%">
-            <input type="checkbox" name='auto_rename' >{{auto_rename}}</input>
-          </td>
-        </tr>
         {% if crds_filetype == "reference" %}
             <tr>
               <td width="25%" class="label">Comparison File:</td>
               <td width="25%">
                 <input type='text' name='comparison_file' size="40" 
                     value="{{comparison_file}}">
-              </td>
-            </tr>
-            <tr>
-              <td width="25%" class="label">OPUS Flag:</td>
-              <td width="25%">
-                <select name='opus_flag' value="{{opus_flag}}">
-                    <option>Y</option>
-                    <option>N</option>
-                </select>
               </td>
             </tr>
             <tr>
@@ -77,16 +62,8 @@ certification before it will be accepted.
 
 <p><p><b>Submitted File</b> a new reference file to be added to CRDS.
 
-<p><p><b>Auto-rename</b> when checked, automatically generate a unique CRDS 
-filename and submit the file under that name.  Otherwise,  retain the name of 
-the uploaded file exactly as given.   Automatically renamed files
-will not automatically be corrected in mappings which refer to them.
-
-<p><p><b>Comparison File</b> when specified,  the submitted reference must
+p><p><b>Comparison File</b> when specified,  the submitted reference must
 provide the same general coverage as the comparison file.
-
-<p><p><b>Deliver to OPUS</b> a flag to help search for deliverable files.  The
-file must still be "delivered" independently from this submission.
 
 <p><p><b>Change Level</b> a flag to help search for deliverable files.
 
@@ -103,11 +80,6 @@ CRDS system in a state which is initially unused.   A file must pass CRDS
 certification before it will be accepted.
 
 <p><p><b>Submitted File</b> a new mapping file to be added to CRDS.
-
-<p><p><b>Auto-rename</b> when checked, automatically generate a unique CRDS 
-filename and submit the file under that name.  Otherwise,  retain the name of 
-the uploaded file exactly as given.   Automatically renamed files
-will not automatically be corrected in mappings which refer to them.
 
 <p><p><b>Description</b> information about what's new in this file and what
 the expected impacts are.
