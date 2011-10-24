@@ -222,7 +222,7 @@ input {
 .ui-widget-content a { color: blue; }
 .ui-widget-content { color: black; }
 
-.program {
+.program, .match, .useafter {
     font-family: monospace; 
     font-size:1.0em; 
     background-color:lightyellow;
@@ -240,4 +240,9 @@ img.plot {
 .help {
   color: grey;
 }
+
+p { 
+    margin-top: 0.5em;
+    margin-bottom: 0.0em; 
+} 
 

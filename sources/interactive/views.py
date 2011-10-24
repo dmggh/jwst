@@ -897,30 +897,20 @@ def browsify_mapping(original_name, browsed_file):
                 "<span class='grey'>%s<span> not found</h3>" % (original_name,)]
 
     for line in linegen:
-        contents += browsify_mapping_line(line)
+        if line.strip():
+            contents += browsify_mapping_line(line)
 
     contents += "<input type='submit' value='Submit Rmap Update' />"
     
     return contents
 
 def browsify_mapping_line(line):
-    # header
-    line = re.sub(r"(header)(\s*=\s*)",
-                  r"<span class='green'>\1</span>\2",
-                  line)
-    # selector
-    line = re.sub(r"(selector)(\s*=\s*)",
-                  r"<span class='green'>\1</span>\2",
-                  line) 
-    # Match
-    line = re.sub(r"(Match)(\()",
-                  r"<span class='green'>\1</span>\2",
-                  line)
-    # UseAfter
-    line = re.sub(r"(UseAfter)(\()",
-                  r"<span class='green'>\1</span>\2",
-                  line)
+    """Markup one line of a CRDS mapping for use in HTML display and editing."""
     
+    # header
+    line = re.sub(r"(header|selector)(\s*=\s*)",
+                  r"<span class='green'>\1</span>\2",
+                  line)
     # Tabs -->   4 spaces
     line = re.sub(r"\t", r"&nbsp;"*4, line)
     
@@ -942,11 +932,27 @@ def browsify_mapping_line(line):
                   line)
     
     if re.search(FILE_RE, line):
+        line = line.strip()
         line += "<button onclick='add_useafter(this);'>+</button>"
         line += "<button onclick='del_useafter(this);'>-</button>"
         line += "<div class='useafter'></div>"
 
-    return "<p>" + line.strip() + "</p>\n"
+    line = "<p>" + line.strip() + "</p>\n"
+
+    # Match, UseAfter  ({    --> <div> <span>
+    line = re.sub(r"(.*)(Match)(\(.*)",
+                  r"<br/><div class='match'>\1<span class='green'>\2</span>\3",
+                  line)
+
+    line = re.sub(r"(.*)(UseAfter)(\(.*)",
+                  r"<div class='useafter'>\1<span class='green'>\2</span>\3",
+                  line)
+    
+    # }  -->  } </div>
+    line = re.sub(r"(.*\}.*)",  r"\1\n</div>\n", line)
+    
+    return line
+
 
 def browsify_reference(original_name, browsed_file):
     """Format a CRDS reference file for HTML display.   Return HTML lines.

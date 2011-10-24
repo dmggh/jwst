@@ -9,7 +9,7 @@
 add_useafter = function (button) {
     useafter = $(button).siblings()[0].innerHTML
     filename = $(button).siblings()[1].innerHTML
-    match_tuple = $(button).parent().prev().html().split(":")[0]
+    match_tuple = $(button).parents().find("div.useafter").children().html().split(":")[0]
     document.write(match_tuple + "   " + useafter + "    " + filename)
 }
 
