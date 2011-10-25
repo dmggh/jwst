@@ -6,16 +6,33 @@
 
 <script type="text/javascript">
 
-add_useafter = function (button) {
-    useafter = $(button).siblings()[0].innerHTML
-    filename = $(button).siblings()[1].innerHTML
-    match_tuple = $(button).parents().find("div.useafter").children().html().split(":")[0]
-    document.write(match_tuple + "   " + useafter + "    " + filename)
-}
-
-del_useafter = function (button) {
-    add_useafter(button)
-}
+$( function () {
+    
+    console.log("initing.")
+    
+    add_useafter = function (event) {
+        console.log("add_useafter " + event)
+        button = $(event.target)
+        match_tuple = button.parents().find("div.useafter").children().html().split(":")[0]
+        console.log("match tuple " + match_tuple)
+    }
+    
+    del_useafter = add_useafter
+    
+    edit_useafter = function(event) {
+        button = $(event.target)
+        console.log($(button))
+        add_button = $("<button>+</button>").bind("click", add_useafter)
+        del_button = $("<button>-</button>").bind("click", del_useafter)
+        button.after(add_button, del_button)
+        button.remove()
+    }
+    
+    $("div.useafter p button").bind("click", edit_useafter)
+    
+    console.log("ready.")
+    
+});
 
 </script>
 

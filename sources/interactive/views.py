@@ -871,7 +871,8 @@ def browse_files_post_guts(request, uploaded, original_name, browsed_file):
         related_actions = []
     
     if rmap.is_mapping(original_name):
-        file_contents = browsify_mapping(original_name, browsed_file)
+        file_contents = browsify_mapping(
+            request.user.is_authenticated(), original_name, browsed_file)
         form_post_action = "/edit_rmap/"
     else:
         file_contents = browsify_reference(original_name, browsed_file)
@@ -885,7 +886,7 @@ def browse_files_post_guts(request, uploaded, original_name, browsed_file):
              "form_post_action":form_post_action,
              "browsed_file":original_name})
 
-def browsify_mapping(original_name, browsed_file):
+def browsify_mapping(authenticated, original_name, browsed_file):
     """Format a CRDS mapping file as colorized and cross-linked HTML."""
 
     contents = ""
@@ -898,11 +899,11 @@ def browsify_mapping(original_name, browsed_file):
 
     for line in linegen:
         if line.strip():
-            contents += browsify_mapping_line(line)
+            contents += browsify_mapping_line(authenticated, line)
 
     return contents
 
-def browsify_mapping_line(line):
+def browsify_mapping_line(authenticated, line):
     """Markup one line of a CRDS mapping for use in HTML display and editing."""
     
     # header
@@ -929,11 +930,9 @@ def browsify_mapping_line(line):
                   r"<span class='grey'>\1</span>",
                   line)
     
-    if re.search(FILE_RE, line):
+    if authenticated and re.search(FILE_RE, line):
         line = line.strip()
-        line += "<button onclick='add_useafter(this);'>+</button>"
-        line += "<button onclick='del_useafter(this);'>-</button>"
-        line += "<div class='useafter'></div>"
+        line += "<button>*</button>"
 
     line = "<p>" + line.strip() + "</p>\n"
 
@@ -962,7 +961,8 @@ def browsify_reference(original_name, browsed_file):
     try:
         header = mapping.get_minimum_header(browsed_file)
     except IOError:
-        return ["<p class='error'>File unavailable.</p>"]
+        return "<p class='error'>File unavailable.</p>"
+    
     lines = ["<b>Header Parameters</b>",
              "<br/>",
              "<br/>",
