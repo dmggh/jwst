@@ -43,14 +43,14 @@ $( function () {
                  "</p>");
                  
         $("button[class^=add]", input_bundle).bind("click", add_useafter)
-        $("button[class^=del]", input_bundle).bind("click", del_useafter)
+        $("button[class^=del]", input_bundle).bind("click", del_useafter_dynamic)
         
-        button.parent().append(input_bundle);
+        button.parent().after(input_bundle);
 
         ++ add_count;
     }
     
-    del_useafter = function(event) {
+    del_useafter_static = function(event) {
         console.log("del_useafter");
         button = $(event.target);
         parsing = parse_useafter(button)
@@ -59,17 +59,25 @@ $( function () {
             .css("text-decoration", "line-through")
             .css("color", "red");
         console.log(p);
-        p.append('<input type="text" name="del_match_tuple_' + del_count + 
-                 '" value="' + parsing.match_tuple + '">');
-        p.append('<input type="text" name="del_useafter_date_' + del_count + 
-                 '" value="' + parsing.date + '">');
-        p.append("<input type='text' name='del_filename_" + del_count + 
-                 "' value='" + parsing.filename + "'>" );
+        
+        $('<input type="text" name="del_match_tuple_' + del_count + 
+            '" value="' + parsing.match_tuple + '">' +
+          '<input type="text" name="del_useafter_date_' + del_count + 
+            '" value="' + parsing.date + '">' +
+          "<input type='text' name='del_filename_" + del_count + 
+            "' value='" + parsing.filename + "'>").appendTo(p);
+        ++ del_count;
+
         button.remove();
         $("button[class^=add]", p)
             .unbind("click")
             .bind("click", undel_useafter);     
-        ++ del_count;
+    }
+    
+    del_useafter_dynamic = function(event) {
+        console.log("del_useafter_dynamic");
+        button = $(event.target);
+        button.parent().remove();
     }
     
     undel_useafter = function(event) {
@@ -80,24 +88,38 @@ $( function () {
             .css("color", "blue");
         p = button.parent();
         $("[name^=del_]", p).remove();
-        p.append($("<button class='del'>-</button>"));
-        $("button[class^=del]", p)
-            .bind("click", del_useafter);
-        $("button[class^=add]", p)
-            .unbind("click")
-            .bind("click", add_useafter);
+        $("[class^=add]", p).remove();
+        edit = $("<button>*</button>")
+            .bind("click", edit_useafter);
+        p.append(edit);
     }
     
     edit_useafter = function(event) {
         button = $(event.target)
         console.log($(button))
         add_button = $("<button class='add'>+</button>").bind("click", add_useafter)
-        del_button = $("<button class='del'>-</button>").bind("click", del_useafter)
+        del_button = $("<button class='del'>-</button>").bind("click", del_useafter_static)
         button.after(add_button, del_button).remove()
         event.stopPropagation()
     }
     
     $("div.useafter p button").bind("click", edit_useafter)
+    
+    $("#submit").click(function (event) {
+        console.log("submit_form");
+        inputs = $("input");
+        console.log(inputs);
+        form = $("<form>");
+        form.attr({
+            method: "post",
+            action: "/edit_rmap/",
+        });
+        /* form = $("<form action='/edit_rmap/' method='POST'>") */
+        console.log(form)
+        form.append(inputs);
+        form.submit(); 
+    });
+    
     
     console.log("ready.")
     
@@ -215,14 +237,14 @@ $( function () {
     <h3>File Contents</h3>
 
  <div class='program'>
-<form action='{{form_post_action}}' method='post' enctype='multipart/form-data'> {% csrf_token %}
+<form action="/edit_rmap/" method="post" > {% csrf_token %}
  
     {{ file_contents|safe }}
 
 {% if is_authenticated %}
-<br/><br/>
-<input type='submit' value='Submit Rmap Update' />
 <br/>
+<input type='submit' name="Update Rmap" />
+<br/><br/>
 {% endif %}
 
 </form>
