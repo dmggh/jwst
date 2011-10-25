@@ -900,8 +900,6 @@ def browsify_mapping(original_name, browsed_file):
         if line.strip():
             contents += browsify_mapping_line(line)
 
-    contents += "<input type='submit' value='Submit Rmap Update' />"
-    
     return contents
 
 def browsify_mapping_line(line):
