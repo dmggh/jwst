@@ -10,11 +10,30 @@ $( function () {
     
     console.log("initing.")
     
+    var add_count = 0;
+    
     add_useafter = function (event) {
-        console.log("add_useafter " + event)
-        button = $(event.target)
-        match_tuple = button.parents().find("div.useafter").children().html().split(":")[0]
-        console.log("match tuple " + match_tuple)
+        console.log("add_useafter " + event);
+        button = $(event.target);
+
+        match_tuple = button.parent().parent().children().html().split(":")[0];
+        match_tuple = match_tuple.slice(match_tuple.indexOf("("), match_tuple.length)
+        console.log("match tuple " + match_tuple);
+        
+        input_bundle = $("<p class='dynamic'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+                 "<input type='text' name='add_date_" + add_count + "'>" + " : " +
+                 "<input type='text' name='filename_" + add_count + "'>" +
+                 '<input type="hidden" name="match_tuple_' + add_count + '" value="' + match_tuple + '">' +
+                 "<button class='add'>+</button>" + 
+                 "<button class='del'>-</button>" + 
+                 "</p>");
+                 
+        $("button[class^=add]", input_bundle).bind("click", add_useafter)
+        $("button[class^=del]", input_bundle).bind("click", del_useafter)
+        
+        button.parent().append(input_bundle);
+
+        ++ add_count;
     }
     
     del_useafter = add_useafter
@@ -26,6 +45,7 @@ $( function () {
         del_button = $("<button>-</button>").bind("click", del_useafter)
         button.after(add_button, del_button)
         button.remove()
+        event.stopPropagation()
     }
     
     $("div.useafter p button").bind("click", edit_useafter)
@@ -149,10 +169,12 @@ $( function () {
 <form action='{{form_post_action}}' method='post' enctype='multipart/form-data'> {% csrf_token %}
  
     {{ file_contents|safe }}
-    
+
+{% if is_authenticated %}
 <br/><br/>
 <input type='submit' value='Submit Rmap Update' />
 <br/>
+{% endif %}
 
 </form>
 </div>

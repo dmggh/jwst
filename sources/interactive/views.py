@@ -1330,12 +1330,15 @@ def edit_rmap(request):
     if request.method == "GET":
         raise CrdsError("Can't GET this URL")
     else:
-        return add_useafter_post(request)
+        return edit_rmap_post(request)
 
 def edit_rmap_post(request):
     """View fragment handling add_useafter POST case."""
     new_mappings = []
     actions = []
+    print "edit_rmap_post"
+    for key in request.POST:
+        print key, "=", request.POST[key]
     return render(request, "edit_rmap_results.html", {
                 "new_mappings" : new_mappings,
                 "actions" : actions,
