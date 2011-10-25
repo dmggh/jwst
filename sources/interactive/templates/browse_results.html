@@ -10,20 +10,34 @@ $( function () {
     
     console.log("initing.")
     
-    var add_count = 0;
+    var add_count = 0;    
+    var del_count = 0;
+    
+    parse_useafter = function (button) {
+        match_tuple = button.parent().parent().children().html().split(":")[0];
+        match_tuple = match_tuple.slice(match_tuple.indexOf("("), match_tuple.length);
+        filename = button.siblings().slice(1,-1).text().slice(1,-1);
+        date = button.parent().find("span").text().slice(1, -1);
+        console.log("match tuple: " + match_tuple + 
+                    " useafter: " + date + 
+                    " filename: " + filename);
+        return {
+            match_tuple: match_tuple,
+            date: date,
+            filename: filename,
+        }
+    }
     
     add_useafter = function (event) {
-        console.log("add_useafter " + event);
+        console.log("add_useafter");
         button = $(event.target);
-
-        match_tuple = button.parent().parent().children().html().split(":")[0];
-        match_tuple = match_tuple.slice(match_tuple.indexOf("("), match_tuple.length)
-        console.log("match tuple " + match_tuple);
+        
+        match_tuple = parse_useafter(button).match_tuple;
         
         input_bundle = $("<p class='dynamic'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
                  "<input type='text' name='add_date_" + add_count + "'>" + " : " +
-                 "<input type='text' name='filename_" + add_count + "'>" +
-                 '<input type="hidden" name="match_tuple_' + add_count + '" value="' + match_tuple + '">' +
+                 "<input type='text' name='add_filename_" + add_count + "'>" +
+                 '<input type="hidden" name="add_match_tuple_' + add_count + '" value="' + match_tuple + '">' +
                  "<button class='add'>+</button>" + 
                  "<button class='del'>-</button>" + 
                  "</p>");
@@ -36,15 +50,50 @@ $( function () {
         ++ add_count;
     }
     
-    del_useafter = add_useafter
+    del_useafter = function(event) {
+        console.log("del_useafter");
+        button = $(event.target);
+        parsing = parse_useafter(button)
+        p = button.parent();
+        button.siblings().slice(1,-1)
+            .css("text-decoration", "line-through")
+            .css("color", "red");
+        console.log(p);
+        p.append('<input type="text" name="del_match_tuple_' + del_count + 
+                 '" value="' + parsing.match_tuple + '">');
+        p.append('<input type="text" name="del_useafter_date_' + del_count + 
+                 '" value="' + parsing.date + '">');
+        p.append("<input type='text' name='del_filename_" + del_count + 
+                 "' value='" + parsing.filename + "'>" );
+        button.remove();
+        $("button[class^=add]", p)
+            .unbind("click")
+            .bind("click", undel_useafter);     
+        ++ del_count;
+    }
+    
+    undel_useafter = function(event) {
+        console.log("undel_useafter");
+        button = $(event.target);
+        button.siblings().slice(1,-1)
+            .css("text-decoration", "none")
+            .css("color", "blue");
+        p = button.parent();
+        $("[name^=del_]", p).remove();
+        p.append($("<button class='del'>-</button>"));
+        $("button[class^=del]", p)
+            .bind("click", del_useafter);
+        $("button[class^=add]", p)
+            .unbind("click")
+            .bind("click", add_useafter);
+    }
     
     edit_useafter = function(event) {
         button = $(event.target)
         console.log($(button))
-        add_button = $("<button>+</button>").bind("click", add_useafter)
-        del_button = $("<button>-</button>").bind("click", del_useafter)
-        button.after(add_button, del_button)
-        button.remove()
+        add_button = $("<button class='add'>+</button>").bind("click", add_useafter)
+        del_button = $("<button class='del'>-</button>").bind("click", del_useafter)
+        button.after(add_button, del_button).remove()
         event.stopPropagation()
     }
     
