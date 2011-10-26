@@ -69,9 +69,9 @@ $( function () {
         console.log(p);
         
         del_inputs = $(
-          mk_input("text", "del_match_tuple_"+del_count, parsing.match_tuple) + 
-          mk_input("text", "del_date_"+del_count, parsing.date) +
-          mk_input("text", "del_filename_"+del_count, parsing.filename));
+          mk_input("hidden", "del_match_tuple_"+del_count, parsing.match_tuple) + 
+          mk_input("hidden", "del_date_"+del_count, parsing.date) +
+          mk_input("hidden", "del_filename_"+del_count, parsing.filename));
           
          p.append(del_inputs)
 
@@ -113,16 +113,6 @@ $( function () {
     }
     
     $("div.useafter p button").bind("click", edit_useafter)
-    
-    update_rmap = function (event) {
-        console.log("submit_form");
-        inputs = $("input");
-        console.log(inputs);
-        form = $("<form action='/edit_rmap/' method='post'>")
-        form.html(inputs);
-        console.log(form)
-        form.live().submit(); 
-    }
     
     console.log("ready.")
     
@@ -242,10 +232,6 @@ $( function () {
 <div class='program'>
     <form action="/edit_rmap/" method="post">  
         
-        {# csrf_token #}
-        
-        <input type='hidden' name='secret' value='42' />
-     
         {{ file_contents|safe }}
     
         {% if is_authenticated %}
