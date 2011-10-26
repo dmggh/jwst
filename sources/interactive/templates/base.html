@@ -29,9 +29,11 @@
     <div id="header_menu">
        <a href="/static/users_guide/index.html" class="tiny">help</a>
        {% if is_authenticated %}
-       <br/>
-       <br/>
-       <a href="/logout/" class="tiny">logout</a>
+           <br/>
+           <br/>
+           <a href="/logout/" class="tiny">logout</a>
+       {% else %}
+           <a href="/login/?next={% firstof request.path '/' %}" class="tiny">login</a>          
        {% endif %}
     </div>
     

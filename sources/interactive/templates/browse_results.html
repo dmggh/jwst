@@ -105,21 +105,15 @@ $( function () {
     
     $("div.useafter p button").bind("click", edit_useafter)
     
-    $("#submit").click(function (event) {
+    update_rmap = function (event) {
         console.log("submit_form");
         inputs = $("input");
         console.log(inputs);
-        form = $("<form>");
-        form.attr({
-            method: "post",
-            action: "/edit_rmap/",
-        });
-        /* form = $("<form action='/edit_rmap/' method='POST'>") */
+        form = $("<form action='/edit_rmap/' method='post'>")
+        form.html(inputs);
         console.log(form)
-        form.append(inputs);
-        form.submit(); 
-    });
-    
+        form.live().submit(); 
+    }
     
     console.log("ready.")
     
@@ -237,17 +231,19 @@ $( function () {
     <h3>File Contents</h3>
 
  <div class='program'>
-<form action="/edit_rmap/" method="post" > {% csrf_token %}
- 
-    {{ file_contents|safe }}
-
-{% if is_authenticated %}
-<br/>
-<input type='submit' name="Update Rmap" />
-<br/><br/>
-{% endif %}
-
-</form>
+    <form action="/edit_rmap/" method="post" onsubmit="update_rmap();">  
+        
+        {# csrf_token #}
+     
+        {{ file_contents|safe }}
+    
+        {% if is_authenticated %}
+            <br/>
+            <input type='submit' value="Update Rmap" />
+            <br/><br/>
+        {% endif %}
+    
+    </form>
 </div>
 
 {% endblock contents %}

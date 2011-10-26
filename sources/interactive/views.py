@@ -18,6 +18,8 @@ import django.contrib.auth
 import django.contrib.auth.models
 from django.contrib.auth.decorators import login_required
 
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
+
 import pyfits
 
 from crds import (rmap, utils, certify, timestamp, uses, matches, newcontext, 
@@ -1323,10 +1325,11 @@ def make_new_replace_file_rmap(old_mapping, old_file, new_file):
 
 # ===========================================================================
 
-@error_trap("edit_rmap_results.html")
+@csrf_exempt
 @login_required
+@error_trap("edit_rmap_results.html")
 def edit_rmap(request):
-    """"""
+    """  """
     if request.method == "GET":
         raise CrdsError("Can't GET this URL")
     else:
