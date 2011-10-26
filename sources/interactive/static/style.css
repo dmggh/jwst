@@ -200,11 +200,9 @@ label, .label {
 
 input {
     size: 8;
-    maxlength: 8;
     border: grey solid 2px;
     border-radius: 6px;
     margin: 2px 2px 2px 2px;
-    background: solid;
     background-color: white;
 }
 

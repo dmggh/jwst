@@ -939,8 +939,12 @@ def browsify_mapping_line(authenticated, line):
     line = "<p>" + line.strip() + "</p>\n"
 
     # Match, UseAfter  ({    --> <div> <span>
+    line = re.sub(r".*header</span>.*",
+                  r"<br/><div class='header'>" + line,
+                  line)
+
     line = re.sub(r"(.*)(Match)(\(.*)",
-                  r"<br/><div class='match'>\1<span class='green'>\2</span>\3",
+                  r"<br/><div class='selector'>\1<span class='green'>\2</span>\3\n",
                   line)
 
     line = re.sub(r"(.*)(UseAfter)(\(.*)",

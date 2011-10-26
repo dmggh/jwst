@@ -16,6 +16,7 @@ $( function () {
     parse_useafter = function (button) {
         match_tuple = button.parent().parent().children().html().split(":")[0];
         match_tuple = match_tuple.slice(match_tuple.indexOf("("), match_tuple.length);
+        match_tuple = $.trim(match_tuple);
         filename = button.siblings().slice(1,-1).text().slice(1,-1);
         date = button.parent().find("span").text().slice(1, -1);
         console.log("match tuple: " + match_tuple + 
@@ -28,6 +29,13 @@ $( function () {
         }
     }
     
+    mk_input = function (type, name, value) {
+        hidden = '<input type="' + type + '" style="display:inline" name="' +
+                 name + '" value="' + value +'">'
+        console.log(hidden)
+        return hidden
+    }
+    
     add_useafter = function (event) {
         console.log("add_useafter");
         button = $(event.target);
@@ -35,12 +43,12 @@ $( function () {
         match_tuple = parse_useafter(button).match_tuple;
         
         input_bundle = $("<p class='dynamic'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-                 "<input type='text' name='add_date_" + add_count + "'>" + " : " +
-                 "<input type='text' name='add_filename_" + add_count + "'>" +
-                 '<input type="hidden" name="add_match_tuple_' + add_count + '" value="' + match_tuple + '">' +
-                 "<button class='add'>+</button>" + 
-                 "<button class='del'>-</button>" + 
-                 "</p>");
+            mk_input("text", 'add_date_' + add_count, '') + " : " +
+            mk_input("text", 'add_filename_' + add_count, '') + 
+            mk_input("hidden", 'add_match_tuple_' + add_count, match_tuple) +    
+            "<button class='add'>+</button>" + 
+            "<button class='del'>-</button>" + 
+            "</p>");
                  
         $("button[class^=add]", input_bundle).bind("click", add_useafter)
         $("button[class^=del]", input_bundle).bind("click", del_useafter_dynamic)
@@ -60,12 +68,13 @@ $( function () {
             .css("color", "red");
         console.log(p);
         
-        $('<input type="text" name="del_match_tuple_' + del_count + 
-            '" value="' + parsing.match_tuple + '">' +
-          '<input type="text" name="del_useafter_date_' + del_count + 
-            '" value="' + parsing.date + '">' +
-          "<input type='text' name='del_filename_" + del_count + 
-            "' value='" + parsing.filename + "'>").appendTo(p);
+        del_inputs = $(
+          mk_input("text", "del_match_tuple_"+del_count, parsing.match_tuple) + 
+          mk_input("text", "del_date_"+del_count, parsing.date) +
+          mk_input("text", "del_filename_"+del_count, parsing.filename));
+          
+         p.append(del_inputs)
+
         ++ del_count;
 
         button.remove();
@@ -230,10 +239,12 @@ $( function () {
 
     <h3>File Contents</h3>
 
- <div class='program'>
-    <form action="/edit_rmap/" method="post" onsubmit="update_rmap();">  
+<div class='program'>
+    <form action="/edit_rmap/" method="post">  
         
         {# csrf_token #}
+        
+        <input type='hidden' name='secret' value='42' />
      
         {{ file_contents|safe }}
     
