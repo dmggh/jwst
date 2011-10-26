@@ -56,6 +56,8 @@ $( function () {
         button.parent().after(input_bundle);
 
         ++ add_count;
+        
+        event.stopPropagation();
     }
     
     del_useafter_static = function(event) {
@@ -98,21 +100,12 @@ $( function () {
         p = button.parent();
         $("[name^=del_]", p).remove();
         $("[class^=add]", p).remove();
-        edit = $("<button>*</button>")
-            .bind("click", edit_useafter);
-        p.append(edit);
+        $("<button class='add'>+</button>").appendTo(p).click(add_useafter)
+        $("<button class='del'>-</button>").appendTo(p).click(del_useafter_static)
     }
     
-    edit_useafter = function(event) {
-        button = $(event.target)
-        console.log($(button))
-        add_button = $("<button class='add'>+</button>").bind("click", add_useafter)
-        del_button = $("<button class='del'>-</button>").bind("click", del_useafter_static)
-        button.after(add_button, del_button).remove()
-        event.stopPropagation()
-    }
-    
-    $("div.useafter p button").bind("click", edit_useafter)
+    $("div.useafter p button[class^=add]").click(add_useafter)
+    $("div.useafter p button[class^=del]").click(del_useafter_static)
     
     console.log("ready.")
     
