@@ -46,8 +46,8 @@ $( function () {
             mk_input("text", 'add_date_' + add_count, '') + " : " +
             mk_input("text", 'add_filename_' + add_count, '') + 
             mk_input("hidden", 'add_match_tuple_' + add_count, match_tuple) +    
-            "<button class='add'>+</button>" + 
-            "<button class='del'>-</button>" + 
+            "<button class='add' type='button'>+</button>" + 
+            "<button class='del' type='button'>-</button>" + 
             "</p>");
                  
         $("button[class^=add]", input_bundle).bind("click", add_useafter)
@@ -56,8 +56,6 @@ $( function () {
         button.parent().after(input_bundle);
 
         ++ add_count;
-        
-        event.stopPropagation();
     }
     
     del_useafter_static = function(event) {
@@ -100,12 +98,19 @@ $( function () {
         p = button.parent();
         $("[name^=del_]", p).remove();
         $("[class^=add]", p).remove();
-        $("<button class='add'>+</button>").appendTo(p).click(add_useafter)
-        $("<button class='del'>-</button>").appendTo(p).click(del_useafter_static)
+        $("<button class='add' type='button'>+</button>").appendTo(p).click(add_useafter)
+        $("<button class='del' type='button'>-</button>").appendTo(p).click(del_useafter_static)
     }
-    
-    $("div.useafter p button[class^=add]").click(add_useafter)
-    $("div.useafter p button[class^=del]").click(del_useafter_static)
+/*
+    submit_rmap = function (event) {
+        console.log("submit_rmap")
+        event.target.submit();
+    }
+    $("form#update_rmap_form").submit(submit_rmap)
+    $("button#submit_rmap").click(submit_rmap)
+*/    
+    $("div.useafter p button[class=add]").click(add_useafter)
+    $("div.useafter p button[class=del]").click(del_useafter_static)
     
     console.log("ready.")
     
@@ -223,7 +228,7 @@ $( function () {
     <h3>File Contents</h3>
 
 <div class='program'>
-    <form action="/edit_rmap/" method="post">  
+    <form action="/edit_rmap/" method="post" id="update_rmap_form">  
         
         {{ file_contents|safe }}
     
