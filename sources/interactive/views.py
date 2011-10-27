@@ -932,11 +932,6 @@ def browsify_mapping_line(authenticated, line):
                   r"<span class='grey'>\1</span>",
                   line)
     
-    if authenticated and re.search(FILE_RE, line):
-        line = line.strip()
-        line += "<button class='add' type='button'>+</button>"
-        line += "<button class='del' type='button'>-</button>"
-
     line = "<p>" + line.strip() + "</p>\n"
 
     # Match, UseAfter  ({    --> <div> <span>
