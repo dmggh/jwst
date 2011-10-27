@@ -8,6 +8,7 @@ import os.path
 import re
 import cProfile
 import cStringIO
+import pprint
 
 # from django.http import HttpResponse
 from django.shortcuts import render_to_response
@@ -17,8 +18,8 @@ import django.utils.safestring as safestring
 import django.contrib.auth
 import django.contrib.auth.models
 from django.contrib.auth.decorators import login_required
-
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
+from django.utils.datastructures import DotExpandedDict
 
 import pyfits
 
@@ -208,6 +209,7 @@ def render(request, template, dict_=None):
         "filekinds":models.FILEKINDS+["*"],
         "extensions":models.EXTENSIONS+["*"],
         "users": ["*"] + usernames(),
+        "current_path" : request.get_full_path()
     }
     # echo escaped inputs.
     for key, value in request.GET.items():
@@ -1339,14 +1341,41 @@ def edit_rmap_post(request):
     """View fragment handling add_useafter POST case."""
     new_mappings = []
     actions = []
+
     print "edit_rmap_post"
     for key in request.POST:
         print key, "=", request.POST[key]
+
+    actions = collect_action_tuples(request)
+    print pprint.pformat(actions)
+
     return render(request, "edit_rmap_results.html", {
                 "new_mappings" : new_mappings,
                 "actions" : actions,
             })
 
+def collect_action_tuples(request):
+    """Loop over post variables gathering add and delete useafter
+    action tuples,  validating basic syntax and file existence.
+    """
+    action_vars = {}
+    for var in request.POST:
+        if var.startswith(("add.","del.")):
+            action_vars[str(var)] = str(request.POST[var])
+    expanded = DotExpandedDict(action_vars)
+    actions = []
+    for action in expanded:
+        for serial in expanded[action]:
+            assert re.match("\d+", serial), "invalid action serial no " + repr(serial)
+            pars = expanded[action][serial]
+            assert "match_tuple" in pars, "incomplete action parameter set: missing match_tuple"
+            match_tuple = is_match_tuple(pars["match_tuple"])
+            assert "date" in pars, "incomplete action parameter set: missing date"
+            date = is_datetime(pars["date"])
+            assert "filename" in pars, "incomplete action parameter set: missing filename"
+            filename = is_reference(pars["filename"])
+            actions.append((action, match_tuple, date, filename))
+    return actions
 # ===========================================================================
 
 @error_trap("add_useafter_input.html")

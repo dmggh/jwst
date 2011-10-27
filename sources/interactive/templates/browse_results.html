@@ -43,9 +43,9 @@ $( function () {
         match_tuple = parse_useafter(button).match_tuple;
         
         input_bundle = $("<p class='dynamic'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-            mk_input("text", 'add_date_' + add_count, '') + " : " +
-            mk_input("text", 'add_filename_' + add_count, '') + 
-            mk_input("hidden", 'add_match_tuple_' + add_count, match_tuple) +    
+            mk_input("text", "add." + add_count + ".date", '') + " : " +
+            mk_input("text", "add." + add_count + ".filename", '') + 
+            mk_input("hidden", "add." + add_count + ".match_tuple", match_tuple) +    
             "<button class='add' type='button'>+</button>" + 
             "<button class='del' type='button'>-</button>" + 
             "</p>");
@@ -69,9 +69,9 @@ $( function () {
 
         p = button.parent();
         $("<div class='dynamic' style='display:none'>" + 
-          mk_input("hidden", "del_match_tuple_"+del_count, parsing.match_tuple) + 
-          mk_input("hidden", "del_date_"+del_count, parsing.date) +
-          mk_input("hidden", "del_filename_"+del_count, parsing.filename) +
+          mk_input("hidden", "del." + del_count + ".match_tuple", parsing.match_tuple) + 
+          mk_input("hidden", "del." + del_count + ".date", parsing.date) +
+          mk_input("hidden", "del." + del_count + ".filename", parsing.filename) +
           "</div>")
           .appendTo(p);
 
