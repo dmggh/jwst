@@ -435,7 +435,7 @@ class FileIndexBlob(Blob):
 AUDITED_ACTIONS = [
     "submit file", "blacklist", "reserve name", "mass import", 
     "new context", "replace reference", "add useafter", "deliver",
-    "set default context"
+    "update rmap", "set default context"
     ]
 
 class AuditBlob(Blob):

@@ -69,9 +69,9 @@ $( function () {
 
         p = button.parent();
         $("<div class='dynamic' style='display:none'>" + 
-          mk_input("hidden", "del." + del_count + ".match_tuple", parsing.match_tuple) + 
-          mk_input("hidden", "del." + del_count + ".date", parsing.date) +
-          mk_input("hidden", "del." + del_count + ".filename", parsing.filename) +
+          mk_input("hidden", "delete." + del_count + ".match_tuple", parsing.match_tuple) + 
+          mk_input("hidden", "delete." + del_count + ".date", parsing.date) +
+          mk_input("hidden", "delete." + del_count + ".filename", parsing.filename) +
           "</div>")
           .appendTo(p);
 
@@ -141,21 +141,19 @@ $( function () {
 
 </script>
 
-    <h2>Browse 
-        <a href='{{browsed_file|download_url:"hst"}}'>
-            {{browsed_file|grey}}
-        </a>
-    </h2> 
-    {% if status == "OK" %}
+<h2>Browse <a href='{{browsed_file|download_url:"hst"}}'>{{browsed_file|grey}}</a>
+</h2> 
+
+{% if status == "OK" %}
     <h3 class="success">
-    {% else %}
+{% else %}
     <h3 class="error">
-    {% endif %}
-    {{status}}
+{% endif %}
+        {{status}}
     </h3>
     
-    {% if not uploaded %}
-        <h3>CRDS Database</h3>
+{% if not uploaded %}
+<h3>CRDS Database</h3>
         {% if fileblob %}        
             <table border="1">
                  <tr>
@@ -224,11 +222,11 @@ $( function () {
                 <span class="grey">{{browsed_file}}</span>
             </p>
         {% endif %}
-    {% else %}
-        <h3>No Database (uploaded)</h3>
-    {% endif %}
+{% else %}
+    <h3>No Database (uploaded)</h3>
+{% endif %}
     
-    <h3>File Actions</h3>
+<h3>File Actions</h3>
     <table border="1">
         <tr>
             <th width="15%" align="center">Date</th>
@@ -248,20 +246,24 @@ $( function () {
         {% endfor %}
     </table>
 
-    <h3>File Contents</h3>
+<h3>File Contents</h3>
 
-<div class='program' id="file_contents">
-    {% if is_authenticated %}
-        <button type='button' id="edit_rmap">Edit Rmap</button>
-    {% endif %}
-
-    <form action="/edit_rmap/" method="post" id="update_rmap_form">  
+    <div class='program' id="file_contents">
+        {% if is_authenticated %}
+            {% if "rmap" in browsed_file %}
+                <button type='button' id="edit_rmap">Edit Rmap</button>
+            {% endif %}
+        {% endif %}
+    
+        <form action="/edit_rmap/" method="post" id="update_rmap_form">  
+            
+            <input type='hidden' name='browsed_file' value='{{browsed_file}}' />
+            
+            {{ file_contents|safe }}
         
-        {{ file_contents|safe }}
-    
-    </form>
-    
-    <br/><br/>
-</div>
+        </form>
+        
+        <br/><br/>
+    </div>
 
 {% endblock contents %}

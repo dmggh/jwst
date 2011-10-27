@@ -514,8 +514,6 @@ def submit_file_post(request, crds_filetype):
             request.user, request.user.email, description, 
             creation_method="submit file", audit_details="", 
             change_level=change_level)
-
-    # blob.mode_values = utils.get_critical_header_parameters(permanent_location)
     
     return render(request, 'submit_results.html', {
                 "crds_filetype": crds_filetype,
@@ -1214,37 +1212,40 @@ def create_contexts(request):
 
 def create_contexts_post(request):
     """View fragment handling create_contexts POST case."""
-    pipeline = validate_post(request, "pipeline", is_pmap)
+    pmap = validate_post(request, "pipeline", is_pmap)
     updated_rmaps = validate_post(request, "rmaps", is_list_of_rmaps)
     description = validate_post(request, "description", DESCRIPTION_RE)
 
-    # Get the mapping from old imap to new rmap, basically the imaps that
-    # must be updated onto the list of rmap updates to do.
-    updates_by_instrument = newcontext.get_update_map(
-        pipeline, updated_rmaps)
-    
-    # For each imap being edited,  and the pipeline context,  reserve new
-    # official names and return the dictionary { old_mapping : new_mapping }.
-    new_name_map = generate_new_names(pipeline, updates_by_instrument)
-    
-    # Actually generate the new mappings,  by first copying the old mappings 
-    # and then substituting old names with their updated equivalents.
-    new_contexts = newcontext.generate_new_contexts(
-        pipeline, updates_by_instrument, new_name_map)
-
-    # Create delivery records for each of the new files
-    observatory = rmap.get_cached_mapping(pipeline).observatory
-    for ctx in new_contexts:
-        models.add_crds_file(
-            observatory, ctx, rmap.locate_mapping(ctx),  request.user, 
-            request.user.email, description, "new context",
-            repr(pipeline) + " : " + ",".join([repr(x) for x in updated_rmaps]))
-    
-    # ", ".join(new_contexts[1:])
+    new_contexts = do_create_contexts(pmap, updated_rmaps, description,
+                                      request.user, request.user.email)
 
     return render(request, "create_contexts_results.html", {
                 "new_contexts" : new_contexts,
             })
+    
+def do_create_contexts(pmap, updated_rmaps, description, user, email):
+    # Get the mapping from old imap to new rmap, basically the imaps that
+    # must be updated onto the list of rmap updates to do.
+    updates_by_instrument = newcontext.get_update_map(pmap, updated_rmaps)
+    
+    # For each imap being edited,  and the pipeline context,  reserve new
+    # official names and return the dictionary { old_mapping : new_mapping }.
+    new_name_map = generate_new_names(pmap, updates_by_instrument)
+    
+    # Actually generate the new mappings,  by first copying the old mappings 
+    # and then substituting old names with their updated equivalents.
+    new_contexts = newcontext.generate_new_contexts(
+        pmap, updates_by_instrument, new_name_map)
+
+    # Create delivery records for each of the new files
+    observatory = rmap.get_cached_mapping(pmap).observatory
+    for ctx in new_contexts:
+        models.add_crds_file(
+            observatory, ctx, rmap.locate_mapping(ctx),  user, email, 
+            description, "new context",
+            repr(pmap) + " : " + ",".join([repr(x) for x in updated_rmaps]))
+        
+    return new_contexts
 
 def generate_new_names(old_pipeline, updates):
     """Generate a map from old pipeline and instrument context names to the
@@ -1348,9 +1349,25 @@ def edit_rmap_post(request):
 
     actions = collect_action_tuples(request)
     print pprint.pformat(actions)
+    
+    original_rmap = validate_post(request, "browsed_file", is_rmap)
+    # description = validate_post(request, "description", DESCRIPTION_RE)
+    description = "routine update"
+    observatory = rmap.get_cached_mapping(original_rmap).observatory
+    
+    new_rmap, new_loc = execute_edit_actions(original_rmap, actions)    
+    models.add_crds_file(observatory, new_rmap, new_loc, 
+            request.user, request.user.email, description, 
+            creation_method="update rmap", audit_details=repr(actions))
+    new_mappings.append(new_rmap)
+    
+    pmap = models.get_default_context(observatory)
+
+    new_mappings += do_create_contexts(pmap, [new_rmap], description,
+                                       request.user, request.user.email)
 
     return render(request, "edit_rmap_results.html", {
-                "new_mappings" : new_mappings,
+                "new_mappings" : sorted(new_mappings),
                 "actions" : actions,
             })
 
@@ -1360,7 +1377,7 @@ def collect_action_tuples(request):
     """
     action_vars = {}
     for var in request.POST:
-        if var.startswith(("add.","del.")):
+        if var.startswith(("add.","delete.")):
             action_vars[str(var)] = str(request.POST[var])
     expanded = DotExpandedDict(action_vars)
     actions = []
@@ -1375,7 +1392,18 @@ def collect_action_tuples(request):
             assert "filename" in pars, "incomplete action parameter set: missing filename"
             filename = is_reference(pars["filename"])
             actions.append((action, match_tuple, date, filename))
-    return actions
+    return sorted(actions)
+
+def execute_edit_actions(original_rmap, actions):
+    new_rmap = new_name(original_rmap)
+    old_loc = rmap.locate_mapping(original_rmap)
+    new_loc = rmap.locate_mapping(new_rmap)
+    open(new_loc, "w").write(open(old_loc).read())   # copy old to new
+    for act in actions:
+        if act[0] == "add":
+            make_new_useafter_rmap(new_loc, new_loc, act[1], act[2], act[3])
+    return new_rmap, new_loc
+    
 # ===========================================================================
 
 @error_trap("add_useafter_input.html")
@@ -1403,9 +1431,9 @@ def add_useafter_post(request):
 
     new_mapping = new_name(old_mapping)
     new_location = rmap.locate_mapping(new_mapping)
-    
+    old_location = rmap.locate_mapping(old_mapping)
     modification = make_new_useafter_rmap(
-        old_mapping, new_location, match_tuple, useafter_date, useafter_file)
+        old_location, new_location, match_tuple, useafter_date, useafter_file)
     
     observatory = rmap.get_cached_mapping(old_mapping).observatory
     models.add_crds_file(
@@ -1420,16 +1448,15 @@ def add_useafter_post(request):
                 "modification" : modification,
             })
 
-def make_new_useafter_rmap(old_mapping, new_location, match_tuple, 
+def make_new_useafter_rmap(old_location, new_location, match_tuple, 
                            useafter_date, useafter_file):
     """Add one new useafter date / file to the `match_tuple` case of
     `old_mapping`,  writing the modified rmap out to `new_location`.   If
     `match_tuple` doesn't exist in `old_mapping`,  add `match_tuple` as well.
     """
-    assert not os.path.exists(new_location), "add useafter file already exists"
-    new_mapping_file = open(new_location, "w")    
+    new_mapping_file = cStringIO.StringIO()
     state = "find tuple"
-    for line in open(rmap.locate_mapping(old_mapping)):
+    for line in open(old_location):
         if state == "find tuple":
             if "UseAfter" in line:
                 #     ('HRC', 'CLEAR1S', 'F435W') : UseAfter({ 
@@ -1460,7 +1487,10 @@ def make_new_useafter_rmap(old_mapping, new_location, match_tuple,
                 modification = "Appended useafter to existing match case."
         new_mapping_file.write(line)
     assert state == "copy remainder", "no useafter insertion performed"
-    new_mapping_file.close()
+        
+    new_mapping_file.seek(0)
+    open(new_location, "w+").write(new_mapping_file.read())
+
     checksum.update_checksum(new_location)
     do_certify_file(new_location, new_location, check_references=False)
     return modification
