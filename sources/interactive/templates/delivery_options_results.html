@@ -37,7 +37,6 @@
               <th width="10%" align="center">deliverer</th>
               <th width="20%" align="center">instrument</th>
               <th width="20%" align="center">filekind</th>
-              <th width="20%" align="center">opus flag</th>
               <th width="20%" align="center">deliver</th>
           </tr>
           {% for db in filtered_db %}
@@ -48,7 +47,6 @@
               <td align="center">{{db.deliverer_user}}</td>
               <td align="center">{{db.instrument}}</td>
               <td align="center">{{db.filekind}}</td>
-              <td align="center">{{db.opus_flag}}</td>
               <td align="center"><input type="checkbox" name="deliver_{{db.filename}}"></td>
           </tr>
           {% endfor %}

@@ -1195,10 +1195,6 @@ def browse_db_post(request):
 
 # ===========================================================================
 
-def common_updates(request):
-    """common_updates displays a page showing all the one-step rmap hacks."""
-    return render(request, "common_updates.html", {})
-
 @error_trap("create_contexts_input.html")
 @login_required
 def create_contexts(request):
@@ -1224,6 +1220,10 @@ def create_contexts_post(request):
             })
     
 def do_create_contexts(pmap, updated_rmaps, description, user, email):
+    """Create new contexts based on `pmap` which refer to `updated_rmaps`
+    instead of the corresponding old rmaps.  Add the new contexts to the
+    CRDS database and return a list of new context mapping names.
+    """
     # Get the mapping from old imap to new rmap, basically the imaps that
     # must be updated onto the list of rmap updates to do.
     updates_by_instrument = newcontext.get_update_map(pmap, updated_rmaps)
@@ -1236,6 +1236,10 @@ def do_create_contexts(pmap, updated_rmaps, description, user, email):
     # and then substituting old names with their updated equivalents.
     new_contexts = newcontext.generate_new_contexts(
         pmap, updates_by_instrument, new_name_map)
+ 
+    for ctx in new_contexts:
+        new_loc = rmap.locate_mapping(ctx)  
+        do_certify_file(new_loc, new_loc, check_references=False)
 
     # Create delivery records for each of the new files
     observatory = rmap.get_cached_mapping(pmap).observatory
@@ -1269,62 +1273,6 @@ def new_name(old_map):
     assert not (rmap.mapping_exists(new_map) or models.FileBlob.exists(new_map)), \
         "Program error.  New mapping " + repr(new_map) + " already exists."
     return new_map
-
-# ===========================================================================
-
-@error_trap("replace_reference_input.html")
-@login_required
-def replace_reference(request):
-    """replace_reference generates a new rmap given an existing rmap and a
-    substitution pair of reference files.
-    """
-    if request.method == "GET":
-        return render(request, "replace_reference_input.html")
-    else:
-        return replace_reference_post(request)
-
-def replace_reference_post(request):
-    """View fragment handling replace_reference POST case."""
-    old_mapping = validate_post(
-        request, "old_mapping", is_rmap)
-    old_file = validate_post(request, "old_reference", is_reference)
-    new_file = validate_post(request, "new_reference", is_reference)
-    description = validate_post(request, "description", DESCRIPTION_RE)
-    
-    assert old_file in open(rmap.locate_mapping(old_mapping)).read(), \
-        "File " + old_file + " isn't anywhere in " + repr(old_mapping)
-
-    new_mapping, new_location  = make_new_replace_file_rmap(
-        old_mapping, old_file, new_file)
-
-    observatory = rmap.get_cached_mapping(old_mapping).observatory
-
-    models.add_crds_file(
-        observatory, new_mapping, new_location, 
-        request.user, request.user.email, description, 
-        "replace reference", 
-        repr(old_mapping) + " : " + repr(old_file) + " --> " + repr(new_file))
-
-    return render(request, "replace_reference_results.html", {
-                "new_mapping" : new_mapping,
-            })
-
-def make_new_replace_file_rmap(old_mapping, old_file, new_file):
-    """Execute the replace_file operation,  cloning `new_mapping` from 
-    `old_mapping` and substituting `new_file` for `old_file.`.
-    """
-    new_mapping = new_name(old_mapping)
-    new_location = rmap.locate_mapping(new_mapping)
-    contents = open(rmap.locate_mapping(old_mapping)).read()
-    new_contents = contents.replace(old_file, new_file)
-    assert contents != new_contents, "File replacement failed.  no difference."
-    assert not os.path.exists(new_location), "replacement file already exists."
-    file = open(new_location, "w")
-    file.write(new_contents)
-    file.close()
-    checksum.update_checksum(new_location)
-    do_certify_file(new_location, new_location, check_references=False)
-    return new_mapping, new_location
 
 # ===========================================================================
 
@@ -1401,54 +1349,17 @@ def execute_edit_actions(original_rmap, actions):
     open(new_loc, "w").write(open(old_loc).read())   # copy old to new
     for act in actions:
         if act[0] == "add":
-            make_new_useafter_rmap(new_loc, new_loc, act[1], act[2], act[3])
+            make_add_useafter_rmap(new_loc, new_loc, act[1], act[2], act[3])
+        elif act[0] == "delete":
+            make_delete_useafter_rmap(new_loc, new_loc, act[1], act[2], act[3])
+        else:
+            raise RuntimeError("Unknown edit action " + repr(act))
+    checksum.update_checksum(new_loc)
+    do_certify_file(new_loc, new_loc, check_references=False)
+
     return new_rmap, new_loc
     
-# ===========================================================================
-
-@error_trap("add_useafter_input.html")
-@login_required
-def add_useafter(request):
-    """add_useafter generates a new rmap given an existing rmap,  a matching
-    tuple,  a useafter date,  and a fits file.   The specified useafter clause,
-    date and file,  are inserted into a clone of the original rmap,  inside the
-    appropriate match tuple.
-    """
-    if request.method == "GET":
-        return render(request, "add_useafter_input.html")
-    else:
-        return add_useafter_post(request)
-
-# XXX add value checking to match tuple vs. observatory TPN's
-
-def add_useafter_post(request):
-    """View fragment handling add_useafter POST case."""
-    old_mapping = validate_post(request, "old_mapping", is_rmap)
-    match_tuple = validate_post(request, "match_tuple", is_match_tuple)
-    useafter_date = validate_post(request, "useafter_date", is_datetime)
-    useafter_file = validate_post(request, "useafter_file", is_reference)
-    description = validate_post(request, "description", DESCRIPTION_RE)
-
-    new_mapping = new_name(old_mapping)
-    new_location = rmap.locate_mapping(new_mapping)
-    old_location = rmap.locate_mapping(old_mapping)
-    modification = make_new_useafter_rmap(
-        old_location, new_location, match_tuple, useafter_date, useafter_file)
-    
-    observatory = rmap.get_cached_mapping(old_mapping).observatory
-    models.add_crds_file(
-        observatory, new_mapping, new_location, 
-        request.user, request.user.email, description, 
-        creation_method="add useafter", 
-        audit_details=repr(old_mapping) + " : " + repr(match_tuple) + " : " + 
-        repr(useafter_date) + " : " + repr(useafter_file))
-
-    return render(request, "add_useafter_results.html", {
-                "new_mapping" : new_mapping,
-                "modification" : modification,
-            })
-
-def make_new_useafter_rmap(old_location, new_location, match_tuple, 
+def make_add_useafter_rmap(old_location, new_location, match_tuple, 
                            useafter_date, useafter_file):
     """Add one new useafter date / file to the `match_tuple` case of
     `old_mapping`,  writing the modified rmap out to `new_location`.   If
@@ -1487,13 +1398,47 @@ def make_new_useafter_rmap(old_location, new_location, match_tuple,
                 modification = "Appended useafter to existing match case."
         new_mapping_file.write(line)
     assert state == "copy remainder", "no useafter insertion performed"
-        
     new_mapping_file.seek(0)
     open(new_location, "w+").write(new_mapping_file.read())
 
-    checksum.update_checksum(new_location)
-    do_certify_file(new_location, new_location, check_references=False)
-    return modification
+def make_delete_useafter_rmap(old_location, new_location, match_tuple, 
+                              useafter_date, useafter_file):
+    """Add one new useafter date / file to the `match_tuple` case of
+    `old_mapping`,  writing the modified rmap out to `new_location`.   If
+    `match_tuple` doesn't exist in `old_mapping`,  add `match_tuple` as well.
+    """
+    new_mapping_file = cStringIO.StringIO()
+    state = "find tuple"
+    for line in open(old_location):
+        if state == "find tuple":
+            if "UseAfter" in line:
+                #     ('HRC', 'CLEAR1S', 'F435W') : UseAfter({ 
+                index = line.index(": UseAfter({")
+                tuple_str = line[:index]
+                line_tuple = compat.literal_eval(tuple_str.strip())
+                if match_tuple == line_tuple:
+                    state = "find useafter"
+            elif line.strip() == "})":   # end of rmap
+                # Never found match,  report an error.
+                raise CrdsError("Couldn't find match tuple " + repr(match_tuple))
+        elif state == "find useafter":
+            if line.strip().endswith(".fits',"):
+                # Handle a standard useafter clause
+                # '2002-03-01 00:00:00' : 'oai16328j_cfl.fits', 
+                line_date = re.search(DATETIME_RE_STR, line)
+                if useafter_date == line_date.group(1):
+                    filename = re.search("'.*' : '(.*)'", line).group(1)
+                    if filename == useafter_file:
+                        # Found useafter delete point.
+                        state = "copy remainder"
+                        continue
+            elif line.strip() == "}),":
+                raise CrdsError("Couldn't find useafter " + repr(useafter) + 
+                                " in match tuple " + repr(match_tuple))
+        new_mapping_file.write(line)
+    assert state == "copy remainder", "no useafter insertion performed"
+    new_mapping_file.seek(0)
+    open(new_location, "w+").write(new_mapping_file.read())
 
 # ============================================================================
 
@@ -1509,7 +1454,6 @@ def delivery_options(request):
             "observatory" : "*",
             "instrument" : "*",
             "filekind" : "*",
-            "opus_flag" : "Y",
             "filename" : "*",
         })
     else:
@@ -1526,17 +1470,15 @@ def delivery_options_post(request):
         request, "filename", r"[A-Za-z0-9_.\*]+")
     deliverer_user = validate_post(
         request, "deliverer_user", r"[A-Za-z0-9_.\*]+")
-    opus_flag = validate_post(
-        request, "opus_flag", r"Y|N|\*")
     status = "submitted"
     
     filters = {}
     for var in ["observatory", "instrument", "filekind", 
-                "filename", "deliverer_user", "status", "opus_flag"]:
+                "filename", "deliverer_user", "status"]:
         value = locals()[var].strip()
         if value not in ["*",""]:
             filters[var] = value
-    filtered_db = models.FileBlob.filter(**filters)
+    filtered_db = models.FileBlob.filter(**filters)[::-1]
 
     return render(request, "delivery_options_results.html", {
                 "filters": filters,
