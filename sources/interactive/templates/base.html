@@ -27,7 +27,7 @@
            <br/>
            <a href="/logout/" class="tiny">logout</a>
        {% else %}
-           <a href="/login/?next={% firstof request.path '/' %}" class="tiny">login</a>          
+           <a href="/login/?next={{current_path}}" class="tiny">login</a>          
        {% endif %}
     </div>
     

@@ -68,7 +68,7 @@ $( function () {
         parsing = parse_useafter(button)
 
         p = button.parent();
-        $("<div class='dynamic'>" + 
+        $("<div class='dynamic' style='display:none'>" + 
           mk_input("hidden", "del_match_tuple_"+del_count, parsing.match_tuple) + 
           mk_input("hidden", "del_date_"+del_count, parsing.date) +
           mk_input("hidden", "del_filename_"+del_count, parsing.filename) +
