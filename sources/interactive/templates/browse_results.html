@@ -30,7 +30,7 @@ $( function () {
     }
     
     mk_input = function (type, name, value) {
-        hidden = '<input type="' + type + '" style="display:inline" name="' +
+        hidden = '<input type="' + type + '" name="' +
                  name + '" value="' + value +'">'
         console.log(hidden)
         return hidden
@@ -50,8 +50,8 @@ $( function () {
             "<button class='del' type='button'>-</button>" + 
             "</p>");
                  
-        $("button[class^=add]", input_bundle).bind("click", add_useafter)
-        $("button[class^=del]", input_bundle).bind("click", del_useafter_dynamic)
+        $("button[class=add]", input_bundle).click(add_useafter)
+        $("button[class=del]", input_bundle).click(del_useafter_dynamic)
         
         button.parent().after(input_bundle);
 
@@ -61,26 +61,26 @@ $( function () {
     del_useafter_static = function(event) {
         console.log("del_useafter");
         button = $(event.target);
-        parsing = parse_useafter(button)
-        p = button.parent();
         button.siblings().slice(1,-1)
             .css("text-decoration", "line-through")
             .css("color", "red");
-        console.log(p);
-        
-        del_inputs = $(
+
+        parsing = parse_useafter(button)
+
+        p = button.parent();
+        $("<div class='dynamic'>" + 
           mk_input("hidden", "del_match_tuple_"+del_count, parsing.match_tuple) + 
           mk_input("hidden", "del_date_"+del_count, parsing.date) +
-          mk_input("hidden", "del_filename_"+del_count, parsing.filename));
-          
-         p.append(del_inputs)
+          mk_input("hidden", "del_filename_"+del_count, parsing.filename) +
+          "</div>")
+          .appendTo(p);
 
         ++ del_count;
 
         button.remove();
-        $("button[class^=add]", p)
+        $("button[class=add]", p)
             .unbind("click")
-            .bind("click", undel_useafter);     
+            .click(undel_useafter);
     }
     
     del_useafter_dynamic = function(event) {
@@ -96,28 +96,47 @@ $( function () {
             .css("text-decoration", "none")
             .css("color", "blue");
         p = button.parent();
-        $("[name^=del_]", p).remove();
-        $("[class^=add]", p).remove();
-        $("<button class='add' type='button'>+</button>").appendTo(p).click(add_useafter)
-        $("<button class='del' type='button'>-</button>").appendTo(p).click(del_useafter_static)
+        $("input[name^=del_]", p).remove();
+        button.remove();
+        $("<button class='add' type='button'>+</button>")
+            .appendTo(p)
+            .click(add_useafter)
+        $("<button class='del' type='button'>-</button>")
+            .appendTo(p)
+            .click(del_useafter_static)
     }
 
-    edit_rmap = function (event) {
+    $("button#edit_rmap").click( function (event) {
         console.log("edit_rmap");
         $("<button class='add' type='button'>+</button>")
             .click(add_useafter)
-            .appendTo($("div.useafter p"));
+            .appendTo($("div.useafter a").parent());
         $("<button class='del' type='button'>-</button>")
             .click(del_useafter_static)
-            .appendTo($("div.useafter p"));
-        $("<br/> <input type='submit' value='Submit Rmap Update'/> <br/> <br/>")
+            .appendTo($("div.useafter a").parent());
+        $("<br/> <input type='submit' value='Submit Rmap Update'/>")
             .appendTo("form#update_rmap_form");
-        $(event.target).remove();
-    }
-    $("button#edit_rmap").click(edit_rmap);
-    
+        $("button#unedit_rmap").show();
+        $(event.target).hide();
+    });
+
+    unedit_button = $("<button type='button' id='unedit_rmap'>Forget Edits</button>")
+        .click( function (event) {
+            console.log("unedit_rmap");
+            $(".dynamic").remove();
+            $("button.add").remove();
+            $("button.del").remove();
+            $("a[href*='browse']")
+                .css("text-decoration","none")
+                .css("color","blue");
+            $("form#update_rmap_form input[type=submit]").remove();
+            $("button#unedit_rmap").hide();
+            $("button#edit_rmap").show();
+        })
+        .hide();
+    $("button#edit_rmap").after(unedit_button);
+
     console.log("ready.")
-    
 });
 
 </script>
@@ -241,6 +260,8 @@ $( function () {
         {{ file_contents|safe }}
     
     </form>
+    
+    <br/><br/>
 </div>
 
 {% endblock contents %}
