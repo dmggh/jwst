@@ -96,7 +96,7 @@ $( function () {
             .css("text-decoration", "none")
             .css("color", "blue");
         p = button.parent();
-        $("input[name^=del_]", p).remove();
+        $("input[name^=delete]", p).remove();
         button.remove();
         $("<button class='add' type='button'>+</button>")
             .appendTo(p)
@@ -135,6 +135,12 @@ $( function () {
         })
         .hide();
     $("button#edit_rmap").after(unedit_button);
+
+    $("form#update_rmap_form").click( function (event) {
+        console.log("update_rmap_form ")
+        point = $(event.target)
+        console.log(point)
+    });
 
     console.log("ready.")
 });
