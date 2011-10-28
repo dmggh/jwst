@@ -42,10 +42,12 @@ $( function () {
         
         match_tuple = parse_useafter(button).match_tuple;
         
+        name_prefix = "add." + add_count++;
+        
         input_bundle = $("<p class='dynamic'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-            mk_input("text", "add." + add_count + ".date", '') + " : " +
-            mk_input("text", "add." + add_count + ".filename", '') + 
-            mk_input("hidden", "add." + add_count + ".match_tuple", match_tuple) +    
+            mk_input("text", name_prefix + ".date", '') + " : " +
+            mk_input("text", name_prefix + ".filename", '') + 
+            mk_input("hidden", name_prefix + ".match_tuple", match_tuple) +    
             "<button class='add' type='button'>+</button>" + 
             "<button class='del' type='button'>-</button>" + 
             "</p>");
@@ -55,7 +57,6 @@ $( function () {
         
         button.parent().after(input_bundle);
 
-        ++ add_count;
     }
     
     del_useafter_static = function(event) {
@@ -67,15 +68,15 @@ $( function () {
 
         parsing = parse_useafter(button)
 
+        name_prefix = "delete." + del_count++;
+
         p = button.parent();
         $("<div class='dynamic' style='display:none'>" + 
-          mk_input("hidden", "delete." + del_count + ".match_tuple", parsing.match_tuple) + 
-          mk_input("hidden", "delete." + del_count + ".date", parsing.date) +
-          mk_input("hidden", "delete." + del_count + ".filename", parsing.filename) +
+          mk_input("hidden", name_prefix + ".match_tuple", parsing.match_tuple) + 
+          mk_input("hidden", name_prefix + ".date", parsing.date) +
+          mk_input("hidden", name_prefix + ".filename", parsing.filename) +
           "</div>")
           .appendTo(p);
-
-        ++ del_count;
 
         button.remove();
         $("button[class=add]", p)
@@ -108,12 +109,13 @@ $( function () {
 
     $("button#edit_rmap").click( function (event) {
         console.log("edit_rmap");
+        files = $("div.useafter a").parent()
         $("<button class='add' type='button'>+</button>")
             .click(add_useafter)
-            .appendTo($("div.useafter a").parent());
+            .appendTo(files);
         $("<button class='del' type='button'>-</button>")
             .click(del_useafter_static)
-            .appendTo($("div.useafter a").parent());
+            .appendTo(files);
         $("<br/> <input type='submit' value='Submit Rmap Update'/>")
             .appendTo("form#update_rmap_form");
         $("button#unedit_rmap").show();
