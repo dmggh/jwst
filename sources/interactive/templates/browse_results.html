@@ -107,24 +107,22 @@ $( function () {
             .click(del_useafter_static)
     }
 
+    var edit_flag = false;
+    
     $("button#edit_rmap").click( function (event) {
         console.log("edit_rmap");
-        files = $("div.useafter a").parent()
-        $("<button class='add' type='button'>+</button>")
-            .click(add_useafter)
-            .appendTo(files);
-        $("<button class='del' type='button'>-</button>")
-            .click(del_useafter_static)
-            .appendTo(files);
+        edit_flag = true;
         $("<br/> <input type='submit' value='Submit Rmap Update'/>")
             .appendTo("form#update_rmap_form");
+        $("button#edit_rmap").hide();
         $("button#unedit_rmap").show();
-        $(event.target).hide();
+        $("span#edit_help").show();
     });
 
     unedit_button = $("<button type='button' id='unedit_rmap'>Forget Edits</button>")
         .click( function (event) {
             console.log("unedit_rmap");
+            edit_flag = false;
             $(".dynamic").remove();
             $("button.add").remove();
             $("button.del").remove();
@@ -133,15 +131,63 @@ $( function () {
                 .css("color","blue");
             $("form#update_rmap_form input[type=submit]").remove();
             $("button#unedit_rmap").hide();
+            $("span#edit_help").hide()
             $("button#edit_rmap").show();
         })
         .hide();
     $("button#edit_rmap").after(unedit_button);
-
+    $("button#unedit_rmap").after(
+        $("<span>")
+            .attr("id","edit_help")
+            .addClass("help")
+            .text("  Click on a useafter date to edit.")
+            .hide()
+    );
+    
+    /* Use the form click handler to land events anywhere in the form. Only
+    process clicks which are in a useafter line and not on a file link.  Add
+    or remove buttons on click.
+    */
     $("form#update_rmap_form").click( function (event) {
-        console.log("update_rmap_form ")
-        point = $(event.target)
-        console.log(point)
+        console.log("update_rmap_form ");
+        if (!edit_flag) {
+            console.log("editing disabled.")
+            return true;
+        }
+        point = $(event.target);
+        console.log(point);
+        p = point.parent();
+        div = p.parent();
+        if (!point.length || point[0].nodeName == "A") {
+            console.log("skipping browse link");
+            return true;
+        }
+        if (!p.length || p[0].nodeName != "P") {
+            console.log("non-P parent");
+            return true;
+        }
+        if (!div.length || div[0].nodeName != "DIV") {
+            console.log("DIV not found");
+            return true;
+        }
+        if (!div.hasClass("useafter")) {
+            console.log("useafter not found");
+            return true;
+        }
+        if (!p.find("a").length) {
+            console.log("no anchor");
+            return true;
+        }
+        if (p.find("button").length) {
+            $("button",p).remove()
+        } else {
+            $("<button class='add' type='button'>+</button>")
+                .click(add_useafter)
+                .appendTo(p);
+            $("<button class='del' type='button'>-</button>")
+                .click(del_useafter_static)
+                .appendTo(p);
+        }
     });
 
     console.log("ready.")
