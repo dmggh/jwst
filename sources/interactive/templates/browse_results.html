@@ -56,6 +56,7 @@ $( function () {
         $("button[class=del]", input_bundle).click(del_useafter_dynamic)
         
         $("input[name$=date]", input_bundle).change(validate_useafter);
+        $("input[name$=filename]", input_bundle).change(validate_filename);
         
         button.parent().after(input_bundle);
 
@@ -199,7 +200,8 @@ $( function () {
     }
 
     assert_range = function (name, value, min, max) {
-        assert( (value) >= min && (value <= max), name + " = " + value + 
+        assert( (value) >= min && (value <= max), 
+                "Invalid " + name + " = " + value + 
                 " must be in range " + min + " .. " + max + ".");
     }
 
@@ -253,6 +255,29 @@ $( function () {
         } else {
             console.log("date bad: " + results[1]);
             alert(results[1]);
+            $(input).css("color", "red");
+        }
+        return false;
+    }
+
+    validate_filename = function (event) {
+        console.log("validate_filename");
+        input = $(event.target);
+        filename = input.val();
+        if (!filename.length) {
+            console.log("empty filename");
+            return false;
+        }
+        try {
+            assert(/^[a-zA-z][a-zA-Z0-9_]*[.][A-Za-z0-9_]+$/.test(filename),
+                "Invalid filename = " + filename + " must consist of a name and " + 
+                "extension,  separated by a period, with no path.   The name " +
+                "and extension must consist of letters, digits, and underscores only.");
+            console.log("filename ok");
+            $(input).css("color", "green");
+        } catch (err) {
+            console.log("filename bad: " + err);
+            alert(err);
             $(input).css("color", "red");
         }
         return false;
