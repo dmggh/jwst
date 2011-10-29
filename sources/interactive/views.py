@@ -883,6 +883,7 @@ def browse_files_post_guts(request, uploaded, original_name, browsed_file):
     return render(request, "browse_results.html", 
             { "uploaded" : uploaded,
              "fileblob" : blob,
+             "observatory" : blob.observatory,
              "related_actions":related_actions,
              "file_contents":file_contents,
              "form_post_action":form_post_action,

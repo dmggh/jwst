@@ -74,7 +74,7 @@ def main(args):
         deliverer_email=args[2], description=args[3], 
         add_slow_fields=int(args[4]), index = index)
     
-    index.save()    
+    index.save(ctx.observatory)    
     
     models.set_default_context(ctx.observatory, args[0])
     

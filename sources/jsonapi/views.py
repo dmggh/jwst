@@ -74,6 +74,10 @@ def get_reference_url(request, context, reference):
     ctx = rmap.get_cached_mapping(context)
     return ctx.locate.reference_url(config.CRDS_REFERENCE_URL, reference)
 
+@jsonrpc_method('file_exists(String)')
+def file_exists(request, filename):
+    return imodels.file_exists(filename)
+    
 #@jsonrpc_method('jsonapi.sayHello')
 #def whats_the_time(request, name='Lester'):
 #  return "Hello %s" % name

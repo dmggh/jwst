@@ -154,14 +154,16 @@ class Blob(object):
         """Save a blob named `name`,  or else an anonymous blob.
         """
         if self._id is None:
-            obj = BlobModel()
-            self._id = obj.id
+            obj = BlobModel()    # obj.id doesn't exist yet
         else:
             obj = BlobModel.objects.get(id=self._id)
-        obj.kind = self.__class__.__name__
         if name is not None:
-            obj.name = name 
+            obj.name = name
+        elif hasattr(self, "name"):
+            obj.name = self.name
+        obj.kind = self.__class__.__name__
         obj.freeze(self._values)
+        self._id = obj.id    # obj.id exists after first save
         
     @classmethod
     def load(cls, name):
@@ -176,7 +178,10 @@ class Blob(object):
             raise LookupError("Found more than one " + cls.__name__ + 
                               " named " + repr(name))
         else:
-            return cls.from_model(candidates[0])
+            model = candidates[0]
+            blob = cls.from_model(model)
+            blob.name = model.name
+            return blob
         
     @classmethod
     def from_model(cls, model):
@@ -356,12 +361,6 @@ class FileBlob(Blob):
         if not rmap.is_mapping(upload_name):
             blob.change_level = change_level
 
-#            blob.pedigree = pyfits.getval(permanent_location, "PEDIGREE")
-#            blob.useafter_date = pyfits.getval(permanent_location, "USEAFTER")
-#            if blob.pedigree.strip().startswith("INFLIGHT"):
-#                # XXX fill in observation_begin_date, observation_end_date
-#                pass
-        
         blob.save()
         
         if index is None:
@@ -574,4 +573,9 @@ def create_index(observatory):
         index = FileIndexBlob()
         index.save(observatory)
     return index
+
+def file_exists(filename, observatory="hst"):
+    """Return True IFF `filename` is a known CRDS reference or mapping file."""
+    index = FileIndexBlob.load(observatory)
+    return index.exists(filename)
 
