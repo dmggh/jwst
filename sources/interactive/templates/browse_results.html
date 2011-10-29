@@ -55,6 +55,8 @@ $( function () {
         $("button[class=add]", input_bundle).click(add_useafter)
         $("button[class=del]", input_bundle).click(del_useafter_dynamic)
         
+        $("input[name$=date]", input_bundle).change(validate_useafter);
+        
         button.parent().after(input_bundle);
 
     }
@@ -189,6 +191,72 @@ $( function () {
                 .appendTo(p);
         }
     });
+    
+    assert = function (exp, message) {
+        if (!exp) {
+            throw message;
+        }
+    }
+
+    assert_range = function (name, value, min, max) {
+        assert( (value) >= min && (value <= max), name + " = " + value + 
+                " must be in range " + min + " .. " + max + ".");
+    }
+
+    DATETIME_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d$/;
+
+    MONTHS = {"01":1,"02":1,"03":1,"04":1,"05":1,"06":1,"07":1,"08":1,"09":1,"10":1,"11":1,"12":1};
+    
+    check_datetime = function (datetime) {
+        try {
+            assert(DATETIME_RE.test(datetime), 
+                "datetime must match general format  yyyy-mm-dd hh:mm:ss");
+
+            parts = datetime.split(" ");
+ 
+            date = parts[0].split("-")
+            year = date[0];
+            month = date[1];
+            day = date[2];
+            
+            hms = parts[1].split(":");
+            hours = hms[0];
+            minutes = hms[1];
+            seconds = hms[2];
+
+            assert_range("year", year, "1990", "2050");
+            assert_range("month", month, "01", "12");
+            assert_range("day", day, "01", "31");
+            
+            assert_range("hours", hours, "00", "12");
+            assert_range("minutes", minutes, "00", "59");
+            assert_range("seconds", seconds, "00", "59");
+
+            return [true, "datetime is valid."]
+        } catch (err) {
+            return [false, err];
+        }
+    }
+    
+    validate_useafter = function (event) {
+        console.log("validate_useafter");
+        input = $(event.target);
+        datetime = input.val();
+        if (!datetime.length) {
+            console.log("empty datetime");
+            return false;
+        }
+        results = check_datetime(datetime);
+        if (results[0]) {
+            console.log("date ok");
+            $(input).css("color", "green");
+        } else {
+            console.log("date bad: " + results[1]);
+            alert(results[1]);
+            $(input).css("color", "red");
+        }
+        return false;
+    }
 
     console.log("ready.")
 });
