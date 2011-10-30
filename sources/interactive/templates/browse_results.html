@@ -270,18 +270,37 @@ $( function () {
         var input = $(event.target);
         var filename = input.val();
         if (!filename.length) {
-            console.log("empty filename");
+            console.log("ignoring empty filename");
             return false;
         }
         try {
+            $(input).css("color", "black");
             assert(/^[a-zA-z][a-zA-Z0-9_]*[.][A-Za-z0-9_]+$/.test(filename),
                 "Invalid filename = " + filename + " must consist of a name and " + 
                 "extension,  separated by a period, with no path.   The name " +
                 "and extension must consist of letters, digits, and underscores only.");
-            console.log("filename ok");
-            $(input).css("color", "green");
+            
+            deferred = jsonrpc.file_exists(filename);
+            deferred.addCallback( function (req) {
+                console.log("validate_filename callback");
+                console.log(req.result);
+                if (req.result) {
+                    console.log("validate_filename ok");
+                    $(input).css("color", "green");
+                } else {
+                    console.log("validate_filename can't find");
+                    $(input).css("color", "red");
+                    alert("CRDS can't find reference " + filename);
+                }
+            });
+            deferred.addErrback( function (req) {
+                console.log("validate_filename errback");
+                console.log(req.result);
+                $(input).css("color", "orange");
+                console.log("file existence unknown");
+            });
         } catch (err) {
-            console.log("filename bad: " + err);
+            console.log("bad reference: " + err);
             alert(err);
             $(input).css("color", "red");
         }

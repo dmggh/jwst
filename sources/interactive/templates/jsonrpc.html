@@ -31,7 +31,7 @@ $(function() {
           'mimeType': 'application/x-javascript'
         });
         d.addCallback(function (req) {
-          req = MochiKit.Base.evalJSONRequest(req);
+          req = MochiKit.Async.evalJSONRequest(req);
           window.json_result = req;
           window.json_error = null;
           return req;
@@ -39,7 +39,7 @@ $(function() {
         d.addErrback(function (err) {
           req_err = err;
           try {
-            err = MochiKit.Base.evalJSONRequest(err.req);
+            err = MochiKit.Async.evalJSONRequest(err.req);
             if (!err)
               throw('');
           } catch (e) { err = req_err; }
