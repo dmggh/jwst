@@ -1,0 +1,75 @@
+{% comment %}
+    The following code was extracted from django-json-rpc's browse.html
+    template and is mostly dependent on the mochikit library.
+{% endcomment %}
+
+
+<script type="text/javascript">MochiKit = {__export__: false};</script>
+<script type="application/x-javascript" src="{% url jsonrpc_browser %}?f=mochikit.js"></script>
+
+<!--
+<script type="application/x-javascript" src="{% url jsonrpc_browser %}?f=interpreter.js"></script>
+-->
+
+<script type="application/x-javascript">
+
+// bind jsonrpc methods under window.jsonrpc
+
+$(function() {
+ 
+     function jsonMethod(name) {
+      return function() {
+        var req = MochiKit.Base.serializeJSON({
+          'id': 'jsonrpc',
+          'params': MochiKit.Base.flattenArguments(arguments),
+          'method': name,
+          'jsonrpc': '1.0'
+        });
+        var d = MochiKit.Async.doXHR('{% url jsonrpc_mountpoint %}', {
+          'method': 'POST',
+          'sendContent': req,
+          'mimeType': 'application/x-javascript'
+        });
+        d.addCallback(function (req) {
+          req = MochiKit.Base.evalJSONRequest(req);
+          window.json_result = req;
+          window.json_error = null;
+          return req;
+        });
+        d.addErrback(function (err) {
+          req_err = err;
+          try {
+            err = MochiKit.Base.evalJSONRequest(err.req);
+            if (!err)
+              throw('');
+          } catch (e) { err = req_err; }
+          window.json_result = null;
+          window.json_error = err;
+          return err;
+        })
+        return d;
+      }
+    }
+
+    METHOD_NAMES = {{method_names_str|safe}};
+    
+    window.json_result = null;
+    window.json_error = null;
+    
+    for(var i=0; i<METHOD_NAMES.length; i++) {
+        var method = METHOD_NAMES[i];
+        var part = 'jsonrpc';
+        var parts = method.split('.');
+        var ns = window;
+        do {
+              if (typeof ns[part] == 'undefined') {
+                ns[part] = {};
+              }
+              ns = ns[part];
+              part = parts.shift();
+        } while (parts.length);
+        ns[part] = jsonMethod(method);
+    }
+});
+
+</script>

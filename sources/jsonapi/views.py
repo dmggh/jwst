@@ -8,6 +8,23 @@ import crds.server.interactive.models as imodels
 import crds.server.config as config
 import crds.rmap as rmap
 
+# =============================================================================
+
+from jsonrpc._json import dumps
+from jsonrpc.site import jsonrpc_site
+
+def get_jsonrpc_template_vars():
+    """Return the dictionary of template variables required to instantiate
+    the django-json-rpc Javascript template code.   Presently this info is used
+    by the browser side code of the "interactive" app to define jsonrpc
+    proxy objects which can be called like local Javascript functions.
+    """
+    desc = jsonrpc_site.service_desc()
+    return {
+            'methods': desc['procs'],
+            'method_names_str': dumps([m['name'] for m in desc['procs']])
+    }
+
 # ===========================================================================
 
 def get_url(observatory, filename):

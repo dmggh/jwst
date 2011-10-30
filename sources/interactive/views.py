@@ -30,6 +30,8 @@ import crds.server.config as config
 import crds.server.interactive.models as models
 from crds.server.interactive.models import FieldError, MissingInputError
 
+import crds.server.jsonapi.views as jsonapi_views
+
 HERE = os.path.dirname(__file__) or "./"
 
 # ===========================================================================
@@ -211,6 +213,7 @@ def render(request, template, dict_=None):
         "users": ["*"] + usernames(),
         "current_path" : request.get_full_path()
     }
+    
     # echo escaped inputs.
     for key, value in request.GET.items():
         rdict[key] = safestring.mark_for_escaping(value)
@@ -226,7 +229,15 @@ def render(request, template, dict_=None):
             
     # This is only for the purpose of showing/hiding logout.
     rdict["is_authenticated"] = request.user.is_authenticated()
-
+    
+    # Set up variables required to support django-json-rpc Javacsript
+    jsonrpc_vars = jsonapi_views.get_jsonrpc_template_vars()
+    for var in jsonrpc_vars:
+        if var in rdict:
+            raise CrdsError("Template variable collision on " + repr(var))
+        else:
+            rdict[var] = jsonrpc_vars[var]
+            
     return render_to_response(template, RequestContext(request, rdict))
 
 # ===========================================================================
