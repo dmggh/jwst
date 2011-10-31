@@ -59,11 +59,13 @@ $( function () {
             "</p>"
         );
                  
-        $("button[class=add]", input_bundle).click(add_useafter)
-        $("button[class=del]", input_bundle).click(del_useafter_dynamic)
+        $("button[class=add]", input_bundle).click(add_useafter);
+        $("button[class=del]", input_bundle).click(del_useafter_dynamic);
         
-        $("input[name$=date]", input_bundle).change(validate_useafter);
-        $("input[name$=filename]", input_bundle).change(validate_filename);
+        $("input[name$=date]", input_bundle)
+        	.change(validate_useafter);
+        $("input[name$=filename]", input_bundle)
+        	.change(validate_filename);
         
         button.parent().after(input_bundle);
     }
@@ -119,11 +121,22 @@ $( function () {
 
     var EDIT_FLAG = false;
     
+    submit_form = function (event) {
+        console.log("submit form"); 
+        if (event.which == 13) {
+            console.log("suppressing enter");
+            event.stopPropagation();
+            return false;
+        }
+       event.target.submit();
+    };
+    
     $("button#edit_rmap").click( function (event) {
         console.log("edit_rmap");
         EDIT_FLAG = true;
-        $("<br/> <input type='submit' value='Submit Rmap Update'/>")
-            .appendTo("form#update_rmap_form");
+        var submit_button = $("<input type='submit' value='Submit Rmap Update'/>")
+            .click(submit_form);    
+        $("form#update_rmap_form").append("<br/>", submit_button);
         $("button#edit_rmap").hide();
         $("button#unedit_rmap").show();
         $("span#edit_help").show();
@@ -154,7 +167,7 @@ $( function () {
             .hide()
     );
     
-    /* Use the form click handler to land events anywhere in the form. Only
+    /* Use the form click handler to handle events anywhere in the form. Only
     process clicks which are in a useafter line and not on a file link.  Add
     or remove buttons on click.
     */
@@ -248,6 +261,9 @@ $( function () {
     validate_useafter = function (event) {
         console.log("validate_useafter");
         var input = $(event.target);
+    
+        input.val($.trim(input.val()));
+
         var datetime = input.val();
         if (!datetime.length) {
             console.log("empty datetime");
@@ -267,12 +283,16 @@ $( function () {
 
     validate_filename = function (event) {
         console.log("validate_filename");
+
         var input = $(event.target);
+        // input.val($.trim(input.val()));
+
         var filename = input.val();
         if (!filename.length) {
             console.log("ignoring empty filename");
             return false;
         }
+
         try {
             $(input).css("color", "black");
             assert(/^[a-zA-z][a-zA-Z0-9_]*[.][A-Za-z0-9_]+$/.test(filename),
@@ -280,30 +300,32 @@ $( function () {
                 "extension,  separated by a period, with no path.   The name " +
                 "and extension must consist of letters, digits, and underscores only.");
             
-            deferred = jsonrpc.file_exists(filename);
-            deferred.addCallback( function (req) {
-                console.log("validate_filename callback");
-                console.log(req.result);
-                if (req.result) {
-                    console.log("validate_filename ok");
-                    $(input).css("color", "green");
-                } else {
-                    console.log("validate_filename can't find");
-                    $(input).css("color", "red");
-                    alert("CRDS can't find reference " + filename);
-                }
-            });
-            deferred.addErrback( function (req) {
-                console.log("validate_filename errback");
-                console.log(req.result);
-                $(input).css("color", "orange");
-                console.log("file existence unknown");
-            });
         } catch (err) {
             console.log("bad reference: " + err);
             alert(err);
             $(input).css("color", "red");
         }
+
+        deferred = jsonrpc.file_exists(filename);
+        deferred.addCallback( function (req) {
+            console.log("validate_filename callback");
+            console.log(req.result);
+            if (req.result) {
+                console.log("validate_filename ok");
+                $(input).css("color", "green");
+            } else {
+                console.log("validate_filename can't find");
+                $(input).css("color", "red");
+                alert("CRDS can't find reference " + filename);
+            }
+        });
+        deferred.addErrback( function (req) {
+            console.log("validate_filename errback");
+            console.log(req.result);
+            $(input).css("color", "orange");
+            console.log("file existence unknown");
+        });
+
         return false;
     }
 
