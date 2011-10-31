@@ -1290,7 +1290,7 @@ def new_name(old_map):
 
 @csrf_exempt
 @login_required
-@error_trap("edit_rmap_results.html")
+@error_trap("edit_rmap_editor.html")
 def edit_rmap(request):
     """  """
     if request.method == "GET":
