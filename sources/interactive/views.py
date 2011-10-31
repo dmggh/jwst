@@ -884,12 +884,9 @@ def browse_files_post_guts(request, uploaded, original_name, browsed_file):
         related_actions = []
     
     if rmap.is_mapping(original_name):
-        file_contents = browsify_mapping(
-            request.user.is_authenticated(), original_name, browsed_file)
-        form_post_action = "/edit_rmap/"
+        file_contents = browsify_mapping(original_name, browsed_file)
     else:
         file_contents = browsify_reference(original_name, browsed_file)
-        form_post_action = ""
     
     return render(request, "browse_results.html", 
             { "uploaded" : uploaded,
@@ -897,14 +894,11 @@ def browse_files_post_guts(request, uploaded, original_name, browsed_file):
              "observatory" : blob.observatory,
              "related_actions":related_actions,
              "file_contents":file_contents,
-             "form_post_action":form_post_action,
              "browsed_file":original_name})
 
-def browsify_mapping(authenticated, original_name, browsed_file):
+def browsify_mapping(original_name, browsed_file):
     """Format a CRDS mapping file as colorized and cross-linked HTML."""
-
     contents = ""
-
     try:
         linegen = open(browsed_file).readlines()
     except OSError:
@@ -913,11 +907,15 @@ def browsify_mapping(authenticated, original_name, browsed_file):
 
     for line in linegen:
         if line.strip():
-            contents += browsify_mapping_line(authenticated, line)
-
+            line = browsify_mapping_line(line)
+            # mapping or reference filename --> /browse/<file> link
+            line = re.sub(r"'(" + FILE_RE + ")'",
+                  r"""<a href='/browse/\1'>'\1'</a>""",
+                  line)
+            contents += line
     return contents
 
-def browsify_mapping_line(authenticated, line):
+def browsify_mapping_line(line):
     """Markup one line of a CRDS mapping for use in HTML display and editing."""
     
     # header
@@ -934,18 +932,20 @@ def browsify_mapping_line(authenticated, line):
     line = re.sub(r"('.*\.(fits|r\dh)',)$",
                   r"&nbsp;"*4 + r"\1",
                   line)
-    # mapping or reference filename --> /browse/<file> link
-    line = re.sub(r"'(" + FILE_RE + ")'",
-                  r"""<a href='/browse/\1'>'\1'</a>""",
-                  line)
-    
+
+    # '2011-02-07 08:21:00' : 'v3b1842dj_drk.fits',
+    if re.search(r"'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d'\s*:", line):
+        line = "<p class='useafter'>" + line.strip() + "</p>\n"
+    elif re.search(r"UseAfter", line):
+        line = "<p class='match'>" + line.strip() + "</p>\n"        
+    else:
+        line = "<p>" + line.strip() + "</p>\n"
+
     # useafter date
     line = re.sub(r"('\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d')",
-                  r"<span class='grey'>\1</span>",
+                  r"<span class='datetime'>\1</span>",
                   line)
     
-    line = "<p>" + line.strip() + "</p>\n"
-
     # Match, UseAfter  ({    --> <div> <span>
     line = re.sub(r".*header</span>.*",
                   r"<br/><div class='header'>" + line,
@@ -956,7 +956,7 @@ def browsify_mapping_line(authenticated, line):
                   line)
 
     line = re.sub(r"(.*)(UseAfter)(\(.*)",
-                  r"<div class='useafter'>\1<span class='green'>\2</span>\3",
+                  r"<div class='match'>\1<span class='green'>\2</span>\3",
                   line)
     
     # }  -->  } </div>
@@ -1288,18 +1288,90 @@ def new_name(old_map):
 
 # ===========================================================================
 
+@error_trap("edit_rmap_input.html")
+@login_required
+def edit_rmap_browse(request):
+    """browse_db displays records from the FileBlob (subclasses) database."""
+    if request.method == "GET":    # display rmap filters
+        return render(request, "edit_rmap_input.html", {
+            "observatories":["*"]+models.OBSERVATORIES,
+            "instruments":["*"]+models.INSTRUMENTS,
+            "filekinds":["*"]+models.FILEKINDS,
+            "extensions":["*"]+models.EXTENSIONS,
+            "status":["*"]+models.FILE_STATUS_MAP.keys(),
+            "deliverer_user" : "*",
+            })
+    else:   # display filtered rmaps
+        return edit_rmap_browse_post(request)
+
+def edit_rmap_browse_post(request):
+    """View fragment for listing filtered rmap choices."""
+    observatory = validate_post(
+        request, "observatory", models.OBSERVATORIES+[r"\*"])
+    instrument = validate_post(
+        request, "instrument", models.INSTRUMENTS+[r"\*"])
+    filekind = validate_post(
+        request, "filekind", models.FILEKINDS+[r"\*"])
+    extension = validate_post(
+        request, "extension", models.EXTENSIONS+[r"\*"])
+    filename = validate_post(
+        request, "filename", FILE_RE + r"|\*")
+    deliverer_user = validate_post(
+        request, "deliverer_user", [r"\*"] + usernames())
+    status = validate_post(
+        request, "status",  r"[A-Za-z0-9_.\*]+")
+    filters = {}
+    for var in ["observatory", "instrument", "filekind", "extension",
+                "filename", "deliverer_user", "status"]:
+        value = locals()[var].strip()
+        if value not in ["*",""]:
+            filters[var] = value
+    filtered_db = models.FileBlob.filter(**filters)
+    return render(request, "edit_rmap_browse_results.html", {
+                "filters": filters,
+                "filtered_db" : filtered_db,
+                "observatory" : observatory,
+            })
+
 @csrf_exempt
 @login_required
-@error_trap("edit_rmap_editor.html")
-def edit_rmap(request):
-    """  """
+@error_trap("base.html")
+def edit_rmap(request, filename=None):
+    """Handle all aspects of editing a particular rmap named `filename`."""
     if request.method == "GET":
-        raise CrdsError("Can't GET this URL")
+        return edit_rmap_get(request, filename)  # display editor form
     else:
-        return edit_rmap_post(request)
+        return edit_rmap_post(request)   # execute edit actions
+
+# @profile
+def edit_rmap_get(request, filename):
+    blob = models.FileBlob.load(filename)
+    file_contents = browsify_edit_rmap(filename, blob.pathname)    
+    return render(request, "edit_rmap_editor.html", 
+            {"fileblob" : blob,
+             "observatory" : blob.observatory,
+             "file_contents" : file_contents,
+             "browsed_file": filename})
+
+def browsify_edit_rmap(basename, fullpath):
+    """Format a CRDS mapping file as colorized HTML for editing."""
+    contents = ""
+    try:
+        linegen = open(fullpath).readlines()
+    except OSError:
+        return ["<h3 class='error'>File " 
+                "<span class='grey'>%s<span> not found</h3>" % (basename,)]
+    for line in linegen:
+        if line.strip():
+            line = browsify_mapping_line(line)
+            line = re.sub(r"'(" + FILE_RE + ")',",
+                  r"""<span class='filename'>'\1'</span>,""",  #   <a href='/browse/\1'>*</a>
+                  line)
+            contents += line
+    return contents
 
 def edit_rmap_post(request):
-    """View fragment handling add_useafter POST case."""
+    """View fragment handling Rmap edit execution POST."""
     new_mappings = []
     actions = []
 
@@ -1309,6 +1381,9 @@ def edit_rmap_post(request):
 
     actions = collect_action_tuples(request)
     print pprint.pformat(actions)
+    
+    if not actions:
+        raise CrdsError("No edit actions were found.   Aborted.")
     
     original_rmap = validate_post(request, "browsed_file", is_rmap)
     # description = validate_post(request, "description", DESCRIPTION_RE)

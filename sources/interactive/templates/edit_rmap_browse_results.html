@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% load stdtags %}
+
+{% block contents %}
+
+    <h2>Choose an Rmap to Edit</h2>
+
+    <h3>Filters</h3>
+    {% if filters %}
+       <table border="1">
+       <tr><th>filter</th><th>value</th></tr>
+        {% for filter_name, filter_value in filters.items %}
+        <tr>
+            <td>{{filter_name}}</td>
+            <td>{{filter_value}}</td>
+        </tr>
+        {% endfor %}
+       </table>
+    {% else %}
+       <p>No filters.</p>
+    {% endif %}
+    
+    <h3>Rmap Choices</h3>
+    <table border="1">
+        <tr>
+            <th width="15%" align="center">delivery date</th>
+            <th width="15%" align="center">name</th>
+            <th width="10%" align="center">status</th>
+        {% if is_authenticated %}
+            <th width="10%" align="center">submitter</th>
+        {% endif %}
+            <th width="30%" align="center">description</th>
+            <th width="10%" align="center">observatory</th>
+            <th width="10%" align="center">instrument</th>
+            <th width="10%" align="center">filekind</th>
+        </tr>
+        {% for db in filtered_db %}
+        <tr>
+            <td align="center">{{db.delivery_date|minutes}}</td>
+            <td align="center">
+                <a href='/edit_rmap/{{db.filename}}/'>{{db.filename}}</a></td>
+            <td align="center"><span class="{{db.status_class}}">{{db.status}}</span></td>
+            <td align="center">{{db.deliverer_user}}</td>
+            <td align="center">{{db.description}}</td>
+            <td align="center">{{db.observatory}}</td>
+            <td align="center">{{db.instrument}}</td>
+            <td align="center">{{db.filekind}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+{% endblock contents %}

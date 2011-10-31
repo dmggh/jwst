@@ -235,7 +235,7 @@ img.plot {
     border: grey solid 2px;
 }
 
-.help {
+.help, .datetime, .filename {
   color: grey;
 }
 
