@@ -535,10 +535,15 @@ def do_certify_file(basename, certifypath, check_references=None):
     """Run un-trapped components of crds.certify and re-raise any exception
     as a CrdsError which will be displayed as a form error on the submission
     page.
+    
+    basename is the name of the file on the user's system,  hopefully with a
+    sane extension.   certifypath is a fully qualified path,  but sometimes
+    with a temporary filename which is total garbage.
     """
     try:
         certify.certify_files([certifypath], check_references=check_references,
-                              trap_exceptions=False)
+                              trap_exceptions=False,
+                              is_mapping = rmap.is_mapping(basename))
     except Exception, exc:
         raise CrdsError(str(exc))
 
