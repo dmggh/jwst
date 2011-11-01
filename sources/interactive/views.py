@@ -491,6 +491,9 @@ def submit_file_post(request, crds_filetype):
     # Determine the temporary and permanent file paths, not yet copying.
     upload_location = ufile.temporary_file_path()    
     
+    # Check the file,  leaving no server state if it fails.  Give error results.
+    do_certify_file(original_name, upload_location, check_references="exist")
+    
     # auto_rename = "auto_rename" in request.POST    
     auto_rename = True
     if auto_rename:
@@ -505,9 +508,6 @@ def submit_file_post(request, crds_filetype):
     # grandfathered in by special calls to add_crds_file.
     permanent_location = rmap.locate_file(permanent_name, observatory)
 
-    # Check the file,  leaving no server state if it fails.  Give error results.
-    do_certify_file(original_name, upload_location)
-    
     # Make sure none of the dependencies are blacklisted,  else fail w/o state.
     blacklisted_by, exceptions = get_blacklists(original_name, upload_location)
     if blacklisted_by:
@@ -531,17 +531,14 @@ def submit_file_post(request, crds_filetype):
                 "baseperm":os.path.basename(permanent_location),
                 })
 
-def do_certify_file(basename, certifypath, check_references=True):
+def do_certify_file(basename, certifypath, check_references=None):
     """Run un-trapped components of crds.certify and re-raise any exception
     as a CrdsError which will be displayed as a form error on the submission
     page.
     """
     try:
-        if rmap.is_mapping(basename):
-            certify.certify_mapping(
-                certifypath, check_references=check_references)
-        else:
-            certify.certify_fits(certifypath)
+        certify.certify_files([certifypath], check_references=check_references,
+                              trap_exceptions=False)
     except Exception, exc:
         raise CrdsError(str(exc))
 
@@ -672,8 +669,8 @@ def do_blacklist(blacklist_root, blacklisted, badflag, why, user):
         
 # ===========================================================================
 
-# @profile
 @error_trap("certify_input.html")
+@profile
 def certify_file(request):
     """View to return certify input form or process POST."""
     if request.method == "GET":
@@ -1251,7 +1248,7 @@ def do_create_contexts(pmap, updated_rmaps, description, user, email):
  
     for ctx in new_contexts:
         new_loc = rmap.locate_mapping(ctx)  
-        do_certify_file(new_loc, new_loc, check_references=False)
+        do_certify_file(new_loc, new_loc, check_references=None)
 
     # Create delivery records for each of the new files
     observatory = rmap.get_cached_mapping(pmap).observatory
@@ -1442,7 +1439,8 @@ def execute_edit_actions(original_rmap, actions):
         else:
             raise RuntimeError("Unknown edit action " + repr(act))
     checksum.update_checksum(new_loc)
-    do_certify_file(new_loc, new_loc, check_references=False)
+    
+    do_certify_file(new_loc, new_loc, check_references=None)
 
     return new_rmap, new_loc
     
