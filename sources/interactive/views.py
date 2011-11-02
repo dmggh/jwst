@@ -1251,9 +1251,10 @@ def do_create_contexts(pmap, updated_rmaps, description, user, email):
     new_contexts = newcontext.generate_new_contexts(
         pmap, updates_by_instrument, new_name_map)
  
-    for ctx in new_contexts:
-        new_loc = rmap.locate_mapping(ctx)  
-        do_certify_file(new_loc, new_loc, check_references=None)
+    print "WARNING: skipping context certification for", repr(new_contexts)
+#    for ctx in new_contexts:
+#        new_loc = rmap.locate_mapping(ctx)  
+#        do_certify_file(new_loc, new_loc, check_references=None)
 
     # Create delivery records for each of the new files
     observatory = rmap.get_cached_mapping(pmap).observatory

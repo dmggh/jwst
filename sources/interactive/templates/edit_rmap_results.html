@@ -3,20 +3,38 @@
 {% load stdtags %}
 
 {% block column1 %}
-    <h2>Edit Rmap</h2>
-    <h3>Created new mappings:</h3>
 
+    <h2>Edit Rmap</h2>
+
+    <h3>Created new mappings:</h3>
     {% for mapping in new_mappings %}
-    <p class='green'>{{mapping|browse}}</p>
+        <p>{{mapping|browse}}</p>
     {% endfor %}
 
     <br/>
 
-    <h3>By performing actions:</h3>
+    <h3>Deriving From:</h3>
+    <p>{{browsed_file|browse}}</p>
 
-    {% for action in actions %}
-    <p>{{action}}</p>
-    {% endfor %}
+    <br/>
+
+    <h3>By performing actions:</h3>
+    <table border='1'>
+        <tr style='font-weight: bold;' >
+            <td>Action</td>
+            <td>Match</td>
+            <td>Useafter Date</td>
+            <td>Reference File</td>
+        </tr>
+        {% for action in actions %}
+            <tr>
+                <td>{{action.0}}</td>
+                <td>{{action.1}}</td>
+                <td>{{action.2}}</td>
+                <td>{{action.3}}</td>
+            </tr>
+        {% endfor %}
+    </table>
     
 {% endblock column1 %}
 

@@ -302,6 +302,14 @@ $( function () {
         return false;
     }
     
+    validate_all_inputs = function () {
+        inputs = $("input[class$=filename]");
+        for (var i=0; i<inputs.length; i++) {
+            console.log("validate input", $(inputs[i]));
+        }
+        return true;
+    }
+    
     $("#update_rmap_form").submit( function (event) {
         console.log("form submit", $(event.target));
         return false;
@@ -309,6 +317,10 @@ $( function () {
     
     $("#submit_button").click( function (event) {
         console.log("submit button ", $(event.target));
+        if (!validate_all_inputs()) {
+            console.log("form validation failed.");
+            return false;
+        }
         $("form")[0].submit();
         return true;
     });
