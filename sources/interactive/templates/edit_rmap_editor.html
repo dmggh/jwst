@@ -66,6 +66,8 @@ $( function () {
         	.change(validate_useafter);
         $("input[name$=filename]", input_bundle)
         	.change(validate_filename);
+        	
+        INVALID_INPUTS[name_prefix] = true
         
         button.parent().after(input_bundle);
     }
@@ -97,8 +99,8 @@ $( function () {
     }
     
     del_useafter_dynamic = function(event) {
-        console.log("del_useafter_dynamic");
         var button = $(event.target);
+        console.log("del_useafter_dynamic", $(button));
         button.parent().remove();
     }
     
@@ -131,29 +133,27 @@ $( function () {
         })
         .hide();
 
-    /* Use the form click handler to handle events anywhere in the form. Only
-    process clicks which are in a useafter line and not on a file link.  Add
-    or remove buttons on click.
-    */
+    // Use the form click handler to toggle +- buttons on useafter lines only.
+    // This is a performance / transparency compromise since adding buttons 
+    // and/or inputs to all lines of large rmaps is too slow.   Pass on events
+    // which occur in the + inputs.
+ 
     $("form#update_rmap_form").click( function (event) {
         var target = $(event.target);
         console.log("update rmap form ", $(event), target);
         var p = target.parent();
         var div = p.parent();
         
+        // Clicking on an input or button should not toggle the button.
         if (target[0].nodeName == "INPUT" || target[0].nodeName == "BUTTON") {
             if (target.attr("type") != "submit") {
                 console.log("update_rmap_form skipping input");
-                $("body").click();
                 return false;
             }
             return true;
         }
-
-        if (!target.length || target[0].nodeName == "A") {
-            console.log("skipping browse link");
-            return true;
-        }
+        
+        // Skip over clicks which don't correspond to useafter lines.
         if (!p.length || p[0].nodeName != "P") {
             console.log("non-P parent");
             return true;
@@ -302,41 +302,43 @@ $( function () {
         return false;
     }
     
-    validate_all_inputs = function () {
-        inputs = $("input[class$=filename]");
-        for (var i=0; i<inputs.length; i++) {
-            console.log("validate input", $(inputs[i]));
-        }
-        return true;
-    }
-    
     $("#update_rmap_form").submit( function (event) {
         console.log("form submit", $(event.target));
+        if (confirm("Submit edits to generate new rmap?")) {
+            console.log("submit confirmed");
+            if (validate_all_inputs()) {
+                console.log("form validated.");
+                $("form")[0].submit();
+                return true;
+            }
+            console.log("form validation failed.");
+            return false;
+        }
+        console.log("submit cancelled.");
         return false;
     });
     
     $("#submit_button").click( function (event) {
         console.log("submit button ", $(event.target));
-        if (!validate_all_inputs()) {
-            console.log("form validation failed.");
-            return false;
-        }
-        $("form")[0].submit();
         return true;
     });
     
-    $("form *").keypress(function(e) {
-        if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
-            console.log("enter ", $(e));
+    INVALID_INPUTS = {}
+    
+    validate_all_inputs = function () {
+        console.log("validate all inputs");
+        actions = $("p[class=dynamic]");
+        
+        if (actions.length == 0) {
+            alert("No edits have been recorded. Submission cancelled.");
             return false;
-            $(this).parents("form").find("[type=submit]").eq(0)
-                .focusin()
-                .click();
         }
-        console.log("keypress ", $(e));
+        
+        // check for invalid or empty inputs.
+        
         return true;
-    });
-
+    }
+    
     console.log("ready.")
 });
 
@@ -353,7 +355,7 @@ $( function () {
     
     <div class='program' id="file_contents">
     
-        <form action="/edit_rmap/" method="post" id="update_rmap_form"enctype="multipart/form-data">  
+        <form action="/edit_rmap/" method="post" id="update_rmap_form" enctype="multipart/form-data">  
             
             <input type='hidden' name='browsed_file' value='{{browsed_file}}' />
      
