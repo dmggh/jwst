@@ -74,7 +74,7 @@ $( function () {
         console.log("del_useafter");
 
         var button = $(event.target);
-        button.siblings().slice(1,-1)
+        button.parent().find("span")
             .css("text-decoration", "line-through")
             .css("color", "red");
 
@@ -105,7 +105,7 @@ $( function () {
     undel_useafter = function(event) {
         console.log("undel_useafter");
         var button = $(event.target);
-        button.siblings().slice(1,-1)
+        button.parent().find("span")
             .css("text-decoration", "none")
             .css("color", "grey");
         var p = button.parent();
@@ -119,16 +119,6 @@ $( function () {
             .click(del_useafter_static)
     }
 
-    submit_form = function (event) {
-        console.log("submit form"); 
-        if (event.which == 13) {
-            console.log("suppressing enter");
-            event.stopPropagation();
-            return false;
-        }
-       event.target.submit();
-    };
-    
     unedit_button = $("input#unedit_rmap")
         .click( function (event) {
             console.log("unedit_rmap");
@@ -146,12 +136,21 @@ $( function () {
     or remove buttons on click.
     */
     $("form#update_rmap_form").click( function (event) {
-        console.log("update_rmap_form ");
-        var point = $(event.target);
-        console.log(point);
-        var p = point.parent();
+        var target = $(event.target);
+        console.log("update rmap form ", $(event), target);
+        var p = target.parent();
         var div = p.parent();
-        if (!point.length || point[0].nodeName == "A") {
+        
+        if (target[0].nodeName == "INPUT" || target[0].nodeName == "BUTTON") {
+            if (target.attr("type") != "submit") {
+                console.log("update_rmap_form skipping input");
+                $("body").click();
+                return false;
+            }
+            return true;
+        }
+
+        if (!target.length || target[0].nodeName == "A") {
             console.log("skipping browse link");
             return true;
         }
@@ -167,16 +166,15 @@ $( function () {
             console.log("match not found");
             return true;
         }
-        if (!p.hasClass("useafter") && !p.hasClass("match")) {
-            console.log("useafter not found.");
-            return true;
-        }
-        if (p.find("button").length) {   // toggle +- buttons on edit line
+        
+        // toggle +- buttons on edit line
+        if (p.find("button").length) {   
             $("button",p).remove()
         } else {
             $("<span>   </span>").appendTo(p);
             $("<button class='add' type='button'>+</button>")
                 .click(add_useafter)
+                .bind("keypress", add_useafter_keypress)
                 .appendTo(p);
             if (!p.hasClass("match")) {  // no - button on UseAfter line
                 $("<button class='del' type='button'>-</button>")
@@ -185,6 +183,10 @@ $( function () {
             }
         }
     });
+    
+    add_useafter_keypress = function ( event ) {
+        console.log("add_useafter_keypress");
+    }
     
     assert = function (exp, message) {
         if (!exp) {
@@ -247,7 +249,7 @@ $( function () {
             console.log("date ok");
             $(input).css("color", "green");
         } else {
-            console.log("date bad: " + results[1]);
+            console.log("date bad: ", results[1]);
             alert(results[1]);
             $(input).css("color", "red");
         }
@@ -259,7 +261,7 @@ $( function () {
         input.val($.trim(input.val()));
         var filename = input.val();
 
-        console.log("validate_filename " + filename);
+        console.log("validate_filename ", filename);
 
         if (!filename.length) {
             console.log("ignoring empty filename");
@@ -274,15 +276,14 @@ $( function () {
                 "and extension must consist of letters, digits, and underscores only.");
             
         } catch (err) {
-            console.log("bad reference: " + err);
+            console.log("bad reference: ",  err);
             alert(err);
             $(input).css("color", "red");
         }
 
         deferred = jsonrpc.file_exists(filename);
         deferred.addCallback( function (req) {
-            console.log("validate_filename callback");
-            console.log(req.result);
+            console.log("validate_filename callback ", req.result);
             if (req.result) {
                 console.log("validate_filename ok");
                 $(input).css("color", "green");
@@ -293,14 +294,36 @@ $( function () {
             }
         });
         deferred.addErrback( function (req) {
-            console.log("validate_filename errback");
-            console.log(req.result);
+            console.log("validate_filename errback ", req.result);
             $(input).css("color", "orange");
             console.log("file existence unknown");
         });
 
         return false;
     }
+    
+    $("#update_rmap_form").submit( function (event) {
+        console.log("form submit", $(event.target));
+        return false;
+    });
+    
+    $("#submit_button").click( function (event) {
+        console.log("submit button ", $(event.target));
+        $("form")[0].submit();
+        return true;
+    });
+    
+    $("form *").keypress(function(e) {
+        if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+            console.log("enter ", $(e));
+            return false;
+            $(this).parents("form").find("[type=submit]").eq(0)
+                .focusin()
+                .click();
+        }
+        console.log("keypress ", $(e));
+        return true;
+    });
 
     console.log("ready.")
 });
@@ -318,7 +341,7 @@ $( function () {
     
     <div class='program' id="file_contents">
     
-        <form action="/edit_rmap/" method="post" id="update_rmap_form">  
+        <form action="/edit_rmap/" method="post" id="update_rmap_form"enctype="multipart/form-data">  
             
             <input type='hidden' name='browsed_file' value='{{browsed_file}}' />
      
@@ -326,7 +349,7 @@ $( function () {
             
             <br/>
             <p>
-                <input type='submit' value='Submit Rmap Update'/>
+                <input type='submit' id="submit_button" value='Submit Rmap Update' />
                 <button type='button' id='unedit_rmap'>Forget Edits</button>
             </p> 
         </form>
