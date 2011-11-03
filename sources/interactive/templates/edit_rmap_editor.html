@@ -42,6 +42,8 @@ $( function () {
         return hidden
     }
     
+    // Called to insert a bundle of inputs after the button's paragraph to
+    // handle adding an extra useafter line.   Schedules an addition.
     add_useafter = function (event) {
         console.log("add_useafter");
         
@@ -53,7 +55,7 @@ $( function () {
             "<p class='dynamic'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
             mk_input("text", name_prefix + ".date", '') + " : " +
             mk_input("text", name_prefix + ".filename", '') + 
-            mk_input("hidden", name_prefix + ".match_tuple", match_tuple) +    
+            mk_input("hidden", name_prefix + ".match_tuple", match_tuple) +
             "<button class='add' type='button'>+</button>" + 
             "<button class='del' type='button'>-</button>" + 
             "</p>"
@@ -67,11 +69,13 @@ $( function () {
         $("input[name$=filename]", input_bundle)
         	.change(validate_filename);
         	
-        INVALID_INPUTS[name_prefix] = true
-        
+       INVALID_ADDS[name_prefix + ".date"] = true
+       INVALID_ADDS[name_prefix + ".filename"] = true
+        	
         button.parent().after(input_bundle);
     }
     
+    // Called to cross off a useafter in the original rmap and schedule deletion.
     del_useafter_static = function(event) {
         console.log("del_useafter");
 
@@ -98,40 +102,33 @@ $( function () {
             .click(undel_useafter);
     }
     
+    
+    // Called to remove an added useafter line.
     del_useafter_dynamic = function(event) {
         var button = $(event.target);
         console.log("del_useafter_dynamic", $(button));
-        button.parent().remove();
+        var bundle = button.parent();
+        inputs = bundle.find("input[name^=add]");
+        console.log("deleting ", inputs);
+        name1 = $(inputs[0]).attr("name");
+        delete INVALID_ADDS[name1];
+        name2 = $(inputs[1]).attr("name");
+        delete INVALID_ADDS[name2];
+        console.log(name1, " ", name2);
+        bundle.remove();
     }
     
+    // Called to reinstate a useafter line crossed-out of the original.
     undel_useafter = function(event) {
         console.log("undel_useafter");
         var button = $(event.target);
-        button.parent().find("span")
+        var p = button.parent();
+        p.find("span")
             .css("text-decoration", "none")
             .css("color", "grey");
-        var p = button.parent();
-        $("input[name^=delete]", p).remove();
-        button.remove();
-        $("<button class='add' type='button'>+</button>")
-            .appendTo(p)
-            .click(add_useafter)
-        $("<button class='del' type='button'>-</button>")
-            .appendTo(p)
-            .click(del_useafter_static)
+        p.find("div").remove();     // the hidden input bundle
+        p.find("button").remove();  // the +- appended to the useafter p
     }
-
-    unedit_button = $("input#unedit_rmap")
-        .click( function (event) {
-            console.log("unedit_rmap");
-            $(".dynamic").remove();
-            $("button.add").remove();
-            $("button.del").remove();
-            $("a[href*='browse']")
-                .css("text-decoration","none")
-                .css("color","blue");
-        })
-        .hide();
 
     // Use the form click handler to toggle +- buttons on useafter lines only.
     // This is a performance / transparency compromise since adding buttons 
@@ -236,9 +233,8 @@ $( function () {
     validate_useafter = function (event) {
         console.log("validate_useafter");
         var input = $(event.target);
-    
         input.val($.trim(input.val()));
-
+        var input_name = input.attr("name");
         var datetime = input.val();
         if (!datetime.length) {
             console.log("empty datetime");
@@ -246,12 +242,14 @@ $( function () {
         }
         var results = check_datetime(datetime);
         if (results[0]) {
-            console.log("date ok");
-            $(input).css("color", "green");
+            console.log("date ok ", input_name);
+            delete INVALID_ADDS[input_name];
+            input.css("color", "green");
         } else {
             console.log("date bad: ", results[1]);
             alert(results[1]);
-            $(input).css("color", "red");
+            INVALID_ADDS[input_name] = true;
+            input.css("color", "red");
         }
         return false;
     }
@@ -261,10 +259,21 @@ $( function () {
         input.val($.trim(input.val()));
         var filename = input.val();
 
+        input_name = input.attr("name");
+        
         console.log("validate_filename ", filename);
 
         if (!filename.length) {
             console.log("ignoring empty filename");
+            return false;
+        }
+        
+        handle_bad = function (msg) { 
+            var err = msg + ": " +  filename;
+            console.log(err);
+            alert(err);
+            $(input).css("color", "red");
+            INVALID_ADDS[input_name] = true;
             return false;
         }
 
@@ -274,29 +283,25 @@ $( function () {
                 "Invalid filename = " + filename + " must consist of a name and " + 
                 "extension,  separated by a period, with no path.   The name " +
                 "and extension must consist of letters, digits, and underscores only.");
-            
         } catch (err) {
-            console.log("bad reference: ",  err);
-            alert(err);
-            $(input).css("color", "red");
+            return handle_bad("Invalid filename format");            
         }
 
         deferred = jsonrpc.file_exists(filename);
         deferred.addCallback( function (req) {
             console.log("validate_filename callback ", req.result);
             if (req.result) {
-                console.log("validate_filename ok");
+                console.log("validate_filename ok ", input_name);
                 $(input).css("color", "green");
+                delete INVALID_ADDS[input_name];
             } else {
-                console.log("validate_filename can't find");
-                $(input).css("color", "red");
-                alert("CRDS can't find reference " + filename);
+                return handle_bad("CRDS can't find");
             }
         });
         deferred.addErrback( function (req) {
-            console.log("validate_filename errback ", req.result);
+            console.log("validate_filename errback file existence check failed", req.result);
             $(input).css("color", "orange");
-            console.log("file existence unknown");
+            delete INVALID_ADDS[input_name];   //  Let the server figure it out.
         });
 
         return false;
@@ -323,11 +328,11 @@ $( function () {
         return true;
     });
     
-    INVALID_INPUTS = {}
+    INVALID_ADDS = {}
     
     validate_all_inputs = function () {
-        console.log("validate all inputs");
-        actions = $("p[class=dynamic]");
+        actions = $("p.dynamic, div.dynamic");
+        console.log("validate all inputs", actions);
         
         if (actions.length == 0) {
             alert("No edits have been recorded. Submission cancelled.");
@@ -335,6 +340,10 @@ $( function () {
         }
         
         // check for invalid or empty inputs.
+        if (Object.keys(INVALID_ADDS).length) {
+            alert("Some inputs are either empty or invalid.  Submission cancelled.");
+            return false;
+        }
         
         return true;
     }
@@ -364,7 +373,6 @@ $( function () {
             <br/>
             <p>
                 <input type='submit' id="submit_button" value='Submit Rmap Update' />
-                <button type='button' id='unedit_rmap'>Forget Edits</button>
             </p> 
         </form>
         
