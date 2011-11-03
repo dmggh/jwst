@@ -431,6 +431,61 @@ class FileIndexBlob(Blob):
 
 # ============================================================================
 
+class BlacklistBlob(Blob):
+    """A BlacklistBlob maintains a map of all blacklisted files onto the bad
+    files they reference.   A bad reference file is blacklisted by itself.
+    Blacklisting is transitive so a mapping indirectly referring to a bad
+    reference or mapping also gets blacklisted in the blacklist view.  
+    BlacklistBlob is redundant to the blackedlisted_by field of FileBlobs...  
+    but much faster for searching all files facilitating the certification of
+    pipeline or instrument mappings,  including checking for blacklisting.
+    """
+    fields = dict(
+        blacklisted_by = BlobField(dict, "{ basename : [ bad_files_referenced ] }", {}),
+        )
+
+    def blacklist(self, blacklisted,  bad_file_referenced):
+        if blacklisted not in self.blacklisted_by:
+            self.blacklisted_by[blacklisted] = []
+        if bad_file_referenced not in self.blacklisted_by[blacklisted]:
+            self.blacklisted_by[blacklisted].append(bad_file_referenced)
+
+    def unblacklist(self, blacklisted, bad_file_referenced):
+        self.blacklisted_by[blacklisted].remove(bad_file_referenced)
+        
+    def is_blacklisted(self, blacklisted):
+        return self.blacklisted_by.get(blacklisted, [])
+
+def blacklist(blacklisted,  blacklisted_by):
+    """Mark the file `blacklisted` as bad because of its reference to file
+    `blacklisted_by`.
+    """
+    blacklisted = os.path.basename(blacklisted)
+    blacklisted_by = os.path.basename(blacklisted_by)
+    fileblob = FileBlob.load(blacklisted)
+    if blacklisted_by not in fileblob.blacklisted_by:
+        fileblob.blacklisted_by.append(blacklisted_by)
+        fileblob.save()
+    blblob = BlacklistBlob.load(fileblob.observatory)
+    blblob.blacklist(blacklisted, blacklisted_by)
+    blblob.save(fileblob.observatory)
+    
+def unblacklist(blacklisted,  blacklisted_by):
+    """Remove blacklisting of file `blacklisted` on behalf of file
+    `blacklisted_by`.
+    """
+    blacklisted = os.path.basename(blacklisted)
+    blacklisted_by = os.path.basename(blacklisted_by)
+    fileblob = FileBlob.load(blacklisted)
+    if blacklisted_by in fileblob.blacklisted_by:
+        fileblob.blacklisted_by.remove(blacklisted_by)
+        fileblob.save()
+    blblob = BlacklistBlob.load(fileblob.observatory)
+    blblob.unblacklist(blacklisted, blacklisted_by)
+    blblob.save(fileblob.observatory)
+    
+# ============================================================================
+
 AUDITED_ACTIONS = [
     "submit file", "blacklist", "reserve name", "mass import", 
     "new context", "replace reference", "add useafter", "deliver",
@@ -567,6 +622,11 @@ def create_index(observatory):
     exist.  File indices track the existence of files in a single blob for
     the sake of speed.
     """
+    try:
+        blblob = BlacklistBlob.load(observatory)
+    except LookupError:
+        blblob = BlacklistBlob()
+        blblob.save(observatory)
     try:
         index = FileIndexBlob.load(observatory)
     except LookupError:

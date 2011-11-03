@@ -509,13 +509,10 @@ def submit_file_post(request, crds_filetype):
     permanent_location = rmap.locate_file(permanent_name, observatory)
 
     # Make sure none of the dependencies are blacklisted,  else fail w/o state.
-    blacklisted_by, exceptions = get_blacklists(original_name, upload_location)
+    blacklisted_by = get_blacklists(original_name, upload_location)
     if blacklisted_by:
         raise CrdsError("File " + repr(original_name) + 
                         " is blacklisted by " + repr(blacklisted_by))
-    if exceptions:
-        raise CrdsError("Exceptions during blacklisting check: " + 
-                        repr(exceptions))
     
     # Copy the temporary file to its permanent location.
     upload_file(ufile, permanent_location)
@@ -554,29 +551,25 @@ def get_blacklists(basename, certifypath, ignore_self=True):
     """
     basename = str(basename)
     if rmap.is_mapping(basename):
-        exceptions = []
         blacklisted_by = set()
         try:
             mapping = rmap.load_mapping(certifypath)
         except Exception, exc:
-            exceptions.append("Error loading " + repr(basename) + 
-                              " for blacklist checking.  " + str(exc))
-            return [], exceptions
+            raise CrdsError("Error loading " + repr(basename) + 
+                            " for blacklist checking:  " + str(exc))
+        
+        blblob = models.BlacklistBlob.load(mapping.observatory)
+        
         for child in mapping.mapping_names() + mapping.reference_names():       
             if ignore_self and child == os.path.basename(certifypath): 
                 continue
-            try:
-                child_blob = models.FileBlob.load(child)
-            except LookupError:
-                exceptions.append("File " + repr(child) + 
-                                  " is not known to CRDS.")
-                continue
-            if child_blob.blacklisted_by:
-                blacklisted_by = blacklisted_by.union(
-                                    set(child_blob.blacklisted_by))
-        return sorted(list(blacklisted_by)), []
+            blby = blblob.is_blacklisted(child)
+            if blby:
+                blacklisted_by = blacklisted_by.union(set(blby))
+                
+        return sorted(list(blacklisted_by))
     else:
-        return [], []
+        return []
     
 def handle_crds_locations(observatory, uploaded_file, auto_rename):
     """Given a Django `uploaded_file` object, determine where it should reside
@@ -642,13 +635,15 @@ def blacklist_file_post(request):
     uses_files = uses.uses([blacklist_root], observatory)
 
     all_blacklisted = [blacklist_root] + uses_files
-    
+
     for also_blacklisted in all_blacklisted:
-        do_blacklist(
-            blacklist_root, also_blacklisted, badflag, why, request.user)
+        if badflag == "bad":
+            models.blacklist(also_blacklisted, blacklist_root)
+        else:
+            models.unblacklist(also_blacklisted, blacklist_root)
     
     instrument, filekind = utils.get_file_properties(
-            observatory, blacklist_root)
+        observatory, blacklist_root)
 
     models.AuditBlob.new(
         request.user, "blacklist", blacklist_root, why, 
@@ -658,19 +653,6 @@ def blacklist_file_post(request):
     return render(request, "blacklist_results.html", 
                   { "all_blacklisted": all_blacklisted })
 
-def do_blacklist(blacklist_root, blacklisted, badflag, why, user):
-    """Mark one file, `blacklisted`, with status `badflag` and reason `why`."""
-    try:
-        blob = models.FileBlob.load(blacklisted)
-    except LookupError, exc:
-        raise CrdsError("Unknown file " + repr(blacklisted))
-    if badflag == "bad":
-        if blacklist_root not in blob.blacklisted_by:
-            blob.blacklisted_by.append(blacklist_root)
-    else:
-        while blacklist_root in blob.blacklisted_by:
-            blob.blacklisted_by.remove(blacklist_root)
-    blob.save()    
         
 # ===========================================================================
 
@@ -704,15 +686,17 @@ def certify_post(request):
         fitscheck_status = ""
         fitscheck_lines = []
         
-    blacklisted_by, blacklist_exceptions = get_blacklists(
-        original_name, certified_file, ignore_self=False)
-
-    if blacklist_exceptions:
+    try:
+        blacklisted_by = get_blacklists(
+            original_name, certified_file, ignore_self=False)
+    except:
+        blacklisted_by = []
         blacklist_status = "Error"
-    elif blacklisted_by:
-        blacklist_status = "Blacklisted"
-    else:
-        blacklist_status = "OK"
+    else:        
+        if blacklisted_by:
+            blacklist_status = "Blacklisted"
+        else:
+            blacklist_status = "OK"
     
     if uploaded:
         remove_temporary(certified_file)
@@ -725,7 +709,6 @@ def certify_post(request):
              "certify_lines":certify_lines,
              "fitscheck_lines":fitscheck_lines,
              "blacklisted_by" : blacklisted_by,
-             "blacklist_exceptions" : blacklist_exceptions,
              "certified_file":original_name})
 
 # ===========================================================================
