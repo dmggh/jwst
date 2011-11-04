@@ -1320,7 +1320,7 @@ def edit_rmap_browse_post(request):
             })
 
 @csrf_exempt
-@login_required
+# @login_required
 @error_trap("base.html")
 def edit_rmap(request, filename=None):
     """Handle all aspects of editing a particular rmap named `filename`."""
@@ -1361,10 +1361,6 @@ def edit_rmap_post(request):
     new_mappings = []
     actions = []
 
-    print "edit_rmap_post"
-    for key in request.POST:
-        print key, "=", request.POST[key]
-
     actions = collect_action_tuples(request)
     print pprint.pformat(actions)
     
@@ -1400,6 +1396,11 @@ def collect_action_tuples(request):
     for var in request.POST:
         if var.startswith(("add.","delete.")):
             action_vars[str(var)] = str(request.POST[var])
+    for var in request.FILES:
+        if var.startswith("add."):
+            action_vars[str(var)] = uploaded = get_uploaded_file(request, var)
+            print "uploaded ", var, uploaded.name
+    
     expanded = DotExpandedDict(action_vars)
     actions = []
     for action in expanded:
@@ -1413,6 +1414,7 @@ def collect_action_tuples(request):
             assert "filename" in pars, "incomplete action parameter set: missing filename"
             filename = is_reference(pars["filename"])
             actions.append((action, match_tuple, date, filename))
+
     return sorted(actions)
 
 def execute_edit_actions(original_rmap, actions):

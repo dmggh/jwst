@@ -53,7 +53,7 @@ $( function () {
         
         var input_bundle = "<p class='dynamic'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
             mk_input("text", name_prefix + ".date", '') + " : " +
-            mk_input("text", name_prefix + ".filename", '') + 
+            mk_input("file", name_prefix + ".filename", '') + 
             mk_input("hidden", name_prefix + ".match_tuple", match_tuple) +
             "<button class='add' type='button'>+</button>";
             
@@ -68,10 +68,10 @@ $( function () {
         $("button[class=del]", input_bundle).click(del_useafter_dynamic);
         
         $("input[name$=date]", input_bundle).change(validate_useafter);
-        $("input[name$=filename]", input_bundle).change(validate_filename);
+        // $("input[name$=filename]", input_bundle).change(validate_filename);
         	
        INVALID_ADDS[name_prefix + ".date"] = true
-       INVALID_ADDS[name_prefix + ".filename"] = true
+       // INVALID_ADDS[name_prefix + ".filename"] = true
         	
         button.parent().after(input_bundle);
     }
@@ -107,13 +107,13 @@ $( function () {
     // click:  Called to strike out a line and add a new one.
     replace_useafter = function (event) {
         // Add the inputs for the replacement line,  and + button.
-        add_useafter(event, true)
+       add_useafter(event, true);
         
         // Copy the useafter date from the replaced line to the replacement line.
         button = $(event.target);
         parsing = parse_useafter(button);
         p = button.parent().next();
-        p.find("input[name$=date]").val(parsing.date);
+        p.find("input[name$=date]").val(parsing.date).change(); // force validate
         
         // Strike out the original line and add hidden inputs.
         del_useafter_static(event)
@@ -178,11 +178,15 @@ $( function () {
         
         // Clicking on an input or button should not toggle the button.
         if (target[0].nodeName == "INPUT" || target[0].nodeName == "BUTTON") {
-            if (target.attr("type") != "submit") {
-                console.log("update_rmap_form skipping input");
-                return false;
+            if (!(target[0].nodeValue in {"+":1, "replace":1, "unreplace":1, "delete":1})) {
+                console.log("exiting on input or button.");
+                return true;
             }
-            return true;
+            if (target.attr("type") == "submit") {
+                return true;
+            }
+            console.log("update_rmap_form skipping input");
+            return false;
         }
         
         // Skip over clicks which don't correspond to useafter lines.
