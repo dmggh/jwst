@@ -83,7 +83,7 @@ def validate_get(request, variable, pattern):
 FILE_RE = r"\w+(\.fits|\.pmap|\.imap|\.rmap|\.r\d[hd])"
 DESCRIPTION_RE = r"[A-Za-z0-9._ ]+"
 GEIS_HEADER_RE = r"\w+(\.r\dh)"
-PERSON_RE = r"[A-Za-z_0-9\.@]+"
+PERSON_RE = r"[A-Za-z_0-9\.@]*"
 
 def is_pmap(filename):
     """Verify that `filename` names a known CRDS pipeline mapping.
@@ -488,16 +488,18 @@ def submit_file_post(request, crds_filetype):
         comparison_file = None
         
     new_name = submit_file_doit( observatory, uploaded_file, description,
-        change_level, comparison_file, str(request.user), request.user.email,)
+        str(request.user), request.user.email, creator, 
+        change_level, comparison_file, )
         
     return render(request, 'submit_results.html', {
                 "crds_filetype": crds_filetype,
                 "baseperm":new_name,
                 })
     
-def submit_file_doit(observatory, uploaded_file, description, change_level, 
-    comparison_file, submitter, submitter_email, creator_name="unknown",
-    creation_method="submit file", auto_rename=True):
+def submit_file_doit(observatory, uploaded_file, description, 
+        submitter, submitter_email, creator_name="unknown",
+        change_level="SEVERE", comparison_file=None, 
+        creation_method="submit file", auto_rename=True):
     """Do the core processing of a file submission,  including file
     certification and blacklist checking, naming, upload,  and record
     keeping.
@@ -1336,7 +1338,7 @@ def edit_rmap_post(request):
     new_mappings = []
     actions = []
 
-    actions = collect_action_tuples(request)
+    expanded, actions = collect_action_tree(request)
     print pprint.pformat(actions)
     
     if not actions:
@@ -1347,25 +1349,31 @@ def edit_rmap_post(request):
     description = "routine update"
     observatory = rmap.get_cached_mapping(original_rmap).observatory
     
-    new_rmap, new_loc = execute_edit_actions(original_rmap, actions)    
+    new_references = handle_file_submissions(expanded, observatory, request.user)
+    
+    new_rmap, new_loc = execute_edit_actions(original_rmap, expanded)
+    
     models.add_crds_file(observatory, new_rmap, new_loc, 
             request.user, request.user.email, description, 
-            creation_method="update rmap", audit_details=repr(actions))
+            creator_name = "crds",
+            creation_method="edit rmap", audit_details=repr(actions))
     new_mappings.append(new_rmap)
     
     pmap = models.get_default_context(observatory)
 
-    new_mappings += do_create_contexts(pmap, [new_rmap], description,
-                                       request.user, request.user.email)
+    new_mappings += do_create_contexts(
+        pmap, [new_rmap], description,  request.user, request.user.email)
 
     return render(request, "edit_rmap_results.html", {
+                "new_references" : sorted(new_references),
                 "new_mappings" : sorted(new_mappings),
                 "actions" : actions,
             })
 
-def collect_action_tuples(request):
+def collect_action_tree(request):
     """Loop over post variables gathering add and delete useafter
-    action tuples,  validating basic syntax and file existence.
+    action tuples,  validating basic syntax and file existence.   Return both a 
+    dotted tree of actions and a list of action tuples.
     """
     action_vars = {}
     for var in request.POST:
@@ -1383,27 +1391,69 @@ def collect_action_tuples(request):
             assert re.match("\d+", serial), "invalid action serial no " + repr(serial)
             pars = expanded[action][serial]
             assert "match_tuple" in pars, "incomplete action parameter set: missing match_tuple"
-            match_tuple = is_match_tuple(pars["match_tuple"])
+            match_tuple = pars["match_tuple"] = is_match_tuple(pars["match_tuple"])
             assert "date" in pars, "incomplete action parameter set: missing date"
-            date = is_datetime(pars["date"])
+            date = pars["date"] = is_datetime(pars["date"])
             assert "filename" in pars, "incomplete action parameter set: missing filename"
-            filename = is_reference(pars["filename"])
+            uploaded = pars["filename"]
+            if action != "add":
+                filename = is_reference(uploaded)
+            else:
+                filename = uploaded.name
             actions.append((action, match_tuple, date, filename))
+            
+    return expanded, actions
 
-    return sorted(actions)
-
+def handle_file_submissions(actions, observatory, submitter):
+    """Certify and submit all of the added files in `actions`.   Return
+    a list of tuples of reference filenames: [(uploaded_name,  crds_name), ...]
+    """
+    for id in actions["add"]:
+        uploaded_file = actions["add"][id]["filename"]
+        try:
+            do_certify_file(
+                uploaded_file.name, uploaded_file.temporary_file_path())
+        except Exception, exc:
+            raise CrdsError("Reference " + repr(uploaded_file.name) + 
+                            " failed certification: " + str(exc))
+    new_references = []
+    for id in actions["add"]:
+        uploaded_file = actions["add"][id]["filename"]
+        upload_name = uploaded_file.name
+        description = actions["add"][id].get("description","undefined")
+        creator_name = actions["add"][id].get("creator_name","undefined")
+        change_level = actions["add"][id].get("change_level","SEVERE")
+        new_name = submit_file_doit(
+            observatory, uploaded_file, description,
+            str(submitter), submitter.email, creator_name=creator_name,
+            change_level=change_level, comparison_file=None,
+            creation_method="edit rmap")
+        new_references.append((upload_name, new_name))
+        actions["add"][id]["filename"] = new_name
+    return new_references
+        
 def execute_edit_actions(original_rmap, actions):
+    """Perform each of the `actions` on `original_rmap` to create a new
+    rmap.   Return the (new_name, new_path) for the new rmap.   Don't alter
+    `original_rmap`.
+    """
     new_rmap = new_name(original_rmap)
     old_loc = rmap.locate_mapping(original_rmap)
     new_loc = rmap.locate_mapping(new_rmap)
     open(new_loc, "w").write(open(old_loc).read())   # copy old to new
-    for act in actions:
-        if act[0] == "add":
-            make_add_useafter_rmap(new_loc, new_loc, act[1], act[2], act[3])
-        elif act[0] == "delete":
-            make_delete_useafter_rmap(new_loc, new_loc, act[1], act[2], act[3])
-        else:
-            raise RuntimeError("Unknown edit action " + repr(act))
+
+    for act in sorted(actions):   # do adds before deletes
+        for id in actions[act]:
+            pars = actions[act][id]
+            if act == "add":
+                make_add_useafter_rmap( new_loc, new_loc, 
+                    pars["match_tuple"], pars["date"], pars["filename"])
+            elif act == "delete":
+                make_delete_useafter_rmap(new_loc, new_loc, 
+                    pars["match_tuple"], pars["date"], pars["filename"])
+            else:
+                raise RuntimeError("Unknown edit action " + repr(act))
+
     checksum.update_checksum(new_loc)
     
     do_certify_file(new_loc, new_loc)
@@ -1416,6 +1466,7 @@ def make_add_useafter_rmap(old_location, new_location, match_tuple,
     `old_mapping`,  writing the modified rmap out to `new_location`.   If
     `match_tuple` doesn't exist in `old_mapping`,  add `match_tuple` as well.
     """
+    # print "adding useafter", old_location, new_location, match_tuple, useafter_date, useafter_file
     new_mapping_file = cStringIO.StringIO()
     state = "find tuple"
     for line in open(old_location):

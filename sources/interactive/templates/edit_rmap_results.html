@@ -6,15 +6,30 @@
 
     <h2>Edit Rmap</h2>
 
-    <h3>Created new mappings:</h3>
-    {% for mapping in new_mappings %}
-        <p>{{mapping|browse}}</p>
-    {% endfor %}
+    <h3>Deriving From:</h3>
+    <p>{{browsed_file|browse}}</p>
 
     <br/>
 
-    <h3>Deriving From:</h3>
-    <p>{{browsed_file|browse}}</p>
+    <h3>Submitted References:</h3>
+    <table border="1">
+        <tr style='font-weight: bold;'>
+            <td>Upload Name</td>
+            <td>CRDS Name</td>
+        </tr>
+        {% for ref in new_references %}
+            <tr>
+                <td>{{ref.0}}</td>
+                <td>{{ref.1|browse}}</td>
+            </tr>
+        {% endfor %}
+    </table>    
+    <br/>
+
+    <h3>Created New Mappings:</h3>
+    {% for mapping in new_mappings %}
+        <p>{{mapping|browse}}</p>
+    {% endfor %}
 
     <br/>
 
