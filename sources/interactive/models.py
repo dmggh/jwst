@@ -281,7 +281,7 @@ class FileBlob(Blob):
         # User supplied fields
         type = BlobField("reference|mapping", "type of file", ""),
         uploaded_as = BlobField(FILENAME_RE, "original upload filename", ""),
-        modifier_name = BlobField(str, "person who made these changes",""),
+        creator_name = BlobField(str, "person who made this file",""),
         deliverer_user = BlobField(str, "username who uploaded the file", ""),
         deliverer_email = BlobField(str, "person's e-mail who uploaded the file", ""),
         description = BlobField(
@@ -295,6 +295,7 @@ class FileBlob(Blob):
         blacklisted_by = BlobField(list, 
             "Comma separated list of files marking this"
             " file as bad,  possibly self.", []),
+
         # Automatically generated fields
         pathname = BlobField("^[A-Za-z0-9_./]+$", 
             "path/filename to CRDS master copy of file", "None"),
@@ -309,30 +310,17 @@ class FileBlob(Blob):
         sha1sum = BlobField(str, 
             "checksum of file at upload time", "", nonblank=False),
 
-        comparison_file = BlobField(
-            FILENAME_RE, 
+        comparison_file = BlobField(FILENAME_RE, 
             "Name of existing file to compare to for mode coverage.", ""),
-        change_level = BlobField(
-            CHANGE_LEVELS,
+        change_level = BlobField(CHANGE_LEVELS,
             "Do the changes to this file force recalibration of science data?",
             "SEVERE"),
-        useafter_date = BlobField(
-            str,  "Date after which this reference should be used", ""),
-
-#        pedigree = BlobField(
-#            PEDIGREES, 
-#            "What's the source of this file?", ""),
-#        observation_begin_date = BlobField(
-#            str, "Start of INFLIGHT observation." , ""),
-#        observation_end_date = BlobField(
-#            str, "End of INFLIGHT observation.", ""),
     )
     
     @classmethod
     def new(cls, observatory, upload_name, permanent_location, 
-            deliverer_user, deliverer_email, description, 
-            change_level="SEVERE", opus_flag="N",
-            add_slow_fields=True, index=None):
+            creator_name, deliverer_user, deliverer_email, description, 
+            change_level="SEVERE", add_slow_fields=True, index=None):
         """Create a new FileBlob or subclass."""
         
         assert isinstance(add_slow_fields, (bool,int)), "parameter type error"
@@ -345,6 +333,7 @@ class FileBlob(Blob):
         else:
             blob.type = "reference"
         blob.pathname = permanent_location
+        blob.creator_name = creator_name
         blob.deliverer_user = deliverer_user
         blob.deliverer_email = deliverer_email
         blob.description = description
@@ -489,7 +478,7 @@ def unblacklist(blacklisted,  blacklisted_by):
 AUDITED_ACTIONS = [
     "submit file", "blacklist", "reserve name", "mass import", 
     "new context", "replace reference", "add useafter", "deliver",
-    "update rmap", "set default context"
+    "edit rmap", "set default context",
     ]
 
 class AuditBlob(Blob):
@@ -600,12 +589,13 @@ def get_default_context(observatory):
 def add_crds_file(observatory, upload_name, permanent_location, 
             deliverer, deliverer_email, description, 
             creation_method, audit_details="", 
-            change_level="SEVERE", add_slow_fields=True, index=None):
+            change_level="SEVERE", add_slow_fields=True, index=None,
+            creator_name="unknown"):
     "Make a database record for this file.  Track the action of creating it."""
 
     fileblob = FileBlob.new(
         observatory, upload_name, permanent_location, 
-        deliverer, deliverer_email, description,
+        creator_name, deliverer, deliverer_email, description,
         change_level=change_level, add_slow_fields=add_slow_fields, index=index)
     
     # Redundancy, database record of how file got here, important action

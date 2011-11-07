@@ -106,20 +106,14 @@ class SimpleTest(TestCase):
 
     def test_submit_post(self):
         self.authenticate()
-        response = self.client.post("/reserve_name/", {
-                "observatory" : "hst",
-                "filemode" : "file_known",
-                "file_known" : "hst_cos_deadtab_0001.rmap"
-            })
-        self.assert_no_errors(response)
-        self.assertIn("hst_cos_deadtab_0001.rmap", response.content)
+        self.fake_database_files([
+                "interactive/test_data/s7g1700gl_dead.fits", 
+                "interactive/test_data/s7g1700ql_dead.fits"]) 
         response = self.client.post("/submit/mapping/", {
             "observatory" : "hst",
-            "comparison_file" : "",
-            "submitted_file" : open("interactive/test_data/hst_cos_deadtab_0001.rmap"),
+            "submitted_file" : open("interactive/test_data/hst_cos_deadtab.rmap"),
             "description" : "an identical pmap with a different name is still different",
             "change_level" : "SEVERE",
-            "opus_flag" : "Y",
             })
         self.assert_no_errors(response)
         self.assertIn("hst_cos_deadtab_0001.rmap", response.content)
@@ -277,11 +271,6 @@ class SimpleTest(TestCase):
             })
         self.assert_no_errors(response)
 
-    def test_common_updates(self):
-        self.authenticate()
-        response = self.client.get("/common_updates/")
-        self.assert_no_errors(response)
-    
     def test_create_contexts(self):
         self.authenticate()
         response = self.client.get("/create_contexts/")
@@ -301,82 +290,6 @@ class SimpleTest(TestCase):
         self.assertTrue("hst_acs_0001.imap" in response.content)
         self.assertTrue("hst_cos_0001.imap" in response.content)
     
-    def test_replace_reference(self):
-        self.authenticate()
-        response = self.client.get("/replace_reference/")
-        self.assert_no_errors(response)
-
-    def test_replace_reference_post(self):
-        self.authenticate()
-        self.fake_database_files([
-            "hst_acs_biasfile.rmap", 
-            "interactive/test_data/t4o1454bj_bia.fits", 
-            "interactive/test_data/t4o1454jj_bia.fits",
-            ])
-        response = self.client.post("/replace_reference/", {
-                "old_mapping" : "hst_acs_biasfile.rmap",
-                "old_reference" : "t4o1454bj_bia.fits",
-                "new_reference" : "t4o1454jj_bia.fits",
-                "description" : "test reference replacement",
-            })
-        self.assert_no_errors(response)
-        self.assertTrue("Created" in response.content)
-        self.assertTrue("hst_acs_biasfile_0001.rmap" in response.content)
-
-    def test_add_useafter(self):
-        self.authenticate()
-        response = self.client.get("/add_useafter/")
-        self.assert_no_errors(response)
-
-    def test_add_useafter_post_insert(self):
-        self.authenticate()
-        self.fake_database_files([
-            "hst_acs_dgeofile.rmap", 
-            "interactive/test_data/o8u2214fj_dxy.fits", 
-            ])
-        response = self.client.post("/add_useafter/", {
-                "old_mapping" : "hst_acs_dgeofile.rmap",
-                "match_tuple" : "('HRC', 'CLEAR1S', 'F220W')",
-                "useafter_date" : "2001-01-27 12:00:09",
-                "useafter_file" : "o8u2214fj_dxy.fits",
-                "description" : "test add useafter",
-            })
-        self.assert_no_errors(response)
-        self.assertTrue("Created" in response.content)
-        self.assertTrue("Inserted useafter into existing match case." in response.content)
-
-    def test_add_useafter_post_append(self):
-        self.authenticate()
-        self.fake_database_files([
-            "hst_acs_dgeofile.rmap", 
-            "interactive/test_data/o8u2214fj_dxy.fits", 
-            ])
-        response = self.client.post("/add_useafter/", {
-                "old_mapping" : "hst_acs_dgeofile.rmap",
-                "match_tuple" : "('HRC', 'CLEAR1S', 'F220W')",
-                "useafter_date" : "2012-01-27 00:00:00",
-                "useafter_file" : "o8u2214fj_dxy.fits",
-                "description" : "test add useafter",
-            })
-        self.assert_no_errors(response)
-        self.assertTrue("Created" in response.content)
-        self.assertTrue("Appended useafter to existing match case." in response.content)
-
-    def test_add_useafter_post_nomatch(self):
-        self.authenticate()
-        self.fake_database_files([
-            "hst_acs_dgeofile.rmap", 
-            "interactive/test_data/o8u2214fj_dxy.fits", 
-            ])
-        response = self.client.post("/add_useafter/", {
-                "old_mapping" : "hst_acs_dgeofile.rmap",
-                "match_tuple" : "('HRC', 'CLEAR1S', 'F220Q')",  #Q made up!!!
-                "useafter_date" : "2012-01-27 00:00:00",
-                "useafter_file" : "o8u2214fj_dxy.fits",
-                "description" : "test add useafter",
-            })
-        self.assert_has_error(response, "Couldn&#39;t find match tuple")
-
     def test_browse(self):
         response = self.client.get("/browse/")
         self.assert_no_errors(response)

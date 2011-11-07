@@ -83,6 +83,7 @@ def validate_get(request, variable, pattern):
 FILE_RE = r"\w+(\.fits|\.pmap|\.imap|\.rmap|\.r\d[hd])"
 DESCRIPTION_RE = r"[A-Za-z0-9._ ]+"
 GEIS_HEADER_RE = r"\w+(\.r\dh)"
+PERSON_RE = r"[A-Za-z_0-9\.@]+"
 
 def is_pmap(filename):
     """Verify that `filename` names a known CRDS pipeline mapping.
@@ -473,39 +474,51 @@ def submit_file_post(request, crds_filetype):
     """Handle the POST case of submit_file,   returning dict of template vars.
     """
     observatory = get_observatory(request)
-    # Get the UploadedFile object
-    ufile = get_uploaded_file(request, "submitted_file")    
-    original_name = ufile.name
-
+    uploaded_file = get_uploaded_file(request, "submitted_file")    
     description = validate_post(request, "description", DESCRIPTION_RE)
-
+    creator = validate_post(request, "description", PERSON_RE)
+    
     if crds_filetype == "reference":
         change_level = validate_post(
             request, "change_level", models.CHANGE_LEVELS)
-#        comparison_file = validate_post(
-#            request, "comparison_file", is_known_file)
+        comparison_file = validate_post(
+            request, "comparison_file", is_known_file)
     else:
         change_level = "SEVERE"
         comparison_file = None
         
+    new_name = submit_file_doit( observatory, uploaded_file, description,
+        change_level, comparison_file, str(request.user), request.user.email,)
+        
+    return render(request, 'submit_results.html', {
+                "crds_filetype": crds_filetype,
+                "baseperm":new_name,
+                })
+    
+def submit_file_doit(observatory, uploaded_file, description, change_level, 
+    comparison_file, submitter, submitter_email, creator_name="unknown",
+    creation_method="submit file", auto_rename=True):
+    """Do the core processing of a file submission,  including file
+    certification and blacklist checking, naming, upload,  and record
+    keeping.
+    """
     # Determine the temporary and permanent file paths, not yet copying.
-    upload_location = ufile.temporary_file_path()    
+    original_name = uploaded_file.name
+    upload_location = uploaded_file.temporary_file_path()    
     
     # Check the file,  leaving no server state if it fails.  Give error results.
     do_certify_file(original_name, upload_location, check_references="exist")
     
-    # auto_rename = "auto_rename" in request.POST    
-    auto_rename = True
+    # Automatically 
     if auto_rename:
         permanent_name = auto_rename_file(
-            observatory, ufile.name, upload_location)
+            observatory, uploaded_file.name, upload_location)
     else:
-        if file_exists_somehow(ufile.name):
-            raise FieldError("File " + repr(ufile.name) + " already exists.")    
-        permanent_name = check_name_reservation(request.user, ufile.name)
+        if file_exists_somehow(original_name):
+            raise FieldError("File " + repr(original_name) + " already exists.")    
 
     # CRDS keeps all new files in a standard layout.   Older files can be
-    # grandfathered in by special calls to add_crds_file.
+    # grandfathered in by special calls to add_crds_file rather than "submission".
     permanent_location = rmap.locate_file(permanent_name, observatory)
 
     # Make sure none of the dependencies are blacklisted,  else fail w/o state.
@@ -515,18 +528,15 @@ def submit_file_post(request, crds_filetype):
                         " is blacklisted by " + repr(blacklisted_by))
     
     # Copy the temporary file to its permanent location.
-    upload_file(ufile, permanent_location)
+    upload_file(uploaded_file, permanent_location)
     
     # Make a database record for this file.
     blob = models.add_crds_file(observatory, original_name, permanent_location, 
-            request.user, request.user.email, description, 
-            creation_method="submit file", audit_details="", 
-            change_level=change_level)
+            submitter, submitter_email, description, 
+            creation_method=creation_method, audit_details="", 
+            change_level=change_level, creator_name=creator_name)
     
-    return render(request, 'submit_results.html', {
-                "crds_filetype": crds_filetype,
-                "baseperm":os.path.basename(permanent_location),
-                })
+    return os.path.basename(permanent_location)
 
 def do_certify_file(basename, certifypath, check_references=None):
     """Run un-trapped components of crds.certify and re-raise any exception
@@ -538,12 +548,17 @@ def do_certify_file(basename, certifypath, check_references=None):
     with a temporary filename which is total garbage.
     """
     try:
-        certify.certify_files([certifypath], check_references=check_references,
-                              trap_exceptions=False,
-                              is_mapping = rmap.is_mapping(basename))
+        certify.certify_files([certifypath], check_references=None,
+            trap_exceptions=False, is_mapping = rmap.is_mapping(basename))
     except Exception, exc:
         raise CrdsError(str(exc))
-
+    if check_references in ["exist","contents"] and rmap.is_mapping(basename):
+        ctx = rmap.load_mapping(certifypath)
+        index = models.FileIndexBlob.load(ctx.observatory)
+        for ref in ctx.reference_names():
+            assert index.exists(ref), \
+                "Reference " + repr(ref) + " is not known to CRDS."             
+    
 def get_blacklists(basename, certifypath, ignore_self=True):
     """Raise an exception if any of the child mappings or references of
     `basename` are blacklisted,  i.e. don't allow submissions which reference
@@ -570,46 +585,6 @@ def get_blacklists(basename, certifypath, ignore_self=True):
         return sorted(list(blacklisted_by))
     else:
         return []
-    
-def handle_crds_locations(observatory, uploaded_file, auto_rename):
-    """Given a Django `uploaded_file` object, determine where it should reside
-    permanently.  Return both the temporary upload path and
-    the location the file should reside permanently.
-    """
-    # determine where to store
-    upload_location = uploaded_file.temporary_file_path()
-    permanent_location = create_crds_name(
-        observatory, upload_location, uploaded_file.name, auto_rename)
-    baseperm = os.path.basename(str(permanent_location))
-    return upload_location, permanent_location
-
-def create_crds_name(observatory, upload_location, upload_name, auto_rename):
-    """Determine where a file should be stored on a permanent basis,  assigning
-    it both an appropriate path and (possibly) a unique name.  `upload_location`
-    is the file's temporary upload path.  upload_name is how the file was named
-    on the user's computer,  not the temporary file.   If auto_rename is true,
-    an appropriate new CRDS name is automatically generated.  Otherwise,  the
-    upload_name will become the CRDS filename.
-    """
-    if auto_rename:
-        instrument, filekind = utils.get_file_properties(
-            observatory, upload_location)
-    else:
-        pass
-    return str(upload_name)   # XXX Fake for now
-
-def check_name_reservation(user, filename):
-    """Raise an exception if `filename` has not been reserved or was reserved
-    by someone other than `user`.
-    """
-    ablob = models.AuditBlob.filter(filename=filename, action="reserve name")
-    if len(ablob) != 1:
-        raise CrdsError("Reserve an official name before submitting.")
-    ablob = ablob[0]
-    if ablob.user != str(user):
-        raise CrdsError("User " + repr(str(ablob.user)) + " already reserved " + 
-                        repr(filename) + ". Try a different name.")
-    return filename
 
 # ===========================================================================
 
@@ -657,7 +632,7 @@ def blacklist_file_post(request):
 # ===========================================================================
 
 @error_trap("certify_input.html")
-@profile
+# @profile
 def certify_file(request):
     """View to return certify input form or process POST."""
     if request.method == "GET":
@@ -1431,7 +1406,7 @@ def execute_edit_actions(original_rmap, actions):
             raise RuntimeError("Unknown edit action " + repr(act))
     checksum.update_checksum(new_loc)
     
-    do_certify_file(new_loc, new_loc, check_references=None)
+    do_certify_file(new_loc, new_loc)
 
     return new_rmap, new_loc
     
