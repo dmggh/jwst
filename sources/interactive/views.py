@@ -1224,7 +1224,7 @@ def do_create_contexts(pmap, updated_rmaps, description, user, email):
             description, "new context",
             repr(pmap) + " : " + ",".join([repr(x) for x in updated_rmaps]))
         
-    return new_contexts
+    return sorted(new_contexts)
 
 def generate_new_names(old_pipeline, updates):
     """Generate a map from old pipeline and instrument context names to the
@@ -1297,7 +1297,7 @@ def edit_rmap_browse_post(request):
             })
 
 @csrf_exempt
-# @login_required
+@login_required
 @error_trap("base.html")
 def edit_rmap(request, filename=None):
     """Handle all aspects of editing a particular rmap named `filename`."""
@@ -1349,6 +1349,8 @@ def edit_rmap_post(request):
     description = "routine update"
     observatory = rmap.get_cached_mapping(original_rmap).observatory
     
+    pmap = models.get_default_context(observatory)
+
     new_references = handle_file_submissions(expanded, observatory, request.user)
     
     new_rmap, new_loc = execute_edit_actions(original_rmap, expanded)
@@ -1359,14 +1361,17 @@ def edit_rmap_post(request):
             creation_method="edit rmap", audit_details=repr(actions))
     new_mappings.append(new_rmap)
     
-    pmap = models.get_default_context(observatory)
-
     new_mappings += do_create_contexts(
         pmap, [new_rmap], description,  request.user, request.user.email)
+    
+    new_mappings = sorted(new_mappings)
+    
+    models.set_default_context(observatory, new_mappings[0], "crds-edit-rmap")
 
     return render(request, "edit_rmap_results.html", {
-                "new_references" : sorted(new_references),
-                "new_mappings" : sorted(new_mappings),
+                "original_pipeline" : pmap,
+                "new_references" : new_references,
+                "new_mappings" : new_mappings,
                 "actions" : actions,
             })
 
@@ -1430,7 +1435,7 @@ def handle_file_submissions(actions, observatory, submitter):
             creation_method="edit rmap")
         new_references.append((upload_name, new_name))
         actions["add"][id]["filename"] = new_name
-    return new_references
+    return sorted(new_references)
         
 def execute_edit_actions(original_rmap, actions):
     """Perform each of the `actions` on `original_rmap` to create a new

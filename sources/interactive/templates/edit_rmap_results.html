@@ -7,8 +7,8 @@
     <h2>Edit Rmap</h2>
 
     <h3>Deriving From:</h3>
+    <p>{{original_pipeline|browse}}</p>
     <p>{{browsed_file|browse}}</p>
-
     <br/>
 
     <h3>Submitted References:</h3>
@@ -30,7 +30,6 @@
     {% for mapping in new_mappings %}
         <p>{{mapping|browse}}</p>
     {% endfor %}
-
     <br/>
 
     <h3>By performing actions:</h3>
@@ -50,6 +49,8 @@
             </tr>
         {% endfor %}
     </table>
+    <br/>
+    <br/>
     
 {% endblock column1 %}
 
