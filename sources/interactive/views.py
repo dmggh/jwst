@@ -1297,7 +1297,7 @@ def edit_rmap_browse_post(request):
             })
 
 @csrf_exempt
-@login_required
+# @login_required
 @error_trap("base.html")
 def edit_rmap(request, filename=None):
     """Handle all aspects of editing a particular rmap named `filename`."""
@@ -1342,11 +1342,10 @@ def edit_rmap_post(request):
     print pprint.pformat(actions)
     
     if not actions:
-        raise CrdsError("No edit actions were found.   Aborted.")
+        raise CrdsError("No edit actions were found.  Aborted.")
     
+    description = validate_post(request, "description", DESCRIPTION_RE)
     original_rmap = validate_post(request, "browsed_file", is_rmap)
-    # description = validate_post(request, "description", DESCRIPTION_RE)
-    description = "routine update"
     observatory = rmap.get_cached_mapping(original_rmap).observatory
     
     pmap = models.get_default_context(observatory)
