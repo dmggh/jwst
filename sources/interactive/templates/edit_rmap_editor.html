@@ -19,12 +19,17 @@ $( function () {
     
     var OBSERVATORY = "{{ observatory }}";
 
-    parse_useafter = function (button) {
-        var match_tuple = button.parent().parent().children().html().split(":")[0];
+    parse_useafter = function (p) {
+        var match_tuple = p.parent().children().html().split(":")[0];
         match_tuple = match_tuple.slice(match_tuple.indexOf("("), match_tuple.length);
         match_tuple = $.trim(match_tuple);
-        var filename = button.parent().find("span.filename").text().slice(1,-1);
-        var date = button.parent().find("span.datetime").text().slice(1, -1);
+        if (p.hasClass("dynamic")) {
+            var filename = p.find("input[name$=filename]").val();
+            var date = p.find("input[name$=date]").val();
+        } else {
+            var filename = p.find("span.filename").text().slice(1,-1);
+            var date = p.find("span.datetime").text().slice(1, -1);
+        }
         console.log("match tuple: " + match_tuple + 
                     " useafter: " + date + 
                     " filename: " + filename);
@@ -48,7 +53,7 @@ $( function () {
         console.log("add_useafter");
         
         var button = $(event.target);
-        var match_tuple = parse_useafter(button).match_tuple;
+        var match_tuple = parse_useafter(button.parent()).match_tuple;
         var name_prefix = "add." + add_count++;
         
         var input_bundle = "<p class='dynamic'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
@@ -68,10 +73,10 @@ $( function () {
         $("button[class=del]", input_bundle).click(del_useafter_dynamic);
         
         $("input[name$=date]", input_bundle).change(validate_useafter);
-        // $("input[name$=filename]", input_bundle).change(validate_filename);
+        $("input[name$=filename]", input_bundle).change(validate_filename1);
         	
        INVALID_ADDS[name_prefix + ".date"] = true
-       // INVALID_ADDS[name_prefix + ".filename"] = true
+       INVALID_ADDS[name_prefix + ".filename"] = true
         	
         button.parent().after(input_bundle);
     }
@@ -85,7 +90,7 @@ $( function () {
             .css("text-decoration", "line-through")
             .css("color", "red");
 
-        var parsing = parse_useafter(button)
+        var parsing = parse_useafter(button.parent())
         var name_prefix = "delete." + del_count++;
         var p = button.parent();
         
@@ -110,9 +115,9 @@ $( function () {
        add_useafter(event, true);
         
         // Copy the useafter date from the replaced line to the replacement line.
-        button = $(event.target);
-        parsing = parse_useafter(button);
-        p = button.parent().next();
+        var button = $(event.target);
+        var parsing = parse_useafter(button.parent());
+        var p = button.parent().next();
         p.find("input[name$=date]").val(parsing.date).change(); // force validate
         
         // Strike out the original line and add hidden inputs.
@@ -263,9 +268,9 @@ $( function () {
             assert_range("minutes", minutes, "00", "59");
             assert_range("seconds", seconds, "00", "59");
 
-            return [true, "datetime is valid."]
+            return ""
         } catch (err) {
-            return [false, err];
+            return err
         }
     }
     
@@ -277,23 +282,49 @@ $( function () {
         var datetime = input.val();
         if (!datetime.length) {
             console.log("empty datetime");
-            return false;
+            return false;   // allow empty date for now.
         }
-        var results = check_datetime(datetime);
-        if (results[0]) {
-            console.log("date ok ", input_name);
-            delete INVALID_ADDS[input_name];
-            input.css("color", "green");
-        } else {
-            console.log("date bad: ", results[1]);
-            alert(results[1]);
-            INVALID_ADDS[input_name] = true;
-            input.css("color", "red");
+        var err = check_datetime(datetime);
+        if (err) {
+            return fail_useafter(input, err);
         }
+        var p = input.parent();
+        var prev = p.prev();
+        console.log(prev);
+        if (prev.hasClass("useafter") || prev.hasClass("dynamic")) {
+            console.log("prev");
+            var parsing = parse_useafter(prev);
+            console.log("prev_date", parsing.date);
+            if (parsing.date >= datetime) {
+                return fail_useafter(input, "New date '" + datetime + 
+                    "' must be > preceding date '" + parsing.date + "'")                
+            } 
+        }
+        var next = p.next();
+        if (next.hasClass("useafter") || next.hasClass("dynamic")) {
+            console.log("next");
+            var parsing = parse_useafter(next);
+            if (parsing.date <= datetime) {
+                return fail_useafter(input, "New date '" + datetime + 
+                    "' must be < following date '" + parsing.date + "'")                
+            } 
+        }
+        console.log("date ok ", input_name);
+        delete INVALID_ADDS[input_name];
+        input.css("color", "green");
         return false;
     }
 
-    validate_filename = function (event) {
+    fail_useafter = function (input, msg) {
+        var input_name = input.attr("name");
+        console.log("date bad: ", msg);
+        alert(msg);
+        INVALID_ADDS[input_name] = true;
+        input.css("color", "red");
+        return false;
+    }
+
+    validate_filename0 = function (event) {
         var input = $(event.target);
         input.val($.trim(input.val()));
         var filename = input.val();
@@ -326,25 +357,52 @@ $( function () {
             return handle_bad("Invalid filename format");            
         }
 
-        deferred = jsonrpc.file_exists(filename);
-        deferred.addCallback( function (req) {
-            console.log("validate_filename callback ", req.result);
-            if (req.result) {
-                console.log("validate_filename ok ", input_name);
-                $(input).css("color", "green");
-                delete INVALID_ADDS[input_name];
-            } else {
-                return handle_bad("CRDS can't find");
-            }
-        });
-        deferred.addErrback( function (req) {
-            console.log("validate_filename errback file existence check failed", req.result);
-            $(input).css("color", "orange");
-            delete INVALID_ADDS[input_name];   //  Let the server figure it out.
-        });
-
         return false;
     }
+    
+    validate_filename1 = function (event) {
+        var input = $(event.target);
+        // input.val($.trim(input.val()));
+        var filename = input.val();
+        var input_name = input.attr("name");
+        
+        console.log("validate_filename ", filename);
+
+        if (!filename.length) {
+            console.log("ignoring empty filename");
+            return false;
+        }
+        try {
+            $(input).css("color", "green");
+            assert(/^[a-zA-Z0-9_\/.]+$/.test(filename), "Invalid filename '" + filename + "'");
+            delete INVALID_ADDS[input_name];
+        } catch (err) {
+            console.log(err);
+            alert(err);
+            $(input).css("color", "red");
+            INVALID_ADDS[input_name] = true;
+        }
+        return false;
+    }
+    
+/*    deferred = jsonrpc.file_exists(filename);
+    deferred.addCallback( function (req) {
+        console.log("validate_filename callback ", req.result);
+        if (req.result) {
+            console.log("validate_filename ok ", input_name);
+            $(input).css("color", "green");
+            delete INVALID_ADDS[input_name];
+        } else {
+            return handle_bad("CRDS can't find");
+        }
+    });
+    deferred.addErrback( function (req) {
+        console.log("validate_filename errback file existence check failed", req.result);
+        $(input).css("color", "orange");
+        delete INVALID_ADDS[input_name];   //  Let the server figure it out.
+    });
+*/
+    
     
     $("#update_rmap_form").submit( function (event) {
         console.log("form submit", $(event.target));
