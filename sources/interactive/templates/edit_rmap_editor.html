@@ -18,8 +18,35 @@ $( function () {
     var del_count = 0;
     
     var OBSERVATORY = "{{ observatory }}";
+    
+    // notify_err is used to output error status for input validation.
+    // it assumes that `input` is encapsulated in a <p> element to which
+    // an error message span can be appended.
+    notify_err = function (input, msg) {
+        // alert(msg);
+        // $("div.error").html("<p>" + msg + "</p>");
+        var p = input.parent();
+        p.find("span.error").remove();
+        if (msg) {
+            console.log("ERROR: ", msg);
+            p.append("<span class='error'>&nbsp;&nbsp;&nbsp;&nbsp;" + msg + "</span>");
+            INVALID_ADDS[input.attr("name")] = msg;
+            input.css("color", "red");
+        } else {
+            delete INVALID_ADDS[input.attr("name")];
+            delete INVALID_ADDS[undefined];
+            input.css("color", "green");
+            $("input[type=submit]")
+                .css("color","black")
+                .parent().find("span.error").remove();
+        }
+        return false;
+    }
 
     parse_useafter = function (p) {
+        if (!(p.hasClass("useafter") || p.hasClass("dynamic"))) {
+            return undefined;
+        }
         var match_tuple = p.parent().children().html().split(":")[0];
         match_tuple = match_tuple.slice(match_tuple.indexOf("("), match_tuple.length);
         match_tuple = $.trim(match_tuple);
@@ -73,10 +100,10 @@ $( function () {
         $("button[class=del]", input_bundle).click(del_useafter_dynamic);
         
         $("input[name$=date]", input_bundle).change(validate_useafter);
-        $("input[name$=filename]", input_bundle).change(validate_filename1);
+        $("input[name$=filename]", input_bundle).change(validate_filename);
         	
-       INVALID_ADDS[name_prefix + ".date"] = true
-       INVALID_ADDS[name_prefix + ".filename"] = true
+       INVALID_ADDS[name_prefix + ".date"] = "empty";
+       INVALID_ADDS[name_prefix + ".filename"] = "empty";
         	
         button.parent().after(input_bundle);
     }
@@ -291,98 +318,39 @@ $( function () {
         var p = input.parent();
         var prev = p.prev();
         console.log(prev);
-        if (prev.hasClass("useafter") || prev.hasClass("dynamic")) {
-            console.log("prev");
-            var parsing = parse_useafter(prev);
+        var parsing = parse_useafter(prev);
+        if (parsing) {
             console.log("prev_date", parsing.date);
             if (parsing.date >= datetime) {
-                return fail_useafter(input, "New date '" + datetime + 
-                    "' must be > preceding date '" + parsing.date + "'")                
+                return notify_err(input, "New date must be > preceding date.");
             } 
         }
         var next = p.next();
-        if (next.hasClass("useafter") || next.hasClass("dynamic")) {
-            console.log("next");
-            var parsing = parse_useafter(next);
+        parsing = parse_useafter(next);
+        if (parsing) {
+            console.log("next_date", parsing.date);
             if (parsing.date <= datetime) {
-                return fail_useafter(input, "New date '" + datetime + 
-                    "' must be < following date '" + parsing.date + "'")                
+                return notify_err(input, "New date must be < following date.");
             } 
         }
-        console.log("date ok ", input_name);
-        delete INVALID_ADDS[input_name];
-        input.css("color", "green");
-        return false;
+        return notify_err(input, "");   // ok
     }
 
-    fail_useafter = function (input, msg) {
-        var input_name = input.attr("name");
-        console.log("date bad: ", msg);
-        alert(msg);
-        INVALID_ADDS[input_name] = true;
-        input.css("color", "red");
-        return false;
-    }
-
-    validate_filename0 = function (event) {
+    validate_filename = function (event) {
         var input = $(event.target);
-        input.val($.trim(input.val()));
-        var filename = input.val();
-
-        input_name = input.attr("name");
-        
-        console.log("validate_filename ", filename);
-
-        if (!filename.length) {
-            console.log("ignoring empty filename");
-            return false;
-        }
-        
-        handle_bad = function (msg) { 
-            var err = msg + ": " +  filename;
-            console.log(err);
-            alert(err);
-            $(input).css("color", "red");
-            INVALID_ADDS[input_name] = true;
-            return false;
-        }
-
-        try {
-            $(input).css("color", "black");
-            assert(/^[a-zA-z][a-zA-Z0-9_]*[.][A-Za-z0-9_]+$/.test(filename),
-                "Invalid filename = " + filename + " must consist of a name and " + 
-                "extension,  separated by a period, with no path.   The name " +
-                "and extension must consist of letters, digits, and underscores only.");
-        } catch (err) {
-            return handle_bad("Invalid filename format");            
-        }
-
-        return false;
-    }
-    
-    validate_filename1 = function (event) {
-        var input = $(event.target);
-        // input.val($.trim(input.val()));
         var filename = input.val();
         var input_name = input.attr("name");
-        
-        console.log("validate_filename ", filename);
-
+        console.log("validate_filename ", input_name, " ", filename);
         if (!filename.length) {
             console.log("ignoring empty filename");
             return false;
         }
         try {
-            $(input).css("color", "green");
             assert(/^[a-zA-Z0-9_\/.]+$/.test(filename), "Invalid filename '" + filename + "'");
-            delete INVALID_ADDS[input_name];
+            return notify_err(input, ""); // ok
         } catch (err) {
-            console.log(err);
-            alert(err);
-            $(input).css("color", "red");
-            INVALID_ADDS[input_name] = true;
+            return notify_err(input, err);
         }
-        return false;
     }
     
 /*    deferred = jsonrpc.file_exists(filename);
@@ -430,18 +398,14 @@ $( function () {
     validate_all_inputs = function () {
         actions = $("p.dynamic, div.dynamic");
         console.log("validate all inputs", actions);
-        
+        var input = $("input[type=submit]");
         if (actions.length == 0) {
-            alert("No edits have been recorded. Submission cancelled.");
-            return false;
+            return notify_err(input, "No edits have been recorded.");
         }
-        
         // check for invalid or empty inputs.
         if (Object.keys(INVALID_ADDS).length) {
-            alert("Some inputs are either empty or invalid.  Submission cancelled.");
-            return false;
+            return notify_err(input, "Some inputs are either empty or invalid (marked red).");
         }
-        
         return true;
     }
     
