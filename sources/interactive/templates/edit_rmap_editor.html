@@ -76,33 +76,40 @@ $( function () {
     
     // click: Called to insert a bundle of inputs after the button's paragraph to
     // handle adding an extra useafter line.   Schedules an addition.
-    add_useafter = function (event, omit_delete_button) {
+    add_useafter = function (event, is_replacement) {
         console.log("add_useafter");
         
         var button = $(event.target);
-        var match_tuple = parse_useafter(button.parent()).match_tuple;
+        var parsing = parse_useafter(button.parent())
         var name_prefix = "add." + add_count++;
         
-        var input_bundle = "<p class='dynamic'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-            mk_input("text", name_prefix + ".date", '') + " : " +
-            mk_input("file", name_prefix + ".filename", '') + 
-            mk_input("hidden", name_prefix + ".match_tuple", match_tuple) +
-            "<button class='add' type='button'>+</button>";
-            
-        if (omit_delete_button === undefined) {
-            input_bundle += "<button class='del' type='button'>delete</button>";
+        var input_bundle;
+        if (!is_replacement) {  // date is a text input, have delete
+            input_bundle = "<p class='dynamic'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+                mk_input("text", name_prefix + ".date", '') + " : " +
+                mk_input("file", name_prefix + ".filename", '') + 
+                mk_input("hidden", name_prefix + ".match_tuple", parsing.match_tuple) +
+                "<button class='add' type='button'>+</button>" + 
+                "<button class='del' type='button'>delete</button>" +
+                "</p>";
+           INVALID_ADDS[name_prefix + ".date"] = "empty";
+           $("input[name$=date]", input_bundle).change(validate_useafter);
+        } else {   // date is fixed for replacements, unvalidted. replacements have no delete.
+            input_bundle = "<p class='dynamic'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+                mk_input("hidden", name_prefix + ".date", parsing.date) + 
+                mk_input("hidden", name_prefix + ".match_tuple", parsing.match_tuple) +
+                "<span class='datetime'>'" + parsing.date + "'</span> : " + 
+                mk_input("file", name_prefix + ".filename", '') + 
+                "<button class='add' type='button'>+</button>" + 
+                "</p>";
         }
-        input_bundle += "</p>";
         
         input_bundle = $(input_bundle);
                  
         $("button[class=add]", input_bundle).click(add_useafter);
         $("button[class=del]", input_bundle).click(del_useafter_dynamic);
-        
-        $("input[name$=date]", input_bundle).change(validate_useafter);
         $("input[name$=filename]", input_bundle).change(validate_filename);
         	
-       INVALID_ADDS[name_prefix + ".date"] = "empty";
        INVALID_ADDS[name_prefix + ".filename"] = "empty";
         	
         button.parent().after(input_bundle);
@@ -139,14 +146,7 @@ $( function () {
     // click:  Called to strike out a line and add a new one.
     replace_useafter = function (event) {
         // Add the inputs for the replacement line,  and + button.
-       add_useafter(event, true);
-        
-        // Copy the useafter date from the replaced line to the replacement line.
-        var button = $(event.target);
-        var parsing = parse_useafter(button.parent());
-        var p = button.parent().next();
-        p.find("input[name$=date]").val(parsing.date).change(); // force validate
-        
+        add_useafter(event, true);
         // Strike out the original line and add hidden inputs.
         del_useafter_static(event)
     }
@@ -157,21 +157,19 @@ $( function () {
             return true;
         }
         var button = $(event.target);
-        console.log("del_useafter_dynamic", $(button));
-        var bundle = button.parent();
-        del_add_bundle(bundle);
+        console.log("del_useafter_dynamic", button);
+        del_add_bundle(button.parent());
     }
     
     // internal: Called to remove an added line containing inputs and buttons.
     del_add_bundle = function(bundle) {
         console.log("del_add_bundle", $(bundle));
-        inputs = bundle.find("input[name^=add]");
-        console.log("deleting ", inputs);
-        name1 = $(inputs[0]).attr("name");
-        delete INVALID_ADDS[name1];
-        name2 = $(inputs[1]).attr("name");
-        delete INVALID_ADDS[name2];
-        console.log(name1, " ", name2);
+        var inputs = bundle.find("input[name^=add]");
+        inputs.each( function () {
+            var name = $(this).attr("name");
+            console.log("deleting ", name);
+            delete INVALID_ADDS[name];
+        });
         bundle.remove();
     }
     
