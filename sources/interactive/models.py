@@ -396,7 +396,7 @@ class FileBlob(Blob):
     
     @property
     def checksum_ok(self):
-        return self.checksum() == self.sha1sum
+        return self.sha1sum and (self.checksum() == self.sha1sum)
     
 # ============================================================================
 

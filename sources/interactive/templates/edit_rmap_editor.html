@@ -69,9 +69,30 @@ $( function () {
     
     mk_input = function (type, name, value) {
         var hidden = '<input type="' + type + '" name="' +
-                       name + '" value="' + value +'">'
-        console.log(hidden)
+                       name + '" value="' + value +'">\n'
         return hidden
+    }
+    
+    mk_select = function (name, values) {
+        var select = '<select name="' + name + '">\n';
+        for (var opt in values) {
+            select += "<option>" + values[opt] + "</option>\n";
+        }
+        select += "</select>\n";
+        return select
+    }
+    
+    nbsp = function (count) {
+        var html = "";
+        while(count--) {
+            html += "&nbsp;";
+        }
+        return html + "\n";
+    }
+    
+    divider = function (count) {
+        return "<span style='text-decoration: line-through'>" + nbsp(count) +
+               "</span><br/>";
     }
     
     // click: Called to insert a bundle of inputs after the button's paragraph to
@@ -83,28 +104,47 @@ $( function () {
         var parsing = parse_useafter(button.parent())
         var name_prefix = "add." + add_count++;
         
-        var input_bundle;
+        var INDENT=8;
+        var input_bundle = "<p class='dynamic'>";
+        if (button.parent().hasClass("dynamic")) {
+            input_bundle += nbsp(INDENT) + divider(50);
+        }
+        input_bundle += nbsp(INDENT); 
         if (!is_replacement) {  // date is a text input, have delete
-            input_bundle = "<p class='dynamic'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+            input_bundle += 
                 mk_input("text", name_prefix + ".date", '') + " : " +
                 mk_input("file", name_prefix + ".filename", '') + 
                 mk_input("hidden", name_prefix + ".match_tuple", parsing.match_tuple) +
-                "<button class='add' type='button'>+</button>" + 
-                "<button class='del' type='button'>delete</button>" +
-                "</p>";
+                nbsp(14) + 
+                "<button class='add' type='button'>+</button>\n" + 
+                "<button class='del' type='button'>delete</button>\n";
            INVALID_INPUTS[name_prefix + ".date"] = "empty";
-           $("input[name$=date]", input_bundle).change(validate_useafter);
         } else {   // date is fixed for replacements, unvalidted. replacements have no delete.
-            input_bundle = "<p class='dynamic'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+            input_bundle += 
                 mk_input("hidden", name_prefix + ".date", parsing.date) + 
                 mk_input("hidden", name_prefix + ".match_tuple", parsing.match_tuple) +
                 "<span class='datetime'>'" + parsing.date + "'</span> : " + 
                 mk_input("file", name_prefix + ".filename", '') + 
-                "<button class='add' type='button'>+</button>" + 
-                "</p>";
+                nbsp(14) + 
+                "<button class='add' type='button'>+</button>";
         }
-        
+        input_bundle += "<br/>" + nbsp(INDENT) +
+                "<label>Creator:</label>" + mk_input("text", name_prefix + ".creator_name", '') +
+                nbsp(1) +
+                "<label>Change Level:</label>" + mk_select(name_prefix + ".change_level", ["SEVERE","MEDIUM", "TRIVIAL"]) +
+                "<br/>" + nbsp(INDENT) +
+                "<label>Description:</label>" + 
+                "<br/>" + nbsp(INDENT) +
+                "<textarea name='" + name_prefix + ".description' rows='4' cols='50'></textarea>"; 
+        input_bundle += "</p>";
+
+        console.log(input_bundle);        
+
         input_bundle = $(input_bundle);
+
+        if (!is_replacement) {
+           $("input[name$=date]", input_bundle).change(validate_useafter);
+        }
                  
         $("button[class=add]", input_bundle).click(add_useafter);
         $("button[class=del]", input_bundle).click(del_useafter_dynamic);
@@ -120,7 +160,7 @@ $( function () {
         console.log("del_useafter");
 
         var button = $(event.target);
-        button.parent().find("span")
+        button.parent().find("span.datetime, span.filename")
             .css("text-decoration", "line-through")
             .css("color", "red");
 
@@ -182,6 +222,7 @@ $( function () {
             .css("text-decoration", "none")
             .css("color", "grey");
         p.find("div").remove();     // the hidden input bundle
+        p.find("span.spacing").remove();
         p.find("button").remove();  // the +- appended to the useafter p
     }
     
@@ -207,7 +248,8 @@ $( function () {
         var div = p.parent();
         
         // Clicking on an input or button should not toggle the button.
-        if (target[0].nodeName == "INPUT" || target[0].nodeName == "BUTTON") {
+        nodename = target[0].nodeName;
+        if (nodename in {"INPUT":1,"BUTTON":1,"SELECT":1,"OPTION":1, "TEXTAREA":1}) {
             if (!(target[0].nodeValue in {"+":1, "replace":1, "unreplace":1, "delete":1})) {
                 console.log("exiting on input or button.");
                 return true;
@@ -234,10 +276,11 @@ $( function () {
         }
         
         // toggle +- buttons on edit line
-        if (p.find("button").length) {   
+        if (p.find("button").length) {
+            $(".spacing",p).remove(); 
             $("button",p).remove()
         } else {
-            $("<span>   </span>").appendTo(p);
+            $("<span class='spacing'>" + nbsp(23) + "</span>").appendTo(p);
             $("<button class='add' type='button'>+</button>")
                 .click(add_useafter)
                 .bind("keypress", add_useafter_keypress)

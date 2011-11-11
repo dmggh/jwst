@@ -20,7 +20,7 @@
         {% if fileblob %}        
             <table border="1">
                  <tr>
-                    <td width="20%" align="left" class="label">Delivery Date</td>
+                    <td width="20%" align="left" class="label">Submit Date</td>
                     <td>{{fileblob.delivery_date|seconds}}</td>
                  </tr>
                  <tr>
@@ -47,18 +47,17 @@
                  </tr>
        {% endif %}
 
-                 <tr>
-                    <td width="20%" align="left" class="label">Blacklisted By</td>
-                    <td>
-                        {% if fileblob.blacklisted_by %}
+                 {% if fileblob.blacklisted_by %}
+                     <tr>
+                        <td width="20%" align="left" class="label">Blacklisted By</td>
+                        <td>
                             {% for bl in fileblob.blacklisted_by %}
                                 {{bl|browse}} ,&nbsp;
                             {% endfor %}
-                        {% else %}
-                            none
-                        {% endif %}
-                    </td>
-                 </tr>
+                        </td>
+                     </tr>
+                {% endif %}
+                
                  <tr>
                     <td width="20%" align="left" class="label">Description</td>
                     <td>{{fileblob.description}}</td>
@@ -67,18 +66,16 @@
                     <td width="20%" align="left" class="label">Uploaded Name</td>
                     <td>{{fileblob.uploaded_as}}</td>
                  </tr>
-                 <tr>
-                    <td width="20%" align="left" class="label">Sha1sum</td>
-                    {% if fileblob.sha1sum %}
-                        {% if fileblob.checksum_ok %}
-                           <td class="success">{{fileblob.sha1sum}}</td>
+                 {% if not fileblob.checksum_ok %}
+                     <tr>
+                        <td width="20%" align="left" class="label">Sha1sum</td>
+                        {% if fileblob.sha1sum %}
+                            <td class="error">{{fileblob.sha1sum}}</td>
                         {% else %}
-                           <td class="error">{{fileblob.sha1sum}}</td>
+                            <td class="orange">undefined</td>
                         {% endif %}
-                    {% else %}
-                           <td class="orange">undefined</td>
-                    {% endif %}
-                 </tr>
+                     </tr>
+                 {% endif %}
             </table>
         {% else %}
             <p class="error">Error loading database record for 

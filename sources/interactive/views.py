@@ -487,7 +487,7 @@ def submit_file_post(request, crds_filetype):
         change_level = "SEVERE"
         comparison_file = None
         
-    new_name = submit_file_doit( observatory, uploaded_file, description,
+    new_name = do_submit_file( observatory, uploaded_file, description,
         str(request.user), request.user.email, creator, 
         change_level, comparison_file, )
         
@@ -496,10 +496,11 @@ def submit_file_post(request, crds_filetype):
                 "baseperm":new_name,
                 })
     
-def submit_file_doit(observatory, uploaded_file, description, 
+def do_submit_file(observatory, uploaded_file, description, 
         submitter, submitter_email, creator_name="unknown",
         change_level="SEVERE", comparison_file=None, 
-        creation_method="submit file", auto_rename=True):
+        creation_method="submit file", auto_rename=True,
+        details=""):
     """Do the core processing of a file submission,  including file
     certification and blacklist checking, naming, upload,  and record
     keeping.
@@ -535,7 +536,7 @@ def submit_file_doit(observatory, uploaded_file, description,
     # Make a database record for this file.
     blob = models.add_crds_file(observatory, original_name, permanent_location, 
             submitter, submitter_email, description, 
-            creation_method=creation_method, audit_details="", 
+            creation_method=creation_method, audit_details=details, 
             change_level=change_level, creator_name=creator_name)
     
     return os.path.basename(permanent_location)
@@ -1404,7 +1405,7 @@ def collect_action_tree(request):
                 filename = is_reference(uploaded)
             else:
                 filename = uploaded.name
-            actions.append((action, match_tuple, date, filename))
+            actions.append((action, match_tuple, date, str(filename)))
             
     return expanded, actions
 
@@ -1427,11 +1428,12 @@ def handle_file_submissions(actions, observatory, submitter):
         description = actions["add"][id].get("description","undefined")
         creator_name = actions["add"][id].get("creator_name","undefined")
         change_level = actions["add"][id].get("change_level","SEVERE")
-        new_name = submit_file_doit(
+        new_name = do_submit_file(
             observatory, uploaded_file, description,
             str(submitter), submitter.email, creator_name=creator_name,
             change_level=change_level, comparison_file=None,
-            creation_method="edit rmap")
+            creation_method="edit rmap",
+            details="submitted")
         new_references.append((upload_name, new_name))
         actions["add"][id]["filename"] = new_name
     return sorted(new_references)
