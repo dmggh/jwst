@@ -4,6 +4,12 @@
 
 {% block contents %}
 
+<script>
+    $(function() {
+        $( "#accordion" ).accordion();
+    });
+</script>
+
 <h2>Browse <a href='{{browsed_file|download_url:"hst"}}'>{{browsed_file|grey}}</a>
 </h2> 
 
@@ -15,7 +21,10 @@
         {{status}}
     </h3>
     
-<h3>Database</h3>
+<div id="accordion">
+
+<h3><a href="#">Database</a></h3>
+<div>
         {% if fileblob %}        
             <table border="1">
                  <tr>
@@ -81,8 +90,10 @@
                 <span class="grey">{{browsed_file}}</span>
             </p>
         {% endif %}
+</div>
 
-<h3>Past Actions</h3>
+<h3><a href="#">Past Actions</a></h3>
+<div>
     <table border="1">
         <tr>
             <th width="15%" align="center">Date</th>
@@ -101,8 +112,10 @@
         </tr>
         {% endfor %}
     </table>
+</div>
 
-<h3>Used By Files</h3>
+<h3><a href="#">Used By Files</a></h3>
+<div>
     <table>
         {% if used_by_files %}
             {% for line in used_by_files %}
@@ -112,9 +125,11 @@
             <tr><td><b>no files</b></td></tr>
         {% endif %}
     </table>
+</div>
     
 {% if match_paths %}
-<h3>Lookup Patterns</h2>
+<h3><a href="#">Lookup Patterns</a></h2>
+<div>
     <table border="1">
         {% if match_paths %}
             {% for item in match_paths.0 %}
@@ -131,14 +146,18 @@
             <tr><td><b>no matches</b></td></tr>
         {% endif %}
     </table>
+</div>
 {% endif %}   
 
-<h3>Contents</h3>
-
+<h3><a href="#">Contents</a></h3>
+<div>
     <div class='program' id="file_contents">
         {{ file_contents|safe }}
         
         <br/><br/>
     </div>
+</div>
+
+</div> {# accordian #}
 
 {% endblock contents %}

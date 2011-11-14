@@ -37,6 +37,7 @@ setup(name="crds.server",
               "interactive/static/users_guide/_sources/*.txt", 
               "interactive/static/*.js", 
               "interactive/static/jquery-ui/css/smoothness/*.css",
+              "interactive/static/jquery-ui/css/smoothness/images/*.png",
               "interactive/static/jquery-ui/js/*.js",
              ],
         }
