@@ -818,55 +818,50 @@ def clean_path(line, path):
 
 # ===========================================================================
 
-@error_trap("browse_input.html")
-def browse_files(request):
-    """View to return browse input form or process browse POSTs."""
-    if request.method == "GET":
-        return render(request, "browse_input.html")
-    else:
-        return browse_files_post(request)
-    
-def browse_files_post(request):
-    """View fragment to process browse_files POSTs."""
-    uploaded, original_name, browsed_file = handle_known_or_uploaded_file(
-        request, "File", "filemode", "file_known", "file_uploaded")
-    response = browse_files_post_guts(
-        request, uploaded, original_name, browsed_file)
-    if uploaded:
-        remove_temporary(browsed_file)
-    return response
-
-# @profile
-def browse_files_post_guts(request, uploaded, original_name, browsed_file):
-    filename = os.path.basename(browsed_file)
+@error_trap("browse_known_file_error.html")
+def browse_known_file(request, filename):
+    """special view which accepts browse file from a URL parameter,  required
+    by cross links like /browse/some_file.rmap
+    """
     try:
         blob = models.FileBlob.load(filename)
+        browsed_file = blob.pathname
         related_actions = models.AuditBlob.related_to(filename)
     except LookupError:
-        blob = None
-        related_actions = []
+        raise CrdsError("Can't find " + repr(browsed_file))
     
-    if rmap.is_mapping(original_name):
-        file_contents = browsify_mapping(original_name, browsed_file)
+    if rmap.is_mapping(filename):
+        file_contents = browsify_mapping(filename, browsed_file)
     else:
-        file_contents = browsify_reference(original_name, browsed_file)
+        file_contents = browsify_reference(filename, browsed_file)
+        
+    used_by_files = list(uses.uses([filename], blob.observatory))
     
-    return render(request, "browse_results.html", 
-            { "uploaded" : uploaded,
+    if blob and blob.type == "reference":
+        context = models.get_default_context(blob.observatory)
+        match_paths = matches.find_match_tuples(context, filename)
+        match_paths = [flatten(path) for path in match_paths]
+    else:
+        match_paths = []
+    
+    return render(request, "browse_results.html", { 
              "fileblob" : blob,
              "observatory" : blob.observatory,
-             "related_actions":related_actions,
-             "file_contents":file_contents,
-             "browsed_file":original_name})
+             "related_actions": related_actions,
+             "used_by_files" : used_by_files,
+             "match_paths" : match_paths,
+             "file_contents": file_contents,
+             "browsed_file": filename
+    })
 
-def browsify_mapping(original_name, browsed_file):
+def browsify_mapping(filename, browsed_file):
     """Format a CRDS mapping file as colorized and cross-linked HTML."""
     contents = ""
     try:
         linegen = open(browsed_file).readlines()
     except OSError:
         return ["<h3 class='error'>File " 
-                "<span class='grey'>%s<span> not found</h3>" % (original_name,)]
+                "<span class='grey'>%s<span> not found</h3>" % (filename,)]
 
     for line in linegen:
         if line.strip():
@@ -928,7 +923,7 @@ def browsify_mapping_line(line):
     return line
 
 
-def browsify_reference(original_name, browsed_file):
+def browsify_reference(filename, browsed_file):
     """Format a CRDS reference file for HTML display.   Return HTML lines.
     """
     ref_blob = models.FileBlob.load(os.path.basename(browsed_file))
@@ -967,15 +962,6 @@ def finfo(filename):
     """Capture the output from the pyfits info() function."""
     pyfits.info(filename)
 
-@error_trap("browse_known_file_error.html")
-def browse_known_file(request, original_name):
-    """special view which accepts browse file from a URL parameter,  required
-    by cross links like /browse/some_file.rmap
-    """
-    browsed_file = get_known_filepath(original_name)
-    uploaded = False
-    return browse_files_post_guts(
-        request, uploaded, original_name, browsed_file)
 
 # ===========================================================================
 
@@ -1357,7 +1343,7 @@ def edit_rmap_post(request):
     
     models.add_crds_file(observatory, new_rmap, new_loc, 
             request.user, request.user.email, description, 
-            creator_name = "crds",
+            creator_name = str(request.user),
             creation_method="edit rmap", audit_details=repr(actions))
     new_mappings.append(new_rmap)
     
@@ -1366,7 +1352,7 @@ def edit_rmap_post(request):
     
     new_mappings = sorted(new_mappings)
     
-    models.set_default_context(observatory, new_mappings[0], "crds-edit-rmap")
+    models.set_default_context(observatory, new_mappings[0], str(request.user))
 
     return render(request, "edit_rmap_results.html", {
                 "original_pipeline" : pmap,

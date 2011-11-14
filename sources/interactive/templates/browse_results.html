@@ -15,8 +15,7 @@
         {{status}}
     </h3>
     
-{% if not uploaded %}
-<h3>CRDS Database</h3>
+<h3>Database</h3>
         {% if fileblob %}        
             <table border="1">
                  <tr>
@@ -82,11 +81,8 @@
                 <span class="grey">{{browsed_file}}</span>
             </p>
         {% endif %}
-{% else %}
-    <h3>No Database (uploaded)</h3>
-{% endif %}
-    
-<h3>File Actions</h3>
+
+<h3>Past Actions</h3>
     <table border="1">
         <tr>
             <th width="15%" align="center">Date</th>
@@ -106,7 +102,38 @@
         {% endfor %}
     </table>
 
-<h3>File Contents</h3>
+<h3>Used By Files</h3>
+    <table>
+        {% if used_by_files %}
+            {% for line in used_by_files %}
+                <tr><td>{{line|browse}}</td></tr>
+            {% endfor %}
+        {% else %}
+            <tr><td><b>no files</b></td></tr>
+        {% endif %}
+    </table>
+    
+{% if match_paths %}
+<h3>Lookup Patterns</h2>
+    <table border="1">
+        {% if match_paths %}
+            {% for item in match_paths.0 %}
+                <td><b>{{item.0|upper}}</b></td>
+            {% endfor %}
+            {% for match in match_paths %}
+                <tr>
+                {% for item in match %}
+                    <td>{{item.1}}</td>
+                {% endfor %}
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr><td><b>no matches</b></td></tr>
+        {% endif %}
+    </table>
+{% endif %}   
+
+<h3>Contents</h3>
 
     <div class='program' id="file_contents">
         {{ file_contents|safe }}

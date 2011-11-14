@@ -34,10 +34,8 @@ urlpatterns = patterns('',
   url(r'^edit_rmap_browse/$', 'crds.server.interactive.views.edit_rmap_browse'),        
   url(r'^edit_rmap/((?P<filename>[A-Za-z0-9_.]+rmap)/)?$', 'crds.server.interactive.views.edit_rmap'),        
           
-  url(r'^browse/$', 'crds.server.interactive.views.browse_files'),        
-  url(r'^browse/(?P<original_name>[A-Za-z0-9_.]+(fits|imap|rmap|pmap|r\dh))$', 
+  url(r'^browse/(?P<filename>[A-Za-z0-9_.]+(fits|imap|rmap|pmap|r\dh))$', 
       'crds.server.interactive.views.browse_known_file'),
-
   url(r'^browse_db/$', 'crds.server.interactive.views.browse_db'),        
 
 #        (r'site_media/(?P<path>.*)$', 'django.views.static.serve',
