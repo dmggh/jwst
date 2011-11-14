@@ -1284,7 +1284,7 @@ def edit_rmap_browse_post(request):
             })
 
 @csrf_exempt
-# @login_required
+@login_required
 @error_trap("base.html")
 def edit_rmap(request, filename=None):
     """Handle all aspects of editing a particular rmap named `filename`."""

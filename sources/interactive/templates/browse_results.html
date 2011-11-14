@@ -4,23 +4,26 @@
 
 {% block contents %}
 
+<style type="text/css">
+        .ui-accordion-content{ zoom: 1; } 
+</style>
+
 <script>
     $(function() {
         $( "#accordion" ).accordion();
     });
 </script>
 
-<h2>Browse <a href='{{browsed_file|download_url:"hst"}}'>{{browsed_file|grey}}</a>
-</h2> 
-
-{% if status == "OK" %}
-    <h3 class="success">
+{% if ".rmap" in browsed_file %}
+        <FORM METHOD="LINK" ACTION="/edit_rmap/{{browsed_file}}">
+            <h2>Browse <a href='{{browsed_file|download_url:"hst"}}'>{{browsed_file|grey}}</a>
+                <INPUT TYPE="submit" VALUE="Edit">
+            </h2> 
+        </FORM>
 {% else %}
-    <h3 class="error">
-{% endif %}
-        {{status}}
-    </h3>
-    
+    <h2>Browse <a href='{{browsed_file|download_url:"hst"}}'>{{browsed_file|grey}}</a></h2> 
+{% endif %}    
+
 <div id="accordion">
 
 <h3><a href="#">Database</a></h3>
