@@ -1322,12 +1322,9 @@ def browsify_edit_rmap(basename, fullpath):
 
 def edit_rmap_post(request):
     """View fragment handling Rmap edit execution POST."""
-    new_mappings = []
-    actions = []
-
+    
     expanded, actions = collect_action_tree(request)
     print pprint.pformat(actions)
-    
     if not actions:
         raise CrdsError("No edit actions were found.  Aborted.")
     
@@ -1337,7 +1334,8 @@ def edit_rmap_post(request):
     
     pmap = models.get_default_context(observatory)
 
-    new_references = handle_file_submissions(expanded, observatory, request.user)
+    new_references = handle_file_submissions(
+        original_rmap, expanded, observatory, request.user)
     
     new_rmap, new_loc = execute_edit_actions(original_rmap, expanded)
     
@@ -1345,7 +1343,7 @@ def edit_rmap_post(request):
             request.user, request.user.email, description, 
             creator_name = str(request.user),
             creation_method="edit rmap", audit_details=repr(actions))
-    new_mappings.append(new_rmap)
+    new_mappings = [ new_rmap ]
     
     new_mappings += do_create_contexts(
         pmap, [new_rmap], description,  request.user, request.user.email)
@@ -1395,25 +1393,37 @@ def collect_action_tree(request):
             
     return expanded, actions
 
-def handle_file_submissions(actions, observatory, submitter):
-    """Certify and submit all of the added files in `actions`.   Return
+def handle_file_submissions(original_rmap, expanded, observatory, submitter):
+    """Certify and submit all of the added files in `expanded`.   Return
     a list of tuples of reference filenames: [(uploaded_name,  crds_name), ...]
     """
-    for id in actions["add"]:
-        uploaded_file = actions["add"][id]["filename"]
+    rmap_instrument, rmap_filekind = utils.get_file_properties(observatory, original_rmap)
+    for id in expanded["add"]:
+        uploaded_file = expanded["add"][id]["filename"]
+        uploaded_name = str(uploaded_file.name)
+        uploaded_path = uploaded_file.temporary_file_path()
+        uploaded_instr, uploaded_filekind = utils.get_file_properties(
+            observatory, uploaded_path)
+        assert uploaded_instr == rmap_instrument, \
+            "Uploaded reference " + repr(uploaded_name) + \
+            " has wrong instrument (" + uploaded_instr + ") for " + \
+            repr(original_rmap) + " (" + rmap_instrument + ")"
+        assert uploaded_filekind == rmap_filekind, \
+            "Uploaded reference " + repr(uploaded_name) + \
+            " has wrong filekind (" + uploaded_filekind + ") for " + \
+            repr(original_rmap) + " (" + rmap_filekind + ")"
         try:
-            do_certify_file(
-                uploaded_file.name, uploaded_file.temporary_file_path())
+            do_certify_file(uploaded_file.name, uploaded_path)
         except Exception, exc:
             raise CrdsError("Reference " + repr(uploaded_file.name) + 
                             " failed certification: " + str(exc))
     new_references = []
-    for id in actions["add"]:
-        uploaded_file = actions["add"][id]["filename"]
+    for id in expanded["add"]:
+        uploaded_file = expanded["add"][id]["filename"]
         upload_name = uploaded_file.name
-        description = actions["add"][id].get("description","undefined")
-        creator_name = actions["add"][id].get("creator_name","undefined")
-        change_level = actions["add"][id].get("change_level","SEVERE")
+        description = expanded["add"][id].get("description","undefined")
+        creator_name = expanded["add"][id].get("creator_name","undefined")
+        change_level = expanded["add"][id].get("change_level","SEVERE")
         new_name = do_submit_file(
             observatory, uploaded_file, description,
             str(submitter), submitter.email, creator_name=creator_name,
@@ -1421,11 +1431,11 @@ def handle_file_submissions(actions, observatory, submitter):
             creation_method="edit rmap",
             details="submitted")
         new_references.append((upload_name, new_name))
-        actions["add"][id]["filename"] = new_name
+        expanded["add"][id]["filename"] = new_name
     return sorted(new_references)
         
-def execute_edit_actions(original_rmap, actions):
-    """Perform each of the `actions` on `original_rmap` to create a new
+def execute_edit_actions(original_rmap, expanded):
+    """Perform each of the `expanded` on `original_rmap` to create a new
     rmap.   Return the (new_name, new_path) for the new rmap.   Don't alter
     `original_rmap`.
     """
@@ -1434,9 +1444,9 @@ def execute_edit_actions(original_rmap, actions):
     new_loc = rmap.locate_mapping(new_rmap)
     open(new_loc, "w").write(open(old_loc).read())   # copy old to new
 
-    for act in sorted(actions):   # do adds before deletes
-        for id in actions[act]:
-            pars = actions[act][id]
+    for act in sorted(expanded):   # do adds before deletes
+        for id in expanded[act]:
+            pars = expanded[act][id]
             if act == "add":
                 make_add_useafter_rmap( new_loc, new_loc, 
                     pars["match_tuple"], pars["date"], pars["filename"])
