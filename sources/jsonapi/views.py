@@ -76,7 +76,7 @@ def get_mapping_data(request, context, mapping):
 @jsonrpc_method('get_mapping_url(String, String)')
 def get_mapping_url(request, context, mapping):
     ctx = rmap.get_cached_mapping(context)
-    return rmap.mapping_url(config.CRDS_MAPPING_URL, mapping)
+    return mapping_url(mapping)
 
 @jsonrpc_method('get_reference_data(String, String)')
 def get_reference_data(request, context, reference):
@@ -89,7 +89,7 @@ def get_reference_data(request, context, reference):
 @jsonrpc_method('get_reference_url(String, String)')
 def get_reference_url(request, context, reference):
     ctx = rmap.get_cached_mapping(context)
-    return ctx.locate.reference_url(config.CRDS_REFERENCE_URL, reference)
+    return reference_url(reference)
 
 @jsonrpc_method('file_exists(String)')
 def file_exists(request, filename):

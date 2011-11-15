@@ -7,13 +7,12 @@ import os.path
 from django.test import TestCase
 
 import crds.pysh as pysh
-import crds.client.api as api
+import crds.client as client
 
 HERE = os.path.dirname(__file__) or "."
 
 class ServiceApiTest(TestCase):
     def setUp(self):
-        self.api = api
         self.context = "hst.pmap"
 
     def get_header(self):
@@ -60,7 +59,7 @@ class ServiceApiTest(TestCase):
     def get_bestrefs(self):
         header = self.get_header()
         os.environ["CRDS_REFPATH"] = HERE + "/test_references"
-        return api.get_best_references(self.context, header)
+        return client.get_best_references(self.context, header)
 
     def purge_mappings(self):
         pysh.sh("rm -rf " + HERE + "/test_mappings")        
@@ -68,38 +67,41 @@ class ServiceApiTest(TestCase):
     def purge_references(self):
         pysh.sh("rm -rf " + HERE + "/test_references")
 
-    def test_api_get_mapping_names(self):
-        mappings = self.api.get_mapping_names(self.context)
+    def test_client_get_mapping_names(self):
+        mappings = client.get_mapping_names(self.context)
         self.failUnlessEqual(len(mappings), 100)
         
-    def test_api_get_reference_names(self):
-        references = self.api.get_reference_names(self.context)
+    def test_client_get_reference_names(self):
+        references = client.get_reference_names(self.context)
         self.failUnlessEqual(len(references), 9554)
         
-    def test_api_dump_mappings(self):
+    def test_client_dump_mappings(self):
         os.environ["CRDS_MAPPATH"] = HERE + "/test_mappings" 
-        self.api.dump_mappings(self.context)
+        client.dump_mappings(self.context)
         self.purge_mappings()
         
-    def test_api_get_bestrefs(self):
+    def test_client_get_bestrefs(self):
         bestrefs = self.get_bestrefs()
         for key, value in self.expected_references().items():
             self.assertIn(key, bestrefs)
             self.assertEqual(bestrefs[key], value)
                 
-    def test_api_cache_references(self):
+    def test_client_dump_references(self):
         bestrefs = {'idctab': 'uab1537bi_idc.fits', 'darkfile': 't3420177i_drk.fits'}
-        api.cache_references(self.context, bestrefs)
-        self.purge_references()
-
-    def test_api_dump_references(self):
-        bestrefs = {'idctab': 'uab1537bi_idc.fits', 'darkfile': 't3420177i_drk.fits'}
-        api.dump_references(self.context, bestrefs.values())
+        client.dump_references(self.context, bestrefs.values())
         self.purge_references()
         
-    def test_api_get_reference_url(self):
-        url = api.get_reference_url(self.context, 'uab1537bi_idc.fits')
+    def test_client_cache_best_references(self):
+        client.get_best_references(self.context, self.get_header())
+        self.purge_references()
+        
+    def test_client_cache_best_references_for_dataset(self):
+        client.cache_best_references_for_dataset(self.context, "interactive/test_data/j8bt05njq_raw.fits")
+        self.purge_references()
+        
+    def test_client_get_reference_url(self):
+        url = client.get_reference_url(self.context, 'uab1537bi_idc.fits')
 
-    def test_api_get_mapping_url(self):
-        url = api.get_mapping_url(self.context, "hst_acs.imap")
+    def test_client_get_mapping_url(self):
+        url = client.get_mapping_url(self.context, "hst_acs.imap")
 
