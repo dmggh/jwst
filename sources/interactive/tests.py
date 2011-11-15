@@ -290,10 +290,6 @@ class SimpleTest(TestCase):
         self.assertTrue("hst_acs_0001.imap" in response.content)
         self.assertTrue("hst_cos_0001.imap" in response.content)
     
-    def test_browse(self):
-        response = self.client.get("/browse/")
-        self.assert_no_errors(response)
-
     def test_browse_file(self):
         response = self.client.get("/browse/hst.pmap")
         self.assert_no_errors(response)
