@@ -239,6 +239,14 @@ img.plot {
   color: grey;
 }
 
+p.useafter {
+    margin-left: 8em;
+}
+
+p.header, p.match {
+    margin-left: 4em;
+}
+
 p { 
     margin-top: 0.5em;
     margin-bottom: 0.0em; 

@@ -880,22 +880,13 @@ def browsify_mapping_line(line):
     line = re.sub(r"(header|selector)(\s*=\s*)",
                   r"<span class='green'>\1</span>\2",
                   line)
-    # Tabs -->   4 spaces
-    line = re.sub(r"\t", r"&nbsp;"*4, line)
-    
-    # HACK:  replace any sequence of whitespace with one "tab"
-    line = re.sub(r"^\s+", r"&nbsp;"*4, line)
-    
-    # HACK:  add an extra level of indentation to any line ending with .fits',
-    line = re.sub(r"('.*\.(fits|r\dh)',)$",
-                  r"&nbsp;"*4 + r"\1",
-                  line)
-
     # '2011-02-07 08:21:00' : 'v3b1842dj_drk.fits',
     if re.search(r"'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d'\s*:", line):
         line = "<p class='useafter'>" + line.strip() + "</p>\n"
-    elif re.search(r"UseAfter", line):
-        line = "<p class='match'>" + line.strip() + "</p>\n"        
+    elif re.search(r"UseAfter", line) or line.strip() == "}),":
+        line = "<p class='match'>" + line.strip() + "</p>\n"
+    elif re.match(r"^\s+'\w+'\s+:", line):
+        line = "<p class='header'>" + line.strip() + "</p>\n"
     else:
         line = "<p>" + line.strip() + "</p>\n"
 
@@ -906,11 +897,15 @@ def browsify_mapping_line(line):
     
     # Match, UseAfter  ({    --> <div> <span>
     line = re.sub(r".*header</span>.*",
-                  r"<br/><div class='header'>" + line,
+                  r"<br/>\n\n<div class='header'>\n" + line.rstrip(),
+                  line)
+
+    line = re.sub(r".*selector</span>.*",
+                  r"<br/>\n\n<div class='selector'>\n" + line.rstrip(),
                   line)
 
     line = re.sub(r"(.*)(Match)(\(.*)",
-                  r"<br/><div class='selector'>\1<span class='green'>\2</span>\3\n",
+                  r"\1<span class='green'>\2</span>\3",
                   line)
 
     line = re.sub(r"(.*)(UseAfter)(\(.*)",
@@ -1284,7 +1279,7 @@ def edit_rmap_browse_post(request):
             })
 
 @csrf_exempt
-@login_required
+# @login_required
 @error_trap("base.html")
 def edit_rmap(request, filename=None):
     """Handle all aspects of editing a particular rmap named `filename`."""

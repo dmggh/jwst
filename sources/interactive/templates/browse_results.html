@@ -28,6 +28,14 @@
 
 <div id="accordion">
 
+<h3><a href="#">Contents</a></h3>
+<div>
+    <div class='program' id="file_contents">
+        {{ file_contents|safe }}
+        <br/><br/>
+    </div>  <!-- program -->
+</div>  <!-- contents -->
+
 <h3><a href="#">Database</a></h3>
 <div>
         {% if fileblob %}        
@@ -154,15 +162,6 @@
 </div>
 {% endif %}   
 
-<h3><a href="#">Contents</a></h3>
-<div>
-    <div class='program' id="file_contents">
-        {{ file_contents|safe }}
-        
-        <br/><br/>
-    </div>
-</div>
-
-</div> {# accordian #}
+</div> <!-- accordian -->
 
 {% endblock contents %}

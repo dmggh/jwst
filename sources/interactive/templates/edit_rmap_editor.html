@@ -104,7 +104,7 @@ $( function () {
         var parsing = parse_useafter(button.parent())
         var name_prefix = "add." + add_count++;
         
-        var INDENT=8;
+        var INDENT=12;
         var input_bundle = "<p class='dynamic'>";
         if (button.parent().hasClass("dynamic")) {
             input_bundle += nbsp(INDENT) + divider(50);
@@ -115,11 +115,11 @@ $( function () {
                 mk_input("text", name_prefix + ".date", '') + " : " +
                 mk_input("file", name_prefix + ".filename", '') + 
                 mk_input("hidden", name_prefix + ".match_tuple", parsing.match_tuple) +
-                nbsp(14) + 
+                nbsp(15) + 
                 "<button class='add' type='button'>+</button>\n" + 
                 "<button class='del' type='button'>delete</button>\n";
            INVALID_INPUTS[name_prefix + ".date"] = "empty";
-        } else {   // date is fixed for replacements, unvalidted. replacements have no delete.
+        } else {   // date is fixed for replacements, unvalidated. replacements have no delete.
             input_bundle += 
                 mk_input("hidden", name_prefix + ".date", parsing.date) + 
                 mk_input("hidden", name_prefix + ".match_tuple", parsing.match_tuple) +
@@ -130,7 +130,6 @@ $( function () {
         }
         input_bundle += "<br/>" + nbsp(INDENT) +
                 "<label>Creator:</label>" + mk_input("text", name_prefix + ".creator_name", '') +
-                nbsp(1) +
                 "<label>Change Level:</label>" + mk_select(name_prefix + ".change_level", ["SEVERE","MEDIUM", "TRIVIAL"]) +
                 "<br/>" + nbsp(INDENT) +
                 "<label>Description:</label>" + 
