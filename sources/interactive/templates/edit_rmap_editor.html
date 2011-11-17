@@ -27,19 +27,22 @@ $( function () {
         // $("div.error").html("<p>" + msg + "</p>");
         var p = input.parent();
         p.find("span.error").remove();
-        if (msg) {
-            console.log("ERROR: ", msg);
-            p.append("<span class='error'>&nbsp;&nbsp;&nbsp;&nbsp;" + msg + "</span>");
-            INVALID_INPUTS[input.attr("name")] = msg;
-            input.css("color", "red");
-        } else {
-            delete INVALID_INPUTS[input.attr("name")];
-            delete INVALID_INPUTS[undefined];
-            input.css("color", "green");
-            $("#submit_button")
-                .css("color","black")
-                .parent().find("span.error").remove();
-        }
+        console.log("ERROR: ", msg);
+        p.append("<span class='error'>&nbsp;&nbsp;&nbsp;&nbsp;" + msg + "</span>");
+        INVALID_INPUTS[input.attr("name")] = msg;
+        input.css("color", "red");
+        return false;
+    }
+    
+    cancel_err = function(input) {
+        input.parent().find("span.error").remove();
+        delete INVALID_INPUTS[input.attr("name")];
+        delete INVALID_INPUTS[undefined];
+        delete INVALID_INPUTS[""];
+        input.css("color", "green");
+        $("#submit_button")
+            .css("color","black")
+            .parent().find("span.error").remove();
         return false;
     }
 
@@ -148,6 +151,8 @@ $( function () {
         $("button[class=add]", input_bundle).click(add_useafter);
         $("button[class=del]", input_bundle).click(del_useafter_dynamic);
         $("input[name$=filename]", input_bundle).change(validate_filename);
+        $("textarea[name$=description]", input_bundle).change(validate_description);
+        $("input[name$=creator_name]", input_bundle).change(validate_creator);
         	
        INVALID_INPUTS[name_prefix + ".filename"] = "empty";
         	
@@ -373,7 +378,7 @@ $( function () {
                 return notify_err(input, "New date must be < following date.");
             } 
         }
-        return notify_err(input, "");   // ok
+        return cancel_err(input);
     }
 
     validate_filename = function (event) {
@@ -387,30 +392,11 @@ $( function () {
         }
         try {
             assert(/^[a-zA-Z0-9_\/.]+$/.test(filename), "Invalid filename '" + filename + "'");
-            return notify_err(input, ""); // ok
+            return cancel_err(input);
         } catch (err) {
             return notify_err(input, err);
         }
     }
-    
-/*    deferred = jsonrpc.file_exists(filename);
-    deferred.addCallback( function (req) {
-        console.log("validate_filename callback ", req.result);
-        if (req.result) {
-            console.log("validate_filename ok ", input_name);
-            $(input).css("color", "green");
-            delete INVALID_INPUTS[input_name];
-        } else {
-            return handle_bad("CRDS can't find");
-        }
-    });
-    deferred.addErrback( function (req) {
-        console.log("validate_filename errback file existence check failed", req.result);
-        $(input).css("color", "orange");
-        delete INVALID_INPUTS[input_name];   //  Let the server figure it out.
-    });
-*/
-    
     
     $("#update_rmap_form").submit( function (event) {
         console.log("form submit", $(event.target));
@@ -418,7 +404,7 @@ $( function () {
             console.log("submit confirmed");
             if (validate_all_inputs()) {
                 console.log("form validated.");
-                $("form")[0].submit();
+                // $("form")[0].submit();
                 return true;
             }
             console.log("form validation failed.");
@@ -428,24 +414,31 @@ $( function () {
         return false;
     });
     
-    INVALID_INPUTS = {
-            "description" : "empty description",
+    INVALID_INPUTS = { }    
+   
+    non_empty_sane = function (name) {
+        var func = function(event) {
+            console.log("validating ", name);
+            var input = $(event.target);
+            if (/^[A-Za-z0-9. _@\-,']+$/.test(input.val())) {
+                cancel_err(input);
+            } else {
+                notify_err(input, "invalid " + name);
+            }
         }
-        
-    $("#description").change( function (event) {
-        console.log("validating description.");
-        var input = $("#description");
-        if (input.val()) {
-            notify_err(input, "");
-        } else {
-            notify_err(input, "empty description");
-        }
-    });
+        return func;
+    }
     
+    validate_creator = non_empty_sane("creator");
+    validate_description = non_empty_sane("description");
+
+    $("#description").change(validate_description).change();
+
     validate_all_inputs = function () {
         actions = $("p.dynamic, div.dynamic");
         console.log("validate all inputs", actions);
         var input = $("#submit_button");
+        cancel_err(input);
         if (actions.length == 0) {
             return notify_err(input, "No edits have been recorded.");
         }
@@ -455,7 +448,6 @@ $( function () {
         }
         return true;
     }
-    
     console.log("ready.")
 });
 
