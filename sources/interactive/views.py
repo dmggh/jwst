@@ -1198,11 +1198,13 @@ def do_create_contexts(pmap, updated_rmaps, description, user, email):
 #        new_loc = rmap.locate_mapping(ctx)  
 #        do_certify_file(new_loc, new_loc, check_references=None)
 
+    old_name_map = utils.invert_dict(new_name_map)
+
     # Create delivery records for each of the new files
     observatory = rmap.get_cached_mapping(pmap).observatory
     for ctx in new_contexts:
         models.add_crds_file(
-            observatory, ctx, rmap.locate_mapping(ctx),  user, email, 
+            observatory, old_name_map[ctx], rmap.locate_mapping(ctx),  user, email, 
             description, "new context",
             repr(pmap) + " : " + ",".join([repr(x) for x in updated_rmaps]))
         
@@ -1279,7 +1281,7 @@ def edit_rmap_browse_post(request):
             })
 
 @csrf_exempt
-# @login_required
+@login_required
 @error_trap("base.html")
 def edit_rmap(request, filename=None):
     """Handle all aspects of editing a particular rmap named `filename`."""
@@ -1334,7 +1336,7 @@ def edit_rmap_post(request):
     
     new_rmap, new_loc = execute_edit_actions(original_rmap, expanded)
     
-    models.add_crds_file(observatory, new_rmap, new_loc, 
+    models.add_crds_file(observatory, original_rmap, new_loc, 
             request.user, request.user.email, description, 
             creator_name = str(request.user),
             creation_method="edit rmap", audit_details=repr(actions))
