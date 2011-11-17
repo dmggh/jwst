@@ -114,6 +114,7 @@ class SimpleTest(TestCase):
             "submitted_file" : open("interactive/test_data/hst_cos_deadtab.rmap"),
             "description" : "an identical pmap with a different name is still different",
             "change_level" : "SEVERE",
+            "creator" : "Somebody else",
             })
         self.assert_no_errors(response)
         self.assertIn("hst_cos_deadtab_0001.rmap", response.content)

@@ -22,6 +22,8 @@
           </td>
         </tr>
         {% if crds_filetype == "reference" %}
+    
+        {% comment %}
             <tr>
               <td width="25%" class="label">Comparison File:</td>
               <td width="25%">
@@ -29,6 +31,7 @@
                     value="{{comparison_file}}">
               </td>
             </tr>
+        {% endcomment %}
             <tr>
               <td width="25%" class="label">Change Level:</td>
               <td width="25%">
@@ -63,19 +66,19 @@
 {% if crds_filetype == "reference" %}
 
 <p><b>Submit Reference File</b> permanently enters a reference file into the 
-CRDS system in a state which is initially unused.   A file must pass CRDS
-certification before it will be accepted.
+CRDS system.
 
 <p><p><b>Submitted File</b> a new reference file to be added to CRDS.
 
+<!--
 p><p><b>Comparison File</b> when specified,  the submitted reference must
 provide the same general coverage as the comparison file.
+-->
 
 <p><p><b>Change Level</b> a flag to help search for deliverable files.
 
-<p><p><b>Creator</b> original author of the contents or changes to the submitted
-file,  not necessarily the same person who handles file submission.   The identity
-of the person submitting the file is automatically known based on login information.
+<p><p><b>Creator</b> author of the contents or changes to the file,  not 
+necessarily the submitter.   The submitter is known based on login information.
 
 <p><p><b>Description</b> information about what's new in this file and what
 the expected impacts are.

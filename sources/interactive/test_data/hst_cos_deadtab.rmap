@@ -1,10 +1,11 @@
 header = {
+    'description' : 'Initially generated on 2011-11-16 11:30:48',
+    'filekind' : 'DEADTAB',
     'instrument' : 'COS',
-    'mapping' : 'reference',
+    'mapping' : 'REFERENCE',
     'observatory' : 'HST',
     'parkey' : (('DETECTOR',), ('DATE-OBS', 'TIME-OBS')),
-    'reftype' : 'DEADTAB',
-    'sha1sum' : 'eb1e6dfc0967c900377b18c4187ad4c018c6eb50',
+    'sha1sum' : 'db6fa667abf9a44d056c8aca9ee880ac9a31a33b',
 }
 
 selector = Match({

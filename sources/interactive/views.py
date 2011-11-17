@@ -476,13 +476,14 @@ def submit_file_post(request, crds_filetype):
     observatory = get_observatory(request)
     uploaded_file = get_uploaded_file(request, "submitted_file")    
     description = validate_post(request, "description", DESCRIPTION_RE)
-    creator = validate_post(request, "description", PERSON_RE)
+    creator = validate_post(request, "creator", PERSON_RE)
     
     if crds_filetype == "reference":
         change_level = validate_post(
             request, "change_level", models.CHANGE_LEVELS)
-        comparison_file = validate_post(
-            request, "comparison_file", is_known_file)
+#        comparison_file = validate_post(
+#            request, "comparison_file", is_known_file)
+        comparison_file = None
     else:
         change_level = "SEVERE"
         comparison_file = None
