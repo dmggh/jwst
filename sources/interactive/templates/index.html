@@ -1,7 +1,12 @@
 {% extends "base.html" %}
 
 {% block contents %}
+
+{% if is_authenticated %}
     <h3>Open Services</h3>
+{% else %}
+    <h3>Services</h3>
+{% endif %}
     <ol>
         <li><a href="/bestrefs/">Best References</a></li>
         <li><a href="/certify/">Certify File</a></li>
@@ -10,6 +15,8 @@
         <li><a href="/browse_db/">Browse Database</a></li>
         <li><a href="/recent_activity/">Recent Activity</a></li>
     </ol>
+    
+{% if is_authenticated %}
     <h3>Restricted Services</h3>
     <ol>
         <li><a href="/edit_rmap_browse/">Edit Rmap</a></li>
@@ -24,4 +31,6 @@
         <br/>
         <li><a href="/blacklist/">Blacklist File</a></li>
     </ol>
+{% endif %}
+
 {% endblock contents %}

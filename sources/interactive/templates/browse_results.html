@@ -16,7 +16,7 @@
     });
 </script>
 
-{% if ".rmap" in browsed_file %}
+{% if ".rmap" in browsed_file and is_authenticated %}
         <FORM METHOD="LINK" ACTION="/edit_rmap/{{browsed_file}}">
             <h2>Browse <a href='{{browsed_file|download_url:"hst"}}'>{{browsed_file|grey}}</a>
                 <INPUT TYPE="submit" VALUE="Edit">
@@ -163,5 +163,7 @@
 {% endif %}   
 
 </div> <!-- accordian -->
+
+<br/><br/>
 
 {% endblock contents %}
