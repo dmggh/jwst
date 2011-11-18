@@ -6,10 +6,24 @@
 
     <h2>Difference {{file1|grey}} against {{file2|grey}}</h2>
     
+    {% if map_diffs %}
+        <h3>Mapping Logical Differences</h3>
+        <table border="1">
+        {% for diff in map_diffs %}
+            <tr>
+                {% for item in diff %}
+                    <td>{{item}}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </table>
+        <h3>Mapping Textual Differences</h3>
+    {% endif %}
+
     <pre class="program">
     {% for line in diff_lines %}
     {{line|safe}}
     {% endfor %}
     </pre>
-
+    
 {% endblock contents %}

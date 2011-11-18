@@ -770,17 +770,18 @@ def difference_files(request):
         uploaded2, file2_orig, file2_path = handle_known_or_uploaded_file(
             request, "File2", "filemode2", "file_known2", "file_uploaded2")
         
+        map_diffs = None
         if rmap.is_mapping(file1_orig) and rmap.is_mapping(file2_orig) and \
             extension(file1_orig) == extension(file2_orig):
-            diff_lines = pysh.lines("diff -b -c ${file1_path} ${file2_path}")
-            diff_lines = format_mappingdiffs(diff_lines, file1_path, file2_path)
+            diff_lines = textual_diff(file1_path, file2_path)
+            map_diffs = mapping_diffs(file1_path, file2_path)
         elif file1_orig.endswith(".fits") and file2_orig.endswith(".fits"):
             diff_lines = pysh.lines("fitsdiff ${file1_path} ${file2_path}")
             diff_lines = format_fitsdiffs(diff_lines, file1_path, file2_path)
         elif re.match(GEIS_HEADER_RE, file1_orig) and \
             re.match(GEIS_HEADER_RE, file2_orig) and \
             extension(file1_orig) == extension(file2_orig):
-            diff_lines = pysh.lines("diff -b -c ${file1_path} ${file2_path}")
+            diff_lines = textual_diff(file1_path, file2_path)
         else:
             raise CrdsError("Files should be either CRDS mappings "
                             "of the same type or .fits files")
@@ -795,10 +796,28 @@ def difference_files(request):
 
         return render(request, "difference_results.html", 
                       {
+                       "map_diffs" : map_diffs,
                        "diff_lines" : diff_lines,
                        "file1" : file1_orig,
                        "file2" : file2_orig,
                        })
+        
+def textual_diff(file1_path, file2_path):
+    """Return the output of the context diff of two files."""
+    diff_lines = pysh.lines("diff -b -c ${file1_path} ${file2_path}")
+    if diff_lines:
+        diff_lines = diff_lines[3:]   # remove filepath info
+    diff_lines = format_mappingdiffs(diff_lines, file1_path, file2_path)
+    return diff_lines
+    
+def mapping_diffs(file1, file2):
+    """Return the logical differences between two mapping files."""
+    try:
+        map1 = rmap.load_mapping(file1)
+        map2 = rmap.load_mapping(file2)
+        return map1.difference(map2)
+    except Exceptio, exc:
+        return [("Mapping logical difference failed: " + str(exc),)]
 
 def format_fitsdiffs(lines, file1, file2):
     """Add some colorization to output `lines` from fitsdiff, replacing
