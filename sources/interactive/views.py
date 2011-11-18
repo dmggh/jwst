@@ -271,7 +271,7 @@ def get_uploaded_file(request, formvar):
     except KeyError:
         raise MissingInputError("Specify a file to upload for " + repr(formvar))
     if not re.match(FILE_RE, ufile.name):
-        raise FieldError("Unexpected ile extension for " + \
+        raise FieldError("Unexpected file extension for " + \
                             repr(str(ufile.name)))
     return ufile
 
@@ -454,7 +454,7 @@ def get_default_or_user_context(request):
 
 # ============================================================================
 
-@error_trap("submit_input.html")
+# @error_trap("submit_input.html")
 @login_required
 def submit_file(request, crds_filetype):
     """Handle file submission,  crds_filetype=reference|mapping."""
@@ -508,7 +508,10 @@ def do_submit_file(observatory, uploaded_file, description,
     """
     # Determine the temporary and permanent file paths, not yet copying.
     original_name = uploaded_file.name
-    upload_location = uploaded_file.temporary_file_path()    
+    upload_location = uploaded_file.temporary_file_path()
+    
+    if rmap.is_mapping(original_name):
+        checksum.update_checksum(upload_location)
     
     # Check the file,  leaving no server state if it fails.  Give error results.
     do_certify_file(original_name, upload_location, check_references="exist")
@@ -533,6 +536,9 @@ def do_submit_file(observatory, uploaded_file, description,
     
     # Copy the temporary file to its permanent location.
     upload_file(uploaded_file, permanent_location)
+
+    # Set file permissions to read only.
+    # os.chmod(permanent_location, 0444)
     
     # Make a database record for this file.
     blob = models.add_crds_file(observatory, original_name, permanent_location, 
@@ -555,6 +561,7 @@ def do_certify_file(basename, certifypath, check_references=None):
         certify.certify_files([certifypath], check_references=None,
             trap_exceptions=False, is_mapping = rmap.is_mapping(basename))
     except Exception, exc:
+        raise
         raise CrdsError(str(exc))
     if check_references in ["exist","contents"] and rmap.is_mapping(basename):
         ctx = rmap.load_mapping(certifypath)
