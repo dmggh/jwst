@@ -7,8 +7,9 @@
     <h2>Edit Rmap</h2>
 
     <h3>Deriving From:</h3>
-    <p>{{original_pipeline|browse}}</p>
-    <p>{{browsed_file|browse}}</p>
+    {% for mapping in old_mappings %}
+        <p>{{mapping|browse}}</p>
+    {% endfor %}
     <br/>
 
     <h3>Submitted References:</h3>

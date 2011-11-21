@@ -117,27 +117,26 @@ $( function () {
             input_bundle += 
                 mk_input("text", name_prefix + ".date", '') + " : " +
                 mk_input("file", name_prefix + ".filename", '') + 
-                mk_input("hidden", name_prefix + ".match_tuple", parsing.match_tuple) +
-                nbsp(15) + 
+                mk_input("hidden", name_prefix + ".match_tuple", parsing.match_tuple);
+            // input_bundle += "<br/>" + nbsp(INDENT);
+            input_bundle += "<label>Change Level:</label>" + 
+                mk_select(name_prefix + ".change_level", ["SEVERE","MEDIUM", "TRIVIAL"]);
+            input_bundle += nbsp(1) + 
                 "<button class='add' type='button'>+</button>\n" + 
                 "<button class='del' type='button'>delete</button>\n";
            INVALID_INPUTS[name_prefix + ".date"] = "empty";
         } else {   // date is fixed for replacements, unvalidated. replacements have no delete.
             input_bundle += 
                 mk_input("hidden", name_prefix + ".date", parsing.date) + 
-                mk_input("hidden", name_prefix + ".match_tuple", parsing.match_tuple) +
+                mk_input("hidden", name_prefix + ".match_tuple", parsing.match_tuple);
+            input_bundle +=
                 "<span class='datetime'>'" + parsing.date + "'</span> : " + 
-                mk_input("file", name_prefix + ".filename", '') + 
-                nbsp(14) + 
+                mk_input("file", name_prefix + ".filename", '');
+            input_bundle += "<label>Change Level:</label>" + 
+                mk_select(name_prefix + ".change_level", ["SEVERE","MEDIUM", "TRIVIAL"]);
+            input_bundle += nbsp(1) + 
                 "<button class='add' type='button'>+</button>";
         }
-        input_bundle += "<br/>" + nbsp(INDENT) +
-                "<label>Creator:</label>" + mk_input("text", name_prefix + ".creator_name", '') +
-                "<label>Change Level:</label>" + mk_select(name_prefix + ".change_level", ["SEVERE","MEDIUM", "TRIVIAL"]) +
-                "<br/>" + nbsp(INDENT) +
-                "<label>Description:</label>" + 
-                "<br/>" + nbsp(INDENT) +
-                "<textarea name='" + name_prefix + ".description' rows='4' cols='50'></textarea>"; 
         input_bundle += "</p>";
 
         console.log(input_bundle);        
@@ -151,8 +150,6 @@ $( function () {
         $("button[class=add]", input_bundle).click(add_useafter);
         $("button[class=del]", input_bundle).click(del_useafter_dynamic);
         $("input[name$=filename]", input_bundle).change(validate_filename);
-        $("textarea[name$=description]", input_bundle).change(validate_description);
-        $("input[name$=creator_name]", input_bundle).change(validate_creator);
         	
        INVALID_INPUTS[name_prefix + ".filename"] = "empty";
         	
@@ -284,7 +281,7 @@ $( function () {
             $(".spacing",p).remove(); 
             $("button",p).remove()
         } else {
-            $("<span class='spacing'>" + nbsp(23) + "</span>").appendTo(p);
+            $("<span class='spacing'>" + nbsp(33) + "</span>").appendTo(p);
             $("<button class='add' type='button'>+</button>")
                 .click(add_useafter)
                 .bind("keypress", add_useafter_keypress)

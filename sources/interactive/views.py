@@ -1191,7 +1191,7 @@ def create_contexts_post(request):
     description = validate_post(request, "description", DESCRIPTION_RE)
 
     new_contexts = do_create_contexts(pmap, updated_rmaps, description,
-                                      request.user, request.user.email)
+                                      request.user, request.user.email).values()
 
     return render(request, "create_contexts_results.html", {
                 "new_contexts" : new_contexts,
@@ -1220,17 +1220,15 @@ def do_create_contexts(pmap, updated_rmaps, description, user, email):
 #        new_loc = rmap.locate_mapping(ctx)  
 #        do_certify_file(new_loc, new_loc, check_references=None)
 
-    old_name_map = utils.invert_dict(new_name_map)
-
     # Create delivery records for each of the new files
     observatory = rmap.get_cached_mapping(pmap).observatory
-    for ctx in new_contexts:
+    for old_ctx, new_ctx in new_name_map.items():
         models.add_crds_file(
-            observatory, old_name_map[ctx], rmap.locate_mapping(ctx),  user, email, 
+            observatory, old_ctx, rmap.locate_mapping(new_ctx),  user, email, 
             description, "new context",
             repr(pmap) + " : " + ",".join([repr(x) for x in updated_rmaps]))
         
-    return sorted(new_contexts)
+    return new_name_map
 
 def generate_new_names(old_pipeline, updates):
     """Generate a map from old pipeline and instrument context names to the
@@ -1364,18 +1362,16 @@ def edit_rmap_post(request):
             request.user, request.user.email, description, 
             creator_name = str(request.user),
             creation_method="edit rmap", audit_details=repr(actions))
-    new_mappings = [ new_rmap ]
-    
-    new_mappings += do_create_contexts(
+
+    new_context_map = do_create_contexts(
         pmap, [new_rmap], description,  request.user, request.user.email)
     
-    new_mappings = sorted(new_mappings)
+    old_mappings = sorted(new_context_map.keys() + [original_rmap])
+    new_mappings = sorted(new_context_map.values() + [new_rmap])
     
-    models.set_default_context(observatory, new_mappings[0], str(request.user))
-
     return render(request, "edit_rmap_results.html", {
-                "original_pipeline" : pmap,
                 "new_references" : new_references,
+                "old_mappings" : old_mappings,
                 "new_mappings" : new_mappings,
                 "actions" : actions,
             })
