@@ -115,9 +115,7 @@ def is_mapping(filename, extension=r"\.[pir]map"):
     """
     if not re.match("\w+" + extension, filename):
         raise CrdsError("Invalid mapping filename " + repr(filename))
-    if len(models.FileBlob.filter(filename=filename, type="mapping")) < 1:
-        raise CrdsError("No database entry for " + repr(filename) + \
-            ".  Must name a known CRDS mapping.")
+    is_known_file(filename)
     return filename
 
 def is_reference(filename, extension=r"\.fits|\.r\dh|\.r\dd"):
@@ -126,9 +124,7 @@ def is_reference(filename, extension=r"\.fits|\.r\dh|\.r\dd"):
     """
     if not re.match(r"\w+"+extension, filename):
         raise CrdsError("invalid reference filename " + repr(filename))
-    if len(models.FileBlob.filter(filename=filename, type="reference")) < 1:
-        raise CrdsError("No database entry for " + repr(filename) + \
-            ".  Must name a known CRDS reference file.")
+    is_known_file(filename)
     return filename
 
 def is_known_file(filename):
@@ -136,8 +132,7 @@ def is_known_file(filename):
     if not re.match(FILE_RE, filename):
         raise CrdsError("invalid filename " + repr(filename))
     if len(models.FileBlob.filter(filename=filename)) < 1:
-        raise CrdsError("No database entry for " + repr(filename) + 
-                        ".  Must name a known CRDS reference or mapping.")
+        raise CrdsError("No database entry for " + repr(filename) + ".") 
     return filename
 
 def is_deliverable_file(filename):
@@ -1320,11 +1315,13 @@ def edit_rmap(request, filename=None):
 # @profile
 def edit_rmap_get(request, filename):
     blob = models.FileBlob.load(filename)
-    file_contents = browsify_edit_rmap(filename, blob.pathname)    
+    file_contents = browsify_edit_rmap(filename, blob.pathname)
+    pmaps = models.FileBlob.filter(type="mapping", pathname=".*\.pmap")[::-1][:10] 
     return render(request, "edit_rmap_editor.html", 
             {"fileblob" : blob,
              "observatory" : blob.observatory,
              "file_contents" : file_contents,
+             "pmaps" : pmaps,
              "browsed_file": filename})
 
 def browsify_edit_rmap(basename, fullpath):
@@ -1356,7 +1353,7 @@ def edit_rmap_post(request):
     original_rmap = validate_post(request, "browsed_file", is_rmap)
     observatory = rmap.get_cached_mapping(original_rmap).observatory
     
-    pmap = models.get_default_context(observatory)
+    pmap = validate_post(request, "pmap", is_pmap)
 
     new_references = handle_file_submissions(
         original_rmap, expanded, observatory, request.user)

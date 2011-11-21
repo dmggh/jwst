@@ -448,6 +448,11 @@ $( function () {
         }
         return true;
     }
+        
+    $("select[name='pmap'] option")
+        .removeAttr("selected")
+        .first().attr("selected","selected");
+    
     console.log("ready.")
 });
 
@@ -459,16 +464,21 @@ $( function () {
 <h2>Editing Rmap <a href='{{browsed_file|download_url:"hst"}}'>{{browsed_file|grey}}</a>
 </h2> 
 
-    <div class='program' id="file_contents">
-    
-        <form action="/edit_rmap/" method="post" id="update_rmap_form" enctype="multipart/form-data">  
+        <form action="/edit_rmap/" method="post" id="update_rmap_form" enctype="multipart/form-data">
+        
+            <h3>Old Context to Derive From</h3>
+            <select name="pmap">
+                {% for pmap in pmaps %}
+                    <option name="{{pmap.filename}}" value="{{pmap.filename}}">{{pmap.filename}}  [date here]</option> 
+                {% endfor %}
+            </select>
             
-            <h3 style="font-family: sans-serif;">New Rmap Description</h3>
+            <h3>New Rmap Description</h3>
             <p>
                 <textarea name="description" id="description" rows="4" cols="50"></textarea>   
             </p>
             
-            <h3 style="font-family: sans-serif;">Edit Rmap</h3>
+            <h3>Edit Rmap</h3>
             <p class="grey">
                 Click on a useafter date to edit the rmap at that location.
             </p>
@@ -476,7 +486,9 @@ $( function () {
 
             <input type='hidden' name='browsed_file' value='{{browsed_file}}' />
      
+            <div class='program' id="file_contents">
             {{ file_contents|safe }}
+            </div>
             
             <br/>
             <p>
@@ -485,6 +497,5 @@ $( function () {
         </form>
         
         <br/><br/>
-    </div>
 
 {% endblock contents %}

@@ -196,7 +196,7 @@ class Blob(object):
             candidate = cls.from_model(model)
             for key, val in matches.items():
                 cval = getattr(candidate, key, None)
-                if val != cval:
+                if not re.match(val, cval):
                     break
             else:
                 filtered.append(candidate)
@@ -307,6 +307,7 @@ class FileBlob(Blob):
             "instrument associated with file", "", nonblank=False),
         filekind = BlobField(FILEKINDS, 
             "dataset keyword associated with this file", "", nonblank=False),
+
         sha1sum = BlobField(str, 
             "checksum of file at upload time", "", nonblank=False),
 
