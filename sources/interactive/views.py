@@ -1190,11 +1190,12 @@ def create_contexts_post(request):
     updated_rmaps = validate_post(request, "rmaps", is_list_of_rmaps)
     description = validate_post(request, "description", DESCRIPTION_RE)
 
-    new_contexts = do_create_contexts(pmap, updated_rmaps, description,
-                                      request.user, request.user.email).values()
+    new_name_map = do_create_contexts(pmap, updated_rmaps, description,
+        request.user, request.user.email)
 
     return render(request, "create_contexts_results.html", {
-                "new_contexts" : new_contexts,
+                "old_mappings" : sorted(new_name_map.keys()),
+                "new_mappings" : sorted(new_name_map.values()),
             })
     
 def do_create_contexts(pmap, updated_rmaps, description, user, email):
@@ -1215,10 +1216,10 @@ def do_create_contexts(pmap, updated_rmaps, description, user, email):
     new_contexts = newcontext.generate_new_contexts(
         pmap, updates_by_instrument, new_name_map)
  
-    print "WARNING: skipping context certification for", repr(new_contexts)
-#    for ctx in new_contexts:
-#        new_loc = rmap.locate_mapping(ctx)  
-#        do_certify_file(new_loc, new_loc, check_references=None)
+#    print "WARNING: skipping context certification for", repr(new_contexts)
+    for ctx in new_contexts:
+        new_loc = rmap.locate_mapping(ctx)  
+        do_certify_file(new_loc, new_loc, check_references=None)
 
     # Create delivery records for each of the new files
     observatory = rmap.get_cached_mapping(pmap).observatory

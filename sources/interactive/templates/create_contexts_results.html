@@ -4,8 +4,14 @@
 
 {% block contents %}
     <h2>Create New Contexts</h2>
+    
+    <h3>Deriving From</h3>
+    {% for ctx in old_mappings %}
+        <p>{{ctx|browse}}</p>
+    {% endfor %}
+
     <h3>Created</h3>
-    {% for ctx in new_contexts %}
-        <p class="success">{{ctx|browse}}</p>
+    {% for ctx in new_mappings %}
+        <p>{{ctx|browse}}</p>
     {% endfor %}
 {% endblock contents %}
