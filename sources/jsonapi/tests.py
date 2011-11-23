@@ -48,10 +48,10 @@ class ServiceApiTest(TestCase):
          'CCDTAB': 'IREF$T291659MI_CCD.FITS',
          'CRREJTAB': 'IREF$N9I1435LI_CRR.FITS',
          'DARKFILE': 'IREF$T3420177I_DRK.FITS',
-         'IDCTAB': 'IREF$UAB1537BI_IDC.FITS',
+         'IDCTAB': 'IREF$v5r1512gi_idc.fits',
          'MDRIZTAB': 'IREF$UBI1853QI_MDZ.FITS',
          'OSCNTAB': 'IREF$Q911321OI_OSC.FITS',
-         'PFLTFILE': 'IREF$T4T1832NI_PFL.FITS',
+         'PFLTFILE': 'IREF$v8816168i_pfl.fits',
         }.items():  # hack off IREF$ and switch to lower case
             exp[key.lower()] = value.lower().split("$")[1]
         return exp
@@ -69,11 +69,11 @@ class ServiceApiTest(TestCase):
 
     def test_client_get_mapping_names(self):
         mappings = client.get_mapping_names(self.context)
-        self.failUnlessEqual(len(mappings), 100)
+        self.failUnlessEqual(len(mappings), 103)
         
     def test_client_get_reference_names(self):
         references = client.get_reference_names(self.context)
-        self.failUnlessEqual(len(references), 9554)
+        self.failUnlessEqual(len(references), 6245)
         
     def test_client_dump_mappings(self):
         os.environ["CRDS_MAPPATH"] = HERE + "/test_mappings" 
