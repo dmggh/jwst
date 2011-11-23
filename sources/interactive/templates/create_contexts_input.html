@@ -4,17 +4,10 @@
 
 <form action="/create_contexts/" method="post""> {% csrf_token %}
     <h2>Create Parent Contexts</h2>
+    <h3>Derived From</h3>
+    {% include "select_pmap.html" %}
+    
     <table>
-      <tr>
-        <td><h3>Pipeline</h3></td>
-        <td align="left">
-            <input type="text" name="pipeline" value="{{pipeline}}" size="30"/>
-        </td>
-        <td align="left"><p class="hint">e.g. hst_0001.pmap</p></td>
-      </tr>
-      <tr>
-        <td></td>
-      </tr>
       <tr><td colspan="3"><h3>New Rmaps</h3></td></tr>
       <tr><td colspan="3"><textarea name="rmaps" cols="60" rows="10">{{rmaps}}</textarea></td></tr>
       <tr><td><h3>Description</h3></td></tr>
@@ -30,7 +23,8 @@
 <p><b>Create Parent Contexts automatically generates and submits new pipeline 
 and instrument contexts which refer to your new rmaps.</b>  
 
-<p><b>Pipeline</b> defines the context which will be derived from.  The 
+<p><b>Derived From</b> defines the context which will be modified to create a 
+new context.  The 
 pipeline context refers to a set of instrument contexts.   New instrument contexts
 will be derived from the existing contexts by updating them to refer to the New
 Rmaps.   A new pipeline context will be generated to refer to the new instrument

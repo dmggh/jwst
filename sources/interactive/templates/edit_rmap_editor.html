@@ -464,12 +464,8 @@ $( function () {
         <form action="/edit_rmap/" method="post" id="update_rmap_form" enctype="multipart/form-data">
         
             <h3>Old Context to Derive From</h3>
-            <select name="pmap">
-                {% for pmap in pmaps %}
-                    <option name="{{pmap.filename}}" value="{{pmap.filename}}">{{pmap.filename}}  [date here]</option> 
-                {% endfor %}
-            </select>
-            
+            {% include "select_pmap.html" %}
+
             <h3>New Rmap Description</h3>
             <p>
                 <textarea name="description" id="description" rows="4" cols="50"></textarea>   

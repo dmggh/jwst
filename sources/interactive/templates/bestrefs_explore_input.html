@@ -4,12 +4,13 @@
 {% endblock head_additions %}
 
 {% block column1 %}
-    <h2>Get Best References <span class="value">({{ctx.filename}})</span></h2>
-    <form method="post" action="/bestrefs/compute/"> {% csrf_token %}
-      <input type="hidden" name="instrument-context" value="{{ctx.filename}}" />
+    <h2>Explore Best References <span class="value">({{mapping.filename}} : {{instrument}})</span></h2>
+    <form method="post" action="/bestrefs_explore_compute/"> {% csrf_token %}
+      <input type="hidden" name="context" value="{{mapping.filename}}" />
+      <input type="hidden" name="instrument" value="{{instrument}}" />
       <h3>Enter Dataset Parameters</h3>
       <table width="100%">
-      {% for key, choices in parkey_map_items %}
+      {% for key, choices in valid_values %}
         <tr>
           <td width="25%" class="label">{{key}}:</td>
           <td width="25%">
@@ -38,10 +39,10 @@
 {% endblock column1 %}
 
 {% block help %}
-    <p><b>Enter Dataset Parameters</b> gives you choices for all of the
+    <p><b>Enter Dataset Parameters</b> gives you choices for the
     dataset parameters which are relevant to choosing best references for the
-    specified instrument context.
-    <p><p>Note that not all parameters are relevant to all reference filekinds.
-    <p><p>Get Best References will determine best references for all of the
-    filekinds known to the specified instrument context.
+    chosen context.
+    <p><p>Note: not all parameters are relevant to all reference types so errors
+    may be seen for reference types inappropriate for the current instrument
+    mode.
 {% endblock help %}

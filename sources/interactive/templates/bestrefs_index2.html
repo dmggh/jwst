@@ -5,31 +5,7 @@
     <h2>Get Best References</h2>
     
     <h3>Context:</h3>
-    <table>
-      <tr>
-        <td>
-            <input type="radio" name="context_mode" value="context_default" checked />Default
-        </td>
-        <td align="right">
-            <select name="observatory" value="*"/>
-                {% for observatory in observatories %}
-                    <option>{{observatory}}</option>
-                {% endfor %}
-            </select>
-        </td>
-      </tr>
-      <tr>
-        <td>
-            <input type="radio" name="context_mode" value="context_user" />User Specified
-        </td>
-        <td>
-            <input type="text" name="context_user" value="{{context_user}}" />
-        </td>
-        <td>
-            <p class="hint">.e.g. hst_acs_0001.imap</p>
-        </td>
-      </tr>
-    </table>
+    {% include "select_pmap.html" %}
     
     <h3>Dataset:</h3>
     <table>
@@ -61,10 +37,10 @@
     <p><b>Get Best References</b> lets you determine the best references for
     an archived or uploaded dataset relative to a given CRDS context.
     
-    <p><p><b>Context</b> defines the set of mappings which will be used to
-    determine references.   Context can be a pipeline or instrument mapping.
-    Only contexts already known to CRDS can be specified.
-    
+    <p><p><b>Context</b> defines the pipeline context under which best references
+    will be determined.  It defines the parameter choices which will be 
+    available as well as complete file selection criteria.
+
     <p><p><b>Dataset</b> specifies an archived or uploaded dataset for which
     best references will be computed in the given context.
 

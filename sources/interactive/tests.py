@@ -92,8 +92,8 @@ class SimpleTest(TestCase):
     
     def test_bestrefs_post_uploaded_dataset(self):
         response = self.client.post("/bestrefs/", {
-            "context_mode" : "context_user",
-            "context_user" : "hst.pmap",
+            "pmap_mode" : "pmap_text",
+            "pmap_text" : "hst.pmap",
             "dataset_mode" : "dataset_uploaded",
             "dataset_uploaded" : open("interactive/test_data/j8bt05njq_raw.fits"),
             })  
@@ -154,22 +154,6 @@ class SimpleTest(TestCase):
         self.assertTrue("hst.pmap" in response.content)
         self.assertTrue("hst_acs.imap" in response.content)
         self.assertTrue("hst_acs_biasfile.rmap" in response.content)
-
-    def test_matches_get(self):
-        response = self.client.get("/matches/")
-        self.assert_no_errors(response)
-    
-    def test_matches_post(self):
-        self.fake_database_files(["interactive/test_data/t4o1454bj_bia.fits"])
-        response = self.client.post("/matches/", {
-                "context_mode" : "context_default",
-                "observatory" : "hst",
-                "matched_reference": "t4o1454bj_bia.fits",
-            })
-        self.assert_no_errors(response)
-        self.assertTrue("INSTRUME" in response.content)
-        self.assertTrue("DETECTOR" in response.content)
-        self.assertTrue("success" in response.content)
 
     def test_certify_get(self):
         self.authenticate()
@@ -282,7 +266,8 @@ class SimpleTest(TestCase):
         self.fake_database_files(["hst_acs_biasfile.rmap",
                                   "hst_cos_deadtab.rmap"])
         response = self.client.post("/create_contexts/", {
-                "pipeline" : "hst.pmap",
+                "pmap_mode" : "pmap_text",
+                "pmap_text" : "hst.pmap",
                 "rmaps" : "hst_acs_biasfile.rmap, hst_cos_deadtab.rmap",
                 "description" : "updated ACS biasfile and COS deadtab rmaps"
             })

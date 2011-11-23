@@ -194,6 +194,7 @@ def usernames():
         return [str(x) for x in django.contrib.auth.models.User.objects.filter()]
     except Exception:
         return ["*"]
+    
 
 # ===========================================================================
 
@@ -393,15 +394,17 @@ def logout(request):
 def bestrefs(request):
     """View to get the instrument context for best references."""
     if request.method == "GET":
-        return render(request, "bestrefs_index2.html", {})
+        return render(request, "bestrefs_index2.html", {
+            "pmaps" : get_recent_pmaps()
+        })
     else:
         return bestrefs_post(request)
 
 def bestrefs_post(request):
     """View to get best reference dataset parameters."""
 
-    mapping = get_default_or_user_context(request)
-    context = rmap.get_cached_mapping(mapping)
+    context = get_recent_or_user_context(request)
+    pmap = rmap.get_cached_mapping(context)
         
     dataset_mode = validate_post(
         request, "dataset_mode", "dataset_archive|dataset_uploaded")
@@ -415,12 +418,20 @@ def bestrefs_post(request):
         raise CrdsError("Archive interface not yet implemented.")
     
     # base on the context and datset,  compute best references
-    header = context.get_minimum_header(dataset_path)
-    bestrefs = context.get_best_references(header)
+    header = pmap.get_minimum_header(dataset_path)
     
-#    if remove_temp_flag:
-#        remove_temporary(dataset_path)
+    results = bestrefs_results(
+        request, pmap, header, dataset_name)
 
+    if remove_temp_flag:
+        remove_temporary(dataset_path)
+
+    return results
+
+def bestrefs_results(request, pmap, header, dataset_name=""):
+        
+    bestrefs = pmap.get_best_references(header)
+    
     # organize and format results for HTML display    
     header_items = sorted(header.items())
     bestrefs_items = []
@@ -430,22 +441,63 @@ def bestrefs_post(request):
         bestrefs_items.append((key.upper, val))
     
     return render(request, "bestrefs_results.html", {
-            "observatory" : context.observatory,
+            "observatory" : pmap.observatory,
             "dataset_name" : dataset_name,
             "header_items" : header_items,
             "bestrefs_items" : bestrefs_items,
         })
 
-def get_default_or_user_context(request):
-    """Process standard request parameters for specifying context."""
-    context_mode = validate_post(
-        request, "context_mode", "context_default|context_user")
-    if context_mode == "context_user":
-        context = validate_post(request, "context_user", is_pmap_or_imap)
+# ===========================================================================
+
+@error_trap("bestrefs_explore.html")
+def bestrefs_explore(request):
+    """View to get the instrument context for best references."""
+    if request.method == "GET":
+        return render(request, "bestrefs_explore_index.html", {
+            "pmaps" : get_recent_pmaps(),
+        })
     else:
-        observatory = get_observatory(request)
-        context = models.get_default_context(observatory)
-    return context    
+        return bestrefs_explore_post(request)
+    
+def get_recent_pmaps():
+    files = models.FileBlob.filter(pathname=".*\.pmap")[::-1][:10]
+    pmaps = []
+    for file in files:
+        pmaps.append((file.filename, file.filename + " [date here]"))
+    return pmaps
+
+def bestrefs_explore_post(request):
+    """View to get best reference dataset parameters."""
+
+    context = get_recent_or_user_context(request)
+    pmap = rmap.get_cached_mapping(context)
+    instrument = validate_post(request, "instrument", models.INSTRUMENTS)
+    valid_values = pmap.get_imap(instrument).get_parkey_map().items()
+    return render(request, "bestrefs_explore_input.html", {
+            "mapping" : pmap,
+            "valid_values" : sorted(valid_values),
+            "instrument":instrument,
+        })
+
+def get_recent_or_user_context(request):
+    """Process standard request parameters for specifying context."""
+    pmap_mode = validate_post(
+        request, "pmap_mode", "pmap_menu|pmap_text")
+    context = validate_post(request, pmap_mode, is_pmap_or_imap)
+    return context
+
+@error_trap("bestrefs_explore_input.html")
+def bestrefs_explore_compute(request):
+    context = validate_post(request, "context", is_pmap)
+    instrument = validate_post(request, "instrument", models.INSTRUMENTS)
+    pmap = rmap.get_cached_mapping(context)
+    imap = pmap.get_imap(instrument)
+    header = { "INSTRUME" : instrument.upper() }
+    pars = imap.get_parkey_map().keys()
+    for par in pars:
+        header[par] = utils.condition_value(
+            validate_post(request, par, "[A-Za-z0-9+\-.,*/;|{}\[\]]+"))
+    return bestrefs_results(request, pmap, header)
 
 # ============================================================================
 
@@ -1180,13 +1232,15 @@ def create_contexts(request):
     and set of new rmaps.   Note that the "new" rmaps must already be in CRDS.
     """
     if request.method == "GET":
-        return render(request, "create_contexts_input.html")
+        return render(request, "create_contexts_input.html", {
+            "pmaps": get_recent_pmaps(),
+        })
     else:
         return create_contexts_post(request)
 
 def create_contexts_post(request):
     """View fragment handling create_contexts POST case."""
-    pmap = validate_post(request, "pipeline", is_pmap)
+    pmap = get_recent_or_user_context(request)
     updated_rmaps = validate_post(request, "rmaps", is_list_of_rmaps)
     description = validate_post(request, "description", DESCRIPTION_RE)
 
@@ -1320,7 +1374,7 @@ def edit_rmap_get(request, filename):
             {"fileblob" : blob,
              "observatory" : blob.observatory,
              "file_contents" : file_contents,
-             "pmaps" : pmaps,
+             "pmaps" : get_recent_pmaps(),
              "browsed_file": filename})
 
 def browsify_edit_rmap(basename, fullpath):
@@ -1352,7 +1406,7 @@ def edit_rmap_post(request):
     original_rmap = validate_post(request, "browsed_file", is_rmap)
     observatory = rmap.get_cached_mapping(original_rmap).observatory
     
-    pmap = validate_post(request, "pmap", is_pmap)
+    pmap = get_recent_or_user_context(request)
 
     new_references = handle_file_submissions(
         original_rmap, expanded, observatory, request.user)

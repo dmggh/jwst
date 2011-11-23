@@ -3,7 +3,7 @@
 {% load stdtags %}
 
 {% block column1 %}
-    <h2>Get Best References {{dataset_name|grey}}</h2>
+    <h2>Best References {{dataset_name|grey}}</h2>
     <h3>Input Parameters</h3>
     <table width="100%">
     {% for key, val in header_items %}
@@ -26,11 +26,14 @@
         <tr>
           <td class="label" width="30%">{{reftype}}:</td>
           {% if ".fits" in fname %}
-            <td width="60%">
+            <td width="20%">
+                 {{fname|browse}}
+            </td>
+            <td width="20%">
                  {% if observatory == "hst" %}   {# filtering weak! #}
-                    <a href='{{fname|download_url:"hst"}}'>{{fname}}</a>
+                    <a href='{{fname|download_url:"hst"}}'>download</a>
                  {% else %}
-                    <a href='{{fname|download_url:"jwst"}}'>{{fname}}</a>            
+                    <a href='{{fname|download_url:"jwst"}}'>download</a>            
                  {% endif %}
             </td>
           {% else %}
@@ -40,7 +43,10 @@
       {% endfor %}
     </table>    
 
+    <br/><br/>
+    <p>CRDS knows little about which reference types apply to
+    which modes... it returns a recommendation or error for all reference types
+    supported by all modes of the instrument.
+    
 {% endblock column2 %}
 
-{% block help %}
-{% endblock  %}

@@ -17,6 +17,8 @@ urlpatterns = patterns('',
   url(r'^logout/$', 'crds.server.interactive.views.logout'),          
 
   url(r'^bestrefs/$', 'crds.server.interactive.views.bestrefs'),          
+  url(r'^bestrefs_explore/$', 'crds.server.interactive.views.bestrefs_explore'),          
+  url(r'^bestrefs_explore_compute/$', 'crds.server.interactive.views.bestrefs_explore_compute'), 
 
   url(r'^submit/(?P<crds_filetype>reference|mapping)/$', 'crds.server.interactive.views.submit_file'),          
   url(r'^delivery_options/$', 'crds.server.interactive.views.delivery_options'),          
