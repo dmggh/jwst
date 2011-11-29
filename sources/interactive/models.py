@@ -321,7 +321,8 @@ class FileBlob(Blob):
     @classmethod
     def new(cls, observatory, upload_name, permanent_location, 
             creator_name, deliverer_user, deliverer_email, description, 
-            change_level="SEVERE", add_slow_fields=True, index=None):
+            change_level="SEVERE", add_slow_fields=True, index=None,
+            state="submitted"):
         """Create a new FileBlob or subclass."""
         
         assert isinstance(add_slow_fields, (bool,int)), "parameter type error"
@@ -351,14 +352,16 @@ class FileBlob(Blob):
         if not rmap.is_mapping(upload_name):
             blob.change_level = change_level
 
+        blob.state = state
+        
         blob.save()
         
         if index is None:
             index = FileIndexBlob.load(observatory)
-            index.add_file(blob.filename)
+            index.add_file(blob.filename, state)
             index.save()
         else:  # caller takes responsibility for loading/saving
-            index.add_file(blob.filename)
+            index.add_file(blob.filename, state)
 
         return blob
 
@@ -374,11 +377,17 @@ class FileBlob(Blob):
             if os.path.exists(self.catalog_link):
                 return "delivered"
             else:
-                self.state = "operational"
-                self.save()
+                self.set_state("operational")
                 return "operational"
         else:
             return self.state
+
+    def set_state(self, state):
+        self.state = state
+        self.save()
+        index = FileIndexBlob.load(self.observatory)
+        index.set_state(self.filename, self.state)
+        index.save()
 
     @property
     def status_class(self):
@@ -402,18 +411,23 @@ class FileBlob(Blob):
 # ============================================================================
 
 class FileIndexBlob(Blob):
-    """Blob which records the names of all known CRDS files,  nominally
+    """Blob which records the names and state of all known CRDS files,  nominally
     one instance per observatory.   This eliminates the need to load a
     blob just to check that the file exists.   A file that is in CRDS is
     assumed to be good unless it appears on a blacklist.
     """
     fields = dict(
-        known_files = BlobField(list, "original upload filename", []),
+        known_files = BlobField(dict, "original upload filename", {}),
         )
 
-    def add_file(self, filename):
-        if filename not in self.known_files:
-            self.known_files.append(filename)
+    def add_file(self, filename, state="submitted"):
+        self.set_state(filename, state)
+
+    def set_state(self, filename, state):
+        self.known_files[filename] = state
+
+    def get_state(self, filename):
+        return self.known_files[filename]
 
     def exists(self, filename):
         return filename in self.known_files
@@ -591,13 +605,14 @@ def add_crds_file(observatory, upload_name, permanent_location,
             deliverer, deliverer_email, description, 
             creation_method, audit_details="", 
             change_level="SEVERE", add_slow_fields=True, index=None,
-            creator_name="unknown"):
+            creator_name="unknown", state="submitted"):
     "Make a database record for this file.  Track the action of creating it."""
 
     fileblob = FileBlob.new(
         observatory, upload_name, permanent_location, 
         creator_name, deliverer, deliverer_email, description,
-        change_level=change_level, add_slow_fields=add_slow_fields, index=index)
+        change_level=change_level, add_slow_fields=add_slow_fields, index=index,
+        state=state)
     
     # Redundancy, database record of how file got here, important action
     AuditBlob.new(

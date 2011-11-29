@@ -306,6 +306,9 @@ def remove_temporary(filepath):
 
 class CrdsError(Exception):
     """Something bad but understood happened in CRDS processing."""
+    
+class ServerError(Exception):
+    """Uncaught exception which will be returned as HTTP 500"""
 
 def error_trap(template):
     """error_trap() is a 'decorator maker' which returns a decorator which 
@@ -459,8 +462,8 @@ def bestrefs_explore(request):
     else:
         return bestrefs_explore_post(request)
     
-def get_recent_pmaps():
-    files = models.FileBlob.filter(pathname=".*\.pmap")[::-1][:10]
+def get_recent_pmaps(state=".*"):
+    files = models.FileBlob.filter(pathname=".*\.pmap", state=state)[::-1][:10]
     pmaps = []
     for file in files:
         pmaps.append((file.filename, file.filename + " [date here]"))
@@ -1620,6 +1623,25 @@ def make_delete_useafter_rmap(old_location, new_location, match_tuple,
 
 @error_trap("delivery_options_input.html")
 @login_required
+def deliver_context(request):
+    if request.method == "GET":
+        raise ServerError("Can't GET from /deliver_context/")
+    context = get_recent_or_user_context(request)
+    pmap = rmap.load_mapping(context)
+    candidates = pmap.mapping_names() + pmap.reference_names()
+    delivered_files = []
+    index = models.FileIndexBlob.load(pmap.observatory)
+    for cand in candidates:
+        if index.exists(cand) and index.get_state(cand) == "submitted":
+            delivered_files.append(cand)
+    deliver_file_list(request, pmap.observatory, delivered_files, 
+                      "delivered with context " + repr(pmap))
+    return render(request, "delivery_process_results.html", {
+        "delivered_files" : delivered_files,
+    })
+
+@error_trap("delivery_options_input.html")
+@login_required
 def delivery_options(request):
     if request.method == "GET":
         return render(request, "delivery_options_input.html", {
@@ -1631,6 +1653,7 @@ def delivery_options(request):
             "instrument" : "*",
             "filekind" : "*",
             "filename" : "*",
+            "pmaps": get_recent_pmaps("submitted"),
         })
     else:
         return delivery_options_post(request)
@@ -1673,7 +1696,6 @@ def delivery_process(request):
 def delivery_process_post(request):    
     description = validate_post(request, "description", DESCRIPTION_RE)
     observatory = get_observatory(request)
-
     delivered_files = []
     for key in request.POST:
         if key.startswith("deliver_"):
@@ -1682,26 +1704,25 @@ def delivery_process_post(request):
                 "File " + repr(filename) + " is not deliverable.")
             delivered_files.append(filename)
     delivered_files.sort()
+    deliver_file_list(request, observatory, delivered_files, description)
+    return render(request, "delivery_process_results.html", {
+        "delivered_files" : delivered_files,
+    })
     
+def deliver_file_list(request, observatory, delivered_files, description):
+    if not len(delivered_files):
+        raise CrdsError("No files were selected for delivery.")
     catalog = deliver_file_catalog(observatory, delivered_files, "I")
-    
     paths = deliver_file_get_paths(observatory, delivered_files)
-                        
     try:
         catalog_link = deliver_make_links(observatory, catalog, paths)
     except Exception, exc:
         deliver_remove_fail(observatory, catalog, paths)
         raise CrdsError("Delivery failed: " + str(exc))
-
     deliver_file_set_catalog_links(observatory, delivered_files, catalog_link)
-    
     models.AuditBlob.new(
         request.user, "deliver", os.path.basename(catalog), description, 
         repr([os.path.basename(catalog)] + delivered_files), observatory)        
-
-    return render(request, "delivery_process_results.html", {
-        "delivered_files" : delivered_files,
-    })
 
 def deliver_file_get_paths(observatory, files):
     """Adjust the database to account for this delivery.   Returns a list of
@@ -1726,8 +1747,7 @@ def deliver_file_set_catalog_links(observatory, files, catalog_link):
     for file in files:
         blob = models.FileBlob.load(file)
         blob.catalog_link = catalog_link
-        blob.state = "delivered"
-        blob.save()
+        blob.set_state("delivered")   # set state saves
 
 def deliver_file_catalog(observatory, files, operation="I"):
     """Generate the delivery catalog file and return its path.   The catalog

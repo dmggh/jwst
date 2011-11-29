@@ -24,7 +24,7 @@ def locate_file(fname):
 def submit_files(files, observatory, deliverer, 
     deliverer_email="support@stsci.edu", 
     description="Initial mass database import", 
-    add_slow_fields=False, index=None):
+    add_slow_fields=False, index=None, state="submitted"):
     
     for file in files:
         
@@ -49,7 +49,7 @@ def submit_files(files, observatory, deliverer,
                 description=description,
                 creation_method="mass import",
                 add_slow_fields=add_slow_fields,
-                index=index)
+                index=index, state=state)
         except:
             log.error("Submission FAILED for", repr(file))
                 
@@ -68,11 +68,16 @@ def main(args):
     
     ctx = rmap.get_cached_mapping(args[0])
     index = models.create_index(ctx.observatory)
-    files = ctx.mapping_names() + ctx.reference_names()
 
-    submit_files(files, ctx.observatory, deliverer=args[1], 
-        deliverer_email=args[2], description=args[3], 
-        add_slow_fields=int(args[4]), index = index)
+    submit_files(ctx.mapping_names(), ctx.observatory, 
+                 deliverer=args[1], deliverer_email=args[2], 
+                 description=args[3], add_slow_fields=int(args[4]), 
+                 index=index, state="submitted")
+    
+    submit_files(ctx.reference_names(), ctx.observatory, 
+                 deliverer=args[1], deliverer_email=args[2], 
+                 description=args[3], add_slow_fields=int(args[4]), 
+                 index=index, state="operational")
     
     index.save(ctx.observatory)    
     
