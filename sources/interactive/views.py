@@ -1627,9 +1627,10 @@ def deliver_context(request):
     context = get_recent_or_user_context(request)
     pmap = rmap.load_mapping(context)
     candidates = pmap.mapping_names() + pmap.reference_names()
+    allfiles = models.FileBlob.dictionary()
     delivered_files = []
     for cand in candidates:
-        if models.file_exists(cand) and models.get_state(cand) == "submitted":
+        if cand in allfiles and allfiles[cand].state == "submitted":
             delivered_files.append(cand)
     deliver_file_list(request, pmap.observatory, delivered_files, 
                       "delivered with context " + repr(context))
@@ -1744,7 +1745,8 @@ def deliver_file_set_catalog_links(observatory, files, catalog_link):
     for file in files:
         blob = models.FileBlob.load(file)
         blob.catalog_link = catalog_link
-        blob.set_state("delivered")   # set state saves
+        blob.state = "delivered"
+        blob.save()
 
 def deliver_file_catalog(observatory, files, operation="I"):
     """Generate the delivery catalog file and return its path.   The catalog

@@ -163,6 +163,13 @@ class BlobModel(models.Model):
         candidates = cls.filter(name=name)
         return len(candidates) >= 1
 
+    @classmethod
+    def dictionary(cls):
+        d = {}
+        for obj in cls.objects.all():
+            d[obj.name] = obj
+        return d
+
 # ============================================================================
 
 class CounterBlob(BlobModel):
@@ -228,6 +235,20 @@ FILE_STATUS_MAP = OrderedDict([
     ("operational", "green"),
 ])
 
+class SimpleCharField(models.CharField):
+    def __init__(self, choice_list, help_text, default):
+        models.CharField.__init__(self, 
+            max_length=self.max_length(choice_list),
+            choices = zip(choice_list, choice_list),
+            help_text = help_text,
+            default = default)
+    
+    def max_length(self, choice_list):
+        length = 0
+        for choice in choice_list:
+            length = max(length, len(choice))
+        return length
+    
 class FileBlob(BlobModel):
     """Represents a delivered file,  either a reference or a mapping."""
     
@@ -241,6 +262,15 @@ class FileBlob(BlobModel):
         max_length=32,
         help_text="operational status of this file.",
         default="submitted")
+
+    observatory = SimpleCharField( OBSERVATORIES,
+            "observatory associated with file", "hst")
+    
+    instrument = SimpleCharField(INSTRUMENTS, 
+            "instrument associated with file", "")
+    
+    filekind = SimpleCharField(FILEKINDS, 
+            "dataset keyword associated with this file", "")
 
     # ===============================
     
@@ -263,13 +293,6 @@ class FileBlob(BlobModel):
             "path/filename to CRDS master copy of file", "None"),
         delivery_date = BlobField(str, 
             "date file was delivered to CRDS", ""),
-        observatory = BlobField(OBSERVATORIES, 
-            "observatory associated with file", "hst"),
-        instrument = BlobField(INSTRUMENTS, 
-            "instrument associated with file", ""),
-        filekind = BlobField(FILEKINDS, 
-            "dataset keyword associated with this file", ""),
-
         sha1sum = BlobField(str, 
             "checksum of file at upload time", ""),
 
@@ -352,6 +375,7 @@ class FileBlob(BlobModel):
     @property
     def checksum_ok(self):
         return self.sha1sum and (self.checksum() == self.sha1sum)
+    
     
 # ============================================================================
 
