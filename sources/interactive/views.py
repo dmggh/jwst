@@ -504,7 +504,7 @@ def bestrefs_explore_compute(request):
 
 # ============================================================================
 
-# @error_trap("submit_input.html")
+@error_trap("submit_input.html")
 @login_required
 def submit_file(request, crds_filetype):
     """Handle file submission,  crds_filetype=reference|mapping."""
@@ -561,7 +561,10 @@ def do_submit_file(observatory, uploaded_file, description,
     upload_location = uploaded_file.temporary_file_path()
     
     if rmap.is_mapping(original_name):
-        checksum.update_checksum(upload_location)
+        try:
+            checksum.update_checksum(upload_location)
+        except rmap.MappingError, exc:
+            raise CrdsError("Error updating checksum: " + repr(str(exc)))
     
     # Check the file,  leaving no server state if it fails.  Give error results.
     do_certify_file(original_name, upload_location, check_references="exist")
@@ -615,33 +618,29 @@ def do_certify_file(basename, certifypath, check_references=None):
         raise CrdsError(str(exc))
     if check_references in ["exist","contents"] and rmap.is_mapping(basename):
         ctx = rmap.load_mapping(certifypath)
-        index = models.FileIndexBlob.load(ctx.observatory)
         for ref in ctx.reference_names():
-            assert index.exists(ref), \
+            assert models.file_exists(ref), \
                 "Reference " + repr(ref) + " is not known to CRDS."             
     
 def get_blacklists(basename, certifypath, ignore_self=True):
-    """Raise an exception if any of the child mappings or references of
-    `basename` are blacklisted,  i.e. don't allow submissions which reference
-    blacklisted files.
+    """Return a list of the files referenced by `basename` which are
+    blacklisted.
     """
     basename = str(basename)
     if rmap.is_mapping(basename):
         blacklisted_by = set()
+ 
         try:
             mapping = rmap.load_mapping(certifypath)
         except Exception, exc:
             raise CrdsError("Error loading " + repr(basename) + 
                             " for blacklist checking:  " + str(exc))
         
-        blblob = models.BlacklistBlob.load(mapping.observatory)
-        
         for child in mapping.mapping_names() + mapping.reference_names():       
             if ignore_self and child == os.path.basename(certifypath): 
                 continue
-            blby = blblob.is_blacklisted(child)
-            if blby:
-                blacklisted_by = blacklisted_by.union(set(blby))
+            if models.is_blacklisted(child):
+                blacklisted_by = blacklisted_by.union(set(child))
                 
         return sorted(list(blacklisted_by))
     else:
@@ -1062,7 +1061,7 @@ def reserve_name_post(request):
 
     if mode == "file_known":  # Use the user's name exactly if unknown.
         reserved_name = validate_post(request, "file_known", FILE_RE)
-        known_files = models.FileIndexBlob.load(observatory).known_files
+        known_files = models.known_files()
         audits = models.AuditBlob.filter(filename=reserved_name)
         assert (reserved_name not in known_files) and len(audits) == 0, \
             "Name " + repr(reserved_name) + " is already reserved in CRDS."
@@ -1120,8 +1119,7 @@ def get_new_name(observatory, instrument, filekind, extension):
     1) Any generated name is not already "reserved" using the CounterBlob.
     2) No generated name has already been submitted by using FileBlobs.
     """
-    known_files = models.FileIndexBlob.load(observatory).known_files
-
+    known_files = models.known_files()
     name = _get_new_name(observatory, instrument, filekind, extension)
     while name in known_files:
         name = _get_new_name(observatory, instrument, filekind, extension)
@@ -1630,12 +1628,11 @@ def deliver_context(request):
     pmap = rmap.load_mapping(context)
     candidates = pmap.mapping_names() + pmap.reference_names()
     delivered_files = []
-    index = models.FileIndexBlob.load(pmap.observatory)
     for cand in candidates:
-        if index.exists(cand) and index.get_state(cand) == "submitted":
+        if models.file_exists(cand) and models.get_state(cand) == "submitted":
             delivered_files.append(cand)
     deliver_file_list(request, pmap.observatory, delivered_files, 
-                      "delivered with context " + repr(pmap))
+                      "delivered with context " + repr(context))
     return render(request, "delivery_process_results.html", {
         "delivered_files" : delivered_files,
     })

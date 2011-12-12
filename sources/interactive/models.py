@@ -22,54 +22,15 @@ FILEKINDS   = sorted(crds.hst.FILEKINDS)    # + crds.jwst...
 
 EXTENSIONS  = sorted(crds.hst.EXTENSIONS)   # + crds.jwst...
 
-
-
-# ============================================================================
-
-class BlobModel(models.Model):
-    """A generic data format which lets us transactionally store anything
-    which has a repr() which can be literal_eval()'ed back to life.   This
-    lets us evolve our system without constantly changing database schemas.
-    """
-    kind  = models.CharField(
-            max_length = 64,
-            help_text = "class of this blob")
-    
-    name = models.CharField(
-            max_length = 64, default="(none)",
-            help_text = "descriptive string uniquely identifying this instance")
-
-#    key1 = models.CharField(max_length=64, help_text="unencoded search key 1")
-#    key2 = models.CharField(max_length=64, help_text="unencoded search key 2")
-#    key3 = models.CharField(max_length=64, help_text="unencoded search key 3")
-#    key4 = models.CharField(max_length=64, help_text="unencoded search key 4")
-
-    contents  = models.TextField( 
-            help_text  = "repr() of value of this blob,  probably repr(dict).")
-    
-    def freeze(self, value):
-        """Save `value` to the database as the contents of this BlobModel.
-        """
-        self.contents = repr(value)
-        self.save()
-    
-    def thaw(self):
-        """Load and evaluate the contents of this BlobModel instance.  Return
-        them.
-        """
-        return literal_eval(self.contents)
-
 # ============================================================================
 
 class BlobField(object):
     """Basic properties for a field of a Blob."""
-    def __init__(self, type, help, default, nonblank=True):
+    def __init__(self, type, help, default, blank=True):
         self.type = type
         self.help = help
         self.default = default
-        self.nonblank = nonblank
-
-# ============================================================================
+        self.blank = blank
 
 class FieldError(Exception):
     """Blob field value did not meet its constraint."""
@@ -77,57 +38,55 @@ class FieldError(Exception):
 class MissingInputError(FieldError):
     """A required input field was not specified in a form submission."""
     
-class Blob(object):
-    """Generic base class for BlobModel live instances.   BlobModels load
-    from the database into Blobs.   Blobs can be customized without changing
-    the database schema.
+# ============================================================================
+
+class BlobModel(models.Model):
+    """A generic hybrid format which contains several fast static fields
+    as well as a "blob" of slow fields which are easier to declare and
+    don't change the database schema.
     """
-    fields = {}   # BlobFields
+    model_fields = ["id","name","blob"]
+    blob_fields = {}    
+    repr_list = None    
     
-    repr_list = None
+    name = models.CharField(
+        max_length = 64, default="(none)",
+        help_text = "descriptive string uniquely identifying this instance")
     
-    def __init__(self, blob=None, id=None, **keys):
-        if blob is None:
-            blob = {}
-        self._values = {}
-        self._id = id
-        for fieldname in self.fields:
-            self._values[fieldname] = self.fields[fieldname].default
-        self._values.update(blob)
-        for key in keys:
-            self._values[key] = keys[key]
+    blob = models.TextField( 
+            help_text  = "repr() of value of this blob,  probably repr(dict).",
+            default = "{}")
+    
+    def __init__(self, *args, **keys):
+        models.Model.__init__(self, *args)
+        for fieldname in self.blob_fields:
+            setattr(self, fieldname, self.blob_fields[fieldname].default)
+        for fieldname in keys:
+            setattr(self, fieldname, keys[fieldname])
             
+    @property
+    def fields(self):
+        return sorted(list(self.model_fields) + list(self.blob_fields))
+
     def __repr__(self):
         """Display values of fields in `self.repr_list` else display
         values of all fields in name-sorted order.
         """
+        displayed = self.repr_list or self.fields 
+        displayed.remove("blob")
         rep = self.__class__.__name__ + "(" 
-        for field in self.repr_list or sorted(self.fields):
-            rep += field + "=" + repr(self._values[field]) + ", "
+        for field in displayed:
+            rep += field + "='" + str(getattr(self, field)) + "', "
         rep = rep[:-2] + ")"
         return rep
     
-    def __getattr__(self, attr):
-        """Handle fields specially."""
-        if attr in self.fields:
-            return self._values[attr]
-        else:
-            return object.__getattr__(self, attr)
-    
-    def __setattr__(self, attr, value):
-        """Handle fields specially,  enforcing legal values."""
-        if attr in self.fields:
-            self._values[attr] = self.enforce_type(attr, value)
-        else:
-            object.__setattr__(self, attr, value)
-            
     def enforce_type(self, attr, value):
         """Ensure `value` meets the constraints for field `attr`.  Return
         a possibly coerced `value` if it's legal,  else raise an exception.
         """
-        type_ = self.fields[attr].type
+        type_ = self.blob_fields[attr].type
         if not str(value).strip():
-            if self.fields[attr].nonblank: 
+            if not self.blob_fields[attr].blank: 
                 raise FieldError("Required field " + repr(attr) + " is blank.")
             else:
                 return ""
@@ -150,27 +109,19 @@ class Blob(object):
                 raise FieldError("Value for " + repr(attr) + " of " + 
                                  repr(value) + " not convertible to " + repr(type_))
 
-    def save(self, name=None):
-        """Save a blob named `name`,  or else an anonymous blob.
-        """
-        if self._id is None:
-            obj = BlobModel()    # obj.id doesn't exist yet
-        else:
-            obj = BlobModel.objects.get(id=self._id)
-        if name is not None:
-            obj.name = name
-        elif hasattr(self, "name"):
-            obj.name = self.name
-        obj.kind = self.__class__.__name__
-        obj.freeze(self._values)
-        self._id = obj.id    # obj.id exists after first save
+    def save(self):
+        blob = {}
+        for name in self.blob_fields:
+            blob[name] = self.enforce_type(name, getattr(self,name))
+        self.blob = repr(blob)
+        models.Model.save(self)
         
     @classmethod
     def load(cls, name):
         """Load the blob named `name`.   Note that "anonymous" blobs cannot
         be load()'ed.
         """
-        candidates = BlobModel.objects.filter(kind=cls.__name__, name=name)
+        candidates = cls.objects.filter(name=name)
         if len(candidates) == 0:
             raise LookupError("Couldn't find " + cls.__name__ + 
                               " named " + repr(name))
@@ -179,24 +130,28 @@ class Blob(object):
                               " named " + repr(name))
         else:
             model = candidates[0]
-            blob = cls.from_model(model)
-            blob.name = model.name
-            return blob
+            model.thaw()
+            return model
         
-    @classmethod
-    def from_model(cls, model):
-        """Reconstitute a BlobModel `model` as an instance of this `cls`."""
-        return cls(blob=model.thaw(), id=model.id)
-  
+    def thaw(self):
+        blob = eval(self.blob)
+        for name, value in blob.items():
+            setattr(self, name, value)
+    
     @classmethod
     def filter(cls, **matches):
         """Return list of Blobs of this `cls` which match filter `matches`."""
         filtered = []
-        for model in BlobModel.objects.filter(kind=cls.__name__):
-            candidate = cls.from_model(model)
-            for key, val in matches.items():
-                cval = getattr(candidate, key, None)
-                if not re.match(val, cval):
+        matches = dict(matches)  # copy
+        model_filters = {}
+        for key in matches.keys():
+            if key in cls.model_fields:
+                model_filters[key] = matches.pop(key)
+        for candidate in cls.objects.filter(**model_filters):
+            candidate.thaw()
+            for filter in matches:
+                fval = getattr(candidate, filter, None)
+                if not re.match(matches[filter], fval):
                     break
             else:
                 filtered.append(candidate)
@@ -205,30 +160,30 @@ class Blob(object):
     @classmethod
     def exists(cls, name):
         """Return True if `name` exists."""
-        candidates = BlobModel.objects.filter(kind=cls.__name__, name=name)
+        candidates = cls.filter(name=name)
         return len(candidates) >= 1
 
 # ============================================================================
 
-class CounterBlob(Blob):
+class CounterBlob(BlobModel):
     """The serial number counter for a single kind of file,  named:
             <observatory> _ <instrument> _ <filekind>
             
     Automatically generates a new counter if it doesn't already exist:
     use with care.
     """
-    fields = dict(
+    blob_fields = dict(
         counter = BlobField(int, "an integer counter", 0),
     )
     
     @classmethod
-    def _setup(cls, args):
+    def setup(cls, args):
         name = "_".join(args)
         try:
             blob = cls.load(name)
         except LookupError:
-            blob = CounterBlob()
-        return name, blob
+            blob = CounterBlob(name=name)
+        return blob
     
     @classmethod
     def next(cls, *args):
@@ -237,15 +192,15 @@ class CounterBlob(Blob):
         .e.g.  mapping, hst, acs, biasfile
                reference, jwst, miri, biasfile
         """
-        name, blob = cls._setup(args)
+        blob = cls.setup(args)
         blob.counter += 1
-        blob.save(name)
+        blob.save()
         return blob.counter
 
     @classmethod
     def last(cls, *args):
         """Like next,  but return the last number issued."""
-        name, blob = cls._setup(args)
+        blob = cls.setup(args)
         return blob.counter
 
     @classmethod
@@ -254,18 +209,11 @@ class CounterBlob(Blob):
         """
         # nominally class, observatory, instrument, filekind, number
         num = int(args[-1])
-        name, blob = cls._setup(args[:-1])
+        blob = cls.setup(args[:-1])
         blob.counter = num
-        blob.save(name)
+        blob.save()
 
 # ============================================================================
-
-FILE_STATUS_MAP = OrderedDict([
-    ("submitted", "orange"),   # pending delivery
-    ("delivered", "blue"),     # pending archive
-    ("operational", "green"),
-    ("blacklisted", "red"),    # unusable
-])
 
 PEDIGREES = ["INFLIGHT","GROUND","DUMMY","MODEL"]
 CHANGE_LEVELS = ["SEVERE", "MEDIUM", "TRIVIAL"]
@@ -274,10 +222,29 @@ COMMENT_MODES = ["Y","N","APPEND"]
 FILENAME_RE = "^[A-Za-z0-9_.]+$"
 FILEPATH_RE = "^[A-Za-z0-9_./]+$"
 
-class FileBlob(Blob):
+FILE_STATUS_MAP = OrderedDict([
+    ("submitted", "orange"),   # pending delivery
+    ("delivered", "blue"),     # pending archive
+    ("operational", "green"),
+])
+
+class FileBlob(BlobModel):
     """Represents a delivered file,  either a reference or a mapping."""
     
-    fields = dict(
+    model_fields = BlobModel.model_fields + ["state","blacklisted"]
+
+    blacklisted = models.BooleanField(
+        default=False, 
+        help_text="If True, this file should not be used.")
+    
+    state = models.CharField(
+        max_length=32,
+        help_text="operational status of this file.",
+        default="submitted")
+
+    # ===============================
+    
+    blob_fields = dict(
         # User supplied fields
         type = BlobField("reference|mapping", "type of file", ""),
         uploaded_as = BlobField(FILENAME_RE, "original upload filename", ""),
@@ -285,16 +252,11 @@ class FileBlob(Blob):
         deliverer_user = BlobField(str, "username who uploaded the file", ""),
         deliverer_email = BlobField(str, "person's e-mail who uploaded the file", ""),
         description = BlobField(
-            str, "Brief rationale for changes to this file.", "", nonblank=False),
-        state = BlobField(FILE_STATUS_MAP.keys(), 
-            "operational status of this file.", "submitted"),
+            str, "Brief rationale for changes to this file.", ""),
         catalog_link = BlobField(FILEPATH_RE, 
             "Path to catalog file listing this file for delivery to OPUS. " \
             "File transitions from 'delivered' to 'operational' when deleted.",
             ""),
-        blacklisted_by = BlobField(list, 
-            "Comma separated list of files marking this"
-            " file as bad,  possibly self.", []),
 
         # Automatically generated fields
         pathname = BlobField("^[A-Za-z0-9_./]+$", 
@@ -304,12 +266,12 @@ class FileBlob(Blob):
         observatory = BlobField(OBSERVATORIES, 
             "observatory associated with file", "hst"),
         instrument = BlobField(INSTRUMENTS, 
-            "instrument associated with file", "", nonblank=False),
+            "instrument associated with file", ""),
         filekind = BlobField(FILEKINDS, 
-            "dataset keyword associated with this file", "", nonblank=False),
+            "dataset keyword associated with this file", ""),
 
         sha1sum = BlobField(str, 
-            "checksum of file at upload time", "", nonblank=False),
+            "checksum of file at upload time", ""),
 
         comparison_file = BlobField(FILENAME_RE, 
             "Name of existing file to compare to for mode coverage.", ""),
@@ -321,7 +283,7 @@ class FileBlob(Blob):
     @classmethod
     def new(cls, observatory, upload_name, permanent_location, 
             creator_name, deliverer_user, deliverer_email, description, 
-            change_level="SEVERE", add_slow_fields=True, index=None,
+            change_level="SEVERE", add_slow_fields=True, 
             state="submitted"):
         """Create a new FileBlob or subclass."""
         
@@ -335,6 +297,7 @@ class FileBlob(Blob):
         else:
             blob.type = "reference"
         blob.pathname = permanent_location
+        blob.name = blob.filename
         blob.creator_name = creator_name
         blob.deliverer_user = deliverer_user
         blob.deliverer_email = deliverer_email
@@ -346,7 +309,6 @@ class FileBlob(Blob):
             observatory, permanent_location)
         blob.instrument = instrument
         blob.filekind= filekind
-        blob.blacklisted_by = []
 
         # These need to be checked before the file is copied and the blob is made.
         if not rmap.is_mapping(upload_name):
@@ -356,13 +318,6 @@ class FileBlob(Blob):
         
         blob.save()
         
-        if index is None:
-            index = FileIndexBlob.load(observatory)
-            index.add_file(blob.filename, state)
-            index.save()
-        else:  # caller takes responsibility for loading/saving
-            index.add_file(blob.filename, state)
-
         return blob
 
     @property
@@ -371,23 +326,16 @@ class FileBlob(Blob):
     
     @property
     def status(self):
-        if self.blacklisted_by:
+        if self.blacklisted:
             return "blacklisted"
         elif self.state == "delivered":
             if os.path.exists(self.catalog_link):
                 return "delivered"
             else:
-                self.set_state("operational")
+                self.state = "operational"
                 return "operational"
         else:
             return self.state
-
-    def set_state(self, state):
-        self.state = state
-        self.save()
-        index = FileIndexBlob.load(self.observatory)
-        index.set_state(self.filename, self.state)
-        index.save()
 
     @property
     def status_class(self):
@@ -398,9 +346,6 @@ class FileBlob(Blob):
         parts = os.path.splitext(self.filename)
         return parts[-1]
 
-    def save(self):
-        Blob.save(self, self.filename)
-        
     def checksum(self):
         return hashlib.sha1(open(self.pathname).read()).hexdigest()
     
@@ -410,83 +355,45 @@ class FileBlob(Blob):
     
 # ============================================================================
 
-class FileIndexBlob(Blob):
-    """Blob which records the names and state of all known CRDS files,  nominally
-    one instance per observatory.   This eliminates the need to load a
-    blob just to check that the file exists.   A file that is in CRDS is
-    assumed to be good unless it appears on a blacklist.
-    """
-    fields = dict(
-        known_files = BlobField(dict, "original upload filename", {}),
-        )
+def set_state(filename, state):
+    blob = FileBlob.load(filename)
+    blob.state = state
+    blob.save()
+    
+def get_state(filename):
+    return FileBlob.load(filename).state
 
-    def add_file(self, filename, state="submitted"):
-        self.set_state(filename, state)
-
-    def set_state(self, filename, state):
-        self.known_files[filename] = state
-
-    def get_state(self, filename):
-        return self.known_files[filename]
-
-    def exists(self, filename):
-        return filename in self.known_files
-
+def known_files():
+    return [f.name for f in FileBlob.objects.all()]
+    
 
 # ============================================================================
-
-class BlacklistBlob(Blob):
-    """A BlacklistBlob maintains a map of all blacklisted files onto the bad
-    files they reference.   A bad reference file is blacklisted by itself.
-    Blacklisting is transitive so a mapping indirectly referring to a bad
-    reference or mapping also gets blacklisted in the blacklist view.  
-    BlacklistBlob is redundant to the blackedlisted_by field of FileBlobs...  
-    but much faster for searching all files facilitating the certification of
-    pipeline or instrument mappings,  including checking for blacklisting.
-    """
-    fields = dict(
-        blacklisted_by = BlobField(dict, "{ basename : [ bad_files_referenced ] }", {}),
-        )
-
-    def blacklist(self, blacklisted,  bad_file_referenced):
-        if blacklisted not in self.blacklisted_by:
-            self.blacklisted_by[blacklisted] = []
-        if bad_file_referenced not in self.blacklisted_by[blacklisted]:
-            self.blacklisted_by[blacklisted].append(bad_file_referenced)
-
-    def unblacklist(self, blacklisted, bad_file_referenced):
-        self.blacklisted_by[blacklisted].remove(bad_file_referenced)
-        
-    def is_blacklisted(self, blacklisted):
-        return self.blacklisted_by.get(blacklisted, [])
 
 def blacklist(blacklisted,  blacklisted_by):
     """Mark the file `blacklisted` as bad because of its reference to file
     `blacklisted_by`.
     """
-    blacklisted = os.path.basename(blacklisted)
-    blacklisted_by = os.path.basename(blacklisted_by)
-    fileblob = FileBlob.load(blacklisted)
-    if blacklisted_by not in fileblob.blacklisted_by:
-        fileblob.blacklisted_by.append(blacklisted_by)
-        fileblob.save()
-    blblob = BlacklistBlob.load(fileblob.observatory)
-    blblob.blacklist(blacklisted, blacklisted_by)
-    blblob.save(fileblob.observatory)
+    fileblob = FileBlob.load(os.path.basename(blacklisted))
+    fileblob.blacklisted = True
+    fileblob.save()
     
 def unblacklist(blacklisted,  blacklisted_by):
     """Remove blacklisting of file `blacklisted` on behalf of file
     `blacklisted_by`.
     """
-    blacklisted = os.path.basename(blacklisted)
-    blacklisted_by = os.path.basename(blacklisted_by)
-    fileblob = FileBlob.load(blacklisted)
-    if blacklisted_by in fileblob.blacklisted_by:
-        fileblob.blacklisted_by.remove(blacklisted_by)
-        fileblob.save()
-    blblob = BlacklistBlob.load(fileblob.observatory)
-    blblob.unblacklist(blacklisted, blacklisted_by)
-    blblob.save(fileblob.observatory)
+    fileblob = FileBlob.load(os.path.basename(blacklisted))
+    fileblob.blacklisted = False
+    fileblob.save()
+    
+def is_blacklisted(blacklisted_file):
+    """Return the list of files which contaminate `blacklisted_file` making
+    it blacklisted itself.   `mapping` refers to `blacklisted_file`.
+    """
+    try:
+        return FileBlob.load(blacklisted_file).blacklisted
+    except Exception:
+        return False
+
     
 # ============================================================================
 
@@ -496,11 +403,11 @@ AUDITED_ACTIONS = [
     "edit rmap", "set default context",
     ]
 
-class AuditBlob(Blob):
+class AuditBlob(BlobModel):
     """Maintains an audit trail of important actions indicating who did them,
     when, and why.
     """
-    fields = dict(
+    blob_fields = dict(
         # User supplied fields
         user = BlobField(str, "user performing this action", ""),
         date = BlobField(str, "date action performed", ""),
@@ -508,13 +415,13 @@ class AuditBlob(Blob):
         filename = BlobField("^[A-Za-z0-9_./]*$", 
                 "file affected by this action", "None"),
         why = BlobField(str, "reason this action was performed",""),
-        details = BlobField(str, "supplementary info", "", nonblank=False),
+        details = BlobField(str, "supplementary info", ""),
         observatory = BlobField(
-            OBSERVATORIES, "associated observatory", "", nonblank=False),
+            OBSERVATORIES, "associated observatory", ""),
         instrument = BlobField(
-            INSTRUMENTS + ["unknown"], "associated instrument", "", nonblank=False),
+            INSTRUMENTS + ["unknown"], "associated instrument", ""),
         filekind = BlobField(
-            FILEKINDS + ["unknown"], "associated filekind", "", nonblank=False),
+            FILEKINDS + ["unknown"], "associated filekind", ""),
     )
     
     @classmethod
@@ -563,13 +470,13 @@ class AuditBlob(Blob):
 
 # ============================================================================
 
-class ContextBlob(Blob):
+class ContextBlob(BlobModel):
     """Keeps track of which mappings are the default.
     """
-    fields = dict(
+    blob_fields = dict(
         # User supplied fields
         observatory = BlobField(
-            OBSERVATORIES, "associated observatory", "", nonblank=False),
+            OBSERVATORIES, "associated observatory", ""),
         context = BlobField("\w+\.pmap", "default pipeline context", ""),
     )
     
@@ -578,7 +485,8 @@ class ContextBlob(Blob):
         return cls.load(observatory + ".default_context")
 
     def save(self):
-        return Blob.save(self, self.observatory + ".default_context")
+        self.name = self.observatory + ".default_context"
+        return BlobModel.save(self)
     
 def set_default_context(observatory, context, user="crds-system"):
     assert context.endswith(".pmap"), "context must be a .pmap"
@@ -604,14 +512,14 @@ def get_default_context(observatory):
 def add_crds_file(observatory, upload_name, permanent_location, 
             deliverer, deliverer_email, description, 
             creation_method, audit_details="", 
-            change_level="SEVERE", add_slow_fields=True, index=None,
+            change_level="SEVERE", add_slow_fields=True,
             creator_name="unknown", state="submitted"):
     "Make a database record for this file.  Track the action of creating it."""
 
     fileblob = FileBlob.new(
         observatory, upload_name, permanent_location, 
         creator_name, deliverer, deliverer_email, description,
-        change_level=change_level, add_slow_fields=add_slow_fields, index=index,
+        change_level=change_level, add_slow_fields=add_slow_fields,
         state=state)
     
     # Redundancy, database record of how file got here, important action
@@ -623,25 +531,9 @@ def add_crds_file(observatory, upload_name, permanent_location,
     
     return fileblob
 
-def create_index(observatory):    
-    """Create an empty file index for `observatory` if one does not already
-    exist.  File indices track the existence of files in a single blob for
-    the sake of speed.
-    """
-    try:
-        blblob = BlacklistBlob.load(observatory)
-    except LookupError:
-        blblob = BlacklistBlob()
-        blblob.save(observatory)
-    try:
-        index = FileIndexBlob.load(observatory)
-    except LookupError:
-        index = FileIndexBlob()
-        index.save(observatory)
-    return index
-
 def file_exists(filename, observatory="hst"):
     """Return True IFF `filename` is a known CRDS reference or mapping file."""
-    index = FileIndexBlob.load(observatory)
-    return index.exists(filename)
-
+    try:
+        return FileBlob.load(filename)
+    except Exception:
+        return False

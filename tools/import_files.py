@@ -24,11 +24,11 @@ def locate_file(fname):
 def submit_files(files, observatory, deliverer, 
     deliverer_email="support@stsci.edu", 
     description="Initial mass database import", 
-    add_slow_fields=False, index=None, state="submitted"):
+    add_slow_fields=False, state="submitted"):
     
     for file in files:
         
-        if index and index.exists(file):
+        if models.file_exists(file):
             log.info("Skipping existing file", repr(file))
             continue
 
@@ -49,8 +49,8 @@ def submit_files(files, observatory, deliverer,
                 description=description,
                 creation_method="mass import",
                 add_slow_fields=add_slow_fields,
-                index=index, state=state)
-        except:
+                state=state)
+        except Exception:
             log.error("Submission FAILED for", repr(file))
                 
 def hack_sqlite3_performance():
@@ -67,19 +67,16 @@ def main(args):
     hack_sqlite3_performance()
     
     ctx = rmap.get_cached_mapping(args[0])
-    index = models.create_index(ctx.observatory)
 
     submit_files(ctx.mapping_names(), ctx.observatory, 
                  deliverer=args[1], deliverer_email=args[2], 
                  description=args[3], add_slow_fields=int(args[4]), 
-                 index=index, state="submitted")
+                 state="submitted")
     
     submit_files(ctx.reference_names(), ctx.observatory, 
                  deliverer=args[1], deliverer_email=args[2], 
                  description=args[3], add_slow_fields=int(args[4]), 
-                 index=index, state="operational")
-    
-    index.save(ctx.observatory)    
+                 state="operational")
     
     models.set_default_context(ctx.observatory, args[0])
     

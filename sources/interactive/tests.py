@@ -15,9 +15,7 @@ class SimpleTest(TestCase):
         pass
     
     def setUp(self): 
-        User.objects.create_user('homer', 'ho...@simpson.net', 'simpson')     
-        index = models.create_index("hst")
-        index.save()
+        User.objects.create_user('homer', 'homer@simpson.net', 'simpson')     
         self.fake_database_files(["hst.pmap"])
         models.set_default_context("hst", "hst.pmap")
 
