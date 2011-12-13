@@ -126,7 +126,7 @@ class BlobModel(models.Model):
             raise LookupError("Couldn't find " + cls.__name__ + 
                               " named " + repr(name))
         elif len(candidates) > 1:
-            raise LookupError("Found more than one " + cls.__name__ + 
+            raise RuntimeError("Found more than one " + cls.__name__ + 
                               " named " + repr(name))
         else:
             model = candidates[0]
