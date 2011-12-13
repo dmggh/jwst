@@ -224,7 +224,6 @@ class CounterBlob(BlobModel):
 
 PEDIGREES = ["INFLIGHT","GROUND","DUMMY","MODEL"]
 CHANGE_LEVELS = ["SEVERE", "MEDIUM", "TRIVIAL"]
-COMMENT_MODES = ["Y","N","APPEND"]
 
 FILENAME_RE = "^[A-Za-z0-9_.]+$"
 FILEPATH_RE = "^[A-Za-z0-9_./]+$"
@@ -252,31 +251,31 @@ class SimpleCharField(models.CharField):
 class FileBlob(BlobModel):
     """Represents a delivered file,  either a reference or a mapping."""
     
-    model_fields = BlobModel.model_fields + ["state","blacklisted"]
+    model_fields = BlobModel.model_fields + \
+        ["state", "blacklisted", "observatory", "instrument", "filekind", "type"]
 
     blacklisted = models.BooleanField(
         default=False, 
         help_text="If True, this file should not be used.")
     
-    state = models.CharField(
-        max_length=32,
-        help_text="operational status of this file.",
-        default="submitted")
+    state = SimpleCharField( FILE_STATUS_MAP.keys(),
+        "operational status of this file.", "submitted" )
 
     observatory = SimpleCharField( OBSERVATORIES,
-            "observatory associated with file", "hst")
+        "observatory associated with file", "hst")
     
     instrument = SimpleCharField(INSTRUMENTS, 
-            "instrument associated with file", "")
+        "instrument associated with file", "")
     
     filekind = SimpleCharField(FILEKINDS, 
-            "dataset keyword associated with this file", "")
+        "dataset keyword associated with this file", "")
+
+    type = SimpleCharField( ["reference","mapping"],
+        "type of file,  reference data or CRDS rule or context", "")
 
     # ===============================
     
     blob_fields = dict(
-        # User supplied fields
-        type = BlobField("reference|mapping", "type of file", ""),
         uploaded_as = BlobField(FILENAME_RE, "original upload filename", ""),
         creator_name = BlobField(str, "person who made this file",""),
         deliverer_user = BlobField(str, "username who uploaded the file", ""),
