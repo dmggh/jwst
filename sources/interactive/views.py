@@ -669,7 +669,7 @@ def blacklist_file_post(request):
     # Determine files which indirectly or directly reference `blacklist_root`
     uses_files = uses.uses([blacklist_root], observatory)
 
-    all_blacklisted = [blacklist_root] + uses_files
+    all_blacklisted = sorted([blacklist_root] + uses_files)
 
     for also_blacklisted in all_blacklisted:
         if badflag == "bad":

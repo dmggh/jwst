@@ -48,8 +48,19 @@
                     <td width="20%" align="left" class="label">Status</td>
                     <td class="{{fileblob.status_class}}">{{fileblob.status}}</td>
                  </tr>
-
-       {% if is_authenticated %}
+                 
+                 {% if fileblob.blacklisted_by %}
+                     <tr>
+                        <td width="20%" align="left" class="label">Blacklisted By</td>
+                        <td>
+                            {% for bl in fileblob.blacklisted_by %}
+                                {{bl|browse}} ,&nbsp;
+                            {% endfor %}
+                        </td>
+                     </tr>
+                {% endif %}
+                
+        {% if is_authenticated %}
                  <tr>
                     <td width="20%" align="left" class="label">Path</td>
                     <td>{{fileblob.pathname|exists_color}}</td>
@@ -68,18 +79,7 @@
                  </tr>
        {% endif %}
 
-                 {% if fileblob.blacklisted_by %}
-                     <tr>
-                        <td width="20%" align="left" class="label">Blacklisted By</td>
-                        <td>
-                            {% for bl in fileblob.blacklisted_by %}
-                                {{bl|browse}} ,&nbsp;
-                            {% endfor %}
-                        </td>
-                     </tr>
-                {% endif %}
-                
-                 <tr>
+                <tr>
                     <td width="20%" align="left" class="label">Description</td>
                     <td>{{fileblob.description}}</td>
                  </tr>

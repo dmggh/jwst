@@ -232,6 +232,7 @@ FILE_STATUS_MAP = OrderedDict([
     ("submitted", "orange"),   # pending delivery
     ("delivered", "blue"),     # pending archive
     ("operational", "green"),
+    ("blacklisted", "red"),
 ])
 
 class SimpleCharField(models.CharField):
@@ -375,7 +376,21 @@ class FileBlob(BlobModel):
     def checksum_ok(self):
         return self.sha1sum and (self.checksum() == self.sha1sum)
     
-    
+    @property
+    def blacklisted_by(self):
+        if self.type == "reference":
+            blby = [str(self.name)] if self.blacklisted else []
+        else:
+            mapping = rmap.load_mapping(self.pathname)
+            referenced_files = set(mapping.mapping_names() + 
+                                   mapping.reference_names())
+            blby = []
+            for blob in FileBlob.filter():
+                if blob.blacklisted and \
+                    blob.name in referenced_files:
+                    blby.append(str(blob.name))
+        return blby
+
 # ============================================================================
 
 def set_state(filename, state):
@@ -405,8 +420,15 @@ def unblacklist(blacklisted,  blacklisted_by):
     `blacklisted_by`.
     """
     fileblob = FileBlob.load(os.path.basename(blacklisted))
-    fileblob.blacklisted = False
-    fileblob.save()
+    bad_references = fileblob.blacklisted_by
+    try:
+        bad_references.remove(blacklisted_by)
+    except ValueError:
+        pass
+    # Only remove blacklisting if there are no remaining bad references.
+    if not bad_references or bad_references == [blacklisted]:
+        fileblob.blacklisted = False
+        fileblob.save()
     
 def is_blacklisted(blacklisted_file):
     """Return the list of files which contaminate `blacklisted_file` making
