@@ -462,8 +462,8 @@ def bestrefs_explore(request):
     else:
         return bestrefs_explore_post(request)
     
-def get_recent_pmaps(state=".*"):
-    files = models.FileBlob.filter(pathname=".*\.pmap", state=state)[::-1][:10]
+def get_recent_pmaps(**filters):
+    files = models.FileBlob.filter(pathname=".*\.pmap", **filters)[::-1][:10]
     pmaps = []
     for file in files:
         pmaps.append((file.filename, file.filename + " [date here]"))
@@ -1651,7 +1651,7 @@ def delivery_options(request):
             "instrument" : "*",
             "filekind" : "*",
             "filename" : "*",
-            "pmaps": get_recent_pmaps("submitted"),
+            "pmaps": get_recent_pmaps(status="submitted"),
         })
     else:
         return delivery_options_post(request)
