@@ -1631,12 +1631,13 @@ def deliver_context(request):
     delivered_files = []
     for cand in candidates:
         if cand in allfiles and allfiles[cand].state == "submitted":
-            delivered_files.append(cand)
-    deliver_file_list(request, pmap.observatory, delivered_files, 
-                      "delivered with context " + repr(context))
-    return render(request, "delivery_process_results.html", {
-        "delivered_files" : delivered_files,
-    })
+            delivered_files.append(allfiles[cand])
+    return render(request, "delivery_options_results.html", {
+                "observatory": pmap.observatory,
+                "context" : context,
+                "prechecked" : "CHECKED",
+                "filtered_db" : delivered_files,
+            })
 
 @error_trap("delivery_options_input.html")
 @login_required

@@ -6,21 +6,26 @@
 
     <h2>Compose Delivery</h2>
 
-    <h3>Filters</h3>
-    {% if filters %}
-       <table border="1">
-       <tr><th>filter</th><th>value</th></tr>
-        {% for filter_name, filter_value in filters.items %}
-        <tr>
-            <td>{{filter_name}}</td>
-            <td>{{filter_value}}</td>
-        </tr>
-        {% endfor %}
-       </table>
+    {% if context %}
+        <h3>Deliver Context</h3>
+        <p>{{context|browse}}</p>
     {% else %}
-       <p>No filters.</p>
+        <h3>Filters</h3>
+        {% if filters %}
+           <table border="1">
+           <tr><th>filter</th><th>value</th></tr>
+            {% for filter_name, filter_value in filters.items %}
+            <tr>
+                <td>{{filter_name}}</td>
+                <td>{{filter_value}}</td>
+            </tr>
+            {% endfor %}
+           </table>
+        {% else %}
+           <p>No filters.</p>
+        {% endif %}
     {% endif %}
-
+    
     <form method="post" action="/delivery_process/" enctype="multipart/form-data"> {% csrf_token %}
 
       <input type="hidden" name="observatory" value="{{observatory}}" />
@@ -47,7 +52,7 @@
               <td align="center">{{db.deliverer_user}}</td>
               <td align="center">{{db.instrument}}</td>
               <td align="center">{{db.filekind}}</td>
-              <td align="center"><input type="checkbox" name="deliver_{{db.filename}}"></td>
+              <td align="center"><input type="checkbox" name="deliver_{{db.filename}}" {{prechecked}}></td>
           </tr>
           {% endfor %}
       </table>

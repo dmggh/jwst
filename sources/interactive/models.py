@@ -168,6 +168,7 @@ class BlobModel(models.Model):
         d = {}
         for obj in cls.objects.all():
             d[obj.name] = obj
+            obj.thaw()
         return d
 
 # ============================================================================
