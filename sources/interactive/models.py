@@ -45,6 +45,9 @@ class BlobModel(models.Model):
     as well as a "blob" of slow fields which are easier to declare and
     don't change the database schema.
     """
+    class Meta:
+        abstract = True
+
     model_fields = ["id","name","blob"]
     blob_fields = {}    
     repr_list = None    
@@ -252,6 +255,9 @@ class SimpleCharField(models.CharField):
     
 class FileBlob(BlobModel):
     """Represents a delivered file,  either a reference or a mapping."""
+
+    class Meta:
+        db_table = "crds_catalog"
     
     model_fields = BlobModel.model_fields + \
         ["state", "blacklisted", "observatory", "instrument", "filekind", "type"]
