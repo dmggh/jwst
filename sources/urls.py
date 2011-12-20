@@ -41,6 +41,9 @@ urlpatterns = patterns('',
       'crds.server.interactive.views.browse_known_file'),
   url(r'^browse_db/$', 'crds.server.interactive.views.browse_db'),        
 
+  url(r'^get/(?P<filename>[A-Za-z0-9_.]+(fits|imap|rmap|pmap|r\dh))$', 
+      'crds.server.interactive.views.get_file_data'),
+
 #        (r'site_media/(?P<path>.*)$', 'django.views.static.serve',
 #         {'document_root': settings.MEDIA_ROOT }),
 #        

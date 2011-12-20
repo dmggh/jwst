@@ -29,35 +29,10 @@ def get_jsonrpc_template_vars():
 
 def get_url(observatory, filename):
     if rmap.is_mapping(filename):
-        url = mapping_url(filename)
+        url = config.CRDS_MAPPING_URL + "/" + filename
     else:
-        url = reference_url(filename)
+        url = config.CRDS_REFERENCE_URL + "/" + filename
     return url
-
-class DatabaseLookupError(Error):
-    """A CRDS models load failed."""
-    
-def reference_url(reference):
-    """Return a file URL which can be used to retrieve the specified `reference`.
-    """
-    reference = os.path.basename(reference)
-    try:
-        blob = imodels.FileBlob.load(reference)
-    except LookupError:
-        raise DatabaseLookupError("No CRDS database entry for reference '%s'" % reference)
-    return config.CRDS_REFERENCE_URL + "/references/" + blob.observatory + \
-        "/" + reference
-
-def mapping_url(mapping):
-    """Return a file URL which can be used to retrieve the specified `mapping`.
-    """
-    mapping = os.path.basename(mapping)
-    try:
-        blob = imodels.FileBlob.load(mapping)
-    except LookupError, exc:
-        raise DatabaseLookupError("No CRDS database entry for mapping '%s'" % mapping)
-    return config.CRDS_MAPPING_URL + "/mappings/" + blob.observatory + \
-        "/" + mapping
 
 # ===========================================================================
 
@@ -95,6 +70,8 @@ def check_header(header):
         if not isinstance(value, (str, unicode)):
             raise InvalidHeaderError("Bad value in header... not a string.")
 
+# ===========================================================================
+
 @jsonrpc_method('get_best_references(String, Object)')
 def get_best_references(request, context, header):
     check_context(context)
@@ -128,7 +105,7 @@ def get_mapping_url(request, context, mapping):
     check_context(context)
     check_mapping(mapping)
     ctx = rmap.get_cached_mapping(context)
-    return mapping_url(mapping)
+    return get_url(ctx.observatory, mapping)
 
 @jsonrpc_method('get_reference_data(String, String)')
 def get_reference_data(request, context, reference):
@@ -143,7 +120,7 @@ def get_reference_data(request, context, reference):
 def get_reference_url(request, context, reference):
     check_context(context)
     check_reference(reference)
-    return reference_url(reference)
+    return get_url(ctx.observatory, reference)
 
 @jsonrpc_method('file_exists(String)')
 def file_exists(request, filename):

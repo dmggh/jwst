@@ -14,6 +14,7 @@ import datetime
 
 # from django.http import HttpResponse
 from django.shortcuts import render_to_response
+from django.http import HttpResponse
 from django.template import RequestContext
 import django.utils.safestring as safestring
 
@@ -1946,3 +1947,17 @@ def deliver_link_dirs(observatory):
     return [x.strip() for x in \
             open(HERE + "/deliver_dirs_" + observatory + ".dat") if x]
 
+# ============================================================================
+
+@error_trap("base.html")
+def get_file_data(request, filename):
+    try:
+        blob = models.FileBlob.load(filename)
+    except LookupError:
+        raise CrdsError("Couldn't find file " + repr(str(filename)))
+    data = open(blob.pathname).read()
+    if blob.type == "mapping":
+        content_type = "text/plain"
+    else:
+        content_type = "application/octet-stream"
+    return HttpResponse(content=data, content_type=type)
