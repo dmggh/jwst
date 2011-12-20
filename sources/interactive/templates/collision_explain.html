@@ -1,0 +1,27 @@
+{% load stdtags %}
+
+{% if collision_list %}
+    <h2 class="warning"> Edit Collision Warning </h3>
+    {% for colinfo in collision_list %}
+        {% for collision in colinfo.2 %}
+            <p class="warning">
+            {{colinfo.0|browse}} : {{collision|browse}} 
+            both derived from {{colinfo.1|browse}}
+            </p>
+        {% endfor %}
+    {% endfor %}
+    <br/>
+    <p>This file was derived from the same parent file as one or more others.   
+    
+    <p>This suggests that two people edited the same file at the same time 
+    and will not incorporate one another's changes.   
+    
+    <p>In this case the person receiving this warning should derive a new 
+    update,  most likely from the best of the files this submission 
+    collided with.   
+    
+    <p class="warning"> Do not use the file submitted here unless the 
+    collision is known to be harmless.
+{% endif %}
+
+

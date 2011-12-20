@@ -357,7 +357,9 @@ class Logger(object):
        sep = keys.get("sep", " ")
        eol = keys.get("eol", "\n")
        stdout = keys.get("stdout", self.oldout)
-       self._write(stdout, "[" + str(datetime.datetime.now())[:-3] + "] ")
+       time = keys.get("time", True)
+       if time:
+           self._write(stdout, "[" + str(datetime.datetime.now())[:-3] + "] ")
        for arg in args:
            self._write(stdout, arg + sep)
        self._write(stdout, eol)
@@ -402,7 +404,7 @@ def log(func):
             info = sys.exc_info()
             tb_list = traceback.extract_tb(info[2])
             for line in traceback.format_list(tb_list):
-                logfile.write(line.strip())
+                logfile.write(line.strip(), time=False)
             raise
         finally:
             logfile.close()
@@ -615,16 +617,17 @@ def submit_file_post(request, crds_filetype):
         change_level = "SEVERE"
         comparison_file = None
         
-    new_name, derived_from, collisions = do_submit_file( 
+    new_name, derived_from = do_submit_file( 
         observatory, uploaded_file, description,
         str(request.user), request.user.email, creator, 
         change_level, comparison_file, )
+    
+    collision_list = get_collision_list([(new_name, derived_from)])
         
     return render(request, 'submit_results.html', {
                 "crds_filetype": crds_filetype,
                 "baseperm":new_name,
-                "derived_from":derived_from,
-                "derivation_collisions" : collisions,
+                "collision_list" : collision_list,
                 })
     
 def do_submit_file(observatory, uploaded_file, description, 
@@ -650,9 +653,6 @@ def do_submit_file(observatory, uploaded_file, description,
     # Check the file,  leaving no server state if it fails.  Give error results.
     do_certify_file(original_name, upload_location, check_references="exist")
     
-    collisions = models.FileBlob.filter(derived_from=derived_from)
-    collision_names = [col.name for col in collisions]
-
     # Automatically 
     if auto_rename:
         permanent_name = auto_rename_file(
@@ -684,7 +684,7 @@ def do_submit_file(observatory, uploaded_file, description,
             change_level=change_level, creator_name=creator_name,
             derived_from=derived_from)
     
-    return os.path.basename(permanent_location), derived_from, collision_names
+    return os.path.basename(permanent_location), derived_from
 
 def do_certify_file(basename, certifypath, check_references=None):
     """Run un-trapped components of crds.certify and re-raise any exception
@@ -1377,7 +1377,8 @@ def do_create_contexts(pmap, updated_rmaps, description, user, email):
         models.add_crds_file(
             observatory, old_ctx, rmap.locate_mapping(new_ctx),  user, email, 
             description, "new context",
-            repr(pmap) + " : " + ",".join([repr(x) for x in updated_rmaps]))
+            repr(pmap) + " : " + ",".join([repr(x) for x in updated_rmaps]),
+            derived_from=old_ctx)
         
     return new_name_map
 
@@ -1492,6 +1493,17 @@ def browsify_edit_rmap(basename, fullpath):
             contents += line
     return contents
 
+
+def get_collision_list(ancestry_tuples):
+    collision_list = []
+    for new_map, derived_from in ancestry_tuples:
+        collisions = [col.name for col in 
+                      models.FileBlob.filter(derived_from=derived_from)
+                      if col.name != new_map]
+        if collisions:
+            collision_list.append((new_map, derived_from, collisions))
+    return collision_list
+
 def edit_rmap_post(request):
     """View fragment handling Rmap edit execution POST."""
     
@@ -1514,7 +1526,8 @@ def edit_rmap_post(request):
     models.add_crds_file(observatory, original_rmap, new_loc, 
             request.user, request.user.email, description, 
             creator_name = str(request.user),
-            creation_method="edit rmap", audit_details=repr(actions))
+            creation_method="edit rmap", audit_details=repr(actions),
+            derived_from=original_rmap)
 
     new_context_map = do_create_contexts(
         pmap, [new_rmap], description,  request.user, request.user.email)
@@ -1522,10 +1535,15 @@ def edit_rmap_post(request):
     old_mappings = sorted(new_context_map.keys() + [original_rmap])
     new_mappings = sorted(new_context_map.values() + [new_rmap])
     
+    collision_list = get_collision_list(
+            [(new_rmap, original_rmap)] +
+            [(new, old) for (old, new) in new_context_map.items()])
+    
     return render(request, "edit_rmap_results.html", {
                 "new_references" : new_references,
                 "old_mappings" : old_mappings,
                 "new_mappings" : new_mappings,
+                "collision_list" : collision_list,
                 "actions" : actions,
             })
 
@@ -1594,13 +1612,13 @@ def handle_file_submissions(original_rmap, expanded, observatory, submitter):
         description = expanded["add"][id].get("description","undefined")
         creator_name = expanded["add"][id].get("creator_name","undefined")
         change_level = expanded["add"][id].get("change_level","SEVERE")
-        new_name, derived_from, collisions = do_submit_file(
+        new_name, derived_from = do_submit_file(
             observatory, uploaded_file, description,
             str(submitter), submitter.email, creator_name=creator_name,
             change_level=change_level, comparison_file=None,
             creation_method="edit rmap",
             details="submitted")
-        new_references.append((upload_name, new_name, derived_from, collisions))
+        new_references.append((upload_name, new_name, derived_from))
         expanded["add"][id]["filename"] = new_name
     return sorted(new_references)
  
