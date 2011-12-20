@@ -10,6 +10,7 @@ import cProfile
 import cStringIO
 import pprint
 import traceback
+import datetime
 
 # from django.http import HttpResponse
 from django.shortcuts import render_to_response
@@ -338,6 +339,39 @@ def error_trap(template):
         return trap
     return decorator
 
+class Logger(object):
+   def __init__(self, filename):
+       utils.ensure_dir_exists(filename)
+       self.file = open(filename, 'w+')
+       # Hook outputs to logfile
+       self.oldout, self.olderr = sys.stdout, sys.stderr
+       sys.stdout, sys.stderr = self.file, self.file
+   
+   def _write(self, stdout, arg):
+       if stdout:
+           stdout.write(arg)
+       self.file.write(arg)
+   
+   def write(self, *args, **keys):
+       date = keys.get("date", True)
+       sep = keys.get("sep", " ")
+       eol = keys.get("eol", "\n")
+       stdout = keys.get("stdout", self.oldout)
+       self._write(stdout, "[" + str(datetime.datetime.now())[:-3] + "] ")
+       for arg in args:
+           self._write(stdout, arg + sep)
+       self._write(stdout, eol)
+
+   def close(self):
+       self.file.close()
+       sys.stdout, sys.stderr = self.oldout, self.olderr
+       
+   def flush(self):
+       self.file.flush()
+
+   def __del__(self):
+       self.close()
+            
 def log(func):
     """log() captures view inputs, output, and response to a log file.
     It should be called inside any error_trap() decorator so that it 
@@ -348,33 +382,30 @@ def log(func):
         
         action_id = models.CounterBlob.next("action_id")
         logpath = config.data_dir + "/logs/action_%06d.log" % (action_id,)
-        utils.ensure_dir_exists(logpath)
-        logfile = open(logpath, "w+")
+        logfile = Logger(logpath)
         
-        logfile.write("GET: " + repr(request.GET) + "\n")
-        logfile.write("POST: " + repr(request.POST) + "\n")
-        logfile.write("FILES: " + repr(request.FILES) + "\n")
-        logfile.write("OUTPUT:\n")
-
-        # Hook outputs to logfile
-        oldout, olderr = sys.stdout, sys.stderr
-        sys.stdout, sys.stderr = logfile, logfile
-
+        logfile.write("REQUEST:", request.path, request.method)
+        logfile.write("META:", repr(request.META), stdout=None)
+        logfile.write("GET:",   repr(request.GET))
+        logfile.write("POST:",  repr(request.POST))
+        logfile.write("COOKIES:", repr(request.COOKIES), stdout=None)
+        logfile.write("FILES:", repr(request.FILES))
+        logfile.write("OUTPUT:")
         try:    
             response = func(request, *args, **keys)
-            logfile.write("RESPONSE:\n" + response.content + "\n")
+            logfile.write("RESPONSE:\n" + response.content, stdout=None)
             return response
-        except Except, exc:
-            logfile.write("EXCEPTION REPR: " + repr(exc) + "\n")
-            logfile.write("EXCEPTION STR: " + str(exc) + "\n")
-            logfile.write("EXCEPTION TRACEBACK:\n")
-            tb_list = traceback.extract_tb(exc[2])
+        except Exception, exc:
+            logfile.write("EXCEPTION REPR:", repr(exc))
+            logfile.write("EXCEPTION STR:", str(exc))
+            logfile.write("EXCEPTION TRACEBACK:")
+            info = sys.exc_info()
+            tb_list = traceback.extract_tb(info[2])
             for line in traceback.format_list(tb_list):
-                logfile.write(line)
+                logfile.write(line.strip())
             raise
         finally:
             logfile.close()
-            sys.stdout, sys.stderr = oldout, olderr
         
     dolog.func_name = func.func_name
     return dolog
