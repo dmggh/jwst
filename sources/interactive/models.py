@@ -46,7 +46,7 @@ class BlobModel(models.Model):
     don't change the database schema.
     """
     class Meta:
-        abstract = True
+        abstract = True    # Collapse model inheritance for flat SQL tables
 
     model_fields = ["id","name","blob"]
     blob_fields = {}    
@@ -257,7 +257,7 @@ class FileBlob(BlobModel):
     """Represents a delivered file,  either a reference or a mapping."""
 
     class Meta:
-        db_table = "crds_catalog"
+        db_table = "crds_catalog" # rename SQL table from interactive_fileblob
     
     model_fields = BlobModel.model_fields + \
         ["state", "blacklisted", "observatory", "instrument", "filekind", "type"]
