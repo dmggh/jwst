@@ -29,9 +29,9 @@ def get_jsonrpc_template_vars():
 
 def get_url(observatory, filename):
     if rmap.is_mapping(filename):
-        url = config.CRDS_MAPPING_URL + "/" + filename
+        url = config.CRDS_MAPPING_URL + filename
     else:
-        url = config.CRDS_REFERENCE_URL + "/" + filename
+        url = config.CRDS_REFERENCE_URL + filename
     return url
 
 # ===========================================================================
@@ -120,6 +120,7 @@ def get_reference_data(request, context, reference):
 def get_reference_url(request, context, reference):
     check_context(context)
     check_reference(reference)
+    ctx = rmap.get_cached_mapping(context)
     return get_url(ctx.observatory, reference)
 
 @jsonrpc_method('file_exists(String)')

@@ -118,6 +118,7 @@ telescopes = [ 'hst', 'jwst' ]
 import pwd
 version_prefix=pwd.getpwuid(os.getuid())[0]
 
-CRDS_REFERENCE_URL = "ftp://ftp.stsci.edu/cdbs/"   # .e.g http://crds_refs.stsci.edu
-CRDS_MAPPING_URL =   "http://localhost:"+str(port)
+CRDS_URL = "http://localhost:" + str(port) + "/"
 
+CRDS_REFERENCE_URL = CRDS_URL + "get/"   # .e.g http://crds_refs.stsci.edu
+CRDS_MAPPING_URL   = CRDS_URL + "get/" # .e.g http://crds_refs.stsci.edu
