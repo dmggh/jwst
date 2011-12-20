@@ -9,6 +9,7 @@ import re
 import cProfile
 import cStringIO
 import pprint
+import traceback
 
 # from django.http import HttpResponse
 from django.shortcuts import render_to_response
@@ -337,6 +338,46 @@ def error_trap(template):
         return trap
     return decorator
 
+def log(func):
+    """log() captures view inputs, output, and response to a log file.
+    It should be called inside any error_trap() decorator so that it 
+    executes before error_trap() absorbs many exceptions.
+    """
+    def dolog(request, *args, **keys):
+        """trap() is bound to the func parameter of decorator()."""
+        
+        action_id = models.CounterBlob.next("action_id")
+        logpath = config.data_dir + "/logs/action_%06d.log" % (action_id,)
+        utils.ensure_dir_exists(logpath)
+        logfile = open(logpath, "w+")
+        
+        logfile.write("GET: " + repr(request.GET) + "\n")
+        logfile.write("POST: " + repr(request.POST) + "\n")
+        logfile.write("FILES: " + repr(request.FILES) + "\n")
+        logfile.write("OUTPUT:\n")
+
+        # Hook outputs to logfile
+        oldout, olderr = sys.stdout, sys.stderr
+        sys.stdout, sys.stderr = logfile, logfile
+
+        try:    
+            response = func(request, *args, **keys)
+            logfile.write("RESPONSE:\n" + response.content + "\n")
+            return response
+        except Except, exc:
+            logfile.write("EXCEPTION REPR: " + repr(exc) + "\n")
+            logfile.write("EXCEPTION STR: " + str(exc) + "\n")
+            logfile.write("EXCEPTION TRACEBACK:\n")
+            tb_list = traceback.extract_tb(exc[2])
+            for line in traceback.format_list(tb_list):
+                logfile.write(line)
+            raise
+        finally:
+            logfile.close()
+            sys.stdout, sys.stderr = oldout, olderr
+        
+    dolog.func_name = func.func_name
+    return dolog
 
 # ===========================================================================
 PROFILE_DECORATOR_RESULT = None
@@ -431,6 +472,8 @@ def bestrefs_post(request):
 
     return results
 
+@error_trap("bestrefs_explore.html")
+@log
 def bestrefs_results(request, pmap, header, dataset_name=""):
         
     bestrefs = pmap.get_best_references(header)
@@ -453,6 +496,7 @@ def bestrefs_results(request, pmap, header, dataset_name=""):
 # ===========================================================================
 
 @error_trap("bestrefs_explore.html")
+@log
 def bestrefs_explore(request):
     """View to get the instrument context for best references."""
     if request.method == "GET":
@@ -490,6 +534,7 @@ def get_recent_or_user_context(request):
     return context
 
 @error_trap("bestrefs_explore_input.html")
+@log
 def bestrefs_explore_compute(request):
     context = validate_post(request, "context", is_pmap)
     instrument = validate_post(request, "instrument", models.INSTRUMENTS)
@@ -505,6 +550,7 @@ def bestrefs_explore_compute(request):
 # ============================================================================
 
 @error_trap("submit_input.html")
+@log
 @login_required
 def submit_file(request, crds_filetype):
     """Handle file submission,  crds_filetype=reference|mapping."""
@@ -649,6 +695,7 @@ def get_blacklists(basename, certifypath, ignore_self=True):
 # ===========================================================================
 
 @error_trap("blacklist_input.html")
+@log
 @login_required
 def blacklist_file(request):
     """Serve the blacklist input form or process the POST."""
@@ -692,6 +739,7 @@ def blacklist_file_post(request):
 # ===========================================================================
 
 @error_trap("certify_input.html")
+@log
 # @profile
 def certify_file(request):
     """View to return certify input form or process POST."""
@@ -749,6 +797,7 @@ def certify_post(request):
 # ===========================================================================
 
 @error_trap("using_file_inputs.html")
+@log
 def using_file(request):
     """View to return using_file input form or process POST."""
     if request.method == "GET":
@@ -768,6 +817,7 @@ def using_file_post(request):
 # ===========================================================================
 
 @error_trap("file_matches_inputs.html")
+@log
 def file_matches(request):
     """View to return file_matches input form or process POST."""
     if request.method == "GET":
@@ -804,6 +854,7 @@ def flatten(path):
 # ===========================================================================
 
 @error_trap("difference_input.html")
+@log
 def difference_files(request):
     """Compare two files,  either known or uploaded,  and display the diffs."""
 
@@ -895,6 +946,7 @@ def clean_path(line, path):
 # ===========================================================================
 
 @error_trap("browse_known_file_error.html")
+@log
 def browse_known_file(request, filename):
     """special view which accepts browse file from a URL parameter,  required
     by cross links like /browse/some_file.rmap
@@ -1037,6 +1089,7 @@ def finfo(filename):
 # ===========================================================================
 
 @error_trap("reserve_name_input.html")
+@log
 @login_required
 def reserve_name(request):
     """reserve_name is a view to get officially registered CRDS filenames."""
@@ -1135,6 +1188,7 @@ def auto_rename_file(observatory, upload_name, upload_path):
 # ===========================================================================
 
 @error_trap("recent_activity_input.html")
+@log
 # @login_required
 def recent_activity(request):
     """recent_activity displays records from the AuditBlob database."""
@@ -1180,6 +1234,7 @@ def recent_activity_post(request):
 # ===========================================================================
 
 @error_trap("browse_db_input.html")
+@log
 # @login_required
 def browse_db(request):
     """browse_db displays records from the FileBlob (subclasses) database."""
@@ -1227,6 +1282,7 @@ def browse_db_post(request):
 # ===========================================================================
 
 @error_trap("create_contexts_input.html")
+@log
 @login_required
 def create_contexts(request):
     """create_contexts generates a new pmap and imaps given an existing pmap
@@ -1312,6 +1368,7 @@ def new_name(old_map):
 # ===========================================================================
 
 @error_trap("edit_rmap_input.html")
+@log
 @login_required
 def edit_rmap_browse(request):
     """browse_db displays records from the FileBlob (subclasses) database."""
@@ -1357,8 +1414,9 @@ def edit_rmap_browse_post(request):
             })
 
 @csrf_exempt
-@login_required
 @error_trap("base.html")
+@log
+@login_required
 def edit_rmap(request, filename=None):
     """Handle all aspects of editing a particular rmap named `filename`."""
     if request.method == "GET":
@@ -1620,6 +1678,7 @@ def make_delete_useafter_rmap(old_location, new_location, match_tuple,
 # ============================================================================
 
 @error_trap("delivery_options_input.html")
+@log
 @login_required
 def deliver_context(request):
     if request.method == "GET":
@@ -1640,6 +1699,7 @@ def deliver_context(request):
             })
 
 @error_trap("delivery_options_input.html")
+@log
 @login_required
 def delivery_options(request):
     if request.method == "GET":
@@ -1685,6 +1745,7 @@ def delivery_options_post(request):
 
 
 @error_trap("delivery_process_results.html")
+@log
 @login_required
 def delivery_process(request):
     if request.method == "GET":
