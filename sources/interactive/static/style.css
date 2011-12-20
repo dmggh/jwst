@@ -134,6 +134,12 @@ label, .label {
     color: red;
 }
 
+.warning {
+    font-size: 1.1em;
+    font-weight: normal;
+    color: orange;
+}
+
 .success {
     font-size: 1.1em;
     font-weight: normal;

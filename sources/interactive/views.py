@@ -615,13 +615,16 @@ def submit_file_post(request, crds_filetype):
         change_level = "SEVERE"
         comparison_file = None
         
-    new_name = do_submit_file( observatory, uploaded_file, description,
+    new_name, derived_from, collisions = do_submit_file( 
+        observatory, uploaded_file, description,
         str(request.user), request.user.email, creator, 
         change_level, comparison_file, )
         
     return render(request, 'submit_results.html', {
                 "crds_filetype": crds_filetype,
                 "baseperm":new_name,
+                "derived_from":derived_from,
+                "derivation_collisions" : collisions,
                 })
     
 def do_submit_file(observatory, uploaded_file, description, 
@@ -636,6 +639,7 @@ def do_submit_file(observatory, uploaded_file, description,
     # Determine the temporary and permanent file paths, not yet copying.
     original_name = uploaded_file.name
     upload_location = uploaded_file.temporary_file_path()
+    derived_from = original_name    # XXXXX for now,  until it's in header
     
     if rmap.is_mapping(original_name):
         try:
@@ -646,6 +650,9 @@ def do_submit_file(observatory, uploaded_file, description,
     # Check the file,  leaving no server state if it fails.  Give error results.
     do_certify_file(original_name, upload_location, check_references="exist")
     
+    collisions = models.FileBlob.filter(derived_from=derived_from)
+    collision_names = [col.name for col in collisions]
+
     # Automatically 
     if auto_rename:
         permanent_name = auto_rename_file(
@@ -674,9 +681,10 @@ def do_submit_file(observatory, uploaded_file, description,
     blob = models.add_crds_file(observatory, original_name, permanent_location, 
             submitter, submitter_email, description, 
             creation_method=creation_method, audit_details=details, 
-            change_level=change_level, creator_name=creator_name)
+            change_level=change_level, creator_name=creator_name,
+            derived_from=derived_from)
     
-    return os.path.basename(permanent_location)
+    return os.path.basename(permanent_location), derived_from, collision_names
 
 def do_certify_file(basename, certifypath, check_references=None):
     """Run un-trapped components of crds.certify and re-raise any exception
@@ -1586,16 +1594,16 @@ def handle_file_submissions(original_rmap, expanded, observatory, submitter):
         description = expanded["add"][id].get("description","undefined")
         creator_name = expanded["add"][id].get("creator_name","undefined")
         change_level = expanded["add"][id].get("change_level","SEVERE")
-        new_name = do_submit_file(
+        new_name, derived_from, collisions = do_submit_file(
             observatory, uploaded_file, description,
             str(submitter), submitter.email, creator_name=creator_name,
             change_level=change_level, comparison_file=None,
             creation_method="edit rmap",
             details="submitted")
-        new_references.append((upload_name, new_name))
+        new_references.append((upload_name, new_name, derived_from, collisions))
         expanded["add"][id]["filename"] = new_name
     return sorted(new_references)
-        
+ 
 def execute_edit_actions(original_rmap, expanded):
     """Perform each of the `expanded` on `original_rmap` to create a new
     rmap.   Return the (new_name, new_path) for the new rmap.   Don't alter

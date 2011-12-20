@@ -260,7 +260,8 @@ class FileBlob(BlobModel):
         db_table = "crds_catalog" # rename SQL table from interactive_fileblob
     
     model_fields = BlobModel.model_fields + \
-        ["state", "blacklisted", "observatory", "instrument", "filekind", "type"]
+        ["state", "blacklisted", "observatory", "instrument", "filekind", 
+         "type", "derived_from"]
 
     blacklisted = models.BooleanField(
         default=False, 
@@ -280,6 +281,9 @@ class FileBlob(BlobModel):
 
     type = SimpleCharField( ["reference","mapping"],
         "type of file,  reference data or CRDS rule or context", "")
+    
+    derived_from = models.CharField(max_length=48,
+        help_text = "Previous version of this file this one was based on.")
 
     # ===============================
     
@@ -314,7 +318,7 @@ class FileBlob(BlobModel):
     def new(cls, observatory, upload_name, permanent_location, 
             creator_name, deliverer_user, deliverer_email, description, 
             change_level="SEVERE", add_slow_fields=True, 
-            state="submitted"):
+            state="submitted", derived_from=None):
         """Create a new FileBlob or subclass."""
         
         assert isinstance(add_slow_fields, (bool,int)), "parameter type error"
@@ -339,6 +343,7 @@ class FileBlob(BlobModel):
             observatory, permanent_location)
         blob.instrument = instrument
         blob.filekind= filekind
+        blob.derived_from = derived_from if derived_from else "(no predecessor)"
 
         # These need to be checked before the file is copied and the blob is made.
         if not rmap.is_mapping(upload_name):
@@ -565,14 +570,14 @@ def add_crds_file(observatory, upload_name, permanent_location,
             deliverer, deliverer_email, description, 
             creation_method, audit_details="", 
             change_level="SEVERE", add_slow_fields=True,
-            creator_name="unknown", state="submitted"):
+            creator_name="unknown", state="submitted", derived_from=None):
     "Make a database record for this file.  Track the action of creating it."""
 
     fileblob = FileBlob.new(
         observatory, upload_name, permanent_location, 
         creator_name, deliverer, deliverer_email, description,
         change_level=change_level, add_slow_fields=add_slow_fields,
-        state=state)
+        state=state, derived_from=derived_from)
     
     # Redundancy, database record of how file got here, important action
     AuditBlob.new(

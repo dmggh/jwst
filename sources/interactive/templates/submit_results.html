@@ -5,9 +5,31 @@
 {% block column1 %}
     <h2>Submit {{crds_filetype|capfirst}} File</h2>
     {% if error_messages %}
-     <h3 class="error">Submission for {{filename|grey}} Failed.</h3>
+     <h3 class="error">Submission for {{submitted_file|grey}} Failed.</h3>
     {% else %}
-     <h3 class="success">Delivered {{filename|grey}} as {{baseperm|browse}}</h3>
+     <h3 class="success">Delivered {{submitted_file|grey}} as {{baseperm|browse}}</h3>
+    {% endif %}
+    
+    {% if derivation_collisions %}
+        <h2 class="warning">
+            Edit Collision Warning
+        </h2>
+        {% for collision in derivation_collisions %}
+           <p class="warning">{{collision|browse }} also derived from {{derived_from|browse}}</p>
+        {% endfor %}
+        
+        <p>This file was derived from the same parent file as one or more others.   
+        
+        <p>This suggests that two people edited the same file at the same time 
+        and will not incorporate one another's changes.   
+        
+        <p>In this case the person receiving this warning should derive a new 
+        update,  most likely from the best of the files this submission 
+        collided with.   
+        
+        <p class="warning"> Do not use the file submitted here unless the 
+        collision is known to be harmless.
+
     {% endif %}
 {% endblock column1 %}
 
