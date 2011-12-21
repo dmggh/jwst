@@ -781,6 +781,7 @@ def blacklist_file_post(request):
 
 @error_trap("certify_input.html")
 @log
+@login_required
 # @profile
 def certify_file(request):
     """View to return certify input form or process POST."""
@@ -793,6 +794,9 @@ def certify_post(request):
     """View fragment to process file certification POSTs."""
     uploaded, original_name, certified_file = handle_known_or_uploaded_file(
         request, "File", "filemode", "file_known", "file_uploaded")
+    
+    if uploaded:
+        checksum.update_checksum(certified_file)
             
     mapping = "--mapping" if rmap.is_mapping(original_name) else ""
 
