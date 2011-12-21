@@ -792,19 +792,21 @@ def certify_file(request):
 
 def certify_post(request):
     """View fragment to process file certification POSTs."""
+    
     uploaded, original_name, certified_file = handle_known_or_uploaded_file(
         request, "File", "filemode", "file_known", "file_uploaded")
     
-    if uploaded:
-        checksum.update_checksum(certified_file)
-            
     mapping = "--mapping" if rmap.is_mapping(original_name) else ""
 
+    if uploaded and mapping:
+        checksum.update_checksum(certified_file)
+            
     certify_lines = pysh.lines(
         "python -m crds.certify ${certified_file} ${mapping} --dump-provenance")
     certify_status = "OK" if "0 errors" in \
         [ x.strip() for x in certify_lines] else "Failed."    
     
+    missing_references = []
     if not rmap.is_mapping(original_name):
         fitscheck_lines = [x.strip() for x in pysh.lines(
             "fitscheck --ignore-missing ${certified_file}")]
@@ -813,7 +815,12 @@ def certify_post(request):
     else:
         fitscheck_status = ""
         fitscheck_lines = []
-        
+        if certify_status == "OK":
+            ctx = rmap.load_mapping(certified_file)
+            for ref in ctx.reference_names():
+                if not models.file_exists(ref):
+                    missing_references.append(ref)
+
     try:
         blacklisted_by = get_blacklists(
             original_name, certified_file, ignore_self=False)
@@ -837,6 +844,7 @@ def certify_post(request):
              "certify_lines":certify_lines,
              "fitscheck_lines":fitscheck_lines,
              "blacklisted_by" : blacklisted_by,
+             "missing_references" : missing_references,
              "certified_file":original_name})
 
 # ===========================================================================

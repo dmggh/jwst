@@ -46,7 +46,7 @@
             <p>{{line|safe}}</p>
         {% endfor %}
     {% endif %}
-
+    
     <h3>Certify Status:
     {% if certify_status == "OK" %}
         <span class="success">
@@ -61,5 +61,22 @@
         <p>{{line|safe}}</p>
         {% endfor %}
     </div>
+
+    {% if not is_reference %}
+        <h3>Unknown Files:
+        {% if missing_references %}
+                <span class="error">FAILED</span>
+            </h3>
+            <p>The certified mapping {{certified_file|grey}} refers to files not known to CRDS:</p>
+            {% for missing in missing_references %}
+                <p class="error"> {{missing}} </p>
+            {% endfor %}
+        {% else %}
+            <span class="success">None</span>
+        </h3>
+        {% endif %}
+    {% endif %}
+    <br/>
+    <br/>
 
 {% endblock contents %}
