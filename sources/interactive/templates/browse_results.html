@@ -17,13 +17,25 @@
 </script>
 
 {% if ".rmap" in browsed_file and is_authenticated %}
-        <FORM METHOD="LINK" ACTION="/edit_rmap/{{browsed_file}}">
-            <h2>Browse <a href='{{browsed_file|download_url:"hst"}}'>{{browsed_file|grey}}</a>
-                <INPUT TYPE="submit" VALUE="Edit">
+     <FORM name="edit_form" method="LINK" action="/edit_rmap/{{browsed_file}}">                
+           <h2>Browse {{browsed_file|grey}}
+                &nbsp;
+                <a href="/edit_rmap" onclick="document.edit_form.submit(); return false;">
+                    <span style="font-size: 0.75em;">edit</span>
+                </a> 
+                &nbsp;
+                <a href='{{browsed_file|download_url:"hst"}}'>
+                    <span style="font-size: 0.75em;">download</span>
+                </a>
             </h2> 
-        </FORM>
+     </FORM>
 {% else %}
-    <h2>Browse {{browsed_file|grey}} <a href='{{browsed_file|download_url:"hst"}}'> <span style="font-size: 0.75em;">download</span></a> </h2> 
+    <h2>
+        Browse {{browsed_file|grey}}     
+        <a href='{{browsed_file|download_url:"hst"}}'>
+            <span style="font-size: 0.75em;">download</span>
+        </a>
+    </h2> 
 {% endif %}    
 
 <div id="accordion">
