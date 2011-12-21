@@ -7,7 +7,7 @@
     {% if error_messages %}
      <h3 class="error">Submission for {{submitted_file|grey}} Failed.</h3>
     {% else %}
-     <h3 class="success">Delivered {{submitted_file|grey}} as {{baseperm|browse}}</h3>
+     <h3 class="success">Submitted {{submitted_file|grey}} as {{baseperm|browse}}</h3>
     {% endif %}
     {% include "collision_explain.html" %}    
 {% endblock contents %}

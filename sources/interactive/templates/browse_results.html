@@ -66,7 +66,7 @@
                         <td width="20%" align="left" class="label">Blacklisted By</td>
                         <td>
                             {% for bl in fileblob.blacklisted_by %}
-                                {{bl|browse}} ,&nbsp;
+                                <span class="error">{{bl}}</span> &nbsp;&nbsp;
                             {% endfor %}
                         </td>
                      </tr>

@@ -312,6 +312,10 @@ class FileBlob(BlobModel):
         change_level = BlobField(CHANGE_LEVELS,
             "Do the changes to this file force recalibration of science data?",
             "SEVERE"),
+                       
+        blacklisted_by = BlobField(list,
+            "List of blacklisted files this file refers to directly or indirectly.",
+            []),
     )
     
     @classmethod
@@ -387,21 +391,6 @@ class FileBlob(BlobModel):
     @property
     def checksum_ok(self):
         return self.sha1sum and (self.checksum() == self.sha1sum)
-    
-    @property
-    def blacklisted_by(self):
-        if self.type == "reference":
-            blby = [str(self.name)] if self.blacklisted else []
-        else:
-            mapping = rmap.load_mapping(self.pathname)
-            referenced_files = set(mapping.mapping_names() + 
-                                   mapping.reference_names())
-            blby = []
-            for blob in FileBlob.filter():
-                if blob.blacklisted and \
-                    blob.name in referenced_files:
-                    blby.append(str(blob.name))
-        return blby
 
 # ============================================================================
 
@@ -425,6 +414,8 @@ def blacklist(blacklisted,  blacklisted_by):
     """
     fileblob = FileBlob.load(os.path.basename(blacklisted))
     fileblob.blacklisted = True
+    if blacklisted_by not in fileblob.blacklisted_by:
+        fileblob.blacklisted_by.append(blacklisted_by)
     fileblob.save()
     
 def unblacklist(blacklisted,  blacklisted_by):
