@@ -1,0 +1,18 @@
+header = {
+    'description' : 'Initially generated on 2011-11-16 11:30:48',
+    'filekind' : 'DEADTAB',
+    'instrument' : 'COS',
+    'mapping' : 'REFERENCE',
+    'observatory' : 'HST',
+    'parkey' : (('DETECTOR',), ('DATE-OBS', 'TIME-OBS')),
+    'sha1sum' : 'db6fa667abf9a44d056c8aca9ee880ac9a31a33b',
+}
+
+selector = Match({
+    ('FUV',) : UseAfter({
+        '1996-10-01 00:00:00' : 'foo.fits',
+    }),
+    ('NUV',) : UseAfter({
+        '1996-10-01 00:00:00' : 's7g1700ql_dead.fits',
+    }),
+})

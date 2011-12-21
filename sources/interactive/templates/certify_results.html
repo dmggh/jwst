@@ -6,18 +6,16 @@
 
     <h2>Certifying File {{certified_file|grey}}</h2>
     
-    {% if file_mode == "file_known" %}
-        <h3>Blacklist Status:
-        {% if blacklist_status == "OK" %}
-            <span class="success">
-        {% else %}
-            <span class="error">
-        {% endif %}
-            {{blacklist_status}}
-            </span>
-        </h3>
+    <h3>Blacklist Status:
+    {% if blacklist_status == "OK" %}
+        <span class="success">
+    {% else %}
+        <span class="error">
     {% endif %}
-    
+        {{blacklist_status}}
+        </span>
+    </h3>
+
     {% if blacklisted_by %}
         <p>Dependent on blacklisted files:</p> 
         {% for line in blacklisted_by %}
