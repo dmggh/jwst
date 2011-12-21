@@ -23,7 +23,7 @@
             </h2> 
         </FORM>
 {% else %}
-    <h2>Browse <a href='{{browsed_file|download_url:"hst"}}'>{{browsed_file|grey}}</a></h2> 
+    <h2>Browse {{browsed_file|grey}} <a href='{{browsed_file|download_url:"hst"}}'> <span style="font-size: 0.75em;">download</span></a> </h2> 
 {% endif %}    
 
 <div id="accordion">
