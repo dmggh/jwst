@@ -17,6 +17,6 @@ telescopes = [ 'hst' ]
 
 CRDS_URL = "http://etcbrady.stsci.edu:4997"
 
-CRDS_REFERENCE_URL = CRDS_URL + "get/" 
-CRDS_MAPPING_URL   = CRDS_URL + "get/" 
+CRDS_REFERENCE_URL = CRDS_URL + "/get/" 
+CRDS_MAPPING_URL   = CRDS_URL + "/get/" 
 
