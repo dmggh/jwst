@@ -25,16 +25,26 @@
                 value="{{file_known}}">
           </td>
         </tr>
+        {% comment %}
+        <tr><td>&nbsp;</td></tr>
+        <tr>
+          <td width="5%">
+                <input type="checkbox" name="check_references_exist"/>
+          </td>
+          <td width="50%" class="label" colspan="2">Check References Exist</td>
+        </tr>
         <tr></tr>
+        {% endcomment %}
       </table>
-      <p></p>
+      <br/>
+      <br/>
       <input type="submit" value="Certify File">
     </form>
 {% endblock column1 %}
 
 {% block help %}
 
-<p><b>Certify</b> Certify runs the same checks required for submission and
+<p><b>Certify File</b> runs the same checks required for submission and
 presents any errors as well as provenance information for review.
 
 <p><p><b>Uploaded File</b> lets you temporarily upload a prototype reference or 
@@ -47,4 +57,8 @@ which has already been submitted to CRDS.
 this:
 <pre>% python -m crds.certify ./hst_acs_biasfile_0001.rmap</pre> 
 <pre>% python -m crds.certify --dump-provenance ./myfile.fits</pre>
+
+<p><p>WARNING: certification of context files,  pmaps and imaps, is transitive 
+check so it can entail certifying many mappings and is slow.
+
 {% endblock help %}
