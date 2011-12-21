@@ -387,6 +387,7 @@ def log(func):
         logpath = config.data_dir + "/logs/action_%06d.log" % (action_id,)
         logfile = Logger(logpath)
         
+        logfile.write(time=False) # start with blank line to make concat logs readable
         logfile.write("REQUEST:", request.path, request.method)
         logfile.write("META:", repr(request.META), stdout=None)
         logfile.write("GET:",   repr(request.GET))
