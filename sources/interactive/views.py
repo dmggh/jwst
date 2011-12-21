@@ -923,6 +923,11 @@ def difference_files(request):
         uploaded2, file2_orig, file2_path = handle_known_or_uploaded_file(
             request, "File2", "filemode2", "file_known2", "file_uploaded2")
         
+        if uploaded1 and rmap.is_mapping(file1_orig):
+            checksum.update_checksum(file1_path)
+        if uploaded2 and rmap.is_mapping(file2_orig):
+            checksum.update_checksum(file2_path)
+        
         map_diffs = None
         if rmap.is_mapping(file1_orig) and rmap.is_mapping(file2_orig) and \
             extension(file1_orig) == extension(file2_orig):
@@ -969,7 +974,7 @@ def mapping_diffs(file1, file2):
         map1 = rmap.load_mapping(file1)
         map2 = rmap.load_mapping(file2)
         return map1.difference(map2)
-    except Exceptio, exc:
+    except Exception, exc:
         return [("Mapping logical difference failed: " + str(exc),)]
 
 def format_fitsdiffs(lines, file1, file2):
