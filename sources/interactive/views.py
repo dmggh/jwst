@@ -173,6 +173,8 @@ def is_match_tuple(tuple_str):
         raise AssertionError("Enter a tuple to match against.")
     return tup
 
+DATE_RE_STR = r"\d\d\d\d\-\d\d\-\d\d"
+TIME_RE_STR = r"\d\d:\d\d:\d\d"
 DATETIME_RE_STR = "(\d\d\d\d\-\d\d\-\d\d\s+\d\d:\d\d:\d\d)"
 
 def is_datetime(datetime_str):
@@ -190,14 +192,15 @@ def is_datetime(datetime_str):
 DESCRIPTION_RE = "[^<>]+"
 
 def get_observatory(request):
+    """Validate and return the observatory parameter from request.POST"""
     return validate_post(request, "observatory", models.OBSERVATORIES)
 
 def usernames():
+    """Return a list of all the usernames defined in the database."""
     try:
         return [str(x) for x in django.contrib.auth.models.User.objects.filter()]
-    except Exception:
+    except Exception:  # provide a workable choice if it fails.
         return ["*"]
-    
 
 # ===========================================================================
 
@@ -242,7 +245,7 @@ def render(request, template, dict_=None):
 
 # ===========================================================================
 
-def handle_known_or_uploaded_file(request, name, modevar, knownvar, uploadvar):
+def handle_known_or_uploaded_file(request, modevar, knownvar, uploadvar):
     """Process file variables for a file which is either known to CRDS
     and simply named,  or which is uploaded by the user.
     
@@ -284,14 +287,14 @@ def upload_file(ufile, where):
         destination.write(chunk)
     destination.close()
 
-def get_known_filepath(file):
+def get_known_filepath(filename):
     """Given the basename of a mapping or reference file, `file`,
     determine the full path of the file on the server.
     """
     try:
-        blob = models.FileBlob.load(file)
+        blob = models.FileBlob.load(filename)
     except LookupError:
-        raise FieldError("CRDS doesn't know about file " + repr(file))
+        raise FieldError("CRDS doesn't know about file " + repr(filename))
     return blob.pathname
 
 
@@ -341,40 +344,50 @@ def error_trap(template):
     return decorator
 
 class Logger(object):
-   def __init__(self, filename):
-       utils.ensure_dir_exists(filename)
-       self.file = open(filename, 'w+')
-       # Hook outputs to logfile
-       self.oldout, self.olderr = sys.stdout, sys.stderr
-       sys.stdout, sys.stderr = self.file, self.file
+    """Outputs messages to a per-request log file and optionally the console.
+    Also captures stdout and stderr.
+    """
+    def __init__(self, filename):
+        """open the per-request log file and hook stdout and stderr"""
+        utils.ensure_dir_exists(filename)
+        self.file = open(filename, 'w+')
+        # Hook outputs to logfile
+        self.oldout, self.olderr = sys.stdout, sys.stderr
+        sys.stdout, sys.stderr = self.file, self.file
    
-   def _write(self, stdout, arg):
-       if stdout:
-           stdout.write(arg)
-       self.file.write(arg)
+    def _write(self, stdout, arg):
+        """Write arg to logfile, and `stdout` if defined."""
+        if stdout:
+            stdout.write(arg)
+        self.file.write(arg)
    
-   def write(self, *args, **keys):
-       date = keys.get("date", True)
-       sep = keys.get("sep", " ")
-       eol = keys.get("eol", "\n")
-       stdout = keys.get("stdout", self.oldout)
-       time = keys.get("time", True)
-       if time:
-           self._write(stdout, "[" + str(datetime.datetime.now())[:-3] + "] ")
-       for arg in args:
-           self._write(stdout, arg + sep)
-       self._write(stdout, eol)
+    def write(self, *args, **keys):
+        """Write args to logfile and console,  nominally separated by spaces
+        (key "sep") and terminated by newline (key "eol").
+        """
+        sep = keys.get("sep", " ")
+        eol = keys.get("eol", "\n")
+        stdout = keys.get("stdout", self.oldout)
+        time = keys.get("time", True)
+        if time:
+            self._write(stdout, "[" + str(datetime.datetime.now())[:-3] + "] ")
+        for arg in args:
+            self._write(stdout, arg + sep)
+        self._write(stdout, eol)
 
-   def close(self):
-       self.file.close()
-       sys.stdout, sys.stderr = self.oldout, self.olderr
+    def close(self):
+        """close per-request logfile and un-hook stdout and stderr."""
+        self.file.close()
+        sys.stdout, sys.stderr = self.oldout, self.olderr
        
-   def flush(self):
-       self.file.flush()
+    def flush(self):
+        """Flush the logfile and stdout."""
+        self.file.flush()
+        self.oldout.flush()
 
-   def __del__(self):
-       self.close()
-            
+    def __del__(self):
+        self.close()
+
 def log(func):
     """log() captures view inputs, output, and response to a log file.
     It should be called inside any error_trap() decorator so that it 
@@ -510,13 +523,16 @@ def bestrefs_post(request):
 @error_trap("bestrefs_explore.html")
 @log
 def bestrefs_results(request, pmap, header, dataset_name=""):
+    """Render best reference recommendations under context `pmap` for
+    critical parameters dictionary `header`.
+    """
         
-    bestrefs = pmap.get_best_references(header)
+    recommendations = pmap.get_best_references(header)
     
     # organize and format results for HTML display    
     header_items = sorted(header.items())
     bestrefs_items = []
-    for key, val in sorted(bestrefs.items()):
+    for key, val in sorted(recommendations.items()):
         if val.startswith("NOT FOUND"):
             val = val[len("NOT FOUND"):]
         bestrefs_items.append((key.upper, val))
@@ -542,10 +558,14 @@ def bestrefs_explore(request):
         return bestrefs_explore_post(request)
     
 def get_recent_pmaps(**filters):
+    """Return a list of option tuples for rendering HTML to choose recent
+    pmaps (last 10) filtered by `filters`. This defines what users will see
+    for the context HTML drop-down.
+    """
     files = models.FileBlob.filter(pathname=".*\.pmap", **filters)[::-1][:10]
     pmaps = []
-    for file in files:
-        pmaps.append((file.filename, file.filename + " [date here]"))
+    for file_ in files:
+        pmaps.append((file_.filename, file_.filename + " [date here]"))
     return pmaps
 
 def bestrefs_explore_post(request):
@@ -571,6 +591,9 @@ def get_recent_or_user_context(request):
 @error_trap("bestrefs_explore_input.html")
 @log
 def bestrefs_explore_compute(request):
+    """Validate parameter inputs from the best refs explorer drop-down
+    menus and render best reference recommendations.
+    """
     context = validate_post(request, "context", is_pmap)
     instrument = validate_post(request, "instrument", models.INSTRUMENTS)
     pmap = rmap.get_cached_mapping(context)
@@ -579,7 +602,9 @@ def bestrefs_explore_compute(request):
     pars = imap.get_parkey_map().keys()
     for par in pars:
         header[par] = utils.condition_value(
-            validate_post(request, par, "[A-Za-z0-9+\-.,*/;|{}\[\]]+"))
+            validate_post(request, par, r"[A-Za-z0-9\+\-.,*/;|{}\[\]:]+"))
+    header["DATE-OBS"] = validate_post(request, "DATE-OBS", DATE_RE_STR)
+    header["TIME-OBS"] = validate_post(request, "TIME-OBS", TIME_RE_STR)
     return bestrefs_results(request, pmap, header)
 
 # ============================================================================
@@ -619,16 +644,16 @@ def submit_file_post(request, crds_filetype):
         change_level = "SEVERE"
         comparison_file = None
         
-    new_name, derived_from = do_submit_file( 
+    new_basename, derived_from = do_submit_file( 
         observatory, uploaded_file, description,
         str(request.user), request.user.email, creator, 
         change_level, comparison_file, )
     
-    collision_list = get_collision_list([(new_name, derived_from)])
+    collision_list = get_collision_list([(new_basename, derived_from)])
         
     return render(request, 'submit_results.html', {
                 "crds_filetype": crds_filetype,
-                "baseperm":new_name,
+                "baseperm":new_basename,
                 "collision_list" : collision_list,
                 })
     
@@ -680,7 +705,7 @@ def do_submit_file(observatory, uploaded_file, description,
     # os.chmod(permanent_location, 0444)
     
     # Make a database record for this file.
-    blob = models.add_crds_file(observatory, original_name, permanent_location, 
+    models.add_crds_file(observatory, original_name, permanent_location, 
             submitter, submitter_email, description, 
             creation_method=creation_method, audit_details=details, 
             change_level=change_level, creator_name=creator_name,
@@ -701,7 +726,6 @@ def do_certify_file(basename, certifypath, check_references=None):
         certify.certify_files([certifypath], check_references=None,
             trap_exceptions=False, is_mapping = rmap.is_mapping(basename))
     except Exception, exc:
-        raise
         raise CrdsError(str(exc))
     if check_references in ["exist","contents"] and rmap.is_mapping(basename):
         ctx = rmap.load_mapping(certifypath)
@@ -794,7 +818,7 @@ def certify_post(request):
     """View fragment to process file certification POSTs."""
     
     uploaded, original_name, certified_file = handle_known_or_uploaded_file(
-        request, "File", "filemode", "file_known", "file_uploaded")
+        request, "filemode", "file_known", "file_uploaded")
     
     mapping = "--mapping" if rmap.is_mapping(original_name) else ""
 
@@ -824,7 +848,7 @@ def certify_post(request):
     try:
         blacklisted_by = get_blacklists(
             original_name, certified_file, ignore_self=False)
-    except:
+    except Exception:
         blacklisted_by = []
         blacklist_status = "Error"
     else:        
@@ -867,33 +891,6 @@ def using_file_post(request):
             'uses_files' : uses_files,
         })
 
-# ===========================================================================
-
-@error_trap("file_matches_inputs.html")
-@log
-def file_matches(request):
-    """View to return file_matches input form or process POST."""
-    if request.method == "GET":
-        return render(request, "file_matches_inputs.html")
-    else:
-        return file_matches_post(request)
-    
-def file_matches_post(request):
-    """View fragment to process file_matches POSTs."""
-    
-    known_context = get_default_or_user_context(request)
-
-    matched_reference = validate_post(request, "matched_reference", is_known_file)
-
-    match_paths = matches.find_match_tuples(known_context, matched_reference)
-    
-    match_paths = [flatten(path) for path in match_paths]
-    
-    return render(request, "file_matches_results.html", {
-            'match_paths' : match_paths,
-            'known_context' : known_context,
-        })
-
 def flatten(path):
     """match paths retain some structure: (top-level, match, useafter) which
     we ditch here.
@@ -919,9 +916,9 @@ def difference_files(request):
         return render(request, "difference_input.html")
     else:
         uploaded1, file1_orig, file1_path = handle_known_or_uploaded_file(
-            request, "File1", "filemode1", "file_known1", "file_uploaded1")
+            request, "filemode1", "file_known1", "file_uploaded1")
         uploaded2, file2_orig, file2_path = handle_known_or_uploaded_file(
-            request, "File2", "filemode2", "file_known2", "file_uploaded2")
+            request, "filemode2", "file_known2", "file_uploaded2")
         
         if uploaded1 and rmap.is_mapping(file1_orig):
             checksum.update_checksum(file1_path)
@@ -965,8 +962,7 @@ def textual_diff(file1_path, file2_path):
     diff_lines = pysh.lines("diff -b -c ${file1_path} ${file2_path}")
     if diff_lines:
         diff_lines = diff_lines[3:]   # remove filepath info
-    diff_lines = format_mappingdiffs(diff_lines, file1_path, file2_path)
-    return diff_lines
+    return [line.rstrip() for line in diff_lines]
     
 def mapping_diffs(file1, file2):
     """Return the logical differences between two mapping files."""
@@ -990,9 +986,6 @@ def format_fitsdiffs(lines, file1, file2):
                       r"\1 <span class='green'>\2</span>", line)
         lines[i] = line
     return lines
-
-def format_mappingdiffs(lines, file1, file2):
-    return [line.rstrip() for line in lines]
 
 def clean_path(line, path):
     """Replace occurrences of `path` in `line` with a greyed version of
@@ -1019,7 +1012,7 @@ def browse_known_file(request, filename):
     if rmap.is_mapping(filename):
         file_contents = browsify_mapping(filename, browsed_file)
     else:
-        file_contents = browsify_reference(filename, browsed_file)
+        file_contents = browsify_reference(browsed_file)
         
     used_by_files = list(uses.uses([filename], blob.observatory))
     
@@ -1104,7 +1097,7 @@ def browsify_mapping_line(line):
     return line
 
 
-def browsify_reference(filename, browsed_file):
+def browsify_reference(browsed_file):
     """Format a CRDS reference file for HTML display.   Return HTML lines.
     """
     ref_blob = models.FileBlob.load(os.path.basename(browsed_file))
@@ -1238,6 +1231,7 @@ def get_new_name(observatory, instrument, filekind, extension):
     return name
 
 def auto_rename_file(observatory, upload_name, upload_path):
+    """Generate a CRDS name for an uploaded file."""
     extension = os.path.splitext(upload_name)[-1]
     instrument, filekind = utils.get_file_properties(
         observatory, upload_path)
@@ -1485,9 +1479,9 @@ def edit_rmap(request, filename=None):
 
 # @profile
 def edit_rmap_get(request, filename):
+    """Return the page used to edit the rmap `filename`."""
     blob = models.FileBlob.load(filename)
     file_contents = browsify_edit_rmap(filename, blob.pathname)
-    pmaps = models.FileBlob.filter(type="mapping", pathname=".*\.pmap")[::-1][:10] 
     return render(request, "edit_rmap_editor.html", 
             {"fileblob" : blob,
              "observatory" : blob.observatory,
@@ -1514,6 +1508,11 @@ def browsify_edit_rmap(basename, fullpath):
 
 
 def get_collision_list(ancestry_tuples):
+    """Given a list of `ancestry_tuples`,  pairs of parent and child files,
+    check the database for other children of the same parent.   Return a
+    list of triplets,  adding a "collisions" list to each parent-child pair
+    which describes potential derivation conflicts.
+    """
     collision_list = []
     for new_map, derived_from in ancestry_tuples:
         collisions = [col.name for col in 
@@ -1605,8 +1604,8 @@ def handle_file_submissions(original_rmap, expanded, observatory, submitter):
     a list of tuples of reference filenames: [(uploaded_name,  crds_name), ...]
     """
     rmap_instrument, rmap_filekind = utils.get_file_properties(observatory, original_rmap)
-    for id in expanded["add"]:
-        uploaded_file = expanded["add"][id]["filename"]
+    for addno in expanded["add"]:
+        uploaded_file = expanded["add"][addno]["filename"]
         uploaded_name = str(uploaded_file.name)
         uploaded_path = uploaded_file.temporary_file_path()
         uploaded_instr, uploaded_filekind = utils.get_file_properties(
@@ -1625,20 +1624,20 @@ def handle_file_submissions(original_rmap, expanded, observatory, submitter):
             raise CrdsError("Reference " + repr(uploaded_file.name) + 
                             " failed certification: " + str(exc))
     new_references = []
-    for id in expanded["add"]:
-        uploaded_file = expanded["add"][id]["filename"]
+    for addno in expanded["add"]:
+        uploaded_file = expanded["add"][addno]["filename"]
         upload_name = uploaded_file.name
-        description = expanded["add"][id].get("description","undefined")
-        creator_name = expanded["add"][id].get("creator_name","undefined")
-        change_level = expanded["add"][id].get("change_level","SEVERE")
-        new_name, derived_from = do_submit_file(
+        description = expanded["add"][addno].get("description","undefined")
+        creator_name = expanded["add"][addno].get("creator_name","undefined")
+        change_level = expanded["add"][addno].get("change_level","SEVERE")
+        new_basename, derived_from = do_submit_file(
             observatory, uploaded_file, description,
             str(submitter), submitter.email, creator_name=creator_name,
             change_level=change_level, comparison_file=None,
             creation_method="edit rmap",
             details="submitted")
-        new_references.append((upload_name, new_name, derived_from))
-        expanded["add"][id]["filename"] = new_name
+        new_references.append((upload_name, new_basename, derived_from))
+        expanded["add"][addno]["filename"] = new_basename
     return sorted(new_references)
  
 def execute_edit_actions(original_rmap, expanded):
@@ -1652,8 +1651,8 @@ def execute_edit_actions(original_rmap, expanded):
     open(new_loc, "w").write(open(old_loc).read())   # copy old to new
 
     for act in sorted(expanded):   # do adds before deletes
-        for id in expanded[act]:
-            pars = expanded[act][id]
+        for edit_no in expanded[act]:
+            pars = expanded[act][edit_no]
             if act == "add":
                 make_add_useafter_rmap( new_loc, new_loc, 
                     pars["match_tuple"], pars["date"], pars["filename"])
@@ -1744,7 +1743,8 @@ def make_delete_useafter_rmap(old_location, new_location, match_tuple,
                         state = "copy remainder"
                         continue
             elif line.strip() == "}),":
-                raise CrdsError("Couldn't find useafter " + repr(useafter) + 
+                raise CrdsError("Couldn't find useafter " +
+                                repr((useafter_date, useafter_file)) +
                                 " in match tuple " + repr(match_tuple))
         new_mapping_file.write(line)
     assert state == "copy remainder", "no useafter insertion performed"
@@ -1757,6 +1757,9 @@ def make_delete_useafter_rmap(old_location, new_location, match_tuple,
 @log
 @login_required
 def deliver_context(request):
+    """Based on a pmap, find the list of referenced files which have not yet
+    been delivered and present them as candiates for delivery.
+    """
     if request.method == "GET":
         raise ServerError("Can't GET from /deliver_context/")
     context = get_recent_or_user_context(request)
@@ -1778,6 +1781,9 @@ def deliver_context(request):
 @log
 @login_required
 def delivery_options(request):
+    """Present filtering criteria (GET) and a list of filtered files from
+    which to compose a delivery (POST).
+    """
     if request.method == "GET":
         return render(request, "delivery_options_input.html", {
             "observatories":models.OBSERVATORIES,
@@ -1794,6 +1800,7 @@ def delivery_options(request):
         return delivery_options_post(request)
 
 def delivery_options_post(request):
+    """Execute filtering criteria to present candidates for delivery."""
     observatory = validate_post(
         request, "observatory", models.OBSERVATORIES+[r"\*"])
     instrument = validate_post(
@@ -1824,12 +1831,14 @@ def delivery_options_post(request):
 @log
 @login_required
 def delivery_process(request):
+    """Recieve delivery POST selections and perform delivery."""
     if request.method == "GET":
         raise CrdsError("Invalid delivery processing request.  POST only.")
     else:
         return delivery_process_post(request)
 
-def delivery_process_post(request):    
+def delivery_process_post(request):
+    """Perform delivery based on POST."""
     description = validate_post(request, "description", DESCRIPTION_RE)
     observatory = get_observatory(request)
     delivered_files = []
@@ -1840,12 +1849,15 @@ def delivery_process_post(request):
                 "File " + repr(filename) + " is not deliverable.")
             delivered_files.append(filename)
     delivered_files.sort()
-    deliver_file_list(request, observatory, delivered_files, description)
+    deliver_file_list(request.user, observatory, delivered_files, description)
     return render(request, "delivery_process_results.html", {
         "delivered_files" : delivered_files,
     })
     
-def deliver_file_list(request, observatory, delivered_files, description):
+def deliver_file_list(user, observatory, delivered_files, description):
+    """Perform delivery actions for `delivered_files` by setting up the
+    catalog file and making links, updating database and audit trail.
+    """
     if not len(delivered_files):
         raise CrdsError("No files were selected for delivery.")
     catalog = deliver_file_catalog(observatory, delivered_files, "I")
@@ -1857,7 +1869,7 @@ def deliver_file_list(request, observatory, delivered_files, description):
         raise CrdsError("Delivery failed: " + str(exc))
     deliver_file_set_catalog_links(observatory, delivered_files, catalog_link)
     models.AuditBlob.new(
-        request.user, "deliver", os.path.basename(catalog), description, 
+        user, "deliver", os.path.basename(catalog), description, 
         repr([os.path.basename(catalog)] + delivered_files), observatory)        
 
 def deliver_file_get_paths(observatory, files):
@@ -1865,8 +1877,8 @@ def deliver_file_get_paths(observatory, files):
     absolute paths to `files`.
     """
     paths = []
-    for file in files:
-        blob = models.FileBlob.load(file)
+    for filename in files:
+        blob = models.FileBlob.load(filename)
         paths.append(blob.pathname)
     return paths
 
@@ -1880,8 +1892,8 @@ def deliver_file_set_catalog_links(observatory, files, catalog_link):
     "operational" means that OPUS and the archives have the context or file 
     available,  not necessarily that the pipeline is currently using the context.
     """
-    for file in files:
-        blob = models.FileBlob.load(file)
+    for filename in files:
+        blob = models.FileBlob.load(filename)
         blob.catalog_link = catalog_link
         blob.state = "delivered"
         blob.save()
@@ -1908,18 +1920,18 @@ def deliver_file_catalog(observatory, files, operation="I"):
     """
     assert operation in ["I","D"], \
         "Invalid delivery operation " + repr(operation)
-    id = models.CounterBlob.next(observatory, "delivery_id")
-    catalog = "_".join(["opus",str(id),operation.lower()])+".cat"
+    delivery_id = models.CounterBlob.next(observatory, "delivery_id")
+    catalog = "_".join(["opus", str(delivery_id), operation.lower()])+".cat"
     catdir = os.environ.get("CRDS_SERVER_DATA", HERE) + "/catalogs"
     catpath = os.path.join(catdir, catalog)
     utils.ensure_dir_exists(catpath)
     cat = open(catpath, "w")
-    for file in files:
-        if rmap.is_mapping(file):
+    for filename in files:
+        if rmap.is_mapping(filename):
             kind = "M"
         else:
             kind = "R"
-        cat.write(file + " " + operation + " " + kind + "\n")
+        cat.write(filename + " " + operation + " " + kind + "\n")
     cat.close()
     return catpath
 
@@ -1934,10 +1946,10 @@ def deliver_make_links(observatory, catalog, paths):
     dirs = deliver_link_dirs(observatory)
     for site in dirs:
         utils.ensure_dir_exists(site)
-        for file in paths + [catalog]:
-            dest = site +"/" + os.path.basename(file)
+        for filename in paths + [catalog]:
+            dest = site +"/" + os.path.basename(filename)
             try:
-                os.link(file, dest)
+                os.link(filename, dest)
             except Exception:
                 raise CrdsError("failed to link " + repr(dest))
     master_catalog_link = os.path.join(dirs[0], os.path.basename(catalog))
@@ -1950,8 +1962,8 @@ def deliver_remove_fail(observatory, catalog, paths):
     dirs = deliver_link_dirs(observatory)
     for site in dirs + [catalog]:
         utils.ensure_dir_exists(site)
-        for file in paths + [catalog]:
-            dest = site +"/" + os.path.basename(file)
+        for filename in paths + [catalog]:
+            dest = site +"/" + os.path.basename(filename)
             try:
                 os.remove(dest)
             except Exception:
@@ -1969,6 +1981,7 @@ def deliver_link_dirs(observatory):
 
 @error_trap("base.html")
 def get_file_data(request, filename):
+    """Provides a view to serve CRDS mapping and reference files via URL."""
     try:
         blob = models.FileBlob.load(filename)
     except LookupError:
@@ -1978,4 +1991,4 @@ def get_file_data(request, filename):
         content_type = "text/plain"
     else:
         content_type = "application/octet-stream"
-    return HttpResponse(content=data, content_type=type)
+    return HttpResponse(content=data, content_type=content_type)
