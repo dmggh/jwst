@@ -49,7 +49,8 @@ def submit_files(files, observatory, deliverer,
                 description=description,
                 creation_method="mass import",
                 add_slow_fields=add_slow_fields,
-                state=state)
+                state=state,
+                update_derivation=False)
         except Exception:
             log.error("Submission FAILED for", repr(file))
                 

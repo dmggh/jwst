@@ -1,5 +1,7 @@
 header = {
     'description' : 'Initially generated on 2011-11-16 11:30:48',
+    'name' : 'hst_cos_deadtab.rmap',
+    'derived_from': 'fixed by hand',
     'filekind' : 'DEADTAB',
     'instrument' : 'COS',
     'mapping' : 'REFERENCE',

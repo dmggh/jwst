@@ -52,7 +52,8 @@ class SimpleTest(TestCase):
                 observatory, name, location, 
                 deliverer="homer", deliverer_email="homer@simpsons.com", 
                 description="delivered by the man",
-                creation_method="mass import", add_slow_fields=False)
+                creation_method="mass import", add_slow_fields=False,
+                update_derivation=False)
 
     def assert_no_errors(self, response):
         self.assertEqual(response.status_code, 200)

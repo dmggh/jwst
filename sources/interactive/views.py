@@ -660,8 +660,7 @@ def submit_file_post(request, crds_filetype):
 def do_submit_file(observatory, uploaded_file, description, 
         submitter, submitter_email, creator_name="unknown",
         change_level="SEVERE", comparison_file=None, 
-        creation_method="submit file", auto_rename=True,
-        details=""):
+        creation_method="submit file", auto_rename=True, details=""):
     """Do the core processing of a file submission,  including file
     certification and blacklist checking, naming, upload,  and record
     keeping.
@@ -669,7 +668,6 @@ def do_submit_file(observatory, uploaded_file, description,
     # Determine the temporary and permanent file paths, not yet copying.
     original_name = uploaded_file.name
     upload_location = uploaded_file.temporary_file_path()
-    derived_from = original_name    # XXXXX for now,  until it's in header
     
     if rmap.is_mapping(original_name):
         try:
@@ -701,17 +699,13 @@ def do_submit_file(observatory, uploaded_file, description,
     # Copy the temporary file to its permanent location.
     upload_file(uploaded_file, permanent_location)
 
-    # Set file permissions to read only.
-    # os.chmod(permanent_location, 0444)
-    
     # Make a database record for this file.
-    models.add_crds_file(observatory, original_name, permanent_location, 
+    blob = models.add_crds_file(observatory, original_name, permanent_location, 
             submitter, submitter_email, description, 
             creation_method=creation_method, audit_details=details, 
-            change_level=change_level, creator_name=creator_name,
-            derived_from=derived_from)
+            change_level=change_level, creator_name=creator_name)
     
-    return os.path.basename(permanent_location), derived_from
+    return os.path.basename(permanent_location), blob.derived_from
 
 def do_certify_file(basename, certifypath, check_references=None):
     """Run un-trapped components of crds.certify and re-raise any exception
@@ -1390,8 +1384,7 @@ def do_create_contexts(pmap, updated_rmaps, description, user, email):
         models.add_crds_file(
             observatory, old_ctx, rmap.locate_mapping(new_ctx),  user, email, 
             description, "new context",
-            repr(pmap) + " : " + ",".join([repr(x) for x in updated_rmaps]),
-            derived_from=old_ctx)
+            repr(pmap) + " : " + ",".join([repr(x) for x in updated_rmaps]))
         
     return new_name_map
 
@@ -1544,8 +1537,7 @@ def edit_rmap_post(request):
     models.add_crds_file(observatory, original_rmap, new_loc, 
             request.user, request.user.email, description, 
             creator_name = str(request.user),
-            creation_method="edit rmap", audit_details=repr(actions),
-            derived_from=original_rmap)
+            creation_method="edit rmap", audit_details=repr(actions))
 
     new_context_map = do_create_contexts(
         pmap, [new_rmap], description,  request.user, request.user.email)

@@ -7,7 +7,7 @@ from django.db import models
 import pyfits
 
 # Create your models here.
-from crds import (timestamp, rmap, utils)
+from crds import (timestamp, rmap, utils, refactor, checksum)
 from crds.compat import (literal_eval, namedtuple, OrderedDict)
 
 import crds.hst
@@ -558,11 +558,27 @@ def get_default_context(observatory):
 # =============================================================================
 
 def add_crds_file(observatory, upload_name, permanent_location, 
-            deliverer, deliverer_email, description, 
-            creation_method, audit_details="", 
-            change_level="SEVERE", add_slow_fields=True,
-            creator_name="unknown", state="submitted", derived_from=None):
+            deliverer, deliverer_email, description, creation_method, 
+            audit_details="", change_level="SEVERE", add_slow_fields=True,
+            creator_name="unknown", state="submitted", update_derivation=True):
     "Make a database record for this file.  Track the action of creating it."""
+
+    if update_derivation and rmap.is_mapping(upload_name):
+        mapping = rmap.load_mapping(permanent_location)
+        derived_from = mapping.derived_from
+        refactor.replace_header_value(
+            permanent_location, "derived_from", mapping.name)
+        refactor.replace_header_value(
+            permanent_location, "name", os.path.basename(permanent_location))
+        checksum.update_checksum(permanent_location)
+    else:
+        derived_from = upload_name
+    
+    try:
+        # Set file permissions to read only.
+        os.chmod(permanent_location, 0444)
+    except Exception:
+        pass
 
     fileblob = FileBlob.new(
         observatory, upload_name, permanent_location, 
