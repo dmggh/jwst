@@ -77,7 +77,7 @@ debug = True
 #
 # The mysql client library is currently hacked together and run off the central store.
 #
-dbtype='sqlite'
+dbtype='mssql'
 
 #
 # install_dir is the directory where the software should be installed.

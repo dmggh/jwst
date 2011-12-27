@@ -455,6 +455,9 @@ production:*)
         ( cd $install_dir/python/lib/python/crds/server ; python manage.py syncdb )
         ;;
 
+mssql)
+        ( cd $install_dir/python/lib/python/crds/server ; python manage.py syncdb )
+	;;
 *)
         echo ""
         echo "install does not recognize dbtype $dbtype"
