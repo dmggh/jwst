@@ -649,7 +649,7 @@ def submit_file_post(request, crds_filetype):
         str(request.user), request.user.email, creator, 
         change_level, comparison_file, )
     
-    collision_list = get_collision_list([(new_basename, derived_from)])
+    collision_list = get_collision_list([(derived_from, new_basename)])
         
     return render(request, 'submit_results.html', {
                 "crds_filetype": crds_filetype,
@@ -1503,16 +1503,15 @@ def browsify_edit_rmap(basename, fullpath):
 def get_collision_list(ancestry_tuples):
     """Given a list of `ancestry_tuples`,  pairs of parent and child files,
     check the database for other children of the same parent.   Return a
-    list of triplets,  adding a "collisions" list to each parent-child pair
+    list of triplets,  adding a "collisions" list to each (parent,child) pair
     which describes potential derivation conflicts.
     """
     collision_list = []
-    for new_map, derived_from in ancestry_tuples:
+    for parent, child in ancestry_tuples:
         collisions = [col.name for col in 
-                      models.FileBlob.filter(derived_from=derived_from)
-                      if col.name != new_map]
+            models.FileBlob.filter(derived_from=parent) if col.name != child]
         if collisions:
-            collision_list.append((new_map, derived_from, collisions))
+            collision_list.append((child, parent, collisions))
     return collision_list
 
 def edit_rmap_post(request):
@@ -1546,8 +1545,7 @@ def edit_rmap_post(request):
     new_mappings = sorted(new_context_map.values() + [new_rmap])
     
     collision_list = get_collision_list(
-            [(new_rmap, original_rmap)] +
-            [(new, old) for (old, new) in new_context_map.items()])
+            [(original_rmap, new_rmap)] + new_context_map.items())
     
     return render(request, "edit_rmap_results.html", {
                 "new_references" : new_references,

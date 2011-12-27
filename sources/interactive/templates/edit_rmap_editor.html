@@ -388,7 +388,8 @@ $( function () {
             return false;
         }
         try {
-            assert(/^[a-zA-Z0-9_\/.]+$/.test(filename), "Invalid filename '" + filename + "'");
+	    
+            assert(/^[a-zA-Z0-9_\/:\\.]+$/.test(filename), "Invalid filename '" + filename + "'");
             return cancel_err(input);
         } catch (err) {
             return notify_err(input, err);
@@ -429,7 +430,7 @@ $( function () {
     validate_creator = non_empty_sane("creator");
     validate_description = non_empty_sane("description");
 
-    $("#description").change(validate_description);
+    $("#description").change(validate_description).change();
 
     validate_all_inputs = function () {
         actions = $("p.dynamic, div.dynamic");

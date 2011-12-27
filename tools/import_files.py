@@ -50,7 +50,7 @@ def submit_files(files, observatory, deliverer,
                 creation_method="mass import",
                 add_slow_fields=add_slow_fields,
                 state=state,
-                update_derivation=False)
+                update_derivation=True)
         except Exception:
             log.error("Submission FAILED for", repr(file))
                 
@@ -65,7 +65,7 @@ def hack_sqlite3_performance():
 
 def main(args):
     
-    hack_sqlite3_performance()
+    # hack_sqlite3_performance()
     
     ctx = rmap.get_cached_mapping(args[0])
 
