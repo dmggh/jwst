@@ -13,22 +13,17 @@ from crds.server.config import install_dir
 
 DATABASES = {
     'default': {
-         # 'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'ENGINE': 'sql_server.pyodbc', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
 
-        'NAME': 'crds',
+        'NAME': install_dir + '/python/lib/python/crds/server/sqlite3.db',
         # 'sqlite3.db',                      # Or path to database file if using sqlite3.
 
-        'USER': 'crds',                      # Not used with sqlite3.
-        'PASSWORD': 'CrdsIsLove',                  # Not used with sqlite3.
-        'HOST': '192.168.1.86',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '1433',                      # Set to empty string for default. Not used with sqlite3.
-        'OPTIONS': {
-            'driver': 'FreeTDS',
-            'dsn': 'CrdsDsn', # ODBC DSN name defined in your odbc.ini
-            }    
-        }
+        'USER': '',                      # Not used with sqlite3.
+        'PASSWORD': '',                  # Not used with sqlite3.
+        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
+}
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
