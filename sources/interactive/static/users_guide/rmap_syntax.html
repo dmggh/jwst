@@ -1,0 +1,329 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Mapping Syntax &mdash; CRDS Users Manual v1.0a documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="CRDS Users Manual v1.0a documentation" href="index.html" />
+    <link rel="prev" title="Using the CRDS Web Site" href="web_site_use.html" />
+<link rel="stylesheet" href="_static/style.css"  type="text/css">
+
+  </head>
+  <body>
+<div id="header" class="related">
+  <a href="/"><img ALT="Hubble Space Telescope" SRC="_static/HSTBlackTitle.jpg" style="border-style: none"></a>
+    <h2>Calibration and Reference Data System (CRDS)</h2>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="mapping-syntax">
+<h1>Mapping Syntax<a class="headerlink" href="#mapping-syntax" title="Permalink to this headline">¶</a></h1>
+<p>CRDS reference mappings are organized in a 3 tier hierarchy:  pipeline (.pmap),
+instrument (.imap), and reference type (.rmap).</p>
+<div class="section" id="basic-structure">
+<h2>Basic Structure<a class="headerlink" href="#basic-structure" title="Permalink to this headline">¶</a></h2>
+<p>All mappings have the same basic structure consisting of a &#8220;header&#8221; section
+followed by a &#8220;selector&#8221; section.   The header provides meta data describing
+the mapping,  while the selector provides matching rules used to look up
+the results of the mapping.   A critical field in the mapping header is the
+&#8220;parkey&#8221; field which is a tuple naming the dataset header parameters which are
+used by the selector to do its lookup.</p>
+</div>
+<div class="section" id="pipeline-mappings-pmap">
+<h2>Pipeline Mappings (.pmap)<a class="headerlink" href="#pipeline-mappings-pmap" title="Permalink to this headline">¶</a></h2>
+<p>A sample pipeline mapping for HST looks like:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;name&#39;</span> <span class="p">:</span> <span class="s">&#39;hst.pmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;derived_from&#39;</span> <span class="p">:</span> <span class="s">&#39;created by hand 12-23-2011&#39;</span><span class="p">,</span>
+    <span class="s">&#39;mapping&#39;</span> <span class="p">:</span> <span class="s">&#39;PIPELINE&#39;</span><span class="p">,</span>
+    <span class="s">&#39;observatory&#39;</span> <span class="p">:</span> <span class="s">&#39;HST&#39;</span><span class="p">,</span>
+    <span class="s">&#39;parkey&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="s">&#39;INSTRUME&#39;</span><span class="p">,),</span>
+    <span class="s">&#39;description&#39;</span> <span class="p">:</span> <span class="s">&#39;Initially generated on 12-23-2011&#39;</span><span class="p">,</span>
+    <span class="s">&#39;sha1sum&#39;</span> <span class="p">:</span> <span class="s">&#39;e2c6392fd2731df1e8d933bd990f3fd313a813db&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">selector</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;ACS&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_acs.imap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;COS&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos.imap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;NICMOS&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_nicmos.imap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;STIS&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_stis.imap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;WFC3&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_wfc3.imap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;WFPC2&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_wfpc2.imap&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>A pipeline mapping matches the dataset &#8220;INSTRUME&#8221; header keyword against its
+selector to look up an instrument mapping file.</p>
+</div>
+<div class="section" id="instrument-mappings-imap">
+<h2>Instrument Mappings (.imap)<a class="headerlink" href="#instrument-mappings-imap" title="Permalink to this headline">¶</a></h2>
+<p>A sample instrument mapping for HST&#8217;s COS instrument looks like:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;derived_from&#39;</span> <span class="p">:</span> <span class="s">&#39;scraped 2011-12-23 11:57:10&#39;</span><span class="p">,</span>
+    <span class="s">&#39;description&#39;</span> <span class="p">:</span> <span class="s">&#39;Initially generated on 2011-12-23 11:57:10&#39;</span><span class="p">,</span>
+    <span class="s">&#39;instrument&#39;</span> <span class="p">:</span> <span class="s">&#39;COS&#39;</span><span class="p">,</span>
+    <span class="s">&#39;mapping&#39;</span> <span class="p">:</span> <span class="s">&#39;INSTRUMENT&#39;</span><span class="p">,</span>
+    <span class="s">&#39;name&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos.imap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;observatory&#39;</span> <span class="p">:</span> <span class="s">&#39;HST&#39;</span><span class="p">,</span>
+    <span class="s">&#39;parkey&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="s">&#39;REFTYPE&#39;</span><span class="p">,),</span>
+    <span class="s">&#39;sha1sum&#39;</span> <span class="p">:</span> <span class="s">&#39;800fb1567cb5bed4031402c7396aeb86c5e1db61&#39;</span><span class="p">,</span>
+    <span class="s">&#39;source_url&#39;</span> <span class="p">:</span> <span class="s">&#39;http://www.stsci.edu/hst/observatory/cdbs/SIfileInfo/COS/reftablequeryindex&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">selector</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;badttab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_badttab.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;bpixtab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_bpixtab.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;brftab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_brftab.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;brsttab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_brsttab.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;deadtab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_deadtab.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;disptab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_disptab.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;flatfile&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_flatfile.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;fluxtab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_fluxtab.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;geofile&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_geofile.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;lamptab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_lamptab.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;phatab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_phatab.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;spwcstab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_spwcstab.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;tdstab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_tdstab.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;wcptab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_wcptab.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;xtractab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_xtractab.rmap&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Instrument mappings match the desired reference file type against the
+reference mapping which can be used to determine a best reference recommendation
+for a paricular dataset.  An instrument mapping lists all possible reference
+types for all modes of the instrument,  some of which may not be appropriate
+for a particular mode.   The selector key of an instrument mapping is the
+value of a reference file header keyword &#8220;REFTYPE&#8221;,  and is the name of the
+dataset header keyword which will record the best reference selection.</p>
+</div>
+<div class="section" id="reference-mappings-rmap">
+<h2>Reference Mappings (.rmap)<a class="headerlink" href="#reference-mappings-rmap" title="Permalink to this headline">¶</a></h2>
+<p>A sample reference mapping for HST COS DEADTAB looks like:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;derived_from&#39;</span> <span class="p">:</span> <span class="s">&#39;scraped 2011-12-23 11:54:56&#39;</span><span class="p">,</span>
+    <span class="s">&#39;description&#39;</span> <span class="p">:</span> <span class="s">&#39;Initially generated on 2011-12-23 11:54:56&#39;</span><span class="p">,</span>
+    <span class="s">&#39;filekind&#39;</span> <span class="p">:</span> <span class="s">&#39;DEADTAB&#39;</span><span class="p">,</span>
+    <span class="s">&#39;instrument&#39;</span> <span class="p">:</span> <span class="s">&#39;COS&#39;</span><span class="p">,</span>
+    <span class="s">&#39;mapping&#39;</span> <span class="p">:</span> <span class="s">&#39;REFERENCE&#39;</span><span class="p">,</span>
+    <span class="s">&#39;name&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_deadtab.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;observatory&#39;</span> <span class="p">:</span> <span class="s">&#39;HST&#39;</span><span class="p">,</span>
+    <span class="s">&#39;parkey&#39;</span> <span class="p">:</span> <span class="p">((</span><span class="s">&#39;DETECTOR&#39;</span><span class="p">,),</span> <span class="p">(</span><span class="s">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s">&#39;TIME-OBS&#39;</span><span class="p">)),</span>
+    <span class="s">&#39;sha1sum&#39;</span> <span class="p">:</span> <span class="s">&#39;e27984a6441d8aaa7cd28ead2267a6be4c3a153b&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">selector</span> <span class="o">=</span> <span class="n">Match</span><span class="p">({</span>
+    <span class="p">(</span><span class="s">&#39;FUV&#39;</span><span class="p">,)</span> <span class="p">:</span> <span class="n">UseAfter</span><span class="p">({</span>
+        <span class="s">&#39;1996-10-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s">&#39;s7g1700gl_dead.fits&#39;</span><span class="p">,</span>
+    <span class="p">}),</span>
+    <span class="p">(</span><span class="s">&#39;NUV&#39;</span><span class="p">,)</span> <span class="p">:</span> <span class="n">UseAfter</span><span class="p">({</span>
+        <span class="s">&#39;1996-10-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s">&#39;s7g1700ql_dead.fits&#39;</span><span class="p">,</span>
+    <span class="p">}),</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>Reference mapping selectors are constructed as a nested hierarchy of selection
+operators which match against various dataset header keywords.</p>
+<p>For reference mappings,  the header &#8220;parkey&#8221; field is a tuple of tuples.  Each
+stage of the nested selector consumes the next tuple of header keys.  For the
+example above,   the Match operator matches against the value of the dataset
+keyword &#8220;DETECTOR&#8221;.   Based on that match, the selected UseAfter operator
+matches against the data set&#8217;s &#8220;DATE-OBS&#8221; and &#8220;TIME-OBS&#8221; keywords to lookup
+the name of a reference file.</p>
+</div>
+<div class="section" id="hst-selectors">
+<h2>HST Selectors<a class="headerlink" href="#hst-selectors" title="Permalink to this headline">¶</a></h2>
+<p>For HST,  all reference mapping selectors are defined as a two tiered hierarchy
+with one general matching step (Match) and one date-time match step (UseAfter).</p>
+<div class="section" id="match">
+<h3>Match<a class="headerlink" href="#match" title="Permalink to this headline">¶</a></h3>
+<p>Conceptually,  the Match selector does a dictionary lookup based on the header
+keyword values listed in the first tuple of rmap header field &#8220;parkey&#8221;.   In
+actuality however,  CRDS does a winnowing search based on each successive
+parkey value,  eliminating impossible matches and returning the best matching
+survivor.   There are a number of special values associated with the CRDS Match
+operator:  <a href="#id1"><span class="problematic" id="id2">*</span></a>,  NOT PRESENT, %NO REFERENCE%.</p>
+<div class="section" id="wild-cards-and-optional-match-parameters">
+<h4>Wild Cards and Optional Match Parameters<a class="headerlink" href="#wild-cards-and-optional-match-parameters" title="Permalink to this headline">¶</a></h4>
+<p>Star * is used in two places in CRDS rmaps.   When * precedes a header keyword
+listed in &#8220;parkey&#8221; it means the header keyword is not <em>required</em> to be defined
+by a dataset.   So an rmap header looking like:</p>
+<div class="highlight-python"><pre>'parkey' : (("*CCDGAIN", ...), ...)</pre>
+</div>
+<p>indicates that the CCDGAIN parameter is only used for some matches. In this
+instance,  when a dataset does not define CCDGAIN at all,  a match can still
+occur.</p>
+<p>When * is used as a value in a Match pattern, it indicates that the pattern will
+match any value for that field.</p>
+</div>
+<div class="section" id="match-weighting">
+<h4>Match Weighting<a class="headerlink" href="#match-weighting" title="Permalink to this headline">¶</a></h4>
+<p>A consequence of optional parameters and wild card matches is that CRDS cannot
+do a direct lookup based on dataset header values.  Consequently CRDS  does a
+winnowing match which iterates over all possible selector matches and each
+parkey keyword,  discarding at each step selections which cannot possibly match
+a dataset.   Each parameter which does match contributes to the selection&#8217;s
+match weight,  where greater weights correspond to better matches.   A parameter
+which matches literally contributes +1 to the weight.  A parameter which matches
+via a wild card contributes 0 to the weight.   Thus,  more specific matches are
+given greater weights and considered better.</p>
+<p>After all of the keywords listed in &#8220;parkey&#8221; have been examined,  one of the
+surviving selections should have a unique greatest weight. It&#8217;s possible to
+define rmaps or datasets which match two selections with identical weights;
+this is considered an error and CRDS raises an exception for these ambiguous
+matches.</p>
+</div>
+<div class="section" id="not-present">
+<h4>NOT PRESENT<a class="headerlink" href="#not-present" title="Permalink to this headline">¶</a></h4>
+<p>The initial HST rmaps were all scraped from the CDBS web site which lists
+reference file selection criteria.  The value NOT PRESENT means that a match
+value could not be found in the CDBS HTML table.   In cases where the rmap
+generator was instructed to look into reference files for undefined parkey
+values,   NOT PRESENT means the associated reference file didn&#8217;t define it
+either.  Since not all parameter values are always required or relevant, a value
+of NOT PRESENT is generally not an error.   A value of NOT PRESENT does however
+imply that the parameter itself is considered optional and the corresponding
+parkeys keyword will be prefixed with <a href="#id3"><span class="problematic" id="id4">*</span></a>.</p>
+</div>
+<div class="section" id="no-reference">
+<h4>%NO REFERENCE%<a class="headerlink" href="#no-reference" title="Permalink to this headline">¶</a></h4>
+<p>To first order, CRDS expects the CDBS web site to list required parameter values
+for best reference matching. In practice,  the CDBS website doesn&#8217;t list all
+required parameter values so CRDS sometimes finds them by looking inside the
+rerefence files themselves.  For match tuples containing %NO REFERENCE%, the
+rmap generator was instructed to look inside reference files but could not find
+the reference file in order to do so.   This suggests a missing or obsoleted
+reference file.    Note that the rmap generator is not always instructed to
+search inside reference files.</p>
+</div>
+<div class="section" id="substitution-parameters">
+<h4>Substitution Parameters<a class="headerlink" href="#substitution-parameters" title="Permalink to this headline">¶</a></h4>
+<p>Substituion parameters are short hand notation which eliminate the need to
+duplicate rmap rules.  In order to support WFC3 biasfile conventions,  CRDS
+rmaps permit the definition of meta-match-values which correspond to a set of
+actual dataset header values. For instance,  when an rmap header contains a
+&#8220;substitutions&#8221; field like this:</p>
+<div class="highlight-python"><pre>'substitutions' : {
+    'CCDAMP' : {
+        'G280_AMPS' : ('ABCD', 'A', 'B', 'C', 'D', 'AC', 'AD', 'BC', 'BD'),
+    },
+},</pre>
+</div>
+<p>then a match tuple line like the following could be written:</p>
+<div class="highlight-python"><pre>('UVIS', 'G280_AMPS', '1.5', '1.0', '1.0', 'G280-REF', 'T') : UseAfter({</pre>
+</div>
+<p>Here the value of G280_AMPS works like this:  first,   reference files listed
+under that match tuple define CCDAMP=G280_AMPS.   Second, data sets which should
+use those references define CCDAMP to a particular amplifier configuration,
+.e.g.  ABCD.   Hence,  the reference file specifies a set of applicable
+amplifier configurations,  while the dataset specifies a particular
+configuration.   CRDS automatically expands substitutions into equivalent sets
+of match rules.</p>
+</div>
+</div>
+<div class="section" id="useafter">
+<h3>UseAfter<a class="headerlink" href="#useafter" title="Permalink to this headline">¶</a></h3>
+<p>The UseAfter selector matches an ordered sequence of date time values to
+corresponding reference filenames.   UseAfter finds the greatest date-time which
+is less than or equal to ( &lt;= ) DATE-OBS and TIME-OBS of the dataset.   Unlike
+reference file and dataset timestamp values,  all CRDS rmaps represent times in
+the single format shown in the rmap example above.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+   <a href="index.html"><h2>Top</h2></a>
+   <br/>
+   
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Mapping Syntax</a><ul>
+<li><a class="reference internal" href="#basic-structure">Basic Structure</a></li>
+<li><a class="reference internal" href="#pipeline-mappings-pmap">Pipeline Mappings (.pmap)</a></li>
+<li><a class="reference internal" href="#instrument-mappings-imap">Instrument Mappings (.imap)</a></li>
+<li><a class="reference internal" href="#reference-mappings-rmap">Reference Mappings (.rmap)</a></li>
+<li><a class="reference internal" href="#hst-selectors">HST Selectors</a><ul>
+<li><a class="reference internal" href="#match">Match</a><ul>
+<li><a class="reference internal" href="#wild-cards-and-optional-match-parameters">Wild Cards and Optional Match Parameters</a></li>
+<li><a class="reference internal" href="#match-weighting">Match Weighting</a></li>
+<li><a class="reference internal" href="#not-present">NOT PRESENT</a></li>
+<li><a class="reference internal" href="#no-reference">%NO REFERENCE%</a></li>
+<li><a class="reference internal" href="#substitution-parameters">Substitution Parameters</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#useafter">UseAfter</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="web_site_use.html"
+                        title="previous chapter">Using the CRDS Web Site</a></p>
+
+   
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+   <br>
+   <a href="/"><h2>Return to CRDS</h2></a>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+<div class="footer" >
+  <p align="left">
+    If you have any questions regarding CRDS, please contact the
+    STScI Help Desk <a HREF="mailto:help@stsci.edu">(help@stsci.edu)</a>.
+  </p>
+  
+  <p align="left"> <a HREF="http://www.stsci.edu/institute/Copyright">Copyright Notice</a> </p>
+  
+  <p align="left"> <img BORDER="0" ALT="STScI" SRC="_static/HSTBanner.gif"/> </p>
+</div>
+
+  </body>
+</html>

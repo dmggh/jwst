@@ -44,7 +44,7 @@
 <h1>Client Usage<a class="headerlink" href="#client-usage" title="Permalink to this headline">¶</a></h1>
 <p>This section describes using the crds.client package to access remote
 web services on the central CRDS server.  Remote services support the
-determination of the best reference files for a dataset.  Remove
+determination of the best reference files for a dataset.  Remote
 services support transparently downloading CRDS mappings and reference
 files and caching them locally for use in development or dataset
 processing.</p>
@@ -53,8 +53,8 @@ processing.</p>
 <p>After installing CRDS,  the simplest usage of CRDS is as follows:</p>
 <div class="highlight-python"><pre>% source env.csh
 % python
-&gt;&gt;&gt; import crds.client.api as api
-&gt;&gt;&gt; bestrefs = api.cache_best_references_for_dataset("hst.pmap", "j8is01j0q_raw.fits")
+&gt;&gt;&gt; import crds.client as client
+&gt;&gt;&gt; bestrefs = client.cache_best_references_for_dataset("hst.pmap", "j8is01j0q_raw.fits")
 &gt;&gt;&gt; bestrefs
 {'atodtab': '.../site-packages/crds/hst/references/jtab/kcb1734ij_a2d.fits',
  'bpixtab': '.../site-packages/crds/hst/references/jref/m8r09169j_bpx.fits',
@@ -68,6 +68,8 @@ processing.</p>
  'pfltfile': '.../site-packages/crds/hst/references/jref/n2d1344mj_pfl.fits',
  'spottab': '.../site-packages/crds/hst/references/jref/r3301467j_csp.fits'}</pre>
 </div>
+<p>The first parameter is the name of the pipeline context file which should be used
+to determine best references for the second parameter,  a dataset file.</p>
 <p>Based on this single function call,  the client environment now has all the
 information and system state required to process the dataset:  a mapping from
 each required reference filekind to a local path to the reference.</p>
@@ -96,7 +98,7 @@ parameters.  Nominally CRDS best reference parameters are extracted
 from the dataset FITS header, but in principle the <em>header</em> can be a
 dictionary which comes from anywhere:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">header</span> <span class="o">=</span> <span class="p">{</span> <span class="o">...</span> <span class="n">what</span> <span class="n">matters</span> <span class="o">...</span> <span class="p">}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">bestrefs</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">get_best_references</span><span class="p">(</span><span class="s">&quot;hst.pmap&quot;</span><span class="p">,</span> <span class="n">header</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bestrefs</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_best_references</span><span class="p">(</span><span class="s">&quot;hst.pmap&quot;</span><span class="p">,</span> <span class="n">header</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">bestrefs</span>
 <span class="go">{&#39;atodtab&#39;: &#39;kcb1734ij_a2d.fits&#39;,</span>
 <span class="go"> &#39;bpixtab&#39;: &#39;m8r09169j_bpx.fits&#39;,</span>
@@ -121,7 +123,7 @@ where to get them.</p>
 <h2>OK,  Now Cache My Files<a class="headerlink" href="#ok-now-cache-my-files" title="Permalink to this headline">¶</a></h2>
 <p>Once you&#8217;ve decided you&#8217;re happy with your reference file choices,  you can
 ask CRDS to cache them locally like this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">cache_references</span><span class="p">(</span><span class="s">&quot;hst.pmap&quot;</span><span class="p">,</span> <span class="n">bestrefs</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">cache_references</span><span class="p">(</span><span class="s">&quot;hst.pmap&quot;</span><span class="p">,</span> <span class="n">bestrefs</span><span class="p">)</span>
 <span class="go">{&#39;atodtab&#39;: &#39;.../site-packages/crds/hst/references/jtab/kcb1734ij_a2d.fits&#39;,</span>
 <span class="go"> &#39;bpixtab&#39;: &#39;.../site-packages/crds/hst/references/jref/m8r09169j_bpx.fits&#39;,</span>
 <span class="go"> &#39;ccdtab&#39;: &#39;.../site-packages/crds/hst/references/jref/o151506bj_ccd.fits&#39;,</span>
@@ -142,7 +144,7 @@ ask CRDS to cache them locally like this:</p>
 matters</em> and how to format it after all.  In that case, call
 get_minimum_header() on an instrument or reference mapping file and dataset
 to determine the header parameters that matter:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">api</span><span class="o">.</span><span class="n">get_minimum_header</span><span class="p">(</span><span class="s">&quot;hst_acs.imap&quot;</span><span class="p">,</span> <span class="s">&quot;test_data/j8bt05njq_raw.fits&quot;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">get_minimum_header</span><span class="p">(</span><span class="s">&quot;hst_acs.imap&quot;</span><span class="p">,</span> <span class="s">&quot;test_data/j8bt05njq_raw.fits&quot;</span><span class="p">)</span>
 <span class="go">{&#39;CCDAMP&#39;: &#39;C&#39;,</span>
 <span class="go"> &#39;CCDGAIN&#39;: &#39;2.0&#39;,</span>
 <span class="go"> &#39;DATE-OBS&#39;: &#39;2002-04-13&#39;,</span>
