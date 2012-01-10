@@ -70,7 +70,16 @@ def check_header(header):
         if not isinstance(value, (str, unicode)):
             raise InvalidHeaderError("Bad value in header... not a string.")
 
+def check_observatory(obs):
+    assert obs in ["hst","jwst"], "Unknown observatory " + repr(obs)
+    
 # ===========================================================================
+
+@jsonrpc_method('list_mappings(String, String)')
+def list_mappings(request, observatory, glob_pattern):
+    check_observatory(observatory)
+    assert glob_pattern.count("/") == 0, "Illegal glob pattern, / not permitted."
+    return rmap.list_mappings(glob_pattern, observatory)
 
 @jsonrpc_method('get_best_references(String, Object)')
 def get_best_references(request, context, header):
