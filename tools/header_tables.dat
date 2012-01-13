@@ -36,7 +36,9 @@
          'obstype': 'acs_ref_data.acr_obstype',
          'oscntab': 'acs_ref_data.acr_best_oscntab',
          'pfltfile': 'acs_ref_data.acr_best_pfltfile',
-         'spottab': 'acs_ref_data.acr_best_spottab'},
+         'spottab': 'acs_ref_data.acr_best_spottab',
+		 'targname' : 'science.sci_targname',
+},
 
 # 2012012181133-D-DIAG-using source ('cos_ref_data', 'csr_opt_elem')
 # 2012012181133-D-DIAG-using source ('cos_a_data', 'csa_exptype')
@@ -57,6 +59,7 @@
          'lamptab': 'cos_ref_data.csr_best_lamptab',
          'obsmode': 'cos_ref_data.csr_obsmode',
          'obstype': 'cos_ref_data.csr_obstype',
+		 'opt_elem': 'cos_ref_data.csr_opt_elem',
          'phatab': 'cos_ref_data.csr_best_phatab',
          'spwcstab': 'cos_ref_data.csr_best_spwcstab',
          'tdstab': 'cos_ref_data.csr_best_tdstab',
@@ -182,6 +185,7 @@
            'maskfile': 'wfpc2_ref_data.w2r_best_maskfile',
            'mode': 'wfpc2_ref_data.w2r_mode',
            'offtab': 'wfpc2_ref_data.w2r_best_offtab',
+		   'serials': 'wfpc2_ref_data.w2r_serials',
            'shadfile': 'wfpc2_ref_data.w2r_best_shadfile',
            'shutter': 'wfpc2_ref_data.w2r_shutter',
            'wf4tfile': 'wfpc2_ref_data.w2r_best_wf4tfile'}}

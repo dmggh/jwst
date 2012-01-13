@@ -189,10 +189,13 @@ def test(instr, ncases, context="hst.pmap"):
     log.reset()
     gen = HEADER_GENERATORS[instr].get_headers()
     count = 0
+    mismatched = {}
     for header in gen:
         crds_refs = rmap.get_best_references(context, header)
         mismatches = 0
         for filekind in crds_refs:
+            if filekind not in mismatched:
+                mismatched[filekind] = set()
             try:
                 old = header[filekind.upper()].lower()
             except:
@@ -203,15 +206,23 @@ def test(instr, ncases, context="hst.pmap"):
                 continue
             if old != new: 
                 if not mismatches:
-                    log.error("dataset", header["DATA_SET"], "...", "ERROR")
+                    log.verbose("dataset", header["DATA_SET"], "...", "ERROR")
                     log.verbose(header)
                     log.verbose(crds_refs)
                 mismatches += 1
-                log.error("mismatch:", filekind, old, new)
+                log.error("mismatch:", header["DATA_SET"], filekind, old, new)
+                mismatched[filekind].add((old,new))
         if not mismatches:
-            log.info("dataset", header["DATA_SET"], "...", "OK")
+            # log.info("dataset", header["DATA_SET"], "...", "OK")
+            log.write(".", eol="", sep="")
         count += 1
         if count >= ncases:
             break
+    log.write()
+    log.write()
+    for filekind in mismatched:
+        log.write(filekind, "mismatched:", mismatched[filekind])
+    log.write()
+    log.write(count, "datasets")
     log.standard_status()
 
