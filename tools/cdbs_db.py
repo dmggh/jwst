@@ -39,6 +39,7 @@ def required_keys(instr):
     pars.remove("time-obs")
     pars.append("expstart" if instr != "stis" else "texpstrt")
     pars.append("data_set")
+    pars.append("targname")
     pars.extend(imap.selections.keys())
     return pars
 
@@ -132,7 +133,7 @@ class HeaderGenerator(object):
     def getter_sql(self):
         sql = "SELECT %s FROM %s " % (", ".join(self.db_columns), 
                                       ", ".join(self.db_tables))
-        if len(self.db_tables) == 2:
+        if len(self.db_tables) >= 2:
             sql += "WHERE %s" % self.join_expr()
         return sql
 
@@ -142,12 +143,13 @@ class HeaderGenerator(object):
             all_cols += [table + "." + col for col in get_columns(table)]
         clauses = []
         for suffix in ["program_id", "obset_id", "obsnum"]:
-            pair = []
+            joined = []
             for col in all_cols:
                 if col.endswith(suffix):
-                    pair.append(col)
-            assert len(pair)==2, "Broken table join on " + repr(suffix)
-            clauses.append("=".join(pair))
+                    joined.append(col)
+            if len(joined) >= 2:
+                for more in joined[1:]:
+                    clauses.append(joined[0] + "=" + more)
         return (" and ").join(clauses)
 
     def get_headers(self):
