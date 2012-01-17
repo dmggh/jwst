@@ -1,4 +1,5 @@
 import pprint
+import cPickle
 
 import pyodbc
 
@@ -7,8 +8,8 @@ import crds.hst
 
 log.set_verbose(False)
 
-CONNECTION = pyodbc.connect("DSN=DadsopsDsn;Uid=jmiller;Pwd=")
-CURSOR = CONNECTION.cursor()
+# CONNECTION = pyodbc.connect("DSN=DadsopsDsn;Uid=jmiller;Pwd=")
+# CURSOR = CONNECTION.cursor()
 
 def get_tables():
     return [row.table_name for row in CURSOR.tables()]
@@ -185,36 +186,26 @@ def testall():
         pprint.pprint(result)
         print 
 
-def test(instr, ncases, context="hst.pmap"):
+def test(header_generator, ncases, context="hst.pmap"):
+    """Evaluate the first `ncases` best references cases from 
+    `header_generator` against similar results attained from CRDS running
+    on pipeline `context`.
+    """
     log.reset()
-    gen = HEADER_GENERATORS[instr].get_headers()
+    if header_generator in crds.hst.INSTRUMENTS:
+        headers = HEADER_GENERATORS[instr].get_headers()
+    elif isinstance(header_generator, str): 
+        if header_generator.endswith(".pkl"):
+            headers = cPickle.load(open(header_generator))
+        else:
+            headers = eval(open(header_generator).read())
+    else:
+        raise ValueError("header_generator should name an instrument, pickle, or eval file.")
     count = 0
     mismatched = {}
-    for header in gen:
+    for header in headers:
         crds_refs = rmap.get_best_references(context, header)
-        mismatches = 0
-        for filekind in crds_refs:
-            if filekind not in mismatched:
-                mismatched[filekind] = set()
-            try:
-                old = header[filekind.upper()].lower()
-            except:
-                log.warning("No comparison for", repr(filekind))
-            new = crds_refs[filekind]
-            if old in ["n/a", "*", "none"]:
-                log.verbose("Ignoring", repr(filekind), "as n/a")
-                continue
-            if old != new: 
-                if not mismatches:
-                    log.verbose("dataset", header["DATA_SET"], "...", "ERROR")
-                    log.verbose(header)
-                    log.verbose(crds_refs)
-                mismatches += 1
-                log.error("mismatch:", header["DATA_SET"], filekind, old, new)
-                mismatched[filekind].add((old,new))
-        if not mismatches:
-            # log.info("dataset", header["DATA_SET"], "...", "OK")
-            log.write(".", eol="", sep="")
+        compare_results(header, crds_refs, mismatched)
         count += 1
         if count >= ncases:
             break
@@ -226,3 +217,31 @@ def test(instr, ncases, context="hst.pmap"):
     log.write(count, "datasets")
     log.standard_status()
 
+def compare_results(header, crds_refs, mismatched):
+    """Compare the old best ref recommendations in `header` to those 
+    in `crds_refs`,  recording a list of error tuples by filekind in
+    dictionary `mismatched`.
+    """
+    mismatches = 0
+    for filekind in crds_refs:
+        if filekind not in mismatched:
+            mismatched[filekind] = set()
+        try:
+            old = header[filekind.upper()].lower()
+        except:
+            log.warning("No comparison for", repr(filekind))
+        new = crds_refs[filekind]
+        if old in ["n/a", "*", "none"]:
+            log.verbose("Ignoring", repr(filekind), "as n/a")
+            continue
+        if old != new: 
+            if not mismatches:
+                log.verbose("dataset", header["DATA_SET"], "...", "ERROR")
+                log.verbose(header)
+                log.verbose(crds_refs)
+            mismatches += 1
+            log.error("mismatch:", header["DATA_SET"], filekind, old, new)
+            mismatched[filekind].add((old,new))
+    if not mismatches:
+        # log.info("dataset", header["DATA_SET"], "...", "OK")
+        log.write(".", eol="", sep="")
