@@ -65,7 +65,7 @@ def hack_sqlite3_performance():
 
 def main(args):
     
-    # hack_sqlite3_performance()
+    hack_sqlite3_performance()
     
     ctx = rmap.get_cached_mapping(args[0])
 
