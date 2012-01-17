@@ -1,5 +1,6 @@
 import pprint
 import cPickle
+import random
 
 import pyodbc
 
@@ -8,8 +9,8 @@ import crds.hst
 
 log.set_verbose(False)
 
-# CONNECTION = pyodbc.connect("DSN=DadsopsDsn;Uid=jmiller;Pwd=")
-# CURSOR = CONNECTION.cursor()
+CONNECTION = pyodbc.connect("DSN=DadsopsDsn;Uid=jmiller;Pwd=altfaxevac")
+CURSOR = CONNECTION.cursor()
 
 def get_tables():
     return [row.table_name for row in CURSOR.tables()]
@@ -186,7 +187,7 @@ def testall():
         pprint.pprint(result)
         print 
 
-def test(header_generator, ncases, context="hst.pmap"):
+def test(header_generator, ncases=None, context="hst.pmap"):
     """Evaluate the first `ncases` best references cases from 
     `header_generator` against similar results attained from CRDS running
     on pipeline `context`.
@@ -207,7 +208,7 @@ def test(header_generator, ncases, context="hst.pmap"):
         crds_refs = rmap.get_best_references(context, header)
         compare_results(header, crds_refs, mismatched)
         count += 1
-        if count >= ncases:
+        if ncases is not None and count >= ncases:
             break
     log.write()
     log.write()
@@ -245,3 +246,27 @@ def compare_results(header, crds_refs, mismatched):
     if not mismatches:
         # log.info("dataset", header["DATA_SET"], "...", "OK")
         log.write(".", eol="", sep="")
+
+
+def dump(instr, ncases=10**10, random_samples=True):
+    """Store `ncases` header records taken from DADSOPS for `instr`ument in 
+    a pickle file,  optionally sampling randomly from all headers.
+    """
+    samples = []
+    headers = list(HEADER_GENERATORS[instr].get_headers())
+    while len(samples) < ncases and headers:
+        selected = int(random.random()*len(headers)) if random_samples else 0
+        samples.append(headers.pop(selected))
+    cPickle.dump(samples, open(instr + "_headers.pkl", "w+"))
+
+
+def dumpall(context="hst.pmap", ncases=1000, random_samples=True):
+    """Generate header pickles for all instruments referred to by `context`,
+    where the headers are taken from the DADSOPS database.   Optionally collect
+    only `ncases` samples taken randomly accoring to the `random_samples` flag.
+    """
+    pmap = rmap.get_cached_mapping(context)
+    for instr in pmap.selections.keys():
+        log.info("collecting", repr(instr))
+        dump(instr, ncases, random_samples)
+
