@@ -26,14 +26,20 @@ def get_db_info(instr):
             info[table] = get_columns(table)
     return info
 
-def make_dicts(table, col_list=None, ordered=False):
+def make_dicts(table, col_list=None, ordered=False, where="", dataset=None):
+    if dataset is not None:
+        all_cols = get_columns(table)
+        for col in all_cols:
+            if "data_set_name" in col:
+                dsname = col
+                break
+        where += "where %s='%s'" % (dsname, dataset)
     if col_list is None:
         col_list = get_columns(table)
     col_names = ", ".join(col_list)
-    for row in CURSOR.execute("select %s from %s" % (col_names, table)):
+    for row in CURSOR.execute("select %s from %s %s" % (col_names, table, where)):
         items = zip(col_list, row)
-        if ordered:
-            kind = OrderedDict if ordered else dict
+        kind = OrderedDict if ordered else dict
         yield kind(items)
 
 def required_keys(instr):
