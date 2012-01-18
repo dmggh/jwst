@@ -230,11 +230,12 @@ def compare_results(header, crds_refs, mismatched, ignore):
         if ignore and filekind in ignore:
             continue
         if filekind not in mismatched:
-            mismatched[filekind] = set()
+            mismatched[filekind] = {}
         try:
             old = header[filekind.upper()].lower()
         except:
             log.warning("No comparison for", repr(filekind))
+            continue
         new = crds_refs[filekind]
         if old in ["n/a", "*", "none"]:
             log.verbose("Ignoring", repr(filekind), "as n/a")
@@ -245,7 +246,9 @@ def compare_results(header, crds_refs, mismatched, ignore):
                 log.verbose("dataset", dataset, "...", "ERROR")
             mismatches += 1
             log.error("mismatch:", dataset, filekind, old, new)
-            mismatched[filekind].add((dataset, old, new))
+            if (old, new) not in mismatched[filekind]:
+                mismatched[filekind][(old,new)] = 0
+            mismatched[filekind][(old,new)] += 1
     if not mismatches:
         log.write(".", eol="", sep="")
 
@@ -260,7 +263,7 @@ def testall(ncases=10**10, context="hst.pmap", instruments=None,
         test(instr+suffix, ncases, context)
         log.write()
 
-def dump(instr, ncases=10**10, random_samples=True):
+def dump(instr, ncases=10**10, random_samples=True, suffix="_headers.pkl"):
     """Store `ncases` header records taken from DADSOPS for `instr`ument in 
     a pickle file,  optionally sampling randomly from all headers.
     """
@@ -269,10 +272,11 @@ def dump(instr, ncases=10**10, random_samples=True):
     while len(samples) < ncases and headers:
         selected = int(random.random()*len(headers)) if random_samples else 0
         samples.append(headers.pop(selected))
-    cPickle.dump(samples, open(instr + "_headers.pkl", "w+"))
+    cPickle.dump(samples, open(instr + suffix, "w+"))
 
 
-def dumpall(context="hst.pmap", ncases=1000, random_samples=True):
+def dumpall(context="hst.pmap", ncases=1000, random_samples=True, 
+            suffix="_headers.pkl"):
     """Generate header pickles for all instruments referred to by `context`,
     where the headers are taken from the DADSOPS database.   Optionally collect
     only `ncases` samples taken randomly accoring to the `random_samples` flag.
@@ -280,5 +284,5 @@ def dumpall(context="hst.pmap", ncases=1000, random_samples=True):
     pmap = rmap.get_cached_mapping(context)
     for instr in pmap.selections.keys():
         log.info("collecting", repr(instr))
-        dump(instr, ncases, random_samples)
+        dump(instr, ncases, random_samples, suffix)
 
