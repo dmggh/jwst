@@ -249,6 +249,16 @@ def compare_results(header, crds_refs, mismatched, ignore):
     if not mismatches:
         log.write(".", eol="", sep="")
 
+def testall(ncases=10**10, context="hst.pmap", instruments=None, 
+            suffix="_headers.pkl"):
+    if instruments is None:
+        pmap = rmap.get_cached_mapping(context)
+        instruments = pmap.selections
+    for instr in instruments:
+        log.write(70*"=")
+        log.write(instr, ":")
+        test(instr+suffix, ncases, context)
+        log.write()
 
 def dump(instr, ncases=10**10, random_samples=True):
     """Store `ncases` header records taken from DADSOPS for `instr`ument in 
