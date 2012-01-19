@@ -10,7 +10,10 @@ import crds.hst
 
 log.set_verbose(False)
 
-CONNECTION = pyodbc.connect("DSN=DadsopsDsn;Uid=jmiller;Pwd=altfaxevac")
+# CONNECTION = pyodbc.connect("DSN=DadsopsDsn;Uid=jmiller;Pwd=")
+# CURSOR = CONNECTION.cursor()
+
+CONNECTION = pyodbc.connect("DSN=ReffileOpsDsn;Uid=jmiller;Pwd=")
 CURSOR = CONNECTION.cursor()
 
 def get_tables():
