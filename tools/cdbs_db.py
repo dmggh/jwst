@@ -26,7 +26,8 @@ def get_db_info(instr):
             info[table] = get_columns(table)
     return info
 
-def make_dicts(table, col_list=None, ordered=False, where="", dataset=None):
+def make_dicts(table, col_list=None, ordered=False, where="", dataset=None,
+               lowercase=True):
     if dataset is not None:
         all_cols = get_columns(table)
         for col in all_cols:
@@ -38,7 +39,7 @@ def make_dicts(table, col_list=None, ordered=False, where="", dataset=None):
         col_list = get_columns(table)
     col_names = ", ".join(col_list)
     for row in CURSOR.execute("select %s from %s %s" % (col_names, table, where)):
-        items = zip(col_list, row)
+        items = zip(col_list, [str(x).lower() for x in row] if lowercase else row)
         kind = OrderedDict if ordered else dict
         yield kind(items)
 
