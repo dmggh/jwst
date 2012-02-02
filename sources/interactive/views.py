@@ -27,7 +27,7 @@ from django.utils.datastructures import DotExpandedDict
 import pyfits
 
 from crds import (rmap, utils, certify, timestamp, uses, matches, newcontext, 
-                  checksum, pysh, compat)
+                  refactor, checksum, pysh, compat)
 
 import crds.server.config as config
 import crds.server.interactive.models as models
@@ -377,6 +377,7 @@ class Logger(object):
 
     def close(self):
         """close per-request logfile and un-hook stdout and stderr."""
+        self.flush()
         self.file.close()
         sys.stdout, sys.stderr = self.oldout, self.olderr
        
@@ -384,9 +385,6 @@ class Logger(object):
         """Flush the logfile and stdout."""
         self.file.flush()
         self.oldout.flush()
-
-    def __del__(self):
-        self.close()
 
 def log(func):
     """log() captures view inputs, output, and response to a log file.
@@ -403,10 +401,14 @@ def log(func):
         logfile.write(time=False) # start with blank line to make concat logs readable
         logfile.write("REQUEST:", request.path, request.method)
         logfile.write("META:", repr(request.META), stdout=None)
-        logfile.write("GET:",   repr(request.GET))
-        logfile.write("POST:",  repr(request.POST))
-        logfile.write("COOKIES:", repr(request.COOKIES), stdout=None)
-        logfile.write("FILES:", repr(request.FILES))
+        if request.GET:
+            logfile.write("GET:",   repr(request.GET))
+        if request.POST:
+            logfile.write("POST:",  repr(request.POST))
+        if request.COOKIES:
+            logfile.write("COOKIES:", repr(request.COOKIES), stdout=None)
+        if request.FILES:
+            logfile.write("FILES:", repr(request.FILES))
         logfile.write("OUTPUT:")
         try:    
             response = func(request, *args, **keys)
@@ -1644,10 +1646,10 @@ def execute_edit_actions(original_rmap, expanded):
         for edit_no in expanded[act]:
             pars = expanded[act][edit_no]
             if act == "add":
-                make_add_useafter_rmap( new_loc, new_loc, 
+                refactor.rmap_add_useafter( new_loc, new_loc, 
                     pars["match_tuple"], pars["date"], pars["filename"])
             elif act == "delete":
-                make_delete_useafter_rmap(new_loc, new_loc, 
+                refactor.rmap_delete_useafter(new_loc, new_loc, 
                     pars["match_tuple"], pars["date"], pars["filename"])
             else:
                 raise RuntimeError("Unknown edit action " + repr(act))
@@ -1658,89 +1660,6 @@ def execute_edit_actions(original_rmap, expanded):
 
     return new_rmap, new_loc
     
-def make_add_useafter_rmap(old_location, new_location, match_tuple, 
-                           useafter_date, useafter_file):
-    """Add one new useafter date / file to the `match_tuple` case of
-    `old_mapping`,  writing the modified rmap out to `new_location`.   If
-    `match_tuple` doesn't exist in `old_mapping`,  add `match_tuple` as well.
-    """
-    # print "adding useafter", old_location, new_location, match_tuple, useafter_date, useafter_file
-    new_mapping_file = cStringIO.StringIO()
-    state = "find tuple"
-    for line in open(old_location):
-        if state == "find tuple":
-            if "UseAfter" in line:
-                #     ('HRC', 'CLEAR1S', 'F435W') : UseAfter({ 
-                index = line.index(": UseAfter({")
-                tuple_str = line[:index]
-                line_tuple = compat.literal_eval(tuple_str.strip())
-                if match_tuple == line_tuple:
-                    state = "find useafter"
-            elif line.strip() == "})":   # end of rmap
-                # Never found match,  report an error.
-                raise CrdsError("Couldn't find match tuple " + repr(match_tuple))
-        elif state == "find useafter":
-            if line.strip().endswith(".fits',"):
-                # Handle a standard useafter clause
-                # '2002-03-01 00:00:00' : 'oai16328j_cfl.fits', 
-                line_date = re.search(DATETIME_RE_STR, line)
-                if useafter_date < line_date.group(1):
-                    # Found useafter insertion point inside existing match case
-                    new_mapping_file.write("\t'%s' : '%s',\n" % \
-                        (useafter_date, useafter_file))
-                    state = "copy remainder"
-                    modification = "Inserted useafter into existing match case."
-            elif line.strip() == "}),":
-                # Never found < useafter before next Match tuple
-                new_mapping_file.write("\t'%s' : '%s',\n" % \
-                                           (useafter_date, useafter_file))
-                state = "copy remainder"
-                modification = "Appended useafter to existing match case."
-        new_mapping_file.write(line)
-    assert state == "copy remainder", "no useafter insertion performed"
-    new_mapping_file.seek(0)
-    open(new_location, "w+").write(new_mapping_file.read())
-
-def make_delete_useafter_rmap(old_location, new_location, match_tuple, 
-                              useafter_date, useafter_file):
-    """Add one new useafter date / file to the `match_tuple` case of
-    `old_mapping`,  writing the modified rmap out to `new_location`.   If
-    `match_tuple` doesn't exist in `old_mapping`,  add `match_tuple` as well.
-    """
-    new_mapping_file = cStringIO.StringIO()
-    state = "find tuple"
-    for line in open(old_location):
-        if state == "find tuple":
-            if "UseAfter" in line:
-                #     ('HRC', 'CLEAR1S', 'F435W') : UseAfter({ 
-                index = line.index(": UseAfter({")
-                tuple_str = line[:index]
-                line_tuple = compat.literal_eval(tuple_str.strip())
-                if match_tuple == line_tuple:
-                    state = "find useafter"
-            elif line.strip() == "})":   # end of rmap
-                # Never found match,  report an error.
-                raise CrdsError("Couldn't find match tuple " + repr(match_tuple))
-        elif state == "find useafter":
-            if line.strip().endswith(".fits',"):
-                # Handle a standard useafter clause
-                # '2002-03-01 00:00:00' : 'oai16328j_cfl.fits', 
-                line_date = re.search(DATETIME_RE_STR, line)
-                if useafter_date == line_date.group(1):
-                    filename = re.search("'.*' : '(.*)'", line).group(1)
-                    if filename == useafter_file:
-                        # Found useafter delete point.
-                        state = "copy remainder"
-                        continue
-            elif line.strip() == "}),":
-                raise CrdsError("Couldn't find useafter " +
-                                repr((useafter_date, useafter_file)) +
-                                " in match tuple " + repr(match_tuple))
-        new_mapping_file.write(line)
-    assert state == "copy remainder", "no useafter insertion performed"
-    new_mapping_file.seek(0)
-    open(new_location, "w+").write(new_mapping_file.read())
-
 # ============================================================================
 
 @error_trap("delivery_options_input.html")
