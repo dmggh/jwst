@@ -4,8 +4,6 @@ import hashlib
 
 from django.db import models
 
-import pyfits
-
 # Create your models here.
 from crds import (timestamp, rmap, utils, refactor, checksum)
 from crds.compat import (literal_eval, namedtuple, OrderedDict)
