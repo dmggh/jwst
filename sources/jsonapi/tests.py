@@ -69,11 +69,11 @@ class ServiceApiTest(TestCase):
 
     def test_client_get_mapping_names(self):
         mappings = client.get_mapping_names(self.context)
-        self.failUnlessEqual(len(mappings), 103)
+        self.failUnlessEqual(len(mappings), 108)
         
     def test_client_get_reference_names(self):
         references = client.get_reference_names(self.context)
-        self.failUnlessEqual(len(references), 9038)
+        self.failUnlessEqual(len(references), 11775)
         
     def test_client_dump_mappings(self):
         os.environ["CRDS_MAPPATH"] = HERE + "/test_mappings" 

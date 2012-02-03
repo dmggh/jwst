@@ -29,6 +29,8 @@ import pyfits
 from crds import (rmap, utils, certify, timestamp, uses, matches, newcontext, 
                   refactor, checksum, pysh, compat)
 
+from crds.timestamp import (is_datetime, DATE_RE_STR, TIME_RE_STR, DATETIME_RE_STR)
+
 import crds.server.config as config
 import crds.server.interactive.models as models
 from crds.server.interactive.models import FieldError, MissingInputError
@@ -172,22 +174,6 @@ def is_match_tuple(tuple_str):
     except Exception:
         raise AssertionError("Enter a tuple to match against.")
     return tup
-
-DATE_RE_STR = r"\d\d\d\d\-\d\d\-\d\d"
-TIME_RE_STR = r"\d\d:\d\d:\d\d"
-DATETIME_RE_STR = "(\d\d\d\d\-\d\d\-\d\d\s+\d\d:\d\d:\d\d)"
-
-def is_datetime(datetime_str):
-    """Raise an assertion error if `datetime_str` doesn't look like a CRDS date.
-    Otherwise return `datetime_str`.
-    """
-    assert re.match(DATETIME_RE_STR, datetime_str), \
-        "Invalid date/time.  Should be YYYY-MM-DD HH:MM:SS"
-    try:
-        timestamp.parse_date(datetime_str)
-    except ValueError, exc:
-        raise CrdsError(str(exc))
-    return datetime_str
 
 DESCRIPTION_RE = "[^<>]+"
 
