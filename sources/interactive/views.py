@@ -1000,7 +1000,7 @@ def browse_known_file(request, filename):
     
     if blob and blob.type == "reference":
         context = models.get_default_context(blob.observatory)
-        match_paths = matches.find_match_tuples(context, filename)
+        match_paths = matches.find_full_match_paths(context, filename)
         match_paths = [flatten(path) for path in match_paths]
     else:
         match_paths = []
