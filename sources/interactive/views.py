@@ -27,7 +27,7 @@ from django.utils.datastructures import DotExpandedDict
 import pyfits
 
 from crds import (rmap, utils, certify, timestamp, uses, matches, newcontext, 
-                  refactor, checksum, pysh, compat)
+                  refactor, checksum, pysh, compat, log)
 
 from crds.timestamp import (is_datetime, DATE_RE_STR, TIME_RE_STR, DATETIME_RE_STR)
 
@@ -372,7 +372,7 @@ class Logger(object):
         self.file.flush()
         self.oldout.flush()
 
-def log(func):
+def log_view(func):
     """log() captures view inputs, output, and response to a log file.
     It should be called inside any error_trap() decorator so that it 
     executes before error_trap() absorbs many exceptions.
@@ -509,7 +509,7 @@ def bestrefs_post(request):
     return results
 
 @error_trap("bestrefs_explore.html")
-@log
+@log_view
 def bestrefs_results(request, pmap, header, dataset_name=""):
     """Render best reference recommendations under context `pmap` for
     critical parameters dictionary `header`.
@@ -535,7 +535,7 @@ def bestrefs_results(request, pmap, header, dataset_name=""):
 # ===========================================================================
 
 @error_trap("bestrefs_explore.html")
-@log
+@log_view
 def bestrefs_explore(request):
     """View to get the instrument context for best references."""
     if request.method == "GET":
@@ -577,7 +577,7 @@ def get_recent_or_user_context(request):
     return context
 
 @error_trap("bestrefs_explore_input.html")
-@log
+@log_view
 def bestrefs_explore_compute(request):
     """Validate parameter inputs from the best refs explorer drop-down
     menus and render best reference recommendations.
@@ -598,7 +598,7 @@ def bestrefs_explore_compute(request):
 # ============================================================================
 
 @error_trap("submit_input.html")
-@log
+@log_view
 @login_required
 def submit_file(request, crds_filetype):
     """Handle file submission,  crds_filetype=reference|mapping."""
@@ -742,7 +742,7 @@ def get_blacklists(basename, certifypath, ignore_self=True):
 # ===========================================================================
 
 @error_trap("blacklist_input.html")
-@log
+@log_view
 @login_required
 def blacklist_file(request):
     """Serve the blacklist input form or process the POST."""
@@ -786,7 +786,7 @@ def blacklist_file_post(request):
 # ===========================================================================
 
 @error_trap("certify_input.html")
-@log
+@log_view
 @login_required
 # @profile
 def certify_file(request):
@@ -855,8 +855,119 @@ def certify_post(request):
 
 # ===========================================================================
 
+@error_trap("batch_submit_reference_input.html")
+# @log_view
+@login_required
+# @profile
+def batch_submit_reference(request):
+    """View to return batch submit reference form or process POST."""
+    if request.method == "GET":
+        return render(request, "batch_submit_reference_input.html", {
+                "file_indices" : range(1,11),
+                "pmaps" : get_recent_pmaps(),
+                })
+    else:
+        return batch_submit_reference_post(request)
+
+def batch_submit_reference_post(request):
+    """View fragment to process file batch reference submnission POSTs."""
+    pmap = get_recent_or_user_context(request)
+    pmap = rmap.get_cached_mapping(pmap)
+    description = validate_post(request, "description", DESCRIPTION_RE)
+    # creator = validate_post(request, "creator", PERSON_RE)
+
+    files = []
+    old_instr, old_filekind = None, None
+    for i in range(1, 11):
+        filevar = "file_uploaded_%d" % i
+        if filevar not in request.POST:
+            # change_level = validate_post(
+            #    request, "change_level_%d" % i, models.CHANGE_LEVELS)
+            change_level = "SEVERE"
+            comparison_file = None
+            creator = "(unknown)"
+            uploaded_file = get_uploaded_file(request, filevar)
+            files.append((uploaded_file, change_level, creator, comparison_file))
+            
+    if not files:
+        raise CrdsError("No files specified.")
+
+    # Verify that all have same instrument and filekind
+    for uploaded_file, change_level, creator, comparison_file in files:
+        instrument, filekind = utils.get_file_properties(
+            pmap.observatory, uploaded_file.temporary_file_path())
+        if old_instr is not None:
+            assert instrument == old_instr, \
+                "More than one instrument submitted at " + repr(uploaded_file.name)
+            assert filekind == old_filekind, \
+                "More than one reference type submitted at " + repr(uploaded_file.name)
+        old_instr, old_filekind = instrument, filekind
+
+    log.write("Instrument:", instrument)
+    log.write("Filekind:", filekind)
+        
+    # Verify that all references certify.
+    certify.certify_files([x[0].temporary_file_path() for x in files], 
+        check_references=None, trap_exceptions=False, is_mapping = False)
+    log.write("All references certified.")
+
+    # Submit reference files.
+    collision_check = []
+    for uploaded_file, change_level, creator, comparison_file in files:
+        new_basename, derived_from = do_submit_file( 
+            pmap.observatory, uploaded_file, description,
+            str(request.user), request.user.email, creator, 
+            change_level, comparison_file, )
+        collision_check.append((derived_from, new_basename))
+    log.write("All references submitted.")
+
+    reference_paths = []
+    for name, _derived_from in collision_check:
+        blob = models.FileBlob.load(name)
+        reference_paths.append(blob.pathname)
+
+    old_rmap = pmap.get_imap(instrument).get_rmap(filekind).name
+    new_rmap = get_new_name(pmap.observatory, instrument, filekind, ".rmap")
+    old_rmap_path = rmap.locate_mapping(old_rmap, pmap.observatory)
+    new_rmap_path = rmap.locate_mapping(new_rmap, pmap.observatory)
+    collision_check.append((old_rmap, new_rmap))
+        
+    # refactor inserting references.
+    actions = refactor.rmap_insert_references(
+        old_rmap_path, new_rmap_path, reference_paths)
+    
+    if actions:
+        # Submit the new rmap with added references
+        models.add_crds_file(
+            pmap.observatory, new_rmap, new_rmap_path,  
+            str(request.user), request.user.email, 
+            description, "batch submit")
+    
+        # Generate a new context referring to the new rmap
+        new_name_map = do_create_contexts(
+            pmap.name, [new_rmap], description, request.user, request.user.email)
+
+    collision_list = get_collision_list(collision_check)
+    
+    return render(request, "create_contexts_results.html", {
+                "old_mappings" : sorted(new_name_map.keys()),
+                "new_mappings" : sorted(new_name_map.values()),
+                "collision_list" : collision_list,
+            })
+
+        
+    return render(request, "batch_submit_reference_results.html", {
+                "new_references" : [x[1] for x in files],
+                "old_mappings" : old_mappings,
+                "new_mappings" : new_mappings,
+                "collision_list" : collision_list,
+                "actions" : actions,
+            })
+
+# ===========================================================================
+
 @error_trap("using_file_inputs.html")
-@log
+@log_view
 def using_file(request):
     """View to return using_file input form or process POST."""
     if request.method == "GET":
@@ -886,7 +997,7 @@ def flatten(path):
 # ===========================================================================
 
 @error_trap("difference_input.html")
-@log
+@log_view
 def difference_files(request):
     """Compare two files,  either known or uploaded,  and display the diffs."""
 
@@ -979,7 +1090,7 @@ def clean_path(line, path):
 # ===========================================================================
 
 @error_trap("browse_known_file_error.html")
-@log
+@log_view
 def browse_known_file(request, filename):
     """special view which accepts browse file from a URL parameter,  required
     by cross links like /browse/some_file.rmap
@@ -1122,7 +1233,7 @@ def finfo(filename):
 # ===========================================================================
 
 @error_trap("reserve_name_input.html")
-@log
+@log_view
 @login_required
 def reserve_name(request):
     """reserve_name is a view to get officially registered CRDS filenames."""
@@ -1222,7 +1333,7 @@ def auto_rename_file(observatory, upload_name, upload_path):
 # ===========================================================================
 
 @error_trap("recent_activity_input.html")
-@log
+@log_view
 # @login_required
 def recent_activity(request):
     """recent_activity displays records from the AuditBlob database."""
@@ -1268,7 +1379,7 @@ def recent_activity_post(request):
 # ===========================================================================
 
 @error_trap("browse_db_input.html")
-@log
+@log_view
 # @login_required
 def browse_db(request):
     """browse_db displays records from the FileBlob (subclasses) database."""
@@ -1316,7 +1427,7 @@ def browse_db_post(request):
 # ===========================================================================
 
 @error_trap("create_contexts_input.html")
-@log
+@log_view
 @login_required
 def create_contexts(request):
     """create_contexts generates a new pmap and imaps given an existing pmap
@@ -1402,7 +1513,7 @@ def new_name(old_map):
 # ===========================================================================
 
 @error_trap("edit_rmap_input.html")
-@log
+@log_view
 @login_required
 def edit_rmap_browse(request):
     """browse_db displays records from the FileBlob (subclasses) database."""
@@ -1449,7 +1560,7 @@ def edit_rmap_browse_post(request):
 
 @csrf_exempt
 @error_trap("base.html")
-@log
+@log_view
 @login_required
 def edit_rmap(request, filename=None):
     """Handle all aspects of editing a particular rmap named `filename`."""
@@ -1649,7 +1760,7 @@ def execute_edit_actions(original_rmap, expanded):
 # ============================================================================
 
 @error_trap("delivery_options_input.html")
-@log
+@log_view
 @login_required
 def deliver_context(request):
     """Based on a pmap, find the list of referenced files which have not yet
@@ -1673,7 +1784,7 @@ def deliver_context(request):
             })
 
 @error_trap("delivery_options_input.html")
-@log
+@log_view
 @login_required
 def delivery_options(request):
     """Present filtering criteria (GET) and a list of filtered files from
@@ -1723,7 +1834,7 @@ def delivery_options_post(request):
 
 
 @error_trap("delivery_process_results.html")
-@log
+@log_view
 @login_required
 def delivery_process(request):
     """Recieve delivery POST selections and perform delivery."""

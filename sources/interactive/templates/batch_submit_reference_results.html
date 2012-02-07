@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% load stdtags %}
+
+{% block contents %}
+    <h2>Submit {{crds_filetype|capfirst}} File</h2>
+    {% if error_messages %}
+     <h3 class="error">Submission for {{submitted_file|grey}} Failed.</h3>
+    {% else %}
+     <h3 class="success">Submitted {{submitted_file|grey}} as {{baseperm|browse}}</h3>
+    {% endif %}
+    {% include "collision_explain.html" %}    
+{% endblock contents %}
+
