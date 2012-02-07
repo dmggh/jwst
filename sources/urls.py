@@ -34,7 +34,9 @@ urlpatterns = patterns('',
   url(r'^create_contexts/$', 'crds.server.interactive.views.create_contexts'),        
 
   url(r'^edit_rmap_browse/$', 'crds.server.interactive.views.edit_rmap_browse'),        
-  url(r'^edit_rmap/((?P<filename>[A-Za-z0-9_.]+rmap)/)?$', 'crds.server.interactive.views.edit_rmap'),        
+  url(r'^edit_rmap/((?P<filename>[A-Za-z0-9_.]+rmap)/)?$', 'crds.server.interactive.views.edit_rmap'),
+  
+  url(r'^batch_submit_reference/$', 'crds.server.interactive.views.batch_submit_reference'),
           
   url(r'^browse/(?P<filename>[A-Za-z0-9_.]+(fits|imap|rmap|pmap|r\dh))$', 
       'crds.server.interactive.views.browse_known_file'),
