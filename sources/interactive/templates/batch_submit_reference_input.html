@@ -15,16 +15,7 @@
         </p>
 
       <h3>Uploaded Files:</h3>
-      <table width="100%">
-        {% for i in file_indices %}
-        <tr>
-          <td width="40%">
-            <input type='file' name='file_uploaded_{{i}}' size="32">
-          </td>
-        </tr>
-        {% endfor %}
-      </table>
-      
+        <input type="file" class="multi" name="file_uploaded" />
       <br/>
       <br/>
       <input type="submit" value="Submit References">

@@ -856,7 +856,7 @@ def certify_post(request):
 # ===========================================================================
 
 @error_trap("batch_submit_reference_input.html")
-# @log_view
+@log_view
 @login_required
 # @profile
 def batch_submit_reference(request):
@@ -877,23 +877,17 @@ def batch_submit_reference_post(request):
     # creator = validate_post(request, "creator", PERSON_RE)
 
     files = []
-    old_instr, old_filekind = None, None
-    for i in range(1, 11):
-        filevar = "file_uploaded_%d" % i
-        if filevar not in request.POST:
-            # change_level = validate_post(
-            #    request, "change_level_%d" % i, models.CHANGE_LEVELS)
-            change_level = "SEVERE"
-            comparison_file = None
-            creator = "(unknown)"
-            uploaded_file = get_uploaded_file(request, filevar)
-            files.append((uploaded_file, change_level, creator, comparison_file))
-            
+    for uploaded_file in request.FILES.values():
+        files.append(uploaded_file)
     if not files:
-        raise CrdsError("No files specified.")
+        raise CrdsError("No files specified.")    
+    change_level = "SEVERE"
+    comparison_file = None
+    creator = "(unknown)"
 
     # Verify that all have same instrument and filekind
-    for uploaded_file, change_level, creator, comparison_file in files:
+    old_instr, old_filekind = None, None
+    for uploaded_file in files:
         instrument, filekind = utils.get_file_properties(
             pmap.observatory, uploaded_file.temporary_file_path())
         if old_instr is not None:
@@ -903,23 +897,18 @@ def batch_submit_reference_post(request):
                 "More than one reference type submitted at " + repr(uploaded_file.name)
         old_instr, old_filekind = instrument, filekind
 
-    log.write("Instrument:", instrument)
-    log.write("Filekind:", filekind)
-        
     # Verify that all references certify.
-    certify.certify_files([x[0].temporary_file_path() for x in files], 
+    certify.certify_files([x.temporary_file_path() for x in files], 
         check_references=None, trap_exceptions=False, is_mapping = False)
-    log.write("All references certified.")
 
     # Submit reference files.
     collision_check = []
-    for uploaded_file, change_level, creator, comparison_file in files:
+    for uploaded_file in files:
         new_basename, derived_from = do_submit_file( 
             pmap.observatory, uploaded_file, description,
             str(request.user), request.user.email, creator, 
             change_level, comparison_file, )
         collision_check.append((derived_from, new_basename))
-    log.write("All references submitted.")
 
     reference_paths = []
     for name, _derived_from in collision_check:
@@ -946,10 +935,12 @@ def batch_submit_reference_post(request):
         # Generate a new context referring to the new rmap
         new_name_map = do_create_contexts(
             pmap.name, [new_rmap], description, request.user, request.user.email)
+    else:
+        new_name_map = {}
 
     collision_list = get_collision_list(collision_check)
     
-    return render(request, "create_contexts_results.html", {
+    return render(request, "batch_submit_reference_results.html", {
                 "old_mappings" : sorted(new_name_map.keys()),
                 "new_mappings" : sorted(new_name_map.values()),
                 "collision_list" : collision_list,
