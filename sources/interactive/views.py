@@ -571,9 +571,12 @@ def bestrefs_explore_post(request):
 
 def get_recent_or_user_context(request):
     """Process standard request parameters for specifying context."""
-    pmap_mode = validate_post(
-        request, "pmap_mode", "pmap_menu|pmap_text")
-    context = validate_post(request, pmap_mode, is_pmap_or_imap)
+    if request.POST["pmap_mode"] == "pmap_default":
+        context = models.get_default_context("hst")
+    else:
+        pmap_mode = validate_post(
+            request, "pmap_mode", "pmap_menu|pmap_text|pmap_default")
+        context = validate_post(request, pmap_mode, is_pmap_or_imap)
     return context
 
 @error_trap("bestrefs_explore_input.html")
@@ -632,12 +635,12 @@ def submit_file_post(request, crds_filetype):
         change_level = "SEVERE"
         comparison_file = None
         
-    new_basename, derived_from = do_submit_file( 
+    new_basename = do_submit_file( 
         observatory, uploaded_file, description,
         str(request.user), request.user.email, creator, 
         change_level, comparison_file, )
     
-    collision_list = get_collision_list([(derived_from, new_basename)])
+    collision_list = get_collision_list([new_basename])
         
     return render(request, 'submit_results.html', {
                 "crds_filetype": crds_filetype,
@@ -693,7 +696,7 @@ def do_submit_file(observatory, uploaded_file, description,
             creation_method=creation_method, audit_details=details, 
             change_level=change_level, creator_name=creator_name)
     
-    return os.path.basename(permanent_location), blob.derived_from
+    return os.path.basename(permanent_location)
 
 def do_certify_file(basename, certifypath, check_references=None):
     """Run un-trapped components of crds.certify and re-raise any exception
@@ -864,6 +867,7 @@ def batch_submit_reference(request):
     if request.method == "GET":
         return render(request, "batch_submit_reference_input.html", {
                 "file_indices" : range(1,11),
+                "default_context" : models.get_default_context("hst"),
                 "pmaps" : get_recent_pmaps(),
                 })
     else:
@@ -876,10 +880,10 @@ def batch_submit_reference_post(request):
     description = validate_post(request, "description", DESCRIPTION_RE)
     # creator = validate_post(request, "creator", PERSON_RE)
 
-    files = []
+    reference_files = []
     for uploaded_file in request.FILES.values():
-        files.append(uploaded_file)
-    if not files:
+        reference_files.append(uploaded_file)
+    if not reference_files:
         raise CrdsError("No files specified.")    
     change_level = "SEVERE"
     comparison_file = None
@@ -887,7 +891,7 @@ def batch_submit_reference_post(request):
 
     # Verify that all have same instrument and filekind
     old_instr, old_filekind = None, None
-    for uploaded_file in files:
+    for uploaded_file in reference_files:
         instrument, filekind = utils.get_file_properties(
             pmap.observatory, uploaded_file.temporary_file_path())
         if old_instr is not None:
@@ -898,29 +902,26 @@ def batch_submit_reference_post(request):
         old_instr, old_filekind = instrument, filekind
 
     # Verify that all references certify.
-    certify.certify_files([x.temporary_file_path() for x in files], 
+    certify.certify_files([x.temporary_file_path() for x in reference_files], 
         check_references=None, trap_exceptions=False, is_mapping = False)
 
     # Submit reference files.
-    collision_check = []
-    for uploaded_file in files:
-        new_basename, derived_from = do_submit_file( 
+    new_references = {}
+    for uploaded_file in reference_files:
+        new_basename = do_submit_file( 
             pmap.observatory, uploaded_file, description,
             str(request.user), request.user.email, creator, 
             change_level, comparison_file, )
-        collision_check.append((derived_from, new_basename))
+        new_references[uploaded_file.name] = new_basename
 
-    reference_paths = []
-    for name, _derived_from in collision_check:
-        blob = models.FileBlob.load(name)
-        reference_paths.append(blob.pathname)
+    reference_paths = [
+        models.FileBlob.load(name).pathname for name in new_references.values()]
 
     old_rmap = pmap.get_imap(instrument).get_rmap(filekind).name
     new_rmap = get_new_name(pmap.observatory, instrument, filekind, ".rmap")
     old_rmap_path = rmap.locate_mapping(old_rmap, pmap.observatory)
     new_rmap_path = rmap.locate_mapping(new_rmap, pmap.observatory)
-    collision_check.append((old_rmap, new_rmap))
-        
+    
     # refactor inserting references.
     actions = refactor.rmap_insert_references(
         old_rmap_path, new_rmap_path, reference_paths)
@@ -936,23 +937,20 @@ def batch_submit_reference_post(request):
         new_name_map = do_create_contexts(
             pmap.name, [new_rmap], description, request.user, request.user.email)
     else:
+        actions = ["No changes to rmap."]
         new_name_map = {}
 
-    collision_list = get_collision_list(collision_check)
+    new_mappings = [new_rmap] + new_name_map.values()
+    collision_list = get_collision_list(new_mappings)
     
     return render(request, "batch_submit_reference_results.html", {
-                "old_mappings" : sorted(new_name_map.keys()),
-                "new_mappings" : sorted(new_name_map.values()),
-                "collision_list" : collision_list,
-            })
-
-        
-    return render(request, "batch_submit_reference_results.html", {
-                "new_references" : [x[1] for x in files],
-                "old_mappings" : old_mappings,
-                "new_mappings" : new_mappings,
-                "collision_list" : collision_list,
+                "new_references" : new_references.items(),
                 "actions" : actions,
+                "pmap" : pmap.name,
+                "old_rmap" : old_rmap,
+                "old_mappings" : sorted(new_name_map.keys()),
+                "new_mappings" : sorted(new_name_map.values() + [new_rmap]),
+                "collision_list" : collision_list,
             })
 
 # ===========================================================================
@@ -1476,6 +1474,8 @@ def do_create_contexts(pmap, updated_rmaps, description, user, email):
             description, "new context",
             repr(pmap) + " : " + ",".join([repr(x) for x in updated_rmaps]))
         
+    models.set_default_context("hst", new_name_map[pmap])
+        
     return new_name_map
 
 def generate_new_names(old_pipeline, updates):
@@ -1590,18 +1590,19 @@ def browsify_edit_rmap(basename, fullpath):
     return contents
 
 
-def get_collision_list(ancestry_tuples):
-    """Given a list of `ancestry_tuples`,  pairs of parent and child files,
+def get_collision_list(newfiles):
+    """Given a list of `newfiles`,  newly created files,
     check the database for other children of the same parent.   Return a
     list of triplets,  adding a "collisions" list to each (parent,child) pair
     which describes potential derivation conflicts.
     """
     collision_list = []
-    for parent, child in ancestry_tuples:
+    for newfile in newfiles:
+        parent = models.FileBlob.load(newfile).derived_from
         collisions = [col.name for col in 
-            models.FileBlob.filter(derived_from=parent) if col.name != child]
+            models.FileBlob.filter(derived_from=parent) if col.name != newfile]
         if collisions:
-            collision_list.append((child, parent, collisions))
+            collision_list.append((newfile, parent, collisions))
     return collision_list
 
 def edit_rmap_post(request):
@@ -1634,8 +1635,7 @@ def edit_rmap_post(request):
     old_mappings = sorted(new_context_map.keys() + [original_rmap])
     new_mappings = sorted(new_context_map.values() + [new_rmap])
     
-    collision_list = get_collision_list(
-            [(original_rmap, new_rmap)] + new_context_map.items())
+    collision_list = get_collision_list(new_mappings)
     
     return render(request, "edit_rmap_results.html", {
                 "new_references" : new_references,
@@ -1710,13 +1710,13 @@ def handle_file_submissions(original_rmap, expanded, observatory, submitter):
         description = expanded["add"][addno].get("description","undefined")
         creator_name = expanded["add"][addno].get("creator_name","undefined")
         change_level = expanded["add"][addno].get("change_level","SEVERE")
-        new_basename, derived_from = do_submit_file(
+        new_basename = do_submit_file(
             observatory, uploaded_file, description,
             str(submitter), submitter.email, creator_name=creator_name,
             change_level=change_level, comparison_file=None,
             creation_method="edit rmap",
             details="submitted")
-        new_references.append((upload_name, new_basename, derived_from))
+        new_references.append((upload_name, new_basename))
         expanded["add"][addno]["filename"] = new_basename
     return sorted(new_references)
  

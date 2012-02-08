@@ -1,6 +1,13 @@
     <table>
       <tr>
-        <td><input type="radio" name="pmap_mode" value="pmap_menu" checked>Recent</td>
+       <tr>
+        <td><input type="radio" name="pmap_mode" value="pmap_default" checked>Default</td>
+          <td align="right">
+            <input type='hidden' name='pmap_default' value='dummy.pmap' />
+            <p>{{default_context}} or more recent</p>
+          </td>
+       </tr>
+        <td><input type="radio" name="pmap_mode" value="pmap_menu" >Recent</td>
           <td align="right">
             <select name="pmap_menu" />
                 {% for pmap in pmaps %}

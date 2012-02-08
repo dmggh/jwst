@@ -3,12 +3,28 @@
 {% load stdtags %}
 
 {% block contents %}
-    <h2>Submit {{crds_filetype|capfirst}} File</h2>
-    {% if error_messages %}
-     <h3 class="error">Submission for {{submitted_file|grey}} Failed.</h3>
-    {% else %}
-     <h3 class="success">Submitted {{submitted_file|grey}} as {{baseperm|browse}}</h3>
-    {% endif %}
+
+    <h2>Batch Reference Submit Results</h2>
+
+    <h3>Context</h3>
+    Deriving from {{pmap|browse}}.
+    
+    <h3>Uploaded Files</h3>
+    {% for file in new_references %}
+        <p>Submitted '{{file.0}}' renamed to '{{file.1|browse}}'.</p>
+    {% endfor %}
+    
+    <h3>Actions on Mapping {{old_rmap|browse}}</h3>
+    {% for action in actions %}
+        <p>{{action}}</p>
+    {% endfor %}
+        
+    <h3>Generated New Mappings</h3>
+    {% for map in new_mappings %}
+    <p>{{map|browse}}</p>
+    {% endfor %}
+
     {% include "collision_explain.html" %}    
+
 {% endblock contents %}
 

@@ -14,7 +14,7 @@
             <textarea name="description" id="description" rows="4" cols="50"></textarea>   
         </p>
 
-      <h3>Uploaded Files:</h3>
+      <h3>Upload References</h3>
         <input type="file" class="multi" name="file_uploaded" />
       <br/>
       <br/>
@@ -24,12 +24,13 @@
 
 {% block help %}
 
-<p><b>Batch Submit References</b> supports uploading/adding a list of reference
-files to a single reference mapping,  e.g. ACS darkfile.   After checking and 
-storing the reference files,   BSR updates the specified or implied reference 
-mapping, and generates a new pipeline and instrument context which use it.
+<p><b>Batch Submit References</b> supports uploading a list of reference
+files for a single rmap,  e.g. ACS darkfile.   After checking and 
+storing the reference files,   the implied reference mapping is updated by
+adding or replacing lines for the uploaded reference files.   New instrument
+and pipeline mappings are then generated.
 
-<p><p><b>Uploaded Files</b> lets you upload references to CRDS.   Each reference
-file must certify or the entire batch will be rejected.
+<p><p><b>Uploaded References</b> lets you upload references to CRDS.   Each 
+reference file must certify or the entire batch will be rejected.
 
 {% endblock help %}
