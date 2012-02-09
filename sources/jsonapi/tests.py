@@ -67,13 +67,16 @@ class ServiceApiTest(TestCase):
     def purge_references(self):
         pysh.sh("rm -rf " + HERE + "/test_references")
 
+    # File counts below are trip-wires with a shaky rational basis,  don't
+    # loose sleep if the actual value deviates from the provided range,  just
+    # take note and update.
     def test_client_get_mapping_names(self):
         mappings = client.get_mapping_names(self.context)
-        self.failUnlessEqual(len(mappings), 108)
+        self.failUnless(100 < len(mappings) < 120)
         
     def test_client_get_reference_names(self):
         references = client.get_reference_names(self.context)
-        self.failUnlessEqual(len(references), 11775)
+        self.failUnless(11775 < len(references) < 20000)
         
     def test_client_dump_mappings(self):
         os.environ["CRDS_MAPPATH"] = HERE + "/test_mappings" 
@@ -104,4 +107,4 @@ class ServiceApiTest(TestCase):
 
     def test_client_get_mapping_url(self):
         url = client.get_mapping_url(self.context, "hst_acs.imap")
-
+        

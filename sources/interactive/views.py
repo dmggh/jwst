@@ -912,7 +912,7 @@ def batch_submit_reference_post(request):
             pmap.observatory, uploaded_file, description,
             str(request.user), request.user.email, creator, 
             change_level, comparison_file, )
-        new_references[uploaded_file.name] = new_basename
+        new_references[str(uploaded_file.name)] = str(new_basename)
 
     reference_paths = [
         models.FileBlob.load(name).pathname for name in new_references.values()]
@@ -943,6 +943,9 @@ def batch_submit_reference_post(request):
     new_mappings = [new_rmap] + new_name_map.values()
     collision_list = get_collision_list(new_mappings)
     
+#    deliver_file_list( str(request.user), pmap.observatory, 
+#        new_references.values() + new_mappings, description)
+#    
     return render(request, "batch_submit_reference_results.html", {
                 "new_references" : new_references.items(),
                 "actions" : actions,
