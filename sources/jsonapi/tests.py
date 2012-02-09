@@ -90,8 +90,7 @@ class ServiceApiTest(TestCase):
             self.assertEqual(bestrefs[key], value)
                 
     def test_client_dump_references(self):
-        bestrefs = {'idctab': 'uab1537bi_idc.fits', 'darkfile': 't3420177i_drk.fits'}
-        client.dump_references(self.context, bestrefs.values())
+        client.dump_references(self.context, ['t3420177i_drk.fits'])
         self.purge_references()
         
     def test_client_cache_best_references(self):
@@ -103,7 +102,7 @@ class ServiceApiTest(TestCase):
         self.purge_references()
         
     def test_client_get_reference_url(self):
-        url = client.get_reference_url(self.context, 'uab1537bi_idc.fits')
+        url = client.get_reference_url(self.context, 't3420177i_drk.fits')
 
     def test_client_get_mapping_url(self):
         url = client.get_mapping_url(self.context, "hst_acs.imap")
