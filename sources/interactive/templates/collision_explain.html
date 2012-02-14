@@ -5,7 +5,7 @@
     {% for colinfo in collision_list %}
         {% for collision in colinfo.2 %}
             <p class="warning">
-            {{colinfo.0|browse}} : {{collision|browse}} 
+            {{colinfo.0|browse}} and {{collision|browse}} 
             both derived from {{colinfo.1|browse}}
             </p>
         {% endfor %}

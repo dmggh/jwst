@@ -911,7 +911,7 @@ def batch_submit_reference_post(request):
         new_basename = do_submit_file( 
             pmap.observatory, uploaded_file, description,
             str(request.user), request.user.email, creator, 
-            change_level, comparison_file, )
+            change_level, comparison_file, creation_method="batch submit")
         new_references[str(uploaded_file.name)] = str(new_basename)
 
     reference_paths = [
@@ -1199,7 +1199,8 @@ def browsify_reference(browsed_file):
              "<br/>",
              "<table border='1'>"]
     for key, value in sorted(header.items()):
-        lines.append("<tr><td class='label'>%s</td><td>%s</td></tr>" % (key, value))
+        if value != "NOT PRESENT":
+            lines.append("<tr><td class='label'>%s</td><td>%s</td></tr>" % (key, value))
     lines.append("</table>")
     lines.append("<br/>")
     
