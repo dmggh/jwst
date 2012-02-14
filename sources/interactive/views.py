@@ -1017,7 +1017,8 @@ def difference_files(request):
             map_diffs = mapping_diffs(file1_path, file2_path)
         elif file1_orig.endswith(".fits") and file2_orig.endswith(".fits"):
             diff_lines = pysh.lines("fitsdiff ${file1_path} ${file2_path}")
-            diff_lines = format_fitsdiffs(diff_lines, file1_path, file2_path)
+            diff_lines = format_fitsdiffs(diff_lines, file1_path, file2_path,
+                file1_orig, file2_orig)
         elif re.match(GEIS_HEADER_RE, file1_orig) and \
             re.match(GEIS_HEADER_RE, file2_orig) and \
             extension(file1_orig) == extension(file2_orig):
@@ -1058,13 +1059,13 @@ def mapping_diffs(file1, file2):
     except Exception, exc:
         return [("Mapping logical difference failed: " + str(exc),)]
 
-def format_fitsdiffs(lines, file1, file2):
+def format_fitsdiffs(lines, file1, file2, file1_orig, file2_orig):
     """Add some colorization to output `lines` from fitsdiff, replacing
     `file1` and `file2` with their basenames.
     """
     for i in range(len(lines)):
-        line = clean_path(lines[i], file1)
-        line = clean_path(line, file2)
+        line = clean_path(lines[i], file1, file1_orig)
+        line = clean_path(line, file2, file2_orig)
         if "Primary HDU" in line or re.search("Extension \d+ HDU", line):
             line = "<h3>" + line + "</h3>"
         line = re.sub(r"([Kk]eyword)\s*([A-Za-z0-9_]*)",
@@ -1072,11 +1073,11 @@ def format_fitsdiffs(lines, file1, file2):
         lines[i] = line
     return lines
 
-def clean_path(line, path):
+def clean_path(line, path, file_orig):
     """Replace occurrences of `path` in `line` with a greyed version of
     the `path`s basename.
     """
-    base = "<span class='grey'>" + os.path.basename(path) + "</span>"
+    base = "<span class='grey'>" + os.path.basename(file_orig) + "</span>"
     return line.replace(path, base)
 
 # ===========================================================================
