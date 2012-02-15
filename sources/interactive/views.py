@@ -247,7 +247,7 @@ def handle_known_or_uploaded_file(request, modevar, knownvar, uploadvar):
         filepath = ufile.temporary_file_path()
         original_name = ufile.name
         uploaded = True
-    return uploaded, original_name, filepath
+    return uploaded, str(original_name), str(filepath)
 
 def get_uploaded_file(request, formvar):
     """Return the DJango UploadedFile associated with `request` and `formvar`,
@@ -1013,8 +1013,10 @@ def difference_files(request):
         map_diffs = None
         if rmap.is_mapping(file1_orig) and rmap.is_mapping(file2_orig) and \
             extension(file1_orig) == extension(file2_orig):
-            diff_lines = textual_diff(file1_path, file2_path)
-            map_diffs = mapping_diffs(file1_path, file2_path)
+            diff_lines = textual_diff(file1_path, file2_path, 
+                                      file1_orig, file2_orig)
+            map_diffs = mapping_diffs(file1_path, file2_path,
+                                      file1_orig, file2_orig)
         elif file1_orig.endswith(".fits") and file2_orig.endswith(".fits"):
             diff_lines = pysh.lines("fitsdiff ${file1_path} ${file2_path}")
             diff_lines = format_fitsdiffs(diff_lines, file1_path, file2_path,
@@ -1022,7 +1024,8 @@ def difference_files(request):
         elif re.match(GEIS_HEADER_RE, file1_orig) and \
             re.match(GEIS_HEADER_RE, file2_orig) and \
             extension(file1_orig) == extension(file2_orig):
-            diff_lines = textual_diff(file1_path, file2_path)
+            diff_lines = textual_diff(file1_path, file2_path, 
+                                      file1_orig, file2_orig)
         else:
             raise CrdsError("Files should be either CRDS mappings "
                             "of the same type or .fits files")
@@ -1043,19 +1046,26 @@ def difference_files(request):
                        "file2" : file2_orig,
                        })
         
-def textual_diff(file1_path, file2_path):
+def textual_diff(file1_path, file2_path, file1_orig, file2_orig):
     """Return the output of the context diff of two files."""
     diff_lines = pysh.lines("diff -b -c ${file1_path} ${file2_path}")
-    if diff_lines:
-        diff_lines = diff_lines[3:]   # remove filepath info
-    return [line.rstrip() for line in diff_lines]
+    result = []
+    for line in diff_lines:
+        line = line.rstrip()
+        line = line.replace(file1_path, file1_orig)
+        line = line.replace(file2_path, file2_orig)
+        result.append(line)
+    return result
     
-def mapping_diffs(file1, file2):
+def mapping_diffs(file1, file2, file1_orig, file2_orig):
     """Return the logical differences between two mapping files."""
     try:
         map1 = rmap.load_mapping(file1)
         map2 = rmap.load_mapping(file2)
-        return map1.difference(map2)
+        # Get logical difference tuples
+        ldiffs = map1.difference(map2)
+        # Substitute the name of the original file for temp file.
+        return [((file1_orig, file2_orig),) + diff[1:] for diff in ldiffs]
     except Exception, exc:
         return [("Mapping logical difference failed: " + str(exc),)]
 
