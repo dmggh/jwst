@@ -6,21 +6,24 @@
     <h2>Browse Database</h2>
     <h3>Filters</h3>
     <table>
-    
-     {% include "browse_options.html" %}
-     
-     <tr>
-        <td class="label" width="50%">Extension:</td>
-        <td align="right">
-            <select name="extension" value="*"/>
-                {% for extension in extensions %}
-                    <option>{{extension}}</option>
+        {% include "browse_options.html" %}
+        
+      <tr>
+            <td class="label" width="50%">Extension:</td>
+            <td align="right">
+                <select name="extension" value="{{extension}}"/>
+                {% for ext in extensions %}
+                    {% if ext == extension %}
+                        <option selected>{{ext}}</option>
+                    {% else %}
+                        <option>{{ext}}</option>
+                    {% endif %}
                 {% endfor %}
-            </select>
-        </td>
+                </select>
+            </td>
       </tr>
-
     </table>
+    <br/>
     <input type="submit" value="Submit" />
 </form>
 

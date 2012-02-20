@@ -195,11 +195,26 @@ def render(request, template, dict_=None):
     for echoing.
     """
     rdict = {   # standard template variables
-        "observatories":models.OBSERVATORIES,
-        "instruments":models.INSTRUMENTS+["*"],
-        "filekinds":models.FILEKINDS+["*"],
-        "extensions":models.EXTENSIONS+["*"],
+        "observatory" : "*",
+        "observatories" : models.OBSERVATORIES+["*"],
+
+        "instrument" : "*",
+        "instruments" : models.INSTRUMENTS+["*"],
+
+        "filekind" : "*",
+        "filekinds" : models.FILEKINDS+["*"],
+        
+        "extensions" : models.EXTENSIONS+["*"],
         "users": ["*"] + usernames(),
+
+        "status" : "*",
+        "statuses": ["*"] + models.FILE_STATUS_MAP.keys(),
+
+        "action" : "*",
+        "actions" : ["*"] + models.AUDITED_ACTIONS,
+
+        "filename" : "*",
+        "deliverer_user" : "*",
         "current_path" : request.get_full_path()
     }
     
@@ -1336,19 +1351,21 @@ def auto_rename_file(observatory, upload_name, upload_path):
 
 # ===========================================================================
 
+BROWSE_CONTEXT = {
+    "observatories":["*"]+models.OBSERVATORIES,
+    "instruments":["*"]+models.INSTRUMENTS,
+    "filekinds":["*"]+models.FILEKINDS,
+    "extensions":["*"]+models.EXTENSIONS,
+    "statuses":["*"]+models.FILE_STATUS_MAP.keys(),
+}
+
 @error_trap("recent_activity_input.html")
 @log_view
 # @login_required
 def recent_activity(request):
     """recent_activity displays records from the AuditBlob database."""
     if request.method == "GET":
-        return render(request, "recent_activity_input.html", {
-            "actions":["*"]+models.AUDITED_ACTIONS,
-            "observatories":["*"]+models.OBSERVATORIES,
-            "instruments":["*"]+models.INSTRUMENTS,
-            "filekinds":["*"]+models.FILEKINDS,
-            "extensions":["*"]+models.EXTENSIONS,
-            })
+        return render(request, "recent_activity_input.html", BROWSE_CONTEXT)
     else:
         return recent_activity_post(request)
 
@@ -1366,11 +1383,11 @@ def recent_activity_post(request):
         request, "extension", models.EXTENSIONS+[r"\*"])
     filename = validate_post(
         request, "filename", r"[A-Za-z0-9_.\*]+")
-    user = validate_post(
-        request, "user", r"[A-Za-z0-9_.\*]+")
+    deliverer_user = validate_post(
+        request, "deliverer_user", r"[A-Za-z0-9_.\*]+")
     filters = {}
     for var in ["action", "observatory", "instrument", "filekind", "extension",
-                "filename", "user"]:
+                "filename", "deliverer_user"]:
         value = locals()[var].strip()
         if value not in ["*",""]:
             filters[var] = value
@@ -1388,14 +1405,7 @@ def recent_activity_post(request):
 def browse_db(request):
     """browse_db displays records from the FileBlob (subclasses) database."""
     if request.method == "GET":
-        return render(request, "browse_db_input.html", {
-            "observatories":["*"]+models.OBSERVATORIES,
-            "instruments":["*"]+models.INSTRUMENTS,
-            "filekinds":["*"]+models.FILEKINDS,
-            "extensions":["*"]+models.EXTENSIONS,
-            "status":["*"]+models.FILE_STATUS_MAP.keys(),
-            "deliverer_user" : "*",
-            })
+        return render(request, "browse_db_input.html", BROWSE_CONTEXT)
     else:
         return browse_db_post(request)
 
@@ -1524,14 +1534,7 @@ def new_name(old_map):
 def edit_rmap_browse(request):
     """browse_db displays records from the FileBlob (subclasses) database."""
     if request.method == "GET":    # display rmap filters
-        return render(request, "edit_rmap_input.html", {
-            "observatories":["*"]+models.OBSERVATORIES,
-            "instruments":["*"]+models.INSTRUMENTS,
-            "filekinds":["*"]+models.FILEKINDS,
-            "extensions":["*"]+models.EXTENSIONS,
-            "status":["*"]+models.FILE_STATUS_MAP.keys(),
-            "deliverer_user" : "*",
-            })
+        return render(request, "edit_rmap_input.html", BROWSE_CONTEXT)
     else:   # display filtered rmaps
         return edit_rmap_browse_post(request)
 
@@ -1802,10 +1805,6 @@ def delivery_options(request):
             "instruments":["*"]+models.INSTRUMENTS,
             "filekinds":["*"]+models.FILEKINDS,
             "deliverer_user": str(request.user),
-            "observatory" : "*",
-            "instrument" : "*",
-            "filekind" : "*",
-            "filename" : "*",
             "pmaps": get_recent_pmaps(status="submitted"),
         })
     else:

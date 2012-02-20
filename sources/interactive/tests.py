@@ -251,7 +251,7 @@ class SimpleTest(TestCase):
                 "filekind" : "*",
                 "extension" : "*",
                 "filename" : "*",
-                "user" : "*",
+                "deliverer_user" : "*",
             })
         self.assert_no_errors(response)
 

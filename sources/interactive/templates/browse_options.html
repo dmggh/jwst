@@ -1,9 +1,13 @@
       <tr>
         <td class="label" width="50%">Observatory:</td>
         <td align="right">
-            <select name="observatory" value="*"/>
-                {% for observatory in observatories %}
-                    <option>{{observatory}}</option>
+            <select name="observatory" value="{{observatory}}"/>
+                {% for obs in observatories %}
+                    {% if observatory == obs %}
+                        <option selected>{{obs}}</option>
+                    {% else %}
+                        <option>{{obs}}</option>
+                    {% endif %}
                 {% endfor %}
             </select>
         </td>
@@ -11,9 +15,13 @@
       <tr>
         <td class="label" width="50%">Instrument:</td>
         <td align="right">
-            <select name="instrument" value="*"/>
-                {% for instrument in instruments %}
-                    <option>{{instrument}}</option>
+            <select name="instrument" value="{{instrument}}"/>
+                {% for instr in instruments %}
+                    {% if instr == instrument %}
+                        <option selected>{{instr}}</option>
+                    {% else %}
+                        <option>{{instr}}</option>
+                    {% endif %}
                 {% endfor %}
             </select>
         </td>
@@ -21,9 +29,13 @@
       <tr>
         <td class="label" width="50%">File Kind:</td>
         <td align="right">
-            <select name="filekind" value="*"/>
-                {% for filekind in filekinds %}
-                    <option>{{filekind}}</option>
+            <select name="filekind" value="{{filekind}}"/>
+                {% for fk in filekinds %}
+                    {% if fk == filekind %}
+                        <option selected>{{fk}}</option>
+                    {% else %}
+                        <option>{{fk}}</option>
+                    {% endif %}
                 {% endfor %}
             </select>
         </td>
@@ -31,24 +43,34 @@
       <tr>
         <td class="label" width="50%">Status:</td>
         <td align="right">
-            <select name="status" value="*"/>
-                {% for stat in status %}
-                    <option>{{stat}}</option>
+            <select name="status" value="{{status}}"/>
+                {% for stat in statuses %}
+                    {% if stat == status %}
+                        <option selected>{{stat}}</option>
+                    {% else %}
+                        <option>{{stat}}</option>
+                    {% endif %}
                 {% endfor %}
             </select>
         </td>
       </tr>
       <tr>
-            <td class="label" width="50%">Filename:</td>
-            <td align="right"><input type="text" name="filename" value="*"/></td>
+        <td class="label" width="50%">Filename:</td>
+        <td align="right"><input type="text" name="filename" value="{{filename}}"/></td>
       </tr>
       <tr>
-            <td class="label" width="50%">Submitter:</td>
-            <td align="right">
-                <select name="deliverer_user" value="*"/>
-                {% for user in users %}
+        <td class="label" width="50%">User:</td>
+        <td align="right">
+            <select name="deliverer_user" value="{{deliverer_user}}"/>
+            {% for user in users %}
+                {% if user == deliverer_user %}
+                    <option selected>{{user}}</option>
+                {% else %}
                     <option>{{user}}</option>
-                {% endfor %}
-                </select>
-            </td>
+                {% endif %}
+            {% endfor %}
+            </select>
+        </td>
       </tr>
+
+      

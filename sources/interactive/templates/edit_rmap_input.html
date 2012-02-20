@@ -3,6 +3,7 @@
 {% block column1 %}
 
 <form action="/edit_rmap_browse/" method="post""> {% csrf_token %}
+ 
     <h2>Edit Rmaps</h2>
     <h3>Filters</h3>
     <table>
@@ -12,6 +13,8 @@
         <input type="hidden" name="extension" value=".rmap">
 
     </table>
+    
+    <br/>
     <input type="submit" value="Find Rmaps" />
 </form>
 
