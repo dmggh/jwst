@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Non-Networked Use &mdash; CRDS Users Manual v1.0a documentation</title>
+    <title>Non-Networked Use &mdash; CRDS Users Manual 1.0a documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="CRDS Users Manual v1.0a documentation" href="index.html" />
+    <link rel="top" title="CRDS Users Manual 1.0a documentation" href="index.html" />
     <link rel="next" title="Using the CRDS Web Site" href="web_site_use.html" />
     <link rel="prev" title="Client Usage" href="client_use.html" />
 <link rel="stylesheet" href="_static/style.css"  type="text/css">
@@ -256,14 +256,14 @@ be submitted to the CRDS server and archive.</p>
 <h3>Certifying Mappings<a class="headerlink" href="#certifying-mappings" title="Permalink to this headline">¶</a></h3>
 <p>For Mappings,  crds.certify will ensure that:</p>
 <blockquote>
-<ul class="simple">
+<div><ul class="simple">
 <li>the mapping and it&#8217;s descendents successfully load</li>
 <li>the mapping checksum is valid</li>
 <li>the mapping does not contain hostile code</li>
 <li>the mapping defines certain generic parameters</li>
 <li>references required by the mapping exist on the local file system</li>
 </ul>
-</blockquote>
+</div></blockquote>
 <p>You can check the validity of your mapping or reference file like this:</p>
 <div class="highlight-python"><pre>% python -m crds.certify /where/it/really/is/hst_acs_my_masterpiece.rmap
 0 errors
@@ -281,11 +281,11 @@ verify in some other fashion.</p>
 <p>For reference files certify has better semantic checks.   For reference files,
 crds.certify currently ensures that:</p>
 <blockquote>
-<ul class="simple">
+<div><ul class="simple">
 <li>the FITS format is valid</li>
 <li>critical reference file header parameters have acceptable values</li>
 </ul>
-</blockquote>
+</div></blockquote>
 <p>You can certify reference files the same way as mappings,  like this:</p>
 <div class="highlight-python"><pre>% python -m crds.certify /where/it/is/my_reference_file.fits
 0 errors
