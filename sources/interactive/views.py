@@ -351,6 +351,7 @@ class Logger(object):
     """
     def __init__(self, filename):
         """open the per-request log file and hook stdout and stderr"""
+        self.filename = filename
         utils.ensure_dir_exists(filename)
         self.file = open(filename, 'w+')
         # Hook outputs to logfile
@@ -359,8 +360,8 @@ class Logger(object):
    
     def _write(self, stdout, arg):
         """Write arg to logfile, and `stdout` if defined."""
-        if stdout:
-            stdout.write(arg)
+#        if stdout:
+#            stdout.write(arg)
         self.file.write(arg)
    
     def write(self, *args, **keys):
@@ -382,6 +383,10 @@ class Logger(object):
         self.flush()
         self.file.close()
         sys.stdout, sys.stderr = self.oldout, self.olderr
+        logfile = open(self.filename)
+        for line in logfile:
+            sys.stdout.write(line)
+        logfile.close()
        
     def flush(self):
         """Flush the logfile and stdout."""
@@ -402,19 +407,19 @@ def log_view(func):
         
         logfile.write(time=False) # start with blank line to make concat logs readable
         logfile.write("REQUEST:", request.path, request.method)
-        logfile.write("META:", repr(request.META), stdout=None)
+#        logfile.write("META:", repr(request.META), stdout=None)
         if request.GET:
             logfile.write("GET:",   repr(request.GET))
         if request.POST:
             logfile.write("POST:",  repr(request.POST))
-        if request.COOKIES:
-            logfile.write("COOKIES:", repr(request.COOKIES), stdout=None)
+#        if request.COOKIES:
+#            logfile.write("COOKIES:", repr(request.COOKIES), stdout=None)
         if request.FILES:
             logfile.write("FILES:", repr(request.FILES))
         logfile.write("OUTPUT:")
         try:    
             response = func(request, *args, **keys)
-            logfile.write("RESPONSE:\n" + response.content, stdout=None)
+#            logfile.write("RESPONSE:\n" + response.content, stdout=None)
             return response
         except Exception, exc:
             logfile.write("EXCEPTION REPR:", repr(exc))
