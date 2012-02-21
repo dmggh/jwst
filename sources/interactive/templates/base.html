@@ -28,14 +28,19 @@
     </div>
 
     <div id="header_menu">
+    
        <a href="/static/users_guide/index.html" class="tiny">help</a>
+       <br/><br/>
+       
+       <a href="/" class="tiny">home</a>
+       <br/><br/>
+           
        {% if is_authenticated %}
-           <br/>
-           <br/>
            <a href="/logout/" class="tiny">logout</a>
        {% else %}
            <a href="/login/?next={{current_path}}" class="tiny">login</a>          
        {% endif %}
+       
     </div>
     
     <div id="contents">
