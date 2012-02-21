@@ -196,15 +196,15 @@ def render(request, template, dict_=None):
     """
     rdict = {   # standard template variables
         "observatory" : "*",
-        "observatories" : models.OBSERVATORIES+["*"],
+        "observatories" : ["*"] + models.OBSERVATORIES,
 
         "instrument" : "*",
-        "instruments" : models.INSTRUMENTS+["*"],
+        "instruments" : ["*"] + models.INSTRUMENTS,
 
         "filekind" : "*",
-        "filekinds" : models.FILEKINDS+["*"],
-        
-        "extensions" : models.EXTENSIONS+["*"],
+        "filekinds" : models.FILEKIND_TEXT_DESCR,
+
+        "extensions" : ["*"] + models.EXTENSIONS,
         "users": ["*"] + usernames(),
 
         "status" : "*",
@@ -215,7 +215,8 @@ def render(request, template, dict_=None):
 
         "filename" : "*",
         "deliverer_user" : "*",
-        "current_path" : request.get_full_path()
+        "current_path" : request.get_full_path(),
+        "pmaps" : get_recent_pmaps(),
     }
     
     # echo escaped inputs.
@@ -489,9 +490,7 @@ def logout(request):
 def bestrefs(request):
     """View to get the instrument context for best references."""
     if request.method == "GET":
-        return render(request, "bestrefs_index2.html", {
-            "pmaps" : get_recent_pmaps()
-        })
+        return render(request, "bestrefs_index2.html", {})
     else:
         return bestrefs_post(request)
 
@@ -554,9 +553,7 @@ def bestrefs_results(request, pmap, header, dataset_name=""):
 def bestrefs_explore(request):
     """View to get the instrument context for best references."""
     if request.method == "GET":
-        return render(request, "bestrefs_explore_index.html", {
-            "pmaps" : get_recent_pmaps(),
-        })
+        return render(request, "bestrefs_explore_index.html", {})
     else:
         return bestrefs_explore_post(request)
     
@@ -883,7 +880,6 @@ def batch_submit_reference(request):
         return render(request, "batch_submit_reference_input.html", {
                 "file_indices" : range(1,11),
                 "default_context" : models.get_default_context("hst"),
-                "pmaps" : get_recent_pmaps(),
                 })
     else:
         return batch_submit_reference_post(request)
@@ -1351,21 +1347,13 @@ def auto_rename_file(observatory, upload_name, upload_path):
 
 # ===========================================================================
 
-BROWSE_CONTEXT = {
-    "observatories":["*"]+models.OBSERVATORIES,
-    "instruments":["*"]+models.INSTRUMENTS,
-    "filekinds":["*"]+models.FILEKINDS,
-    "extensions":["*"]+models.EXTENSIONS,
-    "statuses":["*"]+models.FILE_STATUS_MAP.keys(),
-}
-
 @error_trap("recent_activity_input.html")
 @log_view
 # @login_required
 def recent_activity(request):
     """recent_activity displays records from the AuditBlob database."""
     if request.method == "GET":
-        return render(request, "recent_activity_input.html", BROWSE_CONTEXT)
+        return render(request, "recent_activity_input.html", {})
     else:
         return recent_activity_post(request)
 
@@ -1405,7 +1393,7 @@ def recent_activity_post(request):
 def browse_db(request):
     """browse_db displays records from the FileBlob (subclasses) database."""
     if request.method == "GET":
-        return render(request, "browse_db_input.html", BROWSE_CONTEXT)
+        return render(request, "browse_db_input.html", {})
     else:
         return browse_db_post(request)
 
@@ -1448,9 +1436,7 @@ def create_contexts(request):
     and set of new rmaps.   Note that the "new" rmaps must already be in CRDS.
     """
     if request.method == "GET":
-        return render(request, "create_contexts_input.html", {
-            "pmaps": get_recent_pmaps(),
-        })
+        return render(request, "create_contexts_input.html", {})
     else:
         return create_contexts_post(request)
 
@@ -1534,7 +1520,7 @@ def new_name(old_map):
 def edit_rmap_browse(request):
     """browse_db displays records from the FileBlob (subclasses) database."""
     if request.method == "GET":    # display rmap filters
-        return render(request, "edit_rmap_input.html", BROWSE_CONTEXT)
+        return render(request, "edit_rmap_input.html", {})
     else:   # display filtered rmaps
         return edit_rmap_browse_post(request)
 
@@ -1587,7 +1573,6 @@ def edit_rmap_get(request, filename):
             {"fileblob" : blob,
              "observatory" : blob.observatory,
              "file_contents" : file_contents,
-             "pmaps" : get_recent_pmaps(),
              "browsed_file": filename})
 
 def browsify_edit_rmap(basename, fullpath):
@@ -1801,10 +1786,6 @@ def delivery_options(request):
     """
     if request.method == "GET":
         return render(request, "delivery_options_input.html", {
-            "observatories":models.OBSERVATORIES,
-            "instruments":["*"]+models.INSTRUMENTS,
-            "filekinds":["*"]+models.FILEKINDS,
-            "deliverer_user": str(request.user),
             "pmaps": get_recent_pmaps(status="submitted"),
         })
     else:

@@ -1,7 +1,7 @@
       <tr>
         <td class="label" width="50%">Observatory:</td>
         <td align="right">
-            <select name="observatory" value="{{observatory}}"/>
+            <select name="observatory"/>
                 {% for obs in observatories %}
                     {% if observatory == obs %}
                         <option selected>{{obs}}</option>
@@ -15,7 +15,7 @@
       <tr>
         <td class="label" width="50%">Instrument:</td>
         <td align="right">
-            <select name="instrument" value="{{instrument}}"/>
+            <select name="instrument"/>
                 {% for instr in instruments %}
                     {% if instr == instrument %}
                         <option selected>{{instr}}</option>
@@ -27,28 +27,15 @@
         </td>
       </tr>
       <tr>
-        <td class="label" width="50%">File Kind:</td>
+        <td class="label" width="50%">Reference Type:</td>
         <td align="right">
-            <select name="filekind" value="{{filekind}}"/>
+            <select name="filekind" />
+                <option>*</option>
                 {% for fk in filekinds %}
-                    {% if fk == filekind %}
-                        <option selected>{{fk}}</option>
+                    {% if fk.0 == filekind %}
+                        <option value="{{fk.0}}" selected >{{fk.0}} -- {{fk.1}} </option>
                     {% else %}
-                        <option>{{fk}}</option>
-                    {% endif %}
-                {% endfor %}
-            </select>
-        </td>
-      </tr>
-      <tr>
-        <td class="label" width="50%">Status:</td>
-        <td align="right">
-            <select name="status" value="{{status}}"/>
-                {% for stat in statuses %}
-                    {% if stat == status %}
-                        <option selected>{{stat}}</option>
-                    {% else %}
-                        <option>{{stat}}</option>
+                        <option value="{{fk.0}}"> {{fk.0}} -- {{fk.1}}</option>
                     {% endif %}
                 {% endfor %}
             </select>
@@ -61,7 +48,7 @@
       <tr>
         <td class="label" width="50%">User:</td>
         <td align="right">
-            <select name="deliverer_user" value="{{deliverer_user}}"/>
+            <select name="deliverer_user" />
             {% for user in users %}
                 {% if user == deliverer_user %}
                     <option selected>{{user}}</option>

@@ -6,31 +6,12 @@
     <h2>List Actions</h2>
     <h3>Filters</h3>
     <table>
-      <tr>
-        <td class="label" width="50%">Action:</td>
-        <td align="right">
-            <select name="action" value="*"/>
-                {% for action in actions %}
-                    <option>{{action}}</option>
-                {% endfor %}
-            </select>
-        </td>
-      </tr>
+    
+      {% include "action_options.html" %}
       {% include "browse_options.html" %}
-      <tr>
-            <td class="label" width="50%">Extension:</td>
-            <td align="right">
-                <select name="extension" value="{{extension}}"/>
-                {% for ext in extensions %}
-                    {% if ext == extension %}
-                        <option selected>{{ext}}</option>
-                    {% else %}
-                        <option>{{ext}}</option>
-                    {% endif %}
-                {% endfor %}
-                </select>
-            </td>
-      </tr>
+      {% include "status_options.html" %}
+      {% include "extension_options.html" %}
+      
     </table>
       <br/>
     <input type="submit" value="Submit" />

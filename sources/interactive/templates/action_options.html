@@ -1,0 +1,14 @@
+      <tr>
+        <td class="label" width="50%">Action:</td>
+        <td align="right">
+            <select name="action"/>
+                {% for act in actions %}
+                    {% if act == action %}
+                        <option selected>{{act}}</option>
+                    {% else %}
+                        <option>{{act}}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </td>
+      </tr>

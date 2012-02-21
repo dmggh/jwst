@@ -1,0 +1,14 @@
+      <tr>
+            <td class="label" width="50%">Extension:</td>
+            <td align="right">
+                <select name="extension" value="{{extension}}"/>
+                {% for ext in extensions %}
+                    {% if ext == extension %}
+                        <option selected>{{ext}}</option>
+                    {% else %}
+                        <option>{{ext}}</option>
+                    {% endif %}
+                {% endfor %}
+                </select>
+            </td>
+      </tr>
