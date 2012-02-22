@@ -111,9 +111,7 @@ dbtype='mssql'
 
 data_dir = install_dir+"/data"
 
-#
-# 
-telescopes = [ 'hst', 'jwst' ]
+observatory = 'hst'
 
 import pwd
 version_prefix=pwd.getpwuid(os.getuid())[0]

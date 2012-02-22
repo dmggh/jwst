@@ -10,6 +10,8 @@ from crds.compat import (literal_eval, namedtuple, OrderedDict)
 
 import crds.hst
 
+from crds.server.config import observatory as OBSERVATORY
+
 # ============================================================================
 
 OBSERVATORIES = ["hst","jwst"]

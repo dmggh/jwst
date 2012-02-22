@@ -13,7 +13,9 @@ data_dir = install_dir+"/data"
 
 PYSYN_CDBS = ""
 
-telescopes = [ 'jwst' ]
+# telescopes = [ 'jwst' ]
+
+observatory = "jwst"
 
 CRDS_URL = "http://etcbrady.stsci.edu:4995"
 

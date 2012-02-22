@@ -195,9 +195,8 @@ def render(request, template, dict_=None):
     for echoing.
     """
     rdict = {   # standard template variables
-        "observatory" : "*",
-        "observatories" : ["*"] + models.OBSERVATORIES,
-
+        "observatory" : models.OBSERVATORY,
+             
         "instrument" : "*",
         "instruments" : ["*"] + models.INSTRUMENTS,
 
@@ -1379,7 +1378,7 @@ def recent_activity_post(request):
     deliverer_user = validate_post(
         request, "deliverer_user", r"[A-Za-z0-9_.\*]+")
     filters = {}
-    for var in ["action", "observatory", "instrument", "filekind", "extension",
+    for var in ["action", "instrument", "filekind", "extension",
                 "filename", "deliverer_user"]:
         value = locals()[var].strip()
         if value not in ["*",""]:
@@ -1419,7 +1418,7 @@ def browse_db_post(request):
     status = validate_post(
         request, "status",  r"[A-Za-z0-9_.\*]+")
     filters = {}
-    for var in ["observatory", "instrument", "filekind", "extension",
+    for var in ["instrument", "filekind", "extension",
                 "filename", "deliverer_user", "status"]:
         value = locals()[var].strip()
         if value not in ["*",""]:
@@ -1546,7 +1545,7 @@ def edit_rmap_browse_post(request):
     status = validate_post(
         request, "status",  r"[A-Za-z0-9_.\*]+")
     filters = {}
-    for var in ["observatory", "instrument", "filekind", "extension",
+    for var in ["instrument", "filekind", "extension",
                 "filename", "deliverer_user", "status"]:
         value = locals()[var].strip()
         if value not in ["*",""]:

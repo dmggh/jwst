@@ -95,13 +95,7 @@ table_prefix = 'instance1'
 # version number.
 version_prefix = 'config.doc.'
 
-
-#
-# telescopes is a list of which telescopes should be presented on the
-# user interface.  Currently, it is just used to control template
-# includes.  The material appears in the order that it is in this list.
-
-telescopes = [ 'hst', 'jwst' ]
+observatory = 'hst'
 
 install_dir='/home/jmiller/CRDS/CRDS_server/webserver'
 CRDS_REFERENCE_URL = "ftp://ftp.stsci.edu/cdbs/"   # .e.g http://crds_refs.stsci.edu

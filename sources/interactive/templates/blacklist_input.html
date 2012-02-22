@@ -5,6 +5,8 @@
     <form method="post" action="/blacklist/" enctype="multipart/form-data"> 
       {% csrf_token %}
       <table width="100%">
+
+      {% comment %}
         <tr>
             <td class="label" width="15%">Observatory:</td>
             <td width="25%"><select name="observatory" />
@@ -13,6 +15,10 @@
                 </select>
             </td>
         </tr>
+       {% endcomment %}
+       
+        <tr><td><input type='hidden' name='observatory' value='{{observatory}}' /></td></tr>
+
         <tr>
           <td width="15%" class="label">File:</td>
           <td width="25%">

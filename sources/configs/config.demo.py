@@ -15,7 +15,7 @@ dbtype='sqlite'
 
 data_dir = install_dir+"/data"
 
-telescopes = [ 'hst' ]
+observatory = 'hst'
 
 install_dir='/home/jmiller/CRDS/CRDS_server/webserver'
 CRDS_REFERENCE_URL = "ftp://ftp.stsci.edu/cdbs/"   # .e.g http://crds_refs.stsci.edu
