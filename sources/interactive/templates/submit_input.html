@@ -6,19 +6,7 @@
       {% csrf_token %}
       <table width="100%">
       
-      {% comment %}
-        <tr>
-            <td class="label" width="25%">Observatory:</td>
-            <td width="25%">
-                <select name="observatory" />
-                    <option value="hst">HST</option>
-                    <option value="jwst">JWST</option>
-                </select>
-            </td>
-        </tr>
-      {% endcomment %}
-
-        <tr><td><input type='hidden' name='observatory' value='{{observatory}}' /></td></tr>
+        <input type='hidden' name='observatory' value='{{observatory}}' />
 
         <tr>
           <td width="25%" class="label">Submitted File:</td>

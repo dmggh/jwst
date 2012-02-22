@@ -1,21 +1,4 @@
       
-      {% comment %}
-      <tr>
-        <td class="label" width="50%">Observatory:</td>
-        <td align="right">
-            <select name="observatory"/>
-                {% for obs in observatories %}
-                    {% if observatory == obs %}
-                        <option selected>{{obs}}</option>
-                    {% else %}
-                        <option>{{obs}}</option>
-                    {% endif %}
-                {% endfor %}
-            </select>
-        </td>
-      </tr>
-      {% endcomment %}
-      
       <input type='hidden' name='observatory' value='{{observatory}}'>
       
       <tr>

@@ -6,18 +6,7 @@
       {% csrf_token %}
       <table width="100%">
 
-      {% comment %}
-        <tr>
-            <td class="label" width="15%">Observatory:</td>
-            <td width="25%"><select name="observatory" />
-                <option>hst</option>
-                <option>jwst</option>
-                </select>
-            </td>
-        </tr>
-       {% endcomment %}
-       
-        <tr><td><input type='hidden' name='observatory' value='{{observatory}}' /></td></tr>
+       <input type='hidden' name='observatory' value='{{observatory}}' />
 
         <tr>
           <td width="15%" class="label">File:</td>
@@ -49,8 +38,6 @@
 
     <p><b>Blacklist File</b> Marks a file as "bad" or "ok".   Attempts to 
     use a "bad" file for best reference determinations will generate an error.
-    
-    <p><p><b>Observatory</b> The observatory owning the blacklisted file.
     
     <p><p><b>File</b> a known CRDS mapping or reference filename to be blacklisted.
 
