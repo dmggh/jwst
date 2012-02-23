@@ -1080,7 +1080,7 @@ def mapping_diffs(file1, file2, file1_orig, file2_orig):
         # Get logical difference tuples
         ldiffs = map1.difference(map2)
         # Substitute the name of the original file for temp file.
-        return [((file1_orig, file2_orig),) + diff[1:] for diff in ldiffs]
+        return ldiffs
     except Exception, exc:
         return [("Mapping logical difference failed: " + str(exc),)]
 
@@ -1489,7 +1489,7 @@ def do_create_contexts(pmap, updated_rmaps, description, user, email):
             description, "new context",
             repr(pmap) + " : " + ",".join([repr(x) for x in updated_rmaps]))
         
-    models.set_default_context("hst", new_name_map[pmap])
+    models.set_default_context(observatory, new_name_map[pmap])
         
     return new_name_map
 
