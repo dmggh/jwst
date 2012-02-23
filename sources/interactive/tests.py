@@ -17,7 +17,7 @@ class SimpleTest(TestCase):
     def setUp(self): 
         User.objects.create_user('homer', 'homer@simpson.net', 'simpson')     
         self.fake_database_files(["hst.pmap"])
-        models.set_default_context("hst", "hst.pmap")
+        models.set_default_context("hst.pmap")
 
     def tearDown(self):
         self.del_maps(["hst_0001.pmap",

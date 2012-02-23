@@ -215,6 +215,8 @@ def render(request, template, dict_=None):
         "filename" : "*",
         "deliverer_user" : "*",
         "current_path" : request.get_full_path(),
+        
+        "default_context" : models.get_default_context(),
         "pmaps" : get_recent_pmaps(),
     }
     
@@ -1489,7 +1491,7 @@ def do_create_contexts(pmap, updated_rmaps, description, user, email):
             description, "new context",
             repr(pmap) + " : " + ",".join([repr(x) for x in updated_rmaps]))
         
-    models.set_default_context(observatory, new_name_map[pmap])
+    models.set_default_context(new_name_map[pmap])
         
     return new_name_map
 

@@ -537,7 +537,7 @@ class ContextBlob(BlobModel):
         self.name = self.observatory + ".default_context"
         return BlobModel.save(self)
     
-def set_default_context(observatory, context, user="crds-system"):
+def set_default_context(context, observatory=OBSERVATORY, user="crds-system"):
     assert context.endswith(".pmap"), "context must be a .pmap"
     ctxblob = FileBlob.load(context)  # make sure it exists
     try:
@@ -553,7 +553,7 @@ def set_default_context(observatory, context, user="crds-system"):
         user, "set default context", context, "changed defaults", 
         "was " + was,  observatory=observatory)
 
-def get_default_context(observatory):
+def get_default_context(observatory=OBSERVATORY):
     return ContextBlob.get(observatory).context
     
 # =============================================================================
