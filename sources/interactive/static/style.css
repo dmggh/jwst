@@ -259,3 +259,8 @@ p {
     margin-bottom: 0.0em; 
 } 
 
+.hidden_text {
+    visibility: hidden;
+    position: absolute;
+}
+

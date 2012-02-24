@@ -502,31 +502,41 @@ def bestrefs(request):
 
 def bestrefs_post(request):
     """View to get best reference dataset parameters."""
-
     context = get_recent_or_user_context(request)
     pmap = rmap.get_cached_mapping(context)
         
     dataset_mode = validate_post(
-        request, "dataset_mode", "dataset_archive|dataset_uploaded")
+        request, "dataset_mode", "dataset_archive|dataset_uploaded|dataset_local")
     if dataset_mode == "dataset_uploaded":
         uploaded_file = get_uploaded_file(request, "dataset_uploaded")
         dataset_path = uploaded_file.temporary_file_path()
         dataset_name = uploaded_file.name
         remove_temp_flag = True
+        # base on the context and datset,  compute best references
+        header = pmap.get_minimum_header(dataset_path)
     else:
-        remove_temp_flag = True   # Assuming temp copy from archive.
-        raise CrdsError("Archive interface not yet implemented.")
-    
-    # base on the context and datset,  compute best references
-    header = pmap.get_minimum_header(dataset_path)
-    
-    results = bestrefs_results(
-        request, pmap, header, dataset_name)
+        remove_temp_flag = False
+        if dataset_mode == "dataset_local":
+            header = header_string_to_header(request.POST["dataset_local"])
+            header = pmap.minimize_header(header)
+        else:
+            raise CrdsError("Archive interface not yet implemented.")
+
+    results = bestrefs_results(request, pmap, header, dataset_name)
 
     if remove_temp_flag:
         remove_temporary(dataset_path)
 
     return results
+
+def header_string_to_header(hstring):
+    header = {}
+    for line in cStringIO.StringIO(hstring):
+        words = line.split()
+        key = words[0]
+        value = utils.condition_value(" ".join(words[1:]))
+        header[key] = value
+    return header
 
 @error_trap("bestrefs_explore.html")
 @log_view
