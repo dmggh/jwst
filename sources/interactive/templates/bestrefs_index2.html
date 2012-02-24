@@ -119,14 +119,20 @@
         return b;
      }     
       
-      function set_contents(file) {
-        console.log(file.value);
+      function set_contents(evt) {
+        var event = window.event || evt;
+        var file = event.target;
         readBlob(file.id, function (contents) {
-            // console.log("continuation " + contents.length); 
-            $("textarea[name=dataset_local]").text(get_header(file.value, contents));
-            $("input[name=dataset_name]").val(basename(file.value));
-            set_radio("dataset_mode", "dataset_local");
-        });     
+            // replace the file element with a text area containing header lines
+            var header = $("<textarea name='dataset_local' rows='5' cols='40'>")
+                            .text(get_header(file.value, contents))
+            var dataset_name = $("<input type='hidden' name='dataset_name'/>")
+                                .val(basename(file.value));
+            $("#dataset_local").after(header);
+            header.after(dataset_name);
+            $("#dataset_local").remove();
+        }); 
+        set_radio("dataset_mode", "dataset_local");
       }
       
       function set_radio(radio_name, radio_value) {
@@ -134,10 +140,24 @@
         $("input:radio[value=" + radio_value + "]").prop("checked", true);
       }
 
+      function submit_bestrefs() {
+        // copy inputs to a secondary form to work around file input 
+        // for dataset_local
+        return true;
+        var form = $("<form>");
+        var elem;
+        for (el in $("#raw_form input :not([type=file])")) {
+            form.append(elem);
+        }
+        form.append($("#raw_form input[name=dataset_upload]"));
+        form.submit();
+        return false; // don't submit raw form
+      }
+
 </script>
 
 
-  <form action="/bestrefs/" method="post"" enctype="multipart/form-data"> {% csrf_token %}
+  <form id="raw_form" action="/bestrefs/" method="post"" enctype="multipart/form-data"> {% csrf_token %}
     <h2>Get Best References</h2>
     
     <h3>Context:</h3>
@@ -166,20 +186,16 @@
       </tr>
       <tr>
         <td>
-            <input type="radio" name="dataset_mode" value="dataset_local">FITS Header Only
+            <input type="radio" name="dataset_mode" value="dataset_local">FITS Header
         </td>
         <td align="left">
-            <input type='file' id='dataset_local' 
-                    class='multi' maxlength='1' 
-                    onchange='set_contents(this);' />
-            <textarea class='hidden_text' name='dataset_local'> </textarea>
-            <input type='hidden' name='dataset_name' />
+            <input type='file' id='dataset_local' onchange='set_contents();' />
         </td>
       </tr>
     </table>
     
     <br/>
-    <input type="submit" value="Submit" />
+    <input type="submit" value="Submit" onsubmit="submit_bestrefs();" />
     
   </form>
 {% endblock column1 %}
@@ -196,6 +212,7 @@
 
     <p><p><b>Dataset</b> Dataset specifies the name of an archived or uploaded 
     dataset for which the user needs to know the best references files that are 
-    defined by the chosen context.
+    defined by the chosen context.  FITS Header Only uses your browser to 
+    minimize file information uploaded to the server for FITS files.
 
 {% endblock help %}
