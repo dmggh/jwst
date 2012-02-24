@@ -28,18 +28,17 @@
               var blob = file.webkitSlice(start, stop + 1);
             } else if (file.mozSlice) {
               var blob = file.mozSlice(start, stop + 1);
-            }
-            
-            reader.readAsBinaryString(blob);        
+            } else {
+              alert("File blob interface not supported for this browser.  Use a different mode or switch browsers.  Recent Firefox or Chrome browsers work.");
+            }  
+            reader.readAsText(blob);        
       }
       
       function get_header(filename, file_string) {
             if (/.fits$/.test(filename)) {
                 return fits_get_header(file_string);
-            } else if (/.r\dh$/.test(filename)) {
-                return geis_get_header(file_string);
             } else {
-                alert("Don't know how to handle that kind of reference file.");
+                alert("Browser can't handle headers for this file type.   Use 'Uploaded' instead.");
                 return "";
             }
       }
@@ -58,10 +57,6 @@
                 rec = fits_read_record(file_string, record_no);
             }
             return header;
-      }
-      
-      function geis_get_header(file_string) {
-        return file_string;
       }
       
       function fits_read_record(file_string, record_no) {  // read a FITS record
@@ -114,14 +109,29 @@
       
       function fits_keyword(card) {   // return the FITS keyword of a card.
         return $.trim(card.slice(0,8));
-      }
+      }     
+      
+     function basename (path, suffix) {
+        var b = path.replace(/^.*[\/\\]/g, '');     
+        if (typeof(suffix) == 'string' && b.substr(b.length - suffix.length) == suffix) {
+            b = b.substr(0, b.length - suffix.length);
+        }
+        return b;
+     }     
       
       function set_contents(file) {
         console.log(file.value);
         readBlob(file.id, function (contents) {
             // console.log("continuation " + contents.length); 
-            $("input[name=dataset_local]").text(get_header(file.value, contents));
+            $("textarea[name=dataset_local]").text(get_header(file.value, contents));
+            $("input[name=dataset_name]").val(basename(file.value));
+            set_radio("dataset_mode", "dataset_local");
         });     
+      }
+      
+      function set_radio(radio_name, radio_value) {
+        $("input:radio[name=" + radio_name + "]").prop("checked", false);
+        $("input:radio[value=" + radio_value + "]").prop("checked", true);
       }
 
 </script>
@@ -140,24 +150,30 @@
            <input type="radio" name="dataset_mode" value="dataset_uploaded" checked>Uploaded
         </td>
         <td align="right">
-           <input type="file" class="multi" maxlength="1" name="dataset_uploaded"/>
+           <input type="file" class="multi" maxlength="1" name="dataset_uploaded"
+                    onchange="set_radio('dataset_mode', 'dataset_uploaded');" />
         </td> 
       </tr>
       <tr>
         <td>
-            <input type="radio" name="dataset_mode" value="dataset_archive">Archived
+            <input type="radio" name="dataset_mode" value="dataset_archive" />Archived
         </td>
         <td align="left">
-            <input type="text" width="32" name="dataset_archive" value="{{dataset_archive}}" />
+            <input type="text" width="32" name="dataset_archive" 
+                    value="{{dataset_archive}}" 
+                    onchange="set_radio('dataset_mode','dataset_archive');" />
         </td>
       </tr>
       <tr>
         <td>
-            <input type="radio" name="dataset_mode" value="dataset_local">Javascript Header
+            <input type="radio" name="dataset_mode" value="dataset_local">FITS Header Only
         </td>
         <td align="left">
-            <input type='file' name='something' id='dataset_local' class='multi' onchange="set_contents(this);" />
-            <textarea class="hidden_text" name="dataset_local"> </textarea>
+            <input type='file' id='dataset_local' 
+                    class='multi' maxlength='1' 
+                    onchange='set_contents(this);' />
+            <textarea class='hidden_text' name='dataset_local'> </textarea>
+            <input type='hidden' name='dataset_name' />
         </td>
       </tr>
     </table>

@@ -513,12 +513,13 @@ def bestrefs_post(request):
         dataset_name = uploaded_file.name
         remove_temp_flag = True
         # base on the context and datset,  compute best references
-        header = pmap.get_minimum_header(dataset_path)
+        header = pmap.get_minimum_header(dataset_path, original_name=dataset_name)
     else:
         remove_temp_flag = False
         if dataset_mode == "dataset_local":
             header = header_string_to_header(request.POST["dataset_local"])
             header = pmap.minimize_header(header)
+            dataset_name = validate_post(request, "dataset_name", FILE_RE)
         else:
             raise CrdsError("Archive interface not yet implemented.")
 
@@ -531,7 +532,7 @@ def bestrefs_post(request):
 
 def header_string_to_header(hstring):
     header = {}
-    for line in cStringIO.StringIO(hstring):
+    for line in cStringIO.StringIO(str(hstring)):
         words = line.split()
         key = words[0]
         value = utils.condition_value(" ".join(words[1:]))

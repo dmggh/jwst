@@ -9,7 +9,7 @@
       
       <!-- jquery.ui -->
       <link type="text/css" href="/static/jquery-ui/css/smoothness/jquery-ui-1.8.14.custom.css" rel="stylesheet" />
-      <script src="/static/jquery-ui/js/jquery-1.5.1.min.js" type="text/javascript" language="javascript"></script>
+      <script src="/static/jquery-1.7.1.min.js" type="text/javascript" language="javascript"></script>
       <script src="/static/jquery-ui/js/jquery-ui-1.8.14.custom.min.js" type="text/javascript" language="javascript"></script>
       <script src="/static/jquery.cookie.js" type="text/javascript" language="javascript"></script>
       <script src="/static/jquery.MultiFile.js" type="text/javascript" language="javascript"></script>
@@ -30,10 +30,13 @@
     <div id="header_menu">
     
        <a href="/static/users_guide/index.html" class="tiny">help</a>
-       <br/><br/>
+       <br/>
        
        <a href="/" class="tiny">home</a>
-       <br/><br/>
+       <br/>
+           
+       <a href="./" class="tiny">reset</a>
+       <br/>
            
        {% if is_authenticated %}
            <a href="/logout/" class="tiny">logout</a>
