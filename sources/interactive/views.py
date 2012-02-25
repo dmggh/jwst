@@ -11,6 +11,8 @@ import cStringIO
 import pprint
 import traceback
 import datetime
+import tarfile
+import mimetypes
 
 # from django.http import HttpResponse
 from django.shortcuts import render_to_response
@@ -128,14 +130,14 @@ def is_reference(filename, extension=r"\.fits|\.r\dh|\.r\dd"):
     Otherwise raise AssertionError.
     """
     if not re.match(r"\w+"+extension, filename):
-        raise CrdsError("invalid reference filename " + repr(filename))
+        raise CrdsError("Invalid reference filename " + repr(filename))
     is_known_file(filename)
     return filename
 
 def is_known_file(filename):
     """Verify that `filename` identifies a file already known to CRDS."""
     if not re.match(FILE_RE, filename):
-        raise CrdsError("invalid filename " + repr(filename))
+        raise CrdsError("Invalid filename " + repr(filename))
     if len(models.FileBlob.filter(filename=filename)) < 1:
         raise CrdsError("No database entry for " + repr(filename) + ".") 
     return filename
@@ -2001,3 +2003,46 @@ def get_file_data(request, filename):
     else:
         content_type = "application/octet-stream"
     return HttpResponse(content=data, content_type=content_type)
+
+
+ARCH_MODES = {
+    "tar" : "w|",
+    "tar.gz" : "w|gz",
+    "tar.bz2" : "w|bz2",
+}
+
+@error_trap("base.html")
+def get_archive(request, filename):
+    """Supports a link for getting an archive of files of the form:
+    
+    http://get_archive/<filename.tar.gz>?file1=hst.pmap&file2=hst_acs.imap?...
+    """
+
+    arch_extension = None
+    for arch_extension in ARCH_MODES:
+        if filename.endswith(arch_extension):
+            break
+    assert arch_extension in ARCH_MODES, \
+        "Unsupported archive extension " + repr(filename)
+    
+    files = []
+    for var in request.GET:
+        if var.startswith("file"):
+            filename = validate_get(request, var, is_known_file)
+            files.append(filename)
+            
+    filepaths = []
+    for filename in files:
+        filepaths.append(models.FileBlob.load(filename).pathname)
+        
+    response = HttpResponse(mimetype="application/octet-stream")
+    
+    buffer = cStringIO.StringIO()
+    tar = tarfile.open(mode=ARCH_MODES[arch_extension], fileobj=buffer)
+    for path in filepaths:
+        tar.add(path, arcname=os.path.basename(path))
+    tar.close()
+    response.write(buffer.getvalue())
+    
+    return response
+
