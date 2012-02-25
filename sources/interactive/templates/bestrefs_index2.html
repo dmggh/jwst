@@ -124,12 +124,18 @@
         var file = event.target;
         readBlob(file.id, function (contents) {
             // replace the file element with a text area containing header lines
-            var header = $("<textarea name='dataset_local' rows='5' cols='40'>")
-                            .text(get_header(file.value, contents))
+            var header_val = get_header(file.value, contents);
+            if (!header_val) {
+                file.value = "";
+                set_radio("dataset_mode","dataset_uploaded");
+                return;
+            }
+            var header_textarea = $("<textarea name='dataset_local' rows='5' cols='40'>")
+                                 .text(header_val)
             var dataset_name = $("<input type='hidden' name='dataset_name'/>")
                                 .val(basename(file.value));
-            $("#dataset_local").after(header);
-            header.after(dataset_name);
+            $("#dataset_local").after(header_textarea);
+            header_textarea.after(dataset_name);
             $("#dataset_local").remove();
         }); 
         set_radio("dataset_mode", "dataset_local");

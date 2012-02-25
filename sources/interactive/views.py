@@ -553,16 +553,23 @@ def bestrefs_results(request, pmap, header, dataset_name=""):
     # organize and format results for HTML display    
     header_items = sorted(header.items())
     bestrefs_items = []
+    archive_files = []
     for key, val in sorted(recommendations.items()):
         if val.startswith("NOT FOUND"):
             val = val[len("NOT FOUND"):]
+        else:
+            archive_files.append(val)
         bestrefs_items.append((key.upper, val))
+        
+    archive_name = "bestrefs.tar.gz"
     
     return render(request, "bestrefs_results.html", {
             "observatory" : pmap.observatory,
             "dataset_name" : dataset_name,
             "header_items" : header_items,
             "bestrefs_items" : bestrefs_items,
+            "archive_url" : get_archive_url(archive_name, archive_files),
+            "archive_name" : archive_name,
         })
 
 # ===========================================================================
@@ -2046,3 +2053,11 @@ def get_archive(request, filename):
     
     return response
 
+def get_archive_url(archive_name, filelist):
+    """Return the URL CRDS uses to download an archive named `archive_name`
+    containing the files in `filelist`.
+    """
+    url = "/get_archive/" + archive_name + "?"
+    for i, filename in enumerate(filelist): 
+        url += "file"+str(i)+"="+str(filename) + "&"
+    return url[:-1]
