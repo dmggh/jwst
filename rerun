@@ -1,10 +1,10 @@
-#! /bin/csh
+#! /bin/sh
 
 cd `dirname $0`
 
-svn update
+# svn update
 
-(cd ../CRDS; svn update)
+# (cd ../CRDS; svn update)
 
 ./stop  >& /dev/null
 
