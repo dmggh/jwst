@@ -16,31 +16,36 @@
     
     <h3>Actions on Mapping {{old_rmap|browse}}</h3>
     
-    <table border="1" cellpadding="4">
-        <tr>
-            <th>Action</th>
-            <th>Rmap Match</th>
-            <th>Useafter</th>
-            <th>New Reference File</th>
-            <th>Reference Match</th>
-        </tr>
-    {% for action in actions %}
-        <tr>
-            <td>{{action.action|upper}}</td>        
-            <td>{{action.rmap_match_tuple}}</td>        
-            <td>{{action.useafter}}</td>        
-            <td>{{action.ref_file}}</td>        
-            <td>{{action.ref_match_tuple}}</td>        
-        </tr>        
-    {% endfor %}
-    </table>
+    {%if actions %}
+        <table border="1" cellpadding="4">
+            <tr>
+                <th>Action</th>
+                <th>Rmap Match</th>
+                <th>Useafter</th>
+                <th>New Reference File</th>
+                <th>Reference Match</th>
+            </tr>
+            {% for action in actions %}
+                <tr>
+                    <td>{{action.action|upper}}</td>        
+                    <td>{{action.rmap_match_tuple}}</td>        
+                    <td>{{action.useafter}}</td>        
+                    <td>{{action.ref_file}}</td>        
+                    <td>{{action.ref_match_tuple}}</td>        
+                </tr>        
+            {% endfor %}
+        </table>
+
+        <h3>Generated New Mappings</h3>
+        {% for map in new_mappings %}
+        <p>{{map|browse}}</p>
+        {% endfor %}
     
-    <h3>Generated New Mappings</h3>
-    {% for map in new_mappings %}
-    <p>{{map|browse}}</p>
-    {% endfor %}
+        {% include "collision_explain.html" %}    
 
-    {% include "collision_explain.html" %}    
-
+    {% else %}
+        <p class="error">No changes to .rmap!</p>
+    {% endif %}
+ 
 {% endblock contents %}
 

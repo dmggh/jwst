@@ -138,7 +138,7 @@ def is_known_file(filename):
     """Verify that `filename` identifies a file already known to CRDS."""
     if not re.match(FILE_RE, filename):
         raise CrdsError("Invalid filename " + repr(filename))
-    if len(models.FileBlob.filter(filename=filename)) < 1:
+    if len(models.FileBlob.filter(name=filename)) < 1:
         raise CrdsError("No database entry for " + repr(filename) + ".") 
     return filename
 
@@ -541,6 +541,7 @@ def header_string_to_header(hstring):
         header[key] = value
     return header
 
+# @profile
 @error_trap("bestrefs_explore.html")
 @log_view
 def bestrefs_results(request, pmap, header, dataset_name=""):
@@ -561,7 +562,7 @@ def bestrefs_results(request, pmap, header, dataset_name=""):
             archive_files.append(val)
         bestrefs_items.append((key.upper, val))
         
-    archive_name = "bestrefs.tar.gz"
+    archive_name = os.path.splitext(dataset_name)[0] + "_bestrefs.tar.gz"
     
     return render(request, "bestrefs_results.html", {
             "observatory" : pmap.observatory,
@@ -749,7 +750,7 @@ def do_certify_file(basename, certifypath, check_references=None):
         certify.certify_files([certifypath], check_references=None,
             trap_exceptions=False, is_mapping = rmap.is_mapping(basename))
     except Exception, exc:
-        raise CrdsError(str(exc))
+        raise CrdsError("certifying " + repr(str(basename)) + ": " + str(exc))
     if check_references in ["exist","contents"] and rmap.is_mapping(basename):
         ctx = rmap.load_mapping(certifypath)
         for ref in ctx.reference_names():
@@ -912,13 +913,12 @@ def batch_submit_reference(request):
 
 def batch_submit_reference_post(request):
     """View fragment to process file batch reference submnission POSTs."""
-    pmap = get_recent_or_user_context(request)
-    pmap = rmap.get_cached_mapping(pmap)
+    pmap = rmap.get_cached_mapping(get_recent_or_user_context(request))
     description = validate_post(request, "description", DESCRIPTION_RE)
     # creator = validate_post(request, "creator", PERSON_RE)
 
     reference_files = []
-    for uploaded_file in request.FILES.values():
+    for uploaded_file in request.FILES.getlist("file_uploaded"):
         reference_files.append(uploaded_file)
     if not reference_files:
         raise CrdsError("No files specified.")    
@@ -929,8 +929,13 @@ def batch_submit_reference_post(request):
     # Verify that all have same instrument and filekind
     old_instr, old_filekind = None, None
     for uploaded_file in reference_files:
-        instrument, filekind = utils.get_file_properties(
-            pmap.observatory, uploaded_file.temporary_file_path())
+        print "File:", uploaded_file.name
+        try:
+            instrument, filekind = utils.get_file_properties(
+                pmap.observatory, uploaded_file.temporary_file_path())
+        except Exception:
+            raise CrdsError("Can't determine instrument or file type for " + 
+                            repr(str(uploaded_file.name)))
         if old_instr is not None:
             assert instrument == old_instr, \
                 "More than one instrument submitted at " + repr(uploaded_file.name)
@@ -938,9 +943,9 @@ def batch_submit_reference_post(request):
                 "More than one reference type submitted at " + repr(uploaded_file.name)
         old_instr, old_filekind = instrument, filekind
 
-    # Verify that all references certify.
-    certify.certify_files([x.temporary_file_path() for x in reference_files], 
-        check_references=None, trap_exceptions=False, is_mapping = False)
+    # Verify that ALL references certify,  raise CrdsError on first error.
+    for uploaded_file in reference_files:
+        do_certify_file(uploaded_file.name, uploaded_file.temporary_file_path())
 
     # Submit reference files.
     new_references = {}
@@ -973,13 +978,16 @@ def batch_submit_reference_post(request):
         # Generate a new context referring to the new rmap
         new_name_map = do_create_contexts(
             pmap.name, [new_rmap], description, request.user, request.user.email)
+        new_mappings = [new_rmap] + new_name_map.values()
+        collision_list = get_collision_list(new_mappings)
     else:
-        actions = ["No changes to rmap."]
+        actions = []
         new_name_map = {}
+        collision_list = []
+        # XXX WIPE the new references since rmap generation failed!!!
+        for new_file in new_references.values():
+            models.FileBlob.load(new_file).destroy()
 
-    new_mappings = [new_rmap] + new_name_map.values()
-    collision_list = get_collision_list(new_mappings)
-    
 #    deliver_file_list( str(request.user), pmap.observatory, 
 #        new_references.values() + new_mappings, description)
 #    
@@ -1140,7 +1148,7 @@ def browse_known_file(request, filename):
         browsed_file = blob.pathname
         related_actions = models.AuditBlob.related_to(filename)
     except LookupError:
-        raise CrdsError("Can't find " + repr(browsed_file))
+        raise CrdsError("Can't find " + repr(filename))
     
     if rmap.is_mapping(filename):
         file_contents = browsify_mapping(filename, browsed_file)
@@ -2018,6 +2026,7 @@ ARCH_MODES = {
     "tar.bz2" : "w|bz2",
 }
 
+# @profile
 @error_trap("base.html")
 def get_archive(request, filename):
     """Supports a link for getting an archive of files of the form:

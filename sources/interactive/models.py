@@ -5,7 +5,7 @@ import hashlib
 from django.db import models
 
 # Create your models here.
-from crds import (timestamp, rmap, utils, refactor, checksum)
+from crds import (timestamp, rmap, utils, refactor, checksum, log)
 from crds.compat import (literal_eval, namedtuple, OrderedDict)
 
 import crds.hst
@@ -392,7 +392,19 @@ class FileBlob(BlobModel):
     @property
     def checksum_ok(self):
         return self.sha1sum and (self.checksum() == self.sha1sum)
-
+    
+    def destroy(self):
+        """Destroy this FileBlob and it's associated reference file.   This
+        cannot be revoked and should *ONLY* be called as part of cleanup for
+        a failed multi-part file submission.
+        """
+        try:
+            log.info("DESTROYING", repr(self.pathname))
+            os.remove(self.pathname)
+            self.delete()
+        except Exception, exc:
+            log.error("Problem destroying",repr(self.pathname))
+                     
 # ============================================================================
 
 def set_state(filename, state):
@@ -566,7 +578,7 @@ def add_crds_file(observatory, upload_name, permanent_location,
 
     if update_derivation and rmap.is_mapping(upload_name):
         mapping = rmap.load_mapping(permanent_location)
-        derived_from = mapping.derived_from
+        derived_from = mapping.name
         refactor.replace_header_value(
             permanent_location, "derived_from", mapping.name)
         refactor.replace_header_value(
