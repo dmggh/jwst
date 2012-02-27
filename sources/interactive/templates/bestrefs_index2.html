@@ -119,9 +119,7 @@
         return b;
      }     
       
-      function set_contents(evt) {
-        var event = window.event || evt;
-        var file = event.target;
+      function set_contents(file) {
         readBlob(file.id, function (contents) {
             // replace the file element with a text area containing header lines
             var header_val = get_header(file.value, contents);
@@ -137,6 +135,7 @@
             $("#dataset_local").after(header_textarea);
             header_textarea.after(dataset_name);
             $("#dataset_local").remove();
+            $(file).val(basename(file.value))
         }); 
         set_radio("dataset_mode", "dataset_local");
       }
@@ -195,7 +194,7 @@
             <input type="radio" name="dataset_mode" value="dataset_local">FITS Header
         </td>
         <td align="left">
-            <input type='file' id='dataset_local' onchange='set_contents();' />
+            <input type='file' id='dataset_local' onchange='set_contents(this);' />
         </td>
       </tr>
     </table>
@@ -218,7 +217,7 @@
 
     <p><p><b>Dataset</b> Dataset specifies the name of an archived or uploaded 
     dataset for which the user needs to know the best references files that are 
-    defined by the chosen context.  FITS Header Only uses your browser to 
+    defined by the chosen context.  FITS Header uses your browser to 
     minimize file information uploaded to the server for FITS files.
 
 {% endblock help %}
