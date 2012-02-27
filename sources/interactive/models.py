@@ -404,7 +404,13 @@ class FileBlob(BlobModel):
             self.delete()
         except Exception, exc:
             log.error("Problem destroying",repr(self.pathname))
-                     
+            
+    @property
+    def collisions(self):
+        return [col.name for col in \
+                self.__class__.filter(derived_from=self.derived_from) \
+                if col.name != self.name]
+
 # ============================================================================
 
 def set_state(filename, state):
