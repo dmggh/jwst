@@ -1,7 +1,6 @@
     {% load stdtags %}
 
     <table>
-      <tr>
        <tr>
         <td><input type="radio" name="pmap_mode" value="pmap_default" checked>Default</td>
           <td align="right">
@@ -9,6 +8,7 @@
             <p>{{default_context|grey}} or more recent</p>
           </td>
        </tr>
+      <tr>
         <td><input type="radio" name="pmap_mode" value="pmap_menu" >Recent</td>
           <td align="right">
             <select name="pmap_menu" onchange='crds.set_radio("pmap_mode","pmap_menu");' />

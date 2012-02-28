@@ -42,6 +42,11 @@ import crds.server.jsonapi.views as jsonapi_views
 HERE = os.path.dirname(__file__) or "./"
 
 # ===========================================================================
+def srepr(obj):
+    """Mostly for formatting unicode strings for exceptions,  to get rid of the
+    annoying Python-2.x u-prefix on unicode reprs.
+    """
+    return repr(str(obj))
 
 def check_value(value, pattern, msg):
     """Ensure that `value` satisifies the conditions implied by `pattern`,
@@ -282,7 +287,7 @@ def get_uploaded_file(request, formvar):
         raise MissingInputError("Specify a file to upload for " + repr(formvar))
     if not re.match(FILE_RE, ufile.name):
         raise FieldError("Unexpected file extension for " + \
-                            repr(str(ufile.name)))
+                            srepr(ufile.name))
     return ufile
 
 def upload_file(ufile, where):
@@ -595,12 +600,10 @@ def get_recent_pmaps(**filters):
     files = models.FileBlob.filter(pathname=".*\.pmap", **filters)[::-1][:10]
     pmaps = []
     for file_ in files:
-        pmaps.append((file_.filename, file_.filename + " [date here]"))
-    return pmaps
+        yield (file_.filename, file_.filename + " [date here]")
 
 def bestrefs_explore_post(request):
     """View to get best reference dataset parameters."""
-
     context = get_recent_or_user_context(request)
     pmap = rmap.get_cached_mapping(context)
     instrument = validate_post(request, "instrument", models.INSTRUMENTS)
@@ -706,7 +709,7 @@ def do_submit_file(observatory, uploaded_file, description,
         try:
             checksum.update_checksum(upload_location)
         except rmap.MappingError, exc:
-            raise CrdsError("Error updating checksum: " + repr(str(exc)))
+            raise CrdsError("Error updating checksum: " + srepr(exc))
     
     # Check the file,  leaving no server state if it fails.  Give error results.
     do_certify_file(original_name, upload_location, check_references="exist")
@@ -753,7 +756,7 @@ def do_certify_file(basename, certifypath, check_references=None):
         certify.certify_files([certifypath], check_references=None,
             trap_exceptions=False, is_mapping = rmap.is_mapping(basename))
     except Exception, exc:
-        raise CrdsError("certifying " + repr(str(basename)) + ": " + str(exc))
+        raise CrdsError("certifying " + srepr(basename) + ": " + str(exc))
     if check_references in ["exist","contents"] and rmap.is_mapping(basename):
         ctx = rmap.load_mapping(certifypath)
         for ref in ctx.reference_names():
@@ -918,8 +921,8 @@ def batch_submit_reference_post(request):
     """View fragment to process file batch reference submnission POSTs."""
     pmap = rmap.get_cached_mapping(get_recent_or_user_context(request))
     description = validate_post(request, "description", DESCRIPTION_RE)
+    
     # creator = validate_post(request, "creator", PERSON_RE)
-
     reference_files = []
     for uploaded_file in request.FILES.getlist("file_uploaded"):
         reference_files.append(uploaded_file)
@@ -938,7 +941,7 @@ def batch_submit_reference_post(request):
                 pmap.observatory, uploaded_file.temporary_file_path())
         except Exception:
             raise CrdsError("Can't determine instrument or file type for " + 
-                            repr(str(uploaded_file.name)))
+                            srepr(uploaded_file.name))
         if old_instr is not None:
             assert instrument == old_instr, \
                 "More than one instrument submitted at " + repr(uploaded_file.name)
@@ -950,24 +953,40 @@ def batch_submit_reference_post(request):
     for uploaded_file in reference_files:
         do_certify_file(uploaded_file.name, uploaded_file.temporary_file_path())
     
-    """  
     # Get temporary paths to references to do temporary refactoring with wrong 
     # names.  Verify that at least *some* actions occur for each submitted file.
-    temp_refs = [uploaded.temporary_file_path() for uploaded in reference_files]
+    tmp_refs = [uploaded.temporary_file_path() for uploaded in reference_files]
     
     # Generate a temporary rmap name using "temp" in place of observatory.
     # Refactor the original rmap inserting temporary references, creating a 
     # temporary rmap to see what actions will occur.
-    temp_rmap = get_new_name("./temp", instrument, filekind, ".rmap")
-    temp_actions = refactor.rmap_insert_references(
-        old_rmap_path, temp_rmap, temp_refs)
+    old_rmap = pmap.get_imap(instrument).get_rmap(filekind).name
+    old_rmap_path = rmap.locate_mapping(old_rmap, pmap.observatory)
+    tmp_rmap = get_new_name("./tmp", instrument, filekind, ".rmap")
+    tmp_rmap_path = rmap.locate_mapping(tmp_rmap, pmap.observatory)
+
+    tmp_actions = refactor.rmap_insert_references(
+        old_rmap_path, tmp_rmap_path, tmp_refs)
+
     # Discard the temporary rmap
     try:
-        os.remove(temp_rmap)
+        os.remove(tmp_rmap_path)
     except Exception:
         sys.exc_clear()
-    """
         
+    no_effect = []
+    for uploaded_file in reference_files:
+        ref_file = os.path.basename(uploaded_file.temporary_file_path())
+        for action in tmp_actions:
+            if action.ref_file == ref_file:
+                break
+        else:
+            no_effect.append(str(uploaded.name))
+
+    if no_effect:
+        raise CrdsError("Some files could not be added to " + repr(old_rmap) 
+                        + ": " + repr(no_effect))
+
     # Once both references and refactoring checks out,  submit reference files
     # and collect mapping from uploaded names to official names.
     new_references = {}
@@ -982,9 +1001,7 @@ def batch_submit_reference_post(request):
     reference_paths = [
         models.FileBlob.load(name).pathname for name in new_references.values()]
 
-    old_rmap = pmap.get_imap(instrument).get_rmap(filekind).name
     new_rmap = get_new_name(pmap.observatory, instrument, filekind, ".rmap")
-    old_rmap_path = rmap.locate_mapping(old_rmap, pmap.observatory)
     new_rmap_path = rmap.locate_mapping(new_rmap, pmap.observatory)
     
     # refactor inserting references.
@@ -2031,7 +2048,7 @@ def get_file_data(request, filename):
     try:
         blob = models.FileBlob.load(filename)
     except LookupError:
-        raise CrdsError("Couldn't find file " + repr(str(filename)))
+        raise CrdsError("Couldn't find file " + srepr(filename))
     data = open(blob.pathname).read()
     if blob.type == "mapping":
         content_type = "text/plain"
