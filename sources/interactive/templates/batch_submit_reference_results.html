@@ -11,7 +11,7 @@
     
     <h3>Uploaded Files</h3>
     {% for file in new_references %}
-        <p>Submitted {{file.0|grey}} renamed to {{file.1|browse}}.</p>
+        <p>File submitted as {{file.0|grey}} was renamed to {{file.1|browse}} in CRDS.</p>
     {% endfor %}
     
     <h3>Actions on Mapping {{old_rmap|browse}}</h3>

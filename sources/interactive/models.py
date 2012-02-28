@@ -404,9 +404,10 @@ class FileBlob(BlobModel):
             self.delete()
         except Exception, exc:
             log.error("Problem destroying",repr(self.pathname))
-            
+
     @property
     def collisions(self):
+        """A list of other files derived from the same source file...  possibly bad."""
         return [col.name for col in \
                 self.__class__.filter(derived_from=self.derived_from) \
                 if col.name != self.name]

@@ -1,24 +1,41 @@
 {% extends "base.html" %}
 
 {% block column1 %}
+    <script type="text/javascript">
+    function validate_and_confirm(form) {
+        console.log("Validating batch reference form submission.");
+        if (!crds.validate_select_pmap()) {
+            return false;
+        }
+        if ($("#description").val() == "") {
+            alert("Did you add a description?");
+            return false;
+        }
+        if ($("#file_uploaded")[0].files.length == 0) {
+            alert("Did you add some files?");
+            return false;
+        }
+        return true;
+    }
+    </script>
+
     <h2>Batch Submit Reference</h2>
-    <form method="post" action="/batch_submit_reference/" enctype="multipart/form-data"> 
-      {% csrf_token %}
- 
- 
+    <form method="post" action="/batch_submit_reference/" enctype="multipart/form-data"
+    	  onsubmit="return validate_and_confirm(this);">  {% csrf_token %}
+
       <h3>Old Context to Derive From</h3>
         {% include "select_pmap.html" %}
         
       <h3>New Rmap Description</h3>
         <p>
-            <textarea name="description" id="description" rows="4" cols="50"></textarea>   
+            <textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea>   
         </p>
 
       <h3>Upload References</h3>
-        <input type="file" class="multi" name="file_uploaded" />
+        <input type="file" class="multi" name="file_uploaded" id="file_uploaded"/>
       <br/>
       <br/>
-      <input type="submit" value="Submit References">
+      <input type="submit" value="Submit References" >
     </form>
 {% endblock column1 %}
 

@@ -96,7 +96,10 @@ def is_pmap(filename):
     """Verify that `filename` names a known CRDS pipeline mapping.
     Otherwise raise AssertionError.
     """
-    return is_mapping(filename, r"\.pmap")
+    try:
+        return is_mapping(filename, r"\.pmap")
+    except Exception, exc:
+        raise CrdsError("Invalid pmap: " + str(exc))
 
 def is_imap(filename):
     """Verify that `filename` names a known CRDS instrument mapping.
@@ -615,7 +618,7 @@ def get_recent_or_user_context(request):
     else:
         pmap_mode = validate_post(
             request, "pmap_mode", "pmap_menu|pmap_text|pmap_default")
-        context = validate_post(request, pmap_mode, is_pmap_or_imap)
+        context = validate_post(request, pmap_mode, is_pmap)
     return context
 
 @error_trap("bestrefs_explore_input.html")
@@ -946,8 +949,27 @@ def batch_submit_reference_post(request):
     # Verify that ALL references certify,  raise CrdsError on first error.
     for uploaded_file in reference_files:
         do_certify_file(uploaded_file.name, uploaded_file.temporary_file_path())
-
-    # Submit reference files.
+    
+    """  
+    # Get temporary paths to references to do temporary refactoring with wrong 
+    # names.  Verify that at least *some* actions occur for each submitted file.
+    temp_refs = [uploaded.temporary_file_path() for uploaded in reference_files]
+    
+    # Generate a temporary rmap name using "temp" in place of observatory.
+    # Refactor the original rmap inserting temporary references, creating a 
+    # temporary rmap to see what actions will occur.
+    temp_rmap = get_new_name("./temp", instrument, filekind, ".rmap")
+    temp_actions = refactor.rmap_insert_references(
+        old_rmap_path, temp_rmap, temp_refs)
+    # Discard the temporary rmap
+    try:
+        os.remove(temp_rmap)
+    except Exception:
+        sys.exc_clear()
+    """
+        
+    # Once both references and refactoring checks out,  submit reference files
+    # and collect mapping from uploaded names to official names.
     new_references = {}
     for uploaded_file in reference_files:
         new_basename = do_submit_file( 
@@ -956,6 +978,7 @@ def batch_submit_reference_post(request):
             change_level, comparison_file, creation_method="batch submit")
         new_references[str(uploaded_file.name)] = str(new_basename)
 
+    # Get paths for new official CRDS reference files.
     reference_paths = [
         models.FileBlob.load(name).pathname for name in new_references.values()]
 
@@ -992,7 +1015,7 @@ def batch_submit_reference_post(request):
 #        new_references.values() + new_mappings, description)
 #    
     return render(request, "batch_submit_reference_results.html", {
-                "new_references" : new_references.items(),
+                "new_references" : sorted(new_references.items()),
                 "actions" : actions,
                 "pmap" : pmap.name,
                 "old_rmap" : old_rmap,
@@ -1369,7 +1392,6 @@ def get_new_name(observatory, instrument, filekind, extension):
     name = _get_new_name(observatory, instrument, filekind, extension)
     while name in known_files:
         name = _get_new_name(observatory, instrument, filekind, extension)
-    
     return name
 
 def auto_rename_file(observatory, upload_name, upload_path):
@@ -1630,16 +1652,14 @@ def browsify_edit_rmap(basename, fullpath):
 def get_collision_list(newfiles):
     """Given a list of `newfiles`,  newly created files,
     check the database for other children of the same parent.   Return a
-    list of triplets,  adding a "collisions" list to each (parent,child) pair
-    which describes potential derivation conflicts.
+    list of triplets:  [ (newfile, parent, other_children_of_parent), ... ]
     """
     collision_list = []
     for newfile in newfiles:
-        parent = models.FileBlob.load(newfile).derived_from
-        collisions = [col.name for col in 
-            models.FileBlob.filter(derived_from=parent) if col.name != newfile]
+        blob = models.FileBlob.load(newfile)
+        collisions = blob.collisions  # collisions is a db property so cache
         if collisions:
-            collision_list.append((newfile, parent, collisions))
+            collision_list.append((newfile, blob.derived_from, collisions))
     return collision_list
 
 def edit_rmap_post(request):

@@ -6,7 +6,7 @@
         {% for collision in colinfo.2 %}
             <p class="warning">
             {{colinfo.0|browse}} and {{collision|browse}} 
-            both derived from {{colinfo.1|browse}}
+            were both derived from {{colinfo.1|browse}}
             </p>
         {% endfor %}
     {% endfor %}
@@ -19,8 +19,8 @@
     <p>The person receiving this warning should derive a new update,  most 
     likely from the best of the files this submission collided with.   
     
-    <p class="warning"> Do not use the file submitted here unless the 
-    collision is known to be harmless.
+    <p class="warning"> Do not use the file(s) submitted/generated here unless 
+    the collision is known to be harmless.
 {% endif %}
 
 

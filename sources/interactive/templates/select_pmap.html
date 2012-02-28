@@ -11,17 +11,39 @@
        </tr>
         <td><input type="radio" name="pmap_mode" value="pmap_menu" >Recent</td>
           <td align="right">
-            <select name="pmap_menu" />
+            <select name="pmap_menu" onchange='crds.set_radio("pmap_mode","pmap_menu");' />
                 {% for pmap in pmaps %}
-                    <option value="{{pmap.0}}">{{pmap.1}}</option>
+                    {% if pmap.0 == pmap_menu %}
+                        <option value="{{pmap.0}}" selected>{{pmap.1}}</option>
+                    {% else %}
+                        <option value="{{pmap.0}}">{{pmap.1}}</option>
+                    {% endif %}
                 {% endfor %}
             </select>
           </td>
       </tr>
       <tr>
         <td><input type="radio" name="pmap_mode" value="pmap_text">User Specified</td>
-          <td align="right"><input type="text" name="pmap_text"/></td>
+          <td align="right"><input type="text" name="pmap_text" value="{{pmap_text}}"
+                onchange='crds.set_radio("pmap_mode","pmap_text");' /></td>
           <td class="hint">i.e. hst_0001.pmap</td>
       </tr>
     </table>
     <br/>
+    
+    <script type="text/javascript">
+        crds.validate_select_pmap = function () {
+            console.log("validating select_pmap.");
+            var pmap_mode = $("input[name='pmap_mode']:checked").val();
+            if ( pmap_mode == "pmap_text") {
+                var pmap = $("input[name='pmap_text']").val();
+                console.log("checking pmap:", pmap);
+                if (!/^.+.pmap$/.test(pmap)) {
+                    alert("Invalid .pmap name");
+                    console.log("Invalid pmap");
+                    return false;
+                }
+            }
+            return true;
+        }
+    </script>
