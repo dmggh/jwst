@@ -45,7 +45,9 @@
     
     <br/>
 
-    <p>Download All: &nbsp;&nbsp; <a href="{{archive_url}}">{{archive_name}}</a>
-
+    {% if archive_url %}
+        <p>Download All: &nbsp;&nbsp; <a href="{{archive_url}}">{{archive_name}}</a>
+    {% endif %}
+    
 {% endblock column2 %}
 

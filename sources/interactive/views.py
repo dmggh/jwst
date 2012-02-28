@@ -2103,7 +2103,11 @@ def get_archive_url(archive_name, filelist):
     """Return the URL CRDS uses to download an archive named `archive_name`
     containing the files in `filelist`.
     """
-    url = "/get_archive/" + archive_name + "?"
-    for i, filename in enumerate(filelist): 
-        url += "file"+str(i)+"="+str(filename) + "&"
-    return url[:-1]
+    if filelist:
+        url = "/get_archive/" + archive_name + "?"
+        for i, filename in enumerate(filelist): 
+            url += "file"+str(i)+"="+str(filename) + "&"
+        return url[:-1]
+    else:
+        return ""
+
