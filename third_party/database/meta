@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/env python
 #-*-python-*-
 
 """This is a generic installation script I cobbled together for setting up my

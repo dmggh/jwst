@@ -418,12 +418,15 @@ export META_PREFIX="$install_dir"
 # a .pygz file is a standard Python package .tar.gz,  built using python setup.py install
 
 echo "Installing database freetds"
+( cd third_party/database;  ./meta build ./freetds*.meta )
 ( cd third_party/database;  ./meta install ./freetds*.meta )
 
 echo "Installing database unixODBC"
 ( cd third_party/database;  ./meta install ./unixODBC*.tar.gz )
 
 echo "Installing database pyodbc"
+export CFLAGS="-I$install_dir/include -L$install_dir/lib"
+export LDFLAGS="-L$install_dir/lib"
 ( cd third_party/database;  ./meta install ./pyodbc*.pygz --python=python --home=$install_dir/python )
 
 echo "Cleaning database build trees"
