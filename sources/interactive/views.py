@@ -34,7 +34,7 @@ from crds import (rmap, utils, certify, timestamp, uses, matches, newcontext,
 from crds.timestamp import (is_datetime, DATE_RE_STR, TIME_RE_STR, DATETIME_RE_STR)
 
 import crds.server.config as config
-import crds.server.interactive.models as models
+from crds.server.interactive import (models, database)
 from crds.server.interactive.models import FieldError, MissingInputError
 
 import crds.server.jsonapi.views as jsonapi_views
@@ -96,6 +96,7 @@ FILE_RE = r"\w+(\.fits|\.pmap|\.imap|\.rmap|\.r\d[hd])"
 DESCRIPTION_RE = r"[A-Za-z0-9._ ]+"
 GEIS_HEADER_RE = r"\w+(\.r\dh)"
 PERSON_RE = r"[A-Za-z_0-9\.@]*"
+DATASET_ID_RE = r"\w+"
 
 def is_pmap(filename):
     """Verify that `filename` names a known CRDS pipeline mapping.
@@ -524,14 +525,22 @@ def bestrefs_post(request):
         remove_temp_flag = True
         # base on the context and datset,  compute best references
         header = pmap.get_minimum_header(dataset_path, original_name=dataset_name)
-    else:
+    elif dataset_mode == "dataset_local":
         remove_temp_flag = False
-        if dataset_mode == "dataset_local":
-            header = header_string_to_header(request.POST["dataset_local"])
+        header = header_string_to_header(request.POST["dataset_local"])
+        header = pmap.minimize_header(header)
+        dataset_name = validate_post(request, "dataset_name", FILE_RE)
+    elif dataset_mode == "dataset_archive":
+        remove_temp_flag = False
+        dataset_name = validate_post(request, "dataset_archive", DATASET_ID_RE)
+        try:
+            header = database.get_dataset_header(dataset_name, pmap.observatory)
             header = pmap.minimize_header(header)
-            dataset_name = validate_post(request, "dataset_name", FILE_RE)
-        else:
-            raise CrdsError("Archive interface not yet implemented.")
+        except Exception, exc:
+            raise CrdsError("Problem getting header for dataset " + 
+                            srepr(dataset_name) + ": " + str(exc))
+    else:
+        raise ValueError("Bad dataset_mode " + repr(dataset_mode))
 
     results = bestrefs_results(request, pmap, header, dataset_name)
 

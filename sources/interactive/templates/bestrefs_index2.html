@@ -144,11 +144,15 @@
                 return false;
             }
         } else if (dataset_mode == "dataset_archive") {
-            if ($("#dataset_archive").val()) {
+            if (!$("#dataset_archive").val()) {
                 alert("Did you set the dataset id?");
                 return false;
             }
         } else if (dataset_mode == "dataset_local") {
+            if (!$("textarea[name='dataset_local']").length) {
+                alert("Did you choose a FITS file to extract a header from?");
+                return false;
+            }   
         } else {
             console.log("Invalid dataset_mode");
         }
