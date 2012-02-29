@@ -327,7 +327,7 @@ def get_dataset_header(dataset, observatory="hst"):
         igen = HEADER_GENERATORS[instrument]
         headers = list(igen.get_headers({"DATA_SET":dataset.upper()}))
     except Exception, exc:
-        raise RuntimeError("Error accessing DADSOPS for dataset" + repr(dataset) + ":" + str(exc))
+        raise RuntimeError("Error accessing catalog for dataset " + repr(dataset) + ":" + str(exc))
     if len(headers) == 1:
         return headers[0]
     elif len(headers) == 0:
