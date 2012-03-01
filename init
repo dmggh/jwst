@@ -41,12 +41,12 @@ set password_file=${CRDS_INSTALL_DIR}/python/lib/python/crds/server/interactive/
 echo $password >$password_file
 chmod 600 $password_file
 
+echo "Installing database unixODBC"
+( cd third_party/database;  ./meta install ./unixODBC*.tar.gz )
+
 echo "Installing database freetds"
 ( cd third_party/database;  ./meta build ./freetds*.meta )
 ( cd third_party/database;  ./meta install ./freetds*.meta )
-
-echo "Installing database unixODBC"
-( cd third_party/database;  ./meta install ./unixODBC*.tar.gz )
 
 echo "Installing database pyodbc"
 setenv CFLAGS "-I$CRDS_INSTALL_DIR/include -L$CRDS_INSTALL_DIR/lib"
