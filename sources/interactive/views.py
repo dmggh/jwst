@@ -13,6 +13,7 @@ import traceback
 import datetime
 import tarfile
 import mimetypes
+import tempfile
 
 # from django.http import HttpResponse
 from django.shortcuts import render_to_response
@@ -968,18 +969,17 @@ def batch_submit_reference_post(request):
     # temporary rmap to see what actions will occur.
     old_rmap = pmap.get_imap(instrument).get_rmap(filekind).name
     old_rmap_path = rmap.locate_mapping(old_rmap, pmap.observatory)
-    tmp_rmap = get_new_name("tmp", instrument, filekind, ".rmap")
-    tmp_rmap_path = os.path.abspath(tmp_rmap)
+    tmp_rmap = tempfile.NamedTemporaryFile()
 
     tmp_actions = refactor.rmap_insert_references(
-        old_rmap_path, tmp_rmap_path, tmp_refs)
+        old_rmap_path, tmp_rmap.name, tmp_refs)
 
     # Discard the temporary rmap
     try:
-        os.remove(tmp_rmap_path)
+        os.remove(tmp_rmap.name)
     except Exception:
         sys.exc_clear()
-        
+
     no_effect = []
     for uploaded_file in reference_files:
         ref_file = os.path.basename(uploaded_file.temporary_file_path())
