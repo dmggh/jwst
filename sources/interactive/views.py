@@ -780,7 +780,6 @@ def get_blacklists(basename, certifypath, ignore_self=True):
     basename = str(basename)
     if rmap.is_mapping(basename):
         blacklisted_by = set()
- 
         try:
             mapping = rmap.load_mapping(certifypath)
         except Exception, exc:
@@ -791,7 +790,7 @@ def get_blacklists(basename, certifypath, ignore_self=True):
             if ignore_self and child == os.path.basename(certifypath): 
                 continue
             if models.is_blacklisted(child):
-                blacklisted_by = blacklisted_by.union(set(child))
+                blacklisted_by = blacklisted_by.union(set([child]))
                 
         return sorted(list(blacklisted_by))
     else:
