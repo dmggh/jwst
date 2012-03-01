@@ -595,8 +595,10 @@ def add_crds_file(observatory, upload_name, permanent_location,
         else:
             derived_from = mapping.derived_from
     else:
-        derived_from = upload_name
-    
+        if update_derivation:
+            derived_from = upload_name
+        else:
+            derived_from = "initial reference import " + str(datetime.datetime.now())
     try:
         # Set file permissions to read only.
         os.chmod(permanent_location, 0444)
