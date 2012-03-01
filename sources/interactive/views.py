@@ -593,7 +593,7 @@ def bestrefs_results(request, pmap, header, dataset_name=""):
 
 # ===========================================================================
 
-@error_trap("bestrefs_explore.html")
+@error_trap("bestrefs_explore_index.html")
 @log_view
 def bestrefs_explore(request):
     """View to get the instrument context for best references."""
