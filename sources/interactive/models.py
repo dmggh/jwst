@@ -583,14 +583,17 @@ def add_crds_file(observatory, upload_name, permanent_location,
             creator_name="unknown", state="submitted", update_derivation=True):
     "Make a database record for this file.  Track the action of creating it."""
 
-    if update_derivation and rmap.is_mapping(upload_name):
+    if rmap.is_mapping(upload_name):
         mapping = rmap.load_mapping(permanent_location)
-        derived_from = mapping.name
-        refactor.replace_header_value(
-            permanent_location, "derived_from", mapping.name)
-        refactor.replace_header_value(
-            permanent_location, "name", os.path.basename(permanent_location))
-        checksum.update_checksum(permanent_location)
+        if update_derivation:
+            derived_from = mapping.name
+            refactor.replace_header_value(
+                permanent_location, "derived_from", mapping.name)
+            refactor.replace_header_value(
+                permanent_location, "name", os.path.basename(permanent_location))
+            checksum.update_checksum(permanent_location)
+        else:
+            derived_from = mapping.derived_from
     else:
         derived_from = upload_name
     
