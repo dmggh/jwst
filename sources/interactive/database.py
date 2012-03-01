@@ -298,7 +298,7 @@ class HeaderGenerator(object):
         for dataset in dadsops.execute(sql):
             hdr = dict(zip(self.header_keys, [utils.condition_value(x) for x in dataset]))
             self.fix_time(hdr)
-            hdr["INSTRUME"] = self.instrument
+            hdr["INSTRUME"] = self.instrument.upper()
             yield hdr
 
     def fix_time(self, hdr):

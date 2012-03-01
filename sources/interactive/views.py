@@ -932,9 +932,7 @@ def batch_submit_reference_post(request):
     description = validate_post(request, "description", DESCRIPTION_RE)
     
     # creator = validate_post(request, "creator", PERSON_RE)
-    reference_files = []
-    for uploaded_file in request.FILES.getlist("file_uploaded"):
-        reference_files.append(uploaded_file)
+    reference_files = request.FILES.getlist("file_uploaded")
     if not reference_files:
         raise CrdsError("No files specified.")    
     change_level = "SEVERE"
@@ -944,7 +942,6 @@ def batch_submit_reference_post(request):
     # Verify that all have same instrument and filekind
     old_instr, old_filekind = None, None
     for uploaded_file in reference_files:
-        print "File:", uploaded_file.name
         try:
             instrument, filekind = utils.get_file_properties(
                 pmap.observatory, uploaded_file.temporary_file_path())
@@ -966,13 +963,13 @@ def batch_submit_reference_post(request):
     # names.  Verify that at least *some* actions occur for each submitted file.
     tmp_refs = [uploaded.temporary_file_path() for uploaded in reference_files]
     
-    # Generate a temporary rmap name using "temp" in place of observatory.
+    # Generate a temporary rmap name using "tmp" in place of observatory.
     # Refactor the original rmap inserting temporary references, creating a 
     # temporary rmap to see what actions will occur.
     old_rmap = pmap.get_imap(instrument).get_rmap(filekind).name
     old_rmap_path = rmap.locate_mapping(old_rmap, pmap.observatory)
-    tmp_rmap = get_new_name("./tmp", instrument, filekind, ".rmap")
-    tmp_rmap_path = rmap.locate_mapping(tmp_rmap, pmap.observatory)
+    tmp_rmap = get_new_name("tmp", instrument, filekind, ".rmap")
+    tmp_rmap_path = os.path.abspath(tmp_rmap)
 
     tmp_actions = refactor.rmap_insert_references(
         old_rmap_path, tmp_rmap_path, tmp_refs)

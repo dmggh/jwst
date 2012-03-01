@@ -1,5 +1,64 @@
 #! /bin/tcsh
 
+# =======================================================================
+
+# Init server environment
+
+cd `dirname $0`
+source env.csh
+
+# =======================================================================
+#            pyodbc setup for access to external databases
+#          .e.g. DADSOP == HST catalog of dataset parameters
+# =======================================================================
+
+# The "database" software is an independent SQL interface used to
+# access external databases such as the HST catalog used for finding
+# dataset parameters.  Although it is technically just an
+# installation, it only needs to be done once per CRDS server tree,
+# not for every minor install.
+
+# "meta" is a generic Python installer script which installs different
+# kinds of packages.
+
+# a .meta file is a .tar which includes source as well as "build" and
+# "install" scripts of some kind.
+
+# a .tar.gz is a standard UNIX compressed tarball which is essentiall
+# built using: ./configure; make install
+
+# a .pygz file is a standard Python package .tar.gz, built using
+# python setup.py install
+
+# META_PREFIX is roughly equivalent to a custom /usr/local for meta.  
+# It typically has lib, bin, etc. subdirectories,  just like /usr/local would.
+
+setenv  META_PREFIX "$CRDS_INSTALL_DIR"
+
+echo "Database password for DADSOPS? "
+set password=$<
+set password_file=${CRDS_INSTALL_DIR}/python/lib/python/crds/server/interactive/db_password.dat
+echo $password >$password_file
+chmod 600 $password_file
+
+echo "Installing database freetds"
+( cd third_party/database;  ./meta build ./freetds*.meta )
+( cd third_party/database;  ./meta install ./freetds*.meta )
+
+echo "Installing database unixODBC"
+( cd third_party/database;  ./meta install ./unixODBC*.tar.gz )
+
+echo "Installing database pyodbc"
+setenv CFLAGS "-I$CRDS_INSTALL_DIR/include -L$CRDS_INSTALL_DIR/lib"
+setenv LDFLAGS "-L$CRDS_INSTALL_DIR/lib"
+( cd third_party/database;  ./meta install ./pyodbc*.pygz --python=python --home=$CRDS_INSTALL_DIR/python )
+
+echo "Cleaning database build trees"
+( cd third_party/database;  ./meta clean ./pyodbc*.pygz ./unixODBC*.tar.gz ./freetds*.meta )
+
+# ========================================================================
+#               Django database import for HST
+# ========================================================================
 # This is the command line I use to initialize a developer database for the
 # first time.  It creates database blobs for every file under the closure of
 # hst.pmap,  references as well as mappings.   By default, potentially slow or
@@ -8,7 +67,6 @@
 
 cd `dirname $0`/tools
 
-source ../env.csh
-
 python import_files.py hst.pmap jmiller jmiller@stsci.edu "Initial import" 0
+
 

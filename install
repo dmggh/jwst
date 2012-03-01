@@ -188,7 +188,7 @@ mkdir -p $install_dir/python/bin
 	echo 'setenv SERVER_PORT '$port
 
 	echo 'setenv PATH '$PATH
-
+	echo 'setenv CRDS_INSTALL_DIR ' $install_dir
 ) > env.csh
 
 # Add client settings 
@@ -406,31 +406,6 @@ cd django-json-rpc-git-0.0
 python setup.py install --home $install_dir/python >/dev/null
 cd ..
 rm -rf django-json-rpc-git-0.0
-
-
-# ===========================================================================================
-
-export META_PREFIX="$install_dir"
-
-# "meta" is a generic Python installer script which installs different kinds of packages.
-# a .meta file is a .tar which includes source as well as "build" and "install" scripts of some kind.
-# a .tar.gz is a standard UNIX compressed tarball which is essentiall built using: ./configure;  make install
-# a .pygz file is a standard Python package .tar.gz,  built using python setup.py install
-
-echo "Installing database freetds"
-( cd third_party/database;  ./meta build ./freetds*.meta )
-( cd third_party/database;  ./meta install ./freetds*.meta )
-
-echo "Installing database unixODBC"
-( cd third_party/database;  ./meta install ./unixODBC*.tar.gz )
-
-echo "Installing database pyodbc"
-export CFLAGS="-I$install_dir/include -L$install_dir/lib"
-export LDFLAGS="-L$install_dir/lib"
-( cd third_party/database;  ./meta install ./pyodbc*.pygz --python=python --home=$install_dir/python )
-
-echo "Cleaning database build trees"
-( cd third_party/database;  ./meta clean ./pyodbc*.pygz ./unixODBC*.tar.gz ./freetds*.meta )
 
 
 # cp test_utilities/*.py $install_dir/python/lib/python
