@@ -172,7 +172,15 @@
     <table>
       <tr>
         <td>
-           <input type="radio" name="dataset_mode" value="dataset_uploaded" checked>Uploaded
+            <input type="radio" name="dataset_mode" value="dataset_local" checked>Upload FITS Header
+        </td>
+        <td align="left">
+            <input type='file' id='dataset_local' onchange='set_contents(this);' />
+        </td>
+      </tr>
+      <tr>
+        <td>
+           <input type="radio" name="dataset_mode" value="dataset_uploaded">Upload Dataset
         </td>
         <td align="right">
            <input type="file" class="multi" maxlength="1" name="dataset_uploaded"
@@ -181,22 +189,13 @@
       </tr>
       <tr>
         <td>
-            <input type="radio" name="dataset_mode" value="dataset_archive" />Archived
+            <input type="radio" name="dataset_mode" value="dataset_archive" />Archived Dataset ID
         </td>
         <td align="left">
             <input type="text" width="32" name="dataset_archive" id="dataset_archive"
                     value="{{dataset_archive}}" 
                     onchange="crds.set_radio('dataset_mode','dataset_archive');" />
-        </td>
-        <td><span class='hint'>.e.g. I9ZF01010</span>
-        </td>
-      </tr>
-      <tr>
-        <td>
-            <input type="radio" name="dataset_mode" value="dataset_local">FITS Header
-        </td>
-        <td align="left">
-            <input type='file' id='dataset_local' onchange='set_contents(this);' />
+            <span class='hint'>.e.g. I9ZF01010</span>
         </td>
       </tr>
     </table>
@@ -219,7 +218,7 @@
 
     <p><p><b>Dataset</b> Dataset specifies the name of an archived or uploaded 
     dataset for which the user needs to know the best references files that are 
-    defined by the chosen context.  FITS Header uses your browser to 
+    defined by the chosen context.  Upload FITS Header uses your browser to 
     minimize file information uploaded to the server for FITS files.
 
 {% endblock help %}
