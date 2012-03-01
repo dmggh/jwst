@@ -651,7 +651,7 @@ def bestrefs_explore_compute(request):
             validate_post(request, par, r"[A-Za-z0-9\+\-.,*/;|{}\[\]:]+"))
     header["DATE-OBS"] = validate_post(request, "DATE-OBS", DATE_RE_STR)
     header["TIME-OBS"] = validate_post(request, "TIME-OBS", TIME_RE_STR)
-    return bestrefs_results(request, pmap, header)
+    return bestrefs_results(request, pmap, header, instrument)
 
 # ============================================================================
 
