@@ -516,7 +516,6 @@ def bestrefs_post(request):
     """View to get best reference dataset parameters."""
     context = get_recent_or_user_context(request)
     pmap = rmap.get_cached_mapping(context)
-        
     dataset_mode = validate_post(
         request, "dataset_mode", "dataset_archive|dataset_uploaded|dataset_local")
     if dataset_mode == "dataset_uploaded":
@@ -928,7 +927,8 @@ def batch_submit_reference(request):
 
 def batch_submit_reference_post(request):
     """View fragment to process file batch reference submnission POSTs."""
-    pmap = rmap.get_cached_mapping(get_recent_or_user_context(request))
+    context = get_recent_or_user_context(request)
+    pmap = rmap.get_cached_mapping(context)
     description = validate_post(request, "description", DESCRIPTION_RE)
     
     # creator = validate_post(request, "creator", PERSON_RE)
@@ -1528,7 +1528,9 @@ def create_contexts_post(request):
         request.user, request.user.email)
 
     return render(request, "create_contexts_results.html", {
+                "pmap": pmap,
                 "old_mappings" : sorted(new_name_map.keys()),
+                "added_rmaps" : updated_rmaps,
                 "new_mappings" : sorted(new_name_map.values()),
             })
     
@@ -1696,7 +1698,7 @@ def edit_rmap_post(request):
     original_rmap = validate_post(request, "browsed_file", is_rmap)
     observatory = rmap.get_cached_mapping(original_rmap).observatory
     
-    pmap = get_recent_or_user_context(request)
+    pmap_name = get_recent_or_user_context(request)
 
     new_references = handle_file_submissions(
         original_rmap, expanded, observatory, request.user)
@@ -1709,7 +1711,7 @@ def edit_rmap_post(request):
             creation_method="edit rmap", audit_details=repr(actions))
 
     new_context_map = do_create_contexts(
-        pmap, [new_rmap], description,  request.user, request.user.email)
+        pmap_name, [new_rmap], description,  request.user, request.user.email)
     
     old_mappings = sorted(new_context_map.keys() + [original_rmap])
     new_mappings = sorted(new_context_map.values() + [new_rmap])
@@ -1717,6 +1719,7 @@ def edit_rmap_post(request):
     collision_list = get_collision_list(new_mappings)
     
     return render(request, "edit_rmap_results.html", {
+                "pmap" : pmap_name,
                 "new_references" : new_references,
                 "old_mappings" : old_mappings,
                 "new_mappings" : new_mappings,

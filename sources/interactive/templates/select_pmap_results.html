@@ -1,0 +1,10 @@
+{% load stdtags %}
+
+{# This file is intended to be included for operations which change mappings. #}
+
+<h3>Starting Context</h3>
+<p>{{pmap|browse}}</p>
+{% if pmap_mode == "pmap_default" and pmap != pmap_default %}
+<p class="warning">WARNING: predicted context changed from {{pmap_default|browse}} to {{pmap|browse}}.</p>
+{% endif %}
+

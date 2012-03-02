@@ -5,10 +5,14 @@
 {% block contents %}
 
     <h2>Edit Rmap</h2>
+    
+    {% include "select_pmap_results.html" %}
 
     <h3>Deriving From:</h3>
     {% for mapping in old_mappings %}
-        <p>{{mapping|browse}}</p>
+        {% if mapping != pmap %}
+            <p>{{mapping|browse}}</p>
+        {% endif %}
     {% endfor %}
     <br/>
 
