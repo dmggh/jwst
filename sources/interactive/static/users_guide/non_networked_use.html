@@ -171,9 +171,9 @@ each of it&#8217;s associated file kinds:</p>
 <p>The primary function of CRDS is the computation of best reference files based
 upon a dictionary of dataset metadata.   Hence,  both an InstrumentContext and a
 ReferenceMapping can meaningfully return the best references for a dataset based
-upon a parameter dictionary.   If you know what you&#8217;re doing you can make up any
-Python dictionary to define the best reference parameters:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span> <span class="n">hdr</span> <span class="o">=</span> <span class="p">{</span> <span class="o">...</span> <span class="n">what</span> <span class="n">matters</span> <span class="n">because</span> <span class="n">you</span> <span class="n">know</span> <span class="n">what</span> <span class="n">you</span><span class="s">&#39;re doing ... }</span>
+upon a parameter dictionary.   It&#8217;s possible define a header as any Python
+dictionary provided you have sufficient knowledge of the parameters:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span> <span class="n">hdr</span> <span class="o">=</span> <span class="p">{</span> <span class="o">...</span> <span class="n">what</span> <span class="n">matters</span> <span class="n">most</span> <span class="o">...</span> <span class="p">}</span>
 </pre></div>
 </div>
 <p>On the other hand,  if your dataset is a FITS file and you want to do something
@@ -203,30 +203,32 @@ inappropriate.</p>
 <p>Once you have your dataset parameters,  you can ask an InstrumentContext for
 the best references for <em>all</em> filekinds for that instrument:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">acs</span><span class="o">.</span><span class="n">get_best_references</span><span class="p">(</span><span class="n">hdr</span><span class="p">)</span>
-<span class="go">{&#39;atodtab&#39;: &#39;kcb1734ij_a2d.fits&#39;,</span>
-<span class="go"> &#39;biasfile&#39;: &#39;NOT FOUND Ambiguous match.&#39;,</span>
-<span class="go"> &#39;bpixtab&#39;: &#39;m8r09169j_bpx.fits&#39;,</span>
-<span class="go"> &#39;ccdtab&#39;: &#39;o1515069j_ccd.fits&#39;,</span>
-<span class="go"> &#39;cfltfile&#39;: &quot;NOT FOUND Key FILTER1=F555W not in valid values (&#39;CLEAR1S&#39;, &#39;F475W&#39;, &#39;F606W&#39;)&quot;,</span>
-<span class="go"> &#39;crrejtab&#39;: &#39;n4e12510j_crr.fits&#39;,</span>
-<span class="go"> &#39;darkfile&#39;: &#39;n3o1059hj_drk.fits&#39;,</span>
-<span class="go"> &#39;dgeofile&#39;: &#39;o8u2214mj_dxy.fits&#39;,</span>
-<span class="go"> &#39;idctab&#39;: &#39;p7d1548qj_idc.fits&#39;,</span>
-<span class="go"> &#39;mdriztab&#39;: &#39;ub215378j_mdz.fits&#39;,</span>
-<span class="go"> &#39;mlintab&#39;: &#39;k9c13374j_lin.fits&#39;,</span>
-<span class="go"> &#39;oscntab&#39;: &#39;m2j1057pj_osc.fits&#39;,</span>
-<span class="go"> &#39;pfltfile&#39;: &#39;o3u1448rj_pfl.fits&#39;,</span>
-<span class="go"> &#39;spottab&#39;: &#39;r3301467j_csp.fits&#39;}</span>
 </pre></div>
 </div>
-<p>Note that this is not currently guaranteed to return <em>only</em> the appropriate
-filekinds,  and may include extra mappings that are inappropriate for the
-specified instrument configuration.   In all likelihood they will be failure
-cases where no mapping could be determined.   In any case this is a limitation
-of the current instrument contexts which don&#8217;t capture which filekinds are
-appropriate for which instrument configuration.  Note that in the example above,
-the first error case,  for biasfile,  is most likely occurring for another
-reason: known deficiencies of the ACS biasfile rmap prototype.</p>
+<dl class="docutils">
+<dt>{&#8216;atodtab&#8217;: &#8216;kcb1734ij_a2d.fits&#8217;,</dt>
+<dd>&#8216;biasfile&#8217;: &#8216;m4r1753rj_bia.fits&#8217;,
+&#8216;bpixtab&#8217;: &#8216;m8r09169j_bpx.fits&#8217;,
+&#8216;ccdtab&#8217;: &#8216;o1515069j_ccd.fits&#8217;,
+&#8216;cfltfile&#8217;: &#8216;NOT FOUND n/a&#8217;,
+&#8216;crrejtab&#8217;: &#8216;n4e12510j_crr.fits&#8217;,
+&#8216;darkfile&#8217;: &#8216;n3o1059hj_drk.fits&#8217;,
+&#8216;dgeofile&#8217;: &#8216;o8u2214mj_dxy.fits&#8217;,
+&#8216;flshfile&#8217;: &#8216;NOT FOUND n/a&#8217;,
+&#8216;idctab&#8217;: &#8216;p7d1548qj_idc.fits&#8217;,
+&#8216;imphttab&#8217;: &#8216;vbb18105j_imp.fits&#8217;,
+&#8216;mdriztab&#8217;: &#8216;ub215378j_mdz.fits&#8217;,
+&#8216;mlintab&#8217;: &#8216;NOT FOUND n/a&#8217;,
+&#8216;oscntab&#8217;: &#8216;m2j1057pj_osc.fits&#8217;,
+&#8216;pfltfile&#8217;: &#8216;o3u1448rj_pfl.fits&#8217;,
+&#8216;shadfile&#8217;: &#8216;kcb1734pj_shd.fits&#8217;,
+&#8216;spottab&#8217;: &#8216;NOT FOUND n/a&#8217;}</dd>
+</dl>
+<p>In the above results,  FITS files are the recommended best references,  while
+a value of &#8220;NOT FOUND n/a&#8221; indicates that no result was expected for the current
+instrument mode as defined in the header.   Other values of &#8220;NOT FOUND xxx&#8221;
+include an error message xxx which hints at why no result was found,  such as
+an invalid dataset parameter value or simply a matching failure.</p>
 <p>You can ask a ReferenceMapping for the best reference for single the filekind
 it manages:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">acs_atod</span><span class="o">.</span><span class="n">get_best_ref</span><span class="p">(</span><span class="n">hdr</span><span class="p">)</span>

@@ -30,19 +30,16 @@
 
     <div id="header_menu">
     
-       <a href="/static/users_guide/index.html" class="tiny">help</a>
-       <br/>
+       <a href="/static/users_guide/index.html" class="tiny"><image src='/static/help_blue.ico' alt='help' height='32' width='32' /></a>
        
-       <a href="/" class="tiny">home</a>
-       <br/>
+       <a href="/" class="tiny"><image src="/static/home.ico" alt='home' height='32' width='32' /></a>
            
-       <a href="./" class="tiny">reset</a>
-       <br/>
+       <a href="./" class="tiny"><image src="/static/undo.ico" alt='reset' height='32' width='32' /></a>
            
        {% if is_authenticated %}
-           <a href="/logout/" class="tiny">logout</a>
+            <a href="/logout/" class="tiny"><image src="/static/exit.ico" alt='logout' height='32' width='32' /></a>
        {% else %}
-           <a href="/login/?next={{current_path}}" class="tiny">login</a>          
+            <a href="/login/?next={{current_path}}" class="tiny"><image src="/static/log_in.ico" alt='login' height='32' width='32' /></a>          
        {% endif %}
        
     </div>
