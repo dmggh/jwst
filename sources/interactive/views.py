@@ -987,10 +987,24 @@ def batch_submit_reference_post(request):
                 break
         else:
             no_effect.append(str(uploaded.name))
-
     if no_effect:
         raise CrdsError("Some files could not be added to " + repr(old_rmap) 
                         + ": " + repr(no_effect))
+
+    # Make sure there are no duplicate match tuples / useafter cases.    
+    duplicate_matches = set()
+    for uploaded_file in reference_files:
+        for action in tmp_actions:
+            if action.ref_file != os.path.basename(uploaded_file.temporary_file_path()):
+                continue
+            for action2 in tmp_actions:
+                if action != action2 and \
+                    action.rmap_match_tuple == action2.rmap_match_tuple and \
+                    action.useafter == action2.useafter:
+                    duplicate_matches.add(uploaded_file.name)
+    if duplicate_matches:
+        raise CrdsError("Files match same rmap match tuple and useafter: " +
+                        ", ".join([repr(x) for x in duplicate_matches]))
 
     # Once both references and refactoring checks out,  submit reference files
     # and collect mapping from uploaded names to official names.

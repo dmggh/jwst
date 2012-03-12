@@ -19,18 +19,22 @@
         <table border="1" cellpadding="4">
             <tr>
                 <th>Action</th>
-                <th>Rmap Match</th>
-                <th>Useafter</th>
                 <th>New Reference File</th>
                 <th>Reference Match</th>
+                <th>At</th>
+                <th>Rmap Match</th>
+                <th>Useafter</th>
+                <th>Replaced File</th>
             </tr>
             {% for action in actions %}
                 <tr>
                     <td>{{action.action|upper}}</td>        
-                    <td>{{action.rmap_match_tuple}}</td>        
-                    <td>{{action.useafter}}</td>        
                     <td>{{action.ref_file}}</td>        
                     <td>{{action.ref_match_tuple}}</td>        
+                    <td>-</td>
+                    <td>{{action.rmap_match_tuple}}</td>        
+                    <td>{{action.useafter}}</td>
+                    <td>{{action.replaced_file}}</td>        
                 </tr>        
             {% endfor %}
         </table>
