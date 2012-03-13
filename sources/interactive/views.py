@@ -451,20 +451,24 @@ def log_view(func):
 
 # ===========================================================================
 PROFILE_DECORATOR_RESULT = None
-def profile(func):
+def profile(filename=None):
     """Decorate a view with @profile to run cProfile when the view is accessed.
     """
-    def profile_request(request, *args, **keys):
-        """profile_request runs the runit() hack under the profiler and
-        extracts the function result from a global.
+    def decomaker(func):
+        """Decorator function maker
         """
-        def runit():
-            """executes a function and stores the result globally."""
-            global PROFILE_DECORATOR_RESULT
-            PROFILE_DECORATOR_RESULT = func(request, *args, **keys)
-        cProfile.runctx("runit()", locals(), locals())
-        return PROFILE_DECORATOR_RESULT
-    return profile_request
+        def profile_core(*args, **keys):
+            """profile_request runs the runit() hack under the profiler and
+            extracts the function result from a global.
+            """
+            def runit():
+                """executes a function and stores the result globally."""
+                global PROFILE_DECORATOR_RESULT
+                PROFILE_DECORATOR_RESULT = func(*args, **keys)
+            cProfile.runctx("runit()", locals(), locals(), filename=filename)
+            return PROFILE_DECORATOR_RESULT
+        return profile_core
+    return decomaker
 
 # ===================================================================
 
@@ -914,7 +918,7 @@ def certify_post(request):
 @error_trap("batch_submit_reference_input.html")
 @log_view
 @login_required
-# @profile
+@profile("batch_submit_reference.stats")
 def batch_submit_reference(request):
     """View to return batch submit reference form or process POST."""
     if request.method == "GET":
