@@ -1096,8 +1096,13 @@ def batch_submit_reference_confirm(request):
             
     if button=="confirm":
         change_file_state(new_references + new_mappings, "submitted")
+        for map in new_mappings:
+            if map.endswith(".pmap"):
+                models.set_default_context(map)
     else:
         destroy_file_list(new_references + new_mappings)
+        
+    #  XXX add audit trail here.
     
     return render(request, "batch_submit_reference_confirmed.html", {
                 "confirmed" : button=="confirm",
@@ -1636,8 +1641,9 @@ def do_create_contexts(pmap, updated_rmaps, description, user, email,
             description, "new context",
             repr(pmap) + " : " + ",".join([repr(x) for x in updated_rmaps]),
             state=state)
-        
-    models.set_default_context(new_name_map[pmap])
+    
+    if state == "submitted":
+        models.set_default_context(new_name_map[pmap])
         
     return new_name_map
 
