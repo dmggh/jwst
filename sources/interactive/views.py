@@ -229,6 +229,7 @@ def render(request, template, dict_=None):
         "current_path" : request.get_full_path(),
         
         "default_context" : models.get_default_context(),
+        "default_context_label" : pmap_label(models.get_default_context()),
         "pmaps" : get_recent_pmaps(),
     }
     
@@ -613,7 +614,11 @@ def get_recent_pmaps(**filters):
     files = models.FileBlob.filter(pathname=".*\.pmap", **filters)[::-1][:10]
     pmaps = []
     for file_ in files:
-        yield (file_.filename, file_.filename + " [date here]")
+        yield (file_.filename, pmap_label(file_.filename))
+    
+def pmap_label(filename):
+    """Return the text displayed to users selecting known pmaps."""
+    return filename + " [date here]"
 
 def bestrefs_explore_post(request):
     """View to get best reference dataset parameters."""
@@ -709,7 +714,8 @@ def submit_file_post(request, crds_filetype):
 def do_submit_file(observatory, uploaded_file, description, 
         submitter, submitter_email, creator_name="unknown",
         change_level="SEVERE", comparison_file=None, 
-        creation_method="submit file", auto_rename=True, details=""):
+        creation_method="submit file", auto_rename=True, details="",
+        state="submitted"):
     """Do the core processing of a file submission,  including file
     certification and blacklist checking, naming, upload,  and record
     keeping.
@@ -752,7 +758,7 @@ def do_submit_file(observatory, uploaded_file, description,
     blob = models.add_crds_file(observatory, original_name, permanent_location, 
             submitter, submitter_email, description, 
             creation_method=creation_method, audit_details=details, 
-            change_level=change_level, creator_name=creator_name)
+            change_level=change_level, creator_name=creator_name, state=state)
     
     return os.path.basename(permanent_location)
 
@@ -1017,7 +1023,8 @@ def batch_submit_reference_post(request):
         new_basename = do_submit_file( 
             pmap.observatory, uploaded_file, description,
             str(request.user), request.user.email, creator, 
-            change_level, comparison_file, creation_method="batch submit")
+            change_level, comparison_file, creation_method="batch submit",
+            state="uploaded")
         new_references[str(uploaded_file.name)] = str(new_basename)
 
     # Get paths for new official CRDS reference files.
@@ -1036,11 +1043,12 @@ def batch_submit_reference_post(request):
         models.add_crds_file(
             pmap.observatory, new_rmap, new_rmap_path,  
             str(request.user), request.user.email, 
-            description, "batch submit")
+            description, "batch submit", state="uploaded")
     
         # Generate a new context referring to the new rmap
         new_name_map = do_create_contexts(
-            pmap.name, [new_rmap], description, request.user, request.user.email)
+            pmap.name, [new_rmap], description, request.user, request.user.email,
+            state="uploaded")
         new_mappings = [new_rmap] + new_name_map.values()
         collision_list = get_collision_list(new_mappings)
     else:
@@ -1048,14 +1056,14 @@ def batch_submit_reference_post(request):
         new_name_map = {}
         collision_list = []
         # XXX WIPE the new references since rmap generation failed!!!
-        for new_file in new_references.values():
-            models.FileBlob.load(new_file).destroy()
+        destroy_file_list(new_references.values())
 
 #    deliver_file_list( str(request.user), pmap.observatory, 
 #        new_references.values() + new_mappings, description)
 #    
     return render(request, "batch_submit_reference_results.html", {
-                "new_references" : sorted(new_references.items()),
+                "new_reference_map" : sorted(new_references.items()),
+                "new_references" : sorted(new_references.values()),
                 "actions" : actions,
                 "pmap" : pmap.name,
                 "old_rmap" : old_rmap,
@@ -1063,6 +1071,50 @@ def batch_submit_reference_post(request):
                 "new_mappings" : sorted(new_name_map.values() + [new_rmap]),
                 "collision_list" : collision_list,
             })
+    
+@error_trap("base.html")
+@login_required
+@log_view
+def batch_submit_reference_confirm(request):
+    """Accept or discard the updates from a batch reference submission."""
+
+    button = validate_post(request,"button","confirm|discard")
+    new_reference_map = compat.literal_eval(request.POST["new_reference_map"])
+    new_references = dict(new_reference_map).values()
+    new_mappings = compat.literal_eval(request.POST["new_mappings"])
+    user = str(request.user)
+    
+    for filename in new_references + new_mappings:
+        try:
+            blob = models.FileBlob.load(filename)
+        except LookupError:
+            raise CrdsError("Unknown CRDS file " + repr(filename))
+        assert user == blob.deliverer_user, \
+            "User " + repr(user) + " did not create " + repr(filename)
+        assert blob.state == "uploaded", \
+            "File " + repr(filename) + " is no longer in the 'uploaded' state."
+            
+    if button=="confirm":
+        change_file_state(new_references + new_mappings, "submitted")
+    else:
+        destroy_file_list(new_references + new_mappings)
+    
+    return render(request, "batch_submit_reference_confirmed.html", {
+                "confirmed" : button=="confirm",
+                "new_reference_map" : new_reference_map,
+                "new_mappings" : new_mappings,
+            })
+    
+def change_file_state(files, new_state):
+    for filename in files:
+        blob = models.FileBlob.load(filename)
+        blob.state = new_state
+        blob.save()
+
+def destroy_file_list(files):
+    for filename in files:
+        blob = models.FileBlob.load(filename)
+        blob.destroy()
 
 # ===========================================================================
 
@@ -1552,7 +1604,8 @@ def create_contexts_post(request):
                 "new_mappings" : sorted(new_name_map.values()),
             })
     
-def do_create_contexts(pmap, updated_rmaps, description, user, email):
+def do_create_contexts(pmap, updated_rmaps, description, user, email,
+                       state="submitted"):
     """Create new contexts based on `pmap` which refer to `updated_rmaps`
     instead of the corresponding old rmaps.  Add the new contexts to the
     CRDS database and return a list of new context mapping names.
@@ -1581,7 +1634,8 @@ def do_create_contexts(pmap, updated_rmaps, description, user, email):
         models.add_crds_file(
             observatory, old_ctx, rmap.locate_mapping(new_ctx),  user, email, 
             description, "new context",
-            repr(pmap) + " : " + ",".join([repr(x) for x in updated_rmaps]))
+            repr(pmap) + " : " + ",".join([repr(x) for x in updated_rmaps]),
+            state=state)
         
     models.set_default_context(new_name_map[pmap])
         

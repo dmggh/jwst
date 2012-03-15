@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% load stdtags %}
+
+{% block contents %}
+
+    <h2>Batch Reference Submit</h2>
+
+    {% if confirmed %}
+    
+        <p class='success'>Submission Confirmed.</p>
+
+        <h3>Uploaded Files</h3>
+        {% for file in new_reference_map %}
+            <p>File submitted as {{file.0|grey}} will be renamed to {{file.1|browse}} in CRDS.</p>
+        {% endfor %}
+        
+        <h3>Generated New Mappings</h3>
+        {% for map in new_mappings %}
+        <p>{{map|browse}}</p>
+        {% endfor %}
+    
+    {% else %}
+        <p class='error'>Submission Discarded.</p>
+    {% endif %}
+
+{% endblock contents %}
+

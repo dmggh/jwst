@@ -9,12 +9,11 @@
     {% include "select_pmap_results.html" %}
     
     <h3>Uploaded Files</h3>
-    {% for file in new_references %}
+    {% for file in new_reference_map %}
         <p>File submitted as {{file.0|grey}} was renamed to {{file.1|browse}} in CRDS.</p>
     {% endfor %}
     
     <h3>Actions on Mapping {{old_rmap|browse}}</h3>
-    
     {%if actions %}
         <table border="1" cellpadding="4">
             <tr>
@@ -29,12 +28,12 @@
             {% for action in actions %}
                 <tr>
                     <td>{{action.action|upper}}</td>        
-                    <td>{{action.ref_file}}</td>        
+                    <td>{{action.ref_file|browse}}</td>        
                     <td>{{action.ref_match_tuple}}</td>        
                     <td>-</td>
                     <td>{{action.rmap_match_tuple}}</td>        
                     <td>{{action.useafter}}</td>
-                    <td>{{action.replaced_file}}</td>        
+                    <td>{{action.replaced_file|browse}}</td>        
                 </tr>        
             {% endfor %}
         </table>
@@ -46,6 +45,21 @@
     
         {% include "collision_explain.html" %}    
 
+     <h2>Confirm or Abort Submission</h2>
+     <form method="post" action="/batch_submit_reference_confirm/" 
+        enctype="multipart/form-data">  {% csrf_token %}
+
+        <input type='hidden' name='new_reference_map' value='{{new_reference_map}}' />
+        <input type='hidden' name='new_mappings' value='{{new_mappings}}' />
+        
+      <input type="submit" name="button" value="confirm" >
+      <input type="submit" name="button" value="discard" >
+
+      <br/>
+      <br/>
+
+    </form>
+ 
     {% else %}
         <p class="error">No changes to .rmap!</p>
     {% endif %}

@@ -235,9 +235,10 @@ FILENAME_RE = "^[A-Za-z0-9_.]+$"
 FILEPATH_RE = "^[A-Za-z0-9_./]+$"
 
 FILE_STATUS_MAP = OrderedDict([
-    ("submitted", "orange"),   # pending delivery
-    ("delivered", "blue"),     # pending archive
-    ("operational", "green"),
+    ("uploaded", "orange"),   # On the server,  still temporary
+    ("submitted", "orange"),  # In CRDS, pending delivery
+    ("delivered", "blue"),    # Delivered to downstream systems, pending archive
+    ("operational", "green"), # Archived and in use.
     ("blacklisted", "red"),
 ])
 
@@ -395,7 +396,7 @@ class FileBlob(BlobModel):
         return self.sha1sum and (self.checksum() == self.sha1sum)
     
     def destroy(self):
-        """Destroy this FileBlob and it's associated reference file.   This
+        """Destroy this FileBlob and it's associated file.   This
         cannot be revoked and should *ONLY* be called as part of cleanup for
         a failed multi-part file submission.
         """
