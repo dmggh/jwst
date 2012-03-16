@@ -701,20 +701,21 @@ def submit_file_post(request, crds_filetype):
     new_basename = do_submit_file( 
         observatory, uploaded_file, description,
         str(request.user), request.user.email, creator, 
-        change_level, comparison_file, )
+        change_level, comparison_file, state="uploaded")
     
     collision_list = get_collision_list([new_basename])
 
-    fileblob = models.FileBlob.load(new_basename)
-    models.AuditBlob.new(
-        request.user, "submit file", new_basename,  description, "",
-        observatory=observatory, instrument=fileblob.instrument,  
-        filekind=fileblob.filekind, date=fileblob.delivery_date,)
+    new_file_map = { uploaded_file.name : new_basename }
     
     return render(request, 'submit_results.html', {
                 "crds_filetype": crds_filetype,
                 "baseperm":new_basename,
                 "collision_list" : collision_list,
+
+                "generated_files" : [],
+                "new_file_map" : sorted(new_file_map.items()),
+                "submission_kind" : "submit file",
+                "title" : "Submit File",
                 })
     
 def do_submit_file(observatory, uploaded_file, description, 
@@ -988,12 +989,6 @@ def batch_submit_reference_post(request):
     tmp_actions = refactor.rmap_insert_references(
         old_rmap_path, tmp_rmap.name, tmp_refs)
 
-    # Discard the temporary rmap
-    try:
-        os.remove(tmp_rmap.name)
-    except Exception:
-        sys.exc_clear()
-
     no_effect = []
     for uploaded_file in reference_files:
         ref_file = os.path.basename(uploaded_file.temporary_file_path())
@@ -1053,26 +1048,30 @@ def batch_submit_reference_post(request):
             request.user, request.user.email, state="uploaded")
         new_mappings = [new_rmap] + new_name_map.values()
         collision_list = get_collision_list(new_mappings)
-    else:
+        rmap_diffs = textual_diff(old_rmap_path, new_rmap_path, old_rmap, new_rmap)
+    else:  # XXX WIPE the new references since rmap generation failed!!!
         actions = []
         new_name_map = {}
         collision_list = []
-        # XXX WIPE the new references since rmap generation failed!!!
+        rmap_diffs = []
         destroy_file_list(new_references.values())
-
-    rmap_diffs = textual_diff(old_rmap_path, new_rmap_path, old_rmap, new_rmap)
 
 #    deliver_file_list( str(request.user), pmap.observatory, 
 #        new_references.values() + new_mappings, description)
 #    
     return render(request, "batch_submit_reference_results.html", {
-                "new_reference_map" : sorted(new_references.items()),
                 "new_references" : sorted(new_references.values()),
                 "actions" : actions,
                 "pmap" : pmap.name,
                 "old_rmap" : old_rmap,
                 "old_mappings" : sorted(new_name_map.keys()),
                 "new_mappings" : sorted(new_name_map.values() + [new_rmap]),
+                
+                "new_file_map" : sorted(new_references.items()),
+                "generated_files" : sorted(new_name_map.values() + [new_rmap]), 
+                "submission_kind" : "batch submit",
+                "title" : "Batch Reference Submit",
+                
                 "collision_list" : collision_list,
                 "rmap_diffs" : rmap_diffs,
             })
@@ -1080,16 +1079,19 @@ def batch_submit_reference_post(request):
 @error_trap("base.html")
 @login_required
 @log_view
-def batch_submit_reference_confirm(request):
-    """Accept or discard the updates from a batch reference submission."""
+def submit_confirm(request):
+    """Accept or discard proposed files from various file upload and
+    generation mechanisms.
+    """
 
     button = validate_post(request,"button","confirm|discard")
-    new_reference_map = compat.literal_eval(request.POST["new_reference_map"])
-    new_references = dict(new_reference_map).values()
-    new_mappings = compat.literal_eval(request.POST["new_mappings"])
+    submission_kind = validate_post(request, "submission_kind", models.AUDITED_ACTIONS)
+    new_file_map = compat.literal_eval(request.POST["new_file_map"])
+    new_files = dict(new_file_map).values()
+    generated_files = compat.literal_eval(request.POST["generated_files"])
     user = str(request.user)
     
-    for filename in new_references + new_mappings:
+    for filename in new_files + generated_files:
         try:
             blob = models.FileBlob.load(filename)
         except LookupError:
@@ -1100,25 +1102,26 @@ def batch_submit_reference_confirm(request):
             "File " + repr(filename) + " is no longer in the 'uploaded' state."
             
     if button=="confirm":
-        change_file_state(new_references + new_mappings, "submitted")
-        for map in new_mappings:
+        change_file_state(new_files + generated_files, "submitted")
+        instrument = filekind = "unknown"
+        for map in generated_files:
             if map.endswith(".pmap"):
                 models.set_default_context(map)
             elif map.endswith(".rmap"):
                 rmap_blob = models.FileBlob.load(map)
+                instrument = rmap_blob.instrument
+                filekind = rmap_blob.filekind
         models.AuditBlob.new(
-            request.user, "batch submit", rmap_blob.name, rmap_blob.description, 
-            str(new_references + new_mappings),
-            observatory=rmap_blob.observatory, 
-            instrument=rmap_blob.instrument, 
-            filekind=rmap_blob.filekind)    
+            request.user, submission_kind, rmap_blob.name, rmap_blob.description, 
+            str(new_files + generated_files), observatory=observatory, 
+            instrument=instrument, filekind=filekind)    
     else:
-        destroy_file_list(new_references + new_mappings)
+        destroy_file_list(new_files + generated_files)
         
-    return render(request, "batch_submit_reference_confirmed.html", {
+    return render(request, "confirmed.html", {
                 "confirmed" : button=="confirm",
-                "new_reference_map" : new_reference_map,
-                "new_mappings" : new_mappings,
+                "new_file_map" : new_file_map,
+                "generated_files" : generated_files,
             })
     
 def change_file_state(files, new_state):
@@ -1134,24 +1137,6 @@ def destroy_file_list(files):
 
 # ===========================================================================
 
-@error_trap("using_file_inputs.html")
-@log_view
-def using_file(request):
-    """View to return using_file input form or process POST."""
-    if request.method == "GET":
-        return render(request, "using_file_inputs.html")
-    else:
-        return using_file_post(request)
-    
-def using_file_post(request):
-    """View fragment to process using_file POSTs."""
-    observatory = get_observatory(request)
-    referred_file = validate_post(request, "referred_file", is_known_file)
-    uses_files = [x for x in uses.uses([referred_file], observatory) if x]    
-    return render(request, "using_file_results.html", {
-            'uses_files' : uses_files,
-        })
-
 def flatten(path):
     """match paths retain some structure: (top-level, match, useafter) which
     we ditch here.
@@ -1160,7 +1145,6 @@ def flatten(path):
     for part in path:
         newpath = newpath + part
     return newpath
-    
     
 # ===========================================================================
 
@@ -1737,10 +1721,11 @@ def edit_rmap_post(request):
     
     models.add_crds_file(observatory, original_rmap, new_loc, 
             request.user, request.user.email, description, 
-            creator_name = str(request.user))
+            creator_name = str(request.user), state="uploaded")
 
     new_context_map = do_create_contexts(
-        pmap_name, [new_rmap], description,  request.user, request.user.email)
+        pmap_name, [new_rmap], description,  request.user, request.user.email,
+        state="uploaded")
     
     old_mappings = sorted(new_context_map.keys() + [original_rmap])
     new_mappings = sorted(new_context_map.values() + [new_rmap])
@@ -1761,6 +1746,11 @@ def edit_rmap_post(request):
                 "new_mappings" : new_mappings,
                 "collision_list" : collision_list,
                 "actions" : actions,
+                
+                "generated_files" : new_mappings,
+                "new_file_map" : sorted(new_references),
+                "submission_kind" : "edit rmap",
+                "title" : "Edit Rmap",
             })
 
 def collect_action_tree(request):
@@ -1832,7 +1822,7 @@ def handle_file_submissions(original_rmap, expanded, observatory, submitter):
             observatory, uploaded_file, description,
             str(submitter), submitter.email, creator_name=creator_name,
             change_level=change_level, comparison_file=None,
-            creation_method="edit rmap")
+            creation_method="edit rmap", state="uploaded")
         new_references.append((upload_name, new_basename))
         expanded["add"][addno]["filename"] = new_basename
     return sorted(new_references)

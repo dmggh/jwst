@@ -4,21 +4,23 @@
 
 {% block contents %}
 
-    <h2>Batch Reference Submit</h2>
+    <h2>{{title}}</h2>
 
     {% if confirmed %}
     
         <p class='success'>Submission Confirmed.</p>
 
         <h3>Uploaded Files</h3>
-        {% for file in new_reference_map %}
+        {% for file in new_file_map %}
             <p>File submitted as {{file.0|grey}} will be renamed to {{file.1|browse}} in CRDS.</p>
         {% endfor %}
         
-        <h3>Generated New Mappings</h3>
-        {% for map in new_mappings %}
-        <p>{{map|browse}}</p>
-        {% endfor %}
+        {% if generated_files %}
+            <h3>Generated Files</h3>
+            {% for map in generated_files %}
+            <p>{{map|browse}}</p>
+            {% endfor %}
+        {% endif %}
     
     {% else %}
         <p class='error'>Submission Discarded.</p>

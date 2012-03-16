@@ -9,6 +9,9 @@
     {% else %}
      <h3 class="success">Submitted {{submitted_file|grey}} as {{baseperm|browse}}</h3>
     {% endif %}
-    {% include "collision_explain.html" %}    
+    {% include "collision_explain.html" %}
+
+    {% include "confirm.html" %}
+
 {% endblock contents %}
 

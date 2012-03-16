@@ -25,7 +25,7 @@ urlpatterns = patterns('',
   url(r'^delivery_process/$',   'crds.server.interactive.views.delivery_process'),          
   url(r'^deliver_context/$', 'crds.server.interactive.views.deliver_context'),          
   url(r'^blacklist/$',    'crds.server.interactive.views.blacklist_file'),          
-  url(r'^using/$',        'crds.server.interactive.views.using_file'),          
+
   url(r'^certify/$',      'crds.server.interactive.views.certify_file'),          
   url(r'^difference/$',   'crds.server.interactive.views.difference_files'),
   url(r'^recent_activity/$', 'crds.server.interactive.views.recent_activity'),        
@@ -36,7 +36,7 @@ urlpatterns = patterns('',
   url(r'^edit_rmap/((?P<filename>[A-Za-z0-9_.]+rmap)/)?$', 'crds.server.interactive.views.edit_rmap'),
   
   url(r'^batch_submit_reference/$', 'crds.server.interactive.views.batch_submit_reference'),
-  url(r'^batch_submit_reference_confirm/$', 'crds.server.interactive.views.batch_submit_reference_confirm'),
+  url(r'^submit_confirm/$', 'crds.server.interactive.views.submit_confirm'),
           
   url(r'^browse/(?P<filename>[A-Za-z0-9_.]+(fits|imap|rmap|pmap|r\dh))$', 
       'crds.server.interactive.views.browse_known_file'),

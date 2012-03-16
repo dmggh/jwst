@@ -71,26 +71,12 @@
                     </pre>
                 </div>
         </div>
-        
         {# end accordian #}
     
-        {% include "collision_explain.html" %}    
-
-     <h2>Confirm or Abort Submission</h2>
-     <form method="post" action="/batch_submit_reference_confirm/" 
-        enctype="multipart/form-data">  {% csrf_token %}
-
-        <input type='hidden' name='new_reference_map' value='{{new_reference_map}}' />
-        <input type='hidden' name='new_mappings' value='{{new_mappings}}' />
+        {% include "collision_explain.html" %}
         
-      <input type="submit" name="button" value="confirm" >
-      <input type="submit" name="button" value="discard" >
+        {% include "confirm.html" %}
 
-      <br/>
-      <br/>
-
-    </form>
- 
     {% else %}
         <p class="error">No changes to .rmap!</p>
     {% endif %}
