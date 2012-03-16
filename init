@@ -35,11 +35,16 @@ source env.csh
 
 setenv  META_PREFIX "$CRDS_INSTALL_DIR"
 
-echo "Database password for DADSOPS? "
+echo -n "Database password for DADSOPS? "
 set password=$<
 set password_file=${CRDS_INSTALL_DIR}/python/lib/python/crds/server/interactive/db_password.dat
 echo $password >$password_file
 chmod 600 $password_file
+
+echo -n "Test account password? "
+set password=$<
+echo "Adding test user"
+python tools/adduser.py test jmiller@stsci.edu "$password"
 
 echo "Installing database unixODBC"
 ( cd third_party/database;  ./meta install ./unixODBC*.tar.gz )
