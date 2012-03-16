@@ -47,11 +47,14 @@ def submit_files(files, observatory, deliverer,
                 deliverer=deliverer, 
                 deliverer_email=deliverer_email, 
                 description=description,
-                creation_method="mass import",
                 add_slow_fields=add_slow_fields,
                 state=state, update_derivation=False)
         except Exception:
             log.error("Submission FAILED for", repr(file))
+        else:
+            models.AuditBlob.new(deliverer, "mass import", file, 
+                "system initialization", "", observatory=observatory, 
+                instrument=blob.instrument, filekind=blob.filekind, date=None)
                 
 def hack_sqlite3_performance():
     """These pragmas make a huge difference on Fedora 15.  Mac OS-X seems to

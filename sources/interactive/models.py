@@ -464,13 +464,11 @@ def is_blacklisted(blacklisted_file):
     except Exception:
         return False
 
-    
 # ============================================================================
 
 AUDITED_ACTIONS = [
-    "submit file", "blacklist", "reserve name", "mass import", 
-    "new context", "replace reference", "add useafter", "deliver",
-    "edit rmap", "set default context", "batch submit",
+    "mass import", "submit file", "blacklist", "new context", "batch submit", 
+    "edit rmap", "deliver", 
     ]
 
 class AuditBlob(BlobModel):
@@ -570,18 +568,14 @@ def set_default_context(context, observatory=OBSERVATORY, user="crds-system"):
         blob = ContextBlob(observatory=observatory, context=context)
     blob.save()
 
-    AuditBlob.new(
-        user, "set default context", context, "changed defaults", 
-        "was " + was,  observatory=observatory)
-
 def get_default_context(observatory=OBSERVATORY):
     return ContextBlob.get(observatory).context
     
 # =============================================================================
 
 def add_crds_file(observatory, upload_name, permanent_location, 
-            deliverer, deliverer_email, description, creation_method, 
-            audit_details="", change_level="SEVERE", add_slow_fields=True,
+            deliverer, deliverer_email, description,
+            change_level="SEVERE", add_slow_fields=True,
             creator_name="unknown", state="submitted", update_derivation=True):
     "Make a database record for this file.  Track the action of creating it."""
 
@@ -612,13 +606,6 @@ def add_crds_file(observatory, upload_name, permanent_location,
         creator_name, deliverer, deliverer_email, description,
         change_level=change_level, add_slow_fields=add_slow_fields,
         state=state, derived_from=derived_from)
-    
-    # Redundancy, database record of how file got here, important action
-    AuditBlob.new(
-        deliverer, creation_method, fileblob.filename, 
-        description, audit_details,
-        observatory=fileblob.observatory, instrument=fileblob.instrument,  
-        filekind=fileblob.filekind, date=fileblob.delivery_date,)
     
     return fileblob
 

@@ -704,7 +704,13 @@ def submit_file_post(request, crds_filetype):
         change_level, comparison_file, )
     
     collision_list = get_collision_list([new_basename])
-        
+
+    fileblob = models.FileBlob.load(new_basename)
+    models.AuditBlob.new(
+        request.user, "submit file", new_basename,  description, "",
+        observatory=observatory, instrument=fileblob.instrument,  
+        filekind=fileblob.filekind, date=fileblob.delivery_date,)
+    
     return render(request, 'submit_results.html', {
                 "crds_filetype": crds_filetype,
                 "baseperm":new_basename,
@@ -714,7 +720,7 @@ def submit_file_post(request, crds_filetype):
 def do_submit_file(observatory, uploaded_file, description, 
         submitter, submitter_email, creator_name="unknown",
         change_level="SEVERE", comparison_file=None, 
-        creation_method="submit file", auto_rename=True, details="",
+        creation_method="submit file", auto_rename=True,
         state="submitted"):
     """Do the core processing of a file submission,  including file
     certification and blacklist checking, naming, upload,  and record
@@ -757,7 +763,6 @@ def do_submit_file(observatory, uploaded_file, description,
     # Make a database record for this file.
     blob = models.add_crds_file(observatory, original_name, permanent_location, 
             submitter, submitter_email, description, 
-            creation_method=creation_method, audit_details=details, 
             change_level=change_level, creator_name=creator_name, state=state)
     
     return os.path.basename(permanent_location)
@@ -1040,15 +1045,12 @@ def batch_submit_reference_post(request):
     
     if actions:
         # Submit the new rmap with added references
-        models.add_crds_file(
-            pmap.observatory, new_rmap, new_rmap_path,  
-            str(request.user), request.user.email, 
-            description, "batch submit", state="uploaded")
-    
+        models.add_crds_file(pmap.observatory, new_rmap, new_rmap_path,  
+            str(request.user), request.user.email, description, state="uploaded")
         # Generate a new context referring to the new rmap
         new_name_map = do_create_contexts(
-            pmap.name, [new_rmap], description, request.user, request.user.email,
-            state="uploaded")
+            pmap.name, [new_rmap], description, 
+            request.user, request.user.email, state="uploaded")
         new_mappings = [new_rmap] + new_name_map.values()
         collision_list = get_collision_list(new_mappings)
     else:
@@ -1099,11 +1101,17 @@ def batch_submit_reference_confirm(request):
         for map in new_mappings:
             if map.endswith(".pmap"):
                 models.set_default_context(map)
+            elif map.endswith(".rmap"):
+                rmap_blob = models.FileBlob.load(map)
+        models.AuditBlob.new(
+            request.user, "batch submit", rmap_blob.name, rmap_blob.description, 
+            str(new_references + new_mappings),
+            observatory=rmap_blob.observatory, 
+            instrument=rmap_blob.instrument, 
+            filekind=rmap_blob.filekind)    
     else:
         destroy_file_list(new_references + new_mappings)
         
-    #  XXX add audit trail here.
-    
     return render(request, "batch_submit_reference_confirmed.html", {
                 "confirmed" : button=="confirm",
                 "new_reference_map" : new_reference_map,
@@ -1401,65 +1409,6 @@ def finfo(filename):
 
 # ===========================================================================
 
-@error_trap("reserve_name_input.html")
-@log_view
-@login_required
-def reserve_name(request):
-    """reserve_name is a view to get officially registered CRDS filenames."""
-    if request.method == "GET":
-        return render(request, "reserve_name_input.html", {
-        "observatories":models.OBSERVATORIES,
-        "instruments":[""]+models.INSTRUMENTS,
-        "filekinds":[""]+models.FILEKINDS,
-        "extensions":models.EXTENSIONS,
-        "observatory":"hst",
-        "instrument":"",
-        "filekind":"",
-        "extension":".pmap",
-        })
-    else:
-        return reserve_name_post(request)
-
-def reserve_name_post(request):
-    """View fragment handling reserve_name POST."""
-    observatory = get_observatory(request)
-    mode = validate_post(request, "filemode", ["file_known","by_parts"])
-
-    if mode == "file_known":  # Use the user's name exactly if unknown.
-        reserved_name = validate_post(request, "file_known", FILE_RE)
-        known_files = models.known_files()
-        audits = models.AuditBlob.filter(filename=reserved_name)
-        assert (reserved_name not in known_files) and len(audits) == 0, \
-            "Name " + repr(reserved_name) + " is already reserved in CRDS."
-        models.AuditBlob.new(
-            request.user, "reserve name", reserved_name, "none", "none",
-            observatory=observatory)
-
-    else:  # Make up the next name based on properties.
-        instrument = validate_post(request, "instrument", models.INSTRUMENTS+[""])
-        filekind = validate_post(request, "filekind", models.FILEKINDS+[""])
-        extension = validate_post(request, "extension", models.EXTENSIONS)
-        try:
-            if extension == ".pmap":
-                assert instrument == "", "Instrument must be blank for .pmap"
-                assert filekind == "", "File kind must be blank for .pmap"
-            elif extension == ".imap":
-                assert filekind == "", "File kind must be blank for .imap"
-            elif extension in [".rmap",".fits"]:
-                assert instrument != "", "Instrument required for .rmap, .fits"
-                assert filekind != "", "Filekind required for .rmap, .fits"
-        except AssertionError, exc:
-            raise CrdsError(str(exc))
-        reserved_name = get_new_name(
-            observatory, instrument, filekind, extension)
-
-        models.AuditBlob.new(
-            request.user, "reserve name", reserved_name, "none", "none",
-            observatory=observatory, instrument=instrument, filekind=filekind)
-
-    return render(request, "reserve_name_results.html",
-                  {"reserved_name" : reserved_name})
-    
 def get_new_serial(observatory, instrument, filekind, extension):
     """Return the next reference or mapping serial number associated with the
     given parameters and update the database.   There's no guarantee the
@@ -1638,7 +1587,7 @@ def do_create_contexts(pmap, updated_rmaps, description, user, email,
     for old_ctx, new_ctx in new_name_map.items():
         models.add_crds_file(
             observatory, old_ctx, rmap.locate_mapping(new_ctx),  user, email, 
-            description, "new context",
+            description, 
             repr(pmap) + " : " + ",".join([repr(x) for x in updated_rmaps]),
             state=state)
     
@@ -1785,8 +1734,7 @@ def edit_rmap_post(request):
     
     models.add_crds_file(observatory, original_rmap, new_loc, 
             request.user, request.user.email, description, 
-            creator_name = str(request.user),
-            creation_method="edit rmap", audit_details=repr(actions))
+            creator_name = str(request.user))
 
     new_context_map = do_create_contexts(
         pmap_name, [new_rmap], description,  request.user, request.user.email)
@@ -1795,6 +1743,13 @@ def edit_rmap_post(request):
     new_mappings = sorted(new_context_map.values() + [new_rmap])
     
     collision_list = get_collision_list(new_mappings)
+    
+    rmap_blob = rmap.load_mapping(original_rmap)
+    
+    models.AuditBlob.new(request.user, "edit rmap", original_rmap, description, 
+            str(old_mappings) + " --> " + str(new_mappings), observatory, 
+            instrument=rmap_blob.instrument, filekind=rmap_blob.filekind, 
+            date=None)
     
     return render(request, "edit_rmap_results.html", {
                 "pmap" : pmap_name,
@@ -1874,8 +1829,7 @@ def handle_file_submissions(original_rmap, expanded, observatory, submitter):
             observatory, uploaded_file, description,
             str(submitter), submitter.email, creator_name=creator_name,
             change_level=change_level, comparison_file=None,
-            creation_method="edit rmap",
-            details="submitted")
+            creation_method="edit rmap")
         new_references.append((upload_name, new_basename))
         expanded["add"][addno]["filename"] = new_basename
     return sorted(new_references)
