@@ -42,6 +42,37 @@
         {% for map in new_mappings %}
         <p>{{map|browse}}</p>
         {% endfor %}
+        
+
+
+        {# accordian of textual differences #}
+        <style type="text/css">
+                .ui-accordion-content{ zoom: 1; } 
+        </style>
+        
+        <script>
+            $(function() {
+                $( "#accordion" ).accordion({
+                         autoHeight: false,
+                         collapsible: true,
+                         {# active:false, #}
+                 });
+            });
+        </script>
+        
+        <br/>
+        <div id="accordion">
+            <h3><a href="#">Rmap Differences</a></h3>
+                <div>
+                    <pre class="program">
+                    {% for line in rmap_diffs %}
+                        {{line|safe}}
+                    {% endfor %}
+                    </pre>
+                </div>
+        </div>
+        
+        {# end accordian #}
     
         {% include "collision_explain.html" %}    
 

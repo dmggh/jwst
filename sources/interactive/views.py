@@ -1060,6 +1060,8 @@ def batch_submit_reference_post(request):
         # XXX WIPE the new references since rmap generation failed!!!
         destroy_file_list(new_references.values())
 
+    rmap_diffs = textual_diff(old_rmap_path, new_rmap_path, old_rmap, new_rmap)
+
 #    deliver_file_list( str(request.user), pmap.observatory, 
 #        new_references.values() + new_mappings, description)
 #    
@@ -1072,6 +1074,7 @@ def batch_submit_reference_post(request):
                 "old_mappings" : sorted(new_name_map.keys()),
                 "new_mappings" : sorted(new_name_map.values() + [new_rmap]),
                 "collision_list" : collision_list,
+                "rmap_diffs" : rmap_diffs,
             })
     
 @error_trap("base.html")
@@ -1221,7 +1224,7 @@ def difference_files(request):
         
 def textual_diff(file1_path, file2_path, file1_orig, file2_orig):
     """Return the output of the context diff of two files."""
-    diff_lines = pysh.lines("diff -b -c ${file1_path} ${file2_path}")
+    diff_lines = pysh.lines("diff -b -u -FUseAfter ${file1_path} ${file2_path}")
     result = []
     for line in diff_lines:
         line = line.rstrip()
