@@ -716,6 +716,7 @@ def submit_file_post(request, crds_filetype):
                 "new_file_map" : sorted(new_file_map.items()),
                 "submission_kind" : "submit file",
                 "title" : "Submit File",
+                "description" : description,
                 })
     
 def do_submit_file(observatory, uploaded_file, description, 
@@ -1071,6 +1072,7 @@ def batch_submit_reference_post(request):
                 "generated_files" : sorted(new_name_map.values() + [new_rmap]), 
                 "submission_kind" : "batch submit",
                 "title" : "Batch Reference Submit",
+                "description" : description,
                 
                 "collision_list" : collision_list,
                 "rmap_diffs" : rmap_diffs,
@@ -1086,11 +1088,13 @@ def submit_confirm(request):
 
     button = validate_post(request,"button","confirm|discard")
     submission_kind = validate_post(request, "submission_kind", models.AUDITED_ACTIONS)
+    description = validate_post(request, "description", DESCRIPTION_RE)
     new_file_map = compat.literal_eval(request.POST["new_file_map"])
     new_files = dict(new_file_map).values()
     generated_files = compat.literal_eval(request.POST["generated_files"])
     user = str(request.user)
     
+    instrument = filekind = "unknown"
     for filename in new_files + generated_files:
         try:
             blob = models.FileBlob.load(filename)
@@ -1100,21 +1104,21 @@ def submit_confirm(request):
             "User " + repr(user) + " did not create " + repr(filename)
         assert blob.state == "uploaded", \
             "File " + repr(filename) + " is no longer in the 'uploaded' state."
-            
+        if blob.instrument != "unknown":
+            instrument = blob.instrument
+        if blob.filekind != "unknown":
+            filekind = blob.filekind
+
     if button=="confirm":
         change_file_state(new_files + generated_files, "submitted")
-        instrument = filekind = "unknown"
         for map in generated_files:
             if map.endswith(".pmap"):
                 models.set_default_context(map)
-            elif map.endswith(".rmap"):
-                rmap_blob = models.FileBlob.load(map)
-                instrument = rmap_blob.instrument
-                filekind = rmap_blob.filekind
-        models.AuditBlob.new(
-            request.user, submission_kind, rmap_blob.name, rmap_blob.description, 
-            str(new_files + generated_files), observatory=observatory, 
-            instrument=instrument, filekind=filekind)    
+        for file in new_files + generated_files:
+            models.AuditBlob.new(
+                request.user, submission_kind, file, description, 
+                str((new_file_map , generated_files)), 
+                instrument=instrument, filekind=filekind)    
     else:
         destroy_file_list(new_files + generated_files)
         
@@ -1751,6 +1755,7 @@ def edit_rmap_post(request):
                 "new_file_map" : sorted(new_references),
                 "submission_kind" : "edit rmap",
                 "title" : "Edit Rmap",
+                "description" : description,
             })
 
 def collect_action_tree(request):

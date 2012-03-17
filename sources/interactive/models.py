@@ -494,7 +494,7 @@ class AuditBlob(BlobModel):
     
     @classmethod
     def new(cls, user, action, affected_file, why, details, 
-            observatory, instrument="unknown", filekind="unknown", date=None):
+            observatory=None, instrument="unknown", filekind="unknown", date=None):
         """Save a record of an action in the database."""
         blob = cls()
         blob.user = user
@@ -505,7 +505,7 @@ class AuditBlob(BlobModel):
         if date is None:
             date = timestamp.now()
         blob.date = date
-        blob.observatory = observatory
+        blob.observatory = observatory or OBSERVATORY
         blob.instrument = instrument
         blob.filekind = filekind
         blob.save()
