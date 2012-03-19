@@ -48,7 +48,7 @@ class ServiceApiTest(TestCase):
          'CCDTAB': 'IREF$T291659MI_CCD.FITS',
          'CRREJTAB': 'IREF$N9I1435LI_CRR.FITS',
          'DARKFILE': 'IREF$T3420177I_DRK.FITS',
-         'IDCTAB': 'IREF$v5r1512gi_idc.fits',
+         'IDCTAB': 'IREF$w2r1956ri_idc.fits',
          'MDRIZTAB': 'IREF$UBI1853QI_MDZ.FITS',
          'OSCNTAB': 'IREF$Q911321OI_OSC.FITS',
          'PFLTFILE': 'IREF$v8816168i_pfl.fits',
@@ -56,10 +56,10 @@ class ServiceApiTest(TestCase):
             exp[key.lower()] = value.lower().split("$")[1]
         return exp
 
-    def get_bestrefs(self):
+    def get_bestrefs(self, reftypes=[]):
         header = self.get_header()
         os.environ["CRDS_REFPATH"] = HERE + "/test_references"
-        return client.get_best_references(self.context, header)
+        return client.get_best_references(self.context, header, reftypes)
 
     def purge_mappings(self):
         pysh.sh("rm -rf " + HERE + "/test_mappings")        
@@ -83,9 +83,16 @@ class ServiceApiTest(TestCase):
         client.dump_mappings(self.context)
         self.purge_mappings()
         
-    def test_client_get_bestrefs(self):
+    def test_client_get_bestrefs_all(self):
         bestrefs = self.get_bestrefs()
         for key, value in self.expected_references().items():
+            self.assertIn(key, bestrefs)
+            self.assertEqual(bestrefs[key], value)
+                
+    def test_client_get_bestrefs_some(self):
+        bestrefs = self.get_bestrefs(["biasfile","darkfile"])
+        for key in ["biasfile","darkfile"]:
+            value = self.expected_references()[key]
             self.assertIn(key, bestrefs)
             self.assertEqual(bestrefs[key], value)
                 
@@ -98,7 +105,7 @@ class ServiceApiTest(TestCase):
         self.purge_references()
         
     def test_client_cache_best_references_for_dataset(self):
-        client.cache_best_references_for_dataset(self.context, "interactive/test_data/j8bt05njq_raw.fits")
+        client.cache_best_references_for_dataset(self.context, "interactive/test_data/iaai01rtq_raw.fits")
         self.purge_references()
         
     def test_client_get_reference_url(self):

@@ -402,6 +402,8 @@ class FileBlob(BlobModel):
         """
         try:
             log.info("DESTROYING", repr(self.pathname))
+            assert "/grp/hst/cdbs" not in self.pathname,   \
+                "Can't delete borrowed CDBS file."
             os.remove(self.pathname)
             self.delete()
         except Exception, exc:

@@ -73,6 +73,12 @@ def check_header(header):
 def check_observatory(obs):
     assert obs in ["hst","jwst"], "Unknown observatory " + repr(obs)
     
+def check_reftypes(reftypes):
+    assert isinstance(reftypes, list), \
+        "reftypes parameter should be a list of reftype/filekind strings."
+    for reftype in reftypes:
+        assert isinstance(reftype, (str, unicode)), \
+            "Non-string reftype: " + repr(reftype)
 # ===========================================================================
 
 @jsonrpc_method('list_mappings(String, String)')
@@ -81,12 +87,15 @@ def list_mappings(request, observatory, glob_pattern):
     assert glob_pattern.count("/") == 0, "Illegal glob pattern, / not permitted."
     return rmap.list_mappings(glob_pattern, observatory)
 
-@jsonrpc_method('get_best_references(String, Object)')
-def get_best_references(request, context, header):
+@jsonrpc_method('get_best_references(String, Object, Object)')
+def get_best_references(request, context, header, reftypes):
     check_context(context)
     check_header(header)
+    check_reftypes(reftypes)
+    if reftypes == []:
+        reftypes = None
     try:
-        return rmap.get_best_references(context, header)
+        return rmap.get_best_references(context, header, include=reftypes)
     except Exception, exc:
         raise Error("error in get_best_references " + str(exc))
 

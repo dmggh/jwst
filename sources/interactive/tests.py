@@ -52,8 +52,10 @@ class SimpleTest(TestCase):
                 observatory, name, location, 
                 deliverer="homer", deliverer_email="homer@simpsons.com", 
                 description="delivered by the man",
-                creation_method="mass import", add_slow_fields=False,
+                add_slow_fields=False,
                 update_derivation=False)
+            models.AuditBlob.new("homer", "mass import", name, "becuz", "some details",
+                                 observatory=observatory)
 
     def assert_no_errors(self, response):
         self.assertEqual(response.status_code, 200)
@@ -139,21 +141,6 @@ class SimpleTest(TestCase):
         self.assertTrue("hst.pmap" in response.content)
         self.assertTrue("hst_acs.imap" in response.content)
 
-    def test_using_get(self):
-        response = self.client.get("/using/")
-        self.assert_no_errors(response)
-    
-    def test_using_post(self):
-        self.fake_database_files(["interactive/test_data/t4o1454bj_bia.fits"])
-        response = self.client.post("/using/", {
-                "observatory" : "hst",
-                "referred_file": "t4o1454bj_bia.fits",
-            })
-        self.assert_no_errors(response)
-        self.assertTrue("hst.pmap" in response.content)
-        self.assertTrue("hst_acs.imap" in response.content)
-        self.assertTrue("hst_acs_biasfile.rmap" in response.content)
-
     def test_certify_get(self):
         self.authenticate()
         response = self.client.get("/certify/")
@@ -208,35 +195,6 @@ class SimpleTest(TestCase):
         })
         self.assert_no_errors(response)
     
-    def test_reserve_name_get(self):
-        self.authenticate()
-        response = self.client.get("/reserve_name/")
-        self.assert_no_errors(response)
-    
-    def test_reserve_name_post_known(self):
-        self.authenticate()
-        response = self.client.post("/reserve_name/", {
-                "observatory" : "hst",
-                "filemode" : "file_known",
-                "file_known" : "hst_0001.pmap"
-            })
-        self.assert_no_errors(response)
-        self.assertTrue("hst_0001.pmap" in response.content)
-
-    def test_reserve_name_post_parts(self):
-        self.authenticate()
-        response = self.client.post("/reserve_name/", {
-                "observatory" : "hst",
-                "instrument" : "acs",
-                "filekind" : "biasfile",
-                "extension" : ".rmap",
-                "filemode" : "by_parts",
-                "file_known" : "hst.pmap"
-            })
-        self.assert_no_errors(response)
-        self.assertTrue("hst_acs_biasfile_0001.rmap" in response.content)
-
-
     def test_recent_activity_get(self):
         self.authenticate()
         response = self.client.get("/recent_activity/")
@@ -245,7 +203,7 @@ class SimpleTest(TestCase):
     def test_recent_activity_post(self):
         self.authenticate()
         response = self.client.post("/recent_activity/", {
-                "action" : "reserve name",
+                "action" : "new context",
                 "observatory" : "*",
                 "instrument" : "*",
                 "filekind" : "*",
@@ -298,5 +256,5 @@ class SimpleTest(TestCase):
         # print response
         self.assert_no_errors(response)
         self.assertTrue('hst.pmap' in response.content)
-        self.assertEqual(response.content.count("<tr>"), 5)
+        self.assertEqual(response.content.count("<tr>"), 4)
 
