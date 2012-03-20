@@ -6,6 +6,7 @@ import os.path
 
 from django.test import TestCase
 
+import crds
 from crds import pysh, rmap
 import crds.client as client
 import crds.server.interactive.models as imodels
@@ -118,14 +119,14 @@ class ServiceApiTest(TestCase):
         context = client.get_default_context("hst")
         self.assertIn(".pmap", context)
         
-    def test_client_getreferences_1(self):
+    def test_getreferences_1(self):
         # default reftypes and context to None
-        bestrefs = client.getreferences(self.get_header())
+        bestrefs = crds.getreferences(self.get_header())
         self._check_bestrefs(bestrefs, self.expected_references().keys())
         
-    def test_client_getreferences_2(self):
+    def test_getreferences_2(self):
         # default reftypes and context to None
-        bestrefs = client.getreferences(
+        bestrefs = crds.getreferences(
             self.get_header(), reftypes=["biasfile","darkfile"], 
             context="hst.pmap")
         self._check_bestrefs(bestrefs, ["biasfile","darkfile"]) 
