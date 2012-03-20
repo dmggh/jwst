@@ -551,18 +551,19 @@ class ContextBlob(BlobModel):
     )
     
     @classmethod
-    def get(cls, observatory):
-        return cls.load(observatory + ".default_context")
+    def get(cls, observatory, state="default"):
+        return cls.load(observatory + "." + state + "_context")
 
-    def save(self):
-        self.name = self.observatory + ".default_context"
+    def save(self, state="default"):
+        self.name = self.observatory + "." + state + "_context"
         return BlobModel.save(self)
     
-def set_default_context(context, observatory=OBSERVATORY, user="crds-system"):
+def set_default_context(context, observatory=OBSERVATORY, user="crds-system",
+                        state="default"):
     assert context.endswith(".pmap"), "context must be a .pmap"
     ctxblob = FileBlob.load(context)  # make sure it exists
     try:
-        blob = ContextBlob.get(observatory)
+        blob = ContextBlob.get(observatory, state)
         was = blob.context
         blob.context = context
     except LookupError:
@@ -570,9 +571,10 @@ def set_default_context(context, observatory=OBSERVATORY, user="crds-system"):
         blob = ContextBlob(observatory=observatory, context=context)
     blob.save()
 
-def get_default_context(observatory=OBSERVATORY):
-    return ContextBlob.get(observatory).context
-    
+def get_default_context(observatory=OBSERVATORY, state="default"):
+    """Return the latest context which is in `state`."""
+    return ContextBlob.get(observatory, state).context
+
 # =============================================================================
 
 def add_crds_file(observatory, upload_name, permanent_location, 

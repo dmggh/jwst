@@ -48,6 +48,12 @@ class UnknownReferenceError(Error):
 class InvalidHeaderError(Error):
     """The specified header parameter is not suitable."""
 
+class InvalidObservatoryError(Error):
+    """The specified observatory is not supported."""
+    
+class InvalidReftypesError(Error):
+    """The specified reftypes is not a list of strings."""
+    
 def check_context(context):
     if not imodels.file_exists(context) or not rmap.is_mapping(context):
         raise UnknownContextError("Context parameter '%s' is not a known CRDS mapping file." % context)
@@ -71,14 +77,17 @@ def check_header(header):
             raise InvalidHeaderError("Bad value in header... not a string.")
 
 def check_observatory(obs):
-    assert obs in ["hst","jwst"], "Unknown observatory " + repr(obs)
+    if obs not in ["hst","jwst"]:
+        raise InvalidObservatoryError("Unknown observatory " + repr(obs))
     
 def check_reftypes(reftypes):
-    assert isinstance(reftypes, list), \
-        "reftypes parameter should be a list of reftype/filekind strings."
-    for reftype in reftypes:
-        assert isinstance(reftype, (str, unicode)), \
-            "Non-string reftype: " + repr(reftype)
+    if not isinstance(reftypes, (list, type(None))):
+        raise InvalidReftypesError("reftypes parameter should be a list of reftype/filekind strings or None.")
+    if reftypes is not None:
+        for reftype in reftypes:
+            if not isinstance(reftype, (str, unicode)):
+                raise InvalidReftypesError("Non-string reftype: " + repr(reftype))
+
 # ===========================================================================
 
 @jsonrpc_method('list_mappings(String, String)')
@@ -92,8 +101,6 @@ def get_best_references(request, context, header, reftypes):
     check_context(context)
     check_header(header)
     check_reftypes(reftypes)
-    if reftypes == []:
-        reftypes = None
     try:
         return rmap.get_best_references(context, header, include=reftypes)
     except Exception, exc:
@@ -144,6 +151,12 @@ def get_reference_url(request, context, reference):
 @jsonrpc_method('file_exists(String)')
 def file_exists(request, filename):
     return bool(imodels.file_exists(filename))
+
+@jsonrpc_method('get_default_context(String)')
+def get_default_context(request, observatory):
+    observatory = observatory.lower()
+    check_observatory(observatory)
+    return imodels.get_default_context(observatory)
     
 #@jsonrpc_method('jsonapi.sayHello')
 #def whats_the_time(request, name='Lester'):

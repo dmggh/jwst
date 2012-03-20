@@ -257,4 +257,16 @@ class SimpleTest(TestCase):
         self.assert_no_errors(response)
         self.assertTrue('hst.pmap' in response.content)
         self.assertEqual(response.content.count("<tr>"), 4)
+        
+    def test_edit_rmap_insert(self):
+        pass
+
+    def test_edit_rmap_replace(self):
+        pass
+    
+    def test_batch_submit_insert(self):
+        pass
+
+    def test_batch_submit_replace(self):
+        pass
 

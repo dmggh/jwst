@@ -6,10 +6,13 @@ import os.path
 
 from django.test import TestCase
 
-import crds.pysh as pysh
+from crds import pysh, rmap
 import crds.client as client
+import crds.server.interactive.models as imodels
 
 HERE = os.path.dirname(__file__) or "."
+
+os.environ["CRDS_REFPATH"] = HERE + "/test_references"
 
 class ServiceApiTest(TestCase):
     def setUp(self):
@@ -58,7 +61,6 @@ class ServiceApiTest(TestCase):
 
     def get_bestrefs(self, reftypes=[]):
         header = self.get_header()
-        os.environ["CRDS_REFPATH"] = HERE + "/test_references"
         return client.get_best_references(self.context, header, reftypes)
 
     def purge_mappings(self):
@@ -82,19 +84,20 @@ class ServiceApiTest(TestCase):
         os.environ["CRDS_MAPPATH"] = HERE + "/test_mappings" 
         client.dump_mappings(self.context)
         self.purge_mappings()
-        
-    def test_client_get_bestrefs_all(self):
-        bestrefs = self.get_bestrefs()
-        for key, value in self.expected_references().items():
-            self.assertIn(key, bestrefs)
-            self.assertEqual(bestrefs[key], value)
-                
-    def test_client_get_bestrefs_some(self):
-        bestrefs = self.get_bestrefs(["biasfile","darkfile"])
-        for key in ["biasfile","darkfile"]:
+    
+    def _check_bestrefs(self, bestrefs, reftypes):    
+        for key in reftypes:
             value = self.expected_references()[key]
             self.assertIn(key, bestrefs)
             self.assertEqual(bestrefs[key], value)
+
+    def test_client_get_bestrefs_all(self):
+        bestrefs = self.get_bestrefs()
+        self._check_bestrefs(bestrefs, self.expected_references().keys())
+                
+    def test_client_get_bestrefs_some(self):
+        bestrefs = self.get_bestrefs(["biasfile","darkfile"])
+        self._check_bestrefs(bestrefs, ["biasfile", "darkfile"])
                 
     def test_client_dump_references(self):
         client.dump_references(self.context, ['t3420177i_drk.fits'])
@@ -111,6 +114,18 @@ class ServiceApiTest(TestCase):
     def test_client_get_reference_url(self):
         url = client.get_reference_url(self.context, 't3420177i_drk.fits')
 
-    def test_client_get_mapping_url(self):
-        url = client.get_mapping_url(self.context, "hst_acs.imap")
+    def test_client_get_default_context(self):
+        context = client.get_default_context("hst")
+        self.assertIn(".pmap", context)
         
+    def test_client_getreferences_1(self):
+        # default reftypes and context to None
+        bestrefs = client.getreferences(self.get_header())
+        self._check_bestrefs(bestrefs, self.expected_references().keys())
+        
+    def test_client_getreferences_2(self):
+        # default reftypes and context to None
+        bestrefs = client.getreferences(
+            self.get_header(), reftypes=["biasfile","darkfile"], 
+            context="hst.pmap")
+        self._check_bestrefs(bestrefs, ["biasfile","darkfile"]) 
