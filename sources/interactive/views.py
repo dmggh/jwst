@@ -625,7 +625,7 @@ def bestrefs_explore_post(request):
     context = get_recent_or_user_context(request)
     pmap = rmap.get_cached_mapping(context)
     instrument = validate_post(request, "instrument", models.INSTRUMENTS)
-    valid_values = pmap.get_imap(instrument).get_parkey_map().items()
+    valid_values = pmap.get_imap(instrument).get_valid_values_map().items()
     return render(request, "bestrefs_explore_input.html", {
             "mapping" : pmap,
             "valid_values" : sorted(valid_values),
