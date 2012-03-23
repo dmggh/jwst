@@ -14,11 +14,15 @@
         <tr>
           <td width="25%" class="label">{{key}}:</td>
           <td width="25%">
-            <select name="{{key}}">
-            {% for opt in choices %}
-              <option>{{opt}}</option>
-            {% endfor %} 
-            </select>
+            {% if choices %}
+                <select name="{{key}}">
+                    {% for opt in choices %}
+                      <option>{{opt}}</option>
+                    {% endfor %} 
+                </select>
+            {% else %}
+                <input type='text' name='{{key}}' />
+            {% endif %}
           </td>
         </tr>
       {% endfor %}
