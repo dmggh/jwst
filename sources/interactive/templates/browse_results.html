@@ -4,19 +4,7 @@
 
 {% block contents %}
 
-<style type="text/css">
-        .ui-accordion-content{ zoom: 1; } 
-</style>
-
-<script>
-    $(function() {
-        $( "#accordion" ).accordion({
-                 autoHeight: false,
-                 collapsible: true,
-                 active:false,
-         });
-    });
-</script>
+{% include "accordion.html" %}
 
 {% if ".rmap" in browsed_file and is_authenticated %}
      <FORM name="edit_form" method="LINK" action="/edit_rmap/{{browsed_file}}">                
@@ -40,7 +28,7 @@
     </h2> 
 {% endif %}    
 
-<div id="accordion">
+<div class="accordion">
 
 <h3><a href="#">Database</a></h3>
 <div>

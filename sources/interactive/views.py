@@ -1174,13 +1174,17 @@ def difference_files(request):
         if uploaded2 and rmap.is_mapping(file2_orig):
             checksum.update_checksum(file2_path)
         
-        map_diffs = None
+        logical_diffs = map_text_diff_items = None
         if rmap.is_mapping(file1_orig) and rmap.is_mapping(file2_orig) and \
             extension(file1_orig) == extension(file2_orig):
-            diff_lines = textual_diff(file1_path, file2_path, 
-                                      file1_orig, file2_orig)
-            map_diffs = mapping_diffs(file1_path, file2_path,
-                                      file1_orig, file2_orig)
+            logical_diffs = mapping_logical_diffs(
+                file1_path, file2_path, file1_orig, file2_orig)
+            map_text_diffs = mapping_text_diffs(logical_diffs)
+            # Compute root files separately since they may have upload paths.
+            diff_lines = textual_diff(
+                file1_path, file2_path, file1_orig, file2_orig)
+            map_text_diffs[file1_orig, file2_orig] = diff_lines
+            map_text_diff_items = sorted(map_text_diffs.items())
         elif file1_orig.endswith(".fits") and file2_orig.endswith(".fits"):
             diff_lines = pysh.lines("fitsdiff ${file1_path} ${file2_path}")
             diff_lines = format_fitsdiffs(diff_lines, file1_path, file2_path,
@@ -1204,7 +1208,8 @@ def difference_files(request):
 
         return render(request, "difference_results.html", 
                       {
-                       "map_diffs" : map_diffs,
+                       "logical_diffs" : logical_diffs,
+                       "map_text_diff_items" : map_text_diff_items,
                        "diff_lines" : diff_lines,
                        "file1" : file1_orig,
                        "file2" : file2_orig,
@@ -1221,7 +1226,7 @@ def textual_diff(file1_path, file2_path, file1_orig, file2_orig):
         result.append(line)
     return result
     
-def mapping_diffs(file1, file2, file1_orig, file2_orig):
+def mapping_logical_diffs(file1, file2, file1_orig, file2_orig):
     """Return the logical differences between two mapping files."""
     try:
         map1 = rmap.load_mapping(file1)
@@ -1232,6 +1237,24 @@ def mapping_diffs(file1, file2, file1_orig, file2_orig):
         return ldiffs
     except Exception, exc:
         return [("Mapping logical difference failed: " + str(exc),)]
+
+def mapping_text_diffs(logical_diffs):
+    """Return a mapping of file pairs to the textual differences between them
+    for all of the mappings mentioned in `logical_diffs`.   Skips over the first
+    logical difference tuple since that corresponds to the top level files,  
+    which might have been uploaded and hence the file paths aren't known here.
+    """
+    diff_map = {}
+    for ldiff in logical_diffs:
+        for tup in ldiff[1:]:
+            if ".imap" in tup[0] or ".rmap" in tup[0]:
+                file1_orig, file2_orig = tup
+                file1_path = rmap.locate_mapping(file1_orig)
+                file2_path = rmap.locate_mapping(file2_orig)
+                if (file1_orig, file2_orig) not in diff_map:
+                    diff_map[file1_orig, file2_orig] = textual_diff(
+                        file1_path, file2_path, file1_orig, file2_orig)
+    return diff_map
 
 def format_fitsdiffs(lines, file1, file2, file1_orig, file2_orig):
     """Add some colorization to output `lines` from fitsdiff, replacing

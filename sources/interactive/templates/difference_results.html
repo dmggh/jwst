@@ -4,26 +4,50 @@
 
 {% block contents %}
 
-    <h2>Difference {{file1|grey}} against {{file2|grey}}</h2>
+    {% include "accordion.html" %}
+
+    <h2>Difference {{file1|grey}} against {{file2|grey}}</h2> 
     
-    {% if map_diffs %}
+    {% if map_text_diff_items %}
+    
         <h3>Mapping Logical Differences</h3>
-        <table border="1">
-        {% for diff in map_diffs %}
-            <tr>
-                {% for item in diff %}
-                    <td style="padding:0.5em;">{{item}}</td>
-                {% endfor %}
-            </tr>
-        {% endfor %}
-        </table>
-        <h3>Mapping Textual Differences</h3>
+        <div class="accordion">
+            <h3><a href="#">Logical</a></h3>
+            <div>
+                <table border='1' pad='1'>
+                    {% for ldiff in logical_diffs %}
+                    <tr>
+                            {% for tup in ldiff %}
+                                <td> {{tup}} </td>
+                            {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        
+        <h3>Mapping Text Differences</h3>
+            {% for tdiff in map_text_diff_items %}
+            <div class="accordion">
+                <h3><a href="#">{{tdiff.0}}</a></h3>
+                <div>
+                    <pre class="program">
+{% for line in tdiff.1 %}
+{{line|safe}}
+{% endfor %}
+                    </pre>
+                </div>        
+            </div>
+            {% endfor %}
+    
+    {% else %}
+    
+        <pre class="program">
+{% for line in diff_lines %}
+{{line|safe}}
+{% endfor %}
+        </pre>        
+    
     {% endif %}
 
-    <pre class="program">
-    {% for line in diff_lines %}
-    {{line|safe}}
-    {% endfor %}
-    </pre>
-    
 {% endblock contents %}
