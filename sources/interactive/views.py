@@ -1162,59 +1162,68 @@ def difference_files(request):
         return os.path.splitext(filename)[1]
     
     if request.method == "GET":
-        return render(request, "difference_input.html")
+        file1 = request.GET.get("file1", None)
+        file2 = request.GET.get("file2", None)
+        if file1 is None and file2 is None:
+            return render(request, "difference_input.html")
+        else:
+            file1_orig = validate_get(request, "file1", is_known_file)
+            file2_orig = validate_get(request, "file2", is_known_file)
+            file1_path = models.FileBlob.load(file1_orig).pathname
+            file2_path = models.FileBlob.load(file2_orig).pathname
+            uploaded1 = uploaded2 = None
     else:
         uploaded1, file1_orig, file1_path = handle_known_or_uploaded_file(
             request, "filemode1", "file_known1", "file_uploaded1")
         uploaded2, file2_orig, file2_path = handle_known_or_uploaded_file(
             request, "filemode2", "file_known2", "file_uploaded2")
-        
+                
         if uploaded1 and rmap.is_mapping(file1_orig):
             checksum.update_checksum(file1_path)
         if uploaded2 and rmap.is_mapping(file2_orig):
             checksum.update_checksum(file2_path)
         
-        logical_diffs = map_text_diff_items = None
-        if rmap.is_mapping(file1_orig) and rmap.is_mapping(file2_orig) and \
-            extension(file1_orig) == extension(file2_orig):
-            logical_diffs = mapping_logical_diffs(
-                file1_path, file2_path, file1_orig, file2_orig)
-            map_text_diffs = mapping_text_diffs(logical_diffs)
-            # Compute root files separately since they may have upload paths.
-            diff_lines = textual_diff(
-                file1_path, file2_path, file1_orig, file2_orig)
-            map_text_diffs[file1_orig, file2_orig] = diff_lines
-            map_text_diff_items = sorted(map_text_diffs.items())
-        elif file1_orig.endswith(".fits") and file2_orig.endswith(".fits"):
-            diff_lines = pysh.lines("fitsdiff ${file1_path} ${file2_path}")
-            diff_lines = format_fitsdiffs(diff_lines, file1_path, file2_path,
-                file1_orig, file2_orig)
-        elif re.match(GEIS_HEADER_RE, file1_orig) and \
-            re.match(GEIS_HEADER_RE, file2_orig) and \
-            extension(file1_orig) == extension(file2_orig):
-            diff_lines = textual_diff(file1_path, file2_path, 
-                                      file1_orig, file2_orig)
-        else:
-            raise CrdsError("Files should be either CRDS mappings "
-                            "of the same type or .fits files")
-            
-        if uploaded1: 
-            remove_temporary(file1_path)
-        if uploaded2:
-            remove_temporary(file2_path)
-            
-        if not "".join(diff_lines).strip():
-            diff_lines = ["no differences"]
-
-        return render(request, "difference_results.html", 
-                      {
-                       "logical_diffs" : logical_diffs,
-                       "map_text_diff_items" : map_text_diff_items,
-                       "diff_lines" : diff_lines,
-                       "file1" : file1_orig,
-                       "file2" : file2_orig,
-                       })
+    logical_diffs = map_text_diff_items = None
+    if rmap.is_mapping(file1_orig) and rmap.is_mapping(file2_orig) and \
+        extension(file1_orig) == extension(file2_orig):
+        logical_diffs = mapping_logical_diffs(
+            file1_path, file2_path, file1_orig, file2_orig)
+        map_text_diffs = mapping_text_diffs(logical_diffs)
+        # Compute root files separately since they may have upload paths.
+        diff_lines = textual_diff(
+            file1_path, file2_path, file1_orig, file2_orig)
+        map_text_diffs[file1_orig, file2_orig] = diff_lines
+        map_text_diff_items = sorted(map_text_diffs.items())
+    elif file1_orig.endswith(".fits") and file2_orig.endswith(".fits"):
+        diff_lines = pysh.lines("fitsdiff ${file1_path} ${file2_path}")
+        diff_lines = format_fitsdiffs(diff_lines, file1_path, file2_path,
+            file1_orig, file2_orig)
+    elif re.match(GEIS_HEADER_RE, file1_orig) and \
+        re.match(GEIS_HEADER_RE, file2_orig) and \
+        extension(file1_orig) == extension(file2_orig):
+        diff_lines = textual_diff(file1_path, file2_path, 
+                                  file1_orig, file2_orig)
+    else:
+        raise CrdsError("Files should be either CRDS mappings "
+                        "of the same type or .fits files")
         
+    if uploaded1: 
+        remove_temporary(file1_path)
+    if uploaded2:
+        remove_temporary(file2_path)
+        
+    if not "".join(diff_lines).strip():
+        diff_lines = ["no differences"]
+
+    return render(request, "difference_results.html", 
+                  {
+                   "logical_diffs" : logical_diffs,
+                   "map_text_diff_items" : map_text_diff_items,
+                   "diff_lines" : diff_lines,
+                   "file1" : file1_orig,
+                   "file2" : file2_orig,
+                   })
+                
 def textual_diff(file1_path, file2_path, file1_orig, file2_orig):
     """Return the output of the context diff of two files."""
     diff_lines = pysh.lines("diff -b -u -FUseAfter ${file1_path} ${file2_path}")
@@ -1313,8 +1322,24 @@ def browse_known_file(request, filename):
              "used_by_files" : used_by_files,
              "match_paths" : match_paths,
              "file_contents": file_contents,
-             "browsed_file": filename
+             "browsed_file": filename,
+             'prior_file_versions' : get_prior_file_versions(blob)
     })
+
+def get_prior_file_versions(blob, count=20):
+    """Returns a list of the last `count` files used in the derivation
+    of the file represented by FileBlob `blob`.   May be < count filenames.
+    """
+    versions = []
+    while count:
+        prior = blob.derived_from
+        try:
+            blob = models.FileBlob.load(prior)
+        except LookupError:
+            break
+        versions.append(prior)
+        count -= 1
+    return versions
 
 def browsify_mapping(filename, browsed_file):
     """Format a CRDS mapping file as colorized and cross-linked HTML."""

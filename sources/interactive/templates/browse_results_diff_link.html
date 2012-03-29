@@ -1,0 +1,25 @@
+    {% if prior_file_versions %}
+        <script type="text/javascript">
+        
+        function set_diff_url() {
+            file1 = $("select[name=known_file1]").val();
+            $("#diff_link").attr("href", 
+                "/difference/?file1=" + file1 + "&file2={{browsed_file}}");
+        }
+        
+        </script>
+    
+        &nbsp;&nbsp;
+        &nbsp;&nbsp;
+
+        <a id="diff_link" href="/difference/?file1={{prior_file_versions.0}}&file2={{browsed_file}}">
+            <span style="font-size: 0.75em;">diff </span>
+        </a> <span style="font-size: 0.5em;" class="grey">versus </span>
+    
+        <select name='known_file1' onchange='set_diff_url();'>
+            {% for file1 in prior_file_versions %}
+               <option>{{file1}}</option>
+            {% endfor %}
+        </select>
+     {% endif %}
+     
