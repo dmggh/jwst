@@ -931,7 +931,7 @@ def certify_post(request):
 @error_trap("batch_submit_reference_input.html")
 @log_view
 @login_required
-@profile("batch_submit_reference.stats")
+# @profile("batch_submit_reference.stats")
 def batch_submit_reference(request):
     """View to return batch submit reference form or process POST."""
     if request.method == "GET":
