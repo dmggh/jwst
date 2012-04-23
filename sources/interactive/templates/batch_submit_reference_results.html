@@ -6,20 +6,27 @@
 
     <h2>Batch Reference Submit Results</h2>
 
-    {% include "select_pmap_results.html" %}
+    <h3>Starting Context</h3>
+    <p>{{pmap|grey}}</p>
+    {% if pmap_mode == "pmap_default" and pmap != pmap_default %}
+    <p class="warning">WARNING: predicted context changed from {{pmap_default|grey}} to {{pmap|grey}}.</p>
+    {% endif %}
     
     <h3>Uploaded Files</h3>
-    {% for file in new_reference_map %}
-        <p>File submitted as {{file.0|grey}} was renamed to {{file.1|browse}} in CRDS.</p>
+    {% for file in new_file_map %}
+        <p>File submitted as {{file.0|grey}} was renamed to {{file.1|grey}} in CRDS.</p>
     {% endfor %}
     
-    <h3>Actions on Mapping {{old_rmap|browse}}</h3>
+    <h3>Actions on Mapping</h3>
+    <p>{{old_rmap|grey}}</p>
+    <br/>
+
     {%if actions %}
         <table border="1" cellpadding="4">
             <tr>
                 <th>Action</th>
                 <th>New Reference File</th>
-                <th>Reference Match</th>
+                <th>File Match</th>
                 <th>At</th>
                 <th>Rmap Match</th>
                 <th>Useafter</th>
@@ -28,19 +35,19 @@
             {% for action in actions %}
                 <tr>
                     <td>{{action.action|upper}}</td>        
-                    <td>{{action.ref_file|browse}}</td>        
+                    <td>{{action.ref_file|grey}}</td>        
                     <td>{{action.ref_match_tuple}}</td>        
                     <td>-</td>
                     <td>{{action.rmap_match_tuple}}</td>        
                     <td>{{action.useafter}}</td>
-                    <td>{{action.replaced_file|browse}}</td>        
+                    <td>{{action.replaced_file|grey}}</td>        
                 </tr>        
             {% endfor %}
         </table>
 
         <h3>Generated New Mappings</h3>
         {% for map in new_mappings %}
-        <p>{{map|browse}}</p>
+        <p>{{map|grey}}</p>
         {% endfor %}
         
 
@@ -55,7 +62,7 @@
                 $( "#accordion" ).accordion({
                          autoHeight: false,
                          collapsible: true,
-                         {# active:false, #}
+                         active:false,
                  });
             });
         </script>

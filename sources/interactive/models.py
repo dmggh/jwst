@@ -142,9 +142,9 @@ class BlobModel(models.Model):
         blob = eval(self.blob)
         for name, value in blob.items():
             setattr(self, name, value)
-    
-    @classmethod
-    def filter(cls, **matches):
+
+    @staticmethod    
+    def _filter(cls, **matches):
         """Return list of Blobs of this `cls` which match filter `matches`."""
         filtered = []
         matches = dict(matches)  # copy
@@ -161,6 +161,10 @@ class BlobModel(models.Model):
             else:
                 filtered.append(candidate)
         return filtered
+    
+    @classmethod
+    def filter(cls, **matches):
+        return BlobModel._filter(cls, **matches)
 
     @classmethod
     def exists(cls, name):
@@ -415,6 +419,13 @@ class FileBlob(BlobModel):
         return [col.name for col in \
                 self.__class__.filter(derived_from=self.derived_from) \
                 if col.name != self.name]
+
+    # Hokeyness because BlobModel doesn't actually have .objects because it
+    # it is abstract... so normal class method inheritance techniques fail.
+    @classmethod
+    def filter(cls, **matches):  # omit "uploaded" files from filter result
+        return [file_ for file_ in BlobModel._filter(FileBlob, **matches) if \
+                file_.state != "uploaded"]
 
 # ============================================================================
 

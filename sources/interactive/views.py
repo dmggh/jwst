@@ -145,11 +145,17 @@ def is_reference(filename, extension=r"\.fits|\.r\dh|\.r\dd"):
     return filename
 
 def is_known_file(filename):
-    """Verify that `filename` identifies a file already known to CRDS."""
+    """Verify that `filename` identifies a file already known to CRDS and
+    has progressed beyond the 'uploaded' temporary file stage.
+    """
     if not re.match(FILE_RE, filename):
         raise CrdsError("Invalid filename " + repr(filename))
-    if len(models.FileBlob.filter(name=filename)) < 1:
-        raise CrdsError("No database entry for " + repr(filename) + ".") 
+    try:
+        blob = models.FileBlob.load(filename)
+    except LookupError:
+        raise CrdsError("No database entry for " + repr(filename) + ".")
+    assert blob.state != "uploaded", \
+        "File " + repr(filename) + " has not yet been submitted."
     return filename
 
 def is_deliverable_file(filename):
@@ -162,7 +168,7 @@ def is_deliverable_file(filename):
         " cannot be delivered."
     assert not blob.blacklisted_by, "File " + repr(filename) + \
         " is blacklisted by " + repr(blob.blacklisted_by)
-    
+
 def is_list_of_rmaps(text):
     """Assert that `text` contains a list of comma for newline separated rmap
     names.
@@ -206,6 +212,9 @@ def render(request, template, dict_=None):
     """Render a template,  making same-named inputs from request available
     for echoing.
     """
+    statuses = ["*"] + models.FILE_STATUS_MAP.keys()
+    statuses.remove("uploaded")
+    
     rdict = {   # standard template variables
         "observatory" : models.OBSERVATORY,
              
@@ -219,7 +228,7 @@ def render(request, template, dict_=None):
         "users": ["*"] + usernames(),
 
         "status" : "*",
-        "statuses": ["*"] + models.FILE_STATUS_MAP.keys(),
+        "statuses": statuses,
 
         "action" : "*",
         "actions" : ["*"] + models.AUDITED_ACTIONS,
@@ -606,15 +615,18 @@ def bestrefs_explore(request):
     else:
         return bestrefs_explore_post(request)
     
-def get_recent_pmaps(**filters):
+def get_recent_pmaps(last_n=10, **filters):
     """Return a list of option tuples for rendering HTML to choose recent
-    pmaps (last 10) filtered by `filters`. This defines what users will see
-    for the context HTML drop-down.
+    pmaps (last 10) from those filtered by `filters`. This defines what users 
+    will see for the context HTML drop-down menu.
     """
-    files = models.FileBlob.filter(pathname=".*\.pmap", **filters)[::-1][:10]
+    files = models.FileBlob.filter(pathname=".*\.pmap", **filters)[::-1]
     pmaps = []
     for file_ in files:
-        yield (file_.filename, pmap_label(file_.filename))
+        pmaps.append((file_.filename, pmap_label(file_.filename)))
+        if len(pmaps) >= last_n:
+            break
+    return pmaps
     
 def pmap_label(filename):
     """Return the text displayed to users selecting known pmaps."""
@@ -2196,4 +2208,4 @@ def get_archive_url(archive_name, filelist):
         return url[:-1]
     else:
         return ""
-
+    
