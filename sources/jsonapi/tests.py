@@ -20,14 +20,14 @@ class ServiceApiTest(TestCase):
         self.context = "hst.pmap"
 
     def get_header(self):
-        # header = crds.client.api.get_minimum_header(
-        #    "../../testdata/wfc3/howard/iaai01rtq_raw.fits")
+        # crds.client.get_minimum_header("hst.pmap", "../../../testdata/wfc3/howard/iaai01rtq_raw.fits")
         header = {
          'APERTURE': 'UVIS',
          'BINAXIS1': '1.0',
          'BINAXIS2': '1.0',
          'CCDAMP': 'ABCD',
          'CCDGAIN': '1.5',
+         'CHINJECT': 'NONE',
          'DATE-OBS': '2009-07-14',
          'DETECTOR': 'UVIS',
          'FILTER': 'F555W',
@@ -46,7 +46,7 @@ class ServiceApiTest(TestCase):
     def expected_references(self):
         exp = {}
         for key, value in {
-        # 'ATODTAB': 'IREF$N9N16196I_A2D.FITS',  # disabled in CDBS web table
+         'ATODTAB': 'IREF$N9N16196I_A2D.FITS',
          'BIASFILE': 'IREF$U1R1346RI_BIA.FITS',
          'BPIXTAB': 'IREF$U5D2012LI_BPX.FITS',
          'CCDTAB': 'IREF$T291659MI_CCD.FITS',
