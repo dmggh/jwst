@@ -13,13 +13,16 @@ import crds.server.interactive.models
 
 from crds import (rmap, utils, log)
 from crds.server.interactive import (views, models)
-import crds.hst.locate as hst_locate
 
-def locate_file(fname):
-    if rmap.is_mapping(fname):
-        return rmap.locate_file(fname, "hst")
+def locate_file(fname, observatory):
+    if observatory == "hst":
+        if rmap.is_mapping(fname):
+            return rmap.locate_file(fname, observatory)
+        else:
+            import crds.hst.locate
+            return crds.hst.locate.locate_server_reference(fname)
     else:
-        return hst_locate.locate_server_reference(fname)
+        return rmap.locate_file(fname, observatory)
 
 def submit_files(files, observatory, deliverer, 
     deliverer_email="support@stsci.edu", 
@@ -33,7 +36,7 @@ def submit_files(files, observatory, deliverer,
             continue
 
         try:
-            existing_location = locate_file(file)
+            existing_location = locate_file(file, observatory)
         except Exception:
             log.error("Can't locate", repr(file))
             continue

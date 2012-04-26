@@ -8,12 +8,10 @@ port = 4995
 
 debug = True
 dbtype='sqlite'
-table_prefix = 'crds_jw_'
+table_prefix = 'crds_jwst_'
 data_dir = install_dir+"/data"
 
 PYSYN_CDBS = ""
-
-# telescopes = [ 'jwst' ]
 
 observatory = "jwst"
 

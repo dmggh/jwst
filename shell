@@ -1,5 +1,5 @@
 #!/bin/csh
 source env.csh
-cd /data1/CRDS/CRDS_server/webserver/python/lib/python/crds/server
+cd webserver/python/lib/python/crds/server
 exec python manage.py shell
 

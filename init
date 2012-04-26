@@ -3,6 +3,14 @@
 # =======================================================================
 # Init server environment
 
+if (( "$1" != "hst") && ("$1" != "jwst")) then
+	echo 'usage: ./install [jwst|hst]'
+	exit -1;
+endif
+
+set observatory=$1
+shift
+
 cd `dirname $0`
 source env.csh
 
@@ -17,6 +25,4 @@ source env.csh
 
 cd `dirname $0`/tools
 
-python import_files.py hst.pmap jmiller jmiller@stsci.edu "Initial import" 0
-
-
+python import_files.py $observatory.pmap jmiller jmiller@stsci.edu "Initial import" 0

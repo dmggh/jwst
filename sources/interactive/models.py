@@ -9,20 +9,21 @@ from django.db import models
 from crds import (timestamp, rmap, utils, refactor, checksum, log)
 from crds.compat import (literal_eval, namedtuple, OrderedDict)
 
-import crds.hst
-
 from crds.server.config import observatory as OBSERVATORY
+from crds.server.config import table_prefix as TABLE_PREFIX
+
+observatory_module = utils.get_object("crds." + OBSERVATORY)
+
 
 # ============================================================================
 
 OBSERVATORIES = ["hst","jwst"]
 
-INSTRUMENTS = sorted(crds.hst.INSTRUMENTS)  # + crds.jwst...
+INSTRUMENTS = sorted(observatory_module.INSTRUMENTS)  # + crds.jwst...
 
-FILEKINDS   = sorted(crds.hst.FILEKINDS)    # + crds.jwst...
-FILEKIND_TEXT_DESCR = sorted(crds.hst.TEXT_DESCR.items())
-
-EXTENSIONS  = sorted(crds.hst.EXTENSIONS)   # + crds.jwst...
+FILEKINDS   = sorted(observatory_module.FILEKINDS)    # + crds.jwst...
+FILEKIND_TEXT_DESCR = sorted(observatory_module.TEXT_DESCR.items())
+EXTENSIONS  = sorted(observatory_module.EXTENSIONS)   # + crds.jwst...
 
 # ============================================================================
 
@@ -264,7 +265,7 @@ class FileBlob(BlobModel):
     """Represents a delivered file,  either a reference or a mapping."""
 
     class Meta:
-        db_table = "crds_catalog" # rename SQL table from interactive_fileblob
+        db_table = TABLE_PREFIX + "_crds_catalog" # rename SQL table from interactive_fileblob
     
     model_fields = BlobModel.model_fields + \
         ["state", "blacklisted", "observatory", "instrument", "filekind", 
@@ -278,7 +279,7 @@ class FileBlob(BlobModel):
         "operational status of this file.", "submitted" )
 
     observatory = SimpleCharField( OBSERVATORIES,
-        "observatory associated with file", "hst")
+        "observatory associated with file", OBSERVATORY)
     
     instrument = SimpleCharField(INSTRUMENTS, 
         "instrument associated with file", "")
@@ -488,6 +489,9 @@ class AuditBlob(BlobModel):
     """Maintains an audit trail of important actions indicating who did them,
     when, and why.
     """
+    class Meta:
+        db_table = TABLE_PREFIX + "_crds_actions" # rename SQL table from interactive_fileblob
+
     blob_fields = dict(
         # User supplied fields
         user = BlobField(str, "user performing this action", ""),
@@ -554,6 +558,9 @@ class AuditBlob(BlobModel):
 class ContextBlob(BlobModel):
     """Keeps track of which mappings are the default.
     """
+    class Meta:
+        db_table = TABLE_PREFIX + "_crds_contexts" # rename SQL table from interactive_fileblob
+
     blob_fields = dict(
         # User supplied fields
         observatory = BlobField(
@@ -624,7 +631,7 @@ def add_crds_file(observatory, upload_name, permanent_location,
     
     return fileblob
 
-def file_exists(filename, observatory="hst"):
+def file_exists(filename, observatory=OBSERVATORY):
     """Return True IFF `filename` is a known CRDS reference or mapping file."""
     try:
         return FileBlob.load(filename)

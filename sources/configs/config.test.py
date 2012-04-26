@@ -1,6 +1,8 @@
 import os
 
-install_dir='/data1/CRDS/CRDS_server/webserver'
+observatory = 'hst'
+
+install_dir='/data1/CRDS/CRDS_hst/webserver'
 
 servertype = 'mod_python'
 apachemod = "/data1/pyetc_third_party_4/lib/apache"
@@ -12,8 +14,6 @@ table_prefix = 'crds_'
 data_dir = install_dir+"/data"
 
 PYSYN_CDBS = ""
-
-observatory = 'hst'
 
 CRDS_URL = "http://etcbrady.stsci.edu:4997"
 

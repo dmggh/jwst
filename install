@@ -1,9 +1,16 @@
-#! /bin/sh 
+#! /bin/sh
 
 # This install script is heavily based on the PyETC install script
 # CRDS is intended to use the same LAMP stack as pyetc, with emphasis on Python
 
 export SERVER_SOURCES=sources   # CRDS_server/sources
+
+if [ "$1" != "hst" ] && [ "$1" != "jwst" ]; then
+	echo 'usage: ./install [jwst|hst]'
+	exit -1
+fi
+
+observatory=$1;  shift
 
 if [ X$1 = X-r ]
 then
@@ -381,7 +388,7 @@ esac
 # prevent the user from having .pydistutilsrc that hurts us
 here=`pwd`
 
-for x in sources ../CRDS/lib ../CRDS/hst ../CRDS/client
+for x in sources ../CRDS/lib ../CRDS/$observatory ../CRDS/client
 do
 	if [ ! -d $x ]
 	then

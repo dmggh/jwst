@@ -647,7 +647,7 @@ def bestrefs_explore_post(request):
 def get_recent_or_user_context(request):
     """Process standard request parameters for specifying context."""
     if request.POST["pmap_mode"] == "pmap_default":
-        context = models.get_default_context("hst")
+        context = models.get_default_context()
     else:
         pmap_mode = validate_post(
             request, "pmap_mode", "pmap_menu|pmap_text|pmap_default")
@@ -2146,8 +2146,12 @@ def get_file_data(request, filename):
     try:
         blob = models.FileBlob.load(filename)
     except LookupError:
-        raise CrdsError("Couldn't find file " + srepr(filename))
-    data = open(blob.pathname).read()
+        raise CrdsError("No CRDS database entry for" + srepr(filename))
+    try:
+        data = open(blob.pathname).read()
+    except IOError, exc:
+        raise CrdsError("reading known CRDS file " + srepr(filename) + 
+                        " : " + str(exc))
     if blob.type == "mapping":
         content_type = "text/plain"
     else:

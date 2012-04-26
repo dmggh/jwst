@@ -2,13 +2,18 @@
 
 cd `dirname $0`
 
+if [ "$1" != "hst" ] && [ "$1" != "jwst" ]; then
+	echo 'usage: ./install [jwst|hst]'
+	exit -1
+fi
+
 # svn update
 
 # (cd ../CRDS; svn update)
 
 ./stop  >& /dev/null
 
-./install
+./install $1
 
 ./run
 
