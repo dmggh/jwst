@@ -1,5 +1,6 @@
 import os
 
+observatory = "jwst"
 install_dir='/data1/CRDS/CRDS_jwst/webserver'
 
 servertype = 'mod_python'
@@ -13,10 +14,6 @@ data_dir = install_dir+"/data"
 
 PYSYN_CDBS = ""
 
-observatory = "jwst"
-
-CRDS_URL = "http://etcbrady.stsci.edu:4995"
-
+CRDS_URL = "http://etcbrady.stsci.edu:" + str(port)   # no trailing slash
 CRDS_REFERENCE_URL = CRDS_URL + "/get/" 
 CRDS_MAPPING_URL   = CRDS_URL + "/get/" 
-

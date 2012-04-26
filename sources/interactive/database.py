@@ -14,8 +14,11 @@ import datetime
 import pyodbc
 
 from crds import rmap, log, utils, timestamp
-import crds.hst
-import crds.hst.parkeys as parkeys
+from . import models
+
+if models.OBSERVATORY == "hst":
+    import crds.hst
+    import crds.hst.parkeys as parkeys
 
 log.set_verbose(False)
 
