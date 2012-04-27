@@ -6,7 +6,7 @@ from jsonrpc.exceptions import Error
 
 import crds.server.interactive.models as imodels
 import crds.server.config as config
-import crds.rmap as rmap
+from crds import rmap, utils
 
 # =============================================================================
 
@@ -102,7 +102,8 @@ def get_best_references(request, context, header, reftypes):
     check_header(header)
     check_reftypes(reftypes)
     try:
-        return rmap.get_best_references(context, header, include=reftypes)
+        conditioned = utils.condition_header(header)
+        return rmap.get_best_references(context, conditioned, include=reftypes)
     except Exception, exc:
         raise Error("error in get_best_references " + str(exc))
 
