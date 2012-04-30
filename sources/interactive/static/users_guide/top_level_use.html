@@ -49,6 +49,71 @@ server.</p>
 <p>To function correctly,  these API calls require the user to set the environment
 variables CRDS_REFPATH,  CRDS_MAPPATH,  and CRDS_SERVER_URL.   See the section
 on <em>Installation</em> for more details.</p>
+<div class="section" id="crds-getreferences">
+<h2>crds.getreferences()<a class="headerlink" href="#crds-getreferences" title="Permalink to this headline">¶</a></h2>
+<p>Given  dataset header containing parameters required to determine best
+references, and optionally a specific .pmap to use as the best references
+context,  and optionally a list of the reference types for which reference files
+to be determined,  getreferences() returns a mapping from reference types to
+reference file base names:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">getreferences</span><span class="p">(</span><span class="n">header_parameters</span><span class="p">,</span> <span class="n">reftypes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ignore_cache</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the mapping from the requested `reftypes` to their</span>
+<span class="sd">    corresponding best reference file names appropriate for a dataset</span>
+<span class="sd">    described by `parameters` with CRDS rules defined by `context`::</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    header :    A mapping of parameter names to parameter value</span>
+<span class="sd">            strings for parameters which define best reference file matches.</span>
+
+<span class="sd">            { str  :   str, int, float, bool }</span>
+
+<span class="sd">           e.g.  {</span>
+<span class="sd">                   &#39;INSTRUME&#39; : &#39;ACS&#39;,</span>
+<span class="sd">                   &#39;CCDAMP&#39; : &#39;ABCD&#39;,</span>
+<span class="sd">                   &#39;CCDGAIN&#39; : &#39;2.0&#39;,</span>
+<span class="sd">                   ...</span>
+<span class="sd">                }</span>
+
+<span class="sd">    reftypes :    A list of reference type names,  where each reftype is the</span>
+<span class="sd">                keyword used to record that kind of reference file in a</span>
+<span class="sd">                dataset header.</span>
+
+<span class="sd">                [ str ]</span>
+
+<span class="sd">                e.g.  [ &#39;darkfile&#39;, &#39;biasfile&#39;]</span>
+
+<span class="sd">                If reftypes is None,  return all reference types defined by</span>
+<span class="sd">                the instrument mapping for the instrument specified in</span>
+<span class="sd">                `header_parameters`.</span>
+
+<span class="sd">    context :   The name of the pipeline context mapping which should be</span>
+<span class="sd">            used to define best reference lookup rules,  or None.  If</span>
+<span class="sd">            `context` is None,  use the latest operational pipeline mapping.</span>
+
+<span class="sd">            str</span>
+
+<span class="sd">            e.g. &#39;hst_0037.pmap&#39;</span>
+
+<span class="sd">    ignore_cache :   If True,  download all required mappings and references</span>
+<span class="sd">            from the CRDS server.  If False,  download only those files not</span>
+<span class="sd">            already in the local caches.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">            a mapping from reftypes to best reference file basenames.</span>
+
+<span class="sd">            { str : str }</span>
+
+<span class="sd">            e.g.   {</span>
+<span class="sd">                &#39;biasfile&#39; : &#39;/path/to/file/hst_acs_biasfile_0042.fits&#39;,</span>
+<span class="sd">                &#39;darkfile&#39; : &#39;/path/to/file/hst_acs_darkfile_0056.fits&#39;,</span>
+<span class="sd">                }</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="crds-get-default-context">
 <h2>crds.get_default_context()<a class="headerlink" href="#crds-get-default-context" title="Permalink to this headline">¶</a></h2>
 <p>Given the observatory name,  get_default_context() returns the name
@@ -78,113 +143,6 @@ a given set of parameters:</p>
 </pre></div>
 </div>
 </div>
-<div class="section" id="crds-getreferences">
-<h2>crds.getreferences()<a class="headerlink" href="#crds-getreferences" title="Permalink to this headline">¶</a></h2>
-<p>Given  dataset header containing parameters required to determine best
-references, and optionally a specific .pmap to use as the best references
-context,  and optionally a list of the reference types for which reference files
-to be determined,  getreferences() returns a mapping from reference types to
-reference file base names:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">getreferences</span><span class="p">(</span><span class="n">header_parameters</span><span class="p">,</span> <span class="n">reftypes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Return the mapping from the requested `reftypes` to their</span>
-<span class="sd">    corresponding best reference file names appropriate for a dataset</span>
-<span class="sd">    described by `parameters` with CRDS rules defined by `context`::</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-
-<span class="sd">    header_parameters :    A mapping of parameter names to parameter value</span>
-<span class="sd">            strings for parameters which define best reference file matches.</span>
-
-<span class="sd">            { str  :   str }</span>
-
-<span class="sd">           e.g.  {</span>
-<span class="sd">                   &#39;INSTRUME&#39; : &#39;ACS&#39;,</span>
-<span class="sd">                   &#39;CCDAMP&#39; : &#39;ABCD&#39;,</span>
-<span class="sd">                   &#39;CCDGAIN&#39; : &#39;2.0&#39;,</span>
-<span class="sd">                   ...</span>
-<span class="sd">                }</span>
-
-<span class="sd">    reftypes :    A list of reference type names,  where each reftype is the</span>
-<span class="sd">                keyword used to record that kind of reference file in a</span>
-<span class="sd">                dataset header.</span>
-
-<span class="sd">                [ str ]</span>
-
-<span class="sd">                e.g.  [ &#39;darkfile&#39;, &#39;biasfile&#39;]</span>
-
-<span class="sd">                If reftypes is None,  return all reference types defined by</span>
-<span class="sd">                the instrument mapping for the instrument specified in</span>
-<span class="sd">                `header_parameters`.</span>
-
-<span class="sd">    context :   The name of the pipeline context mapping which should be</span>
-<span class="sd">            used to define best reference lookup rules,  or None.  If</span>
-<span class="sd">            `context` is None,  use the latest operational pipeline mapping.</span>
-
-<span class="sd">            str</span>
-
-<span class="sd">            e.g. &#39;hst_0037.pmap&#39;</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">            a mapping from reftypes to best reference file basenames.</span>
-
-<span class="sd">            { str : str }</span>
-
-<span class="sd">            e.g.   {</span>
-<span class="sd">                &#39;biasfile&#39; : &#39;hst_acs_biasfile_0042.fits&#39;,</span>
-<span class="sd">                &#39;darkfile&#39; : &#39;hst_acs_darkfile_0056.fits&#39;,</span>
-<span class="sd">                }</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="crds-cache-references">
-<h2>crds.cache_references()<a class="headerlink" href="#crds-cache-references" title="Permalink to this headline">¶</a></h2>
-<p>Given a context filename and a best references mapping returned by getreferences(),
-cache_references() will download from the CRDS server any reference files not
-found in the local CRDS reference file cache:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">cache_references</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">bestrefs</span><span class="p">,</span> <span class="n">ignore_cache</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Cache files specified in `bestrefs` determined by `context` on the</span>
-<span class="sd">    local machine.   Download any missing files from the CRDS server.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-
-<span class="sd">    context :     a CRDS pipeline context mapping name</span>
-
-<span class="sd">        str</span>
-
-<span class="sd">        e.g.   &#39;hst_0037.pmap&#39;</span>
-
-<span class="sd">    bestrefs :    a mapping of reftypes to best reference file basenames,</span>
-<span class="sd">                nominally the return value from getreferences().</span>
-
-<span class="sd">            { str : str }</span>
-
-<span class="sd">            e.g.   {</span>
-<span class="sd">                &#39;biasfile&#39; : &#39;hst_acs_biasfile_0042.fits&#39;,</span>
-<span class="sd">                &#39;darkfile&#39; : &#39;hst_acs_darkfile_0056.fits&#39;,</span>
-<span class="sd">                }</span>
-
-<span class="sd">    ignore_cache :  if True,  download required references even if they</span>
-<span class="sd">               are already in the CRDS reference file cache.</span>
-
-<span class="sd">            bool</span>
-
-<span class="sd">    Returns:   A mapping from reference types to file paths for locally</span>
-<span class="sd">            cached versions of each reference file.</span>
-
-<span class="sd">            { str : str }</span>
-
-<span class="sd">            e.g.  {</span>
-<span class="sd">                &#39;biasfile&#39;  :   &#39;/home/jmiller/CRDS/hst/references/hst_acs_biasfile_0042.fits&#39;</span>
-<span class="sd">                &#39;darkfile&#39;  :   &#39;/home/jmiller/CRDS/hst/reference/hst_acs_darkfile_0056.fits&#39;</span>
-<span class="sd">            }</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-</pre></div>
-</div>
-</div>
 </div>
 
 
@@ -199,9 +157,8 @@ found in the local CRDS reference file cache:</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Top Level Use</a><ul>
-<li><a class="reference internal" href="#crds-get-default-context">crds.get_default_context()</a></li>
 <li><a class="reference internal" href="#crds-getreferences">crds.getreferences()</a></li>
-<li><a class="reference internal" href="#crds-cache-references">crds.cache_references()</a></li>
+<li><a class="reference internal" href="#crds-get-default-context">crds.get_default_context()</a></li>
 </ul>
 </li>
 </ul>
