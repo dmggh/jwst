@@ -171,6 +171,8 @@ dataset header keyword which will record the best reference selection.</p>
 </div>
 <p>Reference mapping selectors are constructed as a nested hierarchy of selection
 operators which match against various dataset header keywords.</p>
+<div class="section" id="parkeys">
+<h3>Parkeys<a class="headerlink" href="#parkeys" title="Permalink to this headline">¶</a></h3>
 <p>For reference mappings,  the header &#8220;parkey&#8221; field is a tuple of tuples.  Each
 stage of the nested selector consumes the next tuple of header keys.  For the
 example above,   the Match operator matches against the value of the dataset
@@ -178,61 +180,126 @@ keyword &#8220;DETECTOR&#8221;.   Based on that match, the selected UseAfter ope
 matches against the dataset&#8217;s &#8220;DATE-OBS&#8221; and &#8220;TIME-OBS&#8221; keywords to lookup
 the name of a reference file.</p>
 </div>
-<div class="section" id="hst-selectors">
-<h2>HST Selectors<a class="headerlink" href="#hst-selectors" title="Permalink to this headline">¶</a></h2>
-<p>For HST,  all reference mapping selectors are defined as a two tiered hierarchy
-with one general matching step (Match) and one date-time match step (UseAfter).
-All the CRDS selector operators are written to select either a filename <em>or</em>
+</div>
+<div class="section" id="selectors">
+<h2>Selectors<a class="headerlink" href="#selectors" title="Permalink to this headline">¶</a></h2>
+<p>All the CRDS selection operators are written to select either a filename <em>or</em>
 a nested operator.   In the case of HST,  the Match operator locates a nested
 UseAfter operator which in turn locates the reference file.</p>
 <div class="section" id="match">
 <h3>Match<a class="headerlink" href="#match" title="Permalink to this headline">¶</a></h3>
-<p>Conceptually,  the Match operator does a dictionary lookup based on the header
-keyword values listed in the first tuple of rmap header field <em>parkey</em>.   In
-actuality however,  CRDS does a winnowing search based on each successive
-parkey value,  eliminating impossible matches and returning the best matching
-survivor.   There are a number of special values associated with the CRDS Match
-operator:  <a href="#id1"><span class="problematic" id="id2">*</span></a>,  Regular Expressions, N/A, and Substitutions.</p>
-<div class="section" id="wild-cards-and-regular-expressions">
-<h4>Wild Cards and Regular Expressions<a class="headerlink" href="#wild-cards-and-regular-expressions" title="Permalink to this headline">¶</a></h4>
-<p>CRDS supports pseudo-regular expressions in its match patterns.   A
-tuple value of &#8220;*&#8221; will match any value assigned to that parameter by the
-dataset.   Similarly,  literal patterns separated by the &#8220;|&#8221; punctuator
-, e.g.  &#8220;A|B|C|D&#8221;, will match any one of the patterns,  .e.g. &#8220;A&#8221; or &#8220;B&#8221; or
-&#8220;C&#8221; or &#8220;D&#8221;.   These are dubbed &#8220;pseudo&#8221; regular expressions because &#8220;*&#8221; is
-techinically equivalent to &#8220;^.*$&#8221;,  and &#8220;A|B&#8221; is technically equivalent to
-&#8220;^A$|^B$&#8221;.   While losing some flexibility,  CRDS simplifies the notation for
-the sake of brevity and clarity.</p>
+<p>Based on a dataset`s header values,  Match locates the match tuple which best
+matches the dataset.   Conceptually this is a dictionary lookup.   In actuality,
+CRDS processes each match parameter in succession,  at each step eliminating
+match candidates that cannot possibly match.</p>
+<div class="section" id="parameter-tuples-and-simple-matches">
+<h4>Parameter Tuples and Simple Matches<a class="headerlink" href="#parameter-tuples-and-simple-matches" title="Permalink to this headline">¶</a></h4>
+<p>The CRDS Match operator typically matches a dataset header against a tuple
+which defines multiple parameter values whose names are specified in the rmap
+header <cite>parkey</cite>:</p>
+<div class="highlight-python"><pre>("UVIS", "F122LP")   :  'some_file_or_nested_selection'</pre>
+</div>
+<p>Alternately,  for simple use cases the Match operator can match against single
+strings,  which is a simplified syntax for a 1-tuple:</p>
+<div class="highlight-python"><pre>'UVIS'  :  'some_file_or_nested_selection'
+('UVIS',) : 'this_is_the_equivalent_one_tuple'</pre>
+</div>
+</div>
+<div class="section" id="single-parameter-values">
+<h4>Single Parameter Values<a class="headerlink" href="#single-parameter-values" title="Permalink to this headline">¶</a></h4>
+<p>Each value within the match tuples of a Match operator can be an expression in
+its own right.   There are a number of special values associated with each
+match expression:  Ors <a href="#id1"><span class="problematic" id="id2">|</span></a>, Wildcards <a href="#id3"><span class="problematic" id="id4">*</span></a>,  Regular Expressions (), Literals {},
+Relationals, between, N/A, and Substitutions.</p>
+</div>
+<div class="section" id="or">
+<h4>Or |<a class="headerlink" href="#or" title="Permalink to this headline">¶</a></h4>
+<p>Many CRDS match expressions consist of a series of match patterns separated by
+vertical bars.   The vertical bar is read as &#8220;or&#8221; and means that a match occurs
+if either pattern matches that dataset header.   For example, the expression:</p>
+<div class="highlight-python"><pre>("either_this|that","1|2|3")  : "some_file.fits"</pre>
+</div>
+<p>will match:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">(</span><span class="s">&quot;either_this&quot;</span><span class="p">,</span> <span class="s">&quot;2&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>and also:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">(</span><span class="s">&quot;that&quot;</span><span class="p">,</span> <span class="s">&quot;1&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="wild-cards">
+<h4>Wild Cards *<a class="headerlink" href="#wild-cards" title="Permalink to this headline">¶</a></h4>
+<p>By default,  * is interpreted in CRDS as a glob pattern,  much like UNIX shell
+file name matching.  * matches any sequence of characters.  The expression:</p>
+<div class="highlight-python"><pre>("F*122",) : "some_file.fits"</pre>
+</div>
+<p>will match any value starting with &#8220;F&#8221; and ending with &#8220;122&#8221;.</p>
+</div>
+<div class="section" id="regular-expressions">
+<h4>Regular Expressions<a class="headerlink" href="#regular-expressions" title="Permalink to this headline">¶</a></h4>
+<p>CRDS can match on true regular expressions.   A true regular expression match is
+triggered by bracketing the match in parentheses ():</p>
+<div class="highlight-python"><pre>("(^F[^13]22$)",)  : "some_file.fits"</pre>
+</div>
+<p>The above corresponds to matching the regular expression &#8220;^F[^1234]22$&#8221; (note
+that the bracketing parentheses within the string are removed.)   Regular
+expression syntax is explained in the Python documentation for the re module.
+The above expression will match values starting with &#8220;F&#8221;, followed by any
+character which is not &#8220;1&#8221; or &#8220;3&#8221; followed by &#8220;22&#8221;.</p>
+</div>
+<div class="section" id="literal-expressions">
+<h4>Literal Expressions<a class="headerlink" href="#literal-expressions" title="Permalink to this headline">¶</a></h4>
+<p>A literal expression is bracketed with curly braces {} and is matched without
+any interpretation whatsoever.   Hence,  special characters like * or | are
+interpreted literally rather than as ors or wildcards.  The expression:</p>
+<div class="highlight-python"><pre>("{F|*G}",) : "some_file.fits"</pre>
+</div>
+<p>matches the value &#8220;F|*G&#8221; as opposed to &#8220;F&#8221; or anything ending with &#8220;G&#8221;.</p>
+</div>
+<div class="section" id="relational-expressions">
+<h4>Relational Expressions<a class="headerlink" href="#relational-expressions" title="Permalink to this headline">¶</a></h4>
+<p>Relational expressions are bracketed by the pound character #.   Relational
+expressions do numerical comparisons on the header value to determine a match.
+Relational expressions have implicit variables and support the operators:</p>
+<div class="highlight-python"><pre>&gt; &gt;= &lt; &lt;= == and or</pre>
+</div>
+<p>The expression:</p>
+<div class="highlight-python"><pre>("# &gt;1 and &lt;37 #",)  : "some_file.fits"</pre>
+</div>
+<p>will match any number greater than 1 and less than 37.</p>
+</div>
+<div class="section" id="between">
+<h4>Between<a class="headerlink" href="#between" title="Permalink to this headline">¶</a></h4>
+<p>A special relational operator &#8220;between&#8221; is used to simply express a range
+of numbers &gt;= to the lower bound and &lt; the upper bound,  similar to Python
+slicing:</p>
+<div class="highlight-python"><pre>("between 1  47",) : "some_file.fits"</pre>
+</div>
+<p>will match any number greater than or equal to 1 and less than 47.   This is
+equivalent to:</p>
+<div class="highlight-python"><pre>("# &gt;=1 and &lt;47 #",) : "some_file.fits"</pre>
+</div>
+<p>Note that &#8220;between&#8221; matches sensibly stack into a complete range.  The expressions:</p>
+<div class="highlight-python"><pre>("between 1 47",) : "some_file.fits"
+("between 47 90", ) : "another_file.fits"</pre>
+</div>
+<p>provide complete coverage for the range between 1 and 90.</p>
 </div>
 <div class="section" id="n-a">
 <h4>N/A<a class="headerlink" href="#n-a" title="Permalink to this headline">¶</a></h4>
-<p>Some of the HST rmaps have match tuple values of &#8220;N/A&#8221;,  or Not Applicable.
-This indicates that the parameter does not &#8220;count&#8221; for matching that case.
-A value of N/A is matched as a special version of &#8220;*&#8221;.   N/A will match any
-value in the dataset,  or no value,  but does not add to the overall sense of
-goodness of the match.   Effectively, N/A parameters are ignored for that match
-case only,  during matching only.</p>
-<p>There are a couple uses for N/A parameters by HST.    First,  sometimes a
-parameter is irrelevant in the context of the other parameters.   Second,
-sometimes a parameter relevant,  but is not stored in the reference file or
-CDBS,  and is not known until supplied by the dataset.   In this second case,
-the unknown parameter can still be used to mutate the values of the other
-parameters,  prior to doing the match. At least initially this technique is used
-for ACS biasfile with match customization code.</p>
-<p>An example of both regular expression and N/A matching occurs in this extract
-from the ACS biasfile rmap:</p>
-<div class="highlight-python"><pre>'parkey' : (('DETECTOR', 'CCDAMP', 'CCDGAIN', 'NUMCOLS', 'NUMROWS', 'LTV1', 'LTV2', 'XCORNER', 'YCORNER', 'CCDCHIP'), ('DATE-OBS', 'TIME-OBS')),
-
-('HRC', 'ABCD|AD|BC', '1.0|2.0|4.0|8.0', '1062.0', '1044.0', '19.0', '0.0', 'N/A', 'N/A', 'N/A') : UseAfter({
-    '1992-01-01 00:00:00' : 'kcb1734jj_bia.fits',
-}),</pre>
-</div>
-<p>This case matches 3 distinct values for CCDAMP, namely ABCD, AD, and BC. It
-matches 4 distinct values for CCDGAIN, namely 1.0, 2.0, 4.0, and 8.0.   The
-parameters XCORNER, YCORNER, and CCDCHIP are unknown to CDBS and only supplied
-by actual ACS datasets.   They are used to mutate the values of NUMROWS and
-CCDAMP prior to matching,  and hence while they affect the outcome of the match,
-they are not used literally during the match.</p>
+<p>Some rmaps have match tuple values of &#8220;N/A&#8221;,  or Not Applicable.
+A value of N/A is matched as a special version of &#8220;*&#8221;, matching anything,  but
+not affecting the &#8220;weight&#8221; of the match.</p>
+<blockquote>
+<div>(&#8216;HRC&#8217;, &#8216;N/A&#8217;) :  &#8220;some_file.fits&#8221;</div></blockquote>
+<p>There are a couple uses for N/A parameters.    First,  sometimes a parameter is
+irrelevant in the context of the other parameters.   So for an rmap which covers
+multiple instrument modes,  a parameter may not apply to all modes. Second,
+sometimes a parameter is relevant to custom lookup code,  but is not used by the
+match directly.  In this second case,   the &#8220;N/A&#8221; parameter may be used by custom
+header preconditioning code to assist in mutating the other parameter values
+that <em>are</em> used in the match.</p>
 </div>
 <div class="section" id="substitution-parameters">
 <h4>Substitution Parameters<a class="headerlink" href="#substitution-parameters" title="Permalink to this headline">¶</a></h4>
@@ -264,7 +331,7 @@ of match rules.</p>
 winnowing match algorithm which works on a parameter-by-parameter basis by
 discarding match tuples which cannot possibly match. After examining all
 parameters,   CRDS is left with a list of candidate matches.</p>
-<p>For each literal, <a href="#id3"><span class="problematic" id="id4">*</span></a>, or regular expression parameter that matched,  CRDS
+<p>For each literal, <a href="#id5"><span class="problematic" id="id6">*</span></a>, or regular expression parameter that matched,  CRDS
 increases its sense of the goodness of the match by 1.   For each N/A that was
 ignored, CRDS doesn&#8217;t change the weight of the match.   The highest ranked match
 is the one CRDS chooses as best.   When more than one match tuple has the same
@@ -286,7 +353,7 @@ addressed by human beings who will simplify the rules by hand.</p>
 <h3>UseAfter<a class="headerlink" href="#useafter" title="Permalink to this headline">¶</a></h3>
 <p>The UseAfter selector matches an ordered sequence of date time values to
 corresponding reference filenames.   UseAfter finds the greatest date-time which
-is less than or equal to ( &lt;= ) TEXPSTRT of the dataset.   Unlike
+is less than or equal to ( &lt;= ) EXPSTART of a dataset.   Unlike
 reference file and dataset timestamp values,  all CRDS rmaps represent times in
 the single format shown in the rmap example below:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">selector</span> <span class="o">=</span> <span class="n">Match</span><span class="p">({</span>
@@ -305,7 +372,65 @@ the single format shown in the rmap example below:</p>
 is before 1991-01-01,  there is no match.   If the date/time is between
 1991-01-01 and 1992-01-01,  the reference file &#8216;j4d1435hj_a2d.fits&#8217; is matched.
 If the dataset date/time is 1992-01-01 or after,  the recommended reference
-file is &#8216;kcb1734ij_a2d.fits&#8217;.</p>
+file is &#8216;kcb1734ij_a2d.fits&#8217;</p>
+</div>
+<div class="section" id="selectversion">
+<h3>SelectVersion<a class="headerlink" href="#selectversion" title="Permalink to this headline">¶</a></h3>
+<p>The SelectVersion() rmap operator uses a software version and various relations
+to make a selection:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">selector</span> <span class="o">=</span> <span class="n">SelectVersion</span><span class="p">({</span>
+   <span class="s">&#39;&lt;3.1&#39;</span><span class="p">:</span>    <span class="s">&#39;cref_flatfield_65.fits&#39;</span><span class="p">,</span>
+   <span class="s">&#39;&lt;5&#39;</span><span class="p">:</span>      <span class="s">&#39;cref_flatfield_73.fits&#39;</span><span class="p">,</span>
+   <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="s">&#39;cref_flatfield_123.fits&#39;</span><span class="p">,</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>While similar to relational expressions in Match(),   SelectVersion() is
+dedicated, simpler,  and more self-documenting.  With the exception of default,
+versions are examined in sorted order.</p>
+</div>
+<div class="section" id="closesttime">
+<h3>ClosestTime<a class="headerlink" href="#closesttime" title="Permalink to this headline">¶</a></h3>
+<p>The ClosestTime() rmap operator does a lookup on a series of times and selects
+the closest time which either precedes or follows the given parameter value:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">selector</span> <span class="o">=</span> <span class="n">ClosestTime</span><span class="p">({</span>
+     <span class="s">&#39;2017-04-24 00:00:00&#39;</span><span class="p">:</span>  <span class="s">&quot;cref_flatfield_123.fits&quot;</span><span class="p">,</span>
+     <span class="s">&#39;2018-02-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s">&quot;cref_flatfield_222.fits&quot;</span><span class="p">,</span>
+     <span class="s">&#39;2019-04-15 00:00:00&#39;</span><span class="p">:</span>  <span class="s">&quot;cref_flatfield_123.fits&quot;</span><span class="p">,</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>So a parameter of &#8216;2017-04-25 00:00:00&#8217; would select &#8216;cref_flatfield_123.fits&#8217;.</p>
+</div>
+<div class="section" id="geometricallynearest">
+<h3>GeometricallyNearest<a class="headerlink" href="#geometricallynearest" title="Permalink to this headline">¶</a></h3>
+<p>The GeometricallyNearest() selector applies a distance relation between a
+numerical parameter and the match values.   The match value which is closest to
+the supplied parameter is chosen:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">selector</span> <span class="o">=</span> <span class="n">GeomtricallyNearest</span><span class="p">({</span>
+    <span class="mf">1.2</span> <span class="p">:</span> <span class="s">&quot;cref_flatfield_120.fits&quot;</span><span class="p">,</span>
+    <span class="mf">1.5</span> <span class="p">:</span> <span class="s">&quot;cref_flatfield_124.fits&quot;</span><span class="p">,</span>
+    <span class="mf">5.0</span> <span class="p">:</span> <span class="s">&quot;cref_flatfield_137.fits&quot;</span><span class="p">,</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>In this case,  a value of 1.3 would match &#8216;cref_flatfield_120.fits&#8217;.</p>
+</div>
+<div class="section" id="bracket">
+<h3>Bracket<a class="headerlink" href="#bracket" title="Permalink to this headline">¶</a></h3>
+<p>The Bracket() selector is unusual because it returns the pair of selections which
+enclose the supplied parameter value:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">selector</span> <span class="o">=</span> <span class="n">Bracket</span><span class="p">({</span>
+    <span class="mf">1.2</span><span class="p">:</span> <span class="s">&quot;cref_flatfield_120.fits&quot;</span><span class="p">,</span>
+    <span class="mf">1.5</span><span class="p">:</span> <span class="s">&quot;cref_flatfield_124.fits&quot;</span><span class="p">,</span>
+    <span class="mf">5.0</span><span class="p">:</span> <span class="s">&quot;cref_flatfield_137.fits&quot;</span><span class="p">,</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>Here,  a parameter value of 1.3 returns the value:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">(</span><span class="s">&#39;cref_flatfield_120.fits&#39;</span><span class="p">,</span> <span class="s">&#39;cref_flatfield_124.fits&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 </div>
 </div>
 </div>
@@ -326,16 +451,30 @@ file is &#8216;kcb1734ij_a2d.fits&#8217;.</p>
 <li><a class="reference internal" href="#basic-structure">Basic Structure</a></li>
 <li><a class="reference internal" href="#pipeline-mappings-pmap">Pipeline Mappings (.pmap)</a></li>
 <li><a class="reference internal" href="#instrument-mappings-imap">Instrument Mappings (.imap)</a></li>
-<li><a class="reference internal" href="#reference-mappings-rmap">Reference Mappings (.rmap)</a></li>
-<li><a class="reference internal" href="#hst-selectors">HST Selectors</a><ul>
+<li><a class="reference internal" href="#reference-mappings-rmap">Reference Mappings (.rmap)</a><ul>
+<li><a class="reference internal" href="#parkeys">Parkeys</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#selectors">Selectors</a><ul>
 <li><a class="reference internal" href="#match">Match</a><ul>
-<li><a class="reference internal" href="#wild-cards-and-regular-expressions">Wild Cards and Regular Expressions</a></li>
+<li><a class="reference internal" href="#parameter-tuples-and-simple-matches">Parameter Tuples and Simple Matches</a></li>
+<li><a class="reference internal" href="#single-parameter-values">Single Parameter Values</a></li>
+<li><a class="reference internal" href="#or">Or |</a></li>
+<li><a class="reference internal" href="#wild-cards">Wild Cards *</a></li>
+<li><a class="reference internal" href="#regular-expressions">Regular Expressions</a></li>
+<li><a class="reference internal" href="#literal-expressions">Literal Expressions</a></li>
+<li><a class="reference internal" href="#relational-expressions">Relational Expressions</a></li>
+<li><a class="reference internal" href="#between">Between</a></li>
 <li><a class="reference internal" href="#n-a">N/A</a></li>
 <li><a class="reference internal" href="#substitution-parameters">Substitution Parameters</a></li>
 <li><a class="reference internal" href="#match-weighting">Match Weighting</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#useafter">UseAfter</a></li>
+<li><a class="reference internal" href="#selectversion">SelectVersion</a></li>
+<li><a class="reference internal" href="#closesttime">ClosestTime</a></li>
+<li><a class="reference internal" href="#geometricallynearest">GeometricallyNearest</a></li>
+<li><a class="reference internal" href="#bracket">Bracket</a></li>
 </ul>
 </li>
 </ul>
