@@ -154,8 +154,8 @@ class SimpleTest(TestCase):
             "file_uploaded" : open("interactive/test_data/s7g1700gl_dead.fits"),
         })
         self.assert_no_errors(response)
-        self.assertEqual(response.content.count("OK"), 3)
         self.assertIn("0 errors", response.content)
+        self.assertEqual(response.content.count("OK"), 3)
 
     def test_certify_post_rmap_known(self):
         self.authenticate()

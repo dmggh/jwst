@@ -93,6 +93,6 @@ if __name__ == "__main__":
         print >>sys.stderr, "usage: import_files.py <context> <deliverer> <email> <modifier> <description> <add_slow_fields>"
     else:
         import cProfile
-        cProfile.runctx("main(sys.argv[1:])", globals(), globals())
+        cProfile.runctx("main(sys.argv[1:])", globals(), globals(), "init.stats")
 
  

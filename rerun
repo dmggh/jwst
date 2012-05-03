@@ -3,7 +3,12 @@
 cd `dirname $0`
 
 if [ "$1" != "hst" ] && [ "$1" != "jwst" ]; then
-	echo 'usage: ./install [jwst|hst]'
+	echo 'usage: ./install [jwst|hst] [dev|test]'
+	exit -1
+fi
+
+if [ "$2" != "dev" ] && [ "$2" != "test" ]; then
+	echo 'usage: ./install [jwst|hst] [dev|test]'
 	exit -1
 fi
 
@@ -13,7 +18,7 @@ fi
 
 ./stop  >& /dev/null
 
-./install $1
+./install $1 $2
 
 ./run
 

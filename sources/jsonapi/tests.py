@@ -90,7 +90,7 @@ class ServiceApiTest(TestCase):
         for key in reftypes:
             value = self.expected_references()[key]
             self.assertIn(key, bestrefs)
-            self.assertEqual(bestrefs[key], value)
+            self.assertEqual(os.path.basename(bestrefs[key]), value)
 
     def test_client_get_bestrefs_all(self):
         bestrefs = self.get_bestrefs()
@@ -120,13 +120,20 @@ class ServiceApiTest(TestCase):
         self.assertIn(".pmap", context)
         
     def test_getreferences_1(self):
-        # default reftypes and context to None
+        """default reftypes and context to None"""
         bestrefs = crds.getreferences(self.get_header())
         self._check_bestrefs(bestrefs, self.expected_references().keys())
         
     def test_getreferences_2(self):
-        # default reftypes and context to None
+        """default reftypes and context to None"""
         bestrefs = crds.getreferences(
             self.get_header(), reftypes=["biasfile","darkfile"], 
             context="hst.pmap")
         self._check_bestrefs(bestrefs, ["biasfile","darkfile"]) 
+    
+#    def test_getreferences_3(self):
+#        """with parameters/header as dataset file."""
+#        bestrefs = crds.getreferences("interactive/test_data/iaai01rtq_raw.fits")
+#        self._check_bestrefs(bestrefs, self.expected_references().keys())
+
+

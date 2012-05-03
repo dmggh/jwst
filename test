@@ -3,7 +3,7 @@
 source env.csh
 
 echo "installing..."
-./install >& /dev/null
+./install hst dev >& /dev/null
 
 cd sources
 python manage.py test $* --verbosity=2

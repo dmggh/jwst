@@ -6,11 +6,22 @@
 export SERVER_SOURCES=sources   # CRDS_server/sources
 
 if [ "$1" != "hst" ] && [ "$1" != "jwst" ]; then
-	echo 'usage: ./install [jwst|hst]'
+	echo 'usage: ./install [jwst|hst] [dev|test]'
 	exit -1
 fi
 
-observatory=$1;  shift
+observatory=$1; shift
+
+if [ "$1" != "dev" ] && [ "$1" != "test" ]; then
+	echo 'usage: ./install [jwst|hst] [dev|test]'
+	exit -1;
+fi
+
+server_mode=$1; shift
+
+config="sources/configs/config.${server_mode}.${observatory}.py"
+echo "Using configuration " ${config}
+cp ${config} sources/config.py
 
 if [ X$1 = X-r ]
 then
@@ -82,21 +93,6 @@ then
 else
         echo still no django
         exit 1
-fi
-
-###
-### fetch some of our config information from the config file
-###
-
-if [ "$rc" = 0 ]
-then
-	if [ ! -f ${SERVER_SOURCES}/config.py ]
-	then
-		echo ''
-		echo 'creating default config file'
-		echo ''
-		cp  ${SERVER_SOURCES}/configs/config.dev.py ${SERVER_SOURCES}/config.py
-	fi
 fi
 
 ###
@@ -199,7 +195,7 @@ mkdir -p $install_dir/python/bin
 ) > env.csh
 
 # Add client settings 
-cat ../CRDS/env.csh >> env.csh
+# cat ../CRDS/env.csh >> env.csh
 
 
 # This is a place for matplotlib to store cache files.  We don't actually
