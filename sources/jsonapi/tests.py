@@ -7,7 +7,7 @@ import os.path
 from django.test import TestCase
 
 import crds
-from crds import pysh, rmap
+from crds import pysh, rmap, selectors
 import crds.client as client
 import crds.server.interactive.models as imodels
 
@@ -119,21 +119,53 @@ class ServiceApiTest(TestCase):
         context = client.get_default_context("hst")
         self.assertIn(".pmap", context)
         
-    def test_getreferences_1(self):
-        """default reftypes and context to None"""
+    def test_getreferences_defaults(self):
         bestrefs = crds.getreferences(self.get_header())
         self._check_bestrefs(bestrefs, self.expected_references().keys())
         
-    def test_getreferences_2(self):
-        """default reftypes and context to None"""
+    def test_getreferences_specific_reftypes(self):
         bestrefs = crds.getreferences(
             self.get_header(), reftypes=["biasfile","darkfile"], 
             context="hst.pmap")
         self._check_bestrefs(bestrefs, ["biasfile","darkfile"]) 
+        
+    def test_getreferences_missing_date(self):
+        header = self.get_header()
+        del header["DATE-OBS"]
+        with self.assertRaises(crds.CrdsLookupError):
+            bestrefs = crds.getreferences(header, context="hst.pmap")
+
+    def test_getreferences_bad_date(self):
+        header = self.get_header()
+        header["DATE-OBS"] = "2012-1f-23"
+        with self.assertRaises(crds.CrdsLookupError):
+            bestrefs = crds.getreferences(header, context="hst.pmap")
     
-#    def test_getreferences_3(self):
-#        """with parameters/header as dataset file."""
-#        bestrefs = crds.getreferences("interactive/test_data/iaai01rtq_raw.fits")
-#        self._check_bestrefs(bestrefs, self.expected_references().keys())
+    def test_getreferences_bad_ccdamp(self):
+        header = self.get_header()
+        header["CCDAMP"] = "ABCE"
+        with self.assertRaises(crds.CrdsLookupError):
+            bestrefs = crds.getreferences(header, context="hst.pmap")
+    
+    def test_getreferences_bad_instrument(self):
+        header = self.get_header()
+        header["INSTRUME"] = "foo"
+        with self.assertRaises(crds.CrdsLookupError):
+            bestrefs = crds.getreferences(header, context="hst.pmap")
+    
+    def test_getreferences_missing_instrument(self):
+        header = self.get_header()
+        del header["INSTRUME"]
+        with self.assertRaises(crds.CrdsLookupError):
+            bestrefs = crds.getreferences(header, context="hst.pmap")
+    
+    def test_getreferences_bad_reftype(self):
+        header = self.get_header()
+        with self.assertRaises(crds.CrdsLookupError):
+            bestrefs = crds.getreferences(header, context="hst.pmap", reftypes=["foo"])
+    
+    def test_getreferences_from_dataset(self):
+        bestrefs = crds.getreferences("interactive/test_data/iaai01rtq_raw.fits")
+        self._check_bestrefs(bestrefs, self.expected_references().keys())
 
 

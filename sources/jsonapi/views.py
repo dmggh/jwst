@@ -101,11 +101,8 @@ def get_best_references(request, context, header, reftypes):
     check_context(context)
     check_header(header)
     check_reftypes(reftypes)
-    try:
-        conditioned = utils.condition_header(header)
-        return rmap.get_best_references(context, conditioned, include=reftypes)
-    except Exception, exc:
-        raise Error("error in get_best_references " + str(exc))
+    conditioned = utils.condition_header(header)
+    return rmap.get_best_references(context, conditioned, include=reftypes)
 
 @jsonrpc_method('get_mapping_names(String)')
 def get_mapping_names(request, context):
