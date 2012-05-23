@@ -152,6 +152,8 @@ def file_exists(request, filename):
 
 @jsonrpc_method('get_default_context(String)')
 def get_default_context(request, observatory):
+    if observatory is None:
+        observatory = config.observatory
     observatory = observatory.lower()
     check_observatory(observatory)
     return imodels.get_default_context(observatory)
