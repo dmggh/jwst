@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% load stdtags %}
+
+{% block contents %}
+    <h2>Version Info</h2>
+    
+    <table border="1">
+        <tr>
+            <td class="table_header">component</td>
+            <td class="table_header">version</td>
+            <td class="table_header">revision</td>
+            <td class="table_header">svn_url</td>
+            <td class="table_header">file</td>            
+        </tr>
+        {% for component in version_info %}
+         <tr>
+            <td>{{component.0}}</td>
+            <td>{{component.1.str}}</td>
+            <td>{{component.1.rev}}</td>
+            <td>{{component.1.svnurl}}</td>
+            <td>{{component.1.file}}</td>
+         </tr>
+        {% endfor %}
+    </table>
+    
+    <br/>
+    <br/>
+
+{% endblock contents %}
+

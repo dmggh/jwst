@@ -48,6 +48,9 @@ urlpatterns = patterns('',
   url(r'^get_archive/(?P<filename>[A-Za-z0-9_.]+(tar\.gz|tar\.bz2|tar))$', 
       'crds.server.interactive.views.get_archive'),
 
+  url(r'^version_info/$', 
+      'crds.server.interactive.views.version_info'),
+
 #        (r'site_media/(?P<path>.*)$', 'django.views.static.serve',
 #         {'document_root': settings.MEDIA_ROOT }),
 #        

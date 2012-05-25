@@ -40,6 +40,8 @@ from crds.server.interactive.models import FieldError, MissingInputError
 
 import crds.server.jsonapi.views as jsonapi_views
 
+from . import versions
+
 HERE = os.path.dirname(__file__) or "./"
 
 # ===========================================================================
@@ -2212,4 +2214,12 @@ def get_archive_url(archive_name, filelist):
         return url[:-1]
     else:
         return ""
+    
+    
+@login_required
+def version_info(request):
+    """Output a page with a table of software component versions."""
+    return render(request, "version_info.html", {
+                "version_info" : sorted(versions.get_all_versions().items())
+            })
     

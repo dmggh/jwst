@@ -35,6 +35,13 @@ hr {
     margin-right: 0.0in;
 }
 
+.table_header {
+    font-size: 14pt;
+    font-weight: bold;
+    color: darkblue;
+    text-align: center;
+}
+
 #header_menu {
     float: left;
     width: 10%;
