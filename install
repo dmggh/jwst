@@ -396,6 +396,7 @@ do
 			cd $x
 			rm -rf build
 			# --no-deps
+			${here}/save_version >svn_version.py
 			python setup.py $pyquiet install --home $install_dir/python
 		)
 	fi
@@ -505,3 +506,6 @@ echo 'to get an environment like the web server will see:'
 echo '  source env.csh'
 
 echo ''
+
+./save_version >sources/svn_version.py
+
