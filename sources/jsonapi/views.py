@@ -92,6 +92,8 @@ def check_reftypes(reftypes):
 
 @jsonrpc_method('list_mappings(String, String)')
 def list_mappings(request, observatory, glob_pattern):
+    if observatory is None:
+        observatory = config.observatory
     check_observatory(observatory)
     assert glob_pattern.count("/") == 0, "Illegal glob pattern, / not permitted."
     return rmap.list_mappings(glob_pattern, observatory)
