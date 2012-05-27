@@ -20,3 +20,11 @@ CRDS_URL = "http://etcbrady.stsci.edu:4997"
 CRDS_REFERENCE_URL = CRDS_URL + "/get/" 
 CRDS_MAPPING_URL   = CRDS_URL + "/get/" 
 
+# List of directories where delivered files are linked
+CRDS_DELIVERY_DIRS = [
+    "/data1/CRDS/hst/deliveries",
+]
+
+# Master directory for the catalog file associated with a delivery
+CRDS_CATALOG_DIR = "/data1/CRDS/hst/catalogs"
+

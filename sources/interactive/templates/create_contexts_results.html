@@ -7,19 +7,19 @@
     
     {% include "select_pmap_results.html" %}
     
-    <h3>Deriving From</h3>
+    <h3>Instrument Mappings</h3>
     {% for ctx in old_mappings %}
         {% if ctx != pmap %}
             <p>{{ctx|browse}}</p>
         {% endif %}
     {% endfor %}
     
-    <h3>Adding New Rmaps</h3>
+    <h3>For Rmaps</h3>
     {% for rmap in added_rmaps %}
         <p>{{rmap|browse}}</p>
     {% endfor %}
 
-    <h3>Created</h3>
+    <h3>Created New Contexts</h3>
     {% for ctx in new_mappings %}
         <p>{{ctx|browse}}</p>
     {% endfor %}

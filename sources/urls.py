@@ -21,9 +21,6 @@ urlpatterns = patterns('',
   url(r'^bestrefs_explore_compute/$', 'crds.server.interactive.views.bestrefs_explore_compute'), 
 
   url(r'^submit/(?P<crds_filetype>reference|mapping)/$', 'crds.server.interactive.views.submit_file'),          
-  url(r'^delivery_options/$', 'crds.server.interactive.views.delivery_options'),          
-  url(r'^delivery_process/$',   'crds.server.interactive.views.delivery_process'),          
-  url(r'^deliver_context/$', 'crds.server.interactive.views.deliver_context'),          
   url(r'^blacklist/$',    'crds.server.interactive.views.blacklist_file'),          
 
   url(r'^certify/$',      'crds.server.interactive.views.certify_file'),          

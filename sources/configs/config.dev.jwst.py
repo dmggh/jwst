@@ -16,3 +16,12 @@ PYSYN_CDBS = ""
 CRDS_URL = "http://localhost:" + str(port) 
 CRDS_REFERENCE_URL = CRDS_URL + "/get/" 
 CRDS_MAPPING_URL   = CRDS_URL + "/get/" 
+
+# List of directories where delivered files are linked
+CRDS_DELIVERY_DIRS = [
+    "/home/jmiller/CRDS/jwst/deliveries",
+]
+
+# Master directory for the catalog file associated with a delivery
+CRDS_CATALOG_DIR = "/home/jmiller/CRDS/jwst/catalogs"
+

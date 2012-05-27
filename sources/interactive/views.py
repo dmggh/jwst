@@ -1071,9 +1071,6 @@ def batch_submit_reference_post(request):
         rmap_diffs = []
         destroy_file_list(new_references.values())
 
-#    deliver_file_list( str(request.user), pmap.observatory, 
-#        new_references.values() + new_mappings, description)
-#    
     return render(request, "batch_submit_reference_results.html", {
                 "new_references" : sorted(new_references.values()),
                 "actions" : actions,
@@ -1133,6 +1130,8 @@ def submit_confirm(request):
                 request.user, submission_kind, file, description, 
                 str((new_file_map , generated_files)), 
                 instrument=instrument, filekind=filekind)    
+        deliver_file_list( request.user, config.observatory, 
+            dict(new_file_map).values() + generated_files, description)
     else:
         destroy_file_list(new_files + generated_files)
         
@@ -1597,18 +1596,24 @@ def create_contexts(request):
 
 def create_contexts_post(request):
     """View fragment handling create_contexts POST case."""
-    pmap = get_recent_or_user_context(request)
+    pmap_name = get_recent_or_user_context(request)
     updated_rmaps = validate_post(request, "rmaps", is_list_of_rmaps)
     description = validate_post(request, "description", DESCRIPTION_RE)
 
-    new_name_map = do_create_contexts(pmap, updated_rmaps, description,
+    new_name_map = do_create_contexts(pmap_name, updated_rmaps, description,
         request.user, request.user.email)
 
+    pmap = rmap.get_cached_mapping(pmap_name)
+    old_mappings = sorted(new_name_map.keys())
+    new_mappings = sorted(new_name_map.values())
+    
+    deliver_file_list(request.user, pmap.observatory, new_mappings, description)
+
     return render(request, "create_contexts_results.html", {
-                "pmap": pmap,
-                "old_mappings" : sorted(new_name_map.keys()),
+                "pmap": pmap_name,
+                "old_mappings" : old_mappings,
                 "added_rmaps" : updated_rmaps,
-                "new_mappings" : sorted(new_name_map.values()),
+                "new_mappings" : new_mappings,
             })
     
 def do_create_contexts(pmap, updated_rmaps, description, user, email,
@@ -2023,6 +2028,7 @@ def deliver_file_list(user, observatory, delivered_files, description):
     """
     if not len(delivered_files):
         raise CrdsError("No files were selected for delivery.")
+    user = str(user)
     catalog = deliver_file_catalog(observatory, delivered_files, "I")
     paths = deliver_file_get_paths(observatory, delivered_files)
     try:
@@ -2085,8 +2091,7 @@ def deliver_file_catalog(observatory, files, operation="I"):
         "Invalid delivery operation " + repr(operation)
     delivery_id = models.CounterBlob.next(observatory, "delivery_id")
     catalog = "_".join(["opus", str(delivery_id), operation.lower()])+".cat"
-    catdir = os.environ.get("CRDS_SERVER_DATA", HERE) + "/catalogs"
-    catpath = os.path.join(catdir, catalog)
+    catpath = os.path.join(config.CRDS_CATALOG_DIR, catalog)
     utils.ensure_dir_exists(catpath)
     cat = open(catpath, "w")
     for filename in files:
@@ -2106,7 +2111,7 @@ def deliver_make_links(observatory, catalog, paths):
     the recipient the entire delivery is considered complete and
     the files transition from "delivered" to "operational".
     """
-    dirs = deliver_link_dirs(observatory)
+    dirs = config.CRDS_DELIVERY_DIRS
     for site in dirs:
         utils.ensure_dir_exists(site)
         for filename in paths + [catalog]:
@@ -2131,14 +2136,6 @@ def deliver_remove_fail(observatory, catalog, paths):
                 os.remove(dest)
             except Exception:
                 pass
-
-def deliver_link_dirs(observatory):
-    """Return a list of directories into which all the files in a delivery
-    are hard linked.   Load list from file, .e.g. ${HERE}/deliver_dirs_hst.dat,
-    where one directory is listed per line.
-    """
-    return [x.strip() for x in \
-            open(HERE + "/deliver_dirs_" + observatory + ".dat") if x]
 
 # ============================================================================
 
