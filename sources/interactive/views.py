@@ -1121,7 +1121,6 @@ def submit_confirm(request):
             filekind = blob.filekind
 
     if button=="confirm":
-        change_file_state(new_files + generated_files, "submitted")
         for map in generated_files:
             if map.endswith(".pmap"):
                 models.set_default_context(map)
@@ -1131,7 +1130,7 @@ def submit_confirm(request):
                 str((new_file_map , generated_files)), 
                 instrument=instrument, filekind=filekind)    
         deliver_file_list( request.user, config.observatory, 
-            dict(new_file_map).values() + generated_files, description)
+            new_files + generated_files, description, submission_kind)
     else:
         destroy_file_list(new_files + generated_files)
         
@@ -1601,23 +1600,31 @@ def create_contexts_post(request):
     description = validate_post(request, "description", DESCRIPTION_RE)
 
     new_name_map = do_create_contexts(pmap_name, updated_rmaps, description,
-        request.user, request.user.email)
+        request.user, request.user.email, state="uploaded")
 
-    pmap = rmap.get_cached_mapping(pmap_name)
     old_mappings = sorted(new_name_map.keys())
     new_mappings = sorted(new_name_map.values())
     
-    deliver_file_list(request.user, pmap.observatory, new_mappings, description)
-
+    collision_list = get_collision_list(new_mappings)
+    
     return render(request, "create_contexts_results.html", {
                 "pmap": pmap_name,
                 "old_mappings" : old_mappings,
                 "added_rmaps" : updated_rmaps,
                 "new_mappings" : new_mappings,
+                
+                "new_file_map" : [],
+                "generated_files" : sorted(new_name_map.values()), 
+                "submission_kind" : "new context",
+                "title" : "Create Contexts",
+                "description" : description,
+                
+                "collision_list" : collision_list,
+ 
             })
     
 def do_create_contexts(pmap, updated_rmaps, description, user, email,
-                       state="submitted"):
+                       state="uploaded"):
     """Create new contexts based on `pmap` which refer to `updated_rmaps`
     instead of the corresponding old rmaps.  Add the new contexts to the
     CRDS database and return a list of new context mapping names.
@@ -1649,9 +1656,6 @@ def do_create_contexts(pmap, updated_rmaps, description, user, email,
             repr(pmap) + " : " + ",".join([repr(x) for x in updated_rmaps]),
             state=state)
     
-    if state == "submitted":
-        models.set_default_context(new_name_map[pmap])
-        
     return new_name_map
 
 def generate_new_names(old_pipeline, updates):
@@ -1995,34 +1999,7 @@ def delivery_options_post(request):
             })
 
 
-@error_trap("delivery_process_results.html")
-@log_view
-@login_required
-def delivery_process(request):
-    """Recieve delivery POST selections and perform delivery."""
-    if request.method == "GET":
-        raise CrdsError("Invalid delivery processing request.  POST only.")
-    else:
-        return delivery_process_post(request)
-
-def delivery_process_post(request):
-    """Perform delivery based on POST."""
-    description = validate_post(request, "description", DESCRIPTION_RE)
-    observatory = get_observatory(request)
-    delivered_files = []
-    for key in request.POST:
-        if key.startswith("deliver_"):
-            filename = str(key[len("deliver_"):])
-            check_value(filename, is_deliverable_file, 
-                "File " + repr(filename) + " is not deliverable.")
-            delivered_files.append(filename)
-    delivered_files.sort()
-    deliver_file_list(request.user, observatory, delivered_files, description)
-    return render(request, "delivery_process_results.html", {
-        "delivered_files" : delivered_files,
-    })
-    
-def deliver_file_list(user, observatory, delivered_files, description):
+def deliver_file_list(user, observatory, delivered_files, description, action):
     """Perform delivery actions for `delivered_files` by setting up the
     catalog file and making links, updating database and audit trail.
     """
@@ -2038,7 +2015,7 @@ def deliver_file_list(user, observatory, delivered_files, description):
         raise CrdsError("Delivery failed: " + str(exc))
     deliver_file_set_catalog_links(observatory, delivered_files, catalog_link)
     models.AuditBlob.new(
-        user, "deliver", os.path.basename(catalog), description, 
+        user, action, os.path.basename(catalog), description, 
         repr([os.path.basename(catalog)] + delivered_files), observatory)        
 
 def deliver_file_get_paths(observatory, files):
@@ -2118,8 +2095,9 @@ def deliver_make_links(observatory, catalog, paths):
             dest = site +"/" + os.path.basename(filename)
             try:
                 os.link(filename, dest)
-            except Exception:
-                raise CrdsError("failed to link " + repr(dest))
+            except Exception, exc:
+                raise CrdsError("failed to link " + repr(filename) + " to " +
+                                repr(dest) + " : " + str(exc))
     master_catalog_link = os.path.join(dirs[0], os.path.basename(catalog))
     return master_catalog_link
 
@@ -2127,8 +2105,7 @@ def deliver_remove_fail(observatory, catalog, paths):
     """Delete all the delivery links for a failed but possibly partially
     completed delivery.
     """
-    dirs = deliver_link_dirs(observatory)
-    for site in dirs + [catalog]:
+    for site in config.CRDS_DELIVERY_DIRS + [os.path.dirname(catalog)]:
         utils.ensure_dir_exists(site)
         for filename in paths + [catalog]:
             dest = site +"/" + os.path.basename(filename)

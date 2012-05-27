@@ -23,4 +23,13 @@
     {% for ctx in new_mappings %}
         <p>{{ctx|browse}}</p>
     {% endfor %}
+
+    <br/>
+    
+    {% include "collision_explain.html" %}
+    
+    {% include "confirm.html" %}
+    
+    <br/>
+    <br/>
 {% endblock contents %}

@@ -10,10 +10,12 @@
     
         <p class='success'>Submission Confirmed.</p>
 
-        <h3>Uploaded Files</h3>
-        {% for file in new_file_map %}
-            <p>File submitted as {{file.0|grey}} will be renamed to {{file.1|browse}} in CRDS.</p>
-        {% endfor %}
+        {% if new_file_map %}
+            <h3>Uploaded Files</h3>
+            {% for file in new_file_map %}
+                <p>File submitted as {{file.0|grey}} will be renamed to {{file.1|browse}} in CRDS.</p>
+            {% endfor %}
+        {% endif %}
         
         {% if generated_files %}
             <h3>Generated Files</h3>
