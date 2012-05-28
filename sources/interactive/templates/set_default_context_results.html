@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% load stdtags %}
+
+{% block contents %}
+    <h2>Set Default Context</h2>
+    <h3 class="success">Default context changed from {{old_default|browse}} to {{new_default|browse}}.</h3>
+{% endblock contents %}
+

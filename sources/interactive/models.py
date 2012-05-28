@@ -482,7 +482,7 @@ def is_blacklisted(blacklisted_file):
 
 AUDITED_ACTIONS = [
     "mass import", "submit file", "blacklist", "new context", "batch submit", 
-    "edit rmap", "deliver", 
+    "edit rmap", "deliver", "set default context"
     ]
 
 class AuditBlob(BlobModel):

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block column1 %}
+    <h2>Set Default Context</h2>
+    <form method="post" action="/set_default_context/" enctype="multipart/form-data">  {% csrf_token %}
+
+      <h3>Set default to this context</h3>
+      {% include "select_pmap.html" %}
+      
+      <h3>Reason for change</h3>
+      <p>
+            <textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea>   
+      </p>
+
+      <input type="submit" value="Submit References" >
+    </form>
+{% endblock column1 %}
+
+{% block help %}
+
+<p><b>Set Default Context</b> Set the pipeline mapping which will be offered
+to users as the default starting point for new derived mappings.   
+
+<p>WARNING: this is a potentially confusing operation which should be used
+with discretion since it typically breaks the time order of derivation.
+
+{% endblock help %}

@@ -949,10 +949,7 @@ def certify_post(request):
 def batch_submit_reference(request):
     """View to return batch submit reference form or process POST."""
     if request.method == "GET":
-        return render(request, "batch_submit_reference_input.html", {
-                "file_indices" : range(1,11),
-                "default_context" : models.get_default_context("hst"),
-                })
+        return render(request, "batch_submit_reference_input.html")
     else:
         return batch_submit_reference_post(request)
 
@@ -2196,4 +2193,26 @@ def version_info(request):
     return render(request, "version_info.html", {
                 "version_info" : sorted(versions.get_all_versions().items())
             })
+
+@error_trap("set_default_context_input.html")
+@log_view
+@login_required
+def set_default_context(request):
+    """Change the default context presented to users as the nominal start from
+    which to derive new contexts.
+    """
+    if request.method == "GET":    # display rmap filters
+        return render(request, "set_default_context_input.html")
+    else:   # display filtered rmaps
+        new_default = get_recent_or_user_context(request)
+        description = validate_post(request, "description", DESCRIPTION_RE)
+        old_default = models.get_default_context()
+        models.set_default_context(new_default, user=request.user)
+        models.AuditBlob.new(request.user, "set default context", new_default,
+                             description, "default changed from " + 
+                             repr(old_default) + " to " + repr(new_default))
+        return render(request, "set_default_context_results.html", {
+                    "new_default" :  new_default,
+                    "old_default" :  old_default,
+                })
     
