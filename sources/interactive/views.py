@@ -1077,10 +1077,9 @@ def batch_submit_reference_post(request):
                 "pmap" : pmap.name,
                 "old_rmap" : old_rmap,
                 "old_mappings" : sorted(new_name_map.keys()),
-                "new_mappings" : sorted(new_name_map.values() + [new_rmap]),
                 
                 "new_file_map" : sorted(new_references.items()),
-                "generated_files" : sorted(new_name_map.values() + [new_rmap]), 
+                "generated_files" : new_mappings, 
                 "submission_kind" : "batch submit",
                 "title" : "Batch Reference Submit",
                 "description" : description,
@@ -1611,10 +1610,9 @@ def create_contexts_post(request):
                 "pmap": pmap_name,
                 "old_mappings" : old_mappings,
                 "added_rmaps" : updated_rmaps,
-                "new_mappings" : new_mappings,
                 
                 "new_file_map" : [],
-                "generated_files" : sorted(new_name_map.values()), 
+                "generated_files" : new_mappings, 
                 "submission_kind" : "new context",
                 "title" : "Create Contexts",
                 "description" : description,
@@ -1818,7 +1816,6 @@ def edit_rmap_post(request):
                 "pmap" : pmap_name,
                 "new_references" : new_references,
                 "old_mappings" : old_mappings,
-                "new_mappings" : new_mappings,
                 "collision_list" : collision_list,
                 "actions" : actions,
                 
@@ -1932,7 +1929,7 @@ def execute_edit_actions(original_rmap, expanded):
     return new_rmap, new_loc
     
 # ============================================================================
-
+'''
 @error_trap("delivery_options_input.html")
 @log_view
 @login_required
@@ -1997,6 +1994,7 @@ def delivery_options_post(request):
                 "filters": filters,
                 "filtered_db" : filtered_db,
             })
+'''
 
 
 def deliver_file_list(user, observatory, delivered_files, description, action):
@@ -2117,6 +2115,7 @@ def deliver_remove_fail(observatory, catalog, paths):
 # ============================================================================
 
 @error_trap("base.html")
+@log_view
 def get_file_data(request, filename):
     """Provides a view to serve CRDS mapping and reference files via URL."""
     try:
@@ -2143,6 +2142,7 @@ ARCH_MODES = {
 
 # @profile
 @error_trap("base.html")
+@log_view
 def get_archive(request, filename):
     """Supports a link for getting an archive of files of the form:
     
