@@ -9,7 +9,7 @@ port = 4995
 
 debug = True
 dbtype='sqlite'
-table_prefix = 'crds_jwst_'
+table_prefix = 'crds_jwst'
 data_dir = install_dir+"/data"
 
 PYSYN_CDBS = ""

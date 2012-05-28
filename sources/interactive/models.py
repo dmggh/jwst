@@ -190,6 +190,9 @@ class CounterBlob(BlobModel):
     Automatically generates a new counter if it doesn't already exist:
     use with care.
     """
+    class Meta:
+        db_table = TABLE_PREFIX + "_counters" # rename SQL table from interactive_fileblob
+
     blob_fields = dict(
         counter = BlobField(int, "an integer counter", 0),
     )
@@ -265,7 +268,7 @@ class FileBlob(BlobModel):
     """Represents a delivered file,  either a reference or a mapping."""
 
     class Meta:
-        db_table = TABLE_PREFIX + "_crds_catalog" # rename SQL table from interactive_fileblob
+        db_table = TABLE_PREFIX + "_catalog" # rename SQL table from interactive_fileblob
     
     model_fields = BlobModel.model_fields + \
         ["state", "blacklisted", "observatory", "instrument", "filekind", 
@@ -490,7 +493,7 @@ class AuditBlob(BlobModel):
     when, and why.
     """
     class Meta:
-        db_table = TABLE_PREFIX + "_crds_actions" # rename SQL table from interactive_fileblob
+        db_table = TABLE_PREFIX + "_actions" # rename SQL table from interactive_fileblob
 
     blob_fields = dict(
         # User supplied fields
@@ -559,7 +562,7 @@ class ContextBlob(BlobModel):
     """Keeps track of which mappings are the default.
     """
     class Meta:
-        db_table = TABLE_PREFIX + "_crds_contexts" # rename SQL table from interactive_fileblob
+        db_table = TABLE_PREFIX + "_contexts" # rename SQL table from interactive_fileblob
 
     blob_fields = dict(
         # User supplied fields

@@ -47,7 +47,7 @@ debug = True
 # The mysql client library is currently hacked together and run off the central store.
 #
 dbtype='sqlite'
-table_prefix = 'crds_'
+table_prefix = 'crds_hst'
 
 #
 # data_dir is the directory where data files relating to specific

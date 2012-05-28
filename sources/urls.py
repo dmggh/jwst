@@ -47,6 +47,8 @@ urlpatterns = patterns('',
 
   url(r'^version_info/$', 
       'crds.server.interactive.views.version_info'),
+  url(r'^set_default_context/$', 
+      'crds.server.interactive.views.set_default_context'),
 
 #        (r'site_media/(?P<path>.*)$', 'django.views.static.serve',
 #         {'document_root': settings.MEDIA_ROOT }),

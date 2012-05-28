@@ -10,7 +10,7 @@ port = 4997
 
 debug = True
 dbtype='sqlite'
-table_prefix = 'crds_'
+table_prefix = 'crds_hst'
 data_dir = install_dir+"/data"
 
 PYSYN_CDBS = ""
