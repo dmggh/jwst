@@ -3,11 +3,15 @@
 {% load stdtags %}
 
 {% block contents %}
-    <h2>Set Default Context</h2>
+    <h2>Submit {{crds_filetype|capfirst}} File</h2>
     {% if error_messages %}
-     <h3 class="error">Setting default context to {{pmap|browse}} failed.</h3>
+     <h3 class="error">Submission for {{submitted_file|grey}} Failed.</h3>
     {% else %}
-     <h3 class="success">Default context set to {{pmap|browse}}</h3>
+     <h3 class="success">Submitted {{submitted_file|grey}} as {{baseperm|browse}}</h3>
     {% endif %}
+    {% include "collision_explain.html" %}
+
+    {% include "confirm.html" %}
+
 {% endblock contents %}
 

@@ -4,7 +4,7 @@
 # Init server environment
 
 if (( "$1" != "hst") && ("$1" != "jwst")) then
-	echo 'usage: ./install [jwst|hst]'
+	echo 'usage: ./init [jwst|hst]'
 	exit -1;
 endif
 

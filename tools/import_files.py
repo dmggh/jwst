@@ -74,11 +74,15 @@ def main(args):
     
     ctx = rmap.get_cached_mapping(args[0])
 
+    # Initial set of mappings must be delivered to the archive.
     submit_files(ctx.mapping_names(), ctx.observatory, 
                  deliverer=args[1], deliverer_email=args[2], 
                  description=args[3], add_slow_fields=int(args[4]), 
                  state="submitted")
+    views.deliver_file_list(args[1], ctx.observatory, ctx.mapping_names(), 
+                            "system initialization", "mass import")
     
+    # Initial set of reference files assumed to be already operational.
     submit_files(ctx.reference_names(), ctx.observatory, 
                  deliverer=args[1], deliverer_email=args[2], 
                  description=args[3], add_slow_fields=int(args[4]), 

@@ -160,17 +160,6 @@ def is_known_file(filename):
         "File " + repr(filename) + " has not yet been submitted."
     return filename
 
-def is_deliverable_file(filename):
-    """Return `filename` iff `filename` names a file suitable for delivery."""
-    try:
-        blob = models.FileBlob.load(filename)
-    except LookupError:
-        raise CrdsError("File " + repr(filename) + " is not known to CRDS.")
-    assert blob.status == "submitted", "File " + repr(filename) + \
-        " cannot be delivered."
-    assert not blob.blacklisted_by, "File " + repr(filename) + \
-        " is blacklisted by " + repr(blob.blacklisted_by)
-
 def is_list_of_rmaps(text):
     """Assert that `text` contains a list of comma for newline separated rmap
     names.
@@ -737,7 +726,7 @@ def do_submit_file(observatory, uploaded_file, description,
         submitter, submitter_email, creator_name="unknown",
         change_level="SEVERE", comparison_file=None, 
         creation_method="submit file", auto_rename=True,
-        state="submitted"):
+        state="uploaded"):
     """Do the core processing of a file submission,  including file
     certification and blacklist checking, naming, upload,  and record
     keeping.

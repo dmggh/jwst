@@ -1,0 +1,34 @@
+1. General server setup flow is:
+
+# Install the code as indicated by the appropriate config file from
+# sources/configs/config.<observatory>.<server_kind>
+./install [hst|jwst]  [dev|test]
+
+# Install third party database components, pyodbc and unixODBC/FreeTDS stack
+# Enter system passwords.
+./init_db
+<enter database password for dataset catalog>
+<enter password for test user>
+
+# Initilize the CRDS catalog with existing reference files, deliver initial
+# set of mappings.
+./init [hst|jwst]
+
+2. Procedure for starting the sever:
+
+% ./run
+
+3. Procedure for update not affecting the database:
+
+% ./stop
+% ./rerun [hst|jwst] [dev|test]
+
+4. Procedure for running a command line / ipython environment for debug
+
+% ./shell
+
+5. Procedure for running HST server self-tests.
+
+% ./run hst dev
+% ./test
+
