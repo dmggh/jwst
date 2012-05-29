@@ -248,6 +248,7 @@ def render(request, template, dict_=None):
             
     # This is only for the purpose of showing/hiding logout.
     rdict["is_authenticated"] = request.user.is_authenticated()
+    rdict["is_superuser"] = request.user.is_superuser
     
     # Set up variables required to support django-json-rpc Javacsript
     jsonrpc_vars = jsonapi_views.get_jsonrpc_template_vars()
@@ -331,6 +332,15 @@ class CrdsError(Exception):
     
 class ServerError(Exception):
     """Uncaught exception which will be returned as HTTP 500"""
+    
+def superuser_login_required(func):
+    @login_required
+    def _inner(request, *args, **keys):
+        if not request.user.is_superuser:
+            raise CrdsError(str(request.user) + " is not a super user.")
+        return func(request, *args, **keys)
+    _inner.func_name = func.func_name
+    return _inner
 
 def error_trap(template):
     """error_trap() is a 'decorator maker' which returns a decorator which 
@@ -505,7 +515,7 @@ def index(request):
 def logout(request):
     """View to get rid of authentication state and become nobody again."""
     django.contrib.auth.logout(request)
-    return render(request, "logout.html", {})
+    return render(request, "index.html", {})
         
 # ===========================================================================
 
@@ -2170,8 +2180,8 @@ def get_archive_url(archive_name, filelist):
     else:
         return ""
     
-    
-@login_required
+@error_trap("base.html")
+@superuser_login_required
 def version_info(request):
     """Output a page with a table of software component versions."""
     return render(request, "version_info.html", {
