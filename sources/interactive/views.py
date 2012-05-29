@@ -1793,11 +1793,6 @@ def edit_rmap_post(request):
     
     rmap_blob = rmap.load_mapping(original_rmap)
     
-    models.AuditBlob.new(request.user, "edit rmap", original_rmap, description, 
-            str(old_mappings) + " --> " + str(new_mappings), observatory, 
-            instrument=rmap_blob.instrument, filekind=rmap_blob.filekind, 
-            date=None)
-    
     return render(request, "edit_rmap_results.html", {
                 "pmap" : pmap_name,
                 "new_references" : new_references,
