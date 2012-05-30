@@ -2105,7 +2105,7 @@ def deliver_remove_fail(observatory, catalog, paths):
 
 # ============================================================================
 
-@error_trap("base.html")
+# @error_trap("base.html")
 @log_view
 def get_file_data(request, filename):
     """Provides a view to serve CRDS mapping and reference files via URL."""
