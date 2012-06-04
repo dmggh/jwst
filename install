@@ -118,7 +118,7 @@ fi
 ### gather config values that we need in this script
 ###
 
-python ${SERVER_SOURCES}/sh_config.py install_dir port PYSYN_CDBS servertype dbtype debug data_dir debug_javascript noreload > tmp
+python ${SERVER_SOURCES}/sh_config.py install_dir port PYSYN_CDBS servertype dbtype debug data_dir debug_javascript noreload map_path ref_path CRDS_URL > tmp
 . ./tmp
 rm -f tmp
 
@@ -192,11 +192,11 @@ mkdir -p $install_dir/python/bin
 
 	echo 'setenv PATH '$PATH
 	echo 'setenv CRDS_INSTALL_DIR ' $install_dir
+
+	echo 'setenv CRDS_MAPPATH ' $map_path
+	echo 'setenv CRDS_REFPATH ' $ref_path
+	echo 'setenv CRD_SERVER_URL ' $CRDS_URL
 ) > env.csh
-
-# Add client settings 
-# cat ../CRDS/env.csh >> env.csh
-
 
 # This is a place for matplotlib to store cache files.  We don't actually
 # try to put any config there, and only the apache server knows to use it.
