@@ -1,7 +1,26 @@
 import os
 
-observatory = 'hst'
-install_dir='/home/jmiller/work/workspace_crds/CRDS_server/webserver'
+observatory= 'hst'
+install_root='/home/jmiller/work/workspace_crds/CRDS_server/' + observatory 
+
+# XXXX make sure no space after install_dir before =
+install_dir= install_root + '/webserver'
+ref_path= install_root + '/references'
+
+# Use the mappings package 
+map_path= install_root + '/webserver/python/lib/python/crds/mappings'
+
+# Primary directory for delivery links,  created and owned by CRDS,
+# required to initialize server.
+CRDS_DELIVERY_DIR = install_root + "/deliveries"
+
+# List of directories where delivered files are linked
+CRDS_DELIVERY_DIRS = [
+        CRDS_DELIVERY_DIR,
+]
+
+# Master directory for the catalog file associated with a delivery
+CRDS_CATALOG_DIR = install_root + "/catalogs"
 
 #
 # servertype is what type of web server the install script should
@@ -47,7 +66,7 @@ debug = True
 # The mysql client library is currently hacked together and run off the central store.
 #
 dbtype='sqlite'
-table_prefix = 'crds_hst'
+table_prefix = 'crds_' + observatory
 
 #
 # data_dir is the directory where data files relating to specific
@@ -64,12 +83,4 @@ CRDS_URL = "http://localhost:" + str(port) + "/"
 
 CRDS_REFERENCE_URL = CRDS_URL + "get/"
 CRDS_MAPPING_URL   = CRDS_URL + "get/"
-
-# List of directories where delivered files are linked
-CRDS_DELIVERY_DIRS = [
-    "/home/jmiller/CRDS/hst/deliveries",
-]
-
-# Master directory for the catalog file associated with a delivery
-CRDS_CATALOG_DIR = "/home/jmiller/CRDS/hst/catalogs"
 

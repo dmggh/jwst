@@ -73,8 +73,8 @@ def check_header(header):
     for key, value in header.items():
         if not isinstance(key, (str, unicode)):
             raise InvalidHeaderError("Bad key in header... not a string.")
-        if not isinstance(value, (str, unicode)):
-            raise InvalidHeaderError("Bad value in header... not a string.")
+        if not isinstance(value, (str, unicode, int, float, bool)):
+            raise InvalidHeaderError("Bad value in header... not a str, int, float, or bool.")
 
 def check_observatory(obs):
     if obs not in ["hst","jwst"]:

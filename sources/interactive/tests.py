@@ -47,7 +47,7 @@ class SimpleTest(TestCase):
     def fake_database_files(self, files, observatory="hst"):
         for filename in files:
             name = os.path.basename(filename)
-            location = filename if os.path.dirname(filename) else rmap.locate_file(filename)
+            location = filename if os.path.dirname(filename) else rmap.locate_file(filename, observatory)
             models.add_crds_file(
                 observatory, name, location, 
                 deliverer="homer", deliverer_email="homer@simpsons.com", 

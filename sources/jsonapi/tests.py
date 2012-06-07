@@ -4,16 +4,19 @@ import sys
 import os
 import os.path
 
-from django.test import TestCase
+# from django.test import TestCase
+from unittest import TestCase
 
 import crds
 from crds import pysh, rmap, selectors
 import crds.client as client
-import crds.server.interactive.models as imodels
+import crds.server.config as config
 
 HERE = os.path.dirname(__file__) or "."
-
 os.environ["CRDS_REFPATH"] = HERE + "/test_references"
+os.environ["CRDS_MAPPATH"] = HERE + "/test_mappings"
+
+client.set_crds_server(config.CRDS_URL)
 
 class ServiceApiTest(TestCase):
     def setUp(self):
@@ -82,7 +85,6 @@ class ServiceApiTest(TestCase):
         self.failUnless(11775 < len(references) < 20000)
         
     def test_client_dump_mappings(self):
-        os.environ["CRDS_MAPPATH"] = HERE + "/test_mappings" 
         client.dump_mappings(self.context)
         self.purge_mappings()
     
@@ -150,13 +152,13 @@ class ServiceApiTest(TestCase):
     def test_getreferences_bad_instrument(self):
         header = self.get_header()
         header["INSTRUME"] = "foo"
-        with self.assertRaises(crds.CrdsLookupError):
+        with self.assertRaises(crds.CrdsError):
             bestrefs = crds.getreferences(header, context="hst.pmap")
     
     def test_getreferences_missing_instrument(self):
         header = self.get_header()
         del header["INSTRUME"]
-        with self.assertRaises(crds.CrdsLookupError):
+        with self.assertRaises(crds.CrdsError):
             bestrefs = crds.getreferences(header, context="hst.pmap")
     
     def test_getreferences_bad_reftype(self):
