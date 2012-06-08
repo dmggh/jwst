@@ -56,6 +56,7 @@ CRDS source code out from subversion:</p>
 environment variables, env.csh.   For JWST development,  there are
 reasonable defaults for everything so you may not need to set these
 at all.   For HST,  at a minimum CRDS_SERVER_URL must be defined.</p>
+<blockquote>
 <ul class="simple">
 <li>CRDS_PATH defines a common directory tree where CRDS reference files
 and mappings are stored.   CRDS_PATH defaults to &#8221;./crds&#8221;.   Mappings
@@ -68,6 +69,7 @@ only reference files are stored.</li>
 <li>CRDS_SERVER_URL defines the base URL for accessing CRDS network
 services.  CRDS_SERVER_URL defaults to the jwst test server.</li>
 </ul>
+</blockquote>
 <p>Edit env.csh according to your preferences for where to put CRDS files.
 Then source env.csh to define the variables in your environment:</p>
 <div class="highlight-python"><pre>% source env.csh</pre>
@@ -79,22 +81,26 @@ Then source env.csh to define the variables in your environment:</p>
 setup.py script.   To make things easier,  the top level directory has a
 single &#8220;install&#8221; script which runs all the individual setup.py scripts
 for you:</p>
-<div class="highlight-python"><pre>% ./install</pre>
-</div>
-<p>Installing lib
+<div class="highlight-python"><pre> % ./install
+Installing lib
 Installing client
 Installing hst
 Installing jwst
 Installing tobs
-final status 000000</p>
+final status 000000</pre>
+</div>
 </div>
 <div class="section" id="test-the-installation">
 <h2>Test the installation<a class="headerlink" href="#test-the-installation" title="Permalink to this headline">¶</a></h2>
 <p>CRDS client testing operates locally and does not require access to the
 server.   Basic CRDS client testing can be done as follows:</p>
-<p>% ./runtests
-... copious test output...</p>
-<p>OK</p>
+<div class="highlight-python"><pre> % ./runtests
+ ... copious test output...
+----------------------------------------------------------------------
+Ran 59 tests in 13.749s
+
+OK</pre>
+</div>
 </div>
 <div class="section" id="package-overview">
 <h2>Package Overview<a class="headerlink" href="#package-overview" title="Permalink to this headline">¶</a></h2>
