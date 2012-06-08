@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Top Level Use &mdash; CRDS Users Manual 1.0a documentation</title>
+    <title>Top Level Use &mdash; CRDS Users Manual v1.0a documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -22,8 +22,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="CRDS Users Manual 1.0a documentation" href="index.html" />
-    <link rel="next" title="Client Usage" href="client_use.html" />
+    <link rel="top" title="CRDS Users Manual v1.0a documentation" href="index.html" />
+    <link rel="next" title="Non-Networked Use" href="non_networked_use.html" />
     <link rel="prev" title="Installation" href="installation.html" />
 <link rel="stylesheet" href="_static/style.css"  type="text/css">
 
@@ -46,25 +46,23 @@
 main entry points for the calibration software or basic use.  Functions
 at this level should be assumed to require network connectivity with the CRDS
 server.</p>
-<p>To function correctly,  these API calls require the user to set the environment
-variables CRDS_REFPATH,  CRDS_MAPPATH,  and CRDS_SERVER_URL.   See the section
-on <em>Installation</em> for more details.</p>
+<p>To function correctly,  these API calls may require the user to set the
+environment variables CRDS_SERVER_URL and CRDS_PATH.   See the section on
+<em>Installation</em> for more details.</p>
 <div class="section" id="crds-getreferences">
 <h2>crds.getreferences()<a class="headerlink" href="#crds-getreferences" title="Permalink to this headline">¶</a></h2>
 <p>Given  dataset header containing parameters required to determine best
 references, and optionally a specific .pmap to use as the best references
 context,  and optionally a list of the reference types for which reference files
-to be determined,  getreferences() returns a mapping from reference types to
-reference file base names:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">getreferences</span><span class="p">(</span><span class="n">header_parameters</span><span class="p">,</span> <span class="n">reftypes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ignore_cache</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+are to be determined,  getreferences() will determine best references,  cache
+them on the local file system,  and return a mapping from reference types to
+reference file paths:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">getreferences</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">reftypes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ignore_cache</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Return the mapping from the requested `reftypes` to their</span>
 <span class="sd">    corresponding best reference file names appropriate for a dataset</span>
 <span class="sd">    described by `parameters` with CRDS rules defined by `context`::</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-
-<span class="sd">    header :    A mapping of parameter names to parameter value</span>
+<span class="sd">    parameters :    A mapping of parameter names to parameter value</span>
 <span class="sd">            strings for parameters which define best reference file matches.</span>
 
 <span class="sd">            { str  :   str, int, float, bool }</span>
@@ -75,6 +73,14 @@ reference file base names:</p>
 <span class="sd">                   &#39;CCDGAIN&#39; : &#39;2.0&#39;,</span>
 <span class="sd">                   ...</span>
 <span class="sd">                }</span>
+
+<span class="sd">     Alternately,  a string specifying the full path of a dataset</span>
+<span class="sd">             from which CRDS will extract header values.</span>
+
+<span class="sd">     str</span>
+
+<span class="sd">     e.g. &quot;/where/it/is/j8bt05njq_raw.fits&quot;</span>
+
 
 <span class="sd">    reftypes :    A list of reference type names,  where each reftype is the</span>
 <span class="sd">                keyword used to record that kind of reference file in a</span>
@@ -116,21 +122,13 @@ reference file base names:</p>
 </div>
 <div class="section" id="crds-get-default-context">
 <h2>crds.get_default_context()<a class="headerlink" href="#crds-get-default-context" title="Permalink to this headline">¶</a></h2>
-<p>Given the observatory name,  get_default_context() returns the name
-of the pipeline mapping which is currently in operational use.   The default
-context defines the matching rules used to determine best reference files for
-a given set of parameters:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">get_default_context</span><span class="p">(</span><span class="n">observatory</span><span class="p">):</span>
+<p>get_default_context() returns the name of the pipeline mapping which is
+currently in operational use.   When no</p>
+<p>The default context defines the matching rules used to determine best
+reference files for a given set of parameters:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">get_default_context</span><span class="p">(</span><span class="n">observatory</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Return the name of the latest pipeline mapping in use for processing</span>
-<span class="sd">    files for `observatory`.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    -----------</span>
-<span class="sd">    observatory  :  name of the observatory the returned context applies to.</span>
-
-<span class="sd">        str</span>
-
-<span class="sd">        e.g. &#39;hst&#39; or &#39;jwst&#39;</span>
+<span class="sd">    files.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -168,8 +166,8 @@ a given set of parameters:</p>
   <p class="topless"><a href="installation.html"
                         title="previous chapter">Installation</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="client_use.html"
-                        title="next chapter">Client Usage</a></p>
+  <p class="topless"><a href="non_networked_use.html"
+                        title="next chapter">Non-Networked Use</a></p>
 
    
 <div id="searchbox" style="display: none">
