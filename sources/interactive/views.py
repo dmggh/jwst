@@ -1309,7 +1309,7 @@ def browse_known_file(request, filename):
         raise CrdsError("Can't find " + repr(filename))
     
     if rmap.is_mapping(filename):
-        file_contents = browsify_mapping(filename, browsed_file)
+        file_contents = browsify_mapping2(filename, browsed_file)
     else:
         file_contents = browsify_reference(browsed_file)
         
@@ -1347,6 +1347,17 @@ def get_prior_file_versions(blob, count=20):
         versions.append(prior)
         count -= 1
     return versions
+
+def browsify_mapping2(filename, browsed_file):
+    """Format a CRDS mapping file as colorized and cross-linked HTML."""
+    contents = ""
+    try:
+        lines = open(browsed_file).readlines()
+    except OSError:
+        return ["<h3 class='error'>File " 
+                "<span class='grey'>%s<span> not found</h3>" % (filename,)]
+    lines = ["<pre class='program'>"] + lines + ["</pre>"]
+    return "\n".join(lines)
 
 def browsify_mapping(filename, browsed_file):
     """Format a CRDS mapping file as colorized and cross-linked HTML."""
