@@ -1,13 +1,13 @@
 import os
 
 observatory = 'jwst'
+install_root = '/data1/crds/' + observatory
 port = 4995
 CRDS_URL = "http://etcbrady.stsci.edu:" + str(port)
-install_root = '/data1/crds/' + observatory
 
-install_dir = install_root + '/webserver'
-ref_path = install_root + '/references'
-map_path = install_root + '/mappings'
+install_dir= install_root + '/webserver'
+ref_path= install_root + '/references'
+map_path= install_root + '/mappings'
 
 CRDS_DELIVERY_DIR = install_root + "/deliveries"
 
@@ -15,6 +15,9 @@ CRDS_DELIVERY_DIR = install_root + "/deliveries"
 CRDS_DELIVERY_DIRS = [
         CRDS_DELIVERY_DIR,
 ]
+
+# Master directory for the catalog file associated with a delivery
+CRDS_CATALOG_DIR = install_root + "/catalogs"
 
 servertype = 'mod_python'
 apachemod = "/data1/pyetc_third_party_4/lib/apache"
