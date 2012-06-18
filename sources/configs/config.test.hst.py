@@ -1,7 +1,7 @@
 import os
 
 observatory = 'hst'
-install_root = '/data1/crds/' + observatory
+install_root = '/grp/crds/' + observatory
 port = 4997
 CRDS_URL = "http://etcbrady.stsci.edu:" + str(port)
 

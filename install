@@ -493,6 +493,14 @@ mssql)
 
 esac
 
+mapping_source_dir=`python tools/get_mapping_dir.py ${observatory}`
+map_dest="${map_path}/${observatory}"
+echo "Copying mappings from ${mapping_source_dir} to ${map_dest}"
+mkdir -p ${map_dest}
+cp ${mapping_source_dir}/*.*map ${map_dest}
+# chmod 444 ${map_dest}/*.*map
+chmod 700 ${install_dir}
+
 ###
 ### tell the user what we did
 ###
