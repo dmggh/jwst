@@ -13,8 +13,8 @@ import crds.client as client
 import crds.server.config as config
 
 HERE = os.path.dirname(__file__) or "."
-os.environ["CRDS_REFPATH"] = HERE + "/test_references"
-os.environ["CRDS_MAPPATH"] = HERE + "/test_mappings"
+
+os.environ["CRDS_PATH"] = CRDS_PATH = HERE + "/crds"
 
 client.set_crds_server(config.CRDS_URL)
 
@@ -68,10 +68,10 @@ class ServiceApiTest(TestCase):
         return client.get_best_references(self.context, header, reftypes)
 
     def purge_mappings(self):
-        pysh.sh("rm -rf " + HERE + "/test_mappings")        
+        pysh.sh("rm -rf " + CRDS_PATH)        
         
     def purge_references(self):
-        pysh.sh("rm -rf " + HERE + "/test_references")
+        pysh.sh("rm -rf " + CRDS_PATH)
 
     # File counts below are trip-wires with a shaky rational basis,  don't
     # loose sleep if the actual value deviates from the provided range,  just
