@@ -88,7 +88,8 @@ def main(args):
                  description=args[3], add_slow_fields=int(args[4]), 
                  state="operational")
     
-    models.set_default_context(args[0])
+    models.set_default_context(args[0])    
+    models.set_default_context(args[0], state="operational")
     
     log.standard_status()
 
