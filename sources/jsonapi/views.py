@@ -4,6 +4,7 @@ import base64
 from jsonrpc import jsonrpc_method
 from jsonrpc.exceptions import Error
 
+import crds.server.interactive.versions as versions
 import crds.server.interactive.models as imodels
 import crds.server.config as config
 from crds import rmap, utils
@@ -159,6 +160,17 @@ def get_default_context(request, observatory):
     observatory = observatory.lower()
     check_observatory(observatory)
     return imodels.get_default_context(observatory)
+    
+@jsonrpc_method('get_server_info()')
+def get_server_info(request):
+    info = {
+        "edit_context" : imodels.get_default_context(config.observatory),
+        "operational_context" : imodels.get_default_context(
+            config.observatory, state="operational"),
+        "observatory" : config.observatory,
+        "crds_version" : versions.get_version("crds")
+        }
+    return info
     
 #@jsonrpc_method('jsonapi.sayHello')
 #def whats_the_time(request, name='Lester'):

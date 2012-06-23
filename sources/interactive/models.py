@@ -246,7 +246,8 @@ FILE_STATUS_MAP = OrderedDict([
     ("uploaded", "orange"),   # On the server,  still temporary
     ("submitted", "orange"),  # In CRDS, pending delivery
     ("delivered", "blue"),    # Delivered to downstream systems, pending archive
-    ("operational", "green"), # Archived and in use.
+    ("archived", "green"),    # Archived and in use.
+    ("operational", "darkgreen"), # In operational use in the pipeline.
     ("blacklisted", "red"),
 ])
 
@@ -585,12 +586,10 @@ def set_default_context(context, observatory=OBSERVATORY, user="crds-system",
     ctxblob = FileBlob.load(context)  # make sure it exists
     try:
         blob = ContextBlob.get(observatory, state)
-        was = blob.context
         blob.context = context
     except LookupError:
-        was = "undefined"
         blob = ContextBlob(observatory=observatory, context=context)
-    blob.save()
+    blob.save(state=state)
 
 def get_default_context(observatory=OBSERVATORY, state="default"):
     """Return the latest context which is in `state`."""
