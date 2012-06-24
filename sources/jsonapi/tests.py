@@ -3,6 +3,7 @@
 import sys
 import os
 import os.path
+import re
 
 # from django.test import TestCase
 from unittest import TestCase
@@ -166,8 +167,9 @@ class ServiceApiTest(TestCase):
         with self.assertRaises(crds.CrdsLookupError):
             bestrefs = crds.getreferences(header, context="hst.pmap", reftypes=["foo"])
     
-    def test_getreferences_from_dataset(self):
-        bestrefs = crds.getreferences("interactive/test_data/iaai01rtq_raw.fits")
-        self._check_bestrefs(bestrefs, self.expected_references().keys())
-
-
+    def test_get_server_info(self):
+        info = client.get_server_info()
+        assert info["operational_context"].endswith(".pmap")
+        assert info["edit_context"].endswith(".pmap")
+        assert re.match("\d+\.\d+(\.\d+)?(dev)?", info["crds_version"]["str"])
+         
