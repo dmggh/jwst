@@ -9,15 +9,17 @@ import re
 from unittest import TestCase
 
 import crds
-from crds import pysh, rmap, selectors
+import crds.config
+
+from crds import pysh, rmap, selectors, log, pysh
 import crds.client as client
-import crds.server.config as config
+import crds.server.config as server_config
 
 HERE = os.path.dirname(__file__) or "."
 
 os.environ["CRDS_PATH"] = CRDS_PATH = HERE + "/crds"
 
-client.set_crds_server(config.CRDS_URL)
+client.set_crds_server(server_config.CRDS_URL)
 
 class ServiceApiTest(TestCase):
     def setUp(self):
@@ -122,8 +124,8 @@ class ServiceApiTest(TestCase):
         context = client.get_default_context("hst")
         self.assertIn(".pmap", context)
         
-    def test_getreferences_defaults(self):
-        bestrefs = crds.getreferences(self.get_header())
+    def test_getreferences_defaults(self, ignore_cache=False):
+        bestrefs = crds.getreferences(self.get_header(), ignore_cache=ignore_cache)
         self._check_bestrefs(bestrefs, self.expected_references().keys())
         
     def test_getreferences_specific_reftypes(self):
@@ -172,4 +174,66 @@ class ServiceApiTest(TestCase):
         assert info["operational_context"].endswith(".pmap")
         assert info["edit_context"].endswith(".pmap")
         assert re.match("\d+\.\d+(\.\d+)?(dev)?", info["crds_version"]["str"])
-         
+     
+    def getreferences_fallback(self, mode):
+        # First compute best refs normally, to ensure file caching
+        os.environ["CRDS_MODE"] = mode
+        os.environ["CRDS_OBSERVATORY"] = "hst"
+        self.test_getreferences_defaults()
+        # mess up server
+        try:
+            log.set_verbose(True)
+            old_url = client.get_crds_server()
+            client.set_crds_server("http://foo.bar")
+            self.test_getreferences_defaults()
+        finally:
+            os.environ["CRDS_MODE"] = "auto"
+            client.set_crds_server(old_url)
+            log.set_verbose(False)
+    
+    def test_getreferences_fallback_auto(self):
+        self.getreferences_fallback("auto")
+
+    def test_getreferences_fallback_local(self):
+        self.getreferences_fallback("local")
+
+    def test_getreferences_fallback_remote(self):
+        with self.assertRaises(crds.CrdsError):
+            self.getreferences_fallback("remote")
+
+    # XXX TODO:  setting crds.__version__ doesn't work in this context.
+    def getreferences_fallup(self, mode, ignore_cache=False):
+        # First compute best refs normally, to ensure file caching
+        log.set_verbose(True)
+        try:
+            oldver = crds.__version__
+            crds.__version__ == "0.0"
+            os.environ["CRDS_MODE"] = mode
+            os.environ["CRDS_OBSERVATORY"] = "hst"
+            crds_mappath = crds.config.get_crds_mappath()
+            crds_refpath = crds.config.get_crds_refpath()
+            pysh.sh("chmod -R 777 ${crds_mappath} ${crds_refpath}")
+            self.test_getreferences_defaults(ignore_cache=ignore_cache)
+        finally:
+            crds.__version__ = oldver
+            os.environ["CRDS_MODE"] = "auto"
+            log.set_verbose(False)
+    
+    def test_getreferences_fallup_auto(self):
+        self.getreferences_fallup("auto")
+
+    def test_getreferences_fallup_local(self):
+        self.getreferences_fallup("local")
+
+    def test_getreferences_fallup_remote(self):
+        self.getreferences_fallup("remote")
+
+    def test_getreferences_fallup_auto(self):
+        self.getreferences_fallup("auto", ignore_cache=True)
+
+    def test_getreferences_fallup_local(self):
+        self.getreferences_fallup("local", ignore_cache=True)
+
+    def test_getreferences_fallup_remote(self):
+        self.getreferences_fallup("remote", ignore_cache=True)
+
