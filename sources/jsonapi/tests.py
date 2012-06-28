@@ -124,12 +124,17 @@ class ServiceApiTest(TestCase):
         context = client.get_default_context("hst")
         self.assertIn(".pmap", context)
         
+    def getreferences(self, *args, **keys):
+        if "hst" not in keys:
+            keys["observatory"] = "hst"
+        return crds.getreferences(*args, **keys)
+    
     def test_getreferences_defaults(self, ignore_cache=False):
-        bestrefs = crds.getreferences(self.get_header(), ignore_cache=ignore_cache)
+        bestrefs = self.getreferences(self.get_header(), ignore_cache=ignore_cache)
         self._check_bestrefs(bestrefs, self.expected_references().keys())
         
     def test_getreferences_specific_reftypes(self):
-        bestrefs = crds.getreferences(
+        bestrefs = self.getreferences(
             self.get_header(), reftypes=["biasfile","darkfile"], 
             context="hst.pmap")
         self._check_bestrefs(bestrefs, ["biasfile","darkfile"]) 
@@ -138,36 +143,36 @@ class ServiceApiTest(TestCase):
         header = self.get_header()
         del header["DATE-OBS"]
         with self.assertRaises(crds.CrdsLookupError):
-            bestrefs = crds.getreferences(header, context="hst.pmap")
+            bestrefs = self.getreferences(header, context="hst.pmap")
 
     def test_getreferences_bad_date(self):
         header = self.get_header()
         header["DATE-OBS"] = "2012-1f-23"
         with self.assertRaises(crds.CrdsLookupError):
-            bestrefs = crds.getreferences(header, context="hst.pmap")
+            bestrefs = self.getreferences(header, context="hst.pmap")
     
     def test_getreferences_bad_ccdamp(self):
         header = self.get_header()
         header["CCDAMP"] = "ABCE"
         with self.assertRaises(crds.CrdsLookupError):
-            bestrefs = crds.getreferences(header, context="hst.pmap")
+            bestrefs = self.getreferences(header, context="hst.pmap")
     
     def test_getreferences_bad_instrument(self):
         header = self.get_header()
         header["INSTRUME"] = "foo"
         with self.assertRaises(crds.CrdsError):
-            bestrefs = crds.getreferences(header, context="hst.pmap")
+            bestrefs = self.getreferences(header, context="hst.pmap")
     
     def test_getreferences_missing_instrument(self):
         header = self.get_header()
         del header["INSTRUME"]
         with self.assertRaises(crds.CrdsError):
-            bestrefs = crds.getreferences(header, context="hst.pmap")
+            bestrefs = self.getreferences(header, context="hst.pmap")
     
     def test_getreferences_bad_reftype(self):
         header = self.get_header()
         with self.assertRaises(crds.CrdsLookupError):
-            bestrefs = crds.getreferences(header, context="hst.pmap", reftypes=["foo"])
+            bestrefs = self.getreferences(header, context="hst.pmap", reftypes=["foo"])
     
     def test_get_server_info(self):
         info = client.get_server_info()
@@ -182,7 +187,7 @@ class ServiceApiTest(TestCase):
         self.test_getreferences_defaults()
         # mess up server
         try:
-            log.set_verbose(True)
+            log.set_verbose(55)
             old_url = client.get_crds_server()
             client.set_crds_server("http://foo.bar")
             self.test_getreferences_defaults()
@@ -209,7 +214,6 @@ class ServiceApiTest(TestCase):
             oldver = crds.__version__
             crds.__version__ == "0.0"
             os.environ["CRDS_MODE"] = mode
-            os.environ["CRDS_OBSERVATORY"] = "hst"
             crds_mappath = crds.config.get_crds_mappath()
             crds_refpath = crds.config.get_crds_refpath()
             pysh.sh("chmod -R 777 ${crds_mappath} ${crds_refpath}")
