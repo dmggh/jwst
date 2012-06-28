@@ -14,6 +14,7 @@ import crds.config
 from crds import pysh, rmap, selectors, log, pysh
 import crds.client as client
 import crds.server.config as server_config
+import crds.heavy_client as heavy_client
 
 HERE = os.path.dirname(__file__) or "."
 
@@ -182,16 +183,18 @@ class ServiceApiTest(TestCase):
      
     def getreferences_fallback(self, mode):
         # First compute best refs normally, to ensure file caching
+        heavy_client.get_processing_mode.cache.clear() 
         os.environ["CRDS_MODE"] = mode
-        os.environ["CRDS_OBSERVATORY"] = "hst"
-        self.test_getreferences_defaults()
-        # mess up server
+        self.test_getreferences_defaults()   # first precache
         try:
-            log.set_verbose(55)
+            # mess up server
+            log.set_verbose(True)
             old_url = client.get_crds_server()
             client.set_crds_server("http://foo.bar")
+            # attempt fallback using cached files and status
             self.test_getreferences_defaults()
         finally:
+            heavy_client.get_processing_mode.cache.clear() 
             os.environ["CRDS_MODE"] = "auto"
             client.set_crds_server(old_url)
             log.set_verbose(False)
@@ -210,15 +213,17 @@ class ServiceApiTest(TestCase):
     def getreferences_fallup(self, mode, ignore_cache=False):
         # First compute best refs normally, to ensure file caching
         log.set_verbose(True)
+        crds_mappath = crds.config.get_crds_mappath()
+        crds_refpath = crds.config.get_crds_refpath()
+        pysh.sh("chmod -R 777 ${crds_mappath} ${crds_refpath}")
         try:
+            heavy_client.get_processing_mode.cache.clear() 
             oldver = crds.__version__
-            crds.__version__ == "0.0"
+            crds.__version__ = "0.0"
             os.environ["CRDS_MODE"] = mode
-            crds_mappath = crds.config.get_crds_mappath()
-            crds_refpath = crds.config.get_crds_refpath()
-            pysh.sh("chmod -R 777 ${crds_mappath} ${crds_refpath}")
             self.test_getreferences_defaults(ignore_cache=ignore_cache)
         finally:
+            heavy_client.get_processing_mode.cache.clear() 
             crds.__version__ = oldver
             os.environ["CRDS_MODE"] = "auto"
             log.set_verbose(False)
@@ -232,12 +237,12 @@ class ServiceApiTest(TestCase):
     def test_getreferences_fallup_remote(self):
         self.getreferences_fallup("remote")
 
-    def test_getreferences_fallup_auto(self):
+    def test_getreferences_fallup_auto_ignore(self):
         self.getreferences_fallup("auto", ignore_cache=True)
 
-    def test_getreferences_fallup_local(self):
+    def test_getreferences_fallup_local_ignore(self):
         self.getreferences_fallup("local", ignore_cache=True)
 
-    def test_getreferences_fallup_remote(self):
+    def test_getreferences_fallup_remote_ignore(self):
         self.getreferences_fallup("remote", ignore_cache=True)
 
