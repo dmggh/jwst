@@ -390,17 +390,17 @@ class Logger(object):
    
     def write(self, *args, **keys):
         """Write args to logfile and console,  nominally separated by spaces
-        (key "sep") and terminated by newline (key "eol").
+        (key "sep") and terminated by newline (key "end").
         """
         sep = keys.get("sep", " ")
-        eol = keys.get("eol", "\n")
+        end = keys.get("end", "\n")
         stdout = keys.get("stdout", self.oldout)
         time = keys.get("time", True)
         if time:
             self._write(stdout, "[" + str(datetime.datetime.now())[:-3] + "] ")
         for arg in args:
             self._write(stdout, arg + sep)
-        self._write(stdout, eol)
+        self._write(stdout, end)
 
     def close(self):
         """close per-request logfile and un-hook stdout and stderr."""
