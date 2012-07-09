@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Installation &mdash; CRDS Users Manual v1.0a documentation</title>
+    <title>Installation &mdash; CRDS Users Manual 1.0a documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="CRDS Users Manual v1.0a documentation" href="index.html" />
+    <link rel="top" title="CRDS Users Manual 1.0a documentation" href="index.html" />
     <link rel="next" title="Top Level Use" href="top_level_use.html" />
     <link rel="prev" title="Welcome" href="user_guide.html" />
 <link rel="stylesheet" href="_static/style.css"  type="text/css">
@@ -57,7 +57,7 @@ environment variables, env.csh.   For JWST development,  there are
 reasonable defaults for everything so you may not need to set these
 at all.   For HST,  at a minimum CRDS_SERVER_URL must be defined.</p>
 <blockquote>
-<ul class="simple">
+<div><ul class="simple">
 <li>CRDS_PATH defines a common directory tree where CRDS reference files
 and mappings are stored.   CRDS_PATH defaults to &#8221;./crds&#8221;.   Mappings
 are stored in ${CRDS_PATH}/mappings/[hst|jwst].   Reference files are
@@ -69,7 +69,7 @@ only reference files are stored.</li>
 <li>CRDS_SERVER_URL defines the base URL for accessing CRDS network
 services.  CRDS_SERVER_URL defaults to the jwst test server.</li>
 </ul>
-</blockquote>
+</div></blockquote>
 <p>Edit env.csh according to your preferences for where to put CRDS files.
 Then source env.csh to define the variables in your environment:</p>
 <div class="highlight-python"><pre>% source env.csh</pre>
@@ -107,7 +107,7 @@ OK</pre>
 <p>From the perspective of an end user,  CRDS consists of 3 or more Python
 packages which implement different capabilities:</p>
 <blockquote>
-<ul>
+<div><ul>
 <li><dl class="first docutils">
 <dt>crds</dt>
 <dd><ul class="first last simple">
@@ -144,7 +144,7 @@ certified.</li>
 </dl>
 </li>
 </ul>
-</blockquote>
+</div></blockquote>
 </div>
 <div class="section" id="dependencies">
 <h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
@@ -152,11 +152,11 @@ certified.</li>
 processing.   CRDS requires these additional packages to be installed in your
 Python environment:</p>
 <blockquote>
-<ul class="simple">
+<div><ul class="simple">
 <li>numpy</li>
 <li>pyfits</li>
 </ul>
-</blockquote>
+</div></blockquote>
 </div>
 </div>
 

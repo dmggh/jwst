@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Top Level Use &mdash; CRDS Users Manual v1.0a documentation</title>
+    <title>Top Level Use &mdash; CRDS Users Manual 1.0a documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="CRDS Users Manual v1.0a documentation" href="index.html" />
+    <link rel="top" title="CRDS Users Manual 1.0a documentation" href="index.html" />
     <link rel="next" title="Non-Networked Use" href="non_networked_use.html" />
     <link rel="prev" title="Installation" href="installation.html" />
 <link rel="stylesheet" href="_static/style.css"  type="text/css">
@@ -74,17 +74,10 @@ reference file paths:</p>
 <span class="sd">                   ...</span>
 <span class="sd">                }</span>
 
-<span class="sd">             Alternately,  parameters can be a string specifying the full</span>
-<span class="sd">             path of a dataset from which CRDS will extract header values.</span>
-
-<span class="sd">             str</span>
-
-<span class="sd">             e.g. &quot;/where/it/is/j8bt05njq_raw.fits&quot;</span>
-
-
-<span class="sd">    reftypes :    A list of reference type names,  where each reftype is the</span>
-<span class="sd">                keyword used to record that kind of reference file in a</span>
-<span class="sd">                dataset header.</span>
+<span class="sd">    reftypes :    A list of reference type names.   For HST these are the keywords</span>
+<span class="sd">                 used to record reference files in dataset headers.   For JWST,  these</span>
+<span class="sd">                 are the identifiers which will appear in instrument contexts and</span>
+<span class="sd">                 reference mappings.</span>
 
 <span class="sd">                e.g.  [ &#39;darkfile&#39;, &#39;biasfile&#39;]</span>
 
@@ -124,7 +117,7 @@ reference file paths:</p>
 currently in operational use.   When no</p>
 <p>The default context defines the matching rules used to determine best
 reference files for a given set of parameters:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">get_default_context</span><span class="p">(</span><span class="n">observatory</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">get_default_context</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Return the name of the latest pipeline mapping in use for processing</span>
 <span class="sd">    files.</span>
 
