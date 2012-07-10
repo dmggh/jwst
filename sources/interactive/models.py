@@ -11,6 +11,7 @@ from crds.compat import (literal_eval, namedtuple, OrderedDict)
 
 from crds.server.config import observatory as OBSERVATORY
 from crds.server.config import table_prefix as TABLE_PREFIX
+import crds.server.config as config
 
 observatory_module = utils.get_object("crds." + OBSERVATORY)
 
@@ -426,6 +427,12 @@ class FileBlob(BlobModel):
     @property
     def status_class(self):
         return FILE_STATUS_MAP[self.status]
+    
+    @property
+    def available(self):
+        """Return True if this file is allowed to be distributed now."""
+        # XXX TODO add general_availabilty_date....
+        return self.state in config.CRDS_DISTRIBUTION_STATES
     
     @property
     def extension(self):

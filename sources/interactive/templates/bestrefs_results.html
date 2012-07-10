@@ -30,11 +30,7 @@
                  {{fname|browse}}
             </td>
             <td width="20%">
-                 {% if observatory == "hst" %}   {# filtering weak! #}
-                    <a href='{{fname|download_url:"hst"}}'>download</a>
-                 {% else %}
-                    <a href='{{fname|download_url:"jwst"}}'>download</a>            
-                 {% endif %}
+                 <a href='{{fname|download_url}}'>download</a>
             </td>
           {% else %}
             <td class="error" width="60%">{{fname}}</td>

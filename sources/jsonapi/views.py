@@ -55,18 +55,29 @@ class InvalidObservatoryError(Error):
 class InvalidReftypesError(Error):
     """The specified reftypes is not a list of strings."""
     
+
+class UnavailableFile(Error):
+    """A known file is not available for download,  either because it is waiting
+    for archiving or not yet generally available.
+    """
+
 def check_context(context):
     if not imodels.file_exists(context) or not rmap.is_mapping(context):
         raise UnknownContextError("Context parameter '%s' is not a known CRDS mapping file." % context)
     
 def check_mapping(mapping):
-    if not imodels.file_exists(mapping) or not rmap.is_mapping(mapping):
+    blob = imodels.file_exists(mapping) 
+    if not blob or not blob.type == "mapping":
         raise UnknownMappingError("Mapping parameter '%s' is not a known CRDS mapping file." % mapping)
+    if not blob.available:
+        raise UnavailableFile("File '%s' is not yet available."  % mapping)
     
 def check_reference(reference):
     blob = imodels.file_exists(reference)
     if not blob or not blob.type == "reference":
         raise UnknownReferenceError("Reference parameter '%s' is not a known CRDS reference file." % reference)
+    if not blob.available:
+        raise UnavailableFile("File '%s' is not yet available."  % reference)
     
 def check_header(header):
     if not isinstance(header, dict):

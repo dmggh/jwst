@@ -84,22 +84,14 @@ exists_color.is_safe = True
 #  3. This code knows how to convert a filter expression to an anchor.
 
 @register.filter
-def download_url(filename, observatory):
-    """Return the URL for downloading `file` of `observatory`,  optionally
-    using `text` as the visible portion of the link.
-    
-        {{file|download_url:observatory}}
-    
-        {{"hst.pmap"|download_url:"hst"}} --> 
+def download_url(filename):
+    """Return the URL for downloading `filename`.
+
+        {{"hst.pmap"|download_url}} --> 
             http://localhost:8000/static/mappings/hst/hst.pmap
     """
-    parts = observatory.split()
-    observatory = parts[0]
-    text = " ".join(parts[1:])
-    if not text:
-        text = filename
     try:
-        return jviews.get_url(observatory, filename)
+        return jviews.get_url(config.observatory, filename)
     except Exception:
         return filename
 

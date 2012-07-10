@@ -160,6 +160,20 @@ def is_known_file(filename):
         "File " + repr(filename) + " has not yet been submitted."
     return filename
 
+def is_available_file(filename):
+    """Verify that `filename` identifies a file already known to CRDS and
+    meets any requirements for distribution.
+    """
+    if not re.match(FILE_RE, filename):
+        raise CrdsError("Invalid filename " + repr(filename))
+    try:
+        blob = models.FileBlob.load(filename)
+    except LookupError:
+        raise CrdsError("No database entry for " + repr(filename) + ".")
+    assert blob.available, \
+        "File " + repr(filename) + " is not yet available for distribution."
+    return filename
+
 def is_list_of_rmaps(text):
     """Assert that `text` contains a list of comma for newline separated rmap
     names.
@@ -2116,7 +2130,7 @@ def deliver_remove_fail(observatory, catalog, paths):
 
 # ============================================================================
 
-# @error_trap("base.html")
+@error_trap("base.html")
 @log_view
 def get_file_data(request, filename):
     """Provides a view to serve CRDS mapping and reference files via URL."""
@@ -2124,6 +2138,8 @@ def get_file_data(request, filename):
         blob = models.FileBlob.load(filename)
     except LookupError:
         raise CrdsError("No CRDS database entry for" + srepr(filename))
+    assert blob.available, \
+        "File " + srepr(filename) + " is not yet available for distribution."
     try:
         data = open(blob.pathname).read()
     except IOError, exc:
@@ -2150,7 +2166,6 @@ def get_archive(request, filename):
     
     http://get_archive/<filename.tar.gz>?file1=hst.pmap&file2=hst_acs.imap?...
     """
-
     arch_extension = None
     for arch_extension in ARCH_MODES:
         if filename.endswith(arch_extension):
@@ -2161,7 +2176,7 @@ def get_archive(request, filename):
     files = []
     for var in request.GET:
         if var.startswith("file"):
-            filename = validate_get(request, var, is_known_file)
+            filename = validate_get(request, var, is_available_file)
             files.append(filename)
             
     filepaths = []

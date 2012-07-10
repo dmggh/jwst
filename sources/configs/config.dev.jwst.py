@@ -84,3 +84,9 @@ CRDS_URL = "http://localhost:" + str(port) + "/"
 CRDS_REFERENCE_URL = CRDS_URL + "get/"
 CRDS_MAPPING_URL   = CRDS_URL + "get/"
 
+# These are the file states which are available for download or rpc.
+# XXX TODO restrict to archived or operational
+CRDS_DISTRIBUTION_STATES = ["delivered","archived","operational"]
+
+
+
