@@ -3,17 +3,20 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Non-Networked Use &mdash; CRDS Users Manual 1.0a documentation</title>
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <title>Non-Networked Use &mdash; crds 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '1.0a',
+        VERSION:     '0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,18 +25,85 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="CRDS Users Manual 1.0a documentation" href="index.html" />
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="crds 0.1 documentation" href="index.html" />
     <link rel="next" title="About Mappings" href="rmap_syntax.html" />
-    <link rel="prev" title="Top Level Use" href="top_level_use.html" />
-<link rel="stylesheet" href="_static/style.css"  type="text/css">
-
+    <link rel="prev" title="Top Level Use" href="top_level_use.html" /> 
   </head>
   <body>
-<div id="header" class="related">
-  <a href="/"><img ALT="Hubble Space Telescope" SRC="_static/HSTBlackTitle.jpg" style="border-style: none"></a>
-    <h2>Calibration and Reference Data System (CRDS)</h2>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="rmap_syntax.html" title="About Mappings"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="top_level_use.html" title="Top Level Use"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">crds 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/stsci_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Non-Networked Use</a><ul>
+<li><a class="reference internal" href="#overview-of-features">Overview of Features</a></li>
+<li><a class="reference internal" href="#important-modules">Important Modules</a></li>
+<li><a class="reference internal" href="#basic-operations-on-mappings">Basic Operations on Mappings</a><ul>
+<li><a class="reference internal" href="#loading-rmaps">Loading Rmaps</a></li>
+<li><a class="reference internal" href="#seeing-referenced-names">Seeing Referenced Names</a></li>
+<li><a class="reference internal" href="#computing-best-references">Computing Best References</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#certifying-files">Certifying Files</a><ul>
+<li><a class="reference internal" href="#certifying-mappings">Certifying Mappings</a></li>
+<li><a class="reference internal" href="#certifying-reference-files">Certifying Reference Files</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#mapping-checksums">Mapping Checksums</a><ul>
+<li><a class="reference internal" href="#ignoring-checksums">Ignoring Checksums!</a></li>
+<li><a class="reference internal" href="#adding-checksums">Adding Checksums</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#which-mappings-use-this-file">Which Mappings Use this File?</a></li>
+<li><a class="reference internal" href="#finding-matches-for-a-reference-in-a-context">Finding Matches for a Reference in a Context</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="top_level_use.html"
+                        title="previous chapter">Top Level Use</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="rmap_syntax.html"
+                        title="next chapter">About Mappings</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/non_networked_use.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
 </div>
-  
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
 
     <div class="document">
       <div class="documentwrapper">
@@ -385,78 +455,26 @@ consisting of three parts:</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-   <a href="index.html"><h2>Top</h2></a>
-   <br/>
-   
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Non-Networked Use</a><ul>
-<li><a class="reference internal" href="#overview-of-features">Overview of Features</a></li>
-<li><a class="reference internal" href="#important-modules">Important Modules</a></li>
-<li><a class="reference internal" href="#basic-operations-on-mappings">Basic Operations on Mappings</a><ul>
-<li><a class="reference internal" href="#loading-rmaps">Loading Rmaps</a></li>
-<li><a class="reference internal" href="#seeing-referenced-names">Seeing Referenced Names</a></li>
-<li><a class="reference internal" href="#computing-best-references">Computing Best References</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#certifying-files">Certifying Files</a><ul>
-<li><a class="reference internal" href="#certifying-mappings">Certifying Mappings</a></li>
-<li><a class="reference internal" href="#certifying-reference-files">Certifying Reference Files</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#mapping-checksums">Mapping Checksums</a><ul>
-<li><a class="reference internal" href="#ignoring-checksums">Ignoring Checksums!</a></li>
-<li><a class="reference internal" href="#adding-checksums">Adding Checksums</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#which-mappings-use-this-file">Which Mappings Use this File?</a></li>
-<li><a class="reference internal" href="#finding-matches-for-a-reference-in-a-context">Finding Matches for a Reference in a Context</a></li>
-</ul>
-</li>
-</ul>
-
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="top_level_use.html"
-                        title="previous chapter">Top Level Use</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="rmap_syntax.html"
-                        title="next chapter">About Mappings</a></p>
-
-   
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" size="18" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-   <br>
-   <a href="/"><h2>Return to CRDS</h2></a>
-
-        </div>
-      </div>
       <div class="clearer"></div>
     </div>
-
-<div class="footer" >
-  <p align="left">
-    If you have any questions regarding CRDS, please contact the
-    STScI Help Desk <a HREF="mailto:help@stsci.edu">(help@stsci.edu)</a>.
-  </p>
-  
-  <p align="left"> <a HREF="http://www.stsci.edu/institute/Copyright">Copyright Notice</a> </p>
-  
-  <p align="left"> <img BORDER="0" ALT="STScI" SRC="_static/HSTBanner.gif"/> </p>
-</div>
-
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="rmap_syntax.html" title="About Mappings"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="top_level_use.html" title="Top Level Use"
+             >previous</a> |</li>
+        <li><a href="index.html">crds 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, STScI.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
   </body>
 </html>

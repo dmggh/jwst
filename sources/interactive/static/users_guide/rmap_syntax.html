@@ -3,17 +3,20 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>About Mappings &mdash; CRDS Users Manual 1.0a documentation</title>
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <title>About Mappings &mdash; crds 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '1.0a',
+        VERSION:     '0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,18 +25,95 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="CRDS Users Manual 1.0a documentation" href="index.html" />
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="crds 0.1 documentation" href="index.html" />
     <link rel="next" title="&lt;no title&gt;" href="command_line_tools.html" />
-    <link rel="prev" title="Non-Networked Use" href="non_networked_use.html" />
-<link rel="stylesheet" href="_static/style.css"  type="text/css">
-
+    <link rel="prev" title="Non-Networked Use" href="non_networked_use.html" /> 
   </head>
   <body>
-<div id="header" class="related">
-  <a href="/"><img ALT="Hubble Space Telescope" SRC="_static/HSTBlackTitle.jpg" style="border-style: none"></a>
-    <h2>Calibration and Reference Data System (CRDS)</h2>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="command_line_tools.html" title="&lt;no title&gt;"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="non_networked_use.html" title="Non-Networked Use"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">crds 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/stsci_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">About Mappings</a><ul>
+<li><a class="reference internal" href="#naming">Naming</a></li>
+<li><a class="reference internal" href="#basic-structure">Basic Structure</a></li>
+<li><a class="reference internal" href="#pipeline-mappings-pmap">Pipeline Mappings (.pmap)</a></li>
+<li><a class="reference internal" href="#instrument-mappings-imap">Instrument Mappings (.imap)</a></li>
+<li><a class="reference internal" href="#reference-mappings-rmap">Reference Mappings (.rmap)</a><ul>
+<li><a class="reference internal" href="#parkeys">Parkeys</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#selectors">Selectors</a><ul>
+<li><a class="reference internal" href="#match">Match</a><ul>
+<li><a class="reference internal" href="#parameter-tuples-and-simple-matches">Parameter Tuples and Simple Matches</a></li>
+<li><a class="reference internal" href="#single-parameter-values">Single Parameter Values</a></li>
+<li><a class="reference internal" href="#or">Or |</a></li>
+<li><a class="reference internal" href="#wild-cards">Wild Cards *</a></li>
+<li><a class="reference internal" href="#regular-expressions">Regular Expressions</a></li>
+<li><a class="reference internal" href="#literal-expressions">Literal Expressions</a></li>
+<li><a class="reference internal" href="#relational-expressions">Relational Expressions</a></li>
+<li><a class="reference internal" href="#between">Between</a></li>
+<li><a class="reference internal" href="#n-a">N/A</a></li>
+<li><a class="reference internal" href="#substitution-parameters">Substitution Parameters</a></li>
+<li><a class="reference internal" href="#match-weighting">Match Weighting</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#useafter">UseAfter</a></li>
+<li><a class="reference internal" href="#selectversion">SelectVersion</a></li>
+<li><a class="reference internal" href="#closesttime">ClosestTime</a></li>
+<li><a class="reference internal" href="#geometricallynearest">GeometricallyNearest</a></li>
+<li><a class="reference internal" href="#bracket">Bracket</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="non_networked_use.html"
+                        title="previous chapter">Non-Networked Use</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="command_line_tools.html"
+                        title="next chapter">&lt;no title&gt;</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/rmap_syntax.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
 </div>
-  
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
 
     <div class="document">
       <div class="documentwrapper">
@@ -196,7 +276,7 @@ match candidates that cannot possibly match.</p>
 <h4>Parameter Tuples and Simple Matches<a class="headerlink" href="#parameter-tuples-and-simple-matches" title="Permalink to this headline">¶</a></h4>
 <p>The CRDS Match operator typically matches a dataset header against a tuple
 which defines multiple parameter values whose names are specified in the rmap
-header <cite>parkey</cite>:</p>
+header <tt class="xref py py-obj docutils literal"><span class="pre">parkey</span></tt>:</p>
 <div class="highlight-python"><pre>("UVIS", "F122LP")   :  'some_file_or_nested_selection'</pre>
 </div>
 <p>Alternately,  for simple use cases the Match operator can match against single
@@ -439,88 +519,26 @@ enclose the supplied parameter value:</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-   <a href="index.html"><h2>Top</h2></a>
-   <br/>
-   
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">About Mappings</a><ul>
-<li><a class="reference internal" href="#naming">Naming</a></li>
-<li><a class="reference internal" href="#basic-structure">Basic Structure</a></li>
-<li><a class="reference internal" href="#pipeline-mappings-pmap">Pipeline Mappings (.pmap)</a></li>
-<li><a class="reference internal" href="#instrument-mappings-imap">Instrument Mappings (.imap)</a></li>
-<li><a class="reference internal" href="#reference-mappings-rmap">Reference Mappings (.rmap)</a><ul>
-<li><a class="reference internal" href="#parkeys">Parkeys</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#selectors">Selectors</a><ul>
-<li><a class="reference internal" href="#match">Match</a><ul>
-<li><a class="reference internal" href="#parameter-tuples-and-simple-matches">Parameter Tuples and Simple Matches</a></li>
-<li><a class="reference internal" href="#single-parameter-values">Single Parameter Values</a></li>
-<li><a class="reference internal" href="#or">Or |</a></li>
-<li><a class="reference internal" href="#wild-cards">Wild Cards *</a></li>
-<li><a class="reference internal" href="#regular-expressions">Regular Expressions</a></li>
-<li><a class="reference internal" href="#literal-expressions">Literal Expressions</a></li>
-<li><a class="reference internal" href="#relational-expressions">Relational Expressions</a></li>
-<li><a class="reference internal" href="#between">Between</a></li>
-<li><a class="reference internal" href="#n-a">N/A</a></li>
-<li><a class="reference internal" href="#substitution-parameters">Substitution Parameters</a></li>
-<li><a class="reference internal" href="#match-weighting">Match Weighting</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#useafter">UseAfter</a></li>
-<li><a class="reference internal" href="#selectversion">SelectVersion</a></li>
-<li><a class="reference internal" href="#closesttime">ClosestTime</a></li>
-<li><a class="reference internal" href="#geometricallynearest">GeometricallyNearest</a></li>
-<li><a class="reference internal" href="#bracket">Bracket</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="non_networked_use.html"
-                        title="previous chapter">Non-Networked Use</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="command_line_tools.html"
-                        title="next chapter">&lt;no title&gt;</a></p>
-
-   
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" size="18" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-   <br>
-   <a href="/"><h2>Return to CRDS</h2></a>
-
-        </div>
-      </div>
       <div class="clearer"></div>
     </div>
-
-<div class="footer" >
-  <p align="left">
-    If you have any questions regarding CRDS, please contact the
-    STScI Help Desk <a HREF="mailto:help@stsci.edu">(help@stsci.edu)</a>.
-  </p>
-  
-  <p align="left"> <a HREF="http://www.stsci.edu/institute/Copyright">Copyright Notice</a> </p>
-  
-  <p align="left"> <img BORDER="0" ALT="STScI" SRC="_static/HSTBanner.gif"/> </p>
-</div>
-
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="command_line_tools.html" title="&lt;no title&gt;"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="non_networked_use.html" title="Non-Networked Use"
+             >previous</a> |</li>
+        <li><a href="index.html">crds 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, STScI.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
   </body>
 </html>
