@@ -23,24 +23,25 @@
       <h2>This page requires JavaScript to be enabled.</h2>
     </noscript>
 
-    <div id="page_header">
-        <h1>{{observatory|upper}} Calibration and Reference Data System (CRDS)</h1>
-    </div>
-
-    <div id="header_menu">
+    <div>
+        <div id="page_header">
+            <h1>{{observatory|upper}} Calibration and Reference Data System (CRDS)</h1>
+        </div>
     
-       <a href="/static/users_guide/index.html" class="tiny"><image src='/static/help_blue.ico' alt='help' height='24' width='24' /></a>
-       
-       <a href="/" class="tiny"><image src="/static/home.ico" alt='home' height='24' width='24' /></a>
+        <div id="header_menu">
+           <a href="/static/users_guide/index.html" class="tiny"><image src='/static/help_blue.ico' alt='help' height='24' width='24' /></a>
            
-       <a href="./" class="tiny"><image src="/static/undo.ico" alt='reset' height='24' width='24' /></a>
-           
-       {% if is_authenticated %}
-            <a href="/logout/" class="tiny"><image src="/static/exit.ico" alt='logout' height='24' width='24' /></a>
-       {% else %}
-            <a href="/login/?next={{current_path}}" class="tiny"><image src="/static/log_in.ico" alt='login' height='24' width='24' /></a>          
-       {% endif %}
-       
+           <a href="/" class="tiny"><image src="/static/home.ico" alt='home' height='24' width='24' /></a>
+               
+           <a href="./" class="tiny"><image src="/static/undo.ico" alt='reset' height='24' width='24' /></a>
+               
+           {% if is_authenticated %}
+                <a href="/logout/" class="tiny"><image src="/static/exit.ico" alt='logout' height='24' width='24' /></a>
+           {% else %}
+                <a href="/login/?next={{current_path}}" class="tiny"><image src="/static/log_in.ico" alt='login' height='24' width='24' /></a>          
+           {% endif %}
+        </div>
+        <div style="clear:both;" />
     </div>
     
     <div id="contents">
