@@ -679,7 +679,7 @@ def get_recent_or_user_context(request):
     else:
         pmap_mode = validate_post(
             request, "pmap_mode", "pmap_menu|pmap_text|pmap_default")
-        context = validate_post(request, pmap_mode, is_available_pmap)
+        context = validate_post(request, pmap_mode, is_pmap)
     return context
 
 @error_trap("bestrefs_explore_input.html")
