@@ -69,6 +69,7 @@ IPPPSSOOT_INSTR = {
     "I" : "wfc3",
     "N" : "nicmos",
     "O" : "stis",
+    "L" : "cos",
 }
 
 def dataset_to_instrument(dataset):
