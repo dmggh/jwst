@@ -17,17 +17,18 @@
           </td>
           <td width="25%" class="label">Known:</td>
           <td width="25%">
-            <input type='text' name='file_known1' size="32" value="{{file_known1}}">
+            <input type='text' name='file_known1' size="32" value="{{file_known1}}"
+                    onchange="crds.set_radio('filemode1', 'file_known1');">
           </td>
         </tr>
         <tr>
           <td width="5%">
-                <input type="radio" name="filemode1" 
-                        value="file_uploaded1" />
+                <input type="radio" name="filemode1" value="file_uploaded1" />
           </td>
           <td width="25%" class="label">Uploaded:</td>
           <td width="25%">
-            <input type='file' class="multi" maxlength="1" name='file_uploaded1' size="32">
+            <input type='file' maxlength="1" name='file_uploaded1' size="32"
+                    onchange="crds.set_radio('filemode1', 'file_uploaded1');">
           </td>
         </tr>
         <tr>
@@ -35,24 +36,26 @@
           <td width="25%" class="label"></td>
           <td width="25%"></td>
         </tr>
-          <tr>
+        <tr>
           <td width="5%">
                 <input type="radio" name="filemode2" 
-                        value="file_known2" checked />
+                    value="file_known2" checked />
           </td>
           <td width="25%" class="label">Known:</td>
           <td width="25%">
-            <input type='text' name='file_known2' size="32" value="{{file_known2}}">
+            <input type='text' name='file_known2' size="32" value="{{file_known2}}"
+                      onchange="crds.set_radio('filemode2', 'file_known2');">
           </td>
         </tr>
         <tr>
           <td width="5%">
                 <input type="radio" name="filemode2" 
-                        value="file_uploaded2" />
+                    value="file_uploaded2" />
           </td>
           <td width="25%" class="label">Uploaded:</td>
           <td width="25%">
-            <input type='file' name='file_uploaded2' class="multi" maxlength="1" size="32">
+            <input type='file' name='file_uploaded2' maxlength="1" size="32"
+                    onchange="crds.set_radio('filemode2', 'file_uploaded2');">
           </td>
         </tr>
       </table>

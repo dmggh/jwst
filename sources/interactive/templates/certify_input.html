@@ -11,7 +11,8 @@
           </td>
           <td width="25%" class="label">Uploaded File:</td>
           <td width="25%">
-            <input type='file' class="multi" maxlength="1" name='file_uploaded' size="32">
+            <input type='file' class="multi" maxlength="1" name='file_uploaded' size="32"
+                    onchange="crds.set_radio('filemode', 'file_uploaded');">
           </td>
         </tr>
         <tr>
@@ -22,7 +23,8 @@
           <td width="25%" class="label">Known File:</td>
           <td width="25%">
             <input type='text' name='file_known' size="32" 
-                value="{{file_known}}">
+                value="{{file_known}}"
+                onchange="crds.set_radio('filemode', 'file_known');">
           </td>
         </tr>
         {% comment %}
