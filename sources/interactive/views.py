@@ -901,7 +901,7 @@ def certify_file(request):
     else:
         return certify_post(request)
 
-@profile("certify5.stats")
+# @profile("certify5.stats")
 def certify_post(request):
     """View fragment to process file certification POSTs."""
     
