@@ -642,16 +642,18 @@ def get_recent_pmaps(last_n=10):
     for f in files:
         if f.name.endswith(".pmap"):
             f.thaw()
-            if not f.available or f.blacklisted:
-                continue
-            pmaps.append((f.name, pmap_label(f.name)))
+            pmaps.append((f.name, pmap_label(f)))
             if len(pmaps) >= last_n:
                 break
     return pmaps
     
-def pmap_label(filename):
+def pmap_label(blob):
     """Return the text displayed to users selecting known pmaps."""
-    return filename + " [date here]"
+    if isinstance(blob, str):
+        blob = models.FileBlob.load(blob)
+    available = "" if blob.available else "*unavailable*" 
+    blacklisted = "*blacklisted*" if blob.blacklisted else ""
+    return " ".join([blob.name, str(blob.delivery_date)[:16], available, blacklisted])
 
 def bestrefs_explore_post(request):
     """View to get best reference dataset parameters."""
