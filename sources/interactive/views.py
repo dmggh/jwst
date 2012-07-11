@@ -630,17 +630,18 @@ def bestrefs_explore(request):
     else:
         return bestrefs_explore_post(request)
     
-def get_recent_pmaps(last_n=10, **filters):
+def get_recent_pmaps(last_n=10):
     """Return a list of option tuples for rendering HTML to choose recent
     pmaps (last 10) from those filtered by `filters`. This defines what users 
     will see for the context HTML drop-down menu.
     """
-    files = models.FileBlob.filter(pathname=".*\.pmap", **filters)[::-1]
+    files = models.FileBlob.objects.reverse()
     pmaps = []
     for file_ in files:
-        pmaps.append((file_.filename, pmap_label(file_.filename)))
-        if len(pmaps) >= last_n:
-            break
+        if file_.name.endswith(".pmap"):
+            pmaps.append((file_.name, pmap_label(file_.name)))
+            if len(pmaps) >= last_n:
+                break
     return pmaps
     
 def pmap_label(filename):
@@ -816,7 +817,7 @@ def do_certify_file(basename, certifypath, check_references=None):
             assert models.file_exists(ref), \
                 "Reference " + repr(ref) + " is not known to CRDS."             
     
-def get_blacklists(basename, certifypath, ignore_self=True):
+def get_blacklists(basename, certifypath, ignore_self=True, files=None):
     """Return a list of the files referenced by `basename` which are
     blacklisted.
     """
@@ -828,11 +829,15 @@ def get_blacklists(basename, certifypath, ignore_self=True):
         except Exception, exc:
             raise CrdsError("Error loading " + repr(basename) + 
                             " for blacklist checking:  " + str(exc))
+        if files is None:
+            files = { f.name : f for f in models.FileBlob.objects.filter() }
         
         for child in mapping.mapping_names() + mapping.reference_names():       
             if ignore_self and child == os.path.basename(certifypath): 
                 continue
-            if models.is_blacklisted(child):
+            if child not in files:   # Unknown file,  what to do?
+                continue   # XXXX TODO blacklist instead?
+            if files[child].blacklisted:
                 blacklisted_by = blacklisted_by.union(set([child]))
                 
         return sorted(list(blacklisted_by))
@@ -896,6 +901,7 @@ def certify_file(request):
     else:
         return certify_post(request)
 
+@profile("certify5.stats")
 def certify_post(request):
     """View fragment to process file certification POSTs."""
     
@@ -910,7 +916,9 @@ def certify_post(request):
     certify_lines = pysh.lines(
         "python -m crds.certify ${certified_file} ${mapping} --dump-provenance")
     certify_status = "OK" if "0 errors" in \
-        [ x.strip() for x in certify_lines] else "Failed."    
+        [ x.strip() for x in certify_lines] else "Failed."
+        
+    files = { blob.name : blob for blob in models.FileBlob.objects.filter() }
     
     missing_references = []
     if not rmap.is_mapping(original_name):
@@ -924,12 +932,12 @@ def certify_post(request):
         if certify_status == "OK":
             ctx = rmap.load_mapping(certified_file)
             for ref in ctx.reference_names():
-                if not models.file_exists(ref):
+                if ref not in files:
                     missing_references.append(ref)
 
     try:
         blacklisted_by = get_blacklists(
-            original_name, certified_file, ignore_self=False)
+            original_name, certified_file, ignore_self=False, files=files)
     except Exception:
         blacklisted_by = []
         blacklist_status = "Error"
