@@ -61,23 +61,31 @@ class UnavailableFile(Error):
     for archiving or not yet generally available.
     """
 
+class BlacklistedFile(Error):
+    """A known file has been blacklisted and should no longer be used."""
+
+def _standard_file_checks(file):
+    blob = imodels.file_exists(file) 
+    if not blob.available:
+        raise UnavailableFile("File '%s' is not yet available."  % file)
+    if blob.blacklisted:
+        raise BlacklistedFile("File '%s' has been blacklisted and should no longer be used.")
+    return blob
+
 def check_context(context):
-    if not imodels.file_exists(context) or not rmap.is_mapping(context):
+    blob = _standard_file_checks(context)
+    if not blob or not rmap.is_mapping(context):
         raise UnknownContextError("Context parameter '%s' is not a known CRDS mapping file." % context)
-    
+
 def check_mapping(mapping):
-    blob = imodels.file_exists(mapping) 
+    blob = _standard_file_checks(mapping)
     if not blob or not blob.type == "mapping":
         raise UnknownMappingError("Mapping parameter '%s' is not a known CRDS mapping file." % mapping)
-    if not blob.available:
-        raise UnavailableFile("File '%s' is not yet available."  % mapping)
     
 def check_reference(reference):
-    blob = imodels.file_exists(reference)
+    blob = _standard_file_checks(reference)
     if not blob or not blob.type == "reference":
         raise UnknownReferenceError("Reference parameter '%s' is not a known CRDS reference file." % reference)
-    if not blob.available:
-        raise UnavailableFile("File '%s' is not yet available."  % reference)
     
 def check_header(header):
     if not isinstance(header, dict):
