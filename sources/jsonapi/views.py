@@ -107,6 +107,8 @@ def check_reftypes(reftypes):
         for reftype in reftypes:
             if not isinstance(reftype, (str, unicode)):
                 raise InvalidReftypesError("Non-string reftype: " + repr(reftype))
+            if reftype not in imodels.FILEKINDS:
+                raise InvalidReftypesError("Reftype '%s' is not a known reference type." % imodels.FILEKINDS)
 
 # ===========================================================================
 

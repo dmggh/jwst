@@ -53,6 +53,7 @@ class SimpleTest(TestCase):
                 deliverer="homer", deliverer_email="homer@simpsons.com", 
                 description="delivered by the man",
                 add_slow_fields=False,
+                state="delivered",
                 update_derivation=False)
             models.AuditBlob.new("homer", "mass import", name, "becuz", "some details",
                                  observatory=observatory)

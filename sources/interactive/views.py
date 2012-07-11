@@ -171,7 +171,9 @@ def is_available_file(filename):
     except LookupError:
         raise CrdsError("No database entry for " + repr(filename) + ".")
     assert blob.available, \
-        "File " + repr(filename) + " is not yet available for distribution."
+        "File " + repr(filename) + " is not yet available."
+    assert not blob.blacklisted, \
+        """File " + repr(filename) + " has been blacklisted and should no longer be used."""
     return filename
 
 def is_list_of_rmaps(text):
@@ -637,9 +639,12 @@ def get_recent_pmaps(last_n=10):
     """
     files = models.FileBlob.objects.reverse()
     pmaps = []
-    for file_ in files:
-        if file_.name.endswith(".pmap"):
-            pmaps.append((file_.name, pmap_label(file_.name)))
+    for f in files:
+        if f.name.endswith(".pmap"):
+            f.thaw()
+            if not f.available or f.blacklisted:
+                continue
+            pmaps.append((f.name, pmap_label(f.name)))
             if len(pmaps) >= last_n:
                 break
     return pmaps
@@ -660,6 +665,11 @@ def bestrefs_explore_post(request):
             "instrument":instrument,
         })
 
+def is_available_pmap(context):
+    is_pmap(context)
+    is_available_file(context)
+    return context
+
 def get_recent_or_user_context(request):
     """Process standard request parameters for specifying context."""
     if request.POST["pmap_mode"] == "pmap_default":
@@ -667,7 +677,7 @@ def get_recent_or_user_context(request):
     else:
         pmap_mode = validate_post(
             request, "pmap_mode", "pmap_menu|pmap_text|pmap_default")
-        context = validate_post(request, pmap_mode, is_pmap)
+        context = validate_post(request, pmap_mode, is_available_pmap)
     return context
 
 @error_trap("bestrefs_explore_input.html")
