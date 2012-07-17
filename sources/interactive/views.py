@@ -692,7 +692,7 @@ def bestrefs_explore_compute(request):
     instrument = validate_post(request, "instrument", models.INSTRUMENTS)
     pmap = rmap.get_cached_mapping(context)
     imap = pmap.get_imap(instrument)
-    header = { "INSTRUME" : instrument.upper() }
+    header = { pmap.instrument_key : instrument.upper() }
     pars = imap.get_parkey_map().keys()
     for par in pars:
         header[par] = utils.condition_value(
