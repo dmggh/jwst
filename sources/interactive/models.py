@@ -336,34 +336,36 @@ class FileBlob(BlobModel):
             "Path to catalog file listing this file for delivery to OPUS. " \
             "File transitions from 'delivered' to 'operational' when deleted.",
             ""),
+        delivery_date = BlobField(str, 
+            "date file was delivered to CRDS", ""),
 
         # Automatically generated fields
         pathname = BlobField("^[A-Za-z0-9_./]+$", 
             "path/filename to CRDS master copy of file", "None"),
-        delivery_date = BlobField(str, 
-            "date file was delivered to CRDS", ""),
-        archive_date = BlobField(str, 
-            "date file was accepted by the archive", ""),
-        general_availability_date = BlobField(str, 
-            "date file can be released to general public", ""),
-        opus_load_date = BlobField(str, 
-            "date file was", ""),
-        otfc_date = BlobField(str, 
-            "date file was", ""),
-        useafter_date = BlobField(str, 
-            "date after which file is applicable", ""),
-        sha1sum = BlobField(str, 
-            "checksum of file at upload time", ""),
-
-        comparison_file = BlobField(FILENAME_RE, 
-            "Name of existing file to compare to for mode coverage.", "initial"),
-        change_level = BlobField(CHANGE_LEVELS,
-            "Do the changes to this file force recalibration of science data?",
-            "SEVERE"),
-                       
         blacklisted_by = BlobField(list,
             "List of blacklisted files this file refers to directly or indirectly.",
             []),
+        sha1sum = BlobField(str, 
+            "checksum of file at upload time", ""),      
+
+        # Fields derived from CDBS
+        pedigree = BlobField(PEDIGREES, 
+            "source of reference file","INFLIGHT"),
+        change_level = BlobField(CHANGE_LEVELS,
+            "Do the changes to this file force recalibration of science data?",
+            "SEVERE"),                       
+#        comparison_file = BlobField(FILENAME_RE, 
+#            "Name of existing file to compare to for mode coverage.", "initial"),
+        general_availability_date = BlobField(str, 
+            "date file can be released to general public", ""),
+        activation_date = BlobField(str, 
+            "i.e. opus load date", ""),
+        useafter_date = BlobField(str, 
+            "date after which file should be used", ""),
+        reject_flag = BlobField("Y|N",
+            "File was rejected by archive", "N"),
+        reject_by_file_name = BlobField(FILENAME_RE,
+            "", "")
     )
     
     @classmethod
