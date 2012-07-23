@@ -51,6 +51,16 @@
             <textarea name='description' rows="4" cols="50">{{description}}</textarea>
           </td>
         </tr>
+        <tr>
+          <td width="25%" class="label">Auto-Rename:</td>
+          <td width="25%">
+            <input name='auto_rename' type='checkbox' value='on'
+                {% if auto_rename %}
+                    checked
+                {% endif %}
+             />
+          </td>
+        </tr>
       </table>
       <p></p>
       <input type="submit" value="Submit File">
@@ -93,7 +103,14 @@ certification before it will be accepted.
 <p><p><b>Description</b> information about what's new in this file and what
 the expected impacts are.
 
-<p><p>NOTE: All references must be submitted before a mapping which uses any 
+<p><p><b>Auto Rename</b> when checked, the uploaded file will be renamed to a 
+unique name using CRDS naming conventions and id numbers,  e.g.
+'s7g1700gm_dead.fits' might be renamed as ' hst_cos_deadtab_0002.fits'.  In general 
+auto-renaming should be left checked and CRDS names assigned;  this feature is
+useful for delivery of test files and for side-by-side testing with CDBS where
+filename equality is required for easy comparison.
+
+<p><p><b>NOTE:</b> All references must be submitted before a mapping which uses any 
 of them can be submitted.  
 
 {% endif %}

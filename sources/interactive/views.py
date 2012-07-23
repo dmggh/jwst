@@ -710,6 +710,7 @@ def submit_file(request, crds_filetype):
     """Handle file submission,  crds_filetype=reference|mapping."""
     if request.method == "GET":
         return render(request, 'submit_input.html', {
+            "auto_rename" : 'on',
             "crds_filetype" :  crds_filetype,
         })
     else:
@@ -727,6 +728,7 @@ def submit_file_post(request, crds_filetype):
     uploaded_file = get_uploaded_file(request, "submitted_file")    
     description = validate_post(request, "description", DESCRIPTION_RE)
     creator = validate_post(request, "creator", PERSON_RE)
+    auto_rename = "auto_rename" in request.POST
     
     if crds_filetype == "reference":
         change_level = validate_post(
@@ -741,7 +743,8 @@ def submit_file_post(request, crds_filetype):
     new_basename = do_submit_file( 
         observatory, uploaded_file, description,
         str(request.user), request.user.email, creator, 
-        change_level, comparison_file, state="uploaded")
+        change_level, comparison_file, state="uploaded",
+        auto_rename=auto_rename)
     
     collision_list = get_collision_list([new_basename])
 
@@ -787,7 +790,9 @@ def do_submit_file(observatory, uploaded_file, description,
             observatory, uploaded_file.name, upload_location)
     else:
         if file_exists_somehow(original_name):
-            raise FieldError("File " + repr(original_name) + " already exists.")    
+            raise FieldError("File " + repr(original_name) + " already exists.") 
+        else:
+            permanent_name = os.path.basename(original_name)   
 
     # CRDS keeps all new files in a standard layout.   Older files can be
     # grandfathered in by special calls to add_crds_file rather than "submission".
