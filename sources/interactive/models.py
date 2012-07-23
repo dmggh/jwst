@@ -300,7 +300,7 @@ class FileBlob(BlobModel):
     type = SimpleCharField( ["reference","mapping"],
         "type of file,  reference data or CRDS rule or context", "")
     
-    derived_from = models.CharField(max_length=48,
+    derived_from = models.CharField(max_length=128,
         help_text = "Previous version of this file this one was based on.")
 
     # ===============================
