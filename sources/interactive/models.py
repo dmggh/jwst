@@ -20,9 +20,8 @@ observatory_module = utils.get_object("crds." + OBSERVATORY)
 
 OBSERVATORIES = ["hst","jwst"]
 
-INSTRUMENTS = sorted(observatory_module.INSTRUMENTS)  # + crds.jwst...
-
-FILEKINDS   = sorted(observatory_module.FILEKINDS)    # + crds.jwst...
+INSTRUMENTS = sorted(observatory_module.INSTRUMENTS) + ["UNKNOWN"] # + crds.jwst...
+FILEKINDS   = sorted(observatory_module.FILEKINDS) + ["UNKNOWN"]   # + crds.jwst...
 FILEKIND_TEXT_DESCR = sorted(observatory_module.TEXT_DESCR.items())
 EXTENSIONS  = sorted(observatory_module.EXTENSIONS)   # + crds.jwst...
 
@@ -393,10 +392,16 @@ class FileBlob(BlobModel):
         blob.delivery_date = timestamp.now()
         if add_slow_fields:
             blob.sha1sum = blob.checksum()
-        instrument, filekind = utils.get_file_properties(
-            observatory, permanent_location)
-        blob.instrument = instrument
-        blob.filekind= filekind
+        try:
+            instrument, filekind = utils.get_file_properties(
+                observatory, permanent_location)
+            blob.instrument = instrument
+            blob.filekind= filekind
+        except Exception, exc:
+            log.warning("Adding file with instrument and filekind UNKNOWN for file", 
+                        repr(permanent_location))
+            blob.instrument = blob.fileind = "UNKNOWN"
+
         blob.derived_from = derived_from if derived_from else "(no predecessor)"
 
         # These need to be checked before the file is copied and the blob is made.

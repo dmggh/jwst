@@ -38,8 +38,8 @@ def submit_files(files, observatory, deliverer,
         try:
             existing_location = locate_file(file, observatory)
         except Exception:
-            log.error("Can't locate", repr(file))
-            continue
+            log.warning("Can't locate", repr(file), "submitting as", repr(file))
+            existing_location = file
 
         log.info("Submitting", repr(file), "from", repr(existing_location))
         try:
@@ -52,8 +52,9 @@ def submit_files(files, observatory, deliverer,
                 description=description,
                 add_slow_fields=add_slow_fields,
                 state=state, update_derivation=False)
-        except Exception:
-            log.error("Submission FAILED for", repr(file))
+        except Exception, exc:
+            raise
+            log.error("Submission FAILED for", repr(file), ":", str(exc))
         else:
             models.AuditBlob.new(deliverer, "mass import", file, 
                 "system initialization", "", observatory=observatory, 
@@ -79,9 +80,12 @@ def main(args):
                  deliverer=args[1], deliverer_email=args[2], 
                  description=args[3], add_slow_fields=int(args[4]), 
                  state="submitted")
-    views.deliver_file_list(args[1], ctx.observatory, ctx.mapping_names(), 
-                            "system initialization", "mass import")
-    
+    try:
+        views.deliver_file_list(args[1], ctx.observatory, ctx.mapping_names(), 
+                                "system initialization", "mass import")
+    except Exception, exc:
+        log.warning("File deliveries for", args[1], "failed:", str(exc))
+        
     # Initial set of reference files assumed to be already operational.
     submit_files(ctx.reference_names(), ctx.observatory, 
                  deliverer=args[1], deliverer_email=args[2], 

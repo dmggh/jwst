@@ -23,6 +23,10 @@ config="sources/configs/config.${server_mode}.${observatory}.py"
 echo "Using configuration " ${config}
 cp ${config} sources/config.py
 
+crds_database="sources/configs/database.${server_mode}.${observatory}.py"
+echo "Using crds_database" ${crds_database}
+cp ${crds_database} sources/crds_database.py
+
 if [ X$1 = X-r ]
 then
 	rc=1
@@ -468,14 +472,6 @@ sqlite)
                 echo ERROR: the sqlite database driver hangs when run in a mod_python server
                 echo ''
         fi
-        ;;
-
-crds[12])
-        ( cd $install_dir/python/lib/python/crds/server ; python manage.py syncdb )
-        ;;
-
-production:*)
-        ( cd $install_dir/python/lib/python/crds/server ; python manage.py syncdb )
         ;;
 
 mssql)

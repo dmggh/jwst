@@ -23,7 +23,7 @@ servertype = 'mod_python'
 apachemod = "/data1/pyetc_third_party_4/lib/apache"
 
 debug = True
-dbtype='sqlite'
+dbtype='mysql'
 table_prefix = 'crds_' + observatory
 data_dir = install_dir+"/data"
 

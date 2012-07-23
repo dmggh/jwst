@@ -1479,7 +1479,7 @@ def browsify_reference(browsed_file):
              "<br/>",
              "<table border='1'>"]
     for key, value in sorted(header.items()):
-        if value != "NOT PRESENT":
+        if value != "UNDEFINED":
             lines.append("<tr><td class='label'>%s</td><td>%s</td></tr>" % (key, value))
     lines.append("</table>")
     lines.append("<br/>")
