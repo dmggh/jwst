@@ -6,6 +6,7 @@ from django.test import TestCase
 
 import crds.rmap as rmap
 import crds.server.interactive.models as models
+import crds.server.config as config
 
 from django.contrib.auth.models import User
 
@@ -14,10 +15,12 @@ class SimpleTest(TestCase):
     def runTest(self, *args, **keys):
         pass
     
+    pmap = config.observatory + ".pmap"
+    
     def setUp(self): 
         User.objects.create_user('homer', 'homer@simpson.net', 'simpson')     
-        self.fake_database_files(["hst.pmap"])
-        models.set_default_context("hst.pmap")
+        self.fake_database_files([self.pmap])
+        models.set_default_context(self.pmap)
 
     def tearDown(self):
         self.del_maps(["hst_0001.pmap",
@@ -44,19 +47,19 @@ class SimpleTest(TestCase):
             except OSError:
                 pass
 
-    def fake_database_files(self, files, observatory="hst"):
+    def fake_database_files(self, files):
         for filename in files:
             name = os.path.basename(filename)
-            location = filename if os.path.dirname(filename) else rmap.locate_file(filename, observatory)
+            location = filename if os.path.dirname(filename) else rmap.locate_file(filename, config.observatory)
             models.add_crds_file(
-                observatory, name, location, 
+                config.observatory, name, location, 
                 deliverer="homer", deliverer_email="homer@simpsons.com", 
                 description="delivered by the man",
                 add_slow_fields=False,
                 state="delivered",
                 update_derivation=False)
             models.AuditBlob.new("homer", "mass import", name, "becuz", "some details",
-                                 observatory=observatory)
+                                 observatory=config.observatory)
 
     def assert_no_errors(self, response):
         self.assertEqual(response.status_code, 200)
@@ -93,11 +96,15 @@ class SimpleTest(TestCase):
         pass
     
     def test_bestrefs_post_uploaded_dataset(self):
+        if config.observatory == "hst":
+            dataset1 = "interactive/test_data/j8bt05njq_raw.fits"
+        else:
+            pass
         response = self.client.post("/bestrefs/", {
             "pmap_mode" : "pmap_text",
-            "pmap_text" : "hst.pmap",
+            "pmap_text" : self.pmap,
             "dataset_mode" : "dataset_uploaded",
-            "dataset_uploaded" : open("interactive/test_data/j8bt05njq_raw.fits"),
+            "dataset_uploaded" : open(dataset1),
             })  
         self.assert_no_errors(response)
     
@@ -108,18 +115,25 @@ class SimpleTest(TestCase):
 
     def test_submit_post(self):
         self.authenticate()
-        self.fake_database_files([
+        if config.observatory == "hst":
+            self.fake_database_files([
                 "interactive/test_data/s7g1700gl_dead.fits", 
                 "interactive/test_data/s7g1700ql_dead.fits"]) 
+            rmap1 = "interactive/test_data/hst_cos_deadtab.rmap"
+        else:
+            self.fake_database_files([
+                "interactive/test_data/"])
+        rmap2 = self.add_1(rmap1)
         response = self.client.post("/submit/mapping/", {
-            "observatory" : "hst",
-            "submitted_file" : open("interactive/test_data/hst_cos_deadtab.rmap"),
+            "observatory" : config.observatory,
+            "auto_rename" : "on",
+            "submitted_file" : open(rmap1),
             "description" : "an identical pmap with a different name is still different",
             "change_level" : "SEVERE",
             "creator" : "Somebody else",
             })
         self.assert_no_errors(response)
-        self.assertIn("hst_cos_deadtab_0001.rmap", response.content)
+        self.assertIn(rmap2, response.content)
     
     def test_blacklist_get(self):
         self.authenticate()
@@ -127,20 +141,24 @@ class SimpleTest(TestCase):
         self.assert_no_errors(response)
 
     def test_blacklist_post(self):
-        self.fake_database_files([
-                "hst_acs.imap", 
-                "hst_acs_biasfile.rmap"]) 
+        if config.observatory == "hst":
+            imap = "hst_acs.imap"
+            rmap = "hst_acs_biasfile.rmap"            
+        else:
+            pass 
         self.authenticate()
+        self.fake_database_files([imap, rmap])
         response = self.client.post("/blacklist/", {
-            "observatory" : "hst",
-            "file_known" : "hst_acs_biasfile.rmap",
+            "observatory" : config.observatory,
+            "file_known" : rmap,
             "badflag" : "bad",
             "why" : "just had a feeling.",
             })
         # print response.content
         self.assert_no_errors(response)
-        self.assertTrue("hst.pmap" in response.content)
-        self.assertTrue("hst_acs.imap" in response.content)
+        self.assertTrue(self.pmap in response.content)
+        self.assertTrue(imap in response.content)
+        self.assertTrue(rmap in response.content)
 
     def test_certify_get(self):
         self.authenticate()
@@ -149,10 +167,14 @@ class SimpleTest(TestCase):
 
     def test_certify_post_fits_uploaded(self):
         self.authenticate()
-        self.fake_database_files(["interactive/test_data/s7g1700gl_dead.fits"])
+        if config.observatory == "hst":
+            fits = "interactive/test_data/s7g1700gl_dead.fits"
+        else:
+            pass
+        self.fake_database_files([fits])
         response = self.client.post("/certify/", {
             "filemode" : "file_uploaded",
-            "file_uploaded" : open("interactive/test_data/s7g1700gl_dead.fits"),
+            "file_uploaded" : open(fits),
         })
         self.assert_no_errors(response)
         self.assertIn("0 errors", response.content)
@@ -160,10 +182,14 @@ class SimpleTest(TestCase):
 
     def test_certify_post_rmap_known(self):
         self.authenticate()
-        self.fake_database_files(["hst_cos_deadtab.rmap"])
+        if config.observatory == "hst":
+            rmap = "hst_cos_deadtab.rmap"
+        else:
+            pass
+        self.fake_database_files([rmap])
         response = self.client.post("/certify/", {
             "filemode" : "file_known",
-            "file_known" : "hst_cos_deadtab.rmap",
+            "file_known" : rmap,
         })
         self.assert_no_errors(response)
         self.assertTrue(response.content.count("0 errors") == 1)
@@ -187,12 +213,18 @@ class SimpleTest(TestCase):
         self.assert_no_errors(response)
 
     def test_difference_post(self):
-        self.fake_database_files(["hst_acs.imap", "hst_cos.imap"])
+        if config.observatory == "hst":
+            file1 = "hst_acs.imap"
+            file2 = "hst_cos.imap"
+        else:
+            pass
+        self.fake_database_files([file1, file2])
         response = self.client.post("/difference/", {
             "filemode1": "file_known1",
-            "file_known1" : "hst_acs.imap",
+            "file_known1" : file1,
             "filemode2": "file_known2",
-            "file_known2" : "hst_cos.imap"
+            "file_known2" : file2,
+            
         })
         self.assert_no_errors(response)
     
@@ -218,24 +250,33 @@ class SimpleTest(TestCase):
         self.authenticate()
         response = self.client.get("/create_contexts/")
         self.assert_no_errors(response)
+        
+    def add_1(self, name):
+        """hst.pmap -->  hst_0001.pmap"""
+        ext = "." + os.path.splitext(name)[-1]
+        return os.path.basename(name).replace(ext, "_0001" + ext)
 
     def test_create_contexts_post(self):
         self.authenticate()
-        self.fake_database_files(["hst_acs_biasfile.rmap",
-                                  "hst_cos_deadtab.rmap"])
+        if config.observatory == "hst":
+            rmap1 = "hst_acs_biasfile.rmap"
+            rmap2 = "hst_cos_deadtab.rmap"
+        else:
+            pass
+        self.fake_database_files([rmap1, rmap2])
         response = self.client.post("/create_contexts/", {
                 "pmap_mode" : "pmap_text",
-                "pmap_text" : "hst.pmap",
-                "rmaps" : "hst_acs_biasfile.rmap, hst_cos_deadtab.rmap",
+                "pmap_text" : self.pmap,
+                "rmaps" : rmap1 + ", " + rmap2,
                 "description" : "updated ACS biasfile and COS deadtab rmaps"
             })
         self.assert_no_errors(response)
-        self.assertTrue("hst_0001.pmap" in response.content)
-        self.assertTrue("hst_acs_0001.imap" in response.content)
-        self.assertTrue("hst_cos_0001.imap" in response.content)
+        self.assertTrue(self.add_1(self.pmap) in response.content)
+        self.assertTrue(self.add_1(rmap1) in response.content)
+        self.assertTrue(self.add_1(rmap2) in response.content)
     
     def test_browse_file(self):
-        response = self.client.get("/browse/hst.pmap")
+        response = self.client.get("/browse/" + self.pmap)
         self.assert_no_errors(response)
 
     def test_browse_db_get(self):
@@ -246,17 +287,17 @@ class SimpleTest(TestCase):
     def test_browse_db_post(self):
         self.authenticate()
         response = self.client.post("/browse_db/", {
-                "observatory" : "hst",
+                "observatory" : config.observatory,
                 "instrument" : "*",
                 "filekind" : "*",
                 "extension": "*",
-                "filename": "hst.pmap",
+                "filename": self.pmap,
                 "deliverer_user": "*",
                 "status":"*",
             })
         # print response
         self.assert_no_errors(response)
-        self.assertTrue('hst.pmap' in response.content)
+        self.assertTrue(self.pmap in response.content)
         self.assertEqual(response.content.count("<tr>"), 4)
         
     def test_edit_rmap_insert(self):

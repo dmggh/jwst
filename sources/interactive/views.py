@@ -336,7 +336,7 @@ def remove_temporary(filepath):
     try:
         assert not filepath.startswith("/grp"), \
             "ERROR -- attempt to delete from Central Store"
-        os.remove(filepath)
+        # os.remove(filepath)
     except OSError:
         pass
     
