@@ -22,54 +22,17 @@ os.environ["CRDS_PATH"] = CRDS_PATH = HERE + "/crds"
 
 client.set_crds_server(server_config.CRDS_URL)
 
-class ServiceApiTest(TestCase):
-    def setUp(self):
-        self.context = "hst.pmap"
+class ServiceApiBase(object):
 
     def get_header(self):
-        # crds.client.get_minimum_header("hst.pmap", "../../../testdata/wfc3/howard/iaai01rtq_raw.fits")
-        header = {
-         'APERTURE': 'UVIS',
-         'BINAXIS1': '1.0',
-         'BINAXIS2': '1.0',
-         'CCDAMP': 'ABCD',
-         'CCDGAIN': '1.5',
-         'CHINJECT': 'NONE',
-         'DATE-OBS': '2009-07-14',
-         'DETECTOR': 'UVIS',
-         'FILTER': 'F555W',
-         'INSTRUME': 'WFC3',
-         'LTV1': '25.0',
-         'LTV2': '0.0',
-         'NAXIS1': '4206.0',
-         'NAXIS2': '2070.0',
-         'OBSMODE': 'ACCUM',
-         'OBSTYPE': 'IMAGING',
-         'SUBARRAY': 'F',
-         'TIME-OBS': '15:56:09',
-        }
-        return header
+        return dict(self.header)
     
     def expected_references(self):
-        exp = {}
-        for key, value in {
-         'ATODTAB': 'IREF$N9N16196I_A2D.FITS',
-         'BIASFILE': 'IREF$U1R1346RI_BIA.FITS',
-         'BPIXTAB': 'IREF$U5D2012LI_BPX.FITS',
-         'CCDTAB': 'IREF$T291659MI_CCD.FITS',
-         'CRREJTAB': 'IREF$N9I1435LI_CRR.FITS',
-         'DARKFILE': 'IREF$T3420177I_DRK.FITS',
-         'IDCTAB': 'IREF$w2r1956ri_idc.fits',
-         'MDRIZTAB': 'IREF$UBI1853QI_MDZ.FITS',
-         'OSCNTAB': 'IREF$Q911321OI_OSC.FITS',
-         'PFLTFILE': 'IREF$v8816168i_pfl.fits',
-        }.items():  # hack off IREF$ and switch to lower case
-            exp[key.lower()] = value.lower().split("$")[1]
-        return exp
+        raise NotImplementedError("ServiceApiTest is abstract: subclass and define expected_references().")
 
     def get_bestrefs(self, reftypes=[]):
         header = self.get_header()
-        return client.get_best_references(self.context, header, reftypes)
+        return client.get_best_references(self.pmap, header, reftypes)
 
     def purge_mappings(self):
         pysh.sh("rm -rf " + CRDS_PATH)        
@@ -77,21 +40,10 @@ class ServiceApiTest(TestCase):
     def purge_references(self):
         pysh.sh("rm -rf " + CRDS_PATH)
 
-    # File counts below are trip-wires with a shaky rational basis,  don't
-    # loose sleep if the actual value deviates from the provided range,  just
-    # take note and update.
-    def test_client_get_mapping_names(self):
-        mappings = client.get_mapping_names(self.context)
-        self.failUnless(100 < len(mappings) < 120)
-        
-    def test_client_get_reference_names(self):
-        references = client.get_reference_names(self.context)
-        self.failUnless(11775 < len(references) < 20000)
-        
     def test_client_dump_mappings(self):
-        client.dump_mappings(self.context)
+        client.dump_mappings(self.pmap)
         self.purge_mappings()
-    
+
     def _check_bestrefs(self, bestrefs, reftypes):    
         for key in reftypes:
             value = self.expected_references()[key]
@@ -101,79 +53,72 @@ class ServiceApiTest(TestCase):
     def test_client_get_bestrefs_all(self):
         bestrefs = self.get_bestrefs()
         self._check_bestrefs(bestrefs, self.expected_references().keys())
-                
+
     def test_client_get_bestrefs_some(self):
-        bestrefs = self.get_bestrefs(["biasfile","darkfile"])
-        self._check_bestrefs(bestrefs, ["biasfile", "darkfile"])
-                
+        bestrefs = self.get_bestrefs(self.requested_types)
+        self._check_bestrefs(bestrefs, self.requested_types)
+
     def test_client_dump_references(self):
-        client.dump_references(self.context, ['t3420177i_drk.fits'])
+        client.dump_references(self.pmap, [self.test_reference])
         self.purge_references()
-        
+
     def test_client_cache_best_references(self):
-        client.get_best_references(self.context, self.get_header())
+        client.get_best_references(self.pmap, self.get_header())
         self.purge_references()
-        
+
     def test_client_cache_best_references_for_dataset(self):
-        client.cache_best_references_for_dataset(self.context, "interactive/test_data/iaai01rtq_raw.fits")
+        client.cache_best_references_for_dataset(self.pmap, self.test_dataset)
         self.purge_references()
-        
+
     def test_client_get_reference_url(self):
-        url = client.get_reference_url(self.context, 't3420177i_drk.fits')
+        url = client.get_reference_url(self.pmap, self.test_reference)
 
     def test_client_get_default_context(self):
-        context = client.get_default_context("hst")
+        context = client.get_default_context(self.observatory)
         self.assertIn(".pmap", context)
         
     def getreferences(self, *args, **keys):
-        if "hst" not in keys:
-            keys["observatory"] = "hst"
+        keys["observatory"] = self.observatory
         return crds.getreferences(*args, **keys)
-    
+
     def test_getreferences_defaults(self, ignore_cache=False):
         bestrefs = self.getreferences(self.get_header(), ignore_cache=ignore_cache)
         self._check_bestrefs(bestrefs, self.expected_references().keys())
-        
+
     def test_getreferences_specific_reftypes(self):
         bestrefs = self.getreferences(
-            self.get_header(), reftypes=["biasfile","darkfile"], 
-            context="hst.pmap")
-        self._check_bestrefs(bestrefs, ["biasfile","darkfile"]) 
-        
+            self.get_header(), reftypes=self.requested_types, 
+            context=self.pmap)
+        self._check_bestrefs(bestrefs, self.requested_types) 
+
     def test_getreferences_missing_date(self):
         header = self.get_header()
-        del header["DATE-OBS"]
+        del header[self.date_key]
         with self.assertRaises(crds.CrdsLookupError):
-            bestrefs = self.getreferences(header, context="hst.pmap")
+            bestrefs = self.getreferences(header, context=self.pmap)
 
     def test_getreferences_bad_date(self):
         header = self.get_header()
-        header["DATE-OBS"] = "2012-1f-23"
+        header[self.date_key] = "2012-1f-23"
         with self.assertRaises(crds.CrdsLookupError):
-            bestrefs = self.getreferences(header, context="hst.pmap")
-    
-    def test_getreferences_bad_ccdamp(self):
-        header = self.get_header()
-        header["CCDAMP"] = "ABCE"
-        with self.assertRaises(crds.CrdsLookupError):
-            bestrefs = self.getreferences(header, context="hst.pmap")
+            bestrefs = self.getreferences(header, context=self.pmap)
     
     def test_getreferences_bad_instrument(self):
         header = self.get_header()
-        header["INSTRUME"] = "foo"
+        header[self.instr_key] = "foo"
         with self.assertRaises(crds.CrdsError):
-            bestrefs = self.getreferences(header, context="hst.pmap")
+            bestrefs = self.getreferences(header, context=self.pmap)
     
     def test_getreferences_missing_instrument(self):
         header = self.get_header()
-        del header["INSTRUME"]
+        del header[self.instr_key]
         with self.assertRaises(crds.CrdsError):
-            bestrefs = self.getreferences(header, context="hst.pmap")
+            bestrefs = self.getreferences(header, context=self.pmap)
     
     def test_getreferences_bad_reftype(self):
         header = self.get_header()
         with self.assertRaises(crds.CrdsLookupError):
-            bestrefs = self.getreferences(header, context="hst.pmap", reftypes=["foo"])
+            bestrefs = self.getreferences(header, context=self.pmap, reftypes=["foo"])
     
     def test_get_server_info(self):
         info = client.get_server_info()
@@ -246,3 +191,99 @@ class ServiceApiTest(TestCase):
     def test_getreferences_fallup_remote_ignore(self):
         self.getreferences_fallup("remote", ignore_cache=True)
 
+# ===========================================================================
+if server_config.observatory == "hst":
+    class HstServiceApiTest(ServiceApiBase, TestCase):
+        pmap = "hst.pmap"
+        
+        observatory = server_config.observatory
+        
+        instr_key = "INSTRUME"
+        date_key = "DATE-OBS"
+        
+        test_reference = 't3420177i_drk.fits'
+        test_dataset = "interactive/test_data/iaai01rtq_raw.fits"
+        
+        requested_types = ["biasfile","darkfile"]
+        
+        header = {
+         'APERTURE': 'UVIS',
+         'BINAXIS1': '1.0',
+         'BINAXIS2': '1.0',
+         'CCDAMP': 'ABCD',
+         'CCDGAIN': '1.5',
+         'CHINJECT': 'NONE',
+         'DATE-OBS': '2009-07-14',
+         'DETECTOR': 'UVIS',
+         'FILTER': 'F555W',
+         'INSTRUME': 'WFC3',
+         'LTV1': '25.0',
+         'LTV2': '0.0',
+         'NAXIS1': '4206.0',
+         'NAXIS2': '2070.0',
+         'OBSMODE': 'ACCUM',
+         'OBSTYPE': 'IMAGING',
+         'SUBARRAY': 'F',
+         'TIME-OBS': '15:56:09',
+        }
+    
+        def expected_references(self):
+            exp = {}
+            for key, value in {
+             'ATODTAB': 'IREF$N9N16196I_A2D.FITS',
+             'BIASFILE': 'IREF$U1R1346RI_BIA.FITS',
+             'BPIXTAB': 'IREF$U5D2012LI_BPX.FITS',
+             'CCDTAB': 'IREF$T291659MI_CCD.FITS',
+             'CRREJTAB': 'IREF$N9I1435LI_CRR.FITS',
+             'DARKFILE': 'IREF$T3420177I_DRK.FITS',
+             'IDCTAB': 'IREF$w2r1956ri_idc.fits',
+             'MDRIZTAB': 'IREF$UBI1853QI_MDZ.FITS',
+             'OSCNTAB': 'IREF$Q911321OI_OSC.FITS',
+             'PFLTFILE': 'IREF$v8816168i_pfl.fits',
+            }.items():  # hack off IREF$ and switch to lower case
+                exp[key.lower()] = value.lower().split("$")[1]
+            return exp
+        
+        def test_getreferences_bad_ccdamp(self):
+            header = self.get_header()
+            header["CCDAMP"] = "ABCE"
+            with self.assertRaises(crds.CrdsLookupError):
+                bestrefs = self.getreferences(header, context=self.pmap)
+
+        # File counts below are trip-wires with a shaky rational basis,  don't
+        # loose sleep if the actual value deviates from the provided range,  just
+        # take note and update.
+        def test_client_get_mapping_names(self):
+            mappings = client.get_mapping_names(self.pmap)
+            self.failUnless(100 < len(mappings) < 120)
+    
+        def test_client_get_reference_names(self):
+            references = client.get_reference_names(self.pmap)
+            self.failUnless(11775 < len(references) < 20000)
+
+
+# ===========================================================================
+
+if server_config.observatory == "jwst":
+    class JwstServiceApiTest(ServiceApiBase, TestCase):
+        pmap = "jwst.pmap"
+        observatory = server_config.observatory
+    
+        header = {
+            "INSTRUME": "MIRI",
+            "DATE-OBS": "2012-07-25",
+            "TIME-OBS": "00:00:00",
+        }
+        
+        instr_key = "INSTRUME"
+        date_key = "DATE-OBS"
+        
+        requested_types = ["flatfile"]
+        
+        test_reference = 'jwst_miri_flatfile_0001.fits'        
+        test_dataset = "interactive/test_data/jwst_fake_raw.fits"
+        
+        def expected_references(self):
+            return {
+                    "flatfile" : "jwst_miri_flatfile_0001.fits",
+            }
