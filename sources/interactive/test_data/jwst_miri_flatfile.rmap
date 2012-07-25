@@ -1,0 +1,17 @@
+header = {
+    'derived_from' : 'Hand written 04-26-2012',
+    'filekind' : 'FLATFILE',
+    'instrument' : 'MIRI',
+    'mapping' : 'REFERENCE',
+    'name' : 'jwst_miri_flatfile.rmap',
+    'observatory' : 'JWST',
+    'parkey' : ((), ('DATE-OBS', 'TIME-OBS')),
+    'sha1sum' : 'acd549e97509d4efea98295157216fc3696cb349',
+}
+
+selector = Match({
+    () : UseAfter({
+        '1990-01-01 00:00:00' : 'jwst_miri_flatfile_0001.fits',
+    }),
+})
+

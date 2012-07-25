@@ -33,6 +33,7 @@ from crds import (rmap, utils, certify, timestamp, uses, matches, newcontext,
                   refactor, checksum, pysh, compat, log)
 
 from crds.timestamp import (is_datetime, DATE_RE_STR, TIME_RE_STR, DATETIME_RE_STR)
+from crds import CrdsError
 
 import crds.server.config as config
 from crds.server.interactive import (models, database)
@@ -343,9 +344,6 @@ def remove_temporary(filepath):
 
 # ===========================================================================
 
-class CrdsError(Exception):
-    """Something bad but understood happened in CRDS processing."""
-    
 class ServerError(Exception):
     """Uncaught exception which will be returned as HTTP 500"""
     
@@ -827,12 +825,12 @@ def do_certify_file(basename, certifypath, check_references=None):
         certify.certify_files([certifypath], check_references=None,
             trap_exceptions=False, is_mapping = rmap.is_mapping(basename))
     except Exception, exc:
-        raise CrdsError("certifying " + srepr(basename) + ": " + str(exc))
+        raise CrdsError("Certifying " + srepr(basename) + ": " + str(exc))
     if check_references in ["exist","contents"] and rmap.is_mapping(basename):
         ctx = rmap.load_mapping(certifypath)
         for ref in ctx.reference_names():
             assert models.file_exists(ref), \
-                "Reference " + repr(ref) + " is not known to CRDS."             
+                "Reference " + repr(ref) + " is not known to CRDS."
     
 def get_blacklists(basename, certifypath, ignore_self=True, files=None):
     """Return a list of the files referenced by `basename` which are
@@ -921,22 +919,23 @@ def certify_file(request):
 # @profile("certify5.stats")
 def certify_post(request):
     """View fragment to process file certification POSTs."""
-    
+
     uploaded, original_name, certified_file = handle_known_or_uploaded_file(
         request, "filemode", "file_known", "file_uploaded")
-    
+
     mapping = "--mapping" if rmap.is_mapping(original_name) else ""
 
     if uploaded and mapping:
         checksum.update_checksum(certified_file)
             
     certify_lines = pysh.lines(
-        "python -m crds.certify ${certified_file} ${mapping} --dump-provenance")
+        "python -m crds.certify ${certified_file} ${mapping} --dump-provenance",
+        independent_error=False)
     certify_status = "OK" if "0 errors" in \
         [ x.strip() for x in certify_lines] else "Failed."
-        
+
     files = { blob.name : blob for blob in models.FileBlob.objects.filter() }
-    
+
     missing_references = []
     if not rmap.is_mapping(original_name):
         fitscheck_lines = [x.strip() for x in pysh.lines(
@@ -963,10 +962,10 @@ def certify_post(request):
             blacklist_status = "Blacklisted"
         else:
             blacklist_status = "OK"
-    
+
     if uploaded:
         remove_temporary(certified_file)
-        
+
     return render(request, "certify_results.html", 
             {"certify_status":certify_status,
              "fitscheck_status":fitscheck_status, 
@@ -1269,7 +1268,7 @@ def difference_files(request):
                    "file1" : file1_orig,
                    "file2" : file2_orig,
                    })
-                
+
 def textual_diff(file1_path, file2_path, file1_orig, file2_orig):
     """Return the output of the context diff of two files."""
     diff_lines = pysh.lines("diff -b -u -FUseAfter ${file1_path} ${file2_path}")
@@ -1280,7 +1279,7 @@ def textual_diff(file1_path, file2_path, file1_orig, file2_orig):
         line = line.replace(file2_path, file2_orig)
         result.append(line)
     return result
-    
+
 def mapping_logical_diffs(file1, file2, file1_orig, file2_orig):
     """Return the logical differences between two mapping files."""
     try:
@@ -1289,9 +1288,26 @@ def mapping_logical_diffs(file1, file2, file1_orig, file2_orig):
         # Get logical difference tuples
         ldiffs = map1.difference(map2)
         # Substitute the name of the original file for temp file.
+#        for ldiff in ldiffs:
+#            ldiff = replace_ldiff_file(ldiff, file1, file1_orig)
+#            ldiff = replace_ldiff_file(ldiff, file2, file2_orig)
         return ldiffs
     except Exception, exc:
         return [("Mapping logical difference failed: " + str(exc),)]
+
+def replace_ldiff_file(ldiff, file_temp, file_orig):
+    """Replaces name of web temporary file in ldiff tuple with original upload 
+    name.
+    """ 
+    if not len(ldiff):
+        return ldiff
+    tup = ldiff[0]
+    if len(tup) == 2:
+        if tup[0] == file_temp:
+            tup = (file_orig, tup[1])
+        if tup[1] == file_temp:
+            tup = (tup[0], file_orig)
+    return (tup,) + replace_ldiff_file(ldiff[1:], file_temp, file_orig)
 
 def mapping_text_diffs(logical_diffs):
     """Return a mapping of file pairs to the textual differences between them
@@ -1302,13 +1318,19 @@ def mapping_text_diffs(logical_diffs):
     diff_map = {}
     for ldiff in logical_diffs:
         for tup in ldiff[1:]:
-            if ".imap" in tup[0] or ".rmap" in tup[0]:
+            if len(tup) == 2 and ((".imap" in tup[0] or ".rmap" in tup[0]) or \
+                (".imap" in tup[1] or ".rmap" in tup[1])):
                 file1_orig, file2_orig = tup
                 file1_path = rmap.locate_mapping(file1_orig)
                 file2_path = rmap.locate_mapping(file2_orig)
                 if (file1_orig, file2_orig) not in diff_map:
-                    diff_map[file1_orig, file2_orig] = textual_diff(
-                        file1_path, file2_path, file1_orig, file2_orig)
+                    try:
+                        diffs = textual_diff(
+                            file1_path, file2_path, file1_orig, file2_orig)
+                    except Exception, exc:
+                        diffs = "diffs failed: " + str(exc)
+                    diff_map[file1_orig, file2_orig] = diffs
+                break
     return diff_map
 
 def format_fitsdiffs(lines, file1, file2, file1_orig, file2_orig):

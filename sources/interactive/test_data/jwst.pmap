@@ -1,0 +1,16 @@
+header = {
+    'name' : 'jwst.pmap',
+    'derived_from' : 'created by hand 04-26-2012',
+    'mapping' : 'PIPELINE',
+    'observatory' : 'JWST',
+    'parkey' : ('INSTRUME',),
+    'description' : '',
+    'sha1sum' : '5c4096fd02e2e33874c18c84f88611b91877c74a',
+}
+
+selector = {
+    'NIRCAM' : 'jwst_nircam.imap',
+    # 'NIRSPEC' : 'jwst_nirspec.imap',
+    'MIRI' : 'jwst_miri.imap',
+}
+

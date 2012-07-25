@@ -23,13 +23,24 @@ class SimpleTest(TestCase):
         models.set_default_context(self.pmap)
 
     def tearDown(self):
-        self.del_maps(["hst_0001.pmap",
-                       "hst_cos_0001.imap",
-                       "hst_acs_0001.imap",
-                       "hst_cos_deadtab_0001.rmap",
-                       "hst_acs_biasfile_0001.rmap",
-                       "hst_acs_dgeofile_0001.rmap",
-                       ])
+        if config.observatory == "hst":
+            delete_files = [
+                "hst_0001.pmap",
+                "hst_cos_0001.imap",
+                "hst_acs_0001.imap",
+                "hst_cos_deadtab_0001.rmap",
+                "hst_acs_biasfile_0001.rmap",
+                "hst_acs_dgeofile_0001.rmap",
+                ]
+        else:
+            delete_files = [
+                "jwst_0001.pmap",
+                "jwst_miri_0001.imap",
+                "jwst_nircam_0001.imap",
+                "jwst_miri_flatfile_0001.rmap",
+                "jwst_nircam_flatfile_0001.rmap",
+                ]
+        self.del_maps(delete_files)
 
     def authenticate(self):
         login = self.client.login(username="homer", password="simpson")
@@ -99,7 +110,7 @@ class SimpleTest(TestCase):
         if config.observatory == "hst":
             dataset1 = "interactive/test_data/j8bt05njq_raw.fits"
         else:
-            pass
+            dataset1 = "interactive/test_data/jwst_fake_raw.fits"
         response = self.client.post("/bestrefs/", {
             "pmap_mode" : "pmap_text",
             "pmap_text" : self.pmap,
@@ -116,13 +127,14 @@ class SimpleTest(TestCase):
     def test_submit_post(self):
         self.authenticate()
         if config.observatory == "hst":
+            rmap1 = "interactive/test_data/hst_cos_deadtab.rmap"
             self.fake_database_files([
                 "interactive/test_data/s7g1700gl_dead.fits", 
-                "interactive/test_data/s7g1700ql_dead.fits"]) 
-            rmap1 = "interactive/test_data/hst_cos_deadtab.rmap"
+                "interactive/test_data/s7g1700ql_dead.fits",]) 
         else:
+            rmap1 = "interactive/test_data/jwst_miri_flatfile.rmap"
             self.fake_database_files([
-                "interactive/test_data/"])
+                "interactive/test_data/jwst_miri_flatfile_0001.fits",])
         rmap2 = self.add_1(rmap1)
         response = self.client.post("/submit/mapping/", {
             "observatory" : config.observatory,
@@ -145,7 +157,8 @@ class SimpleTest(TestCase):
             imap = "hst_acs.imap"
             rmap = "hst_acs_biasfile.rmap"            
         else:
-            pass 
+            imap = "jwst_miri.imap"
+            rmap = "jwst_miri_flatfile.rmap"
         self.authenticate()
         self.fake_database_files([imap, rmap])
         response = self.client.post("/blacklist/", {
@@ -170,7 +183,7 @@ class SimpleTest(TestCase):
         if config.observatory == "hst":
             fits = "interactive/test_data/s7g1700gl_dead.fits"
         else:
-            pass
+            fits = "interactive/test_data/jwst_miri_flatfile.fits"
         self.fake_database_files([fits])
         response = self.client.post("/certify/", {
             "filemode" : "file_uploaded",
@@ -185,7 +198,7 @@ class SimpleTest(TestCase):
         if config.observatory == "hst":
             rmap = "hst_cos_deadtab.rmap"
         else:
-            pass
+            rmap = "jwst_miri_flatfile.rmap"
         self.fake_database_files([rmap])
         response = self.client.post("/certify/", {
             "filemode" : "file_known",
@@ -217,14 +230,14 @@ class SimpleTest(TestCase):
             file1 = "hst_acs.imap"
             file2 = "hst_cos.imap"
         else:
-            pass
+            file1 = "jwst_miri.imap"
+            file2 = "jwst_nircam.imap"
         self.fake_database_files([file1, file2])
         response = self.client.post("/difference/", {
             "filemode1": "file_known1",
             "file_known1" : file1,
             "filemode2": "file_known2",
             "file_known2" : file2,
-            
         })
         self.assert_no_errors(response)
     
@@ -262,13 +275,14 @@ class SimpleTest(TestCase):
             rmap1 = "hst_acs_biasfile.rmap"
             rmap2 = "hst_cos_deadtab.rmap"
         else:
-            pass
+            rmap1 = "jwst_miri_flatfile.rmap"
+            rmap2 = "jwst_nircam_flatfile.rmap"
         self.fake_database_files([rmap1, rmap2])
         response = self.client.post("/create_contexts/", {
                 "pmap_mode" : "pmap_text",
                 "pmap_text" : self.pmap,
                 "rmaps" : rmap1 + ", " + rmap2,
-                "description" : "updated ACS biasfile and COS deadtab rmaps"
+                "description" : "updated rmaps"
             })
         self.assert_no_errors(response)
         self.assertTrue(self.add_1(self.pmap) in response.content)
