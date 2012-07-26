@@ -2,9 +2,11 @@
 
 source env.csh
 
-echo "installing..."
-./install hst dev >& /dev/null
+# <observatory=hst|jwst> <server_mode=dev|test|ops>
+echo "installing $1 $2..."
+./install $1 $2 >& /dev/null
 
+# subsequent parameters are apps to test
 cd sources
-python manage.py test $* --verbosity=2
+python manage.py test $3 $4 $5 $6 $7 $8 $9 --verbosity=2
 
