@@ -715,9 +715,10 @@ def submit_file(request, crds_filetype):
         return submit_file_post(request, crds_filetype)
     
 def file_exists_somehow(filename):
-    """Return True IFF `filename` really exists or CRDS thinks it does."""
-    return os.path.exists(filename) or \
-        models.FileBlob.exists(os.path.basename(filename))
+    """Return True IFF `filepath` really exists or CRDS thinks it does."""
+    filepath = rmap.locate_file(filename, config.observatory)
+    return os.path.exists(filepath) or \
+        models.FileBlob.exists(os.path.basename(filepath))
 
 def submit_file_post(request, crds_filetype):
     """Handle the POST case of submit_file,   returning dict of template vars.
@@ -1092,13 +1093,13 @@ def batch_submit_reference_post(request):
         models.add_crds_file(pmap.observatory, new_rmap, new_rmap_path,  
             str(request.user), request.user.email, description, state="uploaded")
         # Generate a new context referring to the new rmap
-        new_name_map = do_create_contexts(
-            pmap.name, [new_rmap], description, 
+        new_name_map = do_create_contexts(pmap.name, [new_rmap], description, 
             request.user, request.user.email, state="uploaded")
         new_mappings = [new_rmap] + new_name_map.values()
         collision_list = get_collision_list(new_mappings)
         rmap_diffs = textual_diff(old_rmap_path, new_rmap_path, old_rmap, new_rmap)
     else:  # XXX WIPE the new references since rmap generation failed!!!
+        log.error("No actions performed.")
         actions = []
         new_name_map = {}
         collision_list = []

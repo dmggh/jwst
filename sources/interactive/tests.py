@@ -4,26 +4,33 @@ import os
 
 from django.test import TestCase
 
-import crds.rmap as rmap
+from crds import (rmap, utils, pysh)
+import crds.config as lconfig
+
 import crds.server.interactive.models as models
-import crds.server.config as config
+import crds.server.config as sconfig
 
 from django.contrib.auth.models import User
+
+HERE = os.path.dirname(__file__) or "."
 
 class SimpleTest(TestCase):
     
     def runTest(self, *args, **keys):
         pass
     
-    pmap = config.observatory + ".pmap"
+    pmap = sconfig.observatory + ".pmap"
     
     def setUp(self): 
         User.objects.create_user('homer', 'homer@simpson.net', 'simpson')     
         self.fake_database_files([self.pmap])
         models.set_default_context(self.pmap)
-
+        os.environ["CRDS_PATH"] = sconfig.install_root + "/test"
+        utils.ensure_dir_exists(lconfig.get_crds_refpath())
+        utils.ensure_dir_exists(lconfig.get_crds_mappath())
+        
     def tearDown(self):
-        if config.observatory == "hst":
+        if sconfig.observatory == "hst":
             delete_files = [
                 "hst_0001.pmap",
                 "hst_cos_0001.imap",
@@ -41,6 +48,7 @@ class SimpleTest(TestCase):
                 "jwst_nircam_flatfile_0001.rmap",
                 ]
         self.del_maps(delete_files)
+        pysh.sh("/bin/rm -rf " + lconfig.get_crds_refpath(), raise_on_error=True)
 
     def authenticate(self):
         login = self.client.login(username="homer", password="simpson")
@@ -61,16 +69,16 @@ class SimpleTest(TestCase):
     def fake_database_files(self, files):
         for filename in files:
             name = os.path.basename(filename)
-            location = filename if os.path.dirname(filename) else rmap.locate_file(filename, config.observatory)
+            location = filename if os.path.dirname(filename) else rmap.locate_file(filename, sconfig.observatory)
             models.add_crds_file(
-                config.observatory, name, location, 
+                sconfig.observatory, name, location, 
                 deliverer="homer", deliverer_email="homer@simpsons.com", 
                 description="delivered by the man",
                 add_slow_fields=False,
                 state="delivered",
                 update_derivation=False)
             models.AuditBlob.new("homer", "mass import", name, "becuz", "some details",
-                                 observatory=config.observatory)
+                                 observatory=sconfig.observatory)
 
     def assert_no_errors(self, response):
         self.assertEqual(response.status_code, 200)
@@ -107,7 +115,7 @@ class SimpleTest(TestCase):
         pass
     
     def test_bestrefs_post_uploaded_dataset(self):
-        if config.observatory == "hst":
+        if sconfig.observatory == "hst":
             dataset1 = "interactive/test_data/j8bt05njq_raw.fits"
         else:
             dataset1 = "interactive/test_data/jwst_fake_raw.fits"
@@ -126,7 +134,7 @@ class SimpleTest(TestCase):
 
     def test_submit_post(self):
         self.authenticate()
-        if config.observatory == "hst":
+        if sconfig.observatory == "hst":
             rmap1 = "interactive/test_data/hst_cos_deadtab.rmap"
             self.fake_database_files([
                 "interactive/test_data/s7g1700gl_dead.fits", 
@@ -137,7 +145,7 @@ class SimpleTest(TestCase):
                 "interactive/test_data/jwst_miri_flatfile_0001.fits",])
         rmap2 = self.add_1(rmap1)
         response = self.client.post("/submit/mapping/", {
-            "observatory" : config.observatory,
+            "observatory" : sconfig.observatory,
             "auto_rename" : "on",
             "submitted_file" : open(rmap1),
             "description" : "an identical pmap with a different name is still different",
@@ -153,7 +161,7 @@ class SimpleTest(TestCase):
         self.assert_no_errors(response)
 
     def test_blacklist_post(self):
-        if config.observatory == "hst":
+        if sconfig.observatory == "hst":
             imap = "hst_acs.imap"
             rmap = "hst_acs_biasfile.rmap"            
         else:
@@ -162,7 +170,7 @@ class SimpleTest(TestCase):
         self.authenticate()
         self.fake_database_files([imap, rmap])
         response = self.client.post("/blacklist/", {
-            "observatory" : config.observatory,
+            "observatory" : sconfig.observatory,
             "file_known" : rmap,
             "badflag" : "bad",
             "why" : "just had a feeling.",
@@ -180,7 +188,7 @@ class SimpleTest(TestCase):
 
     def test_certify_post_fits_uploaded(self):
         self.authenticate()
-        if config.observatory == "hst":
+        if sconfig.observatory == "hst":
             fits = "interactive/test_data/s7g1700gl_dead.fits"
         else:
             fits = "interactive/test_data/jwst_miri_flatfile.fits"
@@ -195,7 +203,7 @@ class SimpleTest(TestCase):
 
     def test_certify_post_rmap_known(self):
         self.authenticate()
-        if config.observatory == "hst":
+        if sconfig.observatory == "hst":
             rmap = "hst_cos_deadtab.rmap"
         else:
             rmap = "jwst_miri_flatfile.rmap"
@@ -226,7 +234,7 @@ class SimpleTest(TestCase):
         self.assert_no_errors(response)
 
     def test_difference_post(self):
-        if config.observatory == "hst":
+        if sconfig.observatory == "hst":
             file1 = "hst_acs.imap"
             file2 = "hst_cos.imap"
         else:
@@ -271,7 +279,7 @@ class SimpleTest(TestCase):
 
     def test_create_contexts_post(self):
         self.authenticate()
-        if config.observatory == "hst":
+        if sconfig.observatory == "hst":
             rmap1 = "hst_acs_biasfile.rmap"
             rmap2 = "hst_cos_deadtab.rmap"
         else:
@@ -301,7 +309,7 @@ class SimpleTest(TestCase):
     def test_browse_db_post(self):
         self.authenticate()
         response = self.client.post("/browse_db/", {
-                "observatory" : config.observatory,
+                "observatory" : sconfig.observatory,
                 "instrument" : "*",
                 "filekind" : "*",
                 "extension": "*",
@@ -314,28 +322,45 @@ class SimpleTest(TestCase):
         self.assertTrue(self.pmap in response.content)
         self.assertEqual(response.content.count("<tr>"), 4)
 
-    def test_edit_rmap_insert(self):
-        pass
-
     def test_edit_rmap_replace(self):
         pass
+
+    def test_edit_rmap_insert(self):
+        pass
     
-    def test_batch_submit_insert(self):
+    def test_batch_submit_replace(self):
         self.authenticate()
-        if config.observatory == "hst":
+        if sconfig.observatory == "hst":
             reference = "interactive/test_data/s7g1700gl_dead.fits"
         else:
             reference = "interactive/test_data/jwst_miri_flatfile.fits"
-        response = self.client.post("/submit/reference/", {
-                "observatory": config.observatory,
-                "submitted_file" : reference,
-                "change_level" : "SEVERE",
-                "creator":"homer",
+        response = self.client.post("/batch_submit_reference/", {
+                "pmap_mode" : "pmap_default",
+                "pmap_default" : self.pmap,
+                "file_uploaded" : open(reference),
                 "description":"this is only a test.",
             })
-        print response
+        # print response
         self.assert_no_errors(response)
+        self.assertIn("Confirm or Abort", response.content)
+        self.assertIn("REPLACE", response.content)
+        self.assertNotIn("INSERT", response.content)
 
-    def test_batch_submit_replace(self):
-        pass
+    def test_batch_submit_insert(self):
+        self.authenticate()
+        if sconfig.observatory == "hst":
+            reference = "interactive/test_data/s7g1700gm_dead.fits"
+        else:
+            reference = "interactive/test_data/jwst_miri_flatfile_insert.fits"
+        response = self.client.post("/batch_submit_reference/", {
+                "pmap_mode" : "pmap_default",
+                "pmap_default" : self.pmap,
+                "file_uploaded" : open(reference),
+                "description":"this is only a test.",
+            })
+        # print response
+        self.assert_no_errors(response)
+        self.assertIn("Confirm or Abort", response.content)
+        self.assertIn("INSERT", response.content)
+        self.assertNotIn("REPLACE", response.content)
 

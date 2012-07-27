@@ -70,6 +70,10 @@ TEMPLATE_LOADERS = (
 #     'django.template.loaders.eggs.Loader',
 )
 
+#TEMPLATE_CONTEXT_PROCESSORS = [
+#    'django.contrib.messages.context_processors.messages',
+#]
+
 FILE_UPLOAD_HANDLERS = ( 
     # submit_file view logic *requires* temporary files, not memory files.
     # "django.core.files.uploadhandler.MemoryFileUploadHandler",
@@ -108,7 +112,7 @@ INSTALLED_APPS = (
     "crds.server.jsonapi",
 
     # Uncomment the next line to enable the admin:
-    # 'django.contrib.admin',
+    'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
