@@ -313,7 +313,7 @@ class SimpleTest(TestCase):
         self.assert_no_errors(response)
         self.assertTrue(self.pmap in response.content)
         self.assertEqual(response.content.count("<tr>"), 4)
-        
+
     def test_edit_rmap_insert(self):
         pass
 
@@ -321,7 +321,20 @@ class SimpleTest(TestCase):
         pass
     
     def test_batch_submit_insert(self):
-        pass
+        self.authenticate()
+        if config.observatory == "hst":
+            reference = "interactive/test_data/s7g1700gl_dead.fits"
+        else:
+            reference = "interactive/test_data/jwst_miri_flatfile.fits"
+        response = self.client.post("/submit/reference/", {
+                "observatory": config.observatory,
+                "submitted_file" : reference,
+                "change_level" : "SEVERE",
+                "creator":"homer",
+                "description":"this is only a test.",
+            })
+        print response
+        self.assert_no_errors(response)
 
     def test_batch_submit_replace(self):
         pass
