@@ -33,11 +33,16 @@ class SimpleTest(TestCase):
         if sconfig.observatory == "hst":
             delete_files = [
                 "hst_0001.pmap",
+                "hst_0002.pmap",
+                "hst_0003.pmap",
                 "hst_cos_0001.imap",
                 "hst_acs_0001.imap",
+                "hst_acs_0002.imap",
+                "hst_acs_0003.imap",
                 "hst_cos_deadtab_0001.rmap",
                 "hst_acs_biasfile_0001.rmap",
                 "hst_acs_dgeofile_0001.rmap",
+                "hst_acs_darkfile_0001.rmap",
                 ]
         else:
             delete_files = [
@@ -322,12 +327,6 @@ class SimpleTest(TestCase):
         self.assertTrue(self.pmap in response.content)
         self.assertEqual(response.content.count("<tr>"), 4)
 
-    def test_edit_rmap_replace(self):
-        pass
-
-    def test_edit_rmap_insert(self):
-        pass
-    
     def test_batch_submit_replace(self):
         self.authenticate()
         if sconfig.observatory == "hst":
@@ -363,4 +362,116 @@ class SimpleTest(TestCase):
         self.assertIn("Confirm or Abort", response.content)
         self.assertIn("INSERT", response.content)
         self.assertNotIn("REPLACE", response.content)
+        
+    def test_edit_rmap_browse_get(self):
+        self.authenticate()
+        response = self.client.get("/edit_rmap_browse/")
+        self.assert_no_errors(response)
+
+    def test_edit_rmap_browse_post(self):
+        self.authenticate()
+        if sconfig.observatory == "hst":
+            instrument = "acs"
+            filekind = "darkfile"
+            rmap = "hst_acs_darkfile.rmap"
+        else:
+            instrument = "miri"
+            filekind = "flatfile"
+            rmap = "jwst_miri_flatfile.rmap"
+        self.fake_database_files([rmap])
+        response = self.client.post("/edit_rmap_browse/", {
+                "observatory" : sconfig.observatory,
+                "instrument" : instrument,
+                "filekind": filekind,
+                "extension" : "*",
+                "filename" : "*",
+                "deliverer_user" : "*",
+                "status" : "*",
+            })
+        self.assert_no_errors(response)
+        self.assertIn(rmap, response.content)
+
+    def test_edit_rmap_get(self):
+        self.authenticate()
+        if sconfig.observatory == "hst":
+            instrument = "acs"
+            filekind = "darkfile"
+            rmap = "hst_acs_darkfile.rmap"
+        else:
+            instrument = "miri"
+            filekind = "flatfile"
+            rmap = "jwst_miri_flatfile.rmap"
+        self.fake_database_files([rmap])
+        response = self.client.get("/edit_rmap/"+rmap+"/")
+        self.assertIn("Click on a useafter date to edit", response.content)
+
+    def test_edit_rmap_insert(self):
+        self.authenticate()
+        if sconfig.observatory == "hst":
+            rmap = "hst_acs_darkfile.rmap"
+            match_tuple = "('HRC', 'A|ABCD|AD|B|BC|C|D', '1.0|2.0|4.0|8.0')"
+            reference = "interactive/test_data/n3o1059rk_drk.fits"
+        else:
+            instrument = "miri"
+            filekind = "flatfile"
+            rmap = "jwst_miri_flatfile.rmap"
+            match_tuple = "()"
+            reference = "interactive/test_data/jwst_miri_flatfile.fits"
+        self.fake_database_files([rmap])
+        response = self.client.post("/edit_rmap/", {
+            "pmap_mode" : "pmap_default",
+            "pmap_default" : self.pmap,
+            "description" : "Something.",
+            "add.0.match_tuple" : match_tuple,
+            "add.0.date" : "2002-03-24 00:34:29",
+            "add.0.change_level" : "SEVERE",
+            "add.0.filename" : open(reference),
+            "browsed_file" : rmap,                
+            })
+        # print response
+        self.assert_no_errors(response)
+        self.assertIn("Confirm or Abort", response.content)
+        self.assertIn("add", response.content)
+        self.assertNotIn("delete", response.content)
+
+    def test_edit_rmap_replace(self):
+        self.authenticate()
+        if sconfig.observatory == "hst":
+            rmap = "hst_acs_darkfile.rmap"
+            match_tuple = "('HRC', 'A|ABCD|AD|B|BC|C|D', '1.0|2.0|4.0|8.0')"
+            add_reference = "interactive/test_data/n3o1059rk_drk.fits"
+            del_reference = "n3o1022nj_drk.fits"
+            date = "2002-03-24 00:34:28"
+        else:
+            instrument = "miri"
+            filekind = "flatfile"
+            rmap = "jwst_miri_flatfile.rmap"
+            match_tuple = "()"
+            add_reference = "interactive/test_data/jwst_miri_flatfile.fits"
+            del_reference = "jwst_miri_flatfile_0001.fits"
+            date = "1990-01-01 00:00:00"
+        self.fake_database_files([rmap, del_reference])
+        response = self.client.post("/edit_rmap/", {
+            "pmap_mode" : "pmap_default",
+            "pmap_default" : self.pmap,
+            "description" : "Something.",
+            
+            "add.0.match_tuple" : match_tuple,
+            "delete.0.match_tuple": match_tuple,
+            
+            "add.0.date" : date,
+            "delete.0.date" : date,
+            
+            "add.0.change_level" : "SEVERE",
+            
+            "add.0.filename" : open(add_reference),
+            "delete.0.filename" : del_reference,
+            
+            "browsed_file" : rmap,                
+            })
+        # print response
+        self.assert_no_errors(response)
+        self.assertIn("Confirm or Abort", response.content)
+        self.assertIn("add", response.content)
+        self.assertIn("delete", response.content)
 
