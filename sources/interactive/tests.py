@@ -55,8 +55,9 @@ class SimpleTest(TestCase):
                 "jwst_nircam_flatfile_0001.rmap",
                 ]
         self.del_maps(delete_files)
-        pysh.sh("/bin/rm -rf " + lconfig.get_crds_refpath(), raise_on_error=True,
-                trace_commands=True)
+        pysh.sh("/bin/rm -rf " + lconfig.get_crds_refpath(), 
+                    raise_on_error=True,
+                ) # trace_commands=True)
 
     def authenticate(self):
         login = self.client.login(username="homer", password="simpson")

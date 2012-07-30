@@ -306,21 +306,15 @@ class FileBlob(BlobModel):
     # ===============================
     
     """
-{'archive_date': '1999-10-19 19:22:01',
+{
  'comment': 'test image for integrated software test\n',
- 'comparison_file_name': '(initial)',
- 'delivery_number': '10429',
- 'expansion_number': '0',
  'file_name': 'j2o15065j_a2d.fits',
  'general_availability_date': '1999-02-25 18:45:11.157000',
- 'opus_flag': 'y',
  'opus_load_date': '1999-02-25 16:04:00',
- 'otfc_date': 'none',
  'reference_file_type': 'a2d',
- 'reject_by_expansion_number': '0',
  'reject_by_file_name': 'j4d1435hj_a2d.fits',
- 'reject_delivery_number': '10466',
  'reject_flag': 'y',
+ 'pedigree' :'ground',
  'useafter_date': '1991-01-01 00:00:00'}
     """
     
@@ -345,16 +339,13 @@ class FileBlob(BlobModel):
             "List of blacklisted files this file refers to directly or indirectly.",
             []),
         sha1sum = BlobField(str, 
-            "checksum of file at upload time", ""),      
-
+            "checksum of file at upload time", ""),
         # Fields derived from CDBS
         pedigree = BlobField(PEDIGREES, 
             "source of reference file","INFLIGHT"),
         change_level = BlobField(CHANGE_LEVELS,
             "Do the changes to this file force recalibration of science data?",
-            "SEVERE"),                       
-#        comparison_file = BlobField(FILENAME_RE, 
-#            "Name of existing file to compare to for mode coverage.", "initial"),
+            "SEVERE"), 
         general_availability_date = BlobField(str, 
             "date file can be released to general public", ""),
         activation_date = BlobField(str, 
@@ -366,7 +357,7 @@ class FileBlob(BlobModel):
         reject_by_file_name = BlobField(FILENAME_RE,
             "", "")
     )
-    
+
     @classmethod
     def new(cls, observatory, upload_name, permanent_location, 
             creator_name, deliverer_user, deliverer_email, description, 

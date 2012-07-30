@@ -732,18 +732,13 @@ def submit_file_post(request, crds_filetype):
     if crds_filetype == "reference":
         change_level = validate_post(
             request, "change_level", models.CHANGE_LEVELS)
-#        comparison_file = validate_post(
-#            request, "comparison_file", is_known_file)
-        comparison_file = None
     else:
         change_level = "SEVERE"
-        comparison_file = None
         
     new_basename = do_submit_file( 
         observatory, uploaded_file, description,
         str(request.user), request.user.email, creator, 
-        change_level, comparison_file, state="uploaded",
-        auto_rename=auto_rename)
+        change_level, state="uploaded", auto_rename=auto_rename)
     
     collision_list = get_collision_list([new_basename])
 
@@ -763,8 +758,7 @@ def submit_file_post(request, crds_filetype):
     
 def do_submit_file(observatory, uploaded_file, description, 
         submitter, submitter_email, creator_name="unknown",
-        change_level="SEVERE", comparison_file=None, 
-        creation_method="submit file", auto_rename=True,
+        change_level="SEVERE", creation_method="submit file", auto_rename=True,
         state="uploaded"):
     """Do the core processing of a file submission,  including file
     certification and blacklist checking, naming, upload,  and record
@@ -1002,7 +996,6 @@ def batch_submit_reference_post(request):
     if not reference_files:
         raise CrdsError("No files specified.")    
     change_level = "SEVERE"
-    comparison_file = None
     creator = "(unknown)"
 
     # Verify that all have same instrument and filekind
@@ -1073,7 +1066,7 @@ def batch_submit_reference_post(request):
         new_basename = do_submit_file( 
             pmap.observatory, uploaded_file, description,
             str(request.user), request.user.email, creator, 
-            change_level, comparison_file, creation_method="batch submit",
+            change_level, creation_method="batch submit",
             state="uploaded")
         new_references[str(uploaded_file.name)] = str(new_basename)
 
@@ -1958,8 +1951,7 @@ def handle_file_submissions(original_rmap, expanded, observatory, submitter):
         new_basename = do_submit_file(
             observatory, uploaded_file, description,
             str(submitter), submitter.email, creator_name=creator_name,
-            change_level=change_level, comparison_file=None,
-            creation_method="edit rmap", state="uploaded")
+            change_level=change_level, creation_method="edit rmap", state="uploaded")
         new_references.append((upload_name, new_basename))
         expanded["add"][addno]["filename"] = new_basename
     return sorted(new_references)

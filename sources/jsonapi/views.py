@@ -54,7 +54,6 @@ class InvalidObservatoryError(Error):
     
 class InvalidReftypesError(Error):
     """The specified reftypes is not a list of strings."""
-    
 
 class UnavailableFile(Error):
     """A known file is not available for download,  either because it is waiting
@@ -65,7 +64,9 @@ class BlacklistedFile(Error):
     """A known file has been blacklisted and should no longer be used."""
 
 def _standard_file_checks(file):
-    blob = imodels.file_exists(file) 
+    blob = imodels.file_exists(file)
+    if not blob:
+        return blob
     if not blob.available:
         raise UnavailableFile("File '%s' is not yet available."  % file)
     if blob.blacklisted:
