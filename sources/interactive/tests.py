@@ -14,6 +14,9 @@ from django.contrib.auth.models import User
 
 HERE = os.path.dirname(__file__) or "."
 
+os.environ["CRDS_PATH"] = sconfig.install_root + "/test"
+os.environ["CRDS_REFPATH"] = sconfig.install_root + "/test/references"
+
 class SimpleTest(TestCase):
     
     def runTest(self, *args, **keys):
@@ -25,7 +28,6 @@ class SimpleTest(TestCase):
         User.objects.create_user('homer', 'homer@simpson.net', 'simpson')     
         self.fake_database_files([self.pmap])
         models.set_default_context(self.pmap)
-        os.environ["CRDS_PATH"] = sconfig.install_root + "/test"
         utils.ensure_dir_exists(lconfig.get_crds_refpath())
         utils.ensure_dir_exists(lconfig.get_crds_mappath())
         
@@ -53,7 +55,8 @@ class SimpleTest(TestCase):
                 "jwst_nircam_flatfile_0001.rmap",
                 ]
         self.del_maps(delete_files)
-        pysh.sh("/bin/rm -rf " + lconfig.get_crds_refpath(), raise_on_error=True)
+        pysh.sh("/bin/rm -rf " + lconfig.get_crds_refpath(), raise_on_error=True,
+                trace_commands=True)
 
     def authenticate(self):
         login = self.client.login(username="homer", password="simpson")
@@ -196,7 +199,7 @@ class SimpleTest(TestCase):
         if sconfig.observatory == "hst":
             fits = "interactive/test_data/s7g1700gl_dead.fits"
         else:
-            fits = "interactive/test_data/jwst_miri_flatfile.fits"
+            fits = "interactive/test_data/jwst_miri_fakeflat.fits"
         self.fake_database_files([fits])
         response = self.client.post("/certify/", {
             "filemode" : "file_uploaded",
@@ -332,7 +335,7 @@ class SimpleTest(TestCase):
         if sconfig.observatory == "hst":
             reference = "interactive/test_data/s7g1700gl_dead.fits"
         else:
-            reference = "interactive/test_data/jwst_miri_flatfile.fits"
+            reference = "interactive/test_data/jwst_miri_fakeflat.fits"
         response = self.client.post("/batch_submit_reference/", {
                 "pmap_mode" : "pmap_default",
                 "pmap_default" : self.pmap,
@@ -416,7 +419,7 @@ class SimpleTest(TestCase):
             filekind = "flatfile"
             rmap = "jwst_miri_flatfile.rmap"
             match_tuple = "()"
-            reference = "interactive/test_data/jwst_miri_flatfile.fits"
+            reference = "interactive/test_data/jwst_miri_fakeflat.fits"
         self.fake_database_files([rmap])
         response = self.client.post("/edit_rmap/", {
             "pmap_mode" : "pmap_default",
@@ -447,7 +450,7 @@ class SimpleTest(TestCase):
             filekind = "flatfile"
             rmap = "jwst_miri_flatfile.rmap"
             match_tuple = "()"
-            add_reference = "interactive/test_data/jwst_miri_flatfile.fits"
+            add_reference = "interactive/test_data/jwst_miri_fakeflat.fits"
             del_reference = "jwst_miri_flatfile_0001.fits"
             date = "1990-01-01 00:00:00"
         self.fake_database_files([rmap, del_reference])
