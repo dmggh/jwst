@@ -70,7 +70,7 @@ def check_value(value, pattern, msg):
             raise FieldError(msg + " : " + str(exc))
     elif isinstance(pattern, list):
         for choice in pattern:
-            assert "|" not in choice, "Found | in choice " + repr(choice) + \
+            assert "|" not in choice, "Found | in choice " + srepr(choice) + \
                 " seen as regex special char"
         pattern = "|".join(pattern)
     if not re.match(pattern, value):
@@ -82,15 +82,15 @@ def validate_post(request, variable, pattern):
     check_value() conditions specified by `pattern`.
     """
     value = str(request.POST[variable]).strip()
-    return check_value(value, pattern, "Invalid value " + repr(value) + 
-                                        " for " + repr(variable))
+    return check_value(value, pattern, "Invalid value " + srepr(value) + 
+                                        " for " + srepr(variable))
 def validate_get(request, variable, pattern):
     """Check a GET `variable` from `request`,  ensuring that it meets the
     check_value() conditions specified by `pattern`.
     """
     value = str(request.GET[variable]).strip()
-    return check_value(value, pattern, "Invalid value " + repr(value) + 
-                                        " for " + repr(variable))
+    return check_value(value, pattern, "Invalid value " + srepr(value) + 
+                                        " for " + srepr(variable))
 
 # ===========================================================================
 
@@ -134,7 +134,7 @@ def is_mapping(filename, extension=r"\.[pir]map"):
     Otherwise raise AssertionError.
     """
     if not re.match("\w+" + extension, filename):
-        raise CrdsError("Invalid mapping filename " + repr(filename))
+        raise CrdsError("Invalid mapping filename " + srepr(filename))
     is_known_file(filename)
     return filename
 
@@ -143,7 +143,7 @@ def is_reference(filename, extension=r"\.fits|\.r\dh|\.r\dd"):
     Otherwise raise AssertionError.
     """
     if not re.match(r"\w+"+extension, filename):
-        raise CrdsError("Invalid reference filename " + repr(filename))
+        raise CrdsError("Invalid reference filename " + srepr(filename))
     is_known_file(filename)
     return filename
 
@@ -152,13 +152,13 @@ def is_known_file(filename):
     has progressed beyond the 'uploaded' temporary file stage.
     """
     if not re.match(FILE_RE, filename):
-        raise CrdsError("Invalid filename " + repr(filename))
+        raise CrdsError("Invalid filename " + srepr(filename))
     try:
         blob = models.FileBlob.load(filename)
     except LookupError:
-        raise CrdsError("No database entry for " + repr(filename) + ".")
+        raise CrdsError("No database entry for " + srepr(filename) + ".")
     assert blob.state != "uploaded", \
-        "File " + repr(filename) + " has not yet been submitted."
+        "File " + srepr(filename) + " has not yet been submitted."
     return filename
 
 def is_available_file(filename):
@@ -166,15 +166,15 @@ def is_available_file(filename):
     meets any requirements for distribution.
     """
     if not re.match(FILE_RE, filename):
-        raise CrdsError("Invalid filename " + repr(filename))
+        raise CrdsError("Invalid filename " + srepr(filename))
     try:
         blob = models.FileBlob.load(filename)
     except LookupError:
-        raise CrdsError("No database entry for " + repr(filename) + ".")
+        raise CrdsError("No database entry for " + srepr(filename) + ".")
     assert blob.available, \
-        "File " + repr(filename) + " is not yet available."
+        "File " + srepr(filename) + " is not yet available."
     assert not blob.blacklisted, \
-        """File " + repr(filename) + " has been blacklisted and should no longer be used."""
+        "File " + srepr(filename) + " has been blacklisted and should no longer be used."
     return filename
 
 def is_list_of_rmaps(text):
@@ -271,7 +271,7 @@ def render(request, template, dict_=None):
     jsonrpc_vars = jsonapi_views.get_jsonrpc_template_vars()
     for var in jsonrpc_vars:
         if var in rdict:
-            raise CrdsError("Template variable collision on " + repr(var))
+            raise CrdsError("Template variable collision on " + srepr(var))
         else:
             rdict[var] = jsonrpc_vars[var]
             
@@ -305,10 +305,9 @@ def get_uploaded_file(request, formvar):
     try:
         ufile = request.FILES[formvar]
     except KeyError:
-        raise MissingInputError("Specify a file to upload for " + repr(formvar))
+        raise MissingInputError("Specify a file to upload for " + srepr(formvar))
     if not re.match(FILE_RE, ufile.name):
-        raise FieldError("Unexpected file extension for " + \
-                            srepr(ufile.name))
+        raise FieldError("Unexpected file extension for " + srepr(ufile.name))
     return ufile
 
 def upload_file(ufile, where):
@@ -328,7 +327,7 @@ def get_known_filepath(filename):
     try:
         blob = models.FileBlob.load(filename)
     except LookupError:
-        raise FieldError("CRDS doesn't know about file " + repr(filename))
+        raise FieldError("CRDS doesn't know about file " + srepr(filename))
     return blob.pathname
 
 
@@ -569,7 +568,7 @@ def bestrefs_post(request):
             raise CrdsError("Problem getting header for dataset " + 
                             srepr(dataset_name) + ": " + str(exc))
     else:
-        raise ValueError("Bad dataset_mode " + repr(dataset_mode))
+        raise ValueError("Bad dataset_mode " + srepr(dataset_mode))
 
     results = bestrefs_results(request, pmap, header, dataset_name)
 
@@ -588,7 +587,7 @@ def header_string_to_header(hstring):
     return header
 
 # @profile
-@error_trap("bestrefs_explore.html")
+@error_trap("bestrefs_explore_index.html")
 @log_view
 def bestrefs_results(request, pmap, header, dataset_name=""):
     """Render best reference recommendations under context `pmap` for
@@ -783,7 +782,7 @@ def do_submit_file(observatory, uploaded_file, description,
             observatory, uploaded_file.name, upload_location)
     else:
         if file_exists_somehow(original_name):
-            raise FieldError("File " + repr(original_name) + " already exists.") 
+            raise FieldError("File " + srepr(original_name) + " already exists.") 
         else:
             permanent_name = os.path.basename(original_name)   
 
@@ -794,8 +793,8 @@ def do_submit_file(observatory, uploaded_file, description,
     # Make sure none of the dependencies are blacklisted,  else fail w/o state.
     blacklisted_by = get_blacklists(original_name, upload_location)
     if blacklisted_by:
-        raise CrdsError("File " + repr(original_name) + 
-                        " is blacklisted by " + repr(blacklisted_by))
+        raise CrdsError("File " + srepr(original_name) + 
+                        " is blacklisted by " + srepr(blacklisted_by))
     
     # Copy the temporary file to its permanent location.
     upload_file(uploaded_file, permanent_location)
@@ -825,7 +824,7 @@ def do_certify_file(basename, certifypath, check_references=None):
         ctx = rmap.load_mapping(certifypath)
         for ref in ctx.reference_names():
             assert models.file_exists(ref), \
-                "Reference " + repr(ref) + " is not known to CRDS."
+                "Reference " + srepr(ref) + " is not known to CRDS."
     
 def get_blacklists(basename, certifypath, ignore_self=True, files=None):
     """Return a list of the files referenced by `basename` which are
@@ -837,7 +836,7 @@ def get_blacklists(basename, certifypath, ignore_self=True, files=None):
         try:
             mapping = rmap.load_mapping(certifypath)
         except Exception, exc:
-            raise CrdsError("Error loading " + repr(basename) + 
+            raise CrdsError("Error loading " + srepr(basename) + 
                             " for blacklist checking:  " + str(exc))
         if files is None:
             files = { f.name : f for f in models.FileBlob.objects.filter() }
@@ -891,7 +890,7 @@ def blacklist_file_post(request):
 
     models.AuditBlob.new(
         request.user, "blacklist", blacklist_root, why, 
-        "marked as " + repr(badflag.upper()),
+        "marked as " + srepr(badflag.upper()),
         observatory=observatory, instrument=instrument, filekind=filekind)
 
     return render(request, "blacklist_results.html", 
@@ -1009,9 +1008,9 @@ def batch_submit_reference_post(request):
                             srepr(uploaded_file.name))
         if old_instr is not None:
             assert instrument == old_instr, \
-                "More than one instrument submitted at " + repr(uploaded_file.name)
+                "More than one instrument submitted at " + srepr(uploaded_file.name)
             assert filekind == old_filekind, \
-                "More than one reference type submitted at " + repr(uploaded_file.name)
+                "More than one reference type submitted at " + srepr(uploaded_file.name)
         old_instr, old_filekind = instrument, filekind
 
     # Verify that ALL references certify,  raise CrdsError on first error.
@@ -1041,8 +1040,8 @@ def batch_submit_reference_post(request):
         else:
             no_effect.append(str(uploaded.name))
     if no_effect:
-        raise CrdsError("Some files could not be added to " + repr(old_rmap) 
-                        + ": " + repr(no_effect))
+        raise CrdsError("Some files could not be added to " + srepr(old_rmap) 
+                        + ": " + srepr(no_effect))
 
     # Make sure there are no duplicate match tuples / useafter cases.    
     duplicate_matches = set()
@@ -1057,7 +1056,7 @@ def batch_submit_reference_post(request):
                     duplicate_matches.add(uploaded_file.name)
     if duplicate_matches:
         raise CrdsError("Files match same rmap match tuple and useafter: " +
-                        ", ".join([repr(x) for x in duplicate_matches]))
+                        ", ".join([srepr(x) for x in duplicate_matches]))
 
     # Once both references and refactoring checks out,  submit reference files
     # and collect mapping from uploaded names to official names.
@@ -1137,11 +1136,11 @@ def submit_confirm(request):
         try:
             blob = models.FileBlob.load(filename)
         except LookupError:
-            raise CrdsError("Unknown CRDS file " + repr(filename))
+            raise CrdsError("Unknown CRDS file " + srepr(filename))
         assert user == blob.deliverer_user, \
-            "User " + repr(user) + " did not create " + repr(filename)
+            "User " + srepr(user) + " did not create " + srepr(filename)
         assert blob.state == "uploaded", \
-            "File " + repr(filename) + " is no longer in the 'uploaded' state."
+            "File " + srepr(filename) + " is no longer in the 'uploaded' state."
         if blob.instrument != "unknown":
             instrument = blob.instrument
         if blob.filekind != "unknown":
@@ -1713,7 +1712,7 @@ def do_create_contexts(pmap, updated_rmaps, description, user, email,
         models.add_crds_file(
             observatory, old_ctx, rmap.locate_mapping(new_ctx),  user, email, 
             description, 
-            repr(pmap) + " : " + ",".join([repr(x) for x in updated_rmaps]),
+            srepr(pmap) + " : " + ",".join([srepr(x) for x in updated_rmaps]),
             state=state)
     
     return new_name_map
@@ -1738,7 +1737,7 @@ def new_name(old_map):
     extension = os.path.splitext(old_map)[-1]
     new_map = get_new_name(observatory, instrument, filekind, extension)
     assert not (rmap.mapping_exists(new_map) or models.FileBlob.exists(new_map)), \
-        "Program error.  New mapping " + repr(new_map) + " already exists."
+        "Program error.  New mapping " + srepr(new_map) + " already exists."
     return new_map
 
 # ===========================================================================
@@ -1901,7 +1900,7 @@ def collect_action_tree(request):
     actions = []
     for action in expanded:
         for serial in expanded[action]:
-            assert re.match("\d+", serial), "invalid action serial no " + repr(serial)
+            assert re.match("\d+", serial), "invalid action serial no " + srepr(serial)
             pars = expanded[action][serial]
             assert "match_tuple" in pars, "incomplete action parameter set: missing match_tuple"
             match_tuple = pars["match_tuple"] = is_match_tuple(pars["match_tuple"])
@@ -1929,17 +1928,17 @@ def handle_file_submissions(original_rmap, expanded, observatory, submitter):
         uploaded_instr, uploaded_filekind = utils.get_file_properties(
             observatory, uploaded_path)
         assert uploaded_instr == rmap_instrument, \
-            "Uploaded reference " + repr(uploaded_name) + \
+            "Uploaded reference " + srepr(uploaded_name) + \
             " has wrong instrument (" + uploaded_instr + ") for " + \
-            repr(original_rmap) + " (" + rmap_instrument + ")"
+            srepr(original_rmap) + " (" + rmap_instrument + ")"
         assert uploaded_filekind == rmap_filekind, \
-            "Uploaded reference " + repr(uploaded_name) + \
+            "Uploaded reference " + srepr(uploaded_name) + \
             " has wrong filekind (" + uploaded_filekind + ") for " + \
-            repr(original_rmap) + " (" + rmap_filekind + ")"
+            srepr(original_rmap) + " (" + rmap_filekind + ")"
         try:
             do_certify_file(uploaded_file.name, uploaded_path)
         except Exception, exc:
-            raise CrdsError("Reference " + repr(uploaded_file.name) + 
+            raise CrdsError("Reference " + srepr(uploaded_file.name) + 
                             " failed certification: " + str(exc))
     new_references = []
     for addno in expanded["add"]:
@@ -2119,7 +2118,7 @@ def deliver_file_catalog(observatory, files, operation="I"):
     CRDS uses the catalog file name to name the delivery for auditing.
     """
     assert operation in ["I","D"], \
-        "Invalid delivery operation " + repr(operation)
+        "Invalid delivery operation " + srepr(operation)
     delivery_id = models.CounterBlob.next(observatory, "delivery_id")
     catalog = "_".join(["opus", str(delivery_id), operation.lower()])+".cat"
     catpath = os.path.join(config.CRDS_CATALOG_DIR, catalog)
@@ -2150,8 +2149,8 @@ def deliver_make_links(observatory, catalog, paths):
             try:
                 os.link(filename, dest)
             except Exception, exc:
-                raise CrdsError("failed to link " + repr(filename) + " to " +
-                                repr(dest) + " : " + str(exc))
+                raise CrdsError("failed to link " + srepr(filename) + " to " +
+                                srepr(dest) + " : " + str(exc))
     master_catalog_link = os.path.join(dirs[0], os.path.basename(catalog))
     return master_catalog_link
 
@@ -2270,7 +2269,7 @@ def set_default_context(request):
         models.set_default_context(new_default, user=request.user)
         models.AuditBlob.new(request.user, "set default context", new_default,
                              description, "default changed from " + 
-                             repr(old_default) + " to " + repr(new_default))
+                             srepr(old_default) + " to " + srepr(new_default))
         return render(request, "set_default_context_results.html", {
                     "new_default" :  new_default,
                     "old_default" :  old_default,
