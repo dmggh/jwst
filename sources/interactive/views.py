@@ -720,10 +720,8 @@ def file_exists_somehow(filename):
         models.FileBlob.exists(os.path.basename(filepath))
 
 def submit_file_post(request, crds_filetype):
-    """Handle the POST case of submit_file,   returning dict of template vars.
-    """
+    """Handle the POST case of submit_file, returning dict of template vars."""
     observatory = get_observatory(request)
-    uploaded_file = get_uploaded_file(request, "submitted_file")    
     description = validate_post(request, "description", DESCRIPTION_RE)
     creator = validate_post(request, "creator", PERSON_RE)
     auto_rename = "auto_rename" in request.POST
@@ -733,16 +731,29 @@ def submit_file_post(request, crds_filetype):
             request, "change_level", models.CHANGE_LEVELS)
     else:
         change_level = "SEVERE"
-        
-    new_basename = do_submit_file( 
-        observatory, uploaded_file, description,
-        str(request.user), request.user.email, creator, 
-        change_level, state="uploaded", auto_rename=auto_rename)
+            
+    uploaded_files = request.FILES.getlist("submitted_file")
+    if not uploaded_files:
+        raise CrdsError("No files specified.")
     
-    collision_list = get_collision_list([new_basename])
+    for uploaded_file in uploaded_files:
+        # Check the file,  leaving no server state if it fails.  Give error results.
+        do_certify_file(uploaded_file.name, uploaded_file.temporary_file_path(), 
+                        check_references="exist")
 
-    new_file_map = { uploaded_file.name : new_basename }
+    collision_list = []
+    new_file_map = {}
     
+    for uploaded_file in uploaded_files:
+            
+        new_basename = do_submit_file( observatory, uploaded_file, description,
+            str(request.user), request.user.email, creator, 
+            change_level, state="uploaded", auto_rename=auto_rename)
+        
+        collision_list += get_collision_list([new_basename])
+    
+        new_file_map[uploaded_file.name] =  new_basename 
+ 
     return render(request, 'submit_results.html', {
                 "crds_filetype": crds_filetype,
                 "baseperm":new_basename,
@@ -773,9 +784,9 @@ def do_submit_file(observatory, uploaded_file, description,
         except rmap.MappingError, exc:
             raise CrdsError("Error updating checksum: " + srepr(exc))
     
-    # Check the file,  leaving no server state if it fails.  Give error results.
-    do_certify_file(original_name, upload_location, check_references="exist")
-    
+#    # Check the file,  leaving no server state if it fails.  Give error results.
+#    do_certify_file(original_name, upload_location, check_references="exist")
+#    
     # Automatically 
     if auto_rename:
         permanent_name = auto_rename_file(
