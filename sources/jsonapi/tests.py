@@ -193,6 +193,7 @@ class ServiceApiBase(object):
 
 # ===========================================================================
 if server_config.observatory == "hst":
+    print "testing hst"
     class HstServiceApiTest(ServiceApiBase, TestCase):
         pmap = "hst.pmap"
         
@@ -265,18 +266,18 @@ if server_config.observatory == "hst":
 # ===========================================================================
 
 if server_config.observatory == "jwst":
+    print "testing jwst"
     class JwstServiceApiTest(ServiceApiBase, TestCase):
         pmap = "jwst.pmap"
         observatory = server_config.observatory
     
         header = {
-            "INSTRUME": "MIRI",
-            "DATE-OBS": "2012-07-25",
-            "TIME-OBS": "00:00:00",
+            "meta.instrument.type": "MIRI",
+            "meta.observation.date": "2012-07-25T00:00:00",
         }
         
-        instr_key = "INSTRUME"
-        date_key = "DATE-OBS"
+        instr_key = "meta.instrument.type"
+        date_key = "meta.observation.date"
         
         requested_types = ["flatfile"]
         
