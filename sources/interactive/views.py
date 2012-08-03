@@ -736,10 +736,12 @@ def submit_file_post(request, crds_filetype):
     if not uploaded_files:
         raise CrdsError("No files specified.")
     
+    files = models.get_fileblob_map(observatory)
+    
     for uploaded_file in uploaded_files:
         # Check the file,  leaving no server state if it fails.  Give error results.
         do_certify_file(uploaded_file.name, uploaded_file.temporary_file_path(), 
-                        check_references="exist")
+                        check_references="exist", filemap=files)
 
     collision_list = []
     new_file_map = {}
@@ -817,7 +819,7 @@ def do_submit_file(observatory, uploaded_file, description,
     
     return os.path.basename(permanent_location)
 
-def do_certify_file(basename, certifypath, check_references=None):
+def do_certify_file(basename, certifypath, check_references=None, filemap=None):
     """Run un-trapped components of crds.certify and re-raise any exception
     as a CrdsError which will be displayed as a form error on the submission
     page.
@@ -831,10 +833,13 @@ def do_certify_file(basename, certifypath, check_references=None):
             trap_exceptions=False, is_mapping = rmap.is_mapping(basename))
     except Exception, exc:
         raise CrdsError("Certifying " + srepr(basename) + ": " + str(exc))
+
     if check_references in ["exist","contents"] and rmap.is_mapping(basename):
+        if filemap is None:
+            filemap = models.get_fileblob_map(models.OBSERVATORY)
         ctx = rmap.load_mapping(certifypath)
         for ref in ctx.reference_names():
-            assert models.file_exists(ref), \
+            assert ref in filemap, \
                 "Reference " + srepr(ref) + " is not known to CRDS."
     
 def get_blacklists(basename, certifypath, ignore_self=True, files=None):
@@ -850,7 +855,7 @@ def get_blacklists(basename, certifypath, ignore_self=True, files=None):
             raise CrdsError("Error loading " + srepr(basename) + 
                             " for blacklist checking:  " + str(exc))
         if files is None:
-            files = { f.name : f for f in models.FileBlob.objects.filter() }
+            files = models.get_fileblob_map(mapping.observatory)
         
         for child in mapping.mapping_names() + mapping.reference_names():       
             if ignore_self and child == os.path.basename(certifypath): 
@@ -858,7 +863,7 @@ def get_blacklists(basename, certifypath, ignore_self=True, files=None):
             if child not in files:   # Unknown file,  what to do?
                 continue   # XXXX TODO blacklist instead?
             if files[child].blacklisted:
-                blacklisted_by = blacklisted_by.union(set([child]))
+                blacklisted_by.add(child)
                 
         return sorted(list(blacklisted_by))
     else:
@@ -939,7 +944,7 @@ def certify_post(request):
     certify_status = "OK" if "0 errors" in \
         [ x.strip() for x in certify_lines] else "Failed."
 
-    files = { blob.name : blob for blob in models.FileBlob.objects.filter() }
+    files = models.get_fileblob_map()
 
     missing_references = []
     if not rmap.is_mapping(original_name):
