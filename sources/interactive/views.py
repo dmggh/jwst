@@ -16,7 +16,7 @@ import mimetypes
 import tempfile
 
 # from django.http import HttpResponse
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, redirect
 from django.http import HttpResponse
 from django.template import RequestContext
 import django.utils.safestring as safestring
@@ -367,20 +367,20 @@ def error_trap(template):
             try:
                 return func(request, *args, **keys)
             except AssertionError, exc:
-                msg = "ERROR: " + str(exc)
-                pars = dict(keys.items() + [("error_message", msg)])
-                return render(request, template, pars)
+                return render_error(request, args, keys, exc, template)
             except CrdsError, exc:
-                msg = "ERROR: " + str(exc)
-                pars = dict(keys.items() + [("error_message", msg)])
-                return render(request, template, pars)
+                return render_error(request, args, keys, exc, template)
             except FieldError, exc:
-                msg = "ERROR: " + str(exc)
-                pars = dict(keys.items() + [("error_message", msg)])
-                return render(request, template, pars)
+                return render_error(request, args, keys, exc, template)
         trap.func_name = func.func_name
         return trap
     return decorator
+
+def render_error(request, args, keys, exc, template):
+    """Render `template` with an error message."""
+    msg = "ERROR: " + str(exc)
+    pars = dict(keys.items() + [("error_message", msg)])
+    return render(request, template, pars)
 
 class Logger(object):
     """Outputs messages to a per-request log file and optionally the console.
@@ -896,11 +896,14 @@ def blacklist_file_post(request):
     all_blacklisted = sorted([blacklist_root] + uses_files)
 
     for also_blacklisted in all_blacklisted:
-        if badflag == "bad":
-            models.blacklist(also_blacklisted, blacklist_root)
-        else:
-            models.unblacklist(also_blacklisted, blacklist_root)
-    
+        try:
+            if badflag == "bad":
+                models.blacklist(also_blacklisted, blacklist_root)
+            else:
+                models.unblacklist(also_blacklisted, blacklist_root)
+        except Exception, exc:
+            log.warning("Blacklist operation failed: ", str(exc))
+
     instrument, filekind = utils.get_file_properties(
         observatory, blacklist_root)
 
@@ -1327,8 +1330,7 @@ def mapping_text_diffs(logical_diffs):
     diff_map = {}
     for ldiff in logical_diffs:
         for tup in ldiff[1:]:
-            if len(tup) == 2 and ((".imap" in tup[0] or ".rmap" in tup[0]) or \
-                (".imap" in tup[1] or ".rmap" in tup[1])):
+            if len(tup) == 2 and tup[0].endswith("map") and tup[1].endswith("map"):
                 file1_orig, file2_orig = tup
                 file1_path = rmap.locate_mapping(file1_orig)
                 file2_path = rmap.locate_mapping(file2_orig)
@@ -1339,7 +1341,8 @@ def mapping_text_diffs(logical_diffs):
                     except Exception, exc:
                         diffs = "diffs failed: " + str(exc)
                     diff_map[file1_orig, file2_orig] = diffs
-                break
+                else:
+                    break
     return diff_map
 
 def format_fitsdiffs(lines, file1, file2, file1_orig, file2_orig):
@@ -2269,25 +2272,33 @@ def version_info(request):
                 "version_info" : sorted(versions.get_all_versions().items())
             })
 
-@error_trap("set_default_context_input.html")
+@error_trap("base.html")
 @log_view
-@login_required
+@superuser_login_required
 def set_default_context(request):
     """Change the default context presented to users as the nominal start from
     which to derive new contexts.
     """
     if request.method == "GET":    # display rmap filters
-        return render(request, "set_default_context_input.html")
+        return render(request, "set_default_context_input.html", {
+                "context_map" : models.ContextBlob.get_map(),
+            })
     else:   # display filtered rmaps
         new_default = get_recent_or_user_context(request)
         description = validate_post(request, "description", DESCRIPTION_RE)
-        old_default = models.get_default_context()
-        models.set_default_context(new_default, user=request.user)
-        models.AuditBlob.new(request.user, "set default context", new_default,
-                             description, "default changed from " + 
+        context_type = validate_post(request, "context_type", models.CONTEXT_TYPES)
+        old_default = models.get_default_context(models.OBSERVATORY, state=context_type)
+        if old_default == new_default:
+            raise CrdsError(srepr(old_default) + " is already in use for the " + 
+                            srepr(context_type) + " context.")
+        models.set_default_context(new_default, user=request.user, state=context_type)
+        models.AuditBlob.new(request.user, "set default context", 
+                             new_default, description, 
+                             context_type + " context changed from " +  
                              srepr(old_default) + " to " + srepr(new_default))
         return render(request, "set_default_context_results.html", {
                     "new_default" :  new_default,
                     "old_default" :  old_default,
+                    "context_type" : context_type,
                 })
     

@@ -2,12 +2,12 @@
 
 {% load stdtags %}
 
-% block contents %}
+{% block contents %}
     <h2>Set Default Context</h2>
     {% if error_messages %}
-     <h3 class="error">Setting default context to {{pmap|browse}} failed.</h3>
+     <h3 class="error">Setting {{context_type}} context to {{new_default|browse}} failed.</h3>
     {% else %}
-     <h3 class="success">Default context set to {{pmap|browse}}</h3>
+     <h3 class="success">Changed {{context_type}} context from {{old_default|browse}} to {{new_default|browse}}</h3>
     {% endif %}
 {% endblock contents %}
 

@@ -181,7 +181,7 @@ def get_default_context(request, observatory):
         observatory = config.observatory
     observatory = observatory.lower()
     check_observatory(observatory)
-    return imodels.get_default_context(observatory)
+    return imodels.get_default_context(observatory, state="operational")
     
 @jsonrpc_method('get_server_info()')
 def get_server_info(request):

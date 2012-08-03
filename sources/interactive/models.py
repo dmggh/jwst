@@ -599,6 +599,10 @@ class AuditBlob(BlobModel):
 
 # ============================================================================
 
+CONTEXT_TYPES = ["default", "operational"]
+
+# "default" is synonymous with "edit", the suggested derivation point for edits.
+
 class ContextBlob(BlobModel):
     """Keeps track of which mappings are the default.
     """
@@ -613,13 +617,29 @@ class ContextBlob(BlobModel):
     )
     
     @classmethod
+    def check_type(self, state):
+        assert state in CONTEXT_TYPES, "Unknown context type " + repr(state)
+    
+    @classmethod
     def get(cls, observatory, state="default"):
+        cls.check_type(state)
         return cls.load(observatory + "." + state + "_context")
 
     def save(self, state="default"):
+        self.__class__.check_type(state)
         self.name = self.observatory + "." + state + "_context"
         return BlobModel.save(self)
     
+    @classmethod
+    def get_map(cls):
+        contexts = cls.filter()
+        map = {}
+        for blob in contexts:
+            state = blob.name.split(".")[1].split("_")[0]
+            value = blob.context
+            map[state] = value
+        return map
+
 def set_default_context(context, observatory=OBSERVATORY, user="crds-system",
                         state="default"):
     assert context.endswith(".pmap"), "context must be a .pmap"

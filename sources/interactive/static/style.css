@@ -271,3 +271,7 @@ p {
     position: absolute;
 }
 
+td {
+    padding: 5px;
+}
+
