@@ -1,4 +1,8 @@
 install_dir='/home/jmiller/work/workspace_crds/CRDS_server/webserver'
+
+DEBUG=True
+DEBUG_EXTRAS=False
+
 #
 # This is a config file for developers running pyetc.
 #

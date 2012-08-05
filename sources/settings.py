@@ -1,6 +1,8 @@
 # Django settings for crds project.
 
-DEBUG = True
+from crds.server.config import install_dir, DEBUG
+from crds_database import DATABASES
+
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -9,9 +11,6 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-from crds.server.config import install_dir
-
-from crds_database import DATABASES
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -89,6 +88,12 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
+if DEBUG_EXTRAS:
+    MIDDLEWARE_CLASSES += (  
+    'sugar.middleware.speedtracer.SpeedTracerMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    )
+
 ROOT_URLCONF = 'crds.server.urls'
 
 TEMPLATE_DIRS = (
@@ -115,4 +120,13 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    
 )
+
+if DEBUG_EXTRAS:
+    INSTALLED_APPS += (
+        'sugar',           # for django speedtrace   requires django-sugar, chrome speedtracer extension
+        "debug_toolbar",   # requires django-debug-toolbar
+    )
+    INTERNAL_IPS = ('127.0.0.1',)  # for django-debug-toolbar
+

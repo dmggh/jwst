@@ -1,5 +1,8 @@
 import os
 
+DEBUG=True
+DEBUG_EXTRAS=False
+
 observatory = 'jwst'
 install_root = '/grp/crds/' + observatory
 port = 4995

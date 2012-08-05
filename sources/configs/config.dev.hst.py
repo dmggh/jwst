@@ -1,5 +1,8 @@
 import os
 
+DEBUG=True
+DEBUG_EXTRAS=False
+
 observatory= 'hst'
 install_root='/home/jmiller/work/workspace_crds/CRDS_server/' + observatory 
 
