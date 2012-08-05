@@ -86,6 +86,8 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    
+    'crds.server.stats.middleware.LogMiddleware',
 )
 
 if DEBUG_EXTRAS:
@@ -115,6 +117,7 @@ INSTALLED_APPS = (
     
     "crds.server.interactive",
     "crds.server.jsonapi",
+    "crds.server.stats",
 
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',

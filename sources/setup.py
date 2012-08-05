@@ -14,6 +14,7 @@ setup(name="crds.server",
         'crds.server.jsonapi',
         'crds.server.jsonapi.templatetags',
         'crds.server.utils',
+        'crds.server.stats',
         ],
 
       package_dir = {
@@ -23,6 +24,7 @@ setup(name="crds.server",
         'crds.server.interactive':'./interactive',
         'crds.server.interactive.templatetags':'./interactive/templatetags',
         'crds.server.utils' : './utils',
+        'crds.server.stats' : './stats',
         },
 
       package_data = {
