@@ -6,7 +6,7 @@
 
 # Install third party database components, pyodbc and unixODBC/FreeTDS stack
 # Enter system passwords.
-./init_db
+./init_pkgs
 <enter database password for dataset catalog>
 <enter password for test user>
 
