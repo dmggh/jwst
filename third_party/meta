@@ -615,7 +615,7 @@ def autopkg(fname):
         if endswith_any_of(fname, extensions):
             return package_class(fname)
     else:
-        raise ValueError("Unknown package type for " + repr(fname))
+        return None
 
 def split_cmdline_args(args):
     """Split the args list into (package_basenames, command_line_source_files)
@@ -644,12 +644,13 @@ def introspect(arg_sources=[]):
 
     Return { pkg_basename : Package }
     """
-    source_files = _glob.glob(os.getcwd() + "/../sources/*")
+    source_files = _glob.glob(PACKAGE_PATH + "/*[az]")
     pkgs = {}
     for fname in source_files + arg_sources:
         pkg = autopkg(fname)
-        pat = pkg_pattern(pkg.filename)
-        pkgs[pat] = pkg
+        if pkg:
+            pat = pkg_pattern(pkg.filename)
+            pkgs[pat] = pkg
     return pkgs
 
 def load_package_list(words):

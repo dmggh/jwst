@@ -421,21 +421,6 @@ done
 
 # ===========================================================================================
 
-echo "Installing Django"
-tar zxf third_party/Django-*.pygz
-cd Django*
-python setup.py install --home $install_dir/python >/dev/null
-cd ..
-rm -rf Django-*
-
-echo "Installing django-json-rpc"
-tar zxf third_party/django-json-rpc-git-0.0.pygz
-cd django-json-rpc-git-0.0
-python setup.py install --home $install_dir/python >/dev/null
-cd ..
-rm -rf django-json-rpc-git-0.0
-
-
 # cp test_utilities/*.py $install_dir/python/lib/python
 # ???? python -m py_compile $install_dir/python/lib/python/*.py
 # cp test_utilities/bin/*  $install_dir/python/bin

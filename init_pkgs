@@ -6,6 +6,11 @@
 cd `dirname $0`
 source env.csh
 
+setenv META_PREFIX "$CRDS_INSTALL_DIR"
+setenv PACKAGE_PATH "."
+setenv CFLAGS "-I$CRDS_INSTALL_DIR/include -L$CRDS_INSTALL_DIR/lib"
+setenv LDFLAGS "-L$CRDS_INSTALL_DIR/lib"
+
 # =======================================================================
 #            pyodbc setup for access to external databases
 #          .e.g. DADSOP == HST catalog of dataset parameters
@@ -32,31 +37,8 @@ source env.csh
 # META_PREFIX is roughly equivalent to a custom /usr/local for meta.  
 # It typically has lib, bin, etc. subdirectories,  just like /usr/local would.
 
-setenv  META_PREFIX "$CRDS_INSTALL_DIR"
+cd third_party;
 
-echo -n "Database password for DADSOPS? "
-set password=$<
-set password_file=${CRDS_INSTALL_DIR}/python/lib/python/crds/server/interactive/db_password.dat
-echo $password >$password_file
-chmod 600 $password_file
-
-echo -n "Test account password? "
-set password=$<
-echo "Adding test user"
-python tools/adduser.py test jmiller@stsci.edu "$password"
-
-echo "Installing database unixODBC"
-( cd third_party/database;  ./meta install ./unixODBC*.tar.gz )
-
-echo "Installing database freetds"
-( cd third_party/database;  ./meta build ./freetds*.meta )
-( cd third_party/database;  ./meta install ./freetds*.meta )
-
-echo "Installing database pyodbc"
-setenv CFLAGS "-I$CRDS_INSTALL_DIR/include -L$CRDS_INSTALL_DIR/lib"
-setenv LDFLAGS "-L$CRDS_INSTALL_DIR/lib"
-( cd third_party/database;  ./meta install ./pyodbc*.pygz --python=python --home=$CRDS_INSTALL_DIR/python )
-
-echo "Cleaning database build trees"
-( cd third_party/database;  ./meta clean ./pyodbc*.pygz ./unixODBC*.tar.gz ./freetds*.meta )
+./meta install @crds_packages --python=python --home=${CRDS_INSTALL_DIR}/python
+./meta clean
 

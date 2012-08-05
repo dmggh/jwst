@@ -14,15 +14,26 @@ shift
 cd `dirname $0`
 source env.csh
 
+cd `dirname $0`/tools
+
+echo -n "Database password for DADSOPS? "
+set password=$<
+set password_file=${CRDS_INSTALL_DIR}/python/lib/python/crds/server/interactive/db_password.dat
+echo $password >$password_file
+chmod 600 $password_file
+
+echo -n "Test account password? "
+set password=$<
+echo "Adding test user"
+python adduser.py test jmiller@stsci.edu "$password"
+
 # ========================================================================
 #               Django database import for HST
 # ========================================================================
-# This is the command line I use to initialize a developer database for the
+# This initializes a developer database for the
 # first time.  It creates database blobs for every file under the closure of
 # hst.pmap,  references as well as mappings.   By default, potentially slow or
 # non-essential stuff (sha1sum, instrument, filekind, serial) is not added by
 # the trailing "0" flag.  Switch to "1" to add those.
-
-cd `dirname $0`/tools
 
 python import_files.py $observatory.pmap jmiller jmiller@stsci.edu "Initial import" 0

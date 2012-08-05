@@ -1,0 +1,12 @@
+Django
+django-json-rpc-git
+
+# debug tools
+django-debug-toolbar
+django-sugar
+
+# pyodbc stack
+unixODBC
+freetds
+pyodbc
+
