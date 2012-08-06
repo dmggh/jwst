@@ -1,9 +1,10 @@
 import datetime
 import pprint
+import json
 
 from django.db import models
 
-from crds import timestamp
+from crds import timestamp, compat
 from crds.server import config
 
 # Create your models here.
@@ -27,10 +28,37 @@ class LogModel(models.Model):
     event = models.CharField(max_length=32, choices=double(["request","response","log"]), default="log")
     info = models.TextField()
     
-    def __repr__(self):
-        s = "[" + timestamp.reformat_date(self.date) + "] " + self.event + "_event" + "\n"
-        s += pprint.pformat(eval(self.info))
+    @property
+    def liveinfo(self):
+        if not hasattr(self, "_liveinfo"):
+            self._liveinfo = compat.literal_eval(self.info)
+        return self._liveinfo
+        
+    @property
+    def jsonpars(self):
+        if not hasattr(self, "_jsonpars"):
+            self._jsonpars = json.loads(self.liveinfo["POST"].keys()[0])
+        return self._jsonpars
+
+    @property
+    def datestr(self):
+        return "[" + timestamp.reformat_date(self.date)[:-4] + "]"
+    
+    def __unicode__(self):
+        if self.liveinfo["path"].startswith("/json"):
+            s = self.datestr + " " + self.liveinfo["host"] + " JSON " + \
+                self.jsonpars["method"] + " " + str(self.jsonpars["params"])
+        else:
+            s = self.datestr + " " + self.liveinfo["host"] + " " + self.liveinfo["method"] + \
+                 " " + self.liveinfo["path"]
+            if self.liveinfo["method"] == "GET":
+                s += " " + str(self.liveinfo["GET"])
+            else:
+                s += " " + str(self.liveinfo["PUT"])
         return s
+    
+    def __repr__(self):
+        return self.datestr + " " + self.event + "\n" + pprint.pformat(eval(self.info))
 
     @classmethod
     def log_string(cls, info, event="log"):
@@ -47,11 +75,11 @@ class LogModel(models.Model):
         cookies = make_dict("COOKIES", request.COOKIES)
         files = [ (f.name, f.size) for f in request.FILES ]
         d = dict(
-                 # meta=meta, 
-                 get=get, 
-                 post=post, 
-                 files=files,
-                 cookies=cookies,
+                 # META=meta, 
+                 GET=get, 
+                 POST=post, 
+                 FILES=files,
+                 COOKIES=cookies,
                  method=request.method,
                  path=request.path,
                  full_path=request.get_full_path(),
@@ -67,30 +95,3 @@ class LogModel(models.Model):
     def wipe(cls):
         for obj in cls.objects.all():
             obj.delete()
-            
-    @classmethod
-    def dump_log(cls, kind="*", from_date=None, to_date=None):
-        if from_date is None:
-            from_date = cls.objects.all()[0].date
-        if to_date is None:
-            to_date = reversed(cls.objects.all()).next().date    
-        from_date = timestamp.reformat_date(from_date)
-        to_date = timestamp.reformat_date(to_date)
-        if from_date <= to_date:
-            logs = cls.objects.all()
-            order = "forward"
-        else:
-            logs = reversed(cls.objects.all())
-            order = "reverse"
-        for entry in logs:
-            edate = timestamp.reformat_date(entry.date)
-            if kind != "*" and entry.event != kind:
-                continue
-            if order == "forward":
-                if edate < from_date or edate > to_date:
-                    continue
-            else:
-                if edate > from_date or edate < to_date:
-                    continue
-            print "="*80
-            print repr(entry)
