@@ -9,7 +9,7 @@
         <input type='hidden' name='observatory' value='{{observatory}}' />
 
         <tr>
-          <td width="25%" class="label">Submitted File:</td>
+          <td width="25%" class="label">Submitted Files:</td>
           <td width="25%">
             <input type='file' name='submitted_file' size="40" 
                 class='multi' value="{{submitted_file}}">
@@ -59,16 +59,17 @@
 
 {% if crds_filetype == "reference" %}
 
-<p><b>Submit Reference File</b> permanently enters a file into CRDS and the 
+<p><b>Submit Reference Files</b> permanently enters files into CRDS and the 
 archive.
 
-<p><p><b>Submitted File</b> a new reference file to be added to CRDS.
+<p><p><b>Submitted Files</b> new reference files to be added to CRDS.
 
-<p><p><b>Change Level</b> a flag to help search for deliverable files.
+<p><p><b>Change Level</b> The degree to which the new files are expected to 
+impact science results.
 
 {% else %}
 
-<p><b>Submit Mapping File</b> permanently enters a mapping file into the 
+<p><b>Submit Mapping Files</b> permanently enters a mapping file into the 
 CRDS system in a state which is not necessarily used.
 
 <p><p><b>Submitted File</b> a new mapping file to be added to CRDS.
