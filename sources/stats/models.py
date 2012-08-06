@@ -18,9 +18,19 @@ class SkipPathError(Exception):
 def double(xs):
     return zip(xs,xs)
 
+def de_unicode(obj):
+    if isinstance(obj, basestring):
+        return str(obj)
+    if isinstance(obj, (list, tuple)):
+        return obj.__class__([de_unicode(x) for x in obj])
+    elif isinstance(obj, dict):
+        return dict({ de_unicode(x) : de_unicode(obj[x]) for x in obj })
+    else:
+        return str(obj)
+
 def make_dict(name, obj):
     try:
-        return { str(key):str(value) for (key,value) in obj.items() }
+        return de_unicode(obj)
     except:
         return "error capturing " + name
     
@@ -40,13 +50,14 @@ class LogModel(models.Model):
     @property
     def liveblob(self):
         if not hasattr(self, "_liveblob"):
-            self._liveblob = compat.literal_eval(self.blob)
+            self._liveblob = de_unicode(compat.literal_eval(self.blob))
         return self._liveblob
         
     @property
     def jsonpars(self):
         if not hasattr(self, "_jsonpars"):
-            self._jsonpars = json.loads(self.liveblob["POST"].keys()[0])
+            self._jsonpars = de_unicode(
+                json.loads(self.liveblob["POST"].keys()[0]))
         return self._jsonpars
 
     @property
@@ -72,7 +83,7 @@ class LogModel(models.Model):
     def __unicode__prefix(self):
         event = { "request":"REQ", "response":"RESP", }[self.event]
         s = self.datestr + " " + event.upper() + " " + \
-            self.liveblob["HTTP_HOST"] + "(" + self.liveblob["REMOTE_ADDR"] + ")"
+            self.liveblob["HTTP_HOST"] + " (" + self.liveblob["REMOTE_ADDR"] + ")"
         if self.is_json:
              s += " JSON " + self.jsonpars["method"] 
         else:
@@ -126,8 +137,8 @@ class LogModel(models.Model):
                 HTTP_USER_AGENT = meta.get("HTTP_USER_AGENT", "unknown"),
                 HTTP_REFERRER = meta.get("HTTP_REFERRER", "unknown"),
                 user=str(request.user), 
-                method=request.method,
-                path=request.path,
+                method=str(request.method),
+                path=str(request.path),
                 GET=get, 
                 POST=post, 
                 )
