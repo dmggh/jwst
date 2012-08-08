@@ -1,0 +1,40 @@
+BEGIN;
+CREATE TABLE `crds_jwst_counters` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `name` varchar(64) NOT NULL,
+    `blob` longtext NOT NULL
+)
+;
+CREATE TABLE `crds_jwst_catalog` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `name` varchar(64) NOT NULL,
+    `blob` longtext NOT NULL,
+    `blacklisted` bool NOT NULL,
+    `state` varchar(11) NOT NULL,
+    `observatory` varchar(4) NOT NULL,
+    `instrument` varchar(7) NOT NULL,
+    `filekind` varchar(7) NOT NULL,
+    `type` varchar(9) NOT NULL,
+    `derived_from` varchar(128) NOT NULL
+)
+;
+CREATE TABLE `crds_jwst_actions` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `name` varchar(64) NOT NULL,
+    `blob` longtext NOT NULL
+)
+;
+CREATE TABLE `crds_jwst_contexts` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `name` varchar(64) NOT NULL,
+    `blob` longtext NOT NULL
+)
+;
+CREATE TABLE `crds_jwst_log` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `date` datetime NOT NULL,
+    `event` varchar(32) NOT NULL,
+    `blob` longtext NOT NULL
+)
+;
+COMMIT;

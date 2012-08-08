@@ -279,12 +279,12 @@ if server_config.observatory == "jwst":
         instr_key = "meta.instrument.type"
         date_key = "meta.observation.date"
         
-        requested_types = ["flatfile"]
+        requested_types = ["flat"]
         
-        test_reference = 'jwst_miri_flatfile_0001.fits'        
+        test_reference = 'jwst_miri_flat_0001.fits'        
         test_dataset = "interactive/test_data/jwst_fake_raw.fits"
         
         def expected_references(self):
             return {
-                    "flatfile" : "jwst_miri_flatfile_0001.fits",
+                    "flat" : "jwst_miri_flat_0001.fits",
             }
