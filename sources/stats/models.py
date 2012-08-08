@@ -8,7 +8,7 @@ from crds import timestamp, compat
 from crds.server import config
 
 MAX_RESPONSE_LEN = 100000
-SKIP_PATHS = ('/admin',)
+SKIP_PATHS = ('/admin','/login')
 
 class SkipPathError(Exception):
     """Paths listed in SKIP_PATHS are not logged.   Instead this exception is raised."""
@@ -62,7 +62,7 @@ class LogModel(models.Model):
 
     @property
     def datestr(self):
-        return "[" + timestamp.reformat_date(self.date)[:-4] + "]"
+        return "[" + timestamp.reformat_date(self.date) + "]"
     
     def __unicode__(self):
         if self.event == "request":
@@ -83,7 +83,7 @@ class LogModel(models.Model):
     def __unicode__prefix(self):
         event = { "request":"REQ", "response":"RESP", }[self.event]
         s = self.datestr + " " + event.upper() + " " + \
-            self.liveblob["HTTP_HOST"] + " (" + self.liveblob["REMOTE_ADDR"] + ")"
+            self.liveblob["REMOTE_HOST"] + " (" + self.liveblob["REMOTE_ADDR"] + ")"
         if self.is_json:
              s += " JSON " + self.jsonpars["method"] 
         else:
@@ -131,7 +131,7 @@ class LogModel(models.Model):
         meta = make_dict("META", request.META)
         
         d = dict(
-                # REMOTE_HOST = meta.get("REMOTE_HOST", "unknown"),
+                REMOTE_HOST = meta.get("REMOTE_HOST", "unknown"),
                 REMOTE_ADDR = meta.get("REMOTE_ADDR", "unknown"),
                 HTTP_HOST = meta.get("HTTP_HOST", "unknown"),
                 HTTP_USER_AGENT = meta.get("HTTP_USER_AGENT", "unknown"),
