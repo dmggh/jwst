@@ -525,19 +525,27 @@ echo ''
 ./save_version >sources/svn_version.py
 
 case ${server_mode}
-in
-  test) 
-    echo "Setting permissions"
-    chown -R crds.crdsoper ${install_root}
+    in
+    test) 
+	echo "Setting permissions"
+	chown -R crds.crdsoper ${install_root}
+	
+	chmod 755 ${install_root}
+	chmod 755 ${ref_path}
+	chmod 755 ${map_path}
+	chmod 700 ${install_dir}
+	chmod 770 ${CRDS_DELIVERY_DIR}
+	chmod 755 ${CRDS_CATALOG_DIR}
+	;;
+    dev)
+	;;
+esac
 
-    chmod 755 ${install_root}
-    chmod 755 ${ref_path}
-    chmod 755 ${map_path}
-    chmod 700 ${install_dir}
-    chmod 770 ${CRDS_DELIVERY_DIR}
-    chmod 755 ${CRDS_CATALOG_DIR}
-  ;;
-  dev)
-  ;;
+case ${observatory}
+    in
+    jwst)
+	echo "Installing jwst references"
+	cp -v -r ../jwst_references ${ref_path}/jwst
+	;;
 esac
 
