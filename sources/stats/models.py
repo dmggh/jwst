@@ -1,6 +1,7 @@
 import datetime
 import pprint
 import json
+from socket import gethostbyaddr
 
 from django.db import models
 
@@ -33,7 +34,6 @@ def make_dict(name, obj):
         return de_unicode(obj)
     except:
         return "error capturing " + name
-    
 
 class LogModel(models.Model):
     """A generic model for logging stuff,  request, responses, and messages."""
@@ -80,9 +80,18 @@ class LogModel(models.Model):
     def is_json(self):
         return self.liveblob["path"].startswith("/json")
 
-    def __unicode__prefix(self):
+    def remote_hostname(self, ip):
         rhost = self.liveblob.get("REMOTE_HOST", "unknown_host")
+        if rhost in [None, "None", "unknown_host"]:
+            try:
+                rhost = gethostbyaddr(ip)[0]
+            except:
+                rhost = "unknown host"
+        return rhost
+
+    def __unicode__prefix(self):
         raddr = self.liveblob.get("REMOTE_ADDR", "unknown_ip")
+        rhost = self.remote_hostname(raddr)
         event = { "request":"REQ", "response":"RESP", }[self.event]
         s = self.datestr + " " + event.upper() + " " + rhost + " (" + raddr + ")"
         if self.is_json:
