@@ -81,6 +81,10 @@ def main(args):
                  deliverer=args[1], deliverer_email=args[2], 
                  description=args[3], add_slow_fields=int(args[4]), 
                  state="submitted")
+
+    models.set_default_context(args[0])    
+    models.set_default_context(args[0], state="operational")
+    
     try:
         views.deliver_file_list(args[1], ctx.observatory, ctx.mapping_names(), 
                                 "system initialization", "mass import")
@@ -92,9 +96,6 @@ def main(args):
                  deliverer=args[1], deliverer_email=args[2], 
                  description=args[3], add_slow_fields=int(args[4]), 
                  state="operational")
-    
-    models.set_default_context(args[0])    
-    models.set_default_context(args[0], state="operational")
     
     log.standard_status()
 
