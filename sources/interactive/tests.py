@@ -13,9 +13,11 @@ import crds.server.config as sconfig
 from django.contrib.auth.models import User
 
 HERE = os.path.dirname(__file__) or "."
-
-os.environ["CRDS_PATH"] = sconfig.install_root + "/test"
-os.environ["CRDS_REFPATH"] = sconfig.install_root + "/test/references"
+CRDS_PATH = os.environ["CRDS_PATH"] = sconfig.install_root + "/test"
+# Keep system CRDS_MAPPATH, readonly
+CRDS_REFPATH = os.environ["CRDS_REFPATH"] = sconfig.install_root + "/test/references"
+pysh.sh("rm -rf ${CRDS_PATH}", raise_on_error=True)
+pysh.sh("mkdir -p ${CRDS_PATH}", raise_on_error=True)
 
 class SimpleTest(TestCase):
     

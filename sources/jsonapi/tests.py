@@ -17,8 +17,15 @@ import crds.server.config as server_config
 import crds.heavy_client as heavy_client
 
 HERE = os.path.dirname(__file__) or "."
-
-os.environ["CRDS_PATH"] = CRDS_PATH = HERE + "/crds"
+CRDS_PATH = os.environ["CRDS_PATH"] = server_config.install_root + "/test"
+pysh.sh("rm -rf ${CRDS_PATH}", raise_on_error=True)
+pysh.sh("mkdir -p ${CRDS_PATH}", raise_on_error=True)
+test_maps = CRDS_PATH + "/mappings"
+test_refs = CRDS_PATH + "/references"
+CRDS_REAL_MAPPATH = os.environ["CRDS_MAPPATH"]
+pysh.sh("cp -r ${CRDS_REAL_MAPPATH} ${test_maps}")
+CRDS_MAPPATH = os.environ["CRDS_MAPPATH"] = test_maps
+CRDS_REFPATH = os.environ["CRDS_REFPATH"] = test_refs
 
 client.set_crds_server(server_config.CRDS_URL)
 
@@ -160,7 +167,6 @@ class ServiceApiBase(object):
         log.set_verbose(True)
         crds_mappath = crds.config.get_crds_mappath()
         crds_refpath = crds.config.get_crds_refpath()
-        pysh.sh("chmod -R 777 ${crds_mappath} ${crds_refpath}")
         try:
             heavy_client.get_processing_mode.cache.clear() 
             oldver = crds.__version__
