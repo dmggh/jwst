@@ -81,13 +81,15 @@ class LogModel(models.Model):
         return self.liveblob["path"].startswith("/json")
 
     def __unicode__prefix(self):
+        rhost = self.liveblob.get("REMOTE_HOST", "unknown_host")
+        raddr = self.liveblob.get("REMOTE_ADDR", "unknown_ip")
         event = { "request":"REQ", "response":"RESP", }[self.event]
-        s = self.datestr + " " + event.upper() + " " + \
-            self.liveblob["REMOTE_HOST"] + " (" + self.liveblob["REMOTE_ADDR"] + ")"
+        s = self.datestr + " " + event.upper() + " " + rhost + " (" + raddr + ")"
         if self.is_json:
-             s += " JSON " + self.jsonpars["method"] 
+             s += " JSON " + self.jsonpars.get("method", "unknown_json") 
         else:
-            s += " " + self.liveblob["method"] + " " + self.liveblob["path"]
+            s += " " + self.liveblob.get("method", "unknown_method") + " " + \
+                 self.liveblob.get("path","unknown_path")
         return s
         
     def __unicode__request(self):
