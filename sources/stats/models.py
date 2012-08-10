@@ -9,7 +9,7 @@ from crds import timestamp, compat
 from crds.server import config
 
 MAX_RESPONSE_LEN = 100000
-SKIP_PATHS = ('/admin','/login')
+SKIP_PATHS = ('/admin','/static/admin','/login')
 
 class SkipPathError(Exception):
     """Paths listed in SKIP_PATHS are not logged.   Instead this exception is raised."""
