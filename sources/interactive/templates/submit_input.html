@@ -42,11 +42,7 @@
         <tr>
           <td width="25%" class="label">Auto-Rename:</td>
           <td width="25%">
-            <input name='auto_rename' type='checkbox' value='on'
-                {% if auto_rename %}
-                    checked
-                {% endif %}
-             />
+              {% include "auto_rename_input.html" %}
           </td>
         </tr>
       </table>
@@ -82,12 +78,7 @@ the expected impacts are.
 <p><p><b>Creator</b> author of the contents or changes to the file,  not 
 necessarily the submitter.   The submitter is known based on login information.
 
-<p><p><b>Auto Rename</b> when checked, the uploaded file will be renamed to a 
-unique name using CRDS naming conventions and id numbers,  e.g.
-'s7g1700gm_dead.fits' might be renamed as ' hst_cos_deadtab_0002.fits'.  In general 
-auto-renaming should be left checked and CRDS names assigned;  this feature is
-useful for delivery of test files and for side-by-side testing with CDBS where
-filename equality is required for easy comparison.
+{% include "auto_rename_help.html" %}
 
 <p><p><b>NOTE:</b> All submitted files must pass certification before they will
 be accepted by CRDS.  All references referred to by a mapping must be submitted

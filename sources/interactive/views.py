@@ -248,6 +248,8 @@ def render(request, template, dict_=None):
         "default_context" : models.get_default_context(),
         "default_context_label" : pmap_label(models.get_default_context()),
         "pmaps" : get_recent_pmaps(),
+        
+        "auto_rename" : False,
     }
     
     # echo escaped inputs.
@@ -707,7 +709,6 @@ def submit_file(request, crds_filetype):
     """Handle file submission,  crds_filetype=reference|mapping."""
     if request.method == "GET":
         return render(request, 'submit_input.html', {
-            "auto_rename" : 'on',
             "crds_filetype" :  crds_filetype,
         })
     else:
@@ -1008,6 +1009,7 @@ def batch_submit_reference_post(request):
     context = get_recent_or_user_context(request)
     pmap = rmap.get_cached_mapping(context)
     description = validate_post(request, "description", DESCRIPTION_RE)
+    auto_rename = "auto_rename" in request.POST
     
     # creator = validate_post(request, "creator", PERSON_RE)
     reference_files = request.FILES.getlist("file_uploaded")
@@ -1085,7 +1087,7 @@ def batch_submit_reference_post(request):
             pmap.observatory, uploaded_file, description,
             str(request.user), request.user.email, creator, 
             change_level, creation_method="batch submit",
-            state="uploaded")
+            state="uploaded", auto_rename=auto_rename)
         new_references[str(uploaded_file.name)] = str(new_basename)
 
     # Get paths for new official CRDS reference files.
@@ -1855,7 +1857,7 @@ def get_collision_list(newfiles):
 
 def edit_rmap_post(request):
     """View fragment handling Rmap edit execution POST."""
-    
+
     expanded, actions = collect_action_tree(request)
     print pprint.pformat(actions)
     if not actions:
@@ -1864,11 +1866,12 @@ def edit_rmap_post(request):
     description = validate_post(request, "description", DESCRIPTION_RE)
     original_rmap = validate_post(request, "browsed_file", is_rmap)
     observatory = rmap.get_cached_mapping(original_rmap).observatory
+    auto_rename = "auto_rename" in request.POST
     
     pmap_name = get_recent_or_user_context(request)
 
     new_references = handle_file_submissions(
-        original_rmap, expanded, observatory, request.user)
+        original_rmap, expanded, observatory, request.user, auto_rename=auto_rename)
     
     new_rmap, new_loc = execute_edit_actions(original_rmap, expanded)
     
@@ -1935,7 +1938,7 @@ def collect_action_tree(request):
             
     return expanded, actions
 
-def handle_file_submissions(original_rmap, expanded, observatory, submitter):
+def handle_file_submissions(original_rmap, expanded, observatory, submitter, auto_rename):
     """Certify and submit all of the added files in `expanded`.   Return
     a list of tuples of reference filenames: [(uploaded_name,  crds_name), ...]
     """
@@ -1969,7 +1972,8 @@ def handle_file_submissions(original_rmap, expanded, observatory, submitter):
         new_basename = do_submit_file(
             observatory, uploaded_file, description,
             str(submitter), submitter.email, creator_name=creator_name,
-            change_level=change_level, creation_method="edit rmap", state="uploaded")
+            change_level=change_level, creation_method="edit rmap", state="uploaded",
+            auto_rename=auto_rename)
         new_references.append((upload_name, new_basename))
         expanded["add"][addno]["filename"] = new_basename
     return sorted(new_references)

@@ -33,6 +33,9 @@
 
       <h3>Upload References</h3>
         <input type="file" class="multi" name="file_uploaded" id="file_uploaded"/>
+        
+      <h3>Auto-Rename:  {% include "auto_rename_input.html" %}  </h3>
+      
       <br/>
       <br/>
       <input type="submit" value="Submit References" >
@@ -51,5 +54,7 @@ will be recursively updated to insert the new reference files.
 
 <p><p><b>Uploaded References</b> lets you upload a list of new references to CRDS.   
 Each reference file must certify or the entire batch will be rejected.
+
+{% include "auto_rename_help.html" %}
 
 {% endblock help %}
