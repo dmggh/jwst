@@ -197,7 +197,7 @@ mkdir -p $install_dir/python/bin
 	echo 'setenv PATH '$PATH
 	echo 'setenv CRDS_INSTALL_DIR ' $install_dir
 
-	echo 'setenv CRD_SERVER_URL ' $CRDS_URL
+	echo 'setenv CRDS_SERVER_URL ' $CRDS_URL
 	echo 'setenv CRDS_MAPPATH ' $map_path
 	echo 'setenv CRDS_REFPATH ' $ref_path
 	echo 'setenv CRDS_CATALOG_DIR' $CRDS_CATALOG_DIR
