@@ -55,7 +55,11 @@
   <ul>
 <li><a class="reference internal" href="#">Installation</a><ul>
 <li><a class="reference internal" href="#getting-the-source-code">Getting the Source Code</a></li>
-<li><a class="reference internal" href="#setting-up-your-environment">Setting up your Environment</a></li>
+<li><a class="reference internal" href="#setting-up-your-environment">Setting up your Environment</a><ul>
+<li><a class="reference internal" href="#basic-environment">Basic Environment</a></li>
+<li><a class="reference internal" href="#advanced-environment">Advanced Environment</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#run-the-install-script">Run the Install Script</a></li>
 <li><a class="reference internal" href="#test-the-installation">Test the installation</a></li>
 <li><a class="reference internal" href="#package-overview">Package Overview</a></li>
@@ -112,23 +116,60 @@ CRDS source code out from subversion:</p>
 environment variables, env.csh.   For JWST development,  there are
 reasonable defaults for everything so you may not need to set these
 at all.   For HST,  at a minimum CRDS_SERVER_URL must be defined.</p>
+<div class="section" id="basic-environment">
+<h3>Basic Environment<a class="headerlink" href="#basic-environment" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul class="simple">
-<li>CRDS_PATH defines a common directory tree where CRDS reference files
+<li><strong>CRDS_PATH</strong> defines a common directory tree where CRDS reference files
 and mappings are stored.   CRDS_PATH defaults to &#8221;./crds&#8221;.   Mappings
 are stored in ${CRDS_PATH}/mappings/[hst|jwst].   Reference files are
 stored in ${CRDS_PATH}/references/[hst|jwst].</li>
-<li>CRDS_MAPPATH can be used to override CRDS_PATH and define where
-only mapping files are stored.</li>
-<li>CRDS_REFPATH can be used to override CRDS_PATH and define where
-only reference files are stored.</li>
-<li>CRDS_SERVER_URL defines the base URL for accessing CRDS network
+<li><strong>CRDS_SERVER_URL</strong> defines the base URL for accessing CRDS network
 services.  CRDS_SERVER_URL defaults to the jwst test server.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="advanced-environment">
+<h3>Advanced Environment<a class="headerlink" href="#advanced-environment" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>CRDS_MAPPATH</strong> can be used to override CRDS_PATH and define where
+only mapping files are stored.   If mappings are pre-installed, the
+directory pointed to by CRDS_MAPPATH can be readonly.
+CRDS_MAPPATH defaults to ${CRDS_PATH}/mappings.</li>
+<li><strong>CRDS_REFPATH</strong> can be used to override CRDS_PATH and define where
+only reference files are stored.  If references are pre-installed, the
+directory pointed to by CRDS_REFPATH can be readonly.
+CRDS_REFPATH defaults to ${CRDS_PATH}/references.</li>
+<li><strong>CRDS_CFGPATH</strong> can be used to override CRDS_PATH and define where
+only server configuration information is cached.   The directory
+pointed to by CRDS_CFGPATH should be writable.   If CRDS is running in
+server-less mode,  this path is irrelevant.
+CRDS_REFPATH defaults to ${CRDS_PATH}/config.</li>
+<li><strong>CRDS_MODE</strong> defines whether CRDS should compute best references using
+client software (local),  server software (remote),  or intelligently
+&#8220;fall up&#8221; to the server only when the client is deemed obsolete or
+the server cannot be reached (auto).   The default is auto.</li>
+<li><strong>CRDS_CONTEXT</strong> is an override naming the CRDS pipeline mapping (.pmap)
+used for computing best references.   Ordinarily,  CRDS will contact the
+server to determine the operational pipeline mapping.
+If the server cannot be reached,  CRDS will look in CRDS_CFGPATH
+to determine the last pipeline context the server recommended.   If there
+is no prior server info available in the cache,  CRDS will fall-back to
+using the default pre-installed mappings, e.g. jwst.pmap.
+When CRDS_CONTEXT is set, CRDS will ignore server recommendations and
+availability and use the specified pipeline mapping.   However, CRDS_CONTEXT
+will only be used when <tt class="xref py py-obj docutils literal"><span class="pre">context</span></tt> was specified to getreferences() as None.
+If <tt class="xref py py-obj docutils literal"><span class="pre">context</span></tt> was explicitly specified in a call to getreferences() and
+was not None,  the specified context will override CRDS_CONTEXT.   This
+enables the implementation of command line switches which supercede
+CRDS_CONTEXT.</li>
 </ul>
 </div></blockquote>
 <p>Edit env.csh according to your preferences for where to put CRDS files.
 Then source env.csh to define the variables in your environment:</p>
 <div class="highlight-python"><pre>% source env.csh</pre>
+</div>
 </div>
 </div>
 <div class="section" id="run-the-install-script">
