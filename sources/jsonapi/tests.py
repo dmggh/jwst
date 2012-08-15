@@ -161,7 +161,6 @@ class ServiceApiBase(object):
         with self.assertRaises(crds.CrdsError):
             self.getreferences_fallback("remote")
 
-    # XXX TODO:  setting crds.__version__ doesn't work in this context.
     def getreferences_fallup(self, mode, ignore_cache=False):
         # First compute best refs normally, to ensure file caching
         log.set_verbose(True)

@@ -1,4 +1,4 @@
-#! /bin/sh
+\#! /bin/sh
 
 # This install script is heavily based on the PyETC install script
 # CRDS is intended to use the same LAMP stack as pyetc, with emphasis on Python
@@ -531,8 +531,8 @@ case ${server_mode}
 	chown -R crds.crdsoper ${install_root}
 	
 	chmod 755 ${install_root}
-	chmod 755 ${ref_path}
-	chmod 755 ${map_path}
+	chmod -R 755 ${ref_path}
+	chmod -R 755 ${map_path}
 	chmod 700 ${install_dir}
 	chmod 770 ${CRDS_DELIVERY_DIR}
 	chmod 755 ${CRDS_CATALOG_DIR}
@@ -545,7 +545,7 @@ case ${observatory}
     in
     jwst)
 	echo "Installing jwst references"
-	cp -v -r ../jwst_references ${ref_path}/jwst
+	cp -v ../jwst_references/*.fits ${ref_path}/jwst
 	;;
 esac
 

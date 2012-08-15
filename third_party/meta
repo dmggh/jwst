@@ -583,7 +583,7 @@ def process(command, packages):
             try:
                 f()
                 tell(command, repr(q), "succeeded.", file=sys.stderr)
-            except:
+            except Exception:
                 error(command, repr(q), "failed:", sys.exc_info()[1],
                       file=sys.stderr)
                 failed.append(q)
