@@ -24,6 +24,26 @@
             {% endfor %}
         {% endif %}
     
+        {% if more_submits %}
+            <br/>
+            <table>
+                <tr>
+                    {% if more_submits != "/" %}
+                    <td>
+                        <form method="link" action="{{more_submits}}">
+                        <input type="submit" value="Next Submission">
+                        </form>
+                    </td>
+                    {% endif %}
+                    <td>
+                        <form method="link" action="/">
+                        <input type="submit" value="Home">
+                        </form>
+                    </td>
+                </tr>
+            </table>
+        {% endif %}
+    
     {% else %}
         <p class='error'>Submission Discarded.</p>
     {% endif %}

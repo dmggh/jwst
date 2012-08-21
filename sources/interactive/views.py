@@ -101,6 +101,7 @@ DESCRIPTION_RE = r"[A-Za-z0-9._ ]+"
 GEIS_HEADER_RE = r"\w+(\.r\dh)"
 PERSON_RE = r"[A-Za-z_0-9\.@]*"
 DATASET_ID_RE = r"\w+"
+URL_RE = r"(/[A-Za-z0-9_]?)+"
 
 def is_pmap(filename):
     """Verify that `filename` names a known CRDS pipeline mapping.
@@ -767,6 +768,8 @@ def submit_file_post(request, crds_filetype):
                 "submission_kind" : "submit file",
                 "title" : "Submit File",
                 "description" : description,
+                
+                "more_submits" : "/",
                 })
     
 def do_submit_file(observatory, uploaded_file, description, 
@@ -1134,6 +1137,8 @@ def batch_submit_reference_post(request):
                 
                 "collision_list" : collision_list,
                 "rmap_diffs" : rmap_diffs,
+
+                "more_submits" : "/batch_submit_reference/",
             })
     
 @error_trap("base.html")
@@ -1151,6 +1156,7 @@ def submit_confirm(request):
     new_files = dict(new_file_map).values()
     generated_files = compat.literal_eval(request.POST["generated_files"])
     user = str(request.user)
+    more_submits = validate_post(request, "more_submits", URL_RE)
     
     instrument = filekind = "unknown"
     for filename in new_files + generated_files:
@@ -1902,6 +1908,8 @@ def edit_rmap_post(request):
                 "submission_kind" : "edit rmap",
                 "title" : "Edit Rmap",
                 "description" : description,
+                
+                "more_submits" : "/edit_rmap_browse/",
             })
 
 def collect_action_tree(request):
@@ -2082,6 +2090,7 @@ def deliver_file_list(user, observatory, delivered_files, description, action):
     if not len(delivered_files):
         raise CrdsError("No files were selected for delivery.")
     user = str(user)
+    delivered_files = sorted(delivered_files)
     catalog = deliver_file_catalog(observatory, delivered_files, "I")
     paths = deliver_file_get_paths(observatory, delivered_files)
     try:

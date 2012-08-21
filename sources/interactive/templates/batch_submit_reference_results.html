@@ -14,7 +14,11 @@
     
     <h3>Uploaded Files</h3>
     {% for file in new_file_map %}
-        <p>File submitted as {{file.0|grey}} was renamed to {{file.1|grey}} in CRDS.</p>
+        {% if file.0 != file.1 %}
+            <p>File submitted as {{file.0|grey}} was renamed to {{file.1|grey}} in CRDS.</p>
+        {% else %}
+            <p>Submitted {{file.0|grey}} to CRDS.</p>
+        {% endif %}
     {% endfor %}
     
     <h3>Actions on Mapping</h3>
