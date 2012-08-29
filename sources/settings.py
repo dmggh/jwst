@@ -1,6 +1,6 @@
 # Django settings for crds project.
 
-from crds.server.config import install_dir, DEBUG, DEBUG_EXTRAS
+from crds.server.config import install_dir, DEBUG, DEBUG_EXTRAS, FILE_UPLOAD_TEMP_DIR
 from crds_database import DATABASES
 
 TEMPLATE_DEBUG = DEBUG

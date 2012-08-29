@@ -122,7 +122,9 @@ fi
 ### gather config values that we need in this script
 ###
 
-python ${SERVER_SOURCES}/sh_config.py install_root install_dir port PYSYN_CDBS servertype dbtype debug data_dir debug_javascript noreload map_path ref_path CRDS_URL CRDS_CATALOG_DIR CRDS_DELIVERY_DIR > tmp
+python ${SERVER_SOURCES}/sh_config.py install_root install_dir port PYSYN_CDBS\
+ servertype dbtype debug data_dir debug_javascript noreload map_path ref_path\
+ CRDS_URL CRDS_CATALOG_DIR CRDS_DELIVERY_DIR FILE_UPLOAD_TEMP_DIR> tmp
 . ./tmp
 rm -f tmp
 
@@ -213,6 +215,9 @@ mkdir -p -m 755 $CRDS_CATALOG_DIR
 
 # This is the primary working copy for deliveries, nominally owned by CRDS.
 mkdir -p -m 755 $CRDS_DELIVERY_DIR
+
+# This is the primary working copy for deliveries, nominally owned by CRDS.
+mkdir -p -m 755 $FILE_UPLOAD_TEMP_DIR
 
 # These are the directories where newly submitted references and mappings 
 # will be kept by the server.
@@ -536,6 +541,7 @@ case ${server_mode}
 	chmod 700 ${install_dir}
 	chmod 770 ${CRDS_DELIVERY_DIR}
 	chmod 755 ${CRDS_CATALOG_DIR}
+	chmod 750 ${FILE_UPLOAD_TEMP_DIR}
 	;;
     dev)
 	;;

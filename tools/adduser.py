@@ -1,9 +1,16 @@
 import sys
 
 from django.contrib.auth.models import User
+from django.db.utils import IntegrityError
+
+from crds import log
 
 def adduser(user, email, password, super_user=False):
-    user = User.objects.create_user(user, email, password)
+    try:
+        user = User.objects.create_user(user, email, password)
+    except IntegrityError:
+        log.warning("User", repr(user), "already exists or other problem...")
+        return
 
     # At this point, user is a User object that has already been saved
     # to the database. You can continue to change its attributes

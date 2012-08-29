@@ -19,6 +19,9 @@ CRDS_DELIVERY_DIRS = [
         CRDS_DELIVERY_DIR,
 ]
 
+# Dir the file upload hanlder stores temporary large uploaded files.
+FILE_UPLOAD_TEMP_DIR = install_root + "/uploads"
+
 # Master directory for the catalog file associated with a delivery
 CRDS_CATALOG_DIR = install_root + "/catalogs"
 

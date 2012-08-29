@@ -25,6 +25,9 @@ CRDS_DELIVERY_DIRS = [
 # Master directory for the catalog file associated with a delivery
 CRDS_CATALOG_DIR = install_root + "/catalogs"
 
+# Dir the file upload hanlder stores temporary large uploaded files.
+FILE_UPLOAD_TEMP_DIR = install_root + "/uploads"
+
 #
 # servertype is what type of web server the install script should
 # set up for you.  options are:

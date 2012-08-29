@@ -20,8 +20,8 @@ observatory_module = utils.get_object("crds." + OBSERVATORY)
 
 OBSERVATORIES = ["hst","jwst"]
 
-INSTRUMENTS = sorted(observatory_module.INSTRUMENTS) + ["UNKNOWN"] # + crds.jwst...
-FILEKINDS   = sorted(observatory_module.FILEKINDS) + ["UNKNOWN"]   # + crds.jwst...
+INSTRUMENTS = sorted(observatory_module.INSTRUMENTS) # + crds.jwst...
+FILEKINDS   = sorted(observatory_module.FILEKINDS)   # + crds.jwst...
 FILEKIND_TEXT_DESCR = sorted(observatory_module.TEXT_DESCR.items())
 EXTENSIONS  = sorted(observatory_module.EXTENSIONS)   # + crds.jwst...
 
@@ -291,10 +291,10 @@ class FileBlob(BlobModel):
     observatory = SimpleCharField( OBSERVATORIES,
         "observatory associated with file", OBSERVATORY)
     
-    instrument = SimpleCharField(INSTRUMENTS, 
+    instrument = SimpleCharField(INSTRUMENTS + ["unknown"], 
         "instrument associated with file", "")
     
-    filekind = SimpleCharField(FILEKINDS, 
+    filekind = SimpleCharField(FILEKINDS + ["unknown"], 
         "dataset keyword associated with this file", "")
 
     type = SimpleCharField( ["reference","mapping"],
@@ -391,7 +391,7 @@ class FileBlob(BlobModel):
         except Exception, exc:
             log.warning("Adding file with instrument and filekind UNKNOWN for file", 
                         repr(permanent_location))
-            blob.instrument = blob.fileind = "UNKNOWN"
+            blob.instrument = blob.fileind = "unknown"
 
         blob.derived_from = derived_from if derived_from else "(no predecessor)"
 
