@@ -53,7 +53,6 @@ def submit_files(files, observatory, deliverer,
                 add_slow_fields=add_slow_fields,
                 state=state, update_derivation=False)
         except Exception, exc:
-            raise
             log.error("Submission FAILED for", repr(file), ":", str(exc))
         else:
             models.AuditBlob.new(deliverer, "mass import", file, 
