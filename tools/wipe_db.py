@@ -7,18 +7,19 @@ def wipe_interactive():
     if ans.lower() != "y":
         print "Aborting..."
         return
+
     print "wiping files..."
-    for obj in imodels.FileBlob.objects.all():
-        obj.delete()
+    imodels.FileBlob.objects.all().delete()
+
     print "wiping audits..."
-    for obj in imodels.AuditBlob.objects.all():
-        obj.delete()
+    imodels.AuditBlob.objects.all().delete()
+
     print "wiping contexts..."
-    for obj in imodels.ContextBlob.objects.all():
-        obj.delete()
+    imodels.ContextBlob.objects.all().delete()
+
     print "wiping counters..."
-    for obj in imodels.CounterBlob.objects.all():
-        obj.delete()
+    imodels.CounterBlob.objects.all().delete()
+
     print "done."
 
 if __name__ == "__main__":
