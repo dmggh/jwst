@@ -77,8 +77,8 @@ class ServiceApiBase(object):
         client.cache_best_references_for_dataset(self.pmap, self.test_dataset)
         self.purge_references()
 
-    def test_client_get_reference_url(self):
-        url = client.get_reference_url(self.pmap, self.test_reference)
+    def test_client_get_url(self):
+        url = client.get_url(self.pmap, self.test_reference)
 
     def test_client_get_default_context(self):
         context = client.get_default_context(self.observatory)
