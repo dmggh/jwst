@@ -1,6 +1,9 @@
+from __future__ import division
+
 import os
 import os.path
 import base64
+import math
 
 from jsonrpc import jsonrpc_method
 from jsonrpc.exceptions import Error
@@ -8,7 +11,7 @@ from jsonrpc.exceptions import Error
 import crds.server.interactive.versions as versions
 import crds.server.interactive.models as imodels
 import crds.server.config as config
-from crds import rmap, utils
+from crds import rmap, utils, log
 
 # =============================================================================
 
@@ -75,7 +78,7 @@ def check_known_file(file):
     if not blob.available:
         raise UnavailableFile("File '%s' is not yet available."  % file)
     if blob.blacklisted:
-        raise BlacklistedFile("File '%s' has been blacklisted and should no longer be used.")
+        raise BlacklistedFile("File '%s' has been blacklisted and should no longer be used." % file)
     return blob
 
 def check_context(context):
@@ -149,28 +152,35 @@ def get_reference_names(request, context):
     ctx = rmap.get_cached_mapping(context)
     return ctx.reference_names()
 
+CRDS_JSONRPC_CHUNK_SIZE = 2**26    # 64M
+
 @jsonrpc_method('get_file_chunk(String, String, Number)')
 def get_file_chunk(request, context, filename, chunk):
     check_context(context)
     blob = check_known_file(filename)
-    stat = os.stat(blob.pathname)
-    length = stat.st_size
-    chunks = math.ceil(length / CHUNK_SIZE)
+    chunks = int(math.ceil(blob.size / CRDS_JSONRPC_CHUNK_SIZE))
     if int(chunk) != chunk:
         raise InvalidChunk("the specified chunk must be an integer index.")
     if not (0 <= chunk < chunks):
         raise InvalidChunk("the specified data chunk " + repr(chunk) + " is invalid.")
     with open(blob.pathname, "rb") as infile:
-        infile.seek(chunk*CHUNK_SIZE)
-        data = infile.read(CHUNK_SIZE)
-    return chunks, base64.b64encode(data)
+        infile.seek(chunk*CRDS_JSONRPC_CHUNK_SIZE)
+        data = infile.read(CRDS_JSONRPC_CHUNK_SIZE)
+    edata = base64.b64encode(data)
+    return [chunks, edata]
 
 @jsonrpc_method('get_url(String, String)')
 def get_url(request, context, file):
     check_context(context)
     check_known_file(file)
     ctx = rmap.get_cached_mapping(context)
-    return create_url(ctx.observatory, mapping)
+    return create_url(ctx.observatory, file)
+
+@jsonrpc_method('get_file_info(String, String)')
+def get_file_info(request, context, file):
+    check_context(context)
+    blob = check_known_file(file)
+    return blob.info
 
 # ===============================================================
 

@@ -1,3 +1,4 @@
+import os
 import os.path
 import re
 import hashlib
@@ -51,8 +52,10 @@ class BlobModel(models.Model):
     class Meta:
         abstract = True    # Collapse model inheritance for flat SQL tables
 
-    model_fields = ["id","name","blob"]
-    blob_fields = {}    
+    model_fields = ["id","name","blob"]  # field directly in database
+    blob_fields = {}  # field in database as part of blob
+    blob_properties = []  # computed field
+    exclude_from_info = ["blob"]    # not included in self.info()
     repr_list = None    
     
     name = models.CharField(
@@ -72,7 +75,9 @@ class BlobModel(models.Model):
             
     @property
     def fields(self):
-        return sorted(list(self.model_fields) + list(self.blob_fields))
+        return sorted(list(self.model_fields) + 
+                      list(self.blob_fields) + 
+                      list(self.blob_properties))
 
     def __repr__(self):
         """Display values of fields in `self.repr_list` else display
@@ -181,11 +186,18 @@ class BlobModel(models.Model):
 
     @classmethod
     def dictionary(cls):
+        """Return { name : blob } for all Blobs in this class."""
         d = {}
         for obj in cls.objects.all():
             d[obj.name] = obj
             obj.thaw()
         return d
+
+    @property
+    def info(self):
+        """Return { field : value } for all the information in this Blob."""
+        return { field.lower() : str(getattr(self, field)).lower() for field in self.fields
+                 if field not in self.exclude_from_info }
 
 # ============================================================================
 
@@ -280,6 +292,13 @@ class FileBlob(BlobModel):
     model_fields = BlobModel.model_fields + \
         ["state", "blacklisted", "observatory", "instrument", "filekind", 
          "type", "derived_from"]
+        
+    exclude_from_info = BlobModel.exclude_from_info + \
+        ["pathname","creator","deliverer", "deliverer_email","catalog_link",
+         "_sha1sum", "_size"]
+
+    blob_properties = BlobModel.blob_properties + \
+        ["sha1sum", "size"]
 
     blacklisted = models.BooleanField(
         default=False, 
@@ -338,11 +357,13 @@ class FileBlob(BlobModel):
         blacklisted_by = BlobField(list,
             "List of blacklisted files this file refers to directly or indirectly.",
             []),
-        sha1sum = BlobField(str, 
+        _sha1sum = BlobField(str, 
             "checksum of file at upload time", ""),
+        _size = BlobField(long,
+             "size of file in bytes.", -1),
         # Fields derived from CDBS
         pedigree = BlobField(PEDIGREES, 
-            "source of reference file","INFLIGHT"),
+            "source of reference file", "INFLIGHT"),
         change_level = BlobField(CHANGE_LEVELS,
             "Do the changes to this file force recalibration of science data?",
             "SEVERE"), 
@@ -357,7 +378,7 @@ class FileBlob(BlobModel):
         reject_by_file_name = BlobField(FILENAME_RE,
             "", "")
     )
-
+    
     @classmethod
     def new(cls, observatory, upload_name, permanent_location, 
             creator_name, deliverer_user, deliverer_email, description, 
@@ -382,7 +403,8 @@ class FileBlob(BlobModel):
         blob.description = description
         blob.delivery_date = timestamp.now()
         if add_slow_fields:
-            blob.sha1sum = blob.checksum()
+            blob.sha1sum   # property cached as _sha1sum
+            blob.size      # property cached as _size
         try:
             instrument, filekind = utils.get_file_properties(
                 observatory, permanent_location)
@@ -409,6 +431,20 @@ class FileBlob(BlobModel):
     def filename(self):
         return os.path.basename(self.pathname)
     
+    @property 
+    def size(self):
+        if self._size <= -1:
+            self._size = os.stat(self.pathname).st_size
+            self.save()
+        return self._size
+    
+    @property
+    def sha1sum(self):
+        if not self._sha1sum:
+            self._sha1sum = self.checksum()
+            self.save()
+        return self._sha1sum
+
     @property
     def status(self):
         if self.blacklisted:
@@ -436,10 +472,10 @@ class FileBlob(BlobModel):
     def extension(self):
         parts = os.path.splitext(self.filename)
         return parts[-1]
-
-    def checksum(self):
-        return hashlib.sha1(open(self.pathname).read()).hexdigest()
     
+    def checksum(self):
+        return utils.checksum(self.pathname)
+
     @property
     def checksum_ok(self):
         return self.sha1sum and (self.checksum() == self.sha1sum)
