@@ -1,3 +1,4 @@
+import os
 import os.path
 import base64
 
@@ -28,7 +29,7 @@ def get_jsonrpc_template_vars():
 
 # ===========================================================================
 
-def get_url(observatory, filename):
+def create_url(observatory, filename):
     if rmap.is_mapping(filename):
         url = config.CRDS_MAPPING_URL + filename
     else:
@@ -63,7 +64,11 @@ class UnavailableFile(Error):
 class BlacklistedFile(Error):
     """A known file has been blacklisted and should no longer be used."""
 
-def _standard_file_checks(file):
+class InvalidChunk(Error):
+    """The data chunk number requested from a file was invalid."""
+
+def check_known_file(file):
+    """Check that `file` is known to CRDS, available, and/or not blacklisted."""
     blob = imodels.file_exists(file)
     if not blob:
         return blob
@@ -74,20 +79,23 @@ def _standard_file_checks(file):
     return blob
 
 def check_context(context):
-    blob = _standard_file_checks(context)
+    blob = check_known_file(context)
     if not blob or not rmap.is_mapping(context):
         raise UnknownContextError("Context parameter '%s' is not a known CRDS mapping file." % context)
+    return blob
 
 def check_mapping(mapping):
-    blob = _standard_file_checks(mapping)
+    blob = check_known_file(mapping)
     if not blob or not blob.type == "mapping":
         raise UnknownMappingError("Mapping parameter '%s' is not a known CRDS mapping file." % mapping)
+    return blob
     
 def check_reference(reference):
-    blob = _standard_file_checks(reference)
+    blob = check_known_file(reference)
     if not blob or not blob.type == "reference":
         raise UnknownReferenceError("Reference parameter '%s' is not a known CRDS reference file." % reference)
-    
+    return blob
+
 def check_header(header):
     if not isinstance(header, dict):
         raise InvalidHeaderError("Header parameter is not a dictionary.")
@@ -141,6 +149,33 @@ def get_reference_names(request, context):
     ctx = rmap.get_cached_mapping(context)
     return ctx.reference_names()
 
+@jsonrpc_method('get_file_chunk(String, String, Number)')
+def get_file_chunk(request, context, filename, chunk):
+    check_context(context)
+    blob = check_known_file(filename)
+    stat = os.stat(blob.pathname)
+    length = stat.st_size
+    chunks = math.ceil(length / CHUNK_SIZE)
+    if int(chunk) != chunk:
+        raise InvalidChunk("the specified chunk must be an integer index.")
+    if not (0 <= chunk < chunks):
+        raise InvalidChunk("the specified data chunk " + repr(chunk) + " is invalid.")
+    with open(blob.pathname, "rb") as infile:
+        infile.seek(chunk*CHUNK_SIZE)
+        data = infile.read(CHUNK_SIZE)
+    return chunks, base64.b64encode(data)
+
+@jsonrpc_method('get_url(String, String)')
+def get_url(request, context, file):
+    check_context(context)
+    check_known_file(file)
+    ctx = rmap.get_cached_mapping(context)
+    return create_url(ctx.observatory, mapping)
+
+# ===============================================================
+
+#  XXXX Deprecated XXXXXXX <---------------------------------
+
 @jsonrpc_method('get_mapping_data(String, String)')
 def get_mapping_data(request, context, mapping):
     check_context(context)
@@ -148,12 +183,16 @@ def get_mapping_data(request, context, mapping):
     where = rmap.locate_mapping(mapping)
     return open(where).read()
 
+#  XXXX Deprecated XXXXXXX <---------------------------------
+
 @jsonrpc_method('get_mapping_url(String, String)')
 def get_mapping_url(request, context, mapping):
     check_context(context)
     check_mapping(mapping)
     ctx = rmap.get_cached_mapping(context)
-    return get_url(ctx.observatory, mapping)
+    return create_url(ctx.observatory, mapping)
+
+#  XXXX Deprecated XXXXXXX <---------------------------------
 
 @jsonrpc_method('get_reference_data(String, String)')
 def get_reference_data(request, context, reference):
@@ -164,12 +203,16 @@ def get_reference_data(request, context, reference):
     refdata = open(where).read()
     return base64.b64encode(refdata)
 
+#  XXXX Deprecated XXXXXXX <---------------------------------
+
 @jsonrpc_method('get_reference_url(String, String)')
 def get_reference_url(request, context, reference):
     check_context(context)
     check_reference(reference)
     ctx = rmap.get_cached_mapping(context)
-    return get_url(ctx.observatory, reference)
+    return create_url(ctx.observatory, reference)
+
+# ===============================================================
 
 @jsonrpc_method('file_exists(String)')
 def file_exists(request, filename):
