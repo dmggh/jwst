@@ -6,28 +6,6 @@ DEBUG_EXTRAS=False
 observatory= 'jwst'
 install_root='/home/jmiller/work/workspace_crds/CRDS_server/' + observatory 
 
-# XXXX make sure no space after install_dir before =
-install_dir= install_root + '/webserver'
-ref_path= install_root + '/references'
-
-# Use the mappings package 
-map_path= install_root + '/webserver/python/lib/python/crds/mappings'
-
-# Primary directory for delivery links,  created and owned by CRDS,
-# required to initialize server.
-CRDS_DELIVERY_DIR = install_root + "/deliveries"
-
-# List of directories where delivered files are linked
-CRDS_DELIVERY_DIRS = [
-        CRDS_DELIVERY_DIR,
-]
-
-# Master directory for the catalog file associated with a delivery
-CRDS_CATALOG_DIR = install_root + "/catalogs"
-
-# Dir the file upload hanlder stores temporary large uploaded files.
-FILE_UPLOAD_TEMP_DIR = install_root + "/uploads"
-
 #
 # servertype is what type of web server the install script should
 # set up for you.  options are:
@@ -72,15 +50,6 @@ debug = True
 # The mysql client library is currently hacked together and run off the central store.
 #
 dbtype='sqlite'
-table_prefix = 'crds_' + observatory
-
-#
-# data_dir is the directory where data files relating to specific
-# requests are stored.  data_dir contains more deeply nested directories
-# for the various request_id's.
-#
-
-data_dir = install_dir+"/data"
 
 import pwd
 version_prefix=pwd.getpwuid(os.getuid())[0]
@@ -94,5 +63,8 @@ CRDS_MAPPING_URL   = CRDS_URL + "get/"
 # XXX TODO restrict to archived or operational
 CRDS_DISTRIBUTION_STATES = ["delivered","archived","operational"]
 
+# inline the contents of generic_config.py
+HERE = os.path.dirname(__file__) or "./"
+execfile(HERE + "/generic_config.py")
 
 

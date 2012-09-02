@@ -4,48 +4,33 @@
     <h2>Submit {{crds_filetype|capfirst}} File</h2>
     <form method="post" action="/submit/{{crds_filetype}}/" enctype="multipart/form-data"> 
       {% csrf_token %}
-      <table width="100%">
-      
+
         <input type='hidden' name='observatory' value='{{observatory}}' />
 
-        <tr>
-          <td width="25%" class="label">Submitted Files:</td>
-          <td width="25%">
-            <input type='file' name='file_uploaded' size="40" 
-                class='multi' value="{{file_uploaded}}">
-          </td>
-        </tr>
+        <h3>Submitted Files:</h3>
+        {% include "select_files.html" %}
+     
         {% if crds_filetype == "reference" %}
-            <tr>
-              <td width="25%" class="label">Change Level:</td>
-              <td width="25%">
-                <select name='change_level' value="{{change_level}}">
-                    <option>SEVERE</option>
-                    <option>MEDIUM</option>
-                    <option>TRIVIAL</option>
-                </select>
-              </td>
-            </tr>
+        <h3>Change Level:
+        <select name='change_level' value="{{change_level}}">
+            <option>SEVERE</option>
+            <option>MEDIUM</option>
+            <option>TRIVIAL</option>
+        </select>
+        </h3>
         {% endif %}
-        <tr>
-          <td width="25%" class="label">Creator:</td>
-          <td width="25%">
-            <input type='text' name='creator' size="40" value="{{creator}}">
-          </td>
-        </tr>
-        <tr>
-          <td width="25%" class="label">Description:</td>
-          <td width="25%">
-            <textarea name='description' rows="4" cols="50">{{description}}</textarea>
-          </td>
-        </tr>
-        <tr>
-          <td width="25%" class="label">Auto-Rename:</td>
-          <td width="25%">
-              {% include "auto_rename_input.html" %}
-          </td>
-        </tr>
-      </table>
+
+        <h3>Creator:
+        <input type='text' name='creator' size="40" value="{{creator}}">
+        </h3>
+
+        <h3>Description:</h3>
+        <textarea name='description' rows="4" cols="50">{{description}}</textarea>
+
+        <h3>Auto-Rename:
+        {% include "auto_rename_input.html" %}
+        </h3>
+
       <p></p>
       <input type="submit" value="Submit File">
     </form>

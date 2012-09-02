@@ -11,10 +11,6 @@
             alert("Did you add a description?");
             return false;
         }
-        if ($("#file_uploaded")[0].files.length == 0) {
-            alert("Did you add some files?");
-            return false;
-        }
         return true;
     }
     </script>
@@ -26,14 +22,14 @@
       <h3>Old Context to Derive From</h3>
         {% include "select_pmap.html" %}
         
-      <h3>New Rmap Description</h3>
+      <h3>Description</h3>
         <p>
             <textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea>   
         </p>
 
-      <h3>Upload References</h3>
-        <input type="file" class="multi" name="file_uploaded" id="file_uploaded"/>
-        
+      <h3>References</h3>
+        {% include "select_files.html" %} 
+               
       <h3>Auto-Rename:  {% include "auto_rename_input.html" %}  </h3>
 
       <br/>

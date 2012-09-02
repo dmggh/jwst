@@ -15,6 +15,7 @@ import tarfile
 import mimetypes
 import tempfile
 import shutil
+import glob
 
 # from django.http import HttpResponse
 from django.shortcuts import render_to_response, redirect
@@ -250,6 +251,7 @@ def render(request, template, dict_=None):
         "default_context" : models.get_default_context(),
         "default_context_label" : pmap_label(models.get_default_context()),
         "pmaps" : get_recent_pmaps(),
+        "file_ingest_dirs" : get_server_ingest_dirs(),
         
         "auto_rename" : False,
     }
@@ -318,11 +320,26 @@ def get_files(request):
     """Obtain uploaded files from a common multi-mode form mechanism,  
     returning:   { original_name : file_path }
     """
-    files = request.FILES.getlist("file_uploaded")
-    if not files:
-        raise CrdsError("No files specified.")
-    uploads = { f.name : f.temporary_file_path() for f in files }
-    return uploads
+    file_mode = validate_post(request, "file_mode", ["file_uploaded", "file_local_dir"])
+    if file_mode == "file_uploaded":
+        files = request.FILES.getlist("file_uploaded")
+        if not files:
+            raise CrdsError("No files specified.")
+        uploads = { f.name : f.temporary_file_path() for f in files }
+        remove_dir = None
+    else:
+        dir = validate_post(request, "file_local_dir", "[A-Za-z0-9_]+")
+        dir = os.path.join(config.CRDS_INGEST_DIR, dir)
+        uploads = { os.path.basename(f) : f for f in glob.glob(dir + "/*") }
+        remove_dir = dir
+    if not uploads:
+        raise CrdsError("No input files were specified.")
+    return remove_dir, uploads
+
+def get_server_ingest_dirs():
+    dirs = sorted(glob.glob(config.CRDS_INGEST_DIR + "/*"))
+    dirs = [os.path.basename(d) for d in dirs]
+    return zip(dirs,dirs)
 
 def get_known_filepath(filename):
     """Given the basename of a mapping or reference file, `file`,
@@ -718,7 +735,7 @@ def bestrefs_explore_compute(request):
 def submit_file(request, crds_filetype):
     """Handle file submission,  crds_filetype=reference|mapping."""
     if request.method == "GET":
-        return render(request, 'submit_input.html', {
+        return render(request, 'submit_input2.html', {
             "crds_filetype" :  crds_filetype,
         })
     else:
@@ -743,7 +760,7 @@ def submit_file_post(request, crds_filetype):
     else:
         change_level = "SEVERE"
             
-    uploaded_files = get_files(request)
+    remove_dir, uploaded_files = get_files(request)
     
     # The map of every file CRDS knows about,  in one SQL query.
     all_file_map = models.get_fileblob_map(observatory)
@@ -765,6 +782,9 @@ def submit_file_post(request, crds_filetype):
         collision_list += get_collision_list([new_basename])
     
         new_file_map[original_name] =  new_basename
+    
+    if remove_dir is not None:
+        shutil.rmtree(remove_dir, ignore_errors=True)
 
     return render(request, 'submit_results.html', {
                 "crds_filetype": crds_filetype,
@@ -1019,7 +1039,7 @@ def batch_submit_reference_post(request):
     auto_rename = "auto_rename" in request.POST
     change_level = "SEVERE"
     creator = "(unknown)"
-    uploaded_files = get_files(request)
+    remove_dir, uploaded_files = get_files(request)
     
     # creator = validate_post(request, "creator", PERSON_RE)
     # Verify that all have same instrument and filekind
@@ -1118,6 +1138,9 @@ def batch_submit_reference_post(request):
         collision_list = []
         rmap_diffs = []
         destroy_file_list(new_references.values())
+
+    if remove_dir is not None:
+        shutil.rmtree(remove_dir, ignore_errors=True)
 
     return render(request, "batch_submit_reference_results.html", {
                 "new_references" : sorted(new_references.values()),
