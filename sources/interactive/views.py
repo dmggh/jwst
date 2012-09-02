@@ -14,6 +14,7 @@ import datetime
 import tarfile
 import mimetypes
 import tempfile
+import shutil
 
 # from django.http import HttpResponse
 from django.shortcuts import render_to_response, redirect
@@ -313,15 +314,15 @@ def get_uploaded_file(request, formvar):
         raise FieldError("Unexpected file extension for " + srepr(ufile.name))
     return ufile
 
-def upload_file(ufile, where):
-    """Copy the Django UploadedFile to it's permanent location.
-    Handle's <input type='file'> part 2.
+def get_files(request):
+    """Obtain uploaded files from a common multi-mode form mechanism,  
+    returning:   { original_name : file_path }
     """
-    utils.ensure_dir_exists(where)
-    destination = open(where, 'wb+')
-    for chunk in ufile.chunks():
-        destination.write(chunk)
-    destination.close()
+    files = request.FILES.getlist("file_uploaded")
+    if not files:
+        raise CrdsError("No files specified.")
+    uploads = { f.name : f.temporary_file_path() for f in files }
+    return uploads
 
 def get_known_filepath(filename):
     """Given the basename of a mapping or reference file, `file`,
@@ -333,16 +334,24 @@ def get_known_filepath(filename):
         raise FieldError("CRDS doesn't know about file " + srepr(filename))
     return blob.pathname
 
+def upload_file(ufile, where):
+    """Copy the Django UploadedFile to it's permanent location.
+    Handle's <input type='file'> part 2.
+    """
+    utils.ensure_dir_exists(where)
+    destination = open(where, 'wb+')
+    for chunk in ufile.chunks():
+        destination.write(chunk)
+    destination.close()
 
 def remove_temporary(filepath):
     """Attempt to remove `filepath`.  Ignore errors."""
     try:
-        assert not filepath.startswith("/grp"), \
+        assert filepath.startswith(config.FILE_UPLOAD_TEMP_DIR), \
             "ERROR -- attempt to delete from Central Store"
         # os.remove(filepath)
     except OSError:
         pass
-    
 
 # ===========================================================================
 
@@ -729,35 +738,34 @@ def submit_file_post(request, crds_filetype):
     auto_rename = "auto_rename" in request.POST
     
     if crds_filetype == "reference":
-        change_level = validate_post(
-            request, "change_level", models.CHANGE_LEVELS)
+        change_level = validate_post(request, 
+            "change_level", models.CHANGE_LEVELS)
     else:
         change_level = "SEVERE"
             
-    uploaded_files = request.FILES.getlist("submitted_file")
-    if not uploaded_files:
-        raise CrdsError("No files specified.")
+    uploaded_files = get_files(request)
     
-    files = models.get_fileblob_map(observatory)
+    # The map of every file CRDS knows about,  in one SQL query.
+    all_file_map = models.get_fileblob_map(observatory)
     
-    for uploaded_file in uploaded_files:
+    for (original_name, uploaded_path) in uploaded_files.items():
         # Check the file,  leaving no server state if it fails.  Give error results.
-        do_certify_file(uploaded_file.name, uploaded_file.temporary_file_path(), 
-                        check_references="exist", filemap=files)
+        do_certify_file(original_name, uploaded_path, check_references="exist", 
+                        filemap=all_file_map)
 
     collision_list = []
     new_file_map = {}
     
-    for uploaded_file in uploaded_files:
-            
-        new_basename = do_submit_file( observatory, uploaded_file, description,
-            str(request.user), request.user.email, creator, 
+    for (original_name, uploaded_path) in uploaded_files.items():
+        
+        new_basename = do_submit_file( observatory, original_name, uploaded_path,
+            description, str(request.user), request.user.email, creator, 
             change_level, state="uploaded", auto_rename=auto_rename)
         
         collision_list += get_collision_list([new_basename])
     
-        new_file_map[uploaded_file.name] =  new_basename 
- 
+        new_file_map[original_name] =  new_basename
+
     return render(request, 'submit_results.html', {
                 "crds_filetype": crds_filetype,
                 "baseperm":new_basename,
@@ -769,10 +777,10 @@ def submit_file_post(request, crds_filetype):
                 "title" : "Submit File",
                 "description" : description,
                 
-                "more_submits" : "/",
+                "more_submits" : "/submit/" + crds_filetype + "/",
                 })
     
-def do_submit_file(observatory, uploaded_file, description, 
+def do_submit_file(observatory, original_name, upload_location, description, 
         submitter, submitter_email, creator_name="unknown",
         change_level="SEVERE", creation_method="submit file", auto_rename=True,
         state="uploaded"):
@@ -780,10 +788,6 @@ def do_submit_file(observatory, uploaded_file, description,
     certification and blacklist checking, naming, upload,  and record
     keeping.
     """
-    # Determine the temporary and permanent file paths, not yet copying.
-    original_name = uploaded_file.name
-    upload_location = uploaded_file.temporary_file_path()
-    
     if rmap.is_mapping(original_name):
         try:
             checksum.update_checksum(upload_location)
@@ -795,8 +799,7 @@ def do_submit_file(observatory, uploaded_file, description,
 #    
     # Automatically 
     if auto_rename:
-        permanent_name = auto_rename_file(
-            observatory, uploaded_file.name, upload_location)
+        permanent_name = auto_rename_file(observatory, original_name, upload_location)
     else:
         if file_exists_somehow(original_name):
             raise FieldError("File " + srepr(original_name) + " already exists.") 
@@ -813,8 +816,9 @@ def do_submit_file(observatory, uploaded_file, description,
         raise CrdsError("File " + srepr(original_name) + 
                         " is blacklisted by " + srepr(blacklisted_by))
     
-    # Copy the temporary file to its permanent location.
-    upload_file(uploaded_file, permanent_location)
+    # Move or copy the temporary file to its permanent location.
+    utils.ensure_dir_exists(permanent_location)
+    shutil.move(upload_location, permanent_location)
 
     # Make a database record for this file.
     blob = models.add_crds_file(observatory, original_name, permanent_location, 
@@ -1006,44 +1010,37 @@ def batch_submit_reference(request):
         return render(request, "batch_submit_reference_input.html")
     else:
         return batch_submit_reference_post(request)
-
+    
 def batch_submit_reference_post(request):
     """View fragment to process file batch reference submnission POSTs."""
     context = get_recent_or_user_context(request)
     pmap = rmap.get_cached_mapping(context)
     description = validate_post(request, "description", DESCRIPTION_RE)
     auto_rename = "auto_rename" in request.POST
-    
-    # creator = validate_post(request, "creator", PERSON_RE)
-    reference_files = request.FILES.getlist("file_uploaded")
-    if not reference_files:
-        raise CrdsError("No files specified.")    
     change_level = "SEVERE"
     creator = "(unknown)"
-
+    uploaded_files = get_files(request)
+    
+    # creator = validate_post(request, "creator", PERSON_RE)
     # Verify that all have same instrument and filekind
     old_instr, old_filekind = None, None
-    for uploaded_file in reference_files:
+    for (original_name, uploaded_path) in uploaded_files.items():
         try:
             instrument, filekind = utils.get_file_properties(
-                pmap.observatory, uploaded_file.temporary_file_path())
+                pmap.observatory, uploaded_path)
         except Exception:
             raise CrdsError("Can't determine instrument or file type for " + 
-                            srepr(uploaded_file.name))
+                            srepr(original_name))
         if old_instr is not None:
             assert instrument == old_instr, \
-                "More than one instrument submitted at " + srepr(uploaded_file.name)
+                "More than one instrument submitted at " + srepr(original_name)
             assert filekind == old_filekind, \
-                "More than one reference type submitted at " + srepr(uploaded_file.name)
+                "More than one reference type submitted at " + srepr(original_name)
         old_instr, old_filekind = instrument, filekind
 
     # Verify that ALL references certify,  raise CrdsError on first error.
-    for uploaded_file in reference_files:
-        do_certify_file(uploaded_file.name, uploaded_file.temporary_file_path())
-    
-    # Get temporary paths to references to do temporary refactoring with wrong 
-    # names.  Verify that at least *some* actions occur for each submitted file.
-    tmp_refs = [uploaded.temporary_file_path() for uploaded in reference_files]
+    for (original_name, uploaded_path) in uploaded_files.items():
+        do_certify_file(original_name, uploaded_path)
     
     # Generate a temporary rmap name using "tmp" in place of observatory.
     # Refactor the original rmap inserting temporary references, creating a 
@@ -1053,31 +1050,31 @@ def batch_submit_reference_post(request):
     tmp_rmap = tempfile.NamedTemporaryFile()
 
     tmp_actions = refactor.rmap_insert_references(
-        old_rmap_path, tmp_rmap.name, tmp_refs)
+        old_rmap_path, tmp_rmap.name, uploaded_files.values())
 
     no_effect = []
-    for uploaded_file in reference_files:
-        ref_file = os.path.basename(uploaded_file.temporary_file_path())
+    for (original_name, uploaded_path) in uploaded_files.items():
+        ref_file = os.path.basename(uploaded_path)
         for action in tmp_actions:
             if action.ref_file == ref_file:
                 break
         else:
-            no_effect.append(str(uploaded.name))
+            no_effect.append(str(original_name))
     if no_effect:
         raise CrdsError("Some files could not be added to " + srepr(old_rmap) 
                         + ": " + srepr(no_effect))
 
     # Make sure there are no duplicate match tuples / useafter cases.    
     duplicate_matches = set()
-    for uploaded_file in reference_files:
+    for (original_name, uploaded_path) in uploaded_files.items():
         for action in tmp_actions:
-            if action.ref_file != os.path.basename(uploaded_file.temporary_file_path()):
+            if action.ref_file != os.path.basename(uploaded_path):
                 continue
             for action2 in tmp_actions:
                 if action != action2 and \
                     action.rmap_match_tuple == action2.rmap_match_tuple and \
                     action.useafter == action2.useafter:
-                    duplicate_matches.add(uploaded_file.name)
+                    duplicate_matches.add(original_name)
     if duplicate_matches:
         raise CrdsError("Files match same rmap match tuple and useafter: " +
                         ", ".join([srepr(x) for x in duplicate_matches]))
@@ -1085,13 +1082,13 @@ def batch_submit_reference_post(request):
     # Once both references and refactoring checks out,  submit reference files
     # and collect mapping from uploaded names to official names.
     new_references = {}
-    for uploaded_file in reference_files:
+    for (original_name, uploaded_path) in uploaded_files.items():
         new_basename = do_submit_file( 
-            pmap.observatory, uploaded_file, description,
-            str(request.user), request.user.email, creator, 
+            pmap.observatory, original_name, uploaded_path,
+            description, str(request.user), request.user.email, creator, 
             change_level, creation_method="batch submit",
             state="uploaded", auto_rename=auto_rename)
-        new_references[str(uploaded_file.name)] = str(new_basename)
+        new_references[original_name] = str(new_basename)
 
     # Get paths for new official CRDS reference files.
     reference_paths = [
@@ -1704,7 +1701,7 @@ def create_contexts_post(request):
                 "submission_kind" : "new context",
                 "title" : "Create Contexts",
                 "description" : description,
-                
+                "more_submits" : "/create_contexts/",
                 "collision_list" : collision_list,
  
             })
@@ -1978,8 +1975,8 @@ def handle_file_submissions(original_rmap, expanded, observatory, submitter, aut
         creator_name = expanded["add"][addno].get("creator_name","undefined")
         change_level = expanded["add"][addno].get("change_level","SEVERE")
         new_basename = do_submit_file(
-            observatory, uploaded_file, description,
-            str(submitter), submitter.email, creator_name=creator_name,
+            observatory, uploaded_file.name, uploaded_file.temporary_file_path(),
+            description, str(submitter), submitter.email, creator_name=creator_name,
             change_level=change_level, creation_method="edit rmap", state="uploaded",
             auto_rename=auto_rename)
         new_references.append((upload_name, new_basename))
