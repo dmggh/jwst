@@ -251,7 +251,6 @@ def render(request, template, dict_=None):
         "default_context" : models.get_default_context(),
         "default_context_label" : pmap_label(models.get_default_context()),
         "pmaps" : get_recent_pmaps(),
-        "file_ingest_dirs" : get_server_ingest_dirs(),
         
         "auto_rename" : False,
     }
@@ -735,8 +734,9 @@ def bestrefs_explore_compute(request):
 def submit_file(request, crds_filetype):
     """Handle file submission,  crds_filetype=reference|mapping."""
     if request.method == "GET":
-        return render(request, 'submit_input2.html', {
+        return render(request, 'submit_input.html', {
             "crds_filetype" :  crds_filetype,
+            "file_ingest_dirs" : get_server_ingest_dirs(),
         })
     else:
         return submit_file_post(request, crds_filetype)
@@ -1027,7 +1027,9 @@ def certify_post(request):
 def batch_submit_reference(request):
     """View to return batch submit reference form or process POST."""
     if request.method == "GET":
-        return render(request, "batch_submit_reference_input.html")
+        return render(request, "batch_submit_reference_input.html", {
+                    "file_ingest_dirs" : get_server_ingest_dirs(),
+                })
     else:
         return batch_submit_reference_post(request)
     
@@ -2221,6 +2223,9 @@ def deliver_remove_fail(observatory, catalog, paths):
 
 # ============================================================================
 
+from django.views.decorators.http import condition
+
+# @condition(etag_func=None)
 @error_trap("base.html")
 @log_view
 def get_file_data(request, filename):
@@ -2229,19 +2234,40 @@ def get_file_data(request, filename):
         blob = models.FileBlob.load(filename)
     except LookupError:
         raise CrdsError("No CRDS database entry for" + srepr(filename))
+
     assert blob.available, \
         "File " + srepr(filename) + " is not yet available for distribution."
-    try:
-        data = open(blob.pathname).read()
-    except IOError, exc:
-        raise CrdsError("reading known CRDS file " + srepr(filename) + 
-                        " : " + str(exc))
+
     if blob.type == "mapping":
         content_type = "text/plain"
     else:
         content_type = "application/octet-stream"
-    return HttpResponse(content=data, content_type=content_type)
+        
+    response = HttpResponse( stream_response_generator(blob.pathname), content_type=content_type)
+    response["Content-Disposition"] = 'attachment; filename=%s' % filename
+    return response
 
+def stream_response_generator(filename):
+    """Attempt to support large files by yielding chunks of data to the response.
+    Response streaming is fragile,  dependent on actions of middleware.
+    """
+    chunk = 0
+    total = 0
+    with open(filename, "rb") as infile:
+        while True:
+            try:
+                data = infile.read(2**24)
+            except IOError, exc:
+                raise CrdsError("reading known CRDS file " + srepr(filename) + 
+                                " : " + str(exc))
+            if not len(data):
+                break
+            log.write("Yielding", srepr(filename), "chunk #" + str(chunk), "of", 
+                      len(data), "bytes.")
+            # yield data
+            chunk += 1
+            total += len(data)
+    log.write("Finished", srepr(filename), "total bytes", repr(total))
 
 ARCH_MODES = {
     "tar" : "w|",

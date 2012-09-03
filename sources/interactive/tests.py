@@ -12,12 +12,20 @@ import crds.server.config as sconfig
 
 from django.contrib.auth.models import User
 
+REAL_MAPPING_DIR = os.path.dirname(rmap.locate_file("foo.pmap", sconfig.observatory))
+
+# Set up test server tree
 HERE = os.path.dirname(__file__) or "."
 CRDS_PATH = os.environ["CRDS_PATH"] = sconfig.install_root + "/test"
-# Keep system CRDS_MAPPATH, readonly
-CRDS_REFPATH = os.environ["CRDS_REFPATH"] = sconfig.install_root + "/test/references"
 pysh.sh("rm -rf ${CRDS_PATH}", raise_on_error=True)
-pysh.sh("mkdir -p ${CRDS_PATH}", raise_on_error=True)
+pysh.sh("mkdir -p ${CRDS_PATH}/ingest", raise_on_error=True)
+pysh.sh("mkdir -p ${CRDS_PATH}/deliveries", raise_on_error=True)
+pysh.sh("mkdir -p ${CRDS_PATH}/catalogs", raise_on_error=True)
+pysh.sh("mkdir -p ${CRDS_PATH}/references/%s" % sconfig.observatory, raise_on_error=True)
+pysh.sh("mkdir -p ${CRDS_PATH}/mappings/%s" % sconfig.observatory, raise_on_error=True)
+pysh.sh("cp ${REAL_MAPPING_DIR}/*.*map ${CRDS_PATH}/mappings/%s" % sconfig.observatory, raise_on_error=True)
+
+
 
 class SimpleTest(TestCase):
     
@@ -158,7 +166,8 @@ class SimpleTest(TestCase):
         response = self.client.post("/submit/mapping/", {
             "observatory" : sconfig.observatory,
             "auto_rename" : "on",
-            "submitted_file" : open(rmap1),
+            "file_mode" : "file_uploaded",
+            "file_uploaded" : open(rmap1),
             "description" : "an identical pmap with a different name is still different",
             "change_level" : "SEVERE",
             "creator" : "Somebody else",
@@ -342,6 +351,7 @@ class SimpleTest(TestCase):
         response = self.client.post("/batch_submit_reference/", {
                 "pmap_mode" : "pmap_default",
                 "pmap_default" : self.pmap,
+                "file_mode" : "file_uploaded",
                 "file_uploaded" : open(reference),
                 "description":"this is only a test.",
             })
@@ -360,6 +370,7 @@ class SimpleTest(TestCase):
         response = self.client.post("/batch_submit_reference/", {
                 "pmap_mode" : "pmap_default",
                 "pmap_default" : self.pmap,
+                "file_mode" : "file_uploaded",
                 "file_uploaded" : open(reference),
                 "description":"this is only a test.",
             })

@@ -91,16 +91,18 @@
                     <td width="20%" align="left" class="label">Uploaded Name</td>
                     <td>{{fileblob.uploaded_as}}</td>
                  </tr>
-                 {% if not fileblob.checksum_ok %}
-                     <tr>
-                        <td width="20%" align="left" class="label">Sha1sum</td>
-                        {% if fileblob.sha1sum %}
-                            <td class="error">{{fileblob.sha1sum}}</td>
-                        {% else %}
-                            <td class="orange">undefined</td>
-                        {% endif %}
-                     </tr>
-                 {% endif %}
+                <tr>
+                    <td width="20%" align="left" class="label">Sha1sum</td>
+                    {% if fileblob.sha1sum %}
+                        <td>{{fileblob.sha1sum}}</td>
+                    {% else %}
+                        <td class="orange">undefined</td>
+                    {% endif %}
+                </tr>
+                <tr>
+                    <td width="20%" align="left" class="label">Size (bytes)</td>
+                    <td>{{fileblob.size}}</td>
+                </tr>
             </table>
         {% else %}
             <p class="error">Error loading database record for 

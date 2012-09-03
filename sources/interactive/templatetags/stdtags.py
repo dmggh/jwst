@@ -91,7 +91,7 @@ def download_url(filename):
             http://localhost:8000/static/mappings/hst/hst.pmap
     """
     try:
-        return jviews.get_url(config.observatory, filename)
+        return jviews.create_url(config.observatory, filename)
     except Exception:
         return filename
 

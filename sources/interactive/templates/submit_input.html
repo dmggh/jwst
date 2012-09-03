@@ -10,7 +10,6 @@
         <h3>Submitted Files:</h3>
         {% include "select_files.html" %}
      
-        {% if crds_filetype == "reference" %}
         <h3>Change Level:
         <select name='change_level' value="{{change_level}}">
             <option>SEVERE</option>
@@ -18,7 +17,6 @@
             <option>TRIVIAL</option>
         </select>
         </h3>
-        {% endif %}
 
         <h3>Creator:
         <input type='text' name='creator' size="40" value="{{creator}}">
@@ -38,24 +36,13 @@
 
 {% block help %}
 
-{% if crds_filetype == "reference" %}
-
-<p><b>Submit Reference Files</b> permanently enters files into CRDS and the 
+<p><b>Submit Files</b> permanently enters files into CRDS and the 
 archive.
 
-<p><p><b>Submitted Files</b> new reference files to be added to CRDS.
+<p><p><b>Submitted Files</b> new references or mappings to be added to CRDS.
 
 <p><p><b>Change Level</b> The degree to which the new files are expected to 
 impact science results.
-
-{% else %}
-
-<p><b>Submit Mapping Files</b> permanently enters a mapping file into the 
-CRDS system in a state which is not necessarily used.
-
-<p><p><b>Submitted File</b> a new mapping file to be added to CRDS.
-
-{% endif %}
 
 <p><p><b>Description</b> information about what's new in this file and what
 the expected impacts are.
