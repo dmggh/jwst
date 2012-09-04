@@ -237,17 +237,17 @@ class SimpleTest(TestCase):
         self.assertNotIn("Failed", response.content)
         self.assertEqual(response.content.count("OK"), 2)
 
-#    def test_certify_post_rmap_uploaded(self):
-#        self.authenticate()
-#        response = self.client.post("/certify/", {
-#            "filemode" : "file_uploaded",
-#            "file_uploaded" : "interactive/hst_cos_deadmap.rmap",
-#        })
-#        print response.content
-#        self.assert_no_errors(response)
-#        self.assertTrue(response.content.count("0 errors") == 1)
-#        self.assertTrue("Failed" not in response.content)
-#        self.assertTrue(response.content.count("OK") == 2)
+    def test_certify_post_rmap_uploaded(self):
+        self.authenticate()
+        response = self.client.post("/certify/", {
+            "filemode" : "file_uploaded",
+            "file_uploaded" : open("interactive/test_data/hst_cos_deadtab.rmap"),
+        })
+        print response.content
+        self.assert_no_errors(response)
+        self.assertTrue(response.content.count("0 errors") == 1)
+        self.assertTrue("Failed" not in response.content)
+        self.assertTrue(response.content.count("OK") == 2)
 
     def test_difference_get(self):
         response = self.client.get("/difference/")
@@ -491,4 +491,14 @@ class SimpleTest(TestCase):
         self.assertIn("Confirm or Abort", response.content)
         self.assertIn("add", response.content)
         self.assertIn("delete", response.content)
+        
+    def test_get(self):
+        pass
+    
+    def test_batch_submit_server_mode(self):
+        pass
+    
+    def test_simple_submit_server_mode(self):
+        pass
+    
 
