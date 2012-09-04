@@ -220,7 +220,7 @@ def usernames():
 
 # ===========================================================================
 
-def render(request, template, dict_=None):
+def crds_render(request, template, dict_=None):
     """Render a template,  making same-named inputs from request available
     for echoing.
     """
@@ -409,7 +409,7 @@ def render_error(request, args, keys, exc, template):
     """Render `template` with an error message."""
     msg = "ERROR: " + str(exc)
     pars = dict(keys.items() + [("error_message", msg)])
-    return render(request, template, pars)
+    return crds_render(request, template, pars)
 
 class Logger(object):
     """Outputs messages to a per-request log file and optionally the console.
@@ -550,7 +550,7 @@ def capture_output(func):
 
 def index(request):
     """Return the top level page for all of interactive CRDS."""
-    return render(request, "index.html", {})
+    return crds_render(request, "index.html", {})
 
 # ===========================================================================
 from django.contrib.auth.views import login as django_login
@@ -579,7 +579,7 @@ def logout(request):
 def bestrefs(request):
     """View to get the instrument context for best references."""
     if request.method == "GET":
-        return render(request, "bestrefs_index2.html", {})
+        return crds_render(request, "bestrefs_index2.html", {})
     else:
         return bestrefs_post(request)
 
@@ -652,7 +652,7 @@ def bestrefs_results(request, pmap, header, dataset_name=""):
         
     archive_name = os.path.splitext(dataset_name)[0] + "_bestrefs.tar.gz"
     
-    return render(request, "bestrefs_results.html", {
+    return crds_render(request, "bestrefs_results.html", {
             "observatory" : pmap.observatory,
             "dataset_name" : dataset_name,
             "header_items" : header_items,
@@ -668,7 +668,7 @@ def bestrefs_results(request, pmap, header, dataset_name=""):
 def bestrefs_explore(request):
     """View to get the instrument context for best references."""
     if request.method == "GET":
-        return render(request, "bestrefs_explore_index.html", {})
+        return crds_render(request, "bestrefs_explore_index.html", {})
     else:
         return bestrefs_explore_post(request)
     
@@ -701,7 +701,7 @@ def bestrefs_explore_post(request):
     pmap = rmap.get_cached_mapping(context)
     instrument = validate_post(request, "instrument", models.INSTRUMENTS)
     valid_values = pmap.get_imap(instrument).get_valid_values_map().items()
-    return render(request, "bestrefs_explore_input.html", {
+    return crds_render(request, "bestrefs_explore_input.html", {
             "mapping" : pmap,
             "valid_values" : sorted(valid_values),
             "instrument":instrument,
@@ -749,7 +749,7 @@ def bestrefs_explore_compute(request):
 def submit_file(request, crds_filetype):
     """Handle file submission,  crds_filetype=reference|mapping."""
     if request.method == "GET":
-        return render(request, 'submit_input.html', {
+        return crds_render(request, 'submit_input.html', {
             "crds_filetype" :  crds_filetype,
             "file_ingest_dirs" : get_server_ingest_dirs(),
         })
@@ -801,7 +801,7 @@ def submit_file_post(request, crds_filetype):
     if remove_dir is not None:
         shutil.rmtree(remove_dir, ignore_errors=True)
 
-    return render(request, 'submit_results.html', {
+    return crds_render(request, 'submit_results.html', {
                 "crds_filetype": crds_filetype,
                 "baseperm":new_basename,
                 "collision_list" : collision_list,
@@ -920,7 +920,7 @@ def get_blacklists(basename, certifypath, ignore_self=True, files=None):
 def blacklist_file(request):
     """Serve the blacklist input form or process the POST."""
     if request.method == "GET":
-        return render(request, "blacklist_input.html")
+        return crds_render(request, "blacklist_input.html")
     else:
         return blacklist_file_post(request)
 
@@ -955,7 +955,7 @@ def blacklist_file_post(request):
         "marked as " + srepr(badflag.upper()),
         observatory=observatory, instrument=instrument, filekind=filekind)
 
-    return render(request, "blacklist_results.html", 
+    return crds_render(request, "blacklist_results.html", 
                   { "all_blacklisted": all_blacklisted })
 
         
@@ -968,7 +968,7 @@ def blacklist_file_post(request):
 def certify_file(request):
     """View to return certify input form or process POST."""
     if request.method == "GET":
-        return render(request, "certify_input.html")
+        return crds_render(request, "certify_input.html")
     else:
         return certify_post(request)
 
@@ -1022,7 +1022,7 @@ def certify_post(request):
     if uploaded:
         remove_temporary(certified_file)
 
-    return render(request, "certify_results.html", 
+    return crds_render(request, "certify_results.html", 
             {"certify_status":certify_status,
              "fitscheck_status":fitscheck_status, 
              "blacklist_status":blacklist_status,
@@ -1042,7 +1042,7 @@ def certify_post(request):
 def batch_submit_reference(request):
     """View to return batch submit reference form or process POST."""
     if request.method == "GET":
-        return render(request, "batch_submit_reference_input.html", {
+        return crds_render(request, "batch_submit_reference_input.html", {
                     "file_ingest_dirs" : get_server_ingest_dirs(),
                 })
     else:
@@ -1159,7 +1159,7 @@ def batch_submit_reference_post(request):
     if remove_dir is not None:
         shutil.rmtree(remove_dir, ignore_errors=True)
 
-    return render(request, "batch_submit_reference_results.html", {
+    return crds_render(request, "batch_submit_reference_results.html", {
                 "new_references" : sorted(new_references.values()),
                 "actions" : actions,
                 "pmap" : pmap.name,
@@ -1224,7 +1224,7 @@ def submit_confirm(request):
     else:
         destroy_file_list(new_files + generated_files)
         
-    return render(request, "confirmed.html", {
+    return crds_render(request, "confirmed.html", {
                 "confirmed" : button=="confirm",
                 "new_file_map" : new_file_map,
                 "generated_files" : generated_files,
@@ -1267,7 +1267,7 @@ def difference_files(request):
         file1 = request.GET.get("file1", None)
         file2 = request.GET.get("file2", None)
         if file1 is None and file2 is None:
-            return render(request, "difference_input.html")
+            return crds_render(request, "difference_input.html")
         else:
             file1_orig = validate_get(request, "file1", is_known_file)
             file2_orig = validate_get(request, "file2", is_known_file)
@@ -1317,7 +1317,7 @@ def difference_files(request):
     if not "".join(diff_lines).strip():
         diff_lines = ["no differences"]
 
-    return render(request, "difference_results.html", 
+    return crds_render(request, "difference_results.html", 
                   {
                    "logical_diffs" : logical_diffs,
                    "map_text_diff_items" : map_text_diff_items,
@@ -1440,7 +1440,7 @@ def browse_known_file(request, filename):
     else:
         match_paths = []
     
-    return render(request, "browse_results.html", { 
+    return crds_render(request, "browse_results.html", { 
              "fileblob" : blob,
              "observatory" : blob.observatory,
              "related_actions": related_actions,
@@ -1630,7 +1630,7 @@ def auto_rename_file(observatory, upload_name, upload_path):
 def recent_activity(request):
     """recent_activity displays records from the AuditBlob database."""
     if request.method == "GET":
-        return render(request, "recent_activity_input.html", {})
+        return crds_render(request, "recent_activity_input.html", {})
     else:
         return recent_activity_post(request)
 
@@ -1657,7 +1657,7 @@ def recent_activity_post(request):
         if value not in ["*",""]:
             filters[var] = value
     filtered_activities = models.AuditBlob.filter(**filters)[::-1]
-    return render(request, "recent_activity_results.html", {
+    return crds_render(request, "recent_activity_results.html", {
                 "filters": filters,
                 "filtered_activities" : filtered_activities,
             })
@@ -1670,7 +1670,7 @@ def recent_activity_post(request):
 def browse_db(request):
     """browse_db displays records from the FileBlob (subclasses) database."""
     if request.method == "GET":
-        return render(request, "browse_db_input.html", {})
+        return crds_render(request, "browse_db_input.html", {})
     else:
         return browse_db_post(request)
 
@@ -1697,7 +1697,7 @@ def browse_db_post(request):
         if value not in ["*",""]:
             filters[var] = value
     filtered_db = models.FileBlob.filter(**filters)
-    return render(request, "browse_db_results.html", {
+    return crds_render(request, "browse_db_results.html", {
                 "filters": filters,
                 "filtered_db" : filtered_db,
                 "observatory" : observatory,
@@ -1713,7 +1713,7 @@ def create_contexts(request):
     and set of new rmaps.   Note that the "new" rmaps must already be in CRDS.
     """
     if request.method == "GET":
-        return render(request, "create_contexts_input.html", {})
+        return crds_render(request, "create_contexts_input.html", {})
     else:
         return create_contexts_post(request)
 
@@ -1731,7 +1731,7 @@ def create_contexts_post(request):
     
     collision_list = get_collision_list(new_mappings)
     
-    return render(request, "create_contexts_results.html", {
+    return crds_render(request, "create_contexts_results.html", {
                 "pmap": pmap_name,
                 "old_mappings" : old_mappings,
                 "added_rmaps" : updated_rmaps,
@@ -1812,7 +1812,7 @@ def new_name(old_map):
 def edit_rmap_browse(request):
     """browse_db displays records from the FileBlob (subclasses) database."""
     if request.method == "GET":    # display rmap filters
-        return render(request, "edit_rmap_input.html", {})
+        return crds_render(request, "edit_rmap_input.html", {})
     else:   # display filtered rmaps
         return edit_rmap_browse_post(request)
 
@@ -1839,7 +1839,7 @@ def edit_rmap_browse_post(request):
         if value not in ["*",""]:
             filters[var] = value
     filtered_db = models.FileBlob.filter(**filters)
-    return render(request, "edit_rmap_browse_results.html", {
+    return crds_render(request, "edit_rmap_browse_results.html", {
                 "filters": filters,
                 "filtered_db" : filtered_db,
                 "observatory" : observatory,
@@ -1861,7 +1861,7 @@ def edit_rmap_get(request, filename):
     """Return the page used to edit the rmap `filename`."""
     blob = models.FileBlob.load(filename)
     file_contents = browsify_edit_rmap(filename, blob.pathname)
-    return render(request, "edit_rmap_editor.html", 
+    return crds_render(request, "edit_rmap_editor.html", 
             {"fileblob" : blob,
              "observatory" : blob.observatory,
              "file_contents" : file_contents,
@@ -1933,7 +1933,7 @@ def edit_rmap_post(request):
     
     rmap_blob = rmap.load_mapping(original_rmap)
     
-    return render(request, "edit_rmap_results.html", {
+    return crds_render(request, "edit_rmap_results.html", {
                 "pmap" : pmap_name,
                 "new_references" : new_references,
                 "old_mappings" : old_mappings,
@@ -2070,7 +2070,7 @@ def deliver_context(request):
     for cand in candidates:
         if cand in allfiles and allfiles[cand].state == "submitted":
             delivered_files.append(allfiles[cand])
-    return render(request, "delivery_options_results.html", {
+    return crds_render(request, "delivery_options_results.html", {
                 "observatory": pmap.observatory,
                 "context" : context,
                 "prechecked" : "CHECKED",
@@ -2085,7 +2085,7 @@ def delivery_options(request):
     which to compose a delivery (POST).
     """
     if request.method == "GET":
-        return render(request, "delivery_options_input.html", {
+        return crds_render(request, "delivery_options_input.html", {
             "pmaps": get_recent_pmaps(status="submitted"),
         })
     else:
@@ -2113,7 +2113,7 @@ def delivery_options_post(request):
             filters[var] = value
     filtered_db = models.FileBlob.filter(**filters)[::-1]
 
-    return render(request, "delivery_options_results.html", {
+    return crds_render(request, "delivery_options_results.html", {
                 "filters": filters,
                 "filtered_db" : filtered_db,
             })
@@ -2342,7 +2342,7 @@ def get_archive_url(archive_name, filelist):
 @superuser_login_required
 def version_info(request):
     """Output a page with a table of software component versions."""
-    return render(request, "version_info.html", {
+    return crds_render(request, "version_info.html", {
                 "version_info" : sorted(versions.get_all_versions().items())
             })
 
@@ -2354,7 +2354,7 @@ def set_default_context(request):
     which to derive new contexts.
     """
     if request.method == "GET":    # display rmap filters
-        return render(request, "set_default_context_input.html", {
+        return crds_render(request, "set_default_context_input.html", {
                 "context_map" : models.ContextBlob.get_map(),
             })
     else:   # display filtered rmaps
@@ -2370,7 +2370,7 @@ def set_default_context(request):
                              new_default, description, 
                              context_type + " context changed from " +  
                              srepr(old_default) + " to " + srepr(new_default))
-        return render(request, "set_default_context_results.html", {
+        return crds_render(request, "set_default_context_results.html", {
                     "new_default" :  new_default,
                     "old_default" :  old_default,
                     "context_type" : context_type,

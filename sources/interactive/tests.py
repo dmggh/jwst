@@ -99,8 +99,8 @@ class SimpleTest(TestCase):
             models.AuditBlob.new("homer", "mass import", name, "becuz", "some details",
                                  observatory=sconfig.observatory)
 
-    def assert_no_errors(self, response):
-        self.assertEqual(response.status_code, 200)
+    def assert_no_errors(self, response, status=200):
+        self.assertEqual(response.status_code, status)
         self.assertNotIn("ERROR:", response.content)
         
     def assert_has_error(self, response, msg=None):
@@ -120,7 +120,7 @@ class SimpleTest(TestCase):
     
     def test_logout(self):
         response = self.client.get("/logout/") 
-        self.assert_no_errors(response)
+        self.assert_no_errors(response, status=302) #redirect
     
     def test_bestrefs(self):
         response = self.client.get("/bestrefs/")
