@@ -798,8 +798,8 @@ def submit_file_post(request, crds_filetype):
     
         new_file_map[original_name] =  new_basename
     
-    if remove_dir is not None:
-        shutil.rmtree(remove_dir, ignore_errors=True)
+#    if remove_dir is not None:
+#        shutil.rmtree(remove_dir, ignore_errors=True)
 
     return crds_render(request, 'submit_results.html', {
                 "crds_filetype": crds_filetype,
@@ -1156,8 +1156,8 @@ def batch_submit_reference_post(request):
         rmap_diffs = []
         destroy_file_list(new_references.values())
 
-    if remove_dir is not None:
-        shutil.rmtree(remove_dir, ignore_errors=True)
+#    if remove_dir is not None:
+#        shutil.rmtree(remove_dir, ignore_errors=True)
 
     return crds_render(request, "batch_submit_reference_results.html", {
                 "new_references" : sorted(new_references.values()),
