@@ -124,7 +124,7 @@ fi
 
 python ${SERVER_SOURCES}/sh_config.py install_root install_dir port PYSYN_CDBS\
  servertype dbtype debug data_dir debug_javascript noreload map_path ref_path\
- CRDS_URL CRDS_CATALOG_DIR CRDS_DELIVERY_DIR FILE_UPLOAD_TEMP_DIR> tmp
+ CRDS_URL CRDS_CATALOG_DIR CRDS_DELIVERY_DIR FILE_UPLOAD_TEMP_DIR CRDS_INGEST_DIR > tmp
 . ./tmp
 rm -f tmp
 
@@ -209,15 +209,19 @@ mkdir -p $install_dir/python/bin
 # try to put any config there, and only the apache server knows to use it.
 mkdir -p $install_dir/mplconfigdir
 
-# This is where CRDS writes out delivery catalog files when delivering files
-# to downstream systems like the archivel  kept permanently.
+# Where CRDS writes out delivery catalog files when delivering files
+# to downstream systems like the archive.  Catalog files persist.
 mkdir -p -m 755 $CRDS_CATALOG_DIR
 
-# This is the primary working copy for deliveries, nominally owned by CRDS.
+# The primary working copy for deliveries, nominally owned by CRDS.
+# Delivery files are links which last until received by OPUS.
 mkdir -p -m 755 $CRDS_DELIVERY_DIR
 
-# This is the primary working copy for deliveries, nominally owned by CRDS.
+# The temporary directory where uploaded files are initially stored.
 mkdir -p -m 755 $FILE_UPLOAD_TEMP_DIR
+
+# The temporary directory where CRDS/CDBS team deliverers can scp files.
+mkdir -p -m 755 $CRDS_INGEST_DIR
 
 # These are the directories where newly submitted references and mappings 
 # will be kept by the server.
@@ -534,14 +538,19 @@ case ${server_mode}
     test) 
 	echo "Setting permissions"
 	chown -R crds.crdsoper ${install_root}
-	
 	chmod 755 ${install_root}
 	chmod -R 755 ${ref_path}
 	chmod -R 755 ${map_path}
 	chmod 700 ${install_dir}
 	chmod 770 ${CRDS_DELIVERY_DIR}
-	chmod 755 ${CRDS_CATALOG_DIR}
-	chmod 750 ${FILE_UPLOAD_TEMP_DIR}
+	chmod -R 755 ${CRDS_CATALOG_DIR}
+	chmod -R 750 ${FILE_UPLOAD_TEMP_DIR}
+	chmod -R 750 ${CRDS_INGEST_DIR}
+
+	mkdir ${install_root}/ingest_ssb
+	chown crds.ssb ${ingest_root}/ingest_ssb
+	chmod 755 ${install_root}/ingest_ssb
+	chmod g+s ${install_root}/ingest_ssb
 	;;
     dev)
 	;;
