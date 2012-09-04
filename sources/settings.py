@@ -80,10 +80,11 @@ FILE_UPLOAD_HANDLERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    # must precede middleware which assumes CSRF already dealt with
     'django.middleware.csrf.CsrfViewMiddleware',
+    
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     

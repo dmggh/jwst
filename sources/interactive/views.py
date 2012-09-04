@@ -19,6 +19,7 @@ import glob
 
 # from django.http import HttpResponse
 from django.shortcuts import render_to_response, redirect
+from django.shortcuts import render as django_render
 from django.http import HttpResponse
 from django.template import RequestContext
 import django.utils.safestring as safestring
@@ -280,7 +281,7 @@ def render(request, template, dict_=None):
         else:
             rdict[var] = jsonrpc_vars[var]
             
-    return render_to_response(template, RequestContext(request, rdict))
+    return django_render(request, template, rdict)
 
 # ===========================================================================
 
@@ -552,11 +553,25 @@ def index(request):
     return render(request, "index.html", {})
 
 # ===========================================================================
+from django.contrib.auth.views import login as django_login
+
+@error_trap("base.html")
+def login(request):
+    if request.method == 'POST':
+        if request.session.test_cookie_worked():
+            request.session.delete_test_cookie()
+            return django_login(request, "login.html")
+        else:
+           raise CrdsError("Please enable cookies and try again.")
+    else:
+        request.session.set_test_cookie()
+        return django_login(request, "login.html")
+
 
 def logout(request):
     """View to get rid of authentication state and become nobody again."""
     django.contrib.auth.logout(request)
-    return render(request, "index.html", {})
+    return redirect("/")
         
 # ===========================================================================
 

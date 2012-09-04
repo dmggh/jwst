@@ -13,7 +13,7 @@ urlpatterns = patterns('',
   
   url(r'^$', 'crds.server.interactive.views.index'),          
 
-  url(r'^login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}),          
+  url(r'^login/$', 'crds.server.interactive.views.login'),          
   url(r'^logout/$', 'crds.server.interactive.views.logout'),          
 
   url(r'^bestrefs/$', 'crds.server.interactive.views.bestrefs'),          
