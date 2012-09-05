@@ -21,6 +21,10 @@
         {% endif %}
     {% endfor %}
     
+     <br/>
+        
+    {% include "certify_include.html" %}
+    
     <h3>Actions on Mapping</h3>
     <p>{{old_rmap|grey}}</p>
     <br/>
@@ -53,26 +57,12 @@
         {% for map in generated_files %}
         <p>{{map|grey}}</p>
         {% endfor %}
+
+        {% include "accordion.html" %}
         
-
-
         {# accordian of textual differences #}
-        <style type="text/css">
-                .ui-accordion-content{ zoom: 1; } 
-        </style>
-        
-        <script>
-            $(function() {
-                $( "#accordion" ).accordion({
-                         autoHeight: false,
-                         collapsible: true,
-                         active:false,
-                 });
-            });
-        </script>
-        
         <br/>
-        <div id="accordion">
+        <div class="accordion">
             <h3><a href="#">Rmap Differences</a></h3>
                 <div>
                     <pre class="program">
@@ -83,8 +73,10 @@
                 </div>
         </div>
         {# end accordian #}
-    
+        
         {% include "collision_explain.html" %}
+        
+        <br/>
         
         {% include "confirm.html" %}
 

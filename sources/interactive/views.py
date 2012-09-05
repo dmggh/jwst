@@ -281,6 +281,8 @@ def crds_render(request, template, dict_=None):
         else:
             rdict[var] = jsonrpc_vars[var]
             
+    # log.write("rendering:", srepr(template), log.PP(rdict))
+            
     return django_render(request, template, rdict)
 
 # ===========================================================================
@@ -332,6 +334,9 @@ def get_files(request):
         dir = os.path.join(config.CRDS_INGEST_DIR, dir)
         uploads = { os.path.basename(f) : f for f in glob.glob(dir + "/*") }
         remove_dir = dir
+    for f in uploads:
+        if rmap.is_mapping(f):
+            checksum.update_checksum(uploads[f])
     if not uploads:
         raise CrdsError("No input files were specified.")
     return remove_dir, uploads
@@ -411,94 +416,40 @@ def render_error(request, args, keys, exc, template):
     pars = dict(keys.items() + [("error_message", msg)])
     return crds_render(request, template, pars)
 
-class Logger(object):
-    """Outputs messages to a per-request log file and optionally the console.
-    Also captures stdout and stderr.
-    """
-    def __init__(self, filename):
-        """open the per-request log file and hook stdout and stderr"""
-        self.filename = filename
-        utils.ensure_dir_exists(filename)
-        self.file = open(filename, 'w+')
-        # Hook outputs to logfile
-        self.oldout, self.olderr = sys.stdout, sys.stderr
-        sys.stdout, sys.stderr = self.file, self.file
-   
-    def _write(self, stdout, arg):
-        """Write arg to logfile, and `stdout` if defined."""
-#        if stdout:
-#            stdout.write(arg)
-        self.file.write(arg)
-   
-    def write(self, *args, **keys):
-        """Write args to logfile and console,  nominally separated by spaces
-        (key "sep") and terminated by newline (key "end").
-        """
-        sep = keys.get("sep", " ")
-        end = keys.get("end", "\n")
-        stdout = keys.get("stdout", self.oldout)
-        time = keys.get("time", True)
-        if time:
-            self._write(stdout, "[" + str(datetime.datetime.now())[:-3] + "] ")
-        for arg in args:
-            self._write(stdout, arg + sep)
-        self._write(stdout, end)
-
-    def close(self):
-        """close per-request logfile and un-hook stdout and stderr."""
-        self.flush()
-        self.file.close()
-        sys.stdout, sys.stderr = self.oldout, self.olderr
-        logfile = open(self.filename)
-        for line in logfile:
-            sys.stdout.write(line)
-        logfile.close()
-       
-    def flush(self):
-        """Flush the logfile and stdout."""
-        self.file.flush()
-        self.oldout.flush()
-
 def log_view(func):
     """log() captures view inputs, output, and response to a log file.
     It should be called inside any error_trap() decorator so that it 
     executes before error_trap() absorbs many exceptions.
     """
     def dolog(request, *args, **keys):
-        """trap() is bound to the func parameter of decorator()."""
-        
-        action_id = models.CounterBlob.next("action_id")
-        logpath = config.data_dir + "/logs/action_%06d.log" % (action_id,)
-        logfile = Logger(logpath)
-        
-        logfile.write(time=False) # start with blank line to make concat logs readable
-        logfile.write("REQUEST:", request.path, request.method)
-#        logfile.write("META:", repr(request.META), stdout=None)
+        """trap() is bound to the func parameter of decorator()."""        
+        log.write() # start with blank line to make concat logs readable
+        log.write("REQUEST:", request.path, request.method)
+#        log.write("META:", repr(request.META), stdout=None)
         if request.GET:
-            logfile.write("GET:",   repr(request.GET))
+            log.write("GET:",   repr(request.GET))
         if request.POST:
-            logfile.write("POST:",  repr(request.POST))
+            log.write("POST:",  repr(request.POST))
 #        if request.COOKIES:
-#            logfile.write("COOKIES:", repr(request.COOKIES), stdout=None)
+#            log.write("COOKIES:", repr(request.COOKIES), stdout=None)
         if request.FILES:
-            logfile.write("FILES:", repr(request.FILES))
-        logfile.write("OUTPUT:")
+            log.write("FILES:", repr(request.FILES))
+        log.write("OUTPUT:")
         try:    
             response = func(request, *args, **keys)
-#            logfile.write("RESPONSE:\n" + response.content, stdout=None)
+#            log.write("RESPONSE:\n" + response.content, stdout=None)
             return response
         except Exception, exc:
-            logfile.write("EXCEPTION REPR:", repr(exc))
-            logfile.write("EXCEPTION STR:", str(exc))
-            logfile.write("EXCEPTION TRACEBACK:")
+            log.write("EXCEPTION REPR:", repr(exc))
+            log.write("EXCEPTION STR:", str(exc))
+            log.write("EXCEPTION TRACEBACK:")
             info = sys.exc_info()
             tb_list = traceback.extract_tb(info[2])
             for line in traceback.format_list(tb_list):
-                logfile.write(line.strip(), time=False)
+                log.write(line.strip(), time=False)
             raise
         finally:
-            logfile.close()
-        
+            pass
     dolog.func_name = func.func_name
     return dolog
 
@@ -533,15 +484,15 @@ def capture_output(func):
         """Temorarily re-assign stdout/stderr to a StringIO, run func,
         return captured output.
         """
-        out = cStringIO.StringIO()
         oldout, olderr = sys.stdout, sys.stderr
+        out = cStringIO.StringIO()
         sys.stdout, sys.stderr = out, out
         try:
             result = func(*args, **keys)
         finally:
             sys.stdout, sys.stderr = oldout, olderr
         out.seek(0)
-        return result, out.readlines()
+        return result, out.read()
     return captured
 
 # ===========================================================================
@@ -777,13 +728,10 @@ def submit_file_post(request, crds_filetype):
             
     remove_dir, uploaded_files = get_files(request)
     
-    # The map of every file CRDS knows about,  in one SQL query.
-    all_file_map = models.get_fileblob_map(observatory)
-    
-    for (original_name, uploaded_path) in uploaded_files.items():
-        # Check the file,  leaving no server state if it fails.  Give error results.
-        do_certify_file(original_name, uploaded_path, check_references="exist", 
-                        filemap=all_file_map)
+    # Verify that ALL references certify,  raise CrdsError on first error.
+    certify_results = certify_file_list(uploaded_files.items())
+    log.write("certify_results:", certify_results)
+
 
     collision_list = []
     new_file_map = {}
@@ -812,6 +760,7 @@ def submit_file_post(request, crds_filetype):
                 "title" : "Submit File",
                 "description" : description,
                 
+                "certify_results" : certify_results,
                 "more_submits" : "/submit/" + crds_filetype + "/",
                 })
     
@@ -862,7 +811,7 @@ def do_submit_file(observatory, original_name, upload_location, description,
     
     return os.path.basename(permanent_location)
 
-def do_certify_file(basename, certifypath, check_references=None, filemap=None):
+def do_certify_file(basename, certifypath, check_references=False, filemap=None):
     """Run un-trapped components of crds.certify and re-raise any exception
     as a CrdsError which will be displayed as a form error on the submission
     page.
@@ -877,14 +826,14 @@ def do_certify_file(basename, certifypath, check_references=None, filemap=None):
     except Exception, exc:
         raise CrdsError("Certifying " + srepr(basename) + ": " + str(exc))
 
-    if check_references in ["exist","contents"] and rmap.is_mapping(basename):
+    if check_references and rmap.is_mapping(basename):
         if filemap is None:
             filemap = models.get_fileblob_map(models.OBSERVATORY)
         ctx = rmap.load_mapping(certifypath)
         for ref in ctx.reference_names():
             assert ref in filemap, \
-                "Reference " + srepr(ref) + " is not known to CRDS."
-    
+                "Reference " + srepr(ref) + " in " + srepr(basename) + " is not known to CRDS."
+
 def get_blacklists(basename, certifypath, ignore_self=True, files=None):
     """Return a list of the files referenced by `basename` which are
     blacklisted.
@@ -979,37 +928,17 @@ def certify_post(request):
     uploaded, original_name, certified_file = handle_known_or_uploaded_file(
         request, "filemode", "file_known", "file_uploaded")
 
-    mapping = "--mapping" if rmap.is_mapping(original_name) else ""
-
-    if uploaded and mapping:
+    if uploaded and rmap.is_mapping(original_name):
         checksum.update_checksum(certified_file)
             
-    certify_lines = pysh.lines(
-        "python -m crds.certify ${certified_file} ${mapping} --dump-provenance",
-        independent_error=False)
-    certify_status = "OK" if "0 errors" in \
-        [ x.strip() for x in certify_lines] else "Failed."
+    all_files = models.get_fileblob_map()
 
-    files = models.get_fileblob_map()
-
-    missing_references = []
-    if not rmap.is_mapping(original_name):
-        fitscheck_lines = [x.strip() for x in pysh.lines(
-            "fitscheck --ignore-missing ${certified_file}")]
-        fitscheck_status = "OK" if (not fitscheck_lines) or \
-                ("0 errors" in fitscheck_lines) else "Failed."
-    else:
-        fitscheck_status = ""
-        fitscheck_lines = []
-        if certify_status == "OK":
-            ctx = rmap.load_mapping(certified_file)
-            for ref in ctx.reference_names():
-                if ref not in files:
-                    missing_references.append(ref)
+    certify_status, certify_output = captured_certify(
+        original_name, certified_file, filemap=all_files)
 
     try:
         blacklisted_by = get_blacklists(
-            original_name, certified_file, ignore_self=False, files=files)
+            original_name, certified_file, ignore_self=False, files=all_files)
     except Exception:
         blacklisted_by = []
         blacklist_status = "Error"
@@ -1024,14 +953,49 @@ def certify_post(request):
 
     return crds_render(request, "certify_results.html", 
             {"certify_status":certify_status,
-             "fitscheck_status":fitscheck_status, 
              "blacklist_status":blacklist_status,
-             "is_reference": not rmap.is_mapping(original_name),
-             "certify_lines":certify_lines,
-             "fitscheck_lines":fitscheck_lines,
+             "certify_output":certify_output,
              "blacklisted_by" : blacklisted_by,
-             "missing_references" : missing_references,
              "certified_file":original_name})
+
+def captured_certify(original_name, uploaded_path, check_references=True, filemap=None):
+    
+    mapping = "--mapping" if rmap.is_mapping(original_name) else ""
+    
+    output = pysh.out(
+        "python -m crds.certify ${uploaded_path} ${mapping} --dump-provenance",
+        independent_error=False)
+    if "0 errors" in output:
+        if "0 warnings" in output:
+            status = "OK"
+        else:
+            status = "Warnings"
+    else:
+        status = "Failed."
+    output = output.replace(uploaded_path, original_name)
+    output = output.replace(os.path.basename(uploaded_path), original_name)
+    
+    if status != "Failed.":
+        if check_references and rmap.is_mapping(original_name):
+            if filemap is None:
+                filemap = models.get_fileblob_map(models.OBSERVATORY)
+            ctx = rmap.load_mapping(uploaded_path)
+            for ref in ctx.reference_names():
+                if ref not in filemap:
+                    output += "ERROR: Reference " + srepr(ref) + " in " + \
+                            srepr(original_name) + " is not known to CRDS.\n"
+                    status = "Failed."
+                    
+    return status, output
+
+def certify_file_list(upload_tuples, check_references=True):
+    filemap = models.get_fileblob_map(models.OBSERVATORY)
+    certify_results = {}
+    for (original_name, upload_path) in upload_tuples:
+        certify_results[original_name] = captured_certify(
+            original_name, upload_path, check_references=check_references, filemap=filemap)
+        do_certify_file(original_name, upload_path, check_references=check_references, filemap=filemap)
+    return certify_results
 
 # ===========================================================================
 
@@ -1076,9 +1040,8 @@ def batch_submit_reference_post(request):
         old_instr, old_filekind = instrument, filekind
 
     # Verify that ALL references certify,  raise CrdsError on first error.
-    for (original_name, uploaded_path) in uploaded_files.items():
-        do_certify_file(original_name, uploaded_path)
-    
+    certify_results = certify_file_list(uploaded_files.items())
+
     # Generate a temporary rmap name using "tmp" in place of observatory.
     # Refactor the original rmap inserting temporary references, creating a 
     # temporary rmap to see what actions will occur.
@@ -1176,6 +1139,7 @@ def batch_submit_reference_post(request):
                 "rmap_diffs" : rmap_diffs,
 
                 "more_submits" : "/batch_submit_reference/",
+                "certify_results" : certify_results,
             })
     
 @error_trap("base.html")
@@ -1553,27 +1517,27 @@ def browsify_reference(browsed_file):
     except IOError:
         return "<p class='error'>File unavailable.</p>"
     
-    lines = ["<b>Header Parameters</b>",
-             "<br/>",
-             "<br/>",
-             "<table border='1'>"]
+    output  = "<b>Header Parameters</b>\n"
+    output += "<br/>\n"
+    output += "<br/>\n"
+    output += "<table border='1'>\n"
     for key, value in sorted(header.items()):
         if value != "UNDEFINED":
-            lines.append("<tr><td class='label'>%s</td><td>%s</td></tr>" % (key, value))
-    lines.append("</table>")
-    lines.append("<br/>")
+            output += "<tr><td class='label'>%s</td><td>%s</td></tr>\n" % (key, value)
+    output += "</table>\n"
+    output += "<br/>\n"
     
     if browsed_file.endswith(".fits"):
-        info = ["<b>FITS Info</b>", 
-                "<pre>"]
-        info += [x.rstrip() for x in finfo(browsed_file)[1][1:]]
-        info.extend(["</pre>"])
-    else:
-        info = []
-        
-    lines.extend(info)
+        output += "<b>FITS Info</b>\n"
+        output += "<pre>\n"
+        fits_info = finfo(browsed_file)[1] + "\n"
+        lines = fits_info.split("\n")
+        if lines[0].lower().startswith("filename"):
+            lines = lines[1:]
+        output += "\n".join(lines)
+        output += "</pre>\n"
     
-    return "\n".join(lines)
+    return output
 
 
 @capture_output
@@ -1768,7 +1732,7 @@ def do_create_contexts(pmap, updated_rmaps, description, user, email,
 #    print "WARNING: skipping context certification for", repr(new_contexts)
     for ctx in new_contexts:
         new_loc = rmap.locate_mapping(ctx)  
-        do_certify_file(new_loc, new_loc, check_references=None)
+        do_certify_file(new_loc, new_loc)
 
     # Create delivery records for each of the new files
     observatory = rmap.get_cached_mapping(pmap).observatory

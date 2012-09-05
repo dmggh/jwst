@@ -3,6 +3,9 @@
 {% load stdtags %}
 
 {% block contents %}
+    
+    {% include "accordion.html" %}
+
     <h2>Submit {{crds_filetype|capfirst}} File</h2>
     {% if error_messages %}
      <h3 class="error">Submission Failed.</h3>
@@ -12,9 +15,17 @@
      {% endfor %}
     {% endif %}
     
+    <br/>
+    
+    {% include "certify_include.html" %}
+    
     {% include "collision_explain.html" %}
 
+    <br/>
+
     {% include "confirm.html" %}
+
+    <br/>
 
 {% endblock contents %}
 

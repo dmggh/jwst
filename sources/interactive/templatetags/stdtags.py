@@ -76,6 +76,18 @@ def exists_color(name):  # handle str(datetime.datetime.now())
     return mark_safe("<span class='%s'>%s</span>" % (color, name))
 exists_color.is_safe = True
 
+@register.filter
+@stringfilter
+def color_status(status):
+    if status.lower().startswith(("ok",)):
+        return green(status)
+    elif status.lower().startswith(("warnings",)):
+        return yellow(status)
+    elif status.lower().startswith(("failed","errors")):
+        return red(status)
+    else:
+        return status
+
 # ===========================================================================
 
 # Because of multiple projects this is uncomfortably complicated.  Sorry.

@@ -1,7 +1,8 @@
 {% load stdtags %}
 
 {% if collision_list %}
-    <h2 class="warning"> Edit Collision Warning </h3>
+    <h3 class="warning"> Edit Collision Warning </h3>
+    <div>
     {% for colinfo in collision_list %}
         {% for collision in colinfo.2 %}
             <p class="warning">
@@ -19,8 +20,9 @@
     <p>The person receiving this warning should derive a new update,  most 
     likely from the best of the files this submission collided with.   
     
-    <p class="warning"> Do not use the file(s) submitted/generated here unless 
+    <p class="warning"> Do not confirm the file(s) submitted/generated here unless 
     the collision is known to be harmless.
+    </div>
 {% endif %}
 
 

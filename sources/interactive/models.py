@@ -735,6 +735,7 @@ def file_exists(filename, observatory=OBSERVATORY):
         return FileBlob.load(filename)
     except Exception:
         return False
+
 def get_fileblob_map(observatory=OBSERVATORY, **keys):
     """Return a query set for all the file blobs belonging to observatory.   It's
     vastly faster to check for existence against this map than using file_exists(),
