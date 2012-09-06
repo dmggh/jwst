@@ -30,5 +30,11 @@
 5. Procedure for running HST server self-tests.
 
 % ./run hst dev
-% ./test
+% ./runtest hst dev   (2nd terminal)
+
+or 
+
+# interactive tests aren't complete yet for jwst.
+% ./run jwst dev
+% ./runtests jwst dev jsonapi (2nd terminal)
 
