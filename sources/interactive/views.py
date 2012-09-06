@@ -2246,6 +2246,7 @@ def stream_response_generator(filename):
             # yield data
             chunk += 1
             total += len(data)
+            yield data
     log.write("Finished", srepr(filename), "total bytes", repr(total))
 
 ARCH_MODES = {
