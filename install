@@ -555,11 +555,12 @@ case ${server_mode}
 	;;
 esac
 
-case ${observatory}
-    in
-    jwst)
-	echo "Installing jwst references"
-	cp -v ../jwst_references/*.fits ${ref_path}/jwst
-	;;
-esac
+# case ${observatory}
+#     in
+#     jwst)
+# 	echo "Installing jwst references"
+# 	mkdir -p -m 755 ${ref_path}/jwst
+# 	cp -v ../jwst_references/*.fits ${ref_path}/jwst
+# 	;;
+# esac
 
