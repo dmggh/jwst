@@ -802,7 +802,7 @@ def do_submit_file(observatory, original_name, upload_location, description,
     
     # Move or copy the temporary file to its permanent location.
     utils.ensure_dir_exists(permanent_location)
-    shutil.move(upload_location, permanent_location)
+    os.link(upload_location, permanent_location)
 
     # Make a database record for this file.
     blob = models.add_crds_file(observatory, original_name, permanent_location, 
