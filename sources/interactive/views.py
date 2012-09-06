@@ -716,22 +716,20 @@ def file_exists_somehow(filename):
 def submit_file_post(request, crds_filetype):
     """Handle the POST case of submit_file, returning dict of template vars."""
     observatory = get_observatory(request)
+    if crds_filetype == "reference":
+        context = get_recent_or_user_context(request)
+    else:
+        context = None
     description = validate_post(request, "description", DESCRIPTION_RE)
     creator = validate_post(request, "creator", PERSON_RE)
-    auto_rename = "auto_rename" in request.POST
-    
-    if crds_filetype == "reference":
-        change_level = validate_post(request, 
-            "change_level", models.CHANGE_LEVELS)
-    else:
-        change_level = "SEVERE"
+    auto_rename = "auto_rename" in request.POST    
+    change_level = validate_post(request, "change_level", models.CHANGE_LEVELS)
             
     remove_dir, uploaded_files = get_files(request)
     
     # Verify that ALL references certify,  raise CrdsError on first error.
     certify_results = certify_file_list(uploaded_files.items())
     log.write("certify_results:", certify_results)
-
 
     collision_list = []
     new_file_map = {}
@@ -811,7 +809,8 @@ def do_submit_file(observatory, original_name, upload_location, description,
     
     return os.path.basename(permanent_location)
 
-def do_certify_file(basename, certifypath, check_references=False, filemap=None):
+def do_certify_file(basename, certifypath, check_references=False, filemap=None,
+                    context=None):
     """Run un-trapped components of crds.certify and re-raise any exception
     as a CrdsError which will be displayed as a form error on the submission
     page.
@@ -822,7 +821,8 @@ def do_certify_file(basename, certifypath, check_references=False, filemap=None)
     """
     try:
         certify.certify_files([certifypath], check_references=None,
-            trap_exceptions=False, is_mapping = rmap.is_mapping(basename))
+            trap_exceptions=False, is_mapping = rmap.is_mapping(basename),
+            context=context)
     except Exception, exc:
         raise CrdsError("Certifying " + srepr(basename) + ": " + str(exc))
 
@@ -958,12 +958,13 @@ def certify_post(request):
              "blacklisted_by" : blacklisted_by,
              "certified_file":original_name})
 
-def captured_certify(original_name, uploaded_path, check_references=True, filemap=None):
+def captured_certify(original_name, uploaded_path, check_references=True, filemap=None, context=None):
     
-    mapping = "--mapping" if rmap.is_mapping(original_name) else ""
+    mapping_switch = "--mapping" if rmap.is_mapping(original_name) else ""
+    context_switch = "--context=" + context if context else ""
     
     output = pysh.out(
-        "python -m crds.certify ${uploaded_path} ${mapping} --dump-provenance",
+        "python -m crds.certify ${uploaded_path} ${mapping_switch} ${context_switch} --dump-provenance",
         independent_error=False)
     if "0 errors" in output:
         if "0 warnings" in output:
@@ -988,13 +989,15 @@ def captured_certify(original_name, uploaded_path, check_references=True, filema
                     
     return status, output
 
-def certify_file_list(upload_tuples, check_references=True):
+def certify_file_list(upload_tuples, check_references=True, context=None):
     filemap = models.get_fileblob_map(models.OBSERVATORY)
     certify_results = {}
     for (original_name, upload_path) in upload_tuples:
+        # In order to capture output easily,  run as subprocess...
         certify_results[original_name] = captured_certify(
-            original_name, upload_path, check_references=check_references, filemap=filemap)
-        do_certify_file(original_name, upload_path, check_references=check_references, filemap=filemap)
+            original_name, upload_path, check_references=check_references, filemap=filemap, context=context)
+        # Run here as function to fail delivery on first exception.
+        do_certify_file(original_name, upload_path, check_references=check_references, filemap=filemap, context=context)
     return certify_results
 
 # ===========================================================================
@@ -1017,9 +1020,9 @@ def batch_submit_reference_post(request):
     context = get_recent_or_user_context(request)
     pmap = rmap.get_cached_mapping(context)
     description = validate_post(request, "description", DESCRIPTION_RE)
-    auto_rename = "auto_rename" in request.POST
-    change_level = "SEVERE"
-    creator = "(unknown)"
+    creator = validate_post(request, "creator", PERSON_RE)
+    auto_rename = "auto_rename" in request.POST    
+    change_level = validate_post(request, "change_level", models.CHANGE_LEVELS)
     remove_dir, uploaded_files = get_files(request)
     
     # creator = validate_post(request, "creator", PERSON_RE)
@@ -1040,7 +1043,7 @@ def batch_submit_reference_post(request):
         old_instr, old_filekind = instrument, filekind
 
     # Verify that ALL references certify,  raise CrdsError on first error.
-    certify_results = certify_file_list(uploaded_files.items())
+    certify_results = certify_file_list(uploaded_files.items(), context=context)
 
     # Generate a temporary rmap name using "tmp" in place of observatory.
     # Refactor the original rmap inserting temporary references, creating a 
@@ -1710,24 +1713,24 @@ def create_contexts_post(request):
  
             })
     
-def do_create_contexts(pmap, updated_rmaps, description, user, email,
+def do_create_contexts(pmap_name, updated_rmaps, description, user, email,
                        state="uploaded"):
-    """Create new contexts based on `pmap` which refer to `updated_rmaps`
+    """Create new contexts based on `pmap_name` which refer to `updated_rmaps`
     instead of the corresponding old rmaps.  Add the new contexts to the
     CRDS database and return a list of new context mapping names.
     """
     # Get the mapping from old imap to new rmap, basically the imaps that
     # must be updated onto the list of rmap updates to do.
-    updates_by_instrument = newcontext.get_update_map(pmap, updated_rmaps)
+    updates_by_instrument = newcontext.get_update_map(pmap_name, updated_rmaps)
     
     # For each imap being edited,  and the pipeline context,  reserve new
     # official names and return the dictionary { old_mapping : new_mapping }.
-    new_name_map = generate_new_names(pmap, updates_by_instrument)
+    new_name_map = generate_new_names(pmap_name, updates_by_instrument)
     
     # Actually generate the new mappings,  by first copying the old mappings 
     # and then substituting old names with their updated equivalents.
     new_contexts = newcontext.generate_new_contexts(
-        pmap, updates_by_instrument, new_name_map)
+        pmap_name, updates_by_instrument, new_name_map)
  
 #    print "WARNING: skipping context certification for", repr(new_contexts)
     for ctx in new_contexts:
@@ -1735,12 +1738,12 @@ def do_create_contexts(pmap, updated_rmaps, description, user, email,
         do_certify_file(new_loc, new_loc)
 
     # Create delivery records for each of the new files
-    observatory = rmap.get_cached_mapping(pmap).observatory
+    observatory = rmap.get_cached_mapping(pmap_name).observatory
     for old_ctx, new_ctx in new_name_map.items():
         models.add_crds_file(
             observatory, old_ctx, rmap.locate_mapping(new_ctx),  user, email, 
             description, 
-            srepr(pmap) + " : " + ",".join([srepr(x) for x in updated_rmaps]),
+            srepr(pmap_name) + " : " + ",".join([srepr(x) for x in updated_rmaps]),
             state=state)
     
     return new_name_map
@@ -1878,7 +1881,7 @@ def edit_rmap_post(request):
     pmap_name = get_recent_or_user_context(request)
 
     new_references = handle_file_submissions(
-        original_rmap, expanded, observatory, request.user, auto_rename=auto_rename)
+        pmap_name, original_rmap, expanded, observatory, request.user, auto_rename=auto_rename)
     
     new_rmap, new_loc = execute_edit_actions(original_rmap, expanded)
     
@@ -1947,7 +1950,7 @@ def collect_action_tree(request):
             
     return expanded, actions
 
-def handle_file_submissions(original_rmap, expanded, observatory, submitter, auto_rename):
+def handle_file_submissions(pmap_name, original_rmap, expanded, observatory, submitter, auto_rename):
     """Certify and submit all of the added files in `expanded`.   Return
     a list of tuples of reference filenames: [(uploaded_name,  crds_name), ...]
     """
@@ -1967,7 +1970,7 @@ def handle_file_submissions(original_rmap, expanded, observatory, submitter, aut
             " has wrong filekind (" + uploaded_filekind + ") for " + \
             srepr(original_rmap) + " (" + rmap_filekind + ")"
         try:
-            do_certify_file(uploaded_file.name, uploaded_path)
+            do_certify_file(uploaded_file.name, uploaded_path, context=pmap_name)
         except Exception, exc:
             raise CrdsError("Reference " + srepr(uploaded_file.name) + 
                             " failed certification: " + str(exc))
@@ -2011,7 +2014,7 @@ def execute_edit_actions(original_rmap, expanded):
 
     checksum.update_checksum(new_loc)
     
-    do_certify_file(new_loc, new_loc)
+    do_certify_file(new_loc, new_loc)  # mappings only, no context.
 
     return new_rmap, new_loc
     

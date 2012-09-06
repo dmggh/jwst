@@ -8,24 +8,27 @@
 
     <h2>Submit {{crds_filetype|capfirst}} File</h2>
     {% if error_messages %}
-     <h3 class="error">Submission Failed.</h3>
+         <h3 class="error">Submission Failed.</h3>
     {% else %}
-     {% for names in new_file_map %}
-     <h3 class="success">Submitted {{names.0|grey}} as {{names.1|browse}}</h3>
-     {% endfor %}
+        
+        {% comment %}
+        {% for names in new_file_map %}
+        <h3 class="success">Submitted {{names.0|grey}} as {{names.1|browse}}</h3>
+        {% endfor %}
+        <br/>
+        {% endcomment %}
+        
+        {% include "certify_include.html" %}
+        
+        {% include "collision_explain.html" %}
+    
+        <br/>
+    
+        {% include "confirm.html" %}
+    
+        <br/>
     {% endif %}
     
-    <br/>
-    
-    {% include "certify_include.html" %}
-    
-    {% include "collision_explain.html" %}
-
-    <br/>
-
-    {% include "confirm.html" %}
-
-    <br/>
 
 {% endblock contents %}
 

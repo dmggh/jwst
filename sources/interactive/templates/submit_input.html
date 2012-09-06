@@ -7,6 +7,11 @@
 
         <input type='hidden' name='observatory' value='{{observatory}}' />
 
+        {% if crds_filetype == "reference" %}
+        <h3>Context to Check Against</h3>
+        {% include "select_pmap.html" %}
+        {% endif %}
+        
         <h3>Submitted Files:</h3>
         {% include "select_files.html" %}
      
@@ -38,6 +43,11 @@
 
 <p><b>Submit Files</b> permanently enters files into CRDS and the 
 archive.
+
+{% if crds_filetype == "reference" %}
+<p><p><b>Context to Check Against</b> defines any prior reference used to check
+modes of a new reference.
+{% endif %}
 
 <p><p><b>Submitted Files</b> new references or mappings to be added to CRDS.
 

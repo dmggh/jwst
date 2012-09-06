@@ -45,6 +45,18 @@ def red(value):
     return mark_safe("<span class='red'>" + value + "</span>")
 red.is_safe = True
 
+@register.filter(name='yellow')
+@stringfilter
+def yellow(value):
+    return mark_safe("<span class='yellow'>" + value + "</span>")
+yellow.is_safe = True
+
+@register.filter(name='orange')
+@stringfilter
+def orange(value):
+    return mark_safe("<span class='orange'>" + value + "</span>")
+orange.is_safe = True
+
 # ===========================================================================
 
 @register.filter
@@ -82,7 +94,7 @@ def color_status(status):
     if status.lower().startswith(("ok",)):
         return green(status)
     elif status.lower().startswith(("warnings",)):
-        return yellow(status)
+        return orange(status)
     elif status.lower().startswith(("failed","errors")):
         return red(status)
     else:
@@ -109,4 +121,11 @@ def download_url(filename):
 
 #     return mark_safe(url)
 # download.is_safe = True
+
+# Filter for accessing dictionary using variable
+@register.filter
+def lookup(d, key):
+    if not isinstance(d, dict):
+        d = dict(tuple(d))
+    return d[key]
 

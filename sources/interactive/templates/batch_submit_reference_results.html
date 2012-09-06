@@ -25,6 +25,11 @@
         
     {% include "certify_include.html" %}
     
+        <h3>Generated New Mappings</h3>
+        {% for map in generated_files %}
+        <p>{{map|grey}}</p>
+        {% endfor %}
+
     <h3>Actions on Mapping</h3>
     <p>{{old_rmap|grey}}</p>
     <br/>
@@ -52,11 +57,6 @@
                 </tr>        
             {% endfor %}
         </table>
-
-        <h3>Generated New Mappings</h3>
-        {% for map in generated_files %}
-        <p>{{map|grey}}</p>
-        {% endfor %}
 
         {% include "accordion.html" %}
         

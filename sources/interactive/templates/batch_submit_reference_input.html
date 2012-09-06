@@ -22,6 +22,18 @@
       <h3>Old Context to Derive From</h3>
         {% include "select_pmap.html" %}
         
+        <h3>Change Level:
+        <select name='change_level' value="{{change_level}}">
+            <option>SEVERE</option>
+            <option>MEDIUM</option>
+            <option>TRIVIAL</option>
+        </select>
+        </h3>
+
+        <h3>Creator:
+        <input type='text' name='creator' size="40" value="{{creator}}">
+        </h3>
+
       <h3>Description</h3>
         <p>
             <textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea>   
@@ -46,6 +58,15 @@ are generated.
 
 <p><p><b>Old Context to Derive From</b> The name of the pipeline context which 
 will be recursively updated to insert the new reference files.
+
+<p><p><b>Change Level</b> The degree to which the new files are expected to 
+impact science results.
+
+<p><p><b>Description</b> information about what's new in this file and what
+the expected impacts are.
+
+<p><p><b>Creator</b> author of the contents or changes to the file,  not 
+necessarily the submitter.   The submitter is known based on login information.
 
 <p><p><b>Uploaded References</b> lets you upload a list of new references to CRDS.   
 Each reference file must certify or the entire batch will be rejected.
