@@ -56,8 +56,12 @@ class LogModel(models.Model):
     @property
     def jsonpars(self):
         if not hasattr(self, "_jsonpars"):
-            self._jsonpars = de_unicode(
-                json.loads(self.liveblob["POST"].keys()[0]))
+            try:
+                s = json.loads(self.liveblob["POST"].keys()[0])
+            except Exception:
+                self._jsonpars = {"ERROR":"JSON PARS ERROR"}
+            else:
+                self._jsonpars = de_unicode(s)
         return self._jsonpars
 
     @property
@@ -104,7 +108,7 @@ class LogModel(models.Model):
     def __unicode__request(self):
         s = self.__unicode__prefix()
         if self.is_json:
-            s += " " + str(self.jsonpars["params"])
+            s += " " + str(self.jsonpars.get("params", "unknown"))
         else:
             if self.liveblob["method"] == "GET":
                 s += " " + str(self.liveblob["GET"])
