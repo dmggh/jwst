@@ -16,20 +16,7 @@
     {% endfor %}
     <br/>
 
-    <h3>Submitted References:</h3>
-    <table border="1">
-        <tr style='font-weight: bold;'>
-            <td>Upload Name</td>
-            <td>CRDS Name</td>
-        </tr>
-        {% for ref in new_references %}
-            <tr>
-                <td style="padding: 0.5em;">{{ref.0}}</td>
-                <td style="padding: 0.5em;">{{ref.1|browse}}</td>
-            </tr>
-        {% endfor %}
-    </table>    
-    <br/>
+    {% include "certify_include.html" %}
 
     <h3>Created New Mappings:</h3>
     {% for mapping in generated_files %}

@@ -729,7 +729,6 @@ def submit_file_post(request, crds_filetype):
     
     # Verify that ALL references certify,  raise CrdsError on first error.
     certify_results = certify_file_list(uploaded_files.items())
-    log.write("certify_results:", certify_results)
 
     collision_list = []
     new_file_map = {}
@@ -1875,19 +1874,21 @@ def edit_rmap_post(request):
     
     description = validate_post(request, "description", DESCRIPTION_RE)
     original_rmap = validate_post(request, "browsed_file", is_rmap)
+    creator     = validate_post(request,  "creator", PERSON_RE)
     observatory = rmap.get_cached_mapping(original_rmap).observatory
     auto_rename = "auto_rename" in request.POST
     
     pmap_name = get_recent_or_user_context(request)
 
-    new_references = handle_file_submissions(
-        pmap_name, original_rmap, expanded, observatory, request.user, auto_rename=auto_rename)
+    new_references, certify_results = handle_file_submissions(
+        pmap_name, original_rmap, expanded, observatory, request.user, 
+        auto_rename=auto_rename, description=description, creator=creator)
     
     new_rmap, new_loc = execute_edit_actions(original_rmap, expanded)
     
     models.add_crds_file(observatory, original_rmap, new_loc, 
             request.user, request.user.email, description, 
-            creator_name = str(request.user), state="uploaded")
+            creator_name = creator, state="uploaded")
 
     new_context_map = do_create_contexts(
         pmap_name, [new_rmap], description,  request.user, request.user.email,
@@ -1914,6 +1915,7 @@ def edit_rmap_post(request):
                 "description" : description,
                 
                 "more_submits" : "/edit_rmap_browse/",
+                "certify_results": certify_results,
             })
 
 def collect_action_tree(request):
@@ -1950,7 +1952,8 @@ def collect_action_tree(request):
             
     return expanded, actions
 
-def handle_file_submissions(pmap_name, original_rmap, expanded, observatory, submitter, auto_rename):
+def handle_file_submissions(pmap_name, original_rmap, expanded, observatory, submitter, 
+                            auto_rename, description, creator):
     """Certify and submit all of the added files in `expanded`.   Return
     a list of tuples of reference filenames: [(uploaded_name,  crds_name), ...]
     """
@@ -1974,21 +1977,28 @@ def handle_file_submissions(pmap_name, original_rmap, expanded, observatory, sub
         except Exception, exc:
             raise CrdsError("Reference " + srepr(uploaded_file.name) + 
                             " failed certification: " + str(exc))
+    uploaded_files = { }
+    for addno in expanded["add"]:
+        uploaded_file = expanded["add"][addno]["filename"]
+        uploaded_files[uploaded_file.name] = uploaded_file.temporary_file_path()
+
+    certify_results = certify_file_list(uploaded_files.items(), context=pmap_name)
+
     new_references = []
     for addno in expanded["add"]:
         uploaded_file = expanded["add"][addno]["filename"]
-        upload_name = uploaded_file.name
-        description = expanded["add"][addno].get("description","undefined")
-        creator_name = expanded["add"][addno].get("creator_name","undefined")
+        # description = expanded["add"][addno].get("description","undefined")
+        # creator_name = expanded["add"][addno].get("creator_name","undefined")
         change_level = expanded["add"][addno].get("change_level","SEVERE")
         new_basename = do_submit_file(
             observatory, uploaded_file.name, uploaded_file.temporary_file_path(),
-            description, str(submitter), submitter.email, creator_name=creator_name,
+            description, str(submitter), submitter.email, creator_name=creator,
             change_level=change_level, creation_method="edit rmap", state="uploaded",
             auto_rename=auto_rename)
-        new_references.append((upload_name, new_basename))
+        new_references.append((uploaded_file.name, new_basename))
         expanded["add"][addno]["filename"] = new_basename
-    return sorted(new_references)
+
+    return sorted(new_references), certify_results
  
 def execute_edit_actions(original_rmap, expanded):
     """Perform each of the `expanded` on `original_rmap` to create a new

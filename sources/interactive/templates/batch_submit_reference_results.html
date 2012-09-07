@@ -11,68 +11,47 @@
     {% if pmap_mode == "pmap_default" and pmap != pmap_default %}
     <p class="warning">WARNING: predicted context changed from {{pmap_default|grey}} to {{pmap|grey}}.</p>
     {% endif %}
-    
-    <h3>Uploaded Files</h3>
-    {% for file in new_file_map %}
-        {% if file.0 != file.1 %}
-            <p>File submitted as {{file.0|grey}} was renamed to {{file.1|grey}} in CRDS.</p>
-        {% else %}
-            <p>Submitted {{file.0|grey}} to CRDS.</p>
-        {% endif %}
-    {% endfor %}
-    
-     <br/>
-        
+            
     {% include "certify_include.html" %}
     
         <h3>Generated New Mappings</h3>
         {% for map in generated_files %}
         <p>{{map|grey}}</p>
         {% endfor %}
-
-    <h3>Actions on Mapping</h3>
-    <p>{{old_rmap|grey}}</p>
-    <br/>
-
-    {%if actions %}
-        <table border="1" cellpadding="4">
-            <tr>
-                <th>Action</th>
-                <th>New Reference File</th>
-                <th>File Match</th>
-                <th>At</th>
-                <th>Rmap Match</th>
-                <th>Useafter</th>
-                <th>Replaced File</th>
-            </tr>
-            {% for action in actions %}
-                <tr>
-                    <td>{{action.action|upper}}</td>        
-                    <td>{{action.ref_file|grey}}</td>        
-                    <td>{{action.ref_match_tuple}}</td>        
-                    <td>-</td>
-                    <td>{{action.rmap_match_tuple}}</td>        
-                    <td>{{action.useafter}}</td>
-                    <td>{{action.replaced_file|grey}}</td>        
-                </tr>        
-            {% endfor %}
-        </table>
-
-        {% include "accordion.html" %}
-        
-        {# accordian of textual differences #}
-        <br/>
-        <div class="accordion">
-            <h3><a href="#">Rmap Differences</a></h3>
-                <div>
-                    <pre class="program">
-                    {% for line in rmap_diffs %}
-                        {{line|safe}}
+    
+        {%if actions %}
+            <h3>Actions on {{old_rmap|grey}}</h3>
+                <table border="1" cellpadding="4">
+                    <tr>
+                        <th>Action</th>
+                        <th>New Reference File</th>
+                        <th>File Match</th>
+                        <th>At</th>
+                        <th>Rmap Match</th>
+                        <th>Useafter</th>
+                        <th>Replaced File</th>
+                    </tr>
+                    {% for action in actions %}
+                        <tr>
+                            <td>{{action.action|upper}}</td>        
+                            <td>{{action.ref_file|grey}}</td>        
+                            <td>{{action.ref_match_tuple}}</td>        
+                            <td>-</td>
+                            <td>{{action.rmap_match_tuple}}</td>        
+                            <td>{{action.useafter}}</td>
+                            <td>{{action.replaced_file|grey}}</td>        
+                        </tr>        
                     {% endfor %}
-                    </pre>
-                </div>
-        </div>
-        {# end accordian #}
+                </table>
+
+            <br/>
+            {% accordion "Rmap Differences" %}
+                <pre class="program">
+                {% for line in rmap_diffs %}
+                    {{line|safe}}
+                {% endfor %}
+                </pre>
+            {% endaccordion %}
         
         {% include "collision_explain.html" %}
         
