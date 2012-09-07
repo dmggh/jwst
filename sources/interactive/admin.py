@@ -6,17 +6,14 @@ from crds.server.interactive.models import (FileBlob, ContextBlob,
 
 class FileBlobAdmin(admin.ModelAdmin):
     search_fields = ["name"]
-    
 admin.site.register(FileBlob, FileBlobAdmin)
 
 class ContextBlobAdmin(admin.ModelAdmin):
     search_fields = ["name"]
-    pass
 admin.site.register(ContextBlob, ContextBlobAdmin)
 
 class AuditBlobAdmin(admin.ModelAdmin):
     search_fields = ["name"]
-    pass
 admin.site.register(AuditBlob, AuditBlobAdmin)
 
 class CounterBlobAdmin(admin.ModelAdmin):

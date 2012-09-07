@@ -56,7 +56,8 @@ class BlobModel(models.Model):
     blob_fields = {}  # field in database as part of blob
     blob_properties = []  # computed field
     exclude_from_info = ["blob"]    # not included in self.info()
-    repr_list = None    
+    repr_list = None    # fields shown in __repr__ or ALL if None
+    unicode_list = None  # fields shown in __unicode__ or ALL if None
     
     name = models.CharField(
         max_length = 64, default="(none)",
@@ -79,17 +80,28 @@ class BlobModel(models.Model):
                       list(self.blob_fields) + 
                       list(self.blob_properties))
 
-    def __repr__(self):
+    def __repr__(self, displayed=None):
         """Display values of fields in `self.repr_list` else display
         values of all fields in name-sorted order.
         """
-        displayed = self.repr_list or self.fields 
-        displayed.remove("blob")
+        if displayed is None:
+            displayed = self.repr_list or self.fields
+        if "blob" in displayed:
+            displayed.remove("blob")
         rep = self.__class__.__name__ + "(" 
         for field in displayed:
-            rep += field + "='" + str(getattr(self, field)) + "', "
+            try:
+                value = str(getattr(self, field))
+            except Exception:
+                value = "FAILED"
+            rep += field + "='" + value + "', "
         rep = rep[:-2] + ")"
         return rep
+    
+    def __unicode__(self):
+        """To support Django db admin views."""
+        self.thaw()
+        return self.__repr__(self.unicode_list)
     
     def enforce_type(self, attr, value):
         """Ensure `value` meets the constraints for field `attr`.  Return
@@ -215,6 +227,8 @@ class CounterBlob(BlobModel):
         counter = BlobField(int, "an integer counter", 0),
     )
     
+    unicode_list = ["name","counter"]
+    
     @classmethod
     def setup(cls, args):
         name = "_".join(args)
@@ -292,6 +306,8 @@ class FileBlob(BlobModel):
     model_fields = BlobModel.model_fields + \
         ["state", "blacklisted", "observatory", "instrument", "filekind", 
          "type", "derived_from"]
+        
+    unicode_list = ["name", "type", "instrument", "filekind", "state", "blacklisted"]
         
     exclude_from_info = BlobModel.exclude_from_info + \
         ["pathname","creator","deliverer", "deliverer_email","catalog_link",
@@ -589,6 +605,8 @@ class AuditBlob(BlobModel):
             FILEKINDS + ["unknown"], "associated filekind", ""),
     )
     
+    unicode_list = ["action", "user", "date", "filename", "why"]
+    
     @classmethod
     def new(cls, user, action, affected_file, why, details, 
             observatory=None, instrument="unknown", filekind="unknown", date=None):
@@ -651,6 +669,8 @@ class ContextBlob(BlobModel):
             OBSERVATORIES, "associated observatory", ""),
         context = BlobField("\w+\.pmap", "default pipeline context", ""),
     )
+    
+    unicode_list = ["name", "context"]
     
     @classmethod
     def check_type(self, state):

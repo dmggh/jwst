@@ -129,3 +129,11 @@ def lookup(d, key):
         d = dict(tuple(d))
     return d[key]
 
+@register.simple_tag
+def alpha():
+    return red("alpha")
+
+@register.simple_tag
+def beta():
+    return red("beta")
+

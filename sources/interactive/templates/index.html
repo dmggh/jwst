@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load stdtags %}
+
 {% block contents %}
 
 {% if is_authenticated %}
@@ -8,8 +10,8 @@
     <h3>Services</h3>
 {% endif %}
     <ol>
-        <li><a href="/bestrefs/">Dataset Best References</a></li>
-        <li><a href="/bestrefs_explore/">Explore Best References</a></li>
+        <li><a href="/bestrefs/">Dataset Best References</a> {% alpha %}</li>
+        <li><a href="/bestrefs_explore/">Explore Best References</a> {% alpha %}</li>
         <br/>
         <li><a href="/difference/">Difference Files</a></li>
         <br/>
@@ -33,6 +35,7 @@
         {% if is_superuser %}
             <br/>
             <li><a href="/version_info/">Server Version Info</a></li>
+            <li><a href="/admin/">Admin</a></li>
         {% endif %}
     </ol>
 {% endif %}
