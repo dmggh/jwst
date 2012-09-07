@@ -137,3 +137,32 @@ def alpha():
 def beta():
     return red("beta")
 
+# do accordion
+
+@register.tag
+def accordion(parser, token):
+    tag_name, title = token.split_contents()
+    nodelist = parser.parse(('endaccordion',))
+    parser.delete_first_token()
+    # title = parser.compile_filter(title)
+    if title.startswith(('"',"'")) and title.endswith(('"',"'")):
+        title = title[1:-1]
+    return AccordionNode(title, nodelist)
+
+accordion_template = """
+<div class="accordion">
+<h3><a href="#">%s</a></h3>
+<div>
+"""
+
+class AccordionNode(template.Node):
+    def __init__(self, title, nodelist):
+        self.title = title
+        self.nodelist = nodelist
+        
+    def render(self, context):
+        output = accordion_template % self.title
+        output += self.nodelist.render(context)
+        output += "</div>\n"
+        output += "</div>\n"
+        return output

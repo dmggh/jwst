@@ -350,6 +350,8 @@ class SimpleTest(TestCase):
             reference = "interactive/test_data/jwst_miri_fakeflat.fits"
         response = self.client.post("/batch_submit_reference/", {
                 "pmap_mode" : "pmap_default",
+                "creator" : "bozo",
+                "change_level" : "SEVERE",
                 "pmap_default" : self.pmap,
                 "file_mode" : "file_uploaded",
                 "file_uploaded" : open(reference),
@@ -369,6 +371,8 @@ class SimpleTest(TestCase):
             reference = "interactive/test_data/jwst_miri_flat_insert.fits"
         response = self.client.post("/batch_submit_reference/", {
                 "pmap_mode" : "pmap_default",
+                "creator" : "bozo",
+                "change_level" : "SEVERE",
                 "pmap_default" : self.pmap,
                 "file_mode" : "file_uploaded",
                 "file_uploaded" : open(reference),

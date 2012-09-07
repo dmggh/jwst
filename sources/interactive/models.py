@@ -7,7 +7,8 @@ import datetime
 from django.db import models
 
 # Create your models here.
-from crds import (timestamp, rmap, utils, refactor, checksum, log)
+from crds import (timestamp, rmap, utils, refactor, checksum, log, data_file)
+from crds import CrdsError
 from crds.compat import (literal_eval, namedtuple, OrderedDict)
 
 from crds.server.config import observatory as OBSERVATORY
@@ -35,6 +36,11 @@ class BlobField(object):
         self.help = help
         self.default = default
         self.blank = blank
+
+class FitsBlobField(BlobField):
+    def __init__(self, fitskey, *args, **keys):
+        self.fitskey = fitskey
+        BlobField.__init__(self, *args, **keys)
 
 class FieldError(Exception):
     """Blob field value did not meet its constraint."""
@@ -281,6 +287,7 @@ FILE_STATUS_MAP = OrderedDict([
     ("archived", "green"),    # Archived and in use.
     ("operational", "darkgreen"), # In operational use in the pipeline.
     ("blacklisted", "red"),
+    ("rejected", "red"),
 ])
 
 class SimpleCharField(models.CharField):
@@ -304,7 +311,7 @@ class FileBlob(BlobModel):
         db_table = TABLE_PREFIX + "_catalog" # rename SQL table from interactive_fileblob
     
     model_fields = BlobModel.model_fields + \
-        ["state", "blacklisted", "observatory", "instrument", "filekind", 
+        ["state", "blacklisted", "rejected", "observatory", "instrument", "filekind", 
          "type", "derived_from"]
         
     unicode_list = ["name", "type", "instrument", "filekind", "state", "blacklisted"]
@@ -316,13 +323,17 @@ class FileBlob(BlobModel):
     blob_properties = BlobModel.blob_properties + \
         ["sha1sum", "size"]
 
-    blacklisted = models.BooleanField(
-        default=False, 
-        help_text="If True, this file should not be used.")
-    
     state = SimpleCharField( FILE_STATUS_MAP.keys(),
         "operational status of this file.", "submitted" )
 
+    blacklisted = models.BooleanField(
+        default=False, 
+        help_text="If True, this file should not be used, transitive to referencers.")
+    
+    rejected = models.BooleanField(
+        default=False, 
+        help_text="If True, this file should not be used, non-transitive.")
+    
     observatory = SimpleCharField( OBSERVATORIES,
         "observatory associated with file", OBSERVATORY)
     
@@ -340,60 +351,61 @@ class FileBlob(BlobModel):
 
     # ===============================
     
-    """
-{
- 'comment': 'test image for integrated software test\n',
- 'file_name': 'j2o15065j_a2d.fits',
- 'general_availability_date': '1999-02-25 18:45:11.157000',
- 'opus_load_date': '1999-02-25 16:04:00',
- 'reference_file_type': 'a2d',
- 'reject_by_file_name': 'j4d1435hj_a2d.fits',
- 'reject_flag': 'y',
- 'pedigree' :'ground',
- 'useafter_date': '1991-01-01 00:00:00'}
-    """
-    
     blob_fields = dict(
         uploaded_as = BlobField(FILENAME_RE, "original upload filename", ""),
         creator_name = BlobField(str, "person who made this file",""),
         deliverer_user = BlobField(str, "username who uploaded the file", ""),
         deliverer_email = BlobField(str, "person's e-mail who uploaded the file", ""),
         description = BlobField(
-            str, "Brief rationale for changes to this file.", ""),
+            str, "Brief rationale for changes to this file.", "(none)"),
+        comment = FitsBlobField("DESCRIP",
+            str, "from DESCRIPT keyword of reference file.", "(none)"),
         catalog_link = BlobField(FILEPATH_RE, 
             "Path to catalog file listing this file for delivery to OPUS. " \
             "File transitions from 'delivered' to 'operational' when deleted.",
             ""),
         delivery_date = BlobField(str, 
-            "date file was delivered to CRDS", ""),
+            "date file was delivered to CRDS", "(none)"),
+        activation_date = BlobField(str, "i.e. opus load date", "(none)"),
+        useafter_date = FitsBlobField("USEAFTER", str, "date after which file should be used", "(none)"),
 
         # Automatically generated fields
         pathname = BlobField("^[A-Za-z0-9_./]+$", 
-            "path/filename to CRDS master copy of file", "None"),
+            "path/filename to CRDS master copy of file", "(none)"),
         blacklisted_by = BlobField(list,
             "List of blacklisted files this file refers to directly or indirectly.",
             []),
-        _sha1sum = BlobField(str, 
-            "checksum of file at upload time", ""),
-        _size = BlobField(long,
-             "size of file in bytes.", -1),
-        # Fields derived from CDBS
-        pedigree = BlobField(PEDIGREES, 
-            "source of reference file", "INFLIGHT"),
+        reject_by_file_name = BlobField(FILENAME_RE, "", ""),
+        _sha1sum = BlobField(str, "checksum of file at upload time", ""),
+        _size = BlobField(long, "size of file in bytes.", -1),
+
+        pedigree = FitsBlobField("PEDIGREE", str, "source of reference file", ""),
         change_level = BlobField(CHANGE_LEVELS,
             "Do the changes to this file force recalibration of science data?",
-            "SEVERE"), 
-        general_availability_date = BlobField(str, 
-            "date file can be released to general public", ""),
-        activation_date = BlobField(str, 
-            "i.e. opus load date", ""),
-        useafter_date = BlobField(str, 
-            "date after which file should be used", ""),
-        reject_flag = BlobField("Y|N",
-            "File was rejected by archive", "N"),
-        reject_by_file_name = BlobField(FILENAME_RE,
-            "", "")
+            ""), 
+        reference_file_type = FitsBlobField("REFTYPE",
+            str, "From the REFTYPE keyword", ""),
     )
+    
+    @property
+    def is_bad_file(self):
+        """Return the 'reject state' of this file,  either True or False."""
+        return self.blacklisted or self.rejected
+    
+    @property
+    def available(self):
+        """Return True if this file is allowed to be distributed now."""
+        # TODO add general_availabilty_date....
+        return self.state in config.CRDS_DISTRIBUTION_STATES and not self.is_bad_file
+    
+    def init_FITS_fields(self):
+        for name, field in self.blob_fields.items():
+            if isinstance(field, FitsBlobField):
+                try:
+                    value = data_file.getval(self.pathname, field.fitskey)
+                except Exception:
+                    raise CrdsError("required keyword " + field.fitskey + " is missing in " + self.uploaded_as)
+                setattr(self, name, value)
     
     @classmethod
     def new(cls, observatory, upload_name, permanent_location, 
@@ -419,8 +431,11 @@ class FileBlob(BlobModel):
         blob.description = description
         blob.delivery_date = timestamp.now()
         if add_slow_fields:
+            # log.write("Adding slow fields for", repr(blob.name))
             blob.sha1sum   # property cached as _sha1sum
             blob.size      # property cached as _size
+            if blob.type == "reference":
+                blob.init_FITS_fields()
         try:
             instrument, filekind = utils.get_file_properties(
                 observatory, permanent_location)
@@ -432,7 +447,7 @@ class FileBlob(BlobModel):
             blob.instrument = blob.fileind = "unknown"
 
         blob.derived_from = derived_from if derived_from else "(no predecessor)"
-
+        
         # These need to be checked before the file is copied and the blob is made.
         if not rmap.is_mapping(upload_name):
             blob.change_level = change_level
@@ -479,12 +494,6 @@ class FileBlob(BlobModel):
         return FILE_STATUS_MAP[self.status]
     
     @property
-    def available(self):
-        """Return True if this file is allowed to be distributed now."""
-        # XXX TODO add general_availabilty_date....
-        return self.state in config.CRDS_DISTRIBUTION_STATES
-    
-    @property
     def extension(self):
         parts = os.path.splitext(self.filename)
         return parts[-1]
@@ -526,6 +535,56 @@ class FileBlob(BlobModel):
 
 # ============================================================================
 
+def add_crds_file(observatory, upload_name, permanent_location, 
+            deliverer, deliverer_email, description,
+            change_level="SEVERE", add_slow_fields=True,
+            creator_name="unknown", state="submitted", update_derivation=True):
+    "Make a database record for this file.  Track the action of creating it."""
+
+    if rmap.is_mapping(upload_name):
+        mapping = rmap.load_mapping(permanent_location)
+        if update_derivation:
+            derived_from = mapping.name
+            refactor.replace_header_value(
+                permanent_location, "derived_from", mapping.name)
+            refactor.replace_header_value(
+                permanent_location, "name", os.path.basename(permanent_location))
+            checksum.update_checksum(permanent_location)
+        else:
+            derived_from = mapping.derived_from
+    else:
+        if update_derivation:
+            derived_from = upload_name
+        else:
+            derived_from = "initial reference import " + str(datetime.datetime.now())
+    try:
+        # Set file permissions to read only.
+        os.chmod(permanent_location, 0444)
+    except Exception:
+        pass
+
+    fileblob = FileBlob.new(
+        observatory, upload_name, permanent_location, 
+        creator_name, deliverer, deliverer_email, description,
+        change_level=change_level, add_slow_fields=add_slow_fields,
+        state=state, derived_from=derived_from)
+    
+    return fileblob
+
+def file_exists(filename, observatory=OBSERVATORY):
+    """Return True IFF `filename` is a known CRDS reference or mapping file."""
+    try:
+        return FileBlob.load(filename)
+    except Exception:
+        return False
+
+def get_fileblob_map(observatory=OBSERVATORY, **keys):
+    """Return a query set for all the file blobs belonging to observatory.   It's
+    vastly faster to check for existence against this map than using file_exists(),
+    probably because it's fewer SQL queries.
+    """
+    return { blob.name : blob for blob in FileBlob.objects.filter(observatory=observatory, **keys) }
+
 def set_state(filename, state):
     blob = FileBlob.load(filename)
     blob.state = state
@@ -555,24 +614,22 @@ def unblacklist(blacklisted,  blacklisted_by):
     `blacklisted_by`.
     """
     fileblob = FileBlob.load(os.path.basename(blacklisted))
-    bad_references = fileblob.blacklisted_by
     try:
-        bad_references.remove(blacklisted_by)
+        fileblob.blacklisted_by.remove(blacklisted_by)
     except ValueError:
         pass
     # Only remove blacklisting if there are no remaining bad references.
-    if not bad_references or bad_references == [blacklisted]:
+    if not fileblob.blacklisted_by:
         fileblob.blacklisted = False
-        fileblob.save()
+    fileblob.save()
     
-def is_blacklisted(blacklisted_file):
-    """Return the list of files which contaminate `blacklisted_file` making
-    it blacklisted itself.   `mapping` refers to `blacklisted_file`.
-    """
-    try:
-        return FileBlob.load(blacklisted_file).blacklisted
-    except Exception:
-        return False
+    
+def set_reject(rejected_filename, rejected_bool):
+    """Mark `rejected_filename` as rejected(True) or usable(False),  non-transitively."""
+    assert isinstance(rejected_bool, bool), "Invalid reject state,  must be a bool."
+    fileblob = FileBlob.load(os.path.basename(rejected_filename))
+    fileblob.rejected = rejected_bool
+    fileblob.save()
 
 # ============================================================================
 
@@ -713,52 +770,3 @@ def get_default_context(observatory=OBSERVATORY, state="default"):
 
 # =============================================================================
 
-def add_crds_file(observatory, upload_name, permanent_location, 
-            deliverer, deliverer_email, description,
-            change_level="SEVERE", add_slow_fields=True,
-            creator_name="unknown", state="submitted", update_derivation=True):
-    "Make a database record for this file.  Track the action of creating it."""
-
-    if rmap.is_mapping(upload_name):
-        mapping = rmap.load_mapping(permanent_location)
-        if update_derivation:
-            derived_from = mapping.name
-            refactor.replace_header_value(
-                permanent_location, "derived_from", mapping.name)
-            refactor.replace_header_value(
-                permanent_location, "name", os.path.basename(permanent_location))
-            checksum.update_checksum(permanent_location)
-        else:
-            derived_from = mapping.derived_from
-    else:
-        if update_derivation:
-            derived_from = upload_name
-        else:
-            derived_from = "initial reference import " + str(datetime.datetime.now())
-    try:
-        # Set file permissions to read only.
-        os.chmod(permanent_location, 0444)
-    except Exception:
-        pass
-
-    fileblob = FileBlob.new(
-        observatory, upload_name, permanent_location, 
-        creator_name, deliverer, deliverer_email, description,
-        change_level=change_level, add_slow_fields=add_slow_fields,
-        state=state, derived_from=derived_from)
-    
-    return fileblob
-
-def file_exists(filename, observatory=OBSERVATORY):
-    """Return True IFF `filename` is a known CRDS reference or mapping file."""
-    try:
-        return FileBlob.load(filename)
-    except Exception:
-        return False
-
-def get_fileblob_map(observatory=OBSERVATORY, **keys):
-    """Return a query set for all the file blobs belonging to observatory.   It's
-    vastly faster to check for existence against this map than using file_exists(),
-    probably because it's fewer SQL queries.
-    """
-    return { blob.name : blob for blob in FileBlob.objects.filter(observatory=observatory, **keys) }

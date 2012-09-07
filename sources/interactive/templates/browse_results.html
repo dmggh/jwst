@@ -38,55 +38,13 @@
     </h2> 
 {% endif %}    
 
-<div class="accordion">
-
-<h3><a href="#">Database</a></h3>
-<div>
+{% accordion "Database" %}
         {% if fileblob %}        
             <table border="1">
-                 <tr>
-                    <td width="20%" align="left" class="label">Submit Date</td>
-                    <td>{{fileblob.delivery_date|seconds}}</td>
-                 </tr>
-                 <tr>
-                    <td width="20%" align="left" class="label">Status</td>
-                    <td class="{{fileblob.status_class}}">{{fileblob.status}}</td>
-                 </tr>
-                 
-                 {% if fileblob.blacklisted_by %}
-                     <tr>
-                        <td width="20%" align="left" class="label">Blacklisted By</td>
-                        <td>
-                            {% for bl in fileblob.blacklisted_by %}
-                                <span class="error">{{bl}}</span> &nbsp;&nbsp;
-                            {% endfor %}
-                        </td>
-                     </tr>
-                {% endif %}
-                
-        {% if is_authenticated %}
-                 <tr>
-                    <td width="20%" align="left" class="label">Path</td>
-                    <td>{{fileblob.pathname|exists_color}}</td>
-                 </tr>
-                 <tr>
-                    <td width="20%" align="left" class="label">Submitter</td>
-                    <td>{{fileblob.deliverer_user}}</td>
-                 </tr>
-                 <tr>
-                    <td width="20%" align="left" class="label">Submitter Email</td>
-                    <td>{{fileblob.deliverer_email}}</td>
-                 </tr>
-                 <tr>
-                    <td width="20%" align="left" class="label">Creator Name</td>
-                    <td>{{fileblob.creator_name}}</td>
-                 </tr>
-       {% endif %}
-
                 <tr>
-                    <td width="20%" align="left" class="label">Description</td>
-                    <td>{{fileblob.description}}</td>
-                 </tr>
+                    <td width="20%" align="left" class="label">CRDS Name</td>
+                    <td>{{fileblob.filename}}</td>
+                </tr>
                  <tr>
                     <td width="20%" align="left" class="label">Uploaded Name</td>
                     <td>{{fileblob.uploaded_as}}</td>
@@ -103,24 +61,97 @@
                     <td width="20%" align="left" class="label">Size (bytes)</td>
                     <td>{{fileblob.size}}</td>
                 </tr>
+                <tr>
+                    <td width="20%" align="left" class="label">Status</td>
+                    <td class="{{fileblob.status_class}}">{{fileblob.status}}</td>
+                </tr>
+                
+                 {% if fileblob.blacklisted_by %}
+                     <tr>
+                        <td width="20%" align="left" class="label">Blacklisted By</td>
+                        <td>
+                            {% for bl in fileblob.blacklisted_by %}
+                                <span class="error">{{bl}}</span> &nbsp;&nbsp;
+                            {% endfor %}
+                        </td>
+                     </tr>
+                 {% endif %}
+                 <tr>
+                    <td width="20%" align="left" class="label">Reject Flag</td>
+                    <td>{{fileblob.rejected}}</td>
+                 </tr>
+                 <tr>
+                    <td width="20%" align="left" class="label">Reject By File Name</td>
+                    <td>{{fileblob.reject_by_file_name}}</td>
+                 </tr>
+                
+                {% if is_authenticated %}
+                 <tr>
+                    <td width="20%" align="left" class="label">Path</td>
+                    <td>{{fileblob.pathname|exists_color}}</td>
+                 </tr>
+                 <tr>
+                    <td width="20%" align="left" class="label">Submitter</td>
+                    <td>{{fileblob.deliverer_user}}</td>
+                 </tr>
+                 <tr>
+                    <td width="20%" align="left" class="label">Submitter Email</td>
+                    <td>{{fileblob.deliverer_email}}</td>
+                 </tr>
+                 <tr>
+                    <td width="20%" align="left" class="label">Creator Name</td>
+                    <td>{{fileblob.creator_name}}</td>
+                 </tr>
+                {% endif %}
+
+                <tr>
+                    <td width="20%" align="left" class="label">Description</td>
+                    <td>{{fileblob.description}}</td>
+                 </tr>
+                <tr>
+                    <td width="20%" align="left" class="label">Comment</td>
+                    <td>{{fileblob.comment}}</td>
+                 </tr>
+                 <tr>
+                    <td width="20%" align="left" class="label">Derived From</td>
+                    <td>{{fileblob.derived_from}}</td>
+                 </tr>
+                 <tr>
+                    <td width="20%" align="left" class="label">Pedigree</td>
+                    <td>{{fileblob.pedigree}}</td>
+                 </tr>
+                 <tr>
+                    <td width="20%" align="left" class="label">Change Level</td>
+                    <td>{{fileblob.change_level}}</td>
+                 </tr>
+                 <tr>
+                    <td width="20%" align="left" class="label">Delivery Date</td>
+                    <td>{{fileblob.delivery_date|seconds}}</td>
+                 </tr>
+                 <tr>
+                    <td width="20%" align="left" class="label">Activation Date</td>
+                    <td>{{fileblob.activation_date}}</td>
+                 </tr>
+                  <tr>
+                    <td width="20%" align="left" class="label">Useafter Date</td>
+                    <td>{{fileblob.useafter_date}}</td>
+                 </tr>
             </table>
         {% else %}
             <p class="error">Error loading database record for 
                 <span class="grey">{{browsed_file}}</span>
             </p>
         {% endif %}
-</div>
+{% endaccordion %}
 
-<h3><a href="#">Contents</a></h3>
-<div>
+{% accordion "Contents" %}
     <div class='program' id="file_contents">
         {{ file_contents|safe }}
         <br/><br/>
     </div>  <!-- program -->
-</div>  <!-- contents -->
+{% endaccordion %}
 
-<h3><a href="#">Past Actions</a></h3>
-<div>
+{% accordion "Past Actions" %}
     <table border="1">
         <tr>
             <th width="15%" align="center">Date</th>
@@ -139,10 +170,9 @@
         </tr>
         {% endfor %}
     </table>
-</div>
+{% endaccordion %}
 
-<h3><a href="#">Used By Files</a></h3>
-<div>
+{% accordion "Used By Files" %}
     <table>
         {% if used_by_files %}
             {% for line in used_by_files %}
@@ -152,11 +182,10 @@
             <tr><td><b>no files</b></td></tr>
         {% endif %}
     </table>
-</div>
+{% endaccordion %}
     
 {% if match_paths %}
-<h3><a href="#">Lookup Patterns</a></h2>
-<div>
+    {% accordion "Lookup Patterns" %}
     <table border="1">
         {% if match_paths %}
             {% for item in match_paths.0 %}
@@ -173,6 +202,7 @@
             <tr><td><b>no matches</b></td></tr>
         {% endif %}
     </table>
+    {% endaccordion %}
 </div>
 {% endif %}   
 
