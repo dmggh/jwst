@@ -865,48 +865,42 @@ def get_blacklists(basename, certifypath, ignore_self=True, files=None):
 @error_trap("blacklist_input.html")
 @log_view
 @login_required
-def blacklist_file(request):
+def set_file_enable(request):
     """Serve the blacklist input form or process the POST."""
     if request.method == "GET":
         return crds_render(request, "blacklist_input.html")
     else:
-        return blacklist_file_post(request)
+        return set_file_enable_post(request)
 
-# XXX Add "archive/catalog" action resulting from blacklisting
+# TODO Add "archive/catalog" action resulting from blacklisting
 
-def blacklist_file_post(request):
+def set_file_enable_post(request):
     """View fragment to process the blacklist POST."""
     observatory = get_observatory(request)
     blacklist_root = validate_post(request, "file_known", is_known_file)
+    reject_type = validate_post(request, "reject_type", "reject|blacklist|both")
     badflag = validate_post(request, "badflag", "bad|ok")
     why = validate_post(request, "why", DESCRIPTION_RE)
     
-    # Determine files which indirectly or directly reference `blacklist_root`
-    uses_files = uses.uses([blacklist_root], observatory)
+    if reject_type in ["blacklist","both"]:
+        affected_files = models.transitive_blacklist(blacklist_root, badflag, observatory)
+    else:
+        affected_files = [blacklist_root]
 
-    all_blacklisted = sorted([blacklist_root] + uses_files)
-
-    for also_blacklisted in all_blacklisted:
-        try:
-            if badflag == "bad":
-                models.blacklist(also_blacklisted, blacklist_root)
-            else:
-                models.unblacklist(also_blacklisted, blacklist_root)
-        except Exception, exc:
-            log.warning("Blacklist operation failed: ", str(exc))
+    if reject_type in ["reject", "both"]:
+        models.set_reject(blacklist_root, badflag=="bad")
 
     instrument, filekind = utils.get_file_properties(
         observatory, blacklist_root)
 
     models.AuditBlob.new(
         request.user, "blacklist", blacklist_root, why, 
-        "marked as " + srepr(badflag.upper()),
+        "marked as " + srepr(badflag.upper()) + " reject_type=" + srepr(reject_type),
         observatory=observatory, instrument=instrument, filekind=filekind)
 
     return crds_render(request, "blacklist_results.html", 
-                  { "all_blacklisted": all_blacklisted })
+                  { "affected_files": affected_files })
 
-        
 # ===========================================================================
 
 @error_trap("certify_input.html")
@@ -933,7 +927,7 @@ def certify_post(request):
     all_files = models.get_fileblob_map()
 
     certify_status, certify_output = captured_certify(
-        original_name, certified_file, filemap=all_files)
+        original_name, certified_file, filemap=all_files, check_references=False)
 
     try:
         blacklisted_by = get_blacklists(

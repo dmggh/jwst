@@ -7,7 +7,7 @@ import datetime
 from django.db import models
 
 # Create your models here.
-from crds import (timestamp, rmap, utils, refactor, checksum, log, data_file)
+from crds import (timestamp, rmap, utils, refactor, checksum, log, data_file, uses)
 from crds import CrdsError
 from crds.compat import (literal_eval, namedtuple, OrderedDict)
 
@@ -431,7 +431,7 @@ class FileBlob(BlobModel):
         blob.description = description
         blob.delivery_date = timestamp.now()
         if add_slow_fields:
-            # log.write("Adding slow fields for", repr(blob.name))
+            log.info("Adding slow fields for", repr(blob.name))
             blob.sha1sum   # property cached as _sha1sum
             blob.size      # property cached as _size
             if blob.type == "reference":
@@ -465,15 +465,21 @@ class FileBlob(BlobModel):
     @property 
     def size(self):
         if self._size <= -1:
-            self._size = os.stat(self.pathname).st_size
-            self.save()
+            try:
+                self._size = os.stat(self.pathname).st_size
+                self.save()
+            except:
+                log.error("Computing size of", repr(self.name),"failed.")
         return self._size
     
     @property
     def sha1sum(self):
         if not self._sha1sum:
-            self._sha1sum = self.checksum()
-            self.save()
+            try:
+                self._sha1sum = self.checksum()
+                self.save()
+            except:
+                log.error("Computing sha1sum of", repr(self.name), "failed.")
         return self._sha1sum
 
     @property
@@ -599,6 +605,28 @@ def known_files():
 
 # ============================================================================
 
+def transitive_blacklist(blacklist_root, badflag, observatory):
+    """Blacklist `blacklist_root` and all the files referring to it according
+    to `badflag` as "ok" or "bad".
+    """
+    assert badflag in ["bad","ok"], "Invalid blacklist badflag=" + srepr(badflag)
+    # Determine files which indirectly or directly reference `blacklist_root`
+    uses_files = uses.uses([blacklist_root], observatory)
+
+    all_blacklisted = sorted([blacklist_root] + uses_files)
+
+    for also_blacklisted in all_blacklisted:
+        log.verbose("Also blacklisting ", repr(also_blacklisted), "as", badflag)
+        try:
+            if badflag == "bad":
+                blacklist(also_blacklisted, blacklist_root)
+            elif badflag == "ok":
+                unblacklist(also_blacklisted, blacklist_root)
+        except Exception, exc:
+            log.warning("Blacklist operation failed: ", str(exc))
+
+    return all_blacklisted
+    
 def blacklist(blacklisted,  blacklisted_by):
     """Mark the file `blacklisted` as bad because of its reference to file
     `blacklisted_by`.
@@ -627,6 +655,7 @@ def unblacklist(blacklisted,  blacklisted_by):
 def set_reject(rejected_filename, rejected_bool):
     """Mark `rejected_filename` as rejected(True) or usable(False),  non-transitively."""
     assert isinstance(rejected_bool, bool), "Invalid reject state,  must be a bool."
+    log.info("Setting reject flag of", repr(rejected_filename), "to", rejected_bool)
     fileblob = FileBlob.load(os.path.basename(rejected_filename))
     fileblob.rejected = rejected_bool
     fileblob.save()

@@ -175,12 +175,12 @@ class SimpleTest(TestCase):
         self.assert_no_errors(response)
         self.assertIn(rmap2, response.content)
     
-    def test_blacklist_get(self):
+    def test_set_file_enable_get(self):
         self.authenticate()
-        response = self.client.get("/blacklist/")
+        response = self.client.get("/set_file_enable/")
         self.assert_no_errors(response)
 
-    def test_blacklist_post(self):
+    def test_set_file_enable_blacklist_post(self):
         if sconfig.observatory == "hst":
             imap = "hst_acs.imap"
             rmap = "hst_acs_biasfile.rmap"            
@@ -189,10 +189,11 @@ class SimpleTest(TestCase):
             rmap = "jwst_miri_flat.rmap"
         self.authenticate()
         self.fake_database_files([imap, rmap])
-        response = self.client.post("/blacklist/", {
+        response = self.client.post("/set_file_enable/", {
             "observatory" : sconfig.observatory,
             "file_known" : rmap,
             "badflag" : "bad",
+            "reject_type" : "blacklist",
             "why" : "just had a feeling.",
             })
         # print response.content
@@ -200,6 +201,40 @@ class SimpleTest(TestCase):
         self.assertTrue(self.pmap in response.content)
         self.assertTrue(imap in response.content)
         self.assertTrue(rmap in response.content)
+        rmapblob = models.FileBlob.load(rmap)
+        imapblob = models.FileBlob.load(imap)
+        self.assertTrue(rmapblob.blacklisted)
+        self.assertFalse(rmapblob.rejected)
+        self.assertTrue(imapblob.blacklisted)
+        self.assertFalse(imapblob.rejected)
+
+    def test_set_file_enable_reject_post(self):
+        if sconfig.observatory == "hst":
+            imap = "hst_acs.imap"
+            rmap = "hst_acs_biasfile.rmap"            
+        else:
+            imap = "jwst_miri.imap"
+            rmap = "jwst_miri_flat.rmap"
+        self.authenticate()
+        self.fake_database_files([imap, rmap])
+        response = self.client.post("/set_file_enable/", {
+            "observatory" : sconfig.observatory,
+            "file_known" : rmap,
+            "badflag" : "bad",
+            "reject_type" : "reject",
+            "why" : "just had a feeling.",
+            })
+        # print response.content
+        self.assert_no_errors(response)
+        self.assertTrue(self.pmap not in response.content)
+        self.assertTrue(imap not in response.content)
+        self.assertTrue(rmap in response.content)
+        rmapblob = models.FileBlob.load(rmap)
+        imapblob = models.FileBlob.load(imap)
+        self.assertFalse(rmapblob.blacklisted)
+        self.assertTrue(rmapblob.rejected)
+        self.assertFalse(imapblob.blacklisted)
+        self.assertFalse(imapblob.rejected)
 
     def test_certify_get(self):
         self.authenticate()
@@ -219,7 +254,7 @@ class SimpleTest(TestCase):
         })
         self.assert_no_errors(response)
         self.assertIn("0 errors", response.content)
-        self.assertEqual(response.content.count("OK"), 3)
+        self.assertEqual(response.content.count("OK"), 2)
 
     def test_certify_post_rmap_known(self):
         self.authenticate()
@@ -243,7 +278,6 @@ class SimpleTest(TestCase):
             "filemode" : "file_uploaded",
             "file_uploaded" : open("interactive/test_data/hst_cos_deadtab.rmap"),
         })
-        print response.content
         self.assert_no_errors(response)
         self.assertTrue(response.content.count("0 errors") == 1)
         self.assertTrue("Failed" not in response.content)
@@ -447,7 +481,8 @@ class SimpleTest(TestCase):
             "add.0.date" : "2002-03-24 00:34:29",
             "add.0.change_level" : "SEVERE",
             "add.0.filename" : open(reference),
-            "browsed_file" : rmap,                
+            "browsed_file" : rmap,    
+            "creator" : "bozo",            
             })
         # print response
         self.assert_no_errors(response)
@@ -489,6 +524,7 @@ class SimpleTest(TestCase):
             "delete.0.filename" : del_reference,
             
             "browsed_file" : rmap,                
+            "creator" : "bozo",            
             })
         # print response
         self.assert_no_errors(response)
