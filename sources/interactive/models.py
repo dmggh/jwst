@@ -403,9 +403,9 @@ class FileBlob(BlobModel):
             if isinstance(field, FitsBlobField):
                 try:
                     value = data_file.getval(self.pathname, field.fitskey)
+                    setattr(self, name, value)
                 except Exception:
                     raise CrdsError("required keyword " + field.fitskey + " is missing in " + self.uploaded_as)
-                setattr(self, name, value)
     
     @classmethod
     def new(cls, observatory, upload_name, permanent_location, 
