@@ -86,6 +86,9 @@ class ServiceApiBase(object):
         
     def getreferences(self, *args, **keys):
         keys["observatory"] = self.observatory
+        os.environ["CRDS_DOWNLOAD_MODE"] = "http"
+        crds.getreferences(*args, **keys)
+        os.environ["CRDS_DOWNLOAD_MODE"] = "rpc"
         return crds.getreferences(*args, **keys)
 
     def test_getreferences_defaults(self, ignore_cache=False):
