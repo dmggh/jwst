@@ -2,6 +2,9 @@ install_dir= install_root + '/webserver'
 ref_path= install_root + '/references'
 map_path= install_root + '/mappings'
 
+ref_path_full = install_root + "/references/" + observatory
+map_path_full = install_root + "/mappings/" + observatory
+
 CRDS_DELIVERY_DIR = install_root + "/deliveries"
 
 # List of directories where delivered files are linked
