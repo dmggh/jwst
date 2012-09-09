@@ -468,8 +468,8 @@ class FileBlob(BlobModel):
             try:
                 self._size = os.stat(self.pathname).st_size
                 self.save()
-            except:
-                log.error("Computing size of", repr(self.name),"failed.")
+            except Exception, exc:
+                log.error("Computing size of", repr(self.name),"failed:", str(exc))
         return self._size
     
     @property
@@ -478,8 +478,8 @@ class FileBlob(BlobModel):
             try:
                 self._sha1sum = self.checksum()
                 self.save()
-            except:
-                log.error("Computing sha1sum of", repr(self.name), "failed.")
+            except Exception, exc:
+                log.error("Computing sha1sum of", repr(self.name), "failed:", str(exc))
         return self._sha1sum
 
     @property
