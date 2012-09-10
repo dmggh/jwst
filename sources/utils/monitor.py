@@ -36,7 +36,7 @@ def check_server_aliveness():
         info = client.get_server_info()
         log.set_verbose(v)
         log.write("Server at", client.get_crds_server(), "is alive.")
-        Return True
+        return True
     except Exception, exc:
         log.error("Error getting server_info:", str(exc))
         return False
