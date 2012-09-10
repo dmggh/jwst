@@ -390,6 +390,7 @@ class SimpleTest(TestCase):
                 "file_mode" : "file_uploaded",
                 "file_uploaded" : open(reference),
                 "description":"this is only a test.",
+                "auto_rename" : "checked",
             })
         # print response
         self.assert_no_errors(response)
