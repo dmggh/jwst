@@ -11,20 +11,17 @@
     {% if map_text_diff_items %}
     
         <h3>Mapping Logical Differences</h3>
-        <div class="accordion">
-            <h3><a href="#">Logical</a></h3>
-            <div>
-                <table border='1' pad='1'>
-                    {% for ldiff in logical_diffs %}
-                    <tr>
-                            {% for tup in ldiff %}
-                                <td> {{tup}} </td>
-                            {% endfor %}
-                    </tr>
-                    {% endfor %}
-                </table>
-            </div>
-        </div>
+        {% accordion Logical %}
+            <table border='1' pad='1'>
+                {% for ldiff in logical_diffs %}
+                <tr>
+                        {% for tup in ldiff %}
+                            <td> {{tup}} </td>
+                        {% endfor %}
+                </tr>
+                {% endfor %}
+            </table>
+        {% endaccordion %}
         
         <h3>Mapping Text Differences</h3>
             {% for tdiff in map_text_diff_items %}
