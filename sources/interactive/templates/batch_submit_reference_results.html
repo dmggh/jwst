@@ -6,12 +6,8 @@
 
     <h2>Batch Reference Submit Results</h2>
 
-    <h3>Starting Context</h3>
-    <p>{{pmap|grey}}</p>
-    {% if pmap_mode == "pmap_default" and pmap != pmap_default %}
-    <p class="warning">WARNING: predicted context changed from {{pmap_default|grey}} to {{pmap|grey}}.</p>
-    {% endif %}
-            
+    {% include "select_pmap_results.html" %}
+
     {% include "certify_include.html" %}
     
         <h3>Generated New Mappings</h3>

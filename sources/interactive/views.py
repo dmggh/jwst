@@ -256,9 +256,9 @@ def crds_render(request, template, dict_=None, requires_pmaps=True):
         pmap_edit = models.get_default_context()
         pmap_operational = models.get_default_context(state="operational")
         rdict.update({
-            "edit_context" : pmap_edit,
+            "pmap_edit" : pmap_edit,
             "edit_context_label" : pmap_label(pmap_edit),
-            "operational_context" : pmap_operational,
+            "pmap_operational" : pmap_operational,
             "operational_context_label" : pmap_label(pmap_operational),
             "pmaps" : get_recent_pmaps(),
         })
@@ -675,13 +675,13 @@ def is_available_pmap(context):
 
 def get_recent_or_user_context(request):
     """Process standard request parameters for specifying context."""
-    if request.POST["pmap_mode"] == "pmap_default":
+    pmap_mode = validate_post(
+            request, "pmap_mode", "pmap_menu|pmap_text|pmap_edit|pmap_operational")
+    if pmap_mode == "pmap_edit":
         context = models.get_default_context()
-    elif request.POST["pmap_mode"] == "pmap_operational":
+    elif pmap_mode == "pmap_operational":
         context = models.get_default_context(state="operational")
     else:
-        pmap_mode = validate_post(
-            request, "pmap_mode", "pmap_menu|pmap_text|pmap_default")
         context = validate_post(request, pmap_mode, is_pmap)
     return context
 

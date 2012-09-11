@@ -384,10 +384,10 @@ class SimpleTest(TestCase):
         else:
             reference = "interactive/test_data/jwst_miri_fakeflat.fits"
         response = self.client.post("/batch_submit_reference/", {
-                "pmap_mode" : "pmap_default",
+                "pmap_mode" : "pmap_edit",
                 "creator" : "bozo",
                 "change_level" : "SEVERE",
-                "pmap_default" : self.pmap,
+                "pmap_edit" : self.pmap,
                 "file_mode" : "file_uploaded",
                 "file_uploaded" : open(reference),
                 "description":"this is only a test.",
@@ -406,10 +406,10 @@ class SimpleTest(TestCase):
         else:
             reference = "interactive/test_data/jwst_miri_flat_insert.fits"
         response = self.client.post("/batch_submit_reference/", {
-                "pmap_mode" : "pmap_default",
+                "pmap_mode" : "pmap_edit",
                 "creator" : "bozo",
                 "change_level" : "SEVERE",
-                "pmap_default" : self.pmap,
+                "pmap_edit" : self.pmap,
                 "file_mode" : "file_uploaded",
                 "file_uploaded" : open(reference),
                 "description":"this is only a test.",
@@ -476,8 +476,8 @@ class SimpleTest(TestCase):
             reference = "interactive/test_data/jwst_miri_fakeflat.fits"
         self.fake_database_files([rmap])
         response = self.client.post("/edit_rmap/", {
-            "pmap_mode" : "pmap_default",
-            "pmap_default" : self.pmap,
+            "pmap_mode" : "pmap_edit",
+            "pmap_edit" : self.pmap,
             "description" : "Something.",
             "add.0.match_tuple" : match_tuple,
             "add.0.date" : "2002-03-24 00:34:29",
@@ -510,8 +510,8 @@ class SimpleTest(TestCase):
             date = "1990-01-01 00:00:00"
         self.fake_database_files([rmap, del_reference])
         response = self.client.post("/edit_rmap/", {
-            "pmap_mode" : "pmap_default",
-            "pmap_default" : self.pmap,
+            "pmap_mode" : "pmap_edit",
+            "pmap_edit" : self.pmap,
             "description" : "Something.",
             
             "add.0.match_tuple" : match_tuple,

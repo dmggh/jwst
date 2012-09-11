@@ -4,7 +4,7 @@
 
 <h3>Starting Context</h3>
 <p>{{pmap|browse}}</p>
-{% if pmap_mode == "pmap_default" and pmap != pmap_default %}
-<p class="warning">WARNING: predicted context changed from {{pmap_default|browse}} to {{pmap|browse}}.</p>
+{% if pmap_mode == "pmap_edit" and pmap != pmap_edit %}
+<p class="warning">WARNING: predicted context changed from {{pmap_edit|browse}} to {{pmap|browse}}.</p>
 {% endif %}
 

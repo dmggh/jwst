@@ -1,7 +1,7 @@
 {% load stdtags %}
 
 {% if collision_list %}
-    <h3 class="warning"> Edit Collision Warning </h3>
+    {% accordion "<span class="error">Edit Collision Warnings</span>" %}
     <div>
     {% for colinfo in collision_list %}
         {% for collision in colinfo.2 %}
@@ -23,6 +23,7 @@
     <p class="warning"> Do not confirm the file(s) submitted/generated here unless 
     the collision is known to be harmless.
     </div>
+    {% endaccordion %}
 {% endif %}
 
 
