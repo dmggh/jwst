@@ -38,6 +38,7 @@ class SimpleTest(TestCase):
         User.objects.create_user('homer', 'homer@simpson.net', 'simpson')     
         self.fake_database_files([self.pmap])
         models.set_default_context(self.pmap)
+        models.set_default_context(self.pmap, state="operational")
         utils.ensure_dir_exists(lconfig.get_crds_refpath())
         utils.ensure_dir_exists(lconfig.get_crds_mappath())
         

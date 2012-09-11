@@ -2,10 +2,18 @@
 
     <table>
        <tr>
-        <td><input type="radio" name="pmap_mode" value="pmap_default" checked>Default</td>
+        <td><input type="radio" name="pmap_mode" value="pmap_edit" checked>Editing</td>
           <td align="right">
-            <input type='hidden' name='pmap_default' value='{{default_context}}' />
-            <p>{{default_context_label|grey}}</p>
+            <input type='hidden' name='pmap_editing' value='{{edit_context}}' />
+            <p>{{edit_context_label|grey}}</p>
+            <p style='margin-top: 0' class='tiny'>or more recent</p>
+          </td>
+       </tr>
+       <tr>
+        <td><input type="radio" name="pmap_mode" value="pmap_operational">Operational</td>
+          <td align="right">
+            <input type='hidden' name='pmap_operational' value='{{operational_context}}' />
+            <p>{{operational_context_label|grey}}</p>
             <p style='margin-top: 0' class='tiny'>or more recent</p>
           </td>
        </tr>

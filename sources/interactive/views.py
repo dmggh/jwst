@@ -220,7 +220,7 @@ def usernames():
 
 # ===========================================================================
 
-def crds_render(request, template, dict_=None):
+def crds_render(request, template, dict_=None, requires_pmaps=True):
     """Render a template,  making same-named inputs from request available
     for echoing.
     """
@@ -249,13 +249,20 @@ def crds_render(request, template, dict_=None):
         "deliverer_user" : "*",
         "current_path" : request.get_full_path(),
         
-        "default_context" : models.get_default_context(),
-        "default_context_label" : pmap_label(models.get_default_context()),
-        "pmaps" : get_recent_pmaps(),
-        
         "auto_rename" : False,
     }
     
+    if requires_pmaps:
+        pmap_edit = models.get_default_context()
+        pmap_operational = models.get_default_context(state="operational")
+        rdict.update({
+            "edit_context" : pmap_edit,
+            "edit_context_label" : pmap_label(pmap_edit),
+            "operational_context" : pmap_operational,
+            "operational_context_label" : pmap_label(pmap_operational),
+            "pmaps" : get_recent_pmaps(),
+        })
+
     # echo escaped inputs.
     for key, value in request.GET.items():
         rdict[key] = safestring.mark_for_escaping(value)
@@ -342,6 +349,9 @@ def get_files(request):
     return remove_dir, uploads
 
 def get_server_ingest_dirs():
+    """Return a list of choice tuples of directory names defined under the
+    CRDS root ingest directory.
+    """
     dirs = sorted(glob.glob(config.CRDS_INGEST_DIR + "/*"))
     dirs = [os.path.basename(d) for d in dirs]
     return zip(dirs,dirs)
@@ -501,7 +511,7 @@ def capture_output(func):
 
 def index(request):
     """Return the top level page for all of interactive CRDS."""
-    return crds_render(request, "index.html", {})
+    return crds_render(request, "index.html", {}, requires_pmaps=False)
 
 # ===========================================================================
 from django.contrib.auth.views import login as django_login
@@ -667,6 +677,8 @@ def get_recent_or_user_context(request):
     """Process standard request parameters for specifying context."""
     if request.POST["pmap_mode"] == "pmap_default":
         context = models.get_default_context()
+    elif request.POST["pmap_mode"] == "pmap_operational":
+        context = models.get_default_context(state="operational")
     else:
         pmap_mode = validate_post(
             request, "pmap_mode", "pmap_menu|pmap_text|pmap_default")
