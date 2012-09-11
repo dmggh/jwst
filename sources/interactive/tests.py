@@ -252,6 +252,7 @@ class SimpleTest(TestCase):
         response = self.client.post("/certify/", {
             "filemode" : "file_uploaded",
             "file_uploaded" : open(fits),
+            "pmap_mode": "pmap_edit",
         })
         self.assert_no_errors(response)
         self.assertIn("0 errors", response.content)
@@ -267,6 +268,7 @@ class SimpleTest(TestCase):
         response = self.client.post("/certify/", {
             "filemode" : "file_known",
             "file_known" : rmap,
+            "pmap_mode": "pmap_edit",
         })
         self.assert_no_errors(response)
         self.assertTrue(response.content.count("0 errors") == 1)
@@ -278,6 +280,7 @@ class SimpleTest(TestCase):
         response = self.client.post("/certify/", {
             "filemode" : "file_uploaded",
             "file_uploaded" : open("interactive/test_data/hst_cos_deadtab.rmap"),
+            "pmap_mode": "pmap_edit",
         })
         self.assert_no_errors(response)
         self.assertTrue(response.content.count("0 errors") == 1)

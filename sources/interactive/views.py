@@ -464,7 +464,6 @@ def log_view(func):
     return dolog
 
 # ===========================================================================
-PROFILE_DECORATOR_RESULT = None
 def profile(filename=None):
     """Decorate a view with @profile to run cProfile when the view is accessed.
     """
@@ -477,10 +476,9 @@ def profile(filename=None):
             """
             def runit():
                 """executes a function and stores the result globally."""
-                global PROFILE_DECORATOR_RESULT
-                PROFILE_DECORATOR_RESULT = func(*args, **keys)
+                profile_core.result = func(*args, **keys)
             cProfile.runctx("runit()", locals(), locals(), filename=filename)
-            return PROFILE_DECORATOR_RESULT
+            return profile_core.result
         return profile_core
     return decomaker
 
@@ -930,16 +928,18 @@ def certify_file(request):
 def certify_post(request):
     """View fragment to process file certification POSTs."""
 
+    context = get_recent_or_user_context(request)
+    
     uploaded, original_name, certified_file = handle_known_or_uploaded_file(
         request, "filemode", "file_known", "file_uploaded")
-
     if uploaded and rmap.is_mapping(original_name):
         checksum.update_checksum(certified_file)
             
     all_files = models.get_fileblob_map()
 
     certify_status, certify_output = captured_certify(
-        original_name, certified_file, filemap=all_files, check_references=False)
+        original_name, certified_file, filemap=all_files, check_references=False,
+        context=context)
 
     try:
         blacklisted_by = get_blacklists(
