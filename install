@@ -537,19 +537,22 @@ case ${server_mode}
     in
     test) 
 	echo "Setting permissions"
-	chown -R crds.crdsoper ${install_root}
+	chown crds.crdsoper ${install_root}
+	chown crds.crdsoper ${install_root}/*
 	chmod 6755 ${install_root}
-	chmod -R 6755 ${ref_path}
-	chmod -R 6755 ${map_path}
+	chmod 6755 ${ref_path}
+	chmod 444 ${ref_path}/${observatory}/*
+	chmod 6755 ${map_path}
+	chmod 444 ${map_path}/${observatory}/*
 	chmod 700 ${install_dir}
-	chmod -R 6755 ${CRDS_CATALOG_DIR}
-	chmod -R 6755 ${FILE_UPLOAD_TEMP_DIR}
+	chmod 6755 ${CRDS_CATALOG_DIR}
+	chmod 6755 ${FILE_UPLOAD_TEMP_DIR}
 	chmod 6770 ${CRDS_DELIVERY_DIR}    # OPUS client removes delivered files.
-	chmod -R 6775 ${CRDS_INGEST_DIR}   # Submitters scp files in.
+	chmod 6775 ${CRDS_INGEST_DIR}   # Submitters scp files in.
 
 	mkdir -p -m 6775 ${install_root}/ingest_ssb
-	chown crds.ssb ${install_root}/ingest_ssb
-	chmod 6775 ${install_root}/ingest_ssb
+	# chown crds.ssb ${install_root}/ingest_ssb
+	# chmod 6775 ${install_root}/ingest_ssb
 	;;
     dev)
 	;;
