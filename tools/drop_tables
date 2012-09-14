@@ -1,0 +1,10 @@
+Sometimes the database tables need to be recreated to add or drop model fields.
+
+In CRDS_server,  do:
+
+./manage dbshell
+sql> show tables
+
+then e.g.:
+
+sql>  drop table crds_jwst_counters;

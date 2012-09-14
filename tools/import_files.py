@@ -7,6 +7,7 @@ and nested mappings;  this means the mappings must already be located in their
 operational directories.
 """
 import sys
+import traceback
 
 import crds.server.config
 import crds.server.interactive.models
@@ -54,6 +55,7 @@ def submit_files(files, observatory, deliverer,
                 state=state, update_derivation=False)
         except Exception, exc:
             log.error("Submission FAILED for", repr(file), ":", str(exc))
+            traceback.print_exc()
         else:
             models.AuditBlob.new(deliverer, "mass import", file, 
                 "system initialization", "", observatory=observatory, 
