@@ -541,9 +541,9 @@ case ${server_mode}
 	chown crds.crdsoper ${install_root}/*
 	chmod 6755 ${install_root}
 	chmod 6755 ${ref_path}
-	chmod 444 ${ref_path}/${observatory}/*
+	chmod -f 444 ${ref_path}/${observatory}/*
 	chmod 6755 ${map_path}
-	chmod 444 ${map_path}/${observatory}/*
+	chmod -f 444 ${map_path}/${observatory}/*
 	chmod 700 ${install_dir}
 	chmod 6755 ${CRDS_CATALOG_DIR}
 	chmod 6755 ${FILE_UPLOAD_TEMP_DIR}
