@@ -148,8 +148,18 @@
     <div class='program' id="file_contents">
         {{ file_contents|safe }}
         <br/><br/>
-    </div>  <!-- program -->
+    </div>
 {% endaccordion %}
+
+{% if certify_results %}
+    {% accordion "Certify Results" %}
+    <div class='program' id="certify_results">
+        <pre>
+{{ certify_results|safe }}
+        </pre>
+    </div>
+    {% endaccordion %}    
+{% endif %}
 
 {% accordion "Past Actions" %}
     <table border="1">

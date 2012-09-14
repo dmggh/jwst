@@ -1403,15 +1403,21 @@ def browse_known_file(request, filename):
     else:
         file_contents = browsify_reference(browsed_file)
         
+    context = models.get_default_context(blob.observatory)
     used_by_files = list(uses.uses([filename], blob.observatory))
     
     if blob and blob.type == "reference":
-        context = models.get_default_context(blob.observatory)
         match_paths = matches.find_full_match_paths(context, filename)
         match_paths = [flatten(path) for path in match_paths]
+        try:
+            certify_results = captured_certify(filename, blob.pathname, check_references=True, context=context)[1]
+        except Exception, exc:
+            log.warning("certify failed for", blob.pathname)
+            certify_results = None
     else:
         match_paths = []
-    
+        certify_results = None
+
     return crds_render(request, "browse_results.html", { 
              "fileblob" : blob,
              "observatory" : blob.observatory,
@@ -1419,6 +1425,7 @@ def browse_known_file(request, filename):
              "used_by_files" : used_by_files,
              "match_paths" : match_paths,
              "file_contents": file_contents,
+             "certify_results" : certify_results,
              "browsed_file": filename,
              'prior_file_versions' : get_prior_file_versions(blob)
     })
@@ -1544,6 +1551,9 @@ def browsify_reference(browsed_file):
             lines = lines[1:]
         output += "\n".join(lines)
         output += "</pre>\n"
+    
+    
+    
     
     return output
 
@@ -1953,7 +1963,7 @@ def collect_action_tree(request):
             if action != "add":
                 filename = is_reference(uploaded)
             else:
-                filename = uploaded.name
+                filename = uploaded.name           
             actions.append((action, match_tuple, date, str(filename)))
             
     return expanded, actions
@@ -1987,7 +1997,6 @@ def handle_file_submissions(pmap_name, original_rmap, expanded, observatory, sub
     for addno in expanded["add"]:
         uploaded_file = expanded["add"][addno]["filename"]
         uploaded_files[uploaded_file.name] = uploaded_file.temporary_file_path()
-
     certify_results = certify_file_list(uploaded_files.items(), context=pmap_name)
 
     new_references = []
