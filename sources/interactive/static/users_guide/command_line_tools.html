@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>&lt;no title&gt; &mdash; crds 0.1 documentation</title>
+    <title>Command Line Tools &mdash; crds 0.1 documentation</title>
     
     <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -27,6 +27,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="crds 0.1 documentation" href="index.html" />
+    <link rel="next" title="Using the CRDS Web Site" href="web_site_use.html" />
     <link rel="prev" title="About Mappings" href="rmap_syntax.html" /> 
   </head>
   <body>
@@ -36,6 +37,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="web_site_use.html" title="Using the CRDS Web Site"
+             accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="rmap_syntax.html" title="About Mappings"
              accesskey="P">previous</a> |</li>
@@ -47,9 +51,25 @@
             <p class="logo"><a href="index.html">
               <img class="logo" src="_static/stsci_logo.png" alt="Logo"/>
             </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Command Line Tools</a><ul>
+<li><a class="reference internal" href="#specifying-files">Specifying Files</a></li>
+<li><a class="reference internal" href="#crds-certify">crds.certify</a></li>
+<li><a class="reference internal" href="#crds-diff">crds.diff</a></li>
+<li><a class="reference internal" href="#crds-uses">crds.uses</a></li>
+<li><a class="reference internal" href="#crds-matches">crds.matches</a></li>
+<li><a class="reference internal" href="#crds-sync">crds.sync</a></li>
+</ul>
+</li>
+</ul>
+
   <h4>Previous topic</h4>
   <p class="topless"><a href="rmap_syntax.html"
                         title="previous chapter">About Mappings</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="web_site_use.html"
+                        title="next chapter">Using the CRDS Web Site</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/command_line_tools.txt"
@@ -76,7 +96,125 @@
         <div class="bodywrapper">
           <div class="body">
             
-  
+  <div class="section" id="command-line-tools">
+<h1>Command Line Tools<a class="headerlink" href="#command-line-tools" title="Permalink to this headline">¶</a></h1>
+<p>Using the command line tools requires a local installation of the CRDS library.
+Some of the command line tools also interact with the CRDS server in order to
+implement their functionality.</p>
+<div class="section" id="specifying-files">
+<h2>Specifying Files<a class="headerlink" href="#specifying-files" title="Permalink to this headline">¶</a></h2>
+<p>The command line tools operate on CRDS reference and mapping files in various
+ways.  To specify a file in your local CRDS file cache,  as defined by CRDS_PATH,
+use no path on the file:</p>
+<div class="highlight-python"><pre>% python -m crds.diff hst.pmap  hst_0001.pmap  # assumes paths in CRDS cache</pre>
+</div>
+<p>To specify a particular file which is not located in your cache,  give at least
+a relative path to the file, ./ will do:</p>
+<div class="highlight-python"><pre>% python -m crds.diff /some/path/hst.pmap ./hst_0002.pmap   # uses given paths</pre>
+</div>
+</div>
+<div class="section" id="crds-certify">
+<h2>crds.certify<a class="headerlink" href="#crds-certify" title="Permalink to this headline">¶</a></h2>
+<p>crds.certify checks a reference or mapping file against constraints on legal
+matching parameter values.   For reference files,  crds.certify also performs checks
+of the FITS format and when given a context,  and will compare the given file against
+the file it replaces looking for new or missing table rows.</p>
+<p>crds.certify &#8211;help yields:</p>
+<div class="highlight-python"><pre>Usage: certify.py [options] &lt;inpaths...&gt;
+
+Options:
+  -h, --help            show this help message and exit
+  -d, --deep            Certify reference files referred to by mappings have
+                        valid contents.
+  -e, --exist           Certify reference files referred to by mappings exist.
+  -m, --mapping         Ignore extensions, the files being certified are
+                        mappings.
+  -p, --dump-provenance
+                        Print provenance keyword values.
+  -t TRAP_EXCEPTIONS, --trap-exceptions=TRAP_EXCEPTIONS
+                        Capture exceptions at level: pmap, imap, rmap,
+                        selector, debug, none
+  -x CONTEXT, --context=CONTEXT
+                        Pipeline context defining replacement reference.
+  -V VERBOSITY, --verbose=VERBOSITY
+                        Set verbosity level.</pre>
+</div>
+<p>crds.certify is invoked as, e.g.:</p>
+<div class="highlight-python"><pre>% python -m crds.certify --context=hst_0027.pmap   some_reference.fits
+
+% python -m crds.certify hst.pmap</pre>
+</div>
+<p>Invoking crds.certify on a context mapping recursively certifies all sub-mappings.</p>
+</div>
+<div class="section" id="crds-diff">
+<h2>crds.diff<a class="headerlink" href="#crds-diff" title="Permalink to this headline">¶</a></h2>
+<p>crds.diff compares two reference or mapping files and reports differences.  For
+references crds.diff is currently a thin wrapper around fitsdiff but may expand.</p>
+<p>For CRDS mappings crds.diff performs a recursive logical difference which shows
+the full match path to each bottom level change.   crds.diff &#8211;help yields:</p>
+<div class="highlight-python"><pre>Usage: diff.py [options] &lt;file1&gt; &lt;file2&gt;
+
+        Appropriately difference CRDS mapping or reference files.
+
+
+Options:
+  -h, --help            show this help message and exit
+  -J, --jwst            Locate files using JWST naming conventions.
+  -H, --hst             Locate files using HST naming conventions.
+  -V VERBOSITY, --verbose=VERBOSITY
+                        Set verbosity level.</pre>
+</div>
+<p>For standard CRDS filenames,  crds.diff can guess the observatory.   For
+non-standard names,  the observatory needs to be specified.  crds.diff can be
+invoked like:</p>
+<div class="highlight-python"><pre>% python -m crds.diff   jwst_nircam_dark_0010.fits  jwst_nircam_dark_0011.fits
+
+% python -m crds.diff  jwst_0001.pmap   jwst_0002.pmap
+(('hst.pmap', 'hst_0004.pmap'), ('hst_acs.imap', 'hst_acs_0004.imap'), ('hst_acs_darkfile.rmap', 'hst_acs_darkfile_0003.rmap'), ('WFC', 'A|ABCD|AD|B|BC|C|D', '0.5|1.0|1.4|2.0'), '2011-03-16 23:34:35', "replaced 'v441434ej_drk.fits' with 'hst_acs_darkfile_0003.fits'")</pre>
+</div>
+</div>
+<div class="section" id="crds-uses">
+<h2>crds.uses<a class="headerlink" href="#crds-uses" title="Permalink to this headline">¶</a></h2>
+<p>crds.uses searches the files in the local cache for mappings which refer to the
+specified files.  Since the <strong>local cache</strong> is used only mappings present in the
+local cache will be included in the results given.  crds.uses is invoked as:</p>
+<div class="highlight-python"><pre>% python -m crds.uses &lt;observatory=hst|jwst&gt; &lt;mapping or reference&gt;...</pre>
+</div>
+<p>e.g.:</p>
+<div class="highlight-python"><pre>% python -m crds.uses hst s7g1700gl_dead.fits
+hst.pmap
+hst_cos.imap
+hst_cos_deadtab.rmap</pre>
+</div>
+</div>
+<div class="section" id="crds-matches">
+<h2>crds.matches<a class="headerlink" href="#crds-matches" title="Permalink to this headline">¶</a></h2>
+<p>crds.matches reports the match patterns which are associated with the given
+reference files:</p>
+<div class="highlight-python"><pre>Usage: matches.py [options] &lt;context&gt; &lt;references...&gt;
+
+Options:
+  -h, --help            show this help message and exit
+  -f, --full            Show the complete match path through the mapping
+                        hierarchy.
+  -V VERBOSITY, --verbose=VERBOSITY
+                        Set verbosity level.</pre>
+</div>
+<p><em>crds.matches</em> can be invoked as:</p>
+<div class="highlight-python"><pre>% python -m crds.matches hst.pmap o8u2214fj_dxy.fits
+('HRC', 'CLEAR1S', 'F220W')
+
+% python -m crds.matches --full hst.pmap o8u2214fj_dxy.fits
+('hst', 'acs', 'dgeofile', 'HRC', 'CLEAR1S', 'F220W', '2002-03-01', '00:00:00')</pre>
+</div>
+</div>
+<div class="section" id="crds-sync">
+<h2>crds.sync<a class="headerlink" href="#crds-sync" title="Permalink to this headline">¶</a></h2>
+<p>crds.sync downloads references and mappings from the CRDS server based on a
+variety of specification mechanisms.</p>
+</div>
+</div>
+
 
           </div>
         </div>
@@ -89,6 +227,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="web_site_use.html" title="Using the CRDS Web Site"
+             >next</a> |</li>
         <li class="right" >
           <a href="rmap_syntax.html" title="About Mappings"
              >previous</a> |</li>

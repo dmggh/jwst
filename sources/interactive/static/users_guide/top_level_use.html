@@ -109,7 +109,8 @@ context,  and optionally a list of the reference types for which reference files
 are to be determined,  getreferences() will determine best references,  cache
 them on the local file system,  and return a mapping from reference types to
 reference file paths:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">getreferences</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">reftypes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ignore_cache</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">getreferences</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">reftypes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ignore_cache</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                  <span class="n">observatory</span><span class="o">=</span><span class="s">&quot;jwst&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Return the mapping from the requested `reftypes` to their</span>
 <span class="sd">    corresponding best reference file paths appropriate for a dataset</span>
 <span class="sd">    described by `parameters` with CRDS rules defined by `context`::</span>
@@ -148,6 +149,9 @@ reference file paths:</p>
 <span class="sd">    ignore_cache :   If True,  download all required mappings and references</span>
 <span class="sd">            from the CRDS server.  If False,  download only those files not</span>
 <span class="sd">            already in the local caches.</span>
+
+<span class="sd">    observatory :  The name of the observatory this query applies to,  needed</span>
+<span class="sd">            to support both &#39;hst&#39; and &#39;jwst&#39; from a single server.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
