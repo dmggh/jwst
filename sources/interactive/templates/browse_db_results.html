@@ -27,25 +27,25 @@
             <th width="15%" align="center">submit date</th>
             <th width="15%" align="center">name</th>
             <th width="10%" align="center">status</th>
-        {% if is_authenticated %}
-            <th width="10%" align="center">submitter</th>
-        {% endif %}
+            {% if is_authenticated %}
+                <th width="10%" align="center">submitter</th>
+            {% endif %}
             <th width="30%" align="center">description</th>
             <th width="10%" align="center">instrument</th>
             <th width="10%" align="center">filekind</th>
         </tr>
         {% for db in filtered_db %}
-        <tr>
-            <td align="center">{{db.delivery_date|minutes}}</td>
-            <td align="center">{{db.filename|browse}}</a></td>
-            <td align="center"><span class="{{db.status_class}}">{{db.status}}</span></td>
-        {% if is_authenticated %}
-            <td align="center">{{db.deliverer_user}}</td>
-        {% endif %}
-            <td align="center">{{db.description}}</td>
-            <td align="center">{{db.instrument}}</td>
-            <td align="center">{{db.filekind}}</td>
-        </tr>
+            <tr>
+                <td align="center">{{db.delivery_date|minutes}}</td>
+                <td align="center">{{db.filename|browse}}</a></td>
+                <td align="center"><span class="{{db.status_class}}">{{db.status}}</span></td>
+                {% if is_authenticated %}
+                    <td align="center">{{db.deliverer_user}}</td>
+                {% endif %}
+                <td align="center">{{db.description}}</td>
+                <td align="center">{{db.instrument}}</td>
+                <td align="center">{{db.filekind}}</td>
+            </tr>
         {% endfor %}
     </table>
 

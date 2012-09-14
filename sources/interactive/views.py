@@ -1642,7 +1642,7 @@ def recent_activity_post(request):
 def browse_db(request):
     """browse_db displays records from the FileBlob (subclasses) database."""
     if request.method == "GET":
-        return crds_render(request, "browse_db_input.html", {})
+        return crds_render(request, "browse_db_input.html", {}, requires_pmaps=False)
     else:
         return browse_db_post(request)
 
@@ -1673,7 +1673,7 @@ def browse_db_post(request):
                 "filters": filters,
                 "filtered_db" : filtered_db,
                 "observatory" : observatory,
-            })
+            }, requires_pmaps=False)
 
 # ===========================================================================
 
