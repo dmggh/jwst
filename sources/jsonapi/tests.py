@@ -85,10 +85,16 @@ class ServiceApiBase(object):
         self.assertIn(".pmap", context)
         
     def getreferences(self, *args, **keys):
+        keys = dict(keys)
+        # get_processing_mode is cached to avoid repeat network traffic
+        heavy_client.get_processing_mode.cache.clear()
+        # Override other (default) context mechanisms with test context.
+        keys["context"] = self.pmap
         keys["observatory"] = self.observatory
         os.environ["CRDS_DOWNLOAD_MODE"] = "http"
         crds.getreferences(*args, **keys)
         os.environ["CRDS_DOWNLOAD_MODE"] = "rpc"
+        heavy_client.get_processing_mode.cache.clear()
         return crds.getreferences(*args, **keys)
 
     def test_getreferences_defaults(self, ignore_cache=False):
@@ -96,39 +102,37 @@ class ServiceApiBase(object):
         self._check_bestrefs(bestrefs, self.expected_references().keys())
 
     def test_getreferences_specific_reftypes(self):
-        bestrefs = self.getreferences(
-            self.get_header(), reftypes=self.requested_types, 
-            context=self.pmap)
+        bestrefs = self.getreferences(self.get_header(), reftypes=self.requested_types)
         self._check_bestrefs(bestrefs, self.requested_types) 
 
     def test_getreferences_missing_date(self):
         header = self.get_header()
         del header[self.date_key]
         with self.assertRaises(crds.CrdsLookupError):
-            bestrefs = self.getreferences(header, context=self.pmap)
+            bestrefs = self.getreferences(header)
 
     def test_getreferences_bad_date(self):
         header = self.get_header()
         header[self.date_key] = "2012-1f-23"
         with self.assertRaises(crds.CrdsLookupError):
-            bestrefs = self.getreferences(header, context=self.pmap)
+            bestrefs = self.getreferences(header)
     
     def test_getreferences_bad_instrument(self):
         header = self.get_header()
         header[self.instr_key] = "foo"
         with self.assertRaises(crds.CrdsError):
-            bestrefs = self.getreferences(header, context=self.pmap)
+            bestrefs = self.getreferences(header)
     
     def test_getreferences_missing_instrument(self):
         header = self.get_header()
         del header[self.instr_key]
         with self.assertRaises(crds.CrdsError):
-            bestrefs = self.getreferences(header, context=self.pmap)
+            bestrefs = self.getreferences(header)
     
     def test_getreferences_bad_reftype(self):
         header = self.get_header()
         with self.assertRaises(crds.CrdsLookupError):
-            bestrefs = self.getreferences(header, context=self.pmap, reftypes=["foo"])
+            bestrefs = self.getreferences(header, reftypes=["foo"])
     
     def test_get_server_info(self):
         info = client.get_server_info()
@@ -138,7 +142,6 @@ class ServiceApiBase(object):
      
     def getreferences_fallback(self, mode):
         # First compute best refs normally, to ensure file caching
-        heavy_client.get_processing_mode.cache.clear() 
         os.environ["CRDS_MODE"] = mode
         self.test_getreferences_defaults()   # first precache
         try:
@@ -149,7 +152,6 @@ class ServiceApiBase(object):
             # attempt fallback using cached files and status
             self.test_getreferences_defaults()
         finally:
-            heavy_client.get_processing_mode.cache.clear() 
             os.environ["CRDS_MODE"] = "auto"
             client.set_crds_server(old_url)
             log.set_verbose(False)
@@ -170,13 +172,11 @@ class ServiceApiBase(object):
         crds_mappath = crds.config.get_crds_mappath()
         crds_refpath = crds.config.get_crds_refpath()
         try:
-            heavy_client.get_processing_mode.cache.clear() 
             oldver = crds.__version__
             crds.__version__ = "0.0"
             os.environ["CRDS_MODE"] = mode
             self.test_getreferences_defaults(ignore_cache=ignore_cache)
         finally:
-            heavy_client.get_processing_mode.cache.clear() 
             crds.__version__ = oldver
             os.environ["CRDS_MODE"] = "auto"
             log.set_verbose(False)
