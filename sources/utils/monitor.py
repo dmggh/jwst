@@ -17,6 +17,8 @@ import shutil
 import datetime
 import time
 
+from datetime import datetime, timedelta
+
 from crds import pysh, log, client, utils, timestamp
 from crds.server import config
 from crds.server.interactive import models, views
@@ -24,7 +26,7 @@ from crds.server.interactive import models, views
 # ============================================================================
 
 MONITOR_STATUS_RECIPIENTS = ['jmiller@stsci.edu']
-FORCED_STATUS_MAIL_DELTA = datetime.timedelta(0, 120*60, 0)
+FORCED_STATUS_MAIL_SECONDS = 120*60
 
 # ============================================================================
 
@@ -35,7 +37,7 @@ def check_server_aliveness():
         log.set_verbose(50)
         info = client.get_server_info()
         log.set_verbose(v)
-        log.write("Server at", client.get_crds_server(), "is alive.")
+        log.info("Server at", client.get_crds_server(), "is alive.")
         return True
     except Exception, exc:
         log.error("Error getting server_info:", str(exc))
@@ -102,7 +104,7 @@ def clean_stale_uploads():
         except Exception, exc:
             log.error("Failure removing", repr(filename), ":", str(exc))
             
-def find_stale_uploads(days=14, seconds=0, subseconds=0):
+def find_stale_uploads(days=14, seconds=0):
     """Locate files in the "uploaded" state which are more than the specfied
     time old.
     """
@@ -112,7 +114,7 @@ def find_stale_uploads(days=14, seconds=0, subseconds=0):
         if not blob.state == "uploaded":
             continue
         blob_datetime = timestamp.parse_date(blob.delivery_date)
-        expiration = blob_datetime + datetime.timedelta(days,seconds,microseconds)
+        expiration = blob_datetime + timedelta(days,seconds)
         if expiration < now:
             stale[filename] = blob
     return stale
@@ -125,26 +127,58 @@ def backup_database():
 # ============================================================================
 
 def mail_results(addresses, results):
-    log.info("Faking results e-mail.")
+    log.info("Faking results e-mail:\n", results)
 
 # ============================================================================
 
-@views.capture_output
-def _monitor():
-    check_server_aliveness()   # every 1-5 minutes
+class Task(object):
+    def __init__(self, function, period, next_run=None):
+        self._function = function
+        assert isinstance(period, timedelta)
+        self._period = period
+        if next_run is None:
+            next_run = datetime.now()
+        assert isinstance(next_run, datetime)
+        self._next_run = next_run
+
+    def __call__(self, *args, **keys):
+        if datetime.now() >= self._next_run:
+            self._next_run += self._period
+            self.call_now(*args, **keys)
+    
+    def call_now(self, *args, **keys):
+        log.info(timestamp.now(), "  Running", self._function.__name__)
+        self._function(*args, **keys)
+
+def tomorrow(hour, minute=0, second=0, microsecond=0):
+    dt = datetime.now()
+    dt = dt + timedelta(1)
+    dt = datetime(dt.year, dt.month, dt.day, hour, minute, second)
+    return dt
+
+TASKS = [
+         Task(check_server_aliveness, period=timedelta(0,10)),
+         Task(transfer_ownership, period=timedelta(0, 5*60)),
+         Task(clean_stale_uploads, period=timedelta(1, 0), next_run=tomorrow(2,0,0)),
+         Task(backup_database, period=timedelta(1, 0), next_run=tomorrow(2,0,0)),
+] 
     # transfer_ownership()       # every 5-10 minutes
     # clean_stale_uploads()      # nightly
     # backup_database()          # nightly
 
+@views.capture_output
+def _monitor():
+    for task in TASKS:
+        task()
+    time.sleep(1)
+    
 def monitor():
-    next_mail = datetime.datetime.now()
+    mailer = Task(mail_results, timedelta(0, 20))
     while True:
         results = _monitor()[1]
-        now = datetime.datetime.now()
-        if "INFO" in results or "ERROR" in results or "WARNING" in results or now > next_mail:
-            mail_results(MONITOR_STATUS_RECIPIENTS, results)
-            next_mail = datetime.datetime.now() + FORCED_STATUS_MAIL_DELTA
-        time.sleep(10)
+        mailer(MONITOR_STATUS_RECIPIENTS, results)
+        if "ERROR" in results or "WARNING" in results:
+            mailer.call_now(MONITOR_STATUS_RECIPIENTS, results)
     
 if __name__ == "__main__":
     monitor()
