@@ -97,8 +97,25 @@ class ServiceApiBase(object):
         heavy_client.get_processing_mode.cache.clear()
         return crds.getreferences(*args, **keys)
 
+    def getrecommendations(self, *args, **keys):
+        keys = dict(keys)
+        # get_processing_mode is cached to avoid repeat network traffic
+        heavy_client.get_processing_mode.cache.clear()
+        # Override other (default) context mechanisms with test context.
+        keys["context"] = self.pmap
+        keys["observatory"] = self.observatory
+        os.environ["CRDS_DOWNLOAD_MODE"] = "http"
+        crds.getreferences(*args, **keys)
+        os.environ["CRDS_DOWNLOAD_MODE"] = "rpc"
+        heavy_client.get_processing_mode.cache.clear()
+        return crds.getreferences(*args, **keys)
+
     def test_getreferences_defaults(self, ignore_cache=False):
         bestrefs = self.getreferences(self.get_header(), ignore_cache=ignore_cache)
+        self._check_bestrefs(bestrefs, self.expected_references().keys())
+
+    def test_getrecommendations_defaults(self, ignore_cache=False):
+        bestrefs = self.getrecommendations(self.get_header(), ignore_cache=ignore_cache)
         self._check_bestrefs(bestrefs, self.expected_references().keys())
 
     def test_getreferences_specific_reftypes(self):
