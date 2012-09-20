@@ -3,10 +3,24 @@
 source env.csh
 
 # <observatory=hst|jwst> <server_mode=dev|test|ops>
+
+set observatory = $1
+set server_mode = $2
+
 echo "installing $1 $2..."
 ./install $1 $2 >& /dev/null
 
-# subsequent parameters are apps to test
 cd sources
-python manage.py test $3 $4 $5 $6 $7 $8 $9 --verbosity=2
+
+if ($# > 2) then
+    echo "Using explicit tests " $3 $4 $5 $6 $7 $8 $9
+    # subsequent parameters are apps to test
+    python manage.py test $3 $4 $5 $6 $7 $8 $9 --verbosity=2
+else if ($observatory == "jwst") then
+    echo "Using implied JWST tests " jsonapi
+    python manage.py test jsonapi --verbosity=2
+else
+    echo "Using implied HST tests " ALL
+    python manage.py test --verbosity=2
+endif
 
