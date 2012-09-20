@@ -36,4 +36,9 @@ python adduser.py test jmiller@stsci.edu "$password"
 # non-essential stuff (sha1sum, instrument, filekind, serial) is not added by
 # the trailing "0" flag.  Switch to "1" to add those.
 
-python import_files.py $observatory.pmap jmiller jmiller@stsci.edu "Initial import" 0
+if ($observatory == "hst") then
+    python import_files.py $observatory.pmap jmiller jmiller@stsci.edu "Initial import" 0
+else if ($observatory == "jwst") then
+    python import_files.py jwst.pmap jmiller jmiller@stsci.edu "Initial import" 0
+    python import_files.py jwst_0000.pmap jmiller jmiller@stsci.edu "Initial import" 0
+endif
