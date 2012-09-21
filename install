@@ -551,8 +551,8 @@ case ${server_mode}
 	chmod 6775 ${CRDS_INGEST_DIR}   # Submitters scp files in.
 
 	mkdir -p -m 6775 ${install_root}/ingest_ssb
-	# chown crds.ssb ${install_root}/ingest_ssb
-	# chmod 6775 ${install_root}/ingest_ssb
+	chown crds.ssb ${install_root}/ingest_ssb
+	chmod 6775 ${install_root}/ingest_ssb
 	;;
     dev)
 	;;
