@@ -1529,32 +1529,33 @@ def browsify_reference(browsed_file):
     
     try:
         header = mapping.get_minimum_header(browsed_file)
-    except IOError:
-        return "<p class='error'>File unavailable.</p>"
-    
-    output  = "<b>Header Parameters</b>\n"
-    output += "<br/>\n"
-    output += "<br/>\n"
-    output += "<table border='1'>\n"
-    for key, value in sorted(header.items()):
-        if value != "UNDEFINED":
-            output += "<tr><td class='label'>%s</td><td>%s</td></tr>\n" % (key, value)
-    output += "</table>\n"
+    except Exception, exc:
+        output = "<p class='error'>File header unavailable: '%s'</p>" % str(exc)
+    else:
+        output  = "<b>Header Parameters</b>\n"
+        output += "<br/>\n"
+        output += "<br/>\n"
+        output += "<table border='1'>\n"
+        for key, value in sorted(header.items()):
+            if value != "UNDEFINED":
+                output += "<tr><td class='label'>%s</td><td>%s</td></tr>\n" % (key, value)
+        output += "</table>\n"
     output += "<br/>\n"
     
     if browsed_file.endswith(".fits"):
-        output += "<b>FITS Info</b>\n"
-        output += "<pre>\n"
-        fits_info = finfo(browsed_file)[1] + "\n"
-        lines = fits_info.split("\n")
-        if lines[0].lower().startswith("filename"):
-            lines = lines[1:]
-        output += "\n".join(lines)
-        output += "</pre>\n"
-    
-    
-    
-    
+        try:
+            fits_info = finfo(browsed_file)[1] + "\n"
+        except Exception, exc:
+            output += "<p class='error'>FITS info unavailable: '%s'</p>" % str(exc)
+        else:
+            output += "<b>FITS Info</b>\n"
+            output += "<pre>\n"
+            lines = fits_info.split("\n")
+            if lines[0].lower().startswith("filename"):
+                lines = lines[1:]
+            output += "\n".join(lines)
+            output += "</pre>\n"
+
     return output
 
 
