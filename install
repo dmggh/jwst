@@ -562,14 +562,16 @@ esac
 case ${observatory}
     in
     jwst)
- 		echo "Installing jwst references"
-		case ${server_mode}
-			in
-			dev)
- 				mkdir -p -m 755 ${ref_path}/jwst
- 				cp -v ../jwst_references/*.fits ${ref_path}/jwst
- 				;;
-		esac
+	echo "Installing stpipe/jwstlib for data model support"
+	(cd ../stpipe; python setup.py install $pyquiet --home $install_dir/python;)
+	echo "Installing jwst references"
+	case ${server_mode}
+	    in
+	    dev)
+		mkdir -p -m 755 ${ref_path}/jwst
+		cp -v ../jwst_references/*.fits ${ref_path}/jwst
 		;;
+	esac
+	;;
 esac
 

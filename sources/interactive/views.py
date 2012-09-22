@@ -1385,7 +1385,7 @@ def clean_path(line, path, file_orig):
 
 # ===========================================================================
 
-@error_trap("browse_known_file_error.html")
+@error_trap("base.html")
 @log_view
 def browse_known_file(request, filename):
     """special view which accepts browse file from a URL parameter,  required
