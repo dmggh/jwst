@@ -353,7 +353,7 @@ def get_server_ingest_dirs():
     CRDS root ingest directory.
     """
     dirs = sorted(glob.glob(config.CRDS_INGEST_DIR + "/*"))
-    dirs = [os.path.basename(d) for d in dirs]
+    dirs = [""] + [os.path.basename(d) for d in dirs]
     return zip(dirs,dirs)
 
 def get_known_filepath(filename):
