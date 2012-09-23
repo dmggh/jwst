@@ -15,6 +15,9 @@ setup(name="crds.server",
         'crds.server.jsonapi.templatetags',
         'crds.server.utils',
         'crds.server.stats',
+        
+        'crds.server.fileupload',
+        'crds.server.fileupload.templatetags',
         ],
 
       package_dir = {
@@ -25,6 +28,9 @@ setup(name="crds.server",
         'crds.server.interactive.templatetags':'./interactive/templatetags',
         'crds.server.utils' : './utils',
         'crds.server.stats' : './stats',
+        
+        'crds.server.fileupload' : './fileupload',
+        'crds.server.fileupload.templatetags' : './fileupload/templatetags',
         },
 
       package_data = {
@@ -46,6 +52,13 @@ setup(name="crds.server",
               "interactive/static/jquery-ui/css/smoothness/*.css",
               "interactive/static/jquery-ui/css/smoothness/images/*.png",
               "interactive/static/jquery-ui/js/*.js",
+              
+              "fileupload/static/css/*.css",
+              "fileupload/static/img/*.png",
+              "fileupload/static/img/*.gif",
+              "fileupload/static/js/*.js",
+              "fileupload/templates/*.html",
+              "fileupload/templates/fileupload/*.html",
              ],
         }
     )

@@ -119,6 +119,7 @@ INSTALLED_APPS = (
     "crds.server.interactive",
     "crds.server.jsonapi",
     "crds.server.stats",
+    "crds.server.fileupload",
 
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',

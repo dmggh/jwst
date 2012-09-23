@@ -61,8 +61,6 @@ urlpatterns = patterns('',
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 urlpatterns += staticfiles_urlpatterns()
 
-
-
 # urls.py
 from django.conf.urls import patterns, url, include
 from django.contrib import admin
@@ -74,4 +72,6 @@ urlpatterns += patterns('',
 )
 
 
-
+urlpatterns += patterns('',
+    url(r'^upload/', include('fileupload.urls')),
+)

@@ -63,13 +63,20 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#explore-best-references-alpha">Explore Best References (alpha)</a></li>
-<li><a class="reference internal" href="#difference-files">Difference Files</a></li>
+<li><a class="reference internal" href="#difference-files">Difference Files</a><ul>
+<li><a class="reference internal" href="#mapping-differences">Mapping Differences</a></li>
+<li><a class="reference internal" href="#reference-differences">Reference Differences</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#browse-database">Browse Database</a></li>
 <li><a class="reference internal" href="#recent-activity">Recent Activity</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#private-functions">Private Functions</a><ul>
 <li><a class="reference internal" href="#batch-submit-references">Batch Submit References</a><ul>
+<li><a class="reference internal" href="#old-context-to-derive-from">Old Context to Derive From</a></li>
+<li><a class="reference internal" href="#submitted-references">Submitted References</a></li>
+<li><a class="reference internal" href="#auto-rename">Auto Rename</a></li>
 <li><a class="reference internal" href="#reference-certification">Reference Certification</a></li>
 <li><a class="reference internal" href="#rmap-updates">Rmap Updates</a></li>
 <li><a class="reference internal" href="#collisions">Collisions</a></li>
@@ -132,7 +139,7 @@ a future build which may prove useful now.</p>
 <h2>Public Functions<a class="headerlink" href="#public-functions" title="Permalink to this headline">¶</a></h2>
 <p>The following functions are available for anyone with access to the CRDS web
 server and basically serve to distribute information about CRDS files and
-recommendations.</p>
+recommendations.   Initially,  the CRDS sites are only visible within the Institute.</p>
 <div class="section" id="dataset-best-references-alpha">
 <h3>Dataset Best References (alpha)<a class="headerlink" href="#dataset-best-references-alpha" title="Permalink to this headline">¶</a></h3>
 <p>The <em>Dataset Best References</em> page supports determining the best references for
@@ -144,11 +151,11 @@ dataset file itself or a database catalog entry.</p>
 </div>
 <div class="section" id="context">
 <h4>Context<a class="headerlink" href="#context" title="Permalink to this headline">¶</a></h4>
-<p>The context defines the versions set of CRDS rules used to select best references.
+<p>The context defines the set of CRDS rules used to select best references.
 <em>Edit</em> is the default context from which most newly created contexts are derived.
 <em>Operational</em> is the context currently in use by the pipeline.   <em>Recent</em> shows
-the most recent contexts.   <em>User Specified</em> enables the submitter to type in the
-name of any other known context.</p>
+the most recently created contexts.   <em>User Specified</em> enables the submitter to
+type in the name of any other known context.</p>
 </div>
 <div class="section" id="dataset">
 <h4>Dataset<a class="headerlink" href="#dataset" title="Permalink to this headline">¶</a></h4>
@@ -210,6 +217,8 @@ uploaded via the web (uploaded).</p>
 <div class="figure">
 <a class="reference internal image-reference" href="_images/web_difference.png"><img alt="file difference input" src="_images/web_difference.png" style="width: 590.5px; height: 267.0px;" /></a>
 </div>
+<div class="section" id="mapping-differences">
+<h4>Mapping Differences<a class="headerlink" href="#mapping-differences" title="Permalink to this headline">¶</a></h4>
 <p>For mappings,  <em>Difference Files</em> displays two kinds of information:</p>
 <div class="figure">
 <a class="reference internal image-reference" href="_images/web_difference_summary.png"><img alt="file difference summary" src="_images/web_difference_summary.png" style="width: 559.5px; height: 325.0px;" /></a>
@@ -227,6 +236,13 @@ two mapping files.</li>
 </ul>
 <div class="figure">
 <a class="reference internal image-reference" href="_images/web_difference_text.png"><img alt="file difference textual" src="_images/web_difference_text.png" style="width: 565.5px; height: 427.0px;" /></a>
+</div>
+</div>
+<div class="section" id="reference-differences">
+<h4>Reference Differences<a class="headerlink" href="#reference-differences" title="Permalink to this headline">¶</a></h4>
+<p>For references,  <em>Difference Files</em> is a thin wrapper around the pyfits
+script <em>fitsdiff</em>.   Potentially this is useful where a user doesn&#8217;t have access
+to pyfits or wants to compare existing reference files without downloading them.</p>
 </div>
 </div>
 <div class="section" id="browse-database">
@@ -250,13 +266,13 @@ to a detailed view of that file only:</p>
 <div class="figure">
 <a class="reference internal image-reference" href="_images/web_browse_database_details.png"><img alt="database browse details page" src="_images/web_browse_database_details.png" style="width: 616.0px; height: 209.5px;" /></a>
 </div>
-<p>The database details page has a number of accordion panes which open when you
+<p>The file details page has a number of accordion panes which open when you
 click on them.  All file types have these generic panes:</p>
 <ul class="simple">
 <li>Database - lists a table of CRDS metadata for the file.</li>
 <li>Contents - shows the text of a mapping or internal details about a reference file.</li>
 <li>Past Actions  - lists website actions which affected this file.</li>
-<li>Used By Files - list files which reference this file.</li>
+<li>Used By Files - list known CRDS files which reference this file.</li>
 </ul>
 <p>Reference files have these additional panes:</p>
 <ul class="simple">
@@ -296,8 +312,10 @@ reference files are checked on the server using crds.certify and if they pass
 are submitted to CRDS.   All of the submitted references must be of the same
 reference type,  i.e. controlled by the same .rmap file.</p>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_batch_submit.png"><img alt="batch reference submission inputs" src="_images/web_batch_submit.png" style="width: 595.5px; height: 456.5px;" /></a>
+<a class="reference internal image-reference" href="_images/web_batch_submit.png"><img alt="batch reference submission inputs" src="_images/web_batch_submit.png" style="width: 609.5px; height: 422.5px;" /></a>
 </div>
+<div class="section" id="old-context-to-derive-from">
+<h4>Old Context to Derive From<a class="headerlink" href="#old-context-to-derive-from" title="Permalink to this headline">¶</a></h4>
 <p>The specified context is used as the starting point for new automatically
 generated context files and also determines any predecessors of the submitted
 references for comparison during certification.   If all the submitted reference
@@ -305,8 +323,43 @@ files pass certification,  a new .rmap, .imap, and .pmap are all generated
 automatically to refer to the newly entered references.    Based on their
 header parameters,  references are automatically assigned to appropriate
 match locations in the .rmap file.</p>
+</div>
+<div class="section" id="submitted-references">
+<h4>Submitted References<a class="headerlink" href="#submitted-references" title="Permalink to this headline">¶</a></h4>
+<p>This section is a work in progress.</p>
+<ul>
+<li><dl class="first docutils">
+<dt><em>Uploaded Files</em> lets a user upload a list of files from their browser;</dt>
+<dd><p class="first last">this is both crude in terms of feedback and unstable for large numbers of
+large files at the time of this writing.</p>
+</dd>
+</dl>
+</li>
+<li><p class="first"><em>Server Directory</em> requires that a submitter have write access to the
+Central Store directory /grp/crds/{hst,jwst}/ingest by being a member of group
+crdsoper.   To submit files in this manner,  a submitter should:</p>
+<ol class="arabic simple">
+<li>Create a sub-directory in /grp/crds/{hst,jwst}/ingest named like: &lt;instrument&gt;_&lt;filetype&gt;_&lt;date&gt;,
+e.g. acs_darkfile_2012_09_20</li>
+<li>Copy the submitted files to that directory using some means (cp or scp).</li>
+<li>Refresh the page and choose your directory from the drop-down menu.</li>
+<li>Submit.   All files in your ingest directory are submitted.   All the files
+must be of the same reference type.</li>
+<li>Once your files are in CRDS and you have confirmed the submission,
+remove your ingest directory from /grp/crds.</li>
+</ol>
+</li>
+</ul>
 <div class="figure">
 <a class="reference internal image-reference" href="_images/web_batch_submit_results.png"><img alt="batch reference submission results" src="_images/web_batch_submit_results.png" style="width: 550.5px; height: 408.5px;" /></a>
+</div>
+</div>
+<div class="section" id="auto-rename">
+<h4>Auto Rename<a class="headerlink" href="#auto-rename" title="Permalink to this headline">¶</a></h4>
+<p>Normally files uploaded to CRDS will be assigned new unique names.   During side-by-side
+testing with CDBS,  <em>Auto Rename</em> can be deselected so that new files added to CRDS
+retain their CDBS names for easier comparison.  The CRDS database remembers both
+the name of the file the submitter uploaded as well as the new unique name.</p>
 </div>
 <div class="section" id="reference-certification">
 <h4>Reference Certification<a class="headerlink" href="#reference-certification" title="Permalink to this headline">¶</a></h4>
@@ -374,7 +427,8 @@ and then clicking on one of the links in the <em>name</em> column:</p>
 <div class="figure">
 <a class="reference internal image-reference" href="_images/web_edit_rmap_select.png"><img alt="edit rmap selection" src="_images/web_edit_rmap_select.png" style="width: 551.5px; height: 356.0px;" /></a>
 </div>
-<p>The second step is to add or replace file lines in an rmap by clicking on them:</p>
+<p>The second step is to add or replace file lines in an rmap by clicking on a
+useafter-date/filename line:</p>
 <div class="figure">
 <a class="reference internal image-reference" href="_images/web_edit_rmap_click.png"><img alt="edit rmap editing" src="_images/web_edit_rmap_click.png" style="width: 442.0px; height: 53.0px;" /></a>
 </div>
@@ -383,9 +437,10 @@ and then clicking on one of the links in the <em>name</em> column:</p>
 <a class="reference internal image-reference" href="_images/web_edit_rmap_edit.png"><img alt="edit rmap editing" src="_images/web_edit_rmap_edit.png" style="width: 537.0px; height: 355.5px;" /></a>
 </div>
 <p>New lines are added by clicking on the <em>+</em>.   This will open a line with a text
-entry box for entering a USEAFTER date and a file input as well as some additional
-parameters.   A newly submitted reference file can be entered into the file input
-box and will be uploaded and submitted to CRDS when the page is submitted.</p>
+entry box below the clicked line for entering a USEAFTER date and a file input
+as well as some additional parameters.   A newly submitted reference file can
+be entered into the file input box and will be uploaded and submitted to CRDS
+when the page is submitted.</p>
 <p>Clicking <em>replace</em> strikes out the clicked line and adds inputs below it at the
 same USEAFTER time.</p>
 <p>Additional lines can be added by clicking the <em>+</em> adjacent to an added line.  An
@@ -402,14 +457,14 @@ uploaded to the server.</p>
 <a class="reference internal image-reference" href="_images/web_certify_file.png"><img alt="certify file inputs" src="_images/web_certify_file.png" style="width: 571.0px; height: 327.5px;" /></a>
 </div>
 <p>If the certified file is a reference table,  the specified context is used to
-locate a comparison file.    Certify File can be used to check files already
-in CRDS.</p>
+locate a comparison file.</p>
 </div>
 <div class="section" id="submit-references">
 <h3>Submit References<a class="headerlink" href="#submit-references" title="Permalink to this headline">¶</a></h3>
-<p><em>Submit References</em> provides a basic interface for submitting a list of references
-which don&#8217;t have to be related.   No context mappings are generated to refer to the
-submitted files.   Submitted references must still pass through crds.certify.</p>
+<p><em>Submit References</em> provides a lower level interface for submitting a list of
+references which don&#8217;t have to be of the same instrument and filetype.   No
+context mappings are generated to refer to the submitted files.   Submitted
+references must still pass through crds.certify.</p>
 <div class="figure">
 <a class="reference internal image-reference" href="_images/web_submit_references.png"><img alt="create contexts inputs" src="_images/web_submit_references.png" style="width: 546.0px; height: 441.0px;" /></a>
 </div>
@@ -419,7 +474,8 @@ submitted files.   Submitted references must still pass through crds.certify.</p
 <p><em>Submit Mappings</em> provides a basic interface for submitting a list of mapping
 files which don&#8217;t have to be related.   This can be used to submit context files
 which refer to files from <em>Submit References</em> and with fewer restrictions on
-allowable changes.   Typically only .rmaps are submitted this way.</p>
+allowable changes.   Typically only .rmaps are submitted this way.   Mappings
+submitted this way must also pass through crds.certify.</p>
 <div class="figure">
 <a class="reference internal image-reference" href="_images/web_submit_mappings.png"><img alt="create contexts inputs" src="_images/web_submit_mappings.png" style="width: 541.0px; height: 309.5px;" /></a>
 </div>

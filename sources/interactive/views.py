@@ -1205,7 +1205,9 @@ def bsr_generate_real_rmap(pmap, instrument, filekind, old_rmap, reference_paths
                          change_level=change_level, creator_name=creator, state="uploaded")
     
     return new_rmap, actions
-    
+
+# ============================================================================
+
 @error_trap("base.html")
 @login_required
 @log_view
