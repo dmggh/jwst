@@ -11,6 +11,10 @@
             alert("Did you add a description?");
             return false;
         }
+        if ($("#creator").val() == "") {
+            alert("Did you add a creator?");
+            return false;
+        }
         return true;
     }
     </script>
@@ -31,7 +35,7 @@
         </h3>
 
         <h3>Creator:
-        <input type='text' name='creator' size="40" value="{{creator}}">
+        <input type='text' name='creator' id='creator' size="40" value="{{creator}}">
         </h3>
 
       <h3>Description</h3>
