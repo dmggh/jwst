@@ -15,7 +15,7 @@ hr {
     color: gray;
 }
 
-#page_header, #header_menu, #top-level-tabs {
+#page_header, #header_menu {
     overflow: hidden;
     display: inline-block;
     background-color: #282848;
@@ -51,7 +51,7 @@ hr {
     margin-right: 0.1in;
 }
 
-#top-level-tabs, #contents {
+#contents {
     float: left;
     width: 99%;
     background-color: transparent;
@@ -200,18 +200,6 @@ input {
 }
 
 .data_tab { color: #282840; }
-
-.ui-tabs, .ui-tabs-panel, .ui-widge, .ui-widget-content, .ui-widget-header {
-    background-color: #282840;
-    background: none;
-}
-
-.ui-state-active {
-    background: none;
-}
-
-.ui-widget-content a { color: blue; }
-.ui-widget-content { color: black; }
 
 .program, .match, .useafter {
     font-family: monospace; 

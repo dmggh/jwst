@@ -53,6 +53,8 @@ setup(name="crds.server",
               "interactive/static/jquery-ui/css/smoothness/images/*.png",
               "interactive/static/jquery-ui/js/*.js",
               
+              "fileupload/templates/*.html",  
+              "fileupload/templates/fileupload/*.html",  
               "fileupload/static/css/*.css",
               "fileupload/static/img/*.png",
               "fileupload/static/img/*.gif",

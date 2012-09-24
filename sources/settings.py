@@ -37,12 +37,12 @@ USE_L10N = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = '/Users/jmiller/work/workspace_crds/CRDS_server/media'
+MEDIA_ROOT = install_dir + '/media'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = 'http://localhost:8000/media/'
+MEDIA_URL = '/media/'
 
 STATIC_URL = '/static/'
 
@@ -51,6 +51,14 @@ STATIC_URL = '/static/'
 #                   '/home/jmiller/work/workspace_crds/CRDS_server/static/',
 #                   '/home/jmiller/work/workspace_crds/CRDS_server/interactive/static/',
 #                   ]
+
+# List of finder classes that know how to find static files in
+# various locations.
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+)
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
@@ -105,6 +113,7 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
     "./templates",
     "./interactive/templates",
+    "./fileupload/templates",
 )
 
 INSTALLED_APPS = (
