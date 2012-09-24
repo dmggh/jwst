@@ -12,7 +12,7 @@ div {
 }
 
 hr {
-    color: grey;
+    color: gray;
 }
 
 #page_header, #header_menu, #top-level-tabs {
@@ -72,27 +72,6 @@ hr {
     background-color: transparent;
 }
 
-.column11 {
-    float: left;
-    width: 25%;
-    border: 1px solid black;
-    padding: 1px 1px 1px 1px;
-    margin-top: 0px;
-    margin-left: 5px;
-    margin-bottom: 5px;
-    margin-right: 5%;
-    background-color: transparent;
-}
-
-.column12 {
-    float: left;
-    width: 20%;
-    border: 1px solid black;
-    padding: 1px 1px 1px 1px;
-    margin-right: 35%;
-    background-color: transparent;
-}
-
 h1, h2, h3, h4 {
     font-family: sans-serif;
     color: darkblue;
@@ -104,8 +83,8 @@ label, .label {
     color:  darkblue;
 }
 
-.grey {
-  color: grey;
+.gray {
+  color: gray;
 }
 .green {
   color: green;
@@ -126,13 +105,13 @@ label, .label {
 .value {
     font-size: 0.9em;
     font-weight: normal;
-    color: grey;
+    color: gray;
 }
 
 .hint {
     font-size: 0.8em;
     font-weight: normal;
-    color: grey;
+    color: gray;
 }
 
 .error {
@@ -177,7 +156,7 @@ label, .label {
     color: blue;
     background-color: white;
     padding: 4px 4px 4px 4px;
-    border: grey solid 2px;
+    border: gray solid 2px;
     border-radius: 6px;
     margin: 2px 2px 2px 2px;
 }
@@ -185,11 +164,11 @@ label, .label {
 .filter, .tagname {
     font-size: 14pt;
     font-weight: normal;
-    color: grey;
+    color: gray;
     background: white;
     padding-top: 0px;
     padding-bottom: 0px;
-    border: grey solid 2px;
+    border: gray solid 2px;
 }
 
 .tab_info, .inline_directions {
@@ -214,11 +193,13 @@ label, .label {
 
 input {
     size: 8;
-    border: grey solid 2px;
+    border: gray solid 2px;
     border-radius: 6px;
     margin: 2px 2px 2px 2px;
     background-color: white;
 }
+
+.data_tab { color: #282840; }
 
 .ui-tabs, .ui-tabs-panel, .ui-widge, .ui-widget-content, .ui-widget-header {
     background-color: #282840;
@@ -228,8 +209,6 @@ input {
 .ui-state-active {
     background: none;
 }
-
-.data_tab { color: #282840; }
 
 .ui-widget-content a { color: blue; }
 .ui-widget-content { color: black; }
@@ -241,16 +220,16 @@ input {
 }
 
 select, textarea {
-    border: grey solid 2px;
+    border: gray solid 2px;
     border-radius: 6px;
 }
 
 img.plot {
-    border: grey solid 2px;
+    border: gray solid 2px;
 }
 
 .help, .datetime, .filename {
-  color: grey;
+  color: gray;
 }
 
 p.useafter {
