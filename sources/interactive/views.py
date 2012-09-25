@@ -20,9 +20,11 @@ import glob
 # from django.http import HttpResponse
 from django.shortcuts import render_to_response, redirect
 from django.shortcuts import render as django_render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 import django.utils.safestring as safestring
+from django.utils import simplejson
+from django.core.urlresolvers import reverse
 
 import django.contrib.auth
 import django.contrib.auth.models
@@ -41,6 +43,7 @@ from crds import CrdsError
 import crds.server.config as config
 from crds.server.interactive import (models, database)
 from crds.server.interactive.models import FieldError, MissingInputError
+from crds.server import settings
 
 import crds.server.jsonapi.views as jsonapi_views
 
@@ -532,6 +535,49 @@ def logout(request):
     django.contrib.auth.logout(request)
     return redirect("/")
         
+# ===========================================================================
+
+# The following code is derived from django-jquery-file-upload
+
+# Fileupload is a Django port of a jQuery project from here:
+# https://github.com/sigurdga/django-jquery-file-upload
+
+def response_mimetype(request):
+    if "application/json" in request.META['HTTP_ACCEPT']:
+        return "application/json"
+    else:
+        return "text/plain"
+
+class JSONResponse(HttpResponse):
+    """JSON response class."""
+    def __init__(self,obj='',json_opts={},mimetype="application/json",*args,**kwargs):
+        content = simplejson.dumps(obj,**json_opts)
+        super(JSONResponse,self).__init__(content,mimetype,*args,**kwargs)
+
+@error_trap("upload_new_input.html")
+@log_view
+def upload_new(request):
+    if request.method == "GET":
+        return crds_render(request, "upload_new_input.html")
+    else:
+        f = get_uploaded_file(request, 'file')
+        data = [{'name': f.name, 'url': settings.MEDIA_URL + "pictures/" + f.name.replace(" ", "_"), 
+                 'thumbnail_url': settings.MEDIA_URL + "pictures/" + f.name.replace(" ", "_"), 
+                 'delete_url': reverse('upload-delete', args=[f.name]),
+                 'delete_type': "DELETE"}]
+        response = JSONResponse(data, {}, response_mimetype(request))
+        response['Content-Disposition'] = 'inline; filename=files.json'
+        return response
+
+@log_view
+def upload_delete(request, filename):
+    if request.is_ajax():
+        response = JSONResponse(True, {}, response_mimetype(request))
+        response['Content-Disposition'] = 'inline; filename=files.json'
+        return response
+    else:
+        return HttpResponseRedirect('/upload/new')
+
 # ===========================================================================
 
 @error_trap("bestrefs_index2.html")

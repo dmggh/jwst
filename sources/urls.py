@@ -73,5 +73,7 @@ urlpatterns += patterns('',
 
 
 urlpatterns += patterns('',
-    url(r'^upload/', include('fileupload.urls')),
+    (r'^upload/new/$', 'crds.server.interactive.views.upload_new', {}, 'upload-new'),
+    (r'^upload/delete/(?P<filename>[A-Za-z0-9_.]+)$', 'crds.server.interactive.views.upload_delete', {}, 'upload-delete'),
+    # url(r'^upload/', include('fileupload.urls')),
 )
