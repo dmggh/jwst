@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block column1 %}
-    <h2>Submit {{crds_filetype|capfirst}} File</h2>
+    <h2>Submit {{crds_filetype|capfirst}} Files</h2>
     <form method="post" action="/submit/{{crds_filetype}}/" enctype="multipart/form-data"> 
       {% csrf_token %}
 

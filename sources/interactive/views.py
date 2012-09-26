@@ -102,7 +102,7 @@ def validate_get(request, variable, pattern):
 
 # "pattern" functions for validate_post/get
 
-FILE_RE = r"\w+(\.fits|\.pmap|\.imap|\.rmap|\.r\d[hd])"
+FILE_RE = r"[A-Za-z0-9_]+(\.fits|\.pmap|\.imap|\.rmap|\.r\d[hd])"
 DESCRIPTION_RE = r"[A-Za-z0-9._ ]+"
 GEIS_HEADER_RE = r"\w+(\.r\dh)"
 PERSON_RE = r"[A-Za-z_0-9\.@]*"
@@ -555,15 +555,23 @@ class JSONResponse(HttpResponse):
         super(JSONResponse,self).__init__(content,mimetype,*args,**kwargs)
 
 @error_trap("upload_new_input.html")
+@login_required
 @log_view
-def upload_new(request):
+def upload_new(request, extras=None):
     if request.method == "GET":
         datestr = timestamp.now().replace("-","_").replace(" ","_").replace(":","_")[:-10]
-        return crds_render(request, "upload_new_input.html", {
+        vars = {
                     "datetime" : datestr
-                })
+            }
+        if extras is not None:
+            vars.update(extras)
+        return crds_render(request, "upload_new_input.html", vars)
     else:
         f = get_uploaded_file(request, 'file')
+        file_local_dir = validate_post(request, "file_local_dir", "[A-Za-z0-9_]+")
+        ingest_path = os.path.join(config.CRDS_INGEST_DIR, file_local_dir, f.name)
+        utils.ensure_dir_exists(ingest_path)
+        os.link(f.temporary_file_path(), ingest_path)
         data = [{'name': f.name, 'url': settings.MEDIA_URL + "pictures/" + f.name.replace(" ", "_"), 
                  'thumbnail_url': settings.MEDIA_URL + "pictures/" + f.name.replace(" ", "_"), 
                  'delete_url': reverse('upload-delete', args=[f.name]),
@@ -572,6 +580,7 @@ def upload_new(request):
         response['Content-Disposition'] = 'inline; filename=files.json'
         return response
 
+@login_required
 @log_view
 def upload_delete(request, filename):
     if request.is_ajax():
@@ -580,6 +589,19 @@ def upload_delete(request, filename):
         return response
     else:
         return HttpResponseRedirect('/upload/new')
+    
+def upload_bsr(request):
+    return upload_new(request, extras= {
+                    "workflow_title" : "Batch Submit References",
+                    "workflow_next" : "/batch_submit_reference",
+            })
+
+def upload_submit_file(request, crds_filetype):
+    return upload_new(request, extras= {
+                    "workflow_title" : "Submit " + crds_filetype.capitalize() + "s",
+                    "workflow_next" : "/submit/"+crds_filetype+"/",
+                })
+    
 
 # ===========================================================================
 
@@ -1018,7 +1040,7 @@ def captured_certify(original_name, uploaded_path, check_references=True, filema
     context_switch = "--context=" + context if context else ""
     
     output = pysh.out(
-        "python -m crds.certify ${uploaded_path} ${mapping_switch} ${context_switch} --dump-provenance",
+        "python -m crds.certify ${uploaded_path} ${mapping_switch} ${context_switch} --dump-provenance --trap-exceptions=none",
         independent_error=False)
     if "0 errors" in output:
         if "0 warnings" in output:
@@ -1088,11 +1110,11 @@ def batch_submit_reference_post(request):
     old_rmap  = old_mappings[0]
     rmap_diffs = textual_diff(old_rmap, new_rmap)
 
-#    if remove_dir is not None:
-#        try:
-#            shutil.rmtree(remove_dir, ignore_errors=True)
-#        except Exception, exc:
-#            log.error("Failed to remove ingest directory", repr(remove_dir), ":", str(exc))
+    if remove_dir is not None:
+        try:
+            shutil.rmtree(remove_dir, ignore_errors=True)
+        except Exception, exc:
+            log.warning("Failed to remove ingest directory", repr(remove_dir), ":", str(exc))
 
     return crds_render(request, "batch_submit_reference_results.html", {
                 "actions" : actions,

@@ -8,12 +8,12 @@
 
     {% include "select_pmap_results.html" %}
 
-    {% include "certify_include.html" %}
-    
         <h3>Generated New Mappings</h3>
         {% for map in generated_files %}
         <p>{{map|grey}}</p>
         {% endfor %}
+    
+    {% include "certify_include.html" %}
     
         {%if actions %}
             <h3>Actions on {{old_rmap|grey}}</h3>

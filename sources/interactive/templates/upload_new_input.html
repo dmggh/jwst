@@ -4,7 +4,11 @@
 
 <br/>
 <br/>
-<h2 class="h2">Uploading For</h2>
+{% if workflow_title %}
+    <h2 class="h2">Uploading For <span class="gray">{{workflow_title}}</span> </h2>
+{% else %}
+    <h2 class="h2">Uploading Files</h2>
+{% endif %}
 <br/>
 
 <table>
@@ -18,11 +22,15 @@
     </tr>
     <tr>
         <td><h3 class="h3">Date Time:</h3></td>
-        <td><input type="text" name="datetime" value="{{ datetime }}" /></td>
+        <td><input type="text" name="datetime" value="{{ datetime }}" 
+                    readonly="readonly" />
+        </td>
     </tr>
     <tr>
-        <td><h3 class="h3">Ingest Dir:</h3></td>
-        <td><input type="text" id="ingest_dir" name="ingest_dir" value="{{ ingest_dir }}" /></td>
+        <td><h3 class="h3">Ingest Directory:</h3></td>
+        <td><input type="text" id="ingest_dir" name="file_local_dir" value="{{file_local_dir}}" 
+                    readonly="readonly" />
+        </td>
     </tr>
 </table>
 <br/>
@@ -35,19 +43,50 @@
 
 <h2 class="h2">Continue With Submission</h2>
 
-{% block picture_form_suffix %}
-    <input type="button" name="Continue" value="Continue"/>
-{% endblock %}
+{% block picture_form_footer %}
+
+<div class="container" name="continue-buttons">
+    <table>
+        <tr>      
+            {% if workflow_next %}
+                <td>
+                    <form name="continue" action="{{workflow_next}}">
+                        <input type="submit" name="continue" value="Continue to {{workflow_title}}" />
+                    </form>
+                </td>
+            {% endif %}
+            <td>
+                <form name="home" action="/">
+                    <input type="submit" name="home" value="Home" />
+                </form>
+            </td>
+        </tr>
+    </table>
+</div>
 
 <script type="text/javascript">
-    console.log("initializing.");
-    $("input").change(function () {
-        console.log("input changed.\n")
-        $("#ingest_dir").val(
-            $("input[name=instrument]").val() + "_" + 
-            $("input[name=filekind]").val() + "_" + 
-            $("input[name=datetime]").val()
-            );
-     });
+    $(function () {
+        console.log("initializing.");
+        
+        $("select").change( function () {
+                console.log("input changed.\n");
+                var instrument = $("select[name^='instrument']").val();
+                var filekind = $("select[name^='filekind']").val();
+                var datestr =  $("input[name^='datetime']").val();
+                if ((instrument.indexOf("*")<0) && (filekind.indexOf("*")<0)) 
+                {
+                    var ingest_dir = instrument + "_" + filekind + "_" + datestr;
+                } else {
+                    var ingest_dir = "";
+                };
+                $("#ingest_dir").val(ingest_dir);        
+        });
+                   
+        $("form[name^='continue']").submit( function () {
+            console.log("submitting.");
+        });
+   });
 </script>
+
+{% endblock %}
 
