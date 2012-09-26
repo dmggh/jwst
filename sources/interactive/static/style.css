@@ -77,8 +77,18 @@ h1, h2, h3, h4 {
     color: darkblue;
 }
 
-label, .label {
-    font-size: 1.1em;
+.h3 {
+    font-family: sans-serif;
+    font-size: 18px;
+    color: darkblue;
+}
+.h2 {
+    font-family: sans-serif;
+    font-size: 24px;
+    color: darkblue;
+}
+
+label, .label, .label2 {
     font-weight: normal;
     color:  darkblue;
 }

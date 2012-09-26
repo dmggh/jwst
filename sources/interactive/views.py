@@ -558,7 +558,10 @@ class JSONResponse(HttpResponse):
 @log_view
 def upload_new(request):
     if request.method == "GET":
-        return crds_render(request, "upload_new_input.html")
+        datestr = timestamp.now().replace("-","_").replace(" ","_").replace(":","_")[:-10]
+        return crds_render(request, "upload_new_input.html", {
+                    "datetime" : datestr
+                })
     else:
         f = get_uploaded_file(request, 'file')
         data = [{'name': f.name, 'url': settings.MEDIA_URL + "pictures/" + f.name.replace(" ", "_"), 

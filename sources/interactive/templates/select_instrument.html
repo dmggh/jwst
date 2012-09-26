@@ -1,5 +1,9 @@
-<select name="instrument">
-    {% for instrument in instruments %}
-        <option>{{instrument}}</option>
+<select name="instrument"/>
+    {% for instr in instruments %}
+        {% if instr == instrument %}
+            <option selected>{{instr}}</option>
+        {% else %}
+            <option>{{instr}}</option>
+        {% endif %}
     {% endfor %}
 </select>

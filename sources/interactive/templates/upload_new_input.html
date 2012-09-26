@@ -1,6 +1,53 @@
 {% extends "fileupload/picture_form.html" %}
 
 {% block picture_form_prefix %}
-    <p> Here is my extra.</p>
+
+<br/>
+<br/>
+<h2 class="h2">Uploading For</h2>
+<br/>
+
+<table>
+    <tr>
+        <td><h3 class="h3">Instrument:</h3> </td> 
+        <td>{% include "select_instrument.html" %}</td>
+    </tr>
+    <tr>
+        <td><h3 class="h3">Filetype:</h3></td>
+        <td>{% include "select_filekind.html" %}</td>
+    </tr>
+    <tr>
+        <td><h3 class="h3">Date Time:</h3></td>
+        <td><input type="text" name="datetime" value="{{ datetime }}" /></td>
+    </tr>
+    <tr>
+        <td><h3 class="h3">Ingest Dir:</h3></td>
+        <td><input type="text" id="ingest_dir" name="ingest_dir" value="{{ ingest_dir }}" /></td>
+    </tr>
+</table>
+<br/>
+
+<h2 class="h2">Manage Files</h2>
+<br/>
+
 {% endblock %}
+
+
+<h2 class="h2">Continue With Submission</h2>
+
+{% block picture_form_suffix %}
+    <input type="button" name="Continue" value="Continue"/>
+{% endblock %}
+
+<script type="text/javascript">
+    console.log("initializing.");
+    $("input").change(function () {
+        console.log("input changed.\n")
+        $("#ingest_dir").val(
+            $("input[name=instrument]").val() + "_" + 
+            $("input[name=filekind]").val() + "_" + 
+            $("input[name=datetime]").val()
+            );
+     });
+</script>
 

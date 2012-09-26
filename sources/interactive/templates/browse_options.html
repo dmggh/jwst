@@ -4,36 +4,22 @@
       <tr>
         <td class="label" width="50%">Instrument:</td>
         <td align="right">
-            <select name="instrument"/>
-                {% for instr in instruments %}
-                    {% if instr == instrument %}
-                        <option selected>{{instr}}</option>
-                    {% else %}
-                        <option>{{instr}}</option>
-                    {% endif %}
-                {% endfor %}
-            </select>
+            {% include "select_instrument.html" %}
         </td>
       </tr>
+      
       <tr>
         <td class="label" width="50%">Reference Type:</td>
         <td align="right">
-            <select name="filekind" />
-                <option>*</option>
-                {% for fk in filekinds %}
-                    {% if fk.0 == filekind %}
-                        <option value="{{fk.0}}" selected >{{fk.0}} -- {{fk.1}} </option>
-                    {% else %}
-                        <option value="{{fk.0}}"> {{fk.0}} -- {{fk.1}}</option>
-                    {% endif %}
-                {% endfor %}
-            </select>
+            {% include "select_filekind.html" %}
         </td>
       </tr>
+      
       <tr>
         <td class="label" width="50%">Filename:</td>
         <td align="right"><input type="text" name="filename" value="{{filename}}"/></td>
       </tr>
+      
       <tr>
         <td class="label" width="50%">User:</td>
         <td align="right">
