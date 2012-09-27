@@ -1,51 +1,34 @@
 {% extends "fileupload/picture_form.html" %}
+{% load stdtags %}
 
 {% block picture_form_prefix %}
 
 <br/>
 <br/>
 {% if workflow_title %}
-    <h2 class="h2">Uploading Files For <span class="gray">{{workflow_title}}</span> </h2>
+    <h2 class="h2">Uploading Files For {{workflow_title|gray}}</h2>
 {% else %}
     <h2 class="h2">Uploading Files</h2>
 {% endif %}
 <br/>
 
-<table>
-    <tr>
-        <td><h3 class="h3">Ingest Directory:</h3></td>
-        <td><input type="text" id="ingest_dir" name="file_local_dir" value="{{file_local_dir}}" 
-                    readonly="readonly" />
-        </td>
-    </tr>
-</table>
-<br/>
-
-<h2 class="h2">Manage Files</h2>
-<br/>
-
 {% endblock %}
 
 
-<h2 class="h2">Continue With Submission</h2>
 
 {% block picture_form_footer %}
 
 <div class="container" name="continue-buttons">
+    <h2 class="h2">Continue With {{workflow_title|gray}}</h2>
     <table>
         <tr>      
             {% if workflow_next %}
                 <td>
-                    <form name="continue" action="{{workflow_next}}">
-                        <input type="submit" name="continue" value="Continue to {{workflow_title}}" />
+                    <form name="continue" action="{{workflow_next}}"> {% csrf_token %}
+                        <input type="submit" name="continue" value="Continue" />
                     </form>
                 </td>
             {% endif %}
-            <td>
-                <form name="home" action="/">
-                    <input type="submit" name="home" value="Home" />
-                </form>
-            </td>
         </tr>
     </table>
 </div>
@@ -53,20 +36,6 @@
 <script type="text/javascript">
     $(function () {
         console.log("initializing.");
-        
-        $("select").change( function () {
-                console.log("input changed.\n");
-                var instrument = $("select[name^='instrument']").val();
-                var filekind = $("select[name^='filekind']").val();
-                var datestr =  $("input[name^='datetime']").val();
-                if ((instrument.indexOf("*")<0) && (filekind.indexOf("*")<0)) 
-                {
-                    var ingest_dir = instrument + "_" + filekind + "_" + datestr;
-                } else {
-                    var ingest_dir = "";
-                };
-                $("#ingest_dir").val(ingest_dir);        
-        });
                    
         $("form[name^='continue']").submit( function () {
             console.log("submitting.");

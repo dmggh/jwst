@@ -221,7 +221,7 @@ $( function () {
         var p = button.parent();
         p.find("span")
             .css("text-decoration", "none")
-            .css("color", "grey");
+            .css("color", "gray");
         p.find("div").remove();     // the hidden input bundle
         p.find("span.spacing").remove();
         p.find("button").remove();  // the +- appended to the useafter p
@@ -459,7 +459,7 @@ $( function () {
 
 {% block contents %}
 
-<h2>Editing Rmap <a href='{{browsed_file|download_url}}'>{{browsed_file|grey}}</a>
+<h2>Editing Rmap <a href='{{browsed_file|download_url}}'>{{browsed_file|gray}}</a>
 </h2> 
 
         <form action="/edit_rmap/" method="post" id="update_rmap_form" enctype="multipart/form-data">
@@ -479,7 +479,7 @@ $( function () {
             <h3>Auto Rename:  {% include "auto_rename_input.html" %}  </h3>
             
             <h3>Edit Rmap</h3>
-            <p class="grey">
+            <p class="gray">
                 Click on a useafter date to edit the rmap at that location.
             </p>
             <br/>    

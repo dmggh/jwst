@@ -1,22 +1,28 @@
+{% load stdtags %}
+
 <table>
-   <tr>
-    <td><input type="radio" name="file_mode" value="file_uploaded">Uploaded Files</td>
-      <td align="right">
-        <input type="file" class="multi" name="file_uploaded" id="file_uploaded"/>
-      </td>
-   </tr>
-  <tr>
-    <td><input type="radio" name="file_mode" value="file_local_dir" checked>Server Directory</td>
-      <td align="right">
-        <select name="file_local_dir" onchange='crds.set_radio("file_mode","file_local_dir");' />
-            {% for dir in file_ingest_dirs %}
-                {% if dir.0 == file_local_dir %}
-                    <option value="{{dir.0}}" selected>{{dir.1}}</option>
-                {% else %}
-                    <option value="{{dir.0}}">{{dir.1}}</option>
-                {% endif %}
+      {% if submitted_files %}
+            <h4>From Directory {{file_local_dir|gray}}</h4>
+            <input type="hidden" name="file_mode" value="file_local_dir" checked>
+            {% for file in submitted_files %}
+                <tr><td>{{file|blue}}</td></tr>
             {% endfor %}
-        </select>
-      </td>
-  </tr>
+      {% else %}
+          <tr>
+            <td><input type="radio" name="file_mode" value="file_uploaded"/>Uploaded Files</td>
+              <td align="right">
+                <input type="file" class="multi" name="file_uploaded" id="file_uploaded"/>
+              </td>
+          </tr>
+          <tr>
+            <td><input type="radio" name="file_mode" value="file_local_dir" checked>Server Directory</td>
+              <td align="right">
+                <select name="file_local_dir" onchange='crds.set_radio("file_mode","file_local_dir");' />
+                    {% for dir in file_ingest_dirs %}
+                        <option value="{{dir.0}}">{{dir.1}}</option>
+                    {% endfor %}
+                </select>
+              </td>
+          </tr>
+      {% endif %}
 </table>

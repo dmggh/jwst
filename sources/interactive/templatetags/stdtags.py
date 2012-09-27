@@ -21,11 +21,11 @@ register = template.Library()
 # Inline styles might be better than classes.   At least these filters isolate
 # that...
 
-@register.filter(name='grey')
+@register.filter(name='gray')
 @stringfilter
-def grey(value):
-    return mark_safe("<span class='grey'>" + value + "</span>")
-grey.is_safe = True
+def gray(value):
+    return mark_safe("<span class='gray'>" + value + "</span>")
+gray.is_safe = True
 
 @register.filter(name='green')
 @stringfilter

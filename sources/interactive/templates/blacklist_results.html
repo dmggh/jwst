@@ -3,9 +3,9 @@
 {% load stdtags %}
 
 {% block contents %}
-    <h2>Set File Enable {{file_known|grey}}</h2>
-    <h3>Files marked: {{badflag|grey}}</h3>
-    <h3>Reject type: {{reject_type|grey}}<h3>
+    <h2>Set File Enable {{file_known|gray}}</h2>
+    <h3>Files marked: {{badflag|gray}}</h3>
+    <h3>Reject type: {{reject_type|gray}}<h3>
     <h3>Affected Files</h3>
     <table>
     {% for set_file in affected_files %}

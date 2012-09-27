@@ -4,7 +4,7 @@
 
 {% block contents %}
 
-    <h2>Certifying File {{certified_file|grey}}</h2>
+    <h2>Certifying File {{certified_file|gray}}</h2>
     
     <h3>Blacklist Status:
     {% if blacklist_status == "OK" %}
@@ -19,7 +19,7 @@
     {% if blacklisted_by %}
         <p>Dependent on blacklisted files:</p> 
         {% for line in blacklisted_by %}
-            <p>{{line|safe|grey}}</p>
+            <p>{{line|safe|gray}}</p>
         {% endfor %}
     {% endif %}
     

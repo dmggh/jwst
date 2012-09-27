@@ -330,26 +330,17 @@ def get_uploaded_file(request, formvar):
 
 def get_files(request):
     """Obtain uploaded files from a common multi-mode form mechanism,  
-    returning:   { original_name : file_path }
+    returning:   remove_dir,   { original_name : file_path }
     """
-    file_mode = validate_post(request, "file_mode", ["file_uploaded", "file_local_dir"])
-    if file_mode == "file_uploaded":
-        files = request.FILES.getlist("file_uploaded")
-        if not files:
-            raise CrdsError("No files specified.")
-        uploads = { f.name : f.temporary_file_path() for f in files }
-        remove_dir = None
-    else:
-        dir = validate_post(request, "file_local_dir", "[A-Za-z0-9_]+")
-        dir = os.path.join(config.CRDS_INGEST_DIR, dir)
-        uploads = { os.path.basename(f) : f for f in glob.glob(dir + "/*") }
-        remove_dir = dir
+    dir = str(request.user)
+    dir = os.path.join(config.CRDS_INGEST_DIR, dir)
+    uploads = { os.path.basename(f) : f for f in glob.glob(dir + "/*") }
     for f in uploads:
         if rmap.is_mapping(f):
             checksum.update_checksum(uploads[f])
     if not uploads:
         raise CrdsError("No input files were specified.")
-    return remove_dir, uploads
+    return dir, uploads
 
 def get_server_ingest_dirs():
     """Return a list of choice tuples of directory names defined under the
@@ -559,17 +550,14 @@ class JSONResponse(HttpResponse):
 @log_view
 def upload_new(request, extras=None):
     if request.method == "GET":
-        datestr = timestamp.now().replace("-","_").replace(" ","_").replace(":","_")[:-10]
-        vars = {
-                "file_local_dir" : str(request.user) + "_" + datestr,
-            }
-        if extras is not None:
-            vars.update(extras)
-        request.session["file_local_dir"] = ""
-        return crds_render(request, "upload_new_input.html", vars)
+        if extras is None:
+            extras = {}
+        return crds_render(request, "upload_new_input.html", extras)
     else:
         f = get_uploaded_file(request, 'file')
-        file_local_dir = validate_post(request, "file_local_dir", "[A-Za-z0-9_]+")
+        file_local_dir = str(request.user)
+        assert re.match("[A-Za-z0-9_]+", file_local_dir), \
+            "Invalid file_local_dir " + srepr(file_local_dir)
         ingest_path = os.path.join(config.CRDS_INGEST_DIR, file_local_dir, f.name)
         utils.ensure_dir_exists(ingest_path)
         os.link(f.temporary_file_path(), ingest_path)
@@ -579,8 +567,6 @@ def upload_new(request, extras=None):
                  'delete_type': "DELETE"}]
         response = JSONResponse(data, {}, response_mimetype(request))
         response['Content-Disposition'] = 'inline; filename=files.json'
-        request.session["file_local_dir"] = file_local_dir
-        request.session.save()
         return response
 
 @login_required
@@ -588,7 +574,7 @@ def upload_new(request, extras=None):
 def upload_delete(request, filename):
     if request.is_ajax():
         try:
-            file_local_dir = str(request.session["file_local_dir"])
+            file_local_dir = str(request.user)
             assert re.match("[A-Za-z0-9_]+", file_local_dir), \
                 "Invalid file_local_dir " + srepr(file_local_dir)
             ingest_path = os.path.join(config.CRDS_INGEST_DIR, file_local_dir)
@@ -609,7 +595,7 @@ def upload_delete(request, filename):
 def upload_bsr(request):
     return upload_new(request, extras= {
                     "workflow_title" : "Batch Submit References",
-                    "workflow_next" : "/batch_submit_reference",
+                    "workflow_next" : "/batch_submit_reference/",
             })
 
 def upload_submit_file(request, crds_filetype):
@@ -797,10 +783,13 @@ def bestrefs_explore_compute(request):
 def submit_file(request, crds_filetype):
     """Handle file submission,  crds_filetype=reference|mapping."""
     if request.method == "GET":
-        return crds_render(request, 'submit_input.html', {
-            "crds_filetype" :  crds_filetype,
-            "file_ingest_dirs" : get_server_ingest_dirs(),
-        })
+        submitted_files, ingest_dirs, file_local_dir = get_file_upload_info(request)
+        return crds_render(request, "submit_input.html", {
+                    "crds_filetype" :  crds_filetype,
+                    "submitted_files" : submitted_files,
+                    "file_ingest_dirs" : ingest_dirs,
+                    "file_local_dir" : file_local_dir,
+                })
     else:
         return submit_file_post(request, crds_filetype)
     
@@ -840,8 +829,11 @@ def submit_file_post(request, crds_filetype):
     
         new_file_map[original_name] =  new_basename
     
-#    if remove_dir is not None:
-#        shutil.rmtree(remove_dir, ignore_errors=True)
+    if remove_dir is not None:
+        try:
+            shutil.rmtree(remove_dir, ignore_errors=True)
+        except Exception, exc:
+            log.warning("Failed to remove ingest directory", repr(remove_dir), ":", str(exc))
 
     return crds_render(request, 'submit_results.html', {
                 "crds_filetype": crds_filetype,
@@ -1101,12 +1093,30 @@ def certify_file_list(upload_tuples, check_references=True, context=None):
 def batch_submit_reference(request):
     """View to return batch submit reference form or process POST."""
     if request.method == "GET":
+        submitted_files, ingest_dirs, file_local_dir = get_file_upload_info(request)
         return crds_render(request, "batch_submit_reference_input.html", {
-                    "file_local_dir" : request.session.get("file_upload_dir", ""),
-                    "file_ingest_dirs" : get_server_ingest_dirs(),
+                    "submitted_files" : submitted_files,
+                    "file_ingest_dirs" : ingest_dirs,
+                    "file_local_dir" : file_local_dir,
                 })
     else:
         return batch_submit_reference_post(request)
+
+def get_file_upload_info(request):
+    """Determine the submitted files and ingest directories for file uploads."""
+    file_local_dir = str(request.user)
+    ingest_dirs = get_server_ingest_dirs()
+    assert file_local_dir in [os.path.basename(path[0]) for path in ingest_dirs], \
+        "Invalid ingest directory " + repr(file_local_dir) + " " + repr(ingest_dirs)
+    if file_local_dir:
+        submitted_files = glob.glob(config.CRDS_INGEST_DIR + "/" + file_local_dir + "/*")
+        submitted_files = [os.path.basename(file) for file in submitted_files]
+        if not submitted_files:
+            raise CrdsError("No files in ingest directory " + repr(file_local_dir))
+    else:  # this is for the non-workflow case where an ingest dir is filled some
+        # other way.
+        submitted_files = []
+    return submitted_files, ingest_dirs, file_local_dir
     
 def batch_submit_reference_post(request):
     """View fragment to process file batch reference submnission POSTs."""
@@ -1140,7 +1150,7 @@ def batch_submit_reference_post(request):
                 
                 "new_file_map" : sorted(new_references.items()),
                 
-                "generated_files" : new_mappings, 
+                "generated_files" : sorted(new_mappings), 
                 "submission_kind" : "batch submit",
                 "title" : "Batch Reference Submit",
                 "description" : description,
