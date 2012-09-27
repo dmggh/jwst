@@ -5,27 +5,13 @@
 <br/>
 <br/>
 {% if workflow_title %}
-    <h2 class="h2">Uploading For <span class="gray">{{workflow_title}}</span> </h2>
+    <h2 class="h2">Uploading Files For <span class="gray">{{workflow_title}}</span> </h2>
 {% else %}
     <h2 class="h2">Uploading Files</h2>
 {% endif %}
 <br/>
 
 <table>
-    <tr>
-        <td><h3 class="h3">Instrument:</h3> </td> 
-        <td>{% include "select_instrument.html" %}</td>
-    </tr>
-    <tr>
-        <td><h3 class="h3">Filetype:</h3></td>
-        <td>{% include "select_filekind.html" %}</td>
-    </tr>
-    <tr>
-        <td><h3 class="h3">Date Time:</h3></td>
-        <td><input type="text" name="datetime" value="{{ datetime }}" 
-                    readonly="readonly" />
-        </td>
-    </tr>
     <tr>
         <td><h3 class="h3">Ingest Directory:</h3></td>
         <td><input type="text" id="ingest_dir" name="file_local_dir" value="{{file_local_dir}}" 

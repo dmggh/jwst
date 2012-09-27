@@ -561,10 +561,11 @@ def upload_new(request, extras=None):
     if request.method == "GET":
         datestr = timestamp.now().replace("-","_").replace(" ","_").replace(":","_")[:-10]
         vars = {
-                    "datetime" : datestr
+                "file_local_dir" : str(request.user) + "_" + datestr,
             }
         if extras is not None:
             vars.update(extras)
+        request.session["file_local_dir"] = ""
         return crds_render(request, "upload_new_input.html", vars)
     else:
         f = get_uploaded_file(request, 'file')
@@ -578,12 +579,27 @@ def upload_new(request, extras=None):
                  'delete_type': "DELETE"}]
         response = JSONResponse(data, {}, response_mimetype(request))
         response['Content-Disposition'] = 'inline; filename=files.json'
+        request.session["file_local_dir"] = file_local_dir
+        request.session.save()
         return response
 
 @login_required
 @log_view
 def upload_delete(request, filename):
     if request.is_ajax():
+        try:
+            file_local_dir = str(request.session["file_local_dir"])
+            assert re.match("[A-Za-z0-9_]+", file_local_dir), \
+                "Invalid file_local_dir " + srepr(file_local_dir)
+            ingest_path = os.path.join(config.CRDS_INGEST_DIR, file_local_dir)
+            ingest_filepath = os.path.join(ingest_path, filename)
+            log.info("upload_delete removing file", srepr(ingest_filepath))
+            os.remove(ingest_filepath)
+            if not glob.glob(ingest_path + "/*"):
+                log.info("upload_delete removing directory", srepr(ingest_path))
+                os.rmdir(ingest_path)
+        except Exception, exc:
+            log.error("upload_delete failed:", str(exc))
         response = JSONResponse(True, {}, response_mimetype(request))
         response['Content-Disposition'] = 'inline; filename=files.json'
         return response
@@ -839,7 +855,7 @@ def submit_file_post(request, crds_filetype):
                 "description" : description,
                 
                 "certify_results" : certify_results,
-                "more_submits" : "/submit/" + crds_filetype + "/",
+                "more_submits" : "/upload_submit/" + crds_filetype + "/",
                 })
     
 def do_submit_file(observatory, original_name, upload_location, description, 
@@ -1086,6 +1102,7 @@ def batch_submit_reference(request):
     """View to return batch submit reference form or process POST."""
     if request.method == "GET":
         return crds_render(request, "batch_submit_reference_input.html", {
+                    "file_local_dir" : request.session.get("file_upload_dir", ""),
                     "file_ingest_dirs" : get_server_ingest_dirs(),
                 })
     else:
@@ -1131,7 +1148,7 @@ def batch_submit_reference_post(request):
                 "collision_list" : collision_list,
                 "rmap_diffs" : rmap_diffs,
 
-                "more_submits" : "/batch_submit_reference/",
+                "more_submits" : "/upload_bsr/",
                 "certify_results" : certify_results,
             })
 

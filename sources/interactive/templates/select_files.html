@@ -10,7 +10,7 @@
       <td align="right">
         <select name="file_local_dir" onchange='crds.set_radio("file_mode","file_local_dir");' />
             {% for dir in file_ingest_dirs %}
-                {% if dir.0 == "{{file_local_dir}}" %}
+                {% if dir.0 == file_local_dir %}
                     <option value="{{dir.0}}" selected>{{dir.1}}</option>
                 {% else %}
                     <option value="{{dir.0}}">{{dir.1}}</option>
