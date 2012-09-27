@@ -16,12 +16,6 @@ source env.csh
 
 cd `dirname $0`/tools
 
-echo -n "Database password for DADSOPS? "
-set password=$<
-set password_file=${CRDS_INSTALL_DIR}/python/lib/python/crds/server/interactive/db_password.dat
-echo $password >$password_file
-chmod 600 $password_file
-
 echo -n "Test account password? "
 set password=$<
 echo "Adding test user"
@@ -37,6 +31,12 @@ python adduser.py test jmiller@stsci.edu "$password"
 # the trailing "0" flag.  Switch to "1" to add those.
 
 if ($observatory == "hst") then
+    echo -n "Database password for DADSOPS? "
+    set password=$<
+    set password_file=${CRDS_INSTALL_DIR}/python/lib/python/crds/server/interactive/db_password.dat
+    echo $password >$password_file
+    chmod 600 $password_file
+
     python import_files.py $observatory.pmap jmiller jmiller@stsci.edu "Initial import" 0
 else if ($observatory == "jwst") then
     python import_files.py jwst.pmap jmiller jmiller@stsci.edu "Initial import" 0
