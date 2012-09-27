@@ -23,8 +23,10 @@
     <form method="post" action="/batch_submit_reference/" enctype="multipart/form-data"
     	  onsubmit="return validate_and_confirm(this);">  {% csrf_token %}
 
+      {% include "select_files.html" %} 
+                     
       <h3>Old Context to Derive From</h3>
-        {% include "select_pmap.html" %}
+      {% include "select_pmap.html" %}
         
         <h3>Change Level:
         <select name='change_level' value="{{change_level}}">
@@ -43,9 +45,6 @@
             <textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea>   
         </p>
 
-      <h3>Submitted References</h3>
-        {% include "select_files.html" %} 
-               
       <h3>Auto-Rename:  {% include "auto_rename_input.html" %}  </h3>
 
       <br/>

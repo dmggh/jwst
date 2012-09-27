@@ -17,6 +17,8 @@
     
         {%if actions %}
             <h3>Actions on {{old_rmap|gray}}</h3>
+            
+                {% accordion "Rmap Logical Diffs" %}
                 <table border="1" cellpadding="4">
                     <tr>
                         <th>Action</th>
@@ -39,9 +41,9 @@
                         </tr>        
                     {% endfor %}
                 </table>
+                {% endaccordion %}
 
-            <br/>
-            {% accordion "Rmap Differences" %}
+            {% accordion "Rmap Text Diffs" %}
                 <pre class="program">
                 {% for line in rmap_diffs %}
                     {{line|safe}}
