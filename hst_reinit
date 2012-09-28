@@ -1,0 +1,14 @@
+#! /bin/tcsh -x
+
+source env.csh
+
+rm -f ${CRDS_PATH}/references/hst/*
+rm -f ${CRDS_PATH}/mappings/hst/*
+rm -f ${CRDS_PATH}/catalogs/*
+rm -f ${CRDS_PATH}/deliveries/*
+
+python tools/wipe_db.py
+
+./install hst test
+./init hst test
+
