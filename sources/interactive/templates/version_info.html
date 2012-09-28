@@ -3,8 +3,7 @@
 {% load stdtags %}
 
 {% block contents %}
-    <h2>Version Info</h2>
-    
+    <h3>Version Info</h3>    
     <table border="1">
         <tr>
             <td class="table_header">component</td>
@@ -20,6 +19,20 @@
             <td>{{component.1.rev}}</td>
             <td>{{component.1.svnurl}}</td>
             <td>{{component.1.file}}</td>
+         </tr>
+        {% endfor %}
+    </table>
+
+    <h3>CRDS Environment</h3>
+    <table border="1">
+        <tr>
+            <td class="table_header">variable</td>
+            <td class="table_header">value</td>
+        </tr>
+        {% for var in crds_env %}
+         <tr>
+            <td>{{var.0}}</td>
+            <td>{{var.1}}</td>
          </tr>
         {% endfor %}
     </table>

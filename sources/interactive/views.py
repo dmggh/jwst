@@ -35,12 +35,12 @@ from django.utils.datastructures import DotExpandedDict
 import pyfits
 
 from crds import (rmap, utils, certify, timestamp, uses, matches, newcontext, 
-                  refactor, checksum, pysh, compat, log)
+                  refactor, checksum, pysh, compat, log, config)
 
 from crds.timestamp import (is_datetime, DATE_RE_STR, TIME_RE_STR, DATETIME_RE_STR)
 from crds import CrdsError
 
-import crds.server.config as config
+import crds.server.config as sconfig
 from crds.server.interactive import (models, database)
 from crds.server.interactive.models import FieldError, MissingInputError
 from crds.server import settings
@@ -333,7 +333,7 @@ def get_files(request):
     returning:   remove_dir,   { original_name : file_path }
     """
     dir = str(request.user)
-    dir = os.path.join(config.CRDS_INGEST_DIR, dir)
+    dir = os.path.join(sconfig.CRDS_INGEST_DIR, dir)
     uploads = { os.path.basename(f) : f for f in glob.glob(dir + "/*") }
     for f in uploads:
         if rmap.is_mapping(f):
@@ -355,7 +355,7 @@ def get_known_filepath(filename):
 def remove_temporary(filepath):
     """Attempt to remove `filepath`.  Ignore errors."""
     try:
-        assert filepath.startswith(config.FILE_UPLOAD_TEMP_DIR), \
+        assert filepath.startswith(sconfig.FILE_UPLOAD_TEMP_DIR), \
             "ERROR -- attempt to delete from Central Store"
         os.remove(filepath)
     except Exception, exc:
@@ -538,7 +538,7 @@ def upload_new(request, template="upload_new_input.html"):
         file_local_dir = str(request.user)
         assert re.match("[A-Za-z0-9_]+", file_local_dir), \
             "Invalid file_local_dir " + srepr(file_local_dir)
-        ingest_path = os.path.join(config.CRDS_INGEST_DIR, file_local_dir, f.name)
+        ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir, f.name)
         try:
             os.chmod(ingest_path, 0666)
             os.remove(ingest_path)
@@ -562,7 +562,7 @@ def wipe_ingest_directory(request):
     file_local_dir = str(request.user)
     assert re.match("[A-Za-z0-9_]+", file_local_dir), \
         "Invalid file_local_dir " + srepr(file_local_dir)
-    ingest_path = os.path.join(config.CRDS_INGEST_DIR, file_local_dir)
+    ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir)
     try:
         shutil.rmtree(ingest_path, ignore_errors=True)
         log.info("wiped ingest directory", repr(ingest_path))
@@ -576,7 +576,7 @@ def upload_delete(request, filename):
         file_local_dir = str(request.user)
         assert re.match("[A-Za-z0-9_]+", file_local_dir), \
             "Invalid file_local_dir " + srepr(file_local_dir)
-        ingest_path = os.path.join(config.CRDS_INGEST_DIR, file_local_dir)
+        ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir)
         ingest_filepath = os.path.join(ingest_path, filename)
         log.info("upload_delete removing file", srepr(ingest_filepath))
         os.remove(ingest_filepath)
@@ -780,7 +780,7 @@ def submit_files(request, crds_filetype):
     
 def file_exists_somehow(filename):
     """Return True IFF `filepath` really exists or CRDS thinks it does."""
-    filepath = rmap.locate_file(filename, config.observatory)
+    filepath = rmap.locate_file(filename, sconfig.observatory)
     return os.path.exists(filepath) or \
         models.FileBlob.exists(os.path.basename(filepath))
 
@@ -1318,7 +1318,7 @@ def submit_confirm(request):
                 request.user, submission_kind, file, description, 
                 str((new_file_map , generated_files)), 
                 instrument=instrument, filekind=filekind)    
-        deliver_file_list( request.user, config.observatory, 
+        deliver_file_list( request.user, sconfig.observatory, 
             new_files + generated_files, description, submission_kind)
     else:
         destroy_file_list(new_files + generated_files)
@@ -2308,7 +2308,7 @@ def deliver_file_catalog(observatory, files, operation="I"):
         "Invalid delivery operation " + srepr(operation)
     delivery_id = models.CounterBlob.next(observatory, "delivery_id")
     catalog = "_".join(["opus", str(delivery_id), operation.lower()])+".cat"
-    catpath = os.path.join(config.CRDS_CATALOG_DIR, catalog)
+    catpath = os.path.join(sconfig.CRDS_CATALOG_DIR, catalog)
     utils.ensure_dir_exists(catpath)
     cat = open(catpath, "w")
     for filename in files:
@@ -2328,7 +2328,7 @@ def deliver_make_links(observatory, catalog, paths):
     the recipient the entire delivery is considered complete and
     the files transition from "delivered" to "operational".
     """
-    dirs = config.CRDS_DELIVERY_DIRS
+    dirs = sconfig.CRDS_DELIVERY_DIRS
     for site in dirs:
         utils.ensure_dir_exists(site)
         for filename in paths + [catalog]:
@@ -2345,7 +2345,7 @@ def deliver_remove_fail(observatory, catalog, paths):
     """Delete all the delivery links for a failed but possibly partially
     completed delivery.
     """
-    for site in config.CRDS_DELIVERY_DIRS + [os.path.dirname(catalog)]:
+    for site in sconfig.CRDS_DELIVERY_DIRS + [os.path.dirname(catalog)]:
         utils.ensure_dir_exists(site)
         for filename in paths + [catalog]:
             dest = site +"/" + os.path.basename(filename)
@@ -2460,9 +2460,10 @@ def get_archive_url(archive_name, filelist):
 @error_trap("base.html")
 @superuser_login_required
 def version_info(request):
-    """Output a page with a table of software component versions."""
+    """Output a page with a table of software component versions."""    
     return crds_render(request, "version_info.html", {
-                "version_info" : sorted(versions.get_all_versions().items())
+                "version_info" : sorted(versions.get_all_versions().items()),
+                "crds_env" : sorted(config.get_crds_env_vars().items()),
             })
 
 @error_trap("base.html")
