@@ -559,7 +559,14 @@ def upload_new(request, extras=None):
         assert re.match("[A-Za-z0-9_]+", file_local_dir), \
             "Invalid file_local_dir " + srepr(file_local_dir)
         ingest_path = os.path.join(config.CRDS_INGEST_DIR, file_local_dir, f.name)
+        try:
+            os.chmod(ingest_path, 0666)
+            os.remove(ingest_path)
+            log.info("Removed existing", repr(ingest_path))
+        except Exception, exc:
+            log.info("Failed removing", repr(ingest_path), str(exc))
         utils.ensure_dir_exists(ingest_path)
+        log.info("Linking", ingest_path)
         os.link(f.temporary_file_path(), ingest_path)
         data = [{'name': f.name, 'url': settings.MEDIA_URL + "pictures/" + f.name.replace(" ", "_"), 
                  'thumbnail_url': settings.MEDIA_URL + "pictures/" + f.name.replace(" ", "_"), 
@@ -572,20 +579,21 @@ def upload_new(request, extras=None):
 @login_required
 @log_view
 def upload_delete(request, filename):
+    try:
+        file_local_dir = str(request.user)
+        assert re.match("[A-Za-z0-9_]+", file_local_dir), \
+            "Invalid file_local_dir " + srepr(file_local_dir)
+        ingest_path = os.path.join(config.CRDS_INGEST_DIR, file_local_dir)
+        ingest_filepath = os.path.join(ingest_path, filename)
+        log.info("upload_delete removing file", srepr(ingest_filepath))
+        os.remove(ingest_filepath)
+        if not glob.glob(ingest_path + "/*"):
+            log.info("upload_delete removing directory", srepr(ingest_path))
+            os.rmdir(ingest_path)
+    except Exception, exc:
+        log.error("upload_delete failed:", str(exc))
+
     if request.is_ajax():
-        try:
-            file_local_dir = str(request.user)
-            assert re.match("[A-Za-z0-9_]+", file_local_dir), \
-                "Invalid file_local_dir " + srepr(file_local_dir)
-            ingest_path = os.path.join(config.CRDS_INGEST_DIR, file_local_dir)
-            ingest_filepath = os.path.join(ingest_path, filename)
-            log.info("upload_delete removing file", srepr(ingest_filepath))
-            os.remove(ingest_filepath)
-            if not glob.glob(ingest_path + "/*"):
-                log.info("upload_delete removing directory", srepr(ingest_path))
-                os.rmdir(ingest_path)
-        except Exception, exc:
-            log.error("upload_delete failed:", str(exc))
         response = JSONResponse(True, {}, response_mimetype(request))
         response['Content-Disposition'] = 'inline; filename=files.json'
         return response
@@ -802,7 +810,8 @@ def file_exists_somehow(filename):
 def submit_file_post(request, crds_filetype):
     """Handle the POST case of submit_file, returning dict of template vars."""
     observatory = get_observatory(request)
-    if crds_filetype == "reference":
+    compare_old_reference = "compare_old_reference" in request.POST 
+    if crds_filetype == "reference" and compare_old_reference:
         context = get_recent_or_user_context(request)
     else:
         context = None
@@ -814,7 +823,7 @@ def submit_file_post(request, crds_filetype):
     remove_dir, uploaded_files = get_files(request)
     
     # Verify that ALL references certify,  raise CrdsError on first error.
-    certify_results = certify_file_list(uploaded_files.items())
+    certify_results = certify_file_list(uploaded_files.items(), context=context)
 
     collision_list = []
     new_file_map = {}
@@ -1106,8 +1115,8 @@ def get_file_upload_info(request):
     """Determine the submitted files and ingest directories for file uploads."""
     file_local_dir = str(request.user)
     ingest_dirs = get_server_ingest_dirs()
-    assert file_local_dir in [os.path.basename(path[0]) for path in ingest_dirs], \
-        "Invalid ingest directory " + repr(file_local_dir) + " " + repr(ingest_dirs)
+    #    assert file_local_dir in [os.path.basename(path[0]) for path in ingest_dirs], \
+    #        "Invalid ingest directory " + repr(file_local_dir) + " " + repr(ingest_dirs)
     if file_local_dir:
         submitted_files = glob.glob(config.CRDS_INGEST_DIR + "/" + file_local_dir + "/*")
         submitted_files = [os.path.basename(file) for file in submitted_files]
@@ -1124,12 +1133,13 @@ def batch_submit_reference_post(request):
     description = validate_post(request, "description", DESCRIPTION_RE)
     creator = validate_post(request, "creator", PERSON_RE)
     change_level = validate_post(request, "change_level", models.CHANGE_LEVELS)
-    auto_rename = "auto_rename" in request.POST    
+    auto_rename = "auto_rename" in request.POST
+    compare_old_reference = "compare_old_reference" in request.POST 
     remove_dir, uploaded_files = get_files(request)
     
     actions, new_references, new_mappings, old_mappings, certify_results = bsr_core(
         pmap_name, uploaded_files, description, str(request.user), str(request.user.email), 
-        creator, change_level, auto_rename)
+        creator, change_level, auto_rename, compare_old_reference)
     
     collision_list = get_collision_list(new_mappings)
 
@@ -1163,16 +1173,20 @@ def batch_submit_reference_post(request):
             })
 
 def bsr_core(pmap_name, uploaded_files, 
-             description, user_name, user_email, creator, change_level, auto_rename):
+             description, user_name, user_email, creator, change_level, auto_rename,
+             compare_old_reference):
     """bsr_core implements batch submit reference functionality independently of 
     web requests and responses.  bsr_core does however interact with Django models.
     """
     pmap = rmap.get_cached_mapping(pmap_name)
 
-    instrument, filekind = bsr_check_files(pmap, uploaded_files)
+    instrument, filekind = bsr_check_files_similar(pmap, uploaded_files)
 
     # Verify that ALL references certify,  raise CrdsError on first error.
-    certify_results = certify_file_list(uploaded_files.items(), context=pmap_name)
+    comparison_context = None
+    if compare_old_reference:
+        comparison_context = pmap_name
+    certify_results = certify_file_list(uploaded_files.items(), context=comparison_context)
 
     old_rmap, tmp_actions = bsr_temporary_refactor(
         pmap, uploaded_files, instrument, filekind)
@@ -1203,7 +1217,7 @@ def bsr_core(pmap_name, uploaded_files,
 
     return (actions, new_references, new_mappings, old_mappings, certify_results)
 
-def bsr_check_files(pmap, uploaded_files):
+def bsr_check_files_similar(pmap, uploaded_files):
     """Verify that all have same instrument and filekind and return them."""
     old_instr, old_filekind = None, None
     for (original_name, uploaded_path) in uploaded_files.items():

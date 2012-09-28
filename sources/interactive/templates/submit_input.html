@@ -2,19 +2,19 @@
 
 {% block column1 %}
     <h2>Submit {{crds_filetype|capfirst}} Files</h2>
-    <form method="post" action="/submit/{{crds_filetype}}/" enctype="multipart/form-data"> 
-      {% csrf_token %}
+    <h3>Submitted Files:</h3>
+    {% include "select_files.html" %}
+     
+    <form method="post" action="/submit/{{crds_filetype}}/" enctype="multipart/form-data"> {% csrf_token %}
 
         <input type='hidden' name='observatory' value='{{observatory}}' />
 
         {% if crds_filetype == "reference" %}
         <h3>Context to Check Against</h3>
         {% include "select_pmap.html" %}
+        <h3>Compare Old Reference:  <input type="checkbox" name="compare_old_reference" value="{{compare_old_reference}}" /></h3
         {% endif %}
         
-        <h3>Submitted Files:</h3>
-        {% include "select_files.html" %}
-     
         <h3>Change Level:
         <select name='change_level' value="{{change_level}}">
             <option>SEVERE</option>
@@ -33,9 +33,9 @@
         <h3>Auto-Rename:
         {% include "auto_rename_input.html" %}
         </h3>
-
+        
       <p></p>
-      <input type="submit" value="Submit File">
+      <input type="submit" value="Submit Files">
     </form>
 {% endblock column1 %}
 

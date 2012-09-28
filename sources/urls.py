@@ -20,8 +20,6 @@ urlpatterns = patterns('',
   url(r'^bestrefs_explore/$', 'crds.server.interactive.views.bestrefs_explore'),          
   url(r'^bestrefs_explore_compute/$', 'crds.server.interactive.views.bestrefs_explore_compute'), 
 
-  url(r'^upload_submit/(?P<crds_filetype>reference|mapping)/$', 'crds.server.interactive.views.upload_submit_file'),
-  url(r'^submit/(?P<crds_filetype>reference|mapping)/$', 'crds.server.interactive.views.submit_file'),          
   url(r'^set_file_enable/$',    'crds.server.interactive.views.set_file_enable'),          
 
   url(r'^certify/$',      'crds.server.interactive.views.certify_file'),          
@@ -34,6 +32,9 @@ urlpatterns = patterns('',
   url(r'^edit_rmap_browse/$', 'crds.server.interactive.views.edit_rmap_browse'),        
   url(r'^edit_rmap/((?P<filename>[A-Za-z0-9_.]+rmap)/)?$', 'crds.server.interactive.views.edit_rmap'),
   
+  url(r'^upload_submit/(?P<crds_filetype>reference|mapping)/$', 'crds.server.interactive.views.upload_submit_file'),
+  url(r'^submit/(?P<crds_filetype>reference|mapping)/$', 'crds.server.interactive.views.submit_file'),
+            
   url(r'^upload_bsr/$', 'crds.server.interactive.views.upload_bsr'),
   url(r'^batch_submit_reference/$', 'crds.server.interactive.views.batch_submit_reference'),
   url(r'^submit_confirm/$', 'crds.server.interactive.views.submit_confirm'),

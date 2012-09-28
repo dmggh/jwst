@@ -1,10 +1,11 @@
 """Unit tests to exercise the interactive portions of the CRDS server.
 """
 import os
+import shutil
 
 from django.test import TestCase
 
-from crds import (rmap, utils, pysh)
+from crds import (rmap, utils, pysh, log)
 import crds.config as lconfig
 
 import crds.server.interactive.models as models
@@ -25,8 +26,6 @@ pysh.sh("mkdir -p ${CRDS_PATH}/references/%s" % sconfig.observatory, raise_on_er
 pysh.sh("mkdir -p ${CRDS_PATH}/mappings/%s" % sconfig.observatory, raise_on_error=True)
 pysh.sh("cp ${REAL_MAPPING_DIR}/*.*map ${CRDS_PATH}/mappings/%s" % sconfig.observatory, raise_on_error=True)
 
-
-
 class SimpleTest(TestCase):
     
     def runTest(self, *args, **keys):
@@ -35,7 +34,11 @@ class SimpleTest(TestCase):
     pmap = sconfig.observatory + ".pmap"
     
     def setUp(self): 
-        User.objects.create_user('homer', 'homer@simpson.net', 'simpson')     
+        self.user = User.objects.create_user('homer', 'homer@simpson.net', 'simpson')
+        try:
+            self.user.save()    
+        except Exception, exc:
+            print "failed user save:", str(exc)
         self.fake_database_files([self.pmap])
         models.set_default_context(self.pmap)
         models.set_default_context(self.pmap, state="operational")
@@ -163,19 +166,28 @@ class SimpleTest(TestCase):
             rmap1 = "interactive/test_data/jwst_miri_flat.rmap"
             self.fake_database_files([
                 "interactive/test_data/jwst_miri_flat_0001.fits",])
+        self.add_file_to_ingest_dir(rmap1)
         rmap2 = self.add_1(rmap1)
         response = self.client.post("/submit/mapping/", {
             "observatory" : sconfig.observatory,
             "auto_rename" : "on",
-            "file_mode" : "file_uploaded",
-            "file_uploaded" : open(rmap1),
             "description" : "an identical pmap with a different name is still different",
             "change_level" : "SEVERE",
             "creator" : "Somebody else",
             })
         self.assert_no_errors(response)
         self.assertIn(rmap2, response.content)
-    
+        
+    def add_file_to_ingest_dir(self, filepath):
+        ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, str(self.user), os.path.basename(filepath))
+        utils.ensure_dir_exists(ingest_path)
+        try:
+            log.info("linking ingest", ingest_path, "to", filepath)
+            shutil.copy(filepath, ingest_path)
+            os.chmod(ingest_path, 0666)
+        except Exception, exc:
+            log.info("failed to add file:", str(exc))
+        
     def test_set_file_enable_get(self):
         self.authenticate()
         response = self.client.get("/set_file_enable/")
@@ -254,6 +266,7 @@ class SimpleTest(TestCase):
             "file_uploaded" : open(fits),
             "pmap_mode": "pmap_edit",
         })
+        print response
         self.assert_no_errors(response)
         self.assertIn("0 errors", response.content)
         self.assertEqual(response.content.count("OK"), 2)
@@ -386,12 +399,11 @@ class SimpleTest(TestCase):
             reference = "interactive/test_data/s7g1700gl_dead.fits"
         else:
             reference = "interactive/test_data/jwst_miri_fakeflat.fits"
+        self.add_file_to_ingest_dir(reference)
         response = self.client.post("/batch_submit_reference/", {
                 "pmap_mode" : "pmap_edit",
                 "creator" : "bozo",
                 "change_level" : "SEVERE",
-                "file_mode" : "file_uploaded",
-                "file_uploaded" : open(reference),
                 "description":"this is only a test.",
                 "auto_rename" : "checked",
             })
@@ -407,12 +419,11 @@ class SimpleTest(TestCase):
             reference = "interactive/test_data/s7g1700gm_dead.fits"
         else:
             reference = "interactive/test_data/jwst_miri_flat_insert.fits"
+        self.add_file_to_ingest_dir(reference)
         response = self.client.post("/batch_submit_reference/", {
                 "pmap_mode" : "pmap_edit",
                 "creator" : "bozo",
                 "change_level" : "SEVERE",
-                "file_mode" : "file_uploaded",
-                "file_uploaded" : open(reference),
                 "description":"this is only a test.",
             })
         # print response
@@ -537,11 +548,4 @@ class SimpleTest(TestCase):
         
     def test_get(self):
         pass
-    
-    def test_batch_submit_server_mode(self):
-        pass
-    
-    def test_simple_submit_server_mode(self):
-        pass
-    
 
