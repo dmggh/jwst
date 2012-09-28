@@ -2,7 +2,7 @@
 
 {% load stdtags %}
 
-{% block head_additions %}
+{% block head_overrides %}
 
 {% include "jsonrpc.html" %}
 
@@ -455,7 +455,7 @@ $( function () {
 });
 
 </script>
-{% endblock head_additions %}
+{% endblock head_overrides %}
 
 {% block contents %}
 
@@ -464,7 +464,7 @@ $( function () {
 
         <form action="/edit_rmap/" method="post" id="update_rmap_form" enctype="multipart/form-data">
         
-            <h3>Old Context to Derive From</h3>
+            <h3>Derive From Context</h3>
             {% include "select_pmap.html" %}
 
             <h3>Description</h3>

@@ -4,6 +4,10 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
        <title>Calibration Reference Data System (CRDS)</title>
+
+      {% block head_additions %} 
+      {% endblock %}
+
       <link type="text/css" rel="stylesheet" href="/static/style.css" />
       
       <!-- jquery.ui -->
@@ -12,10 +16,11 @@
       <script src="/static/jquery-ui/js/jquery-ui-1.8.14.custom.min.js" type="text/javascript" language="javascript"></script>
       <script src="/static/jquery.cookie.js" type="text/javascript" language="javascript"></script>
       <script src="/static/jquery.MultiFile.js" type="text/javascript" language="javascript"></script>
-      <script src="/static/crds_utils.js" type="text/javascript" language="javascript"></script>      
+      <script src="/static/crds_utils.js" type="text/javascript" language="javascript"></script> 
+      
+      {% block head_overrides %}
+      {% endblock %}     
 
-      {% block head_additions %} 
-      {% endblock %}
   </head>
 
   <body>
@@ -47,22 +52,29 @@
     </div>
     
     <div id="contents">
-    {% block contents %} 
+    {% block contents %}
+        <div id="contents_top" class="full_width">
+        {% block contents_top %}
+        {% endblock %}
+        </div>
         <div class="column1">
         {% block column1 %}
         {% endblock %}
         </div>
         <div class="column2">
         {% block column2 %}
+            <br/><br/>
+            {% if error_message %}
+                <div class="error">
+                    {{error_message}}
+                </div>
+                <br/>
+            {% endif %}
             <div class="help">
                 <p>
                 {% block help %}
                 {% endblock help %}
                 </p>
-            </div>
-            <br/><br/>
-            <div class="error">
-                {{error_message}}
             </div>
         {% endblock %}
         </div>

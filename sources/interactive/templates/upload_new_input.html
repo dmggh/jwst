@@ -2,19 +2,17 @@
 {% load stdtags %}
 
 {% block picture_form_prefix %}
-
-<br/>
-<br/>
-{% if workflow_title %}
-    <h2 class="h2">Uploading Files For {{workflow_title|gray}}</h2>
-{% else %}
-    <h2 class="h2">Uploading Files</h2>
-{% endif %}
-<br/>
-
+    <div class="container">
+        <br/>
+        <br/>
+        {% if workflow_title %}
+            <h2 class="h2">Uploading Files For {{workflow_title|gray}}</h2>
+        {% else %}
+            <h2 class="h2">Uploading Files</h2>
+        {% endif %}
+        <br/>
+    </div>
 {% endblock %}
-
-
 
 {% block picture_form_footer %}
 

@@ -1,18 +1,24 @@
 {% extends "base.html" %}
 
+{% block head_additions %}
+    {% include "fileupload/picture_form_head_additions.html" %}
+{% endblock %}
+
+{% block contents_top %}
+{% endblock %}
+
 {% block column1 %}
     <h2>Submit {{crds_filetype|capfirst}} Files</h2>
-    <h3>Submitted Files:</h3>
-    {% include "select_files.html" %}
-     
+    {% include "select_files.html" %}        
+
     <form method="post" action="/submit/{{crds_filetype}}/" enctype="multipart/form-data"> {% csrf_token %}
 
         <input type='hidden' name='observatory' value='{{observatory}}' />
 
         {% if crds_filetype == "reference" %}
-        <h3>Context to Check Against</h3>
+        <h3>Comparison Context</h3>
         {% include "select_pmap.html" %}
-        <h3>Compare Old Reference:  <input type="checkbox" name="compare_old_reference" value="{{compare_old_reference}}" /></h3
+        <h3>Compare Old Reference:  <input type="checkbox" name="compare_old_reference" value="{{compare_old_reference}}" /></h3>
         {% endif %}
         
         <h3>Change Level:
@@ -41,15 +47,23 @@
 
 {% block help %}
 
-<p><b>Submit Files</b> permanently enters files into CRDS and the 
+<p><b>Submit {{crds_filetype|capfirst}} Files</b> permanently enters files into CRDS and the 
 archive.
 
-{% if crds_filetype == "reference" %}
-<p><p><b>Context to Check Against</b> defines any prior reference used to check
-modes of a new reference.
-{% endif %}
+<p><p><b>Upload Files</b> is an accordion panel when enables files to be
+uploaded to the CRDS server.
 
-<p><p><b>Submitted Files</b> new references or mappings to be added to CRDS.
+{% if crds_filetype == "reference" %}
+<p><p><b>Comparison Context</b> specifies the context used to locate
+comparison references.  The submitted references are matched against references
+in this context with the same parameters for the sake of comparison.
+
+<p><p><b>Compare Old Reference</b> check this to perform table comparisons
+against prior versions of the submitted reference file identified by the
+comparison context.  If left unchecked,  the comparison context is ignored
+and no comparison to prior versions is performed.
+
+{% endif %}
 
 <p><p><b>Change Level</b> The degree to which the new files are expected to 
 impact science results.

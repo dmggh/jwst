@@ -57,19 +57,22 @@ hr {
     background-color: transparent;
     border: none;
     }
+    
+.full_width {
+    float: left;
+    width: 100%;
+}
 
 .column1 {
     float: left;
-    width: 45%;
+    width: 55%;
     margin: 0px 10px 10px 10px;
-    background-color: transparent;
 }
 
 .column2 {
     float: left;
-    width: 45%;
+    width: 35%;
     margin: 0px 10px 10px 10px;
-    background-color: transparent;
 }
 
 h1, h2, h3, h4 {
@@ -77,15 +80,22 @@ h1, h2, h3, h4 {
     color: darkblue;
 }
 
-.h3 {
+h3,  .h3 {
     font-family: sans-serif;
     font-size: 18px;
     color: darkblue;
+    padding-top: 0.2em;
 }
+
 .h2 {
     font-family: sans-serif;
     font-size: 24px;
     color: darkblue;
+}
+
+textarea {
+    width: 100%;
+    color: black;
 }
 
 label, .label, .label2 {
@@ -207,6 +217,11 @@ input {
     border-radius: 6px;
     margin: 2px 2px 2px 2px;
     background-color: white;
+    color: black;
+}
+
+select {
+    color: black;
 }
 
 .data_tab { color: #282840; }

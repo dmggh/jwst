@@ -1,11 +1,10 @@
 {% load stdtags %}
 
-{% accordion "Submitted Files" %}
-    {# <p class="label">From Directory {{file_local_dir|gray}}</p>  #}
-    <table>
-        {% for file in submitted_files %}
-            <tr><td>{{file|blue}}</td></tr>
-        {% endfor %}
-    </table>
+<h3>Upload Files</h3>
+{% accordion "Upload Files" %}
+    {% include "fileupload/picture_form_form.html" %}
+    
+    {% include "fileupload/picture_form_gallery.html" %}
+        
+    {% include "fileupload/picture_form_scripts.html" %}
 {% endaccordion %}
-<input type="hidden" name="file_mode" value="file_local_dir" checked>

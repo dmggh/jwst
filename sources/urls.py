@@ -32,11 +32,11 @@ urlpatterns = patterns('',
   url(r'^edit_rmap_browse/$', 'crds.server.interactive.views.edit_rmap_browse'),        
   url(r'^edit_rmap/((?P<filename>[A-Za-z0-9_.]+rmap)/)?$', 'crds.server.interactive.views.edit_rmap'),
   
-  url(r'^upload_submit/(?P<crds_filetype>reference|mapping)/$', 'crds.server.interactive.views.upload_submit_file'),
-  url(r'^submit/(?P<crds_filetype>reference|mapping)/$', 'crds.server.interactive.views.submit_file'),
+  url(r'^upload_submit/(?P<crds_filetype>reference|mapping)/$', 'crds.server.interactive.views.upload_submit_files'),
+  url(r'^submit/(?P<crds_filetype>reference|mapping)/$', 'crds.server.interactive.views.submit_files'),
             
   url(r'^upload_bsr/$', 'crds.server.interactive.views.upload_bsr'),
-  url(r'^batch_submit_reference/$', 'crds.server.interactive.views.batch_submit_reference'),
+  url(r'^batch_submit_references/$', 'crds.server.interactive.views.batch_submit_references'),
   url(r'^submit_confirm/$', 'crds.server.interactive.views.submit_confirm'),
           
   url(r'^browse/(?P<filename>[A-Za-z0-9_.]+(fits|imap|rmap|pmap|r\dh))$', 
