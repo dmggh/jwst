@@ -1,0 +1,45 @@
+<div class="container">
+    <form id="fileupload" method="post" action="." enctype="multipart/form-data">{% csrf_token %}
+
+        <div class="row fileupload-buttonbar">
+            <div class="span7">
+                <span class="btn btn-primary fileinput-button">
+                    <i class="icon-plus icon-white"></i>
+                    <span>Add files...</span>
+                    <input type="file" name="file" multiple>
+                </span>
+                <button type="submit" class="btn btn-success start">
+                    <i class="icon-upload icon-white"></i>
+                    <span>Start upload</span>
+                </button>
+                <button type="reset" class="btn btn-warning cancel">
+                    <i class="icon-ban-circle icon-white"></i>
+                    <span>Cancel upload</span>
+                </button>
+                <button type="button" class="btn btn-danger delete">
+                    <i class="icon-trash icon-white"></i>
+                    <span>Delete files</span>
+                </button>
+                <input type="checkbox" class="toggle">
+            </div>
+            <div class="span5 fileupload-progress fade">
+                <div class="progress progress-success progres-striped active">
+                    <div class="bar" style="width:0%"></div>
+                </div>
+                <div class="progress-extended">&nbsp;</div>
+            </div>
+        </div>
+
+        {% block picture_form_suffix %}
+        {% endblock %}
+
+        <div class="fileupload-loading"></div>
+        <table class="table table-striped"><tbody class="files" data-toggle="modal-gallery" data-target="#modal-gallery"></tbody></table>
+    </form>
+
+    <div class="fileupload-content">
+        <table class="files"></table>
+        <div class="fileupload-progressbar"></div>
+    </div>
+</div>
+
