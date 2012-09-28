@@ -266,7 +266,6 @@ class SimpleTest(TestCase):
             "file_uploaded" : open(fits),
             "pmap_mode": "pmap_edit",
         })
-        print response
         self.assert_no_errors(response)
         self.assertIn("0 errors", response.content)
         self.assertEqual(response.content.count("OK"), 2)
@@ -400,7 +399,7 @@ class SimpleTest(TestCase):
         else:
             reference = "interactive/test_data/jwst_miri_fakeflat.fits"
         self.add_file_to_ingest_dir(reference)
-        response = self.client.post("/batch_submit_reference/", {
+        response = self.client.post("/batch_submit_references/", {
                 "pmap_mode" : "pmap_edit",
                 "creator" : "bozo",
                 "change_level" : "SEVERE",
@@ -420,7 +419,7 @@ class SimpleTest(TestCase):
         else:
             reference = "interactive/test_data/jwst_miri_flat_insert.fits"
         self.add_file_to_ingest_dir(reference)
-        response = self.client.post("/batch_submit_reference/", {
+        response = self.client.post("/batch_submit_references/", {
                 "pmap_mode" : "pmap_edit",
                 "creator" : "bozo",
                 "change_level" : "SEVERE",

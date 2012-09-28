@@ -342,14 +342,6 @@ def get_files(request):
         raise CrdsError("No input files were specified.")
     return dir, uploads
 
-def get_server_ingest_dirs():
-    """Return a list of choice tuples of directory names defined under the
-    CRDS root ingest directory.
-    """
-    dirs = sorted(glob.glob(config.CRDS_INGEST_DIR + "/*"))
-    dirs = [""] + [os.path.basename(d) for d in dirs]
-    return zip(dirs,dirs)
-
 def get_known_filepath(filename):
     """Given the basename of a mapping or reference file, `file`,
     determine the full path of the file on the server.
@@ -360,24 +352,14 @@ def get_known_filepath(filename):
         raise FieldError("CRDS doesn't know about file " + srepr(filename))
     return blob.pathname
 
-def upload_file(ufile, where):
-    """Copy the Django UploadedFile to it's permanent location.
-    Handle's <input type='file'> part 2.
-    """
-    utils.ensure_dir_exists(where)
-    destination = open(where, 'wb+')
-    for chunk in ufile.chunks():
-        destination.write(chunk)
-    destination.close()
-
 def remove_temporary(filepath):
     """Attempt to remove `filepath`.  Ignore errors."""
     try:
         assert filepath.startswith(config.FILE_UPLOAD_TEMP_DIR), \
             "ERROR -- attempt to delete from Central Store"
-        # os.remove(filepath)
-    except OSError:
-        pass
+        os.remove(filepath)
+    except Exception, exc:
+        log.warning("Failed to remove temporary", repr(filepath), ":", str(exc))
 
 # ===========================================================================
 
@@ -611,19 +593,6 @@ def upload_delete(request, filename):
     else:
         return HttpResponseRedirect('/upload/new')
     
-def upload_bsr(request):
-    return upload_new(request, extras= {
-                    "workflow_title" : "Batch Submit References",
-                    "workflow_next" : "/batch_submit_references/",
-            })
-
-def upload_submit_files(request, crds_filetype):
-    return upload_new(request, extras= {
-                    "workflow_title" : "Submit " + crds_filetype.capitalize() + "s",
-                    "workflow_next" : "/submit/"+crds_filetype+"/",
-                })
-    
-
 # ===========================================================================
 
 @error_trap("bestrefs_index2.html")

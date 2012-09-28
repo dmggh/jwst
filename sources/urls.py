@@ -32,10 +32,10 @@ urlpatterns = patterns('',
   url(r'^edit_rmap_browse/$', 'crds.server.interactive.views.edit_rmap_browse'),        
   url(r'^edit_rmap/((?P<filename>[A-Za-z0-9_.]+rmap)/)?$', 'crds.server.interactive.views.edit_rmap'),
   
-  url(r'^upload_submit/(?P<crds_filetype>reference|mapping)/$', 'crds.server.interactive.views.upload_submit_files'),
   url(r'^submit/(?P<crds_filetype>reference|mapping)/$', 'crds.server.interactive.views.submit_files'),
+  (r'^upload/new/$', 'crds.server.interactive.views.upload_new', {}, 'upload-new'),
+  (r'^upload/delete/(?P<filename>[A-Za-z0-9_.]+)$', 'crds.server.interactive.views.upload_delete', {}, 'upload-delete'),
             
-  url(r'^upload_bsr/$', 'crds.server.interactive.views.upload_bsr'),
   url(r'^batch_submit_references/$', 'crds.server.interactive.views.batch_submit_references'),
   url(r'^submit_confirm/$', 'crds.server.interactive.views.submit_confirm'),
           
@@ -76,7 +76,5 @@ urlpatterns += patterns('',
 
 
 urlpatterns += patterns('',
-    (r'^upload/new/$', 'crds.server.interactive.views.upload_new', {}, 'upload-new'),
-    (r'^upload/delete/(?P<filename>[A-Za-z0-9_.]+)$', 'crds.server.interactive.views.upload_delete', {}, 'upload-delete'),
     # url(r'^upload/', include('fileupload.urls')),
 )
