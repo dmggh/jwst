@@ -833,7 +833,7 @@ def submit_files_post(request, crds_filetype):
                 "description" : description,
                 
                 "certify_results" : certify_results,
-                "more_submits" : "/upload_submit/" + crds_filetype + "/",
+                "more_submits" : "/submit/" + crds_filetype + "/",
                 })
     
 def do_submit_file(observatory, original_name, upload_location, description, 
@@ -1125,7 +1125,7 @@ def batch_submit_references_post(request):
                 "collision_list" : collision_list,
                 "rmap_diffs" : rmap_diffs,
 
-                "more_submits" : "/upload_bsr/",
+                "more_submits" : "/batch_submit_references/",
                 "certify_results" : certify_results,
             })
 
