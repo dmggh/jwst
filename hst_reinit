@@ -1,14 +1,36 @@
 #! /bin/tcsh -x
 
+if (( "$1" != "hst") && ("$1" != "jwst")) then
+	echo 'usage: ./init [jwst|hst]'
+	exit -1;
+endif
+
+set observatory=$1
+shift
+
+if (( "$1" != "dev") && ("$1" != "test")) then
+	echo 'usage: ./init [jwst|hst] [dev|test]'
+	exit -1;
+endif
+
+set mode=$1
+shift
+
+cd `dirname $0`
 source env.csh
+
+rm -rf ${CRDS_PATH}/{webserver,test,ingest,uploads}
 
 rm -f ${CRDS_PATH}/references/hst/*
 rm -f ${CRDS_PATH}/mappings/hst/*
 rm -f ${CRDS_PATH}/catalogs/*
 rm -f ${CRDS_PATH}/deliveries/*
 
+./install $observatory $mode
+
+./init_pkgs $observatory $mode
+
 python tools/wipe_db.py
 
-./install hst test
-./init hst test
+./init $observatory $mode
 

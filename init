@@ -11,6 +11,14 @@ endif
 set observatory=$1
 shift
 
+if (( "$1" != "dev") && ("$1" != "test")) then
+	echo 'usage: ./init [jwst|hst] [dev|test]'
+	exit -1;
+endif
+
+set mode=$1
+shift
+
 cd `dirname $0`
 source env.csh
 
