@@ -31,3 +31,5 @@ table_prefix = 'crds_' + observatory
 #
 data_dir = install_dir+"/data"
 
+crds_server_dir = install_dir + "/python/lib/python/crds/server"
+

@@ -1,6 +1,6 @@
 # Django settings for crds project.
 
-from crds.server.config import install_dir, DEBUG, DEBUG_EXTRAS, FILE_UPLOAD_TEMP_DIR
+from crds.server.config import install_dir, crds_server_dir, DEBUG, DEBUG_EXTRAS, FILE_UPLOAD_TEMP_DIR
 from crds_database import DATABASES
 
 TEMPLATE_DEBUG = DEBUG
@@ -111,9 +111,9 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    "./templates",
-    "./interactive/templates",
-    "./fileupload/templates",
+    crds_server_dir + "/templates",
+    crds_server_dir + "/interactive/templates",
+    crds_server_dir + "/fileupload/templates",
 )
 
 INSTALLED_APPS = (
