@@ -555,19 +555,32 @@ def upload_new(request, template="upload_new_input.html"):
         response = JSONResponse(data, {}, response_mimetype(request))
         response['Content-Disposition'] = 'inline; filename=files.json'
         return response
-
+    
+@log_view
+@error_trap("base.html")
 @login_required
-def wipe_ingest_directory(request):
-    """Wipe out the ingest directory associated with this request."""
+def upload_list(request, template="upload_new_input.html"):
     file_local_dir = str(request.user)
     assert re.match("[A-Za-z0-9_]+", file_local_dir), \
         "Invalid file_local_dir " + srepr(file_local_dir)
-    ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir)
+    ingest_glob = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir, "*")
     try:
-        shutil.rmtree(ingest_path, ignore_errors=True)
-        log.info("wiped ingest directory", repr(ingest_path))
+        ingest_names = [os.path.basename(f) for f in glob.glob(ingest_glob)]
+        log.info("Listing existing ingest files", repr(ingest_names))
     except Exception, exc:
-        log.error("Can't remove ingest directory", repr(ingest_path), ":", str(exc))
+        ingest_names = []
+        log.info("Failed globbing ingest files.")
+    data = []
+    for name in ingest_names:
+        data.append({'name': name, 
+                 'url': settings.MEDIA_URL + "pictures/" + name.replace(" ", "_"), 
+                 'thumbnail_url': settings.MEDIA_URL + "pictures/" + name.replace(" ", "_"), 
+                 'delete_url': reverse('upload-delete', args=[name]),
+                 'delete_type': "DELETE"})
+    log.info("Return list data:", repr(data))
+    response = JSONResponse(data, {}, response_mimetype(request))
+    response['Content-Disposition'] = 'inline; filename=files.json'
+    return response
 
 @log_view
 @login_required
@@ -771,7 +784,6 @@ def bestrefs_explore_compute(request):
 def submit_files(request, crds_filetype):
     """Handle file submission,  crds_filetype=reference|mapping."""
     if request.method == "GET":
-        wipe_ingest_directory(request)
         return crds_render(request, "submit_input.html", {
                     "crds_filetype" :  crds_filetype,
                 })
@@ -1079,7 +1091,6 @@ def certify_file_list(upload_tuples, check_references=True, context=None):
 def batch_submit_references(request):
     """View to return batch submit reference form or process POST."""
     if request.method == "GET":
-        wipe_ingest_directory(request)
         return crds_render(request, "batch_submit_reference_input.html")
     else:
         return batch_submit_references_post(request)
