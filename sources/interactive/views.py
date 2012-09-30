@@ -548,14 +548,18 @@ def upload_new(request, template="upload_new_input.html"):
         utils.ensure_dir_exists(ingest_path)
         log.info("Linking", ingest_path)
         os.link(f.temporary_file_path(), ingest_path)
-        data = [{'name': f.name, 'url': settings.MEDIA_URL + "pictures/" + f.name.replace(" ", "_"), 
-                 'thumbnail_url': settings.MEDIA_URL + "pictures/" + f.name.replace(" ", "_"), 
-                 'delete_url': reverse('upload-delete', args=[f.name]),
-                 'delete_type': "DELETE"}]
+        data = [json_file_details(f.name, f.temporary_file_path())]
         response = JSONResponse(data, {}, response_mimetype(request))
         response['Content-Disposition'] = 'inline; filename=files.json'
         return response
-    
+
+def json_file_details(filename, filepath):
+    return {'name': filename, 
+            # 'url': settings.MEDIA_URL + "pictures/" + f.name.replace(" ", "_"), 
+            # 'thumbnail_url': settings.MEDIA_URL + "pictures/" + f.name.replace(" ", "_"), 
+            'size' : os.stat(filepath).st_size,
+            'delete_url': reverse('upload-delete', args=[filename]),
+            'delete_type': "DELETE"}
 @log_view
 @error_trap("base.html")
 @login_required
@@ -565,19 +569,12 @@ def upload_list(request, template="upload_new_input.html"):
         "Invalid file_local_dir " + srepr(file_local_dir)
     ingest_glob = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir, "*")
     try:
-        ingest_names = [os.path.basename(f) for f in glob.glob(ingest_glob)]
-        log.info("Listing existing ingest files", repr(ingest_names))
+        ingest_paths = { os.path.basename(f):f for f in glob.glob(ingest_glob) }
+        log.info("Listing existing ingest files", repr(ingest_paths))
     except Exception, exc:
-        ingest_names = []
+        ingest_paths = []
         log.info("Failed globbing ingest files.")
-    data = []
-    for name in ingest_names:
-        data.append({'name': name, 
-                 'url': settings.MEDIA_URL + "pictures/" + name.replace(" ", "_"), 
-                 'thumbnail_url': settings.MEDIA_URL + "pictures/" + name.replace(" ", "_"), 
-                 'delete_url': reverse('upload-delete', args=[name]),
-                 'delete_type': "DELETE"})
-    log.info("Return list data:", repr(data))
+    data = [ json_file_details(name, ingest_paths[name]) for name in ingest_paths ]
     response = JSONResponse(data, {}, response_mimetype(request))
     response['Content-Disposition'] = 'inline; filename=files.json'
     return response
@@ -827,11 +824,11 @@ def submit_files_post(request, crds_filetype):
     
         new_file_map[original_name] =  new_basename
     
-    if remove_dir is not None:
-        try:
-            shutil.rmtree(remove_dir, ignore_errors=True)
-        except Exception, exc:
-            log.warning("Failed to remove ingest directory", repr(remove_dir), ":", str(exc))
+#    if remove_dir is not None:
+#        try:
+#            shutil.rmtree(remove_dir, ignore_errors=True)
+#        except Exception, exc:
+#            log.warning("Failed to remove ingest directory", repr(remove_dir), ":", str(exc))
 
     return crds_render(request, 'submit_results.html', {
                 "crds_filetype": crds_filetype,
@@ -1115,11 +1112,11 @@ def batch_submit_references_post(request):
     old_rmap  = old_mappings[0]
     rmap_diffs = textual_diff(old_rmap, new_rmap)
 
-    if remove_dir is not None:
-        try:
-            shutil.rmtree(remove_dir, ignore_errors=True)
-        except Exception, exc:
-            log.warning("Failed to remove ingest directory", repr(remove_dir), ":", str(exc))
+#    if remove_dir is not None:
+#        try:
+#            shutil.rmtree(remove_dir, ignore_errors=True)
+#        except Exception, exc:
+#            log.warning("Failed to remove ingest directory", repr(remove_dir), ":", str(exc))
 
     return crds_render(request, "batch_submit_reference_results.html", {
                 "actions" : actions,
