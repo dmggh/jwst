@@ -46,6 +46,8 @@ MEDIA_URL = '/media/'
 
 STATIC_URL = '/static/'
 
+STATIC_ROOT = install_dir + "/static"
+
 #STATICFILE_DIRS = ['/Users/jmiller/work/workspace_crds/CRDS_server/static/',
 #                   '/Users/jmiller/work/workspace_crds/CRDS_server/interactive/static/',
 #                   '/home/jmiller/work/workspace_crds/CRDS_server/static/',

@@ -493,11 +493,13 @@ esac
 
 mapping_source_dir=`python tools/get_mapping_dir.py ${observatory}`
 map_dest="${map_path}/${observatory}"
+echo
 echo "Copying mappings from ${mapping_source_dir} to ${map_dest}"
+echo
 mkdir -p ${map_dest}
 for mapping in ${mapping_source_dir}/*.*map;
 do
-  cp -v ${mapping} ${map_dest}
+  cp -v ${mapping} ${map_dest} >/dev/null 2>&1
 done
 
 # chmod 444 ${map_dest}/*.*map
@@ -573,3 +575,7 @@ case ${observatory}
 	;;
 esac
 
+echo "Silently installing static files."
+./manage collectstatic >/dev/null <<EOF
+yes
+EOF
