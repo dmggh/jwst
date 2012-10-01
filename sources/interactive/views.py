@@ -471,9 +471,12 @@ def capture_output(func):
         oldout, olderr = sys.stdout, sys.stderr
         out = cStringIO.StringIO()
         sys.stdout, sys.stderr = out, out
+        handler = log.add_stream_handler(out)
         try:
             result = func(*args, **keys)
         finally:
+            out.flush()
+            log.remove_stream_handler(handler)
             sys.stdout, sys.stderr = oldout, olderr
         out.seek(0)
         return result, out.read()
@@ -1037,16 +1040,17 @@ def certify_post(request):
              "blacklisted_by" : blacklisted_by,
              "certified_file":original_name})
 
+
+@capture_output
+def _captured_certify(original_name, uploaded_path, filemap=None, context=None):
+    """Configure certify and capture it's stdout/stderr."""
+    certify.certify_files([uploaded_path], context=context, dump_provenance=True, check_references=False, 
+                          is_mapping=rmap.is_mapping(original_name), trap_exceptions=True)
+
 def captured_certify(original_name, uploaded_path, check_references=True, filemap=None, context=None):
-    
-    mapping_switch = "--mapping" if rmap.is_mapping(original_name) else ""
-    context_switch = "--context=" + context if context else ""
-    
-    output = pysh.out(
-        "python -m crds.certify ${uploaded_path} ${mapping_switch} ${context_switch} --dump-provenance --trap-exceptions=none",
-        independent_error=False)
-    if "0 errors" in output:
-        if "0 warnings" in output:
+    output = _captured_certify(original_name, uploaded_path, filemap, context)[1]
+    if "ERROR" not in output:
+        if "WARNING" not in output:
             status = "OK"
         else:
             status = "Warnings"
@@ -1055,7 +1059,7 @@ def captured_certify(original_name, uploaded_path, check_references=True, filema
     output = output.replace(uploaded_path, original_name)
     output = output.replace(os.path.basename(uploaded_path), original_name)
     
-    if status != "Failed.":
+    if status != "Failed.":    # if OK the rmap should load...
         if check_references and rmap.is_mapping(original_name):
             if filemap is None:
                 filemap = models.get_fileblob_map(models.OBSERVATORY)
@@ -1075,8 +1079,6 @@ def certify_file_list(upload_tuples, check_references=True, context=None):
         # In order to capture output easily,  run as subprocess...
         certify_results[original_name] = captured_certify(
             original_name, upload_path, check_references=check_references, filemap=filemap, context=context)
-        # Run here as function to fail delivery on first exception.
-        do_certify_file(original_name, upload_path, check_references=check_references, filemap=filemap, context=context)
     return certify_results
 
 # ===========================================================================
@@ -1729,9 +1731,12 @@ def get_new_name(observatory, instrument, filekind, extension):
     1) Any generated name is not already "reserved" using the CounterBlob.
     2) No generated name has already been submitted by using FileBlobs.
     """
-    known_files = models.known_files()
     name = _get_new_name(observatory, instrument, filekind, extension)
-    while name in known_files:
+    while True:
+        try:
+            already_in_use = models.FileBlob.load(name)
+        except LookupError:
+            break
         name = _get_new_name(observatory, instrument, filekind, extension)
     return name
 
@@ -1885,10 +1890,10 @@ def do_create_contexts(pmap_name, updated_rmaps, description, user, email,
     new_contexts = newcontext.generate_new_contexts(
         pmap_name, updates_by_instrument, new_name_map)
  
-#    print "WARNING: skipping context certification for", repr(new_contexts)
     for ctx in new_contexts:
-        new_loc = rmap.locate_mapping(ctx)  
-        do_certify_file(new_loc, new_loc)
+        if ctx.endswith(".pmap"):
+            new_loc = rmap.locate_mapping(ctx)  
+            do_certify_file(new_loc, new_loc, context=pmap_name)
 
     # Create delivery records for each of the new files
     observatory = rmap.get_cached_mapping(pmap_name).observatory
