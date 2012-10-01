@@ -4,7 +4,7 @@ from jsonrpc import jsonrpc_site
 import crds.server.jsonapi.views
 import crds.server.interactive.views
 
-import crds.server.settings as settings
+from crds.server import settings, config
 
 urlpatterns = patterns('',
   url(r'^json/browse/', 'jsonrpc.views.browse', name="jsonrpc_browser"), # for the graphical browser/web console only, omissible
@@ -63,7 +63,8 @@ urlpatterns = patterns('',
 )
 
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-urlpatterns += staticfiles_urlpatterns()
+if config.server_type == "django":
+    urlpatterns += staticfiles_urlpatterns()
 
 # urls.py
 from django.conf.urls import patterns, url, include
