@@ -9,7 +9,7 @@ from crds.server import settings, config
 urlpatterns = patterns('',
   url(r'^json/browse/', 'jsonrpc.views.browse', name="jsonrpc_browser"), # for the graphical browser/web console only, omissible
   url(r'^json/', jsonrpc_site.dispatch, name="jsonrpc_mountpoint"),
-  url(r'^json/(?P<method>[a-zA-Z0-9.]+)$', jsonrpc_site.dispatch), # for HTTP GET only, also omissible
+  url(r'^json/(?P<method>[a-zA-Z0-9_.]+)$', jsonrpc_site.dispatch), # for HTTP GET only, also omissible
   
   url(r'^$', 'crds.server.interactive.views.index'),          
 
@@ -63,7 +63,7 @@ urlpatterns = patterns('',
 )
 
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-if config.server_type == "django":
+if config.servertype == "django":
     urlpatterns += staticfiles_urlpatterns()
 
 # urls.py
