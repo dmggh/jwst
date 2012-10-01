@@ -410,7 +410,7 @@ class FileBlob(BlobModel):
     @classmethod
     def new(cls, observatory, upload_name, permanent_location, 
             creator_name, deliverer_user, deliverer_email, description, 
-            change_level="SEVERE", add_slow_fields=True, 
+            change_level="SEVERE", add_slow_fields=False, 
             state="submitted", derived_from=None):
         """Create a new FileBlob or subclass."""
         
@@ -543,7 +543,7 @@ class FileBlob(BlobModel):
 
 def add_crds_file(observatory, upload_name, permanent_location, 
             deliverer, deliverer_email, description,
-            change_level="SEVERE", add_slow_fields=True,
+            change_level="SEVERE", add_slow_fields=False,
             creator_name="unknown", state="submitted", update_derivation=True):
     "Make a database record for this file.  Track the action of creating it."""
 
