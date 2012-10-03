@@ -26,24 +26,31 @@ pysh.sh("mkdir -p ${CRDS_PATH}/references/%s" % sconfig.observatory, raise_on_er
 pysh.sh("mkdir -p ${CRDS_PATH}/mappings/%s" % sconfig.observatory, raise_on_error=True)
 pysh.sh("cp ${REAL_MAPPING_DIR}/*.*map ${CRDS_PATH}/mappings/%s" % sconfig.observatory, raise_on_error=True)
 
+# monkey-patch these since they're not encapsulated with functions.
+sconfig.CRDS_INGEST_DIR = os.path.join(CRDS_PATH, "ingest")
+sconfig.CRDS_DELIVERY_DIR = os.path.join(CRDS_PATH, "deliveries")
+sconfig.CRDS_CATALOG_DIR = os.path.join(CRDS_PATH, "catalog")
+
 class SimpleTest(TestCase):
     
     def runTest(self, *args, **keys):
         pass
     
     pmap = sconfig.observatory + ".pmap"
-    
+
     def setUp(self): 
         self.user = User.objects.create_user('homer', 'homer@simpson.net', 'simpson')
         try:
             self.user.save()    
         except Exception, exc:
             print "failed user save:", str(exc)
+        self.ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, str(self.user))
         self.fake_database_files([self.pmap])
         models.set_default_context(self.pmap)
         models.set_default_context(self.pmap, state="operational")
         utils.ensure_dir_exists(lconfig.get_crds_refpath())
         utils.ensure_dir_exists(lconfig.get_crds_mappath())
+        self.ingested = False
         
     def tearDown(self):
         if sconfig.observatory == "hst":
@@ -72,6 +79,8 @@ class SimpleTest(TestCase):
         pysh.sh("/bin/rm -rf " + lconfig.get_crds_refpath(), 
                     raise_on_error=True,
                 ) # trace_commands=True)
+        if self.ingested:
+            pysh.sh("/bin/rm -rf " + self.ingest_path, raise_on_error=True)
 
     def authenticate(self):
         login = self.client.login(username="homer", password="simpson")
@@ -105,11 +114,11 @@ class SimpleTest(TestCase):
 
     def assert_no_errors(self, response, status=200):
         self.assertEqual(response.status_code, status)
-        self.assertNotIn("ERROR:", response.content)
+        self.assertNotIn("ERROR", response.content)
         
     def assert_has_error(self, response, msg=None):
         self.assertEqual(response.status_code, 200)
-        self.assertIn("ERROR:", response.content)
+        self.assertIn("ERROR", response.content)
         if msg is not None:
             self.assertIn(msg, response.content)
 
@@ -179,12 +188,13 @@ class SimpleTest(TestCase):
         self.assertIn(rmap2, response.content)
         
     def add_file_to_ingest_dir(self, filepath):
-        ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, str(self.user), os.path.basename(filepath))
-        utils.ensure_dir_exists(ingest_path)
+        self.ingested = True
+        ingest_file = os.path.join(self.ingest_path, os.path.basename(filepath))
+        utils.ensure_dir_exists(ingest_file)
         try:
-            log.info("linking ingest", ingest_path, "to", filepath)
-            shutil.copy(filepath, ingest_path)
-            os.chmod(ingest_path, 0666)
+            log.info("linking ingest", ingest_file, "to", filepath)
+            shutil.copy(filepath, ingest_file)
+            os.chmod(ingest_file, 0666)
         except Exception, exc:
             log.info("failed to add file:", str(exc))
         
@@ -267,7 +277,7 @@ class SimpleTest(TestCase):
             "pmap_mode": "pmap_edit",
         })
         self.assert_no_errors(response)
-        self.assertIn("0 errors", response.content)
+        self.assertNotIn("ERROR", response.content)
         self.assertEqual(response.content.count("OK"), 2)
 
     def test_certify_post_rmap_known(self):
@@ -283,7 +293,7 @@ class SimpleTest(TestCase):
             "pmap_mode": "pmap_edit",
         })
         self.assert_no_errors(response)
-        self.assertTrue(response.content.count("0 errors") == 1)
+        self.assertNotIn("ERROR", response.content)
         self.assertNotIn("Failed", response.content)
         self.assertEqual(response.content.count("OK"), 2)
 
@@ -295,7 +305,7 @@ class SimpleTest(TestCase):
             "pmap_mode": "pmap_edit",
         })
         self.assert_no_errors(response)
-        self.assertTrue(response.content.count("0 errors") == 1)
+        self.assertTrue("ERROR", response.content)
         self.assertTrue("Failed" not in response.content)
         self.assertTrue(response.content.count("OK") == 2)
 
