@@ -1006,6 +1006,9 @@ def certify_post(request):
     """View fragment to process file certification POSTs."""
 
     context = get_recent_or_user_context(request)
+    compare_old_reference = "compare_old_reference" in request.POST
+    comparison_context = context if compare_old_reference else None
+ 
     
     uploaded, original_name, certified_file = handle_known_or_uploaded_file(
         request, "filemode", "file_known", "file_uploaded")
@@ -1016,7 +1019,7 @@ def certify_post(request):
 
     certify_status, certify_output = captured_certify(
         original_name, certified_file, filemap=all_files, check_references=False,
-        context=context)
+        context=comparison_context)
 
     try:
         blacklisted_by = get_blacklists(

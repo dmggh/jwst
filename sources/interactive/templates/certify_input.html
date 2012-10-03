@@ -5,8 +5,7 @@
     <form method="post" action="/certify/" enctype="multipart/form-data"> 
       {% csrf_token %}
 
-        <h3>Context to Check Against</h3>
-        {% include "select_pmap.html" %}
+        {% include "comparison_context.html" %}
 
       <h3>Checked File</h3>
       <table width="100%">
@@ -52,8 +51,7 @@
 <p><b>Certify File</b> runs the same checks required for submission and
 presents any errors as well as provenance information for review.
 
-<p><p><b>Context to Check Against</b> defines any prior reference used to check
-modes of a new reference.
+{% include "comparison_context_help.html" %}
 
 <p><p><b>Uploaded File</b> lets you temporarily upload a prototype reference or 
 mapping to the CRDS server for certification.

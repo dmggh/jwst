@@ -16,9 +16,7 @@
         <input type='hidden' name='observatory' value='{{observatory}}' />
 
         {% if crds_filetype == "reference" %}
-        <h3>Comparison Context</h3>
-        {% include "select_pmap.html" %}
-        <h3>Compare Old Reference:  <input type="checkbox" name="compare_old_reference" value="{{compare_old_reference}}" /></h3>
+            {% include "comparison_context.html" %}
         {% endif %}
         
         <h3>Change Level:
@@ -54,15 +52,7 @@ archive.
 uploaded to the CRDS server.
 
 {% if crds_filetype == "reference" %}
-<p><p><b>Comparison Context</b> specifies the context used to locate
-comparison references.  The submitted references are matched against references
-in this context with the same parameters for the sake of comparison.
-
-<p><p><b>Compare Old Reference</b> check this to perform table comparisons
-against prior versions of the submitted reference file identified by the
-comparison context.  If left unchecked,  the comparison context is ignored
-and no comparison to prior versions is performed.
-
+{% include "comparison_context_help.html" %}
 {% endif %}
 
 <p><p><b>Change Level</b> The degree to which the new files are expected to 
