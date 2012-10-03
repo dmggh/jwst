@@ -57,6 +57,12 @@
 <li><a class="reference internal" href="#getting-the-source-code">Getting the Source Code</a></li>
 <li><a class="reference internal" href="#setting-up-your-environment">Setting up your Environment</a><ul>
 <li><a class="reference internal" href="#basic-environment">Basic Environment</a></li>
+<li><a class="reference internal" href="#typical-build-1-environments">Typical Build-1 Environments</a><ul>
+<li><a class="reference internal" href="#hst-settings">HST Settings</a></li>
+<li><a class="reference internal" href="#jwst-settings">JWST Settings</a></li>
+<li><a class="reference internal" href="#remote-settings">Remote Settings</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#advanced-environment">Advanced Environment</a></li>
 </ul>
 </li>
@@ -115,22 +121,56 @@ CRDS source code out from subversion:</p>
 <p>The CRDS checkout has a template file for the C-shell which defines
 environment variables, env.csh.   For JWST development,  there are
 reasonable defaults for everything so you may not need to set these
-at all.   For HST,  at a minimum CRDS_SERVER_URL must be defined.</p>
+at all.</p>
 <div class="section" id="basic-environment">
 <h3>Basic Environment<a class="headerlink" href="#basic-environment" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><strong>CRDS_PATH</strong> defines a common directory tree where CRDS reference files
-and mappings are stored.   CRDS_PATH defaults to &#8221;./crds&#8221;.   Mappings
+and mappings are stored.   CRDS_PATH defaults to &#8220;/grp/crds/jwst&#8221;.   Mappings
 are stored in ${CRDS_PATH}/mappings/[hst|jwst].   Reference files are
 stored in ${CRDS_PATH}/references/[hst|jwst].</li>
 <li><strong>CRDS_SERVER_URL</strong> defines the base URL for accessing CRDS network
-services.  CRDS_SERVER_URL defaults to the jwst test server.</li>
+services.  CRDS_SERVER_URL defaults to <a class="reference external" href="http://not-a-crds-server.stsci.edu">http://not-a-crds-server.stsci.edu</a>.
+Other fallbacks result in operational defaults for JWST only.</li>
 <li><strong>CRDS_VERBOSITY</strong> enables output of CRDS debug messages.   Set to an
 integer,  nominally 50.   Higher values output more information,  lower
 values less information.</li>
 </ul>
 </div></blockquote>
+</div>
+<div class="section" id="typical-build-1-environments">
+<h3>Typical Build-1 Environments<a class="headerlink" href="#typical-build-1-environments" title="Permalink to this headline">¶</a></h3>
+<p>A typical build-1 environment for CRDS <em>within STScI</em> works by aligning the CRDS
+file cache with the CRDS server&#8217;s master copy of reference and mapping files.
+This makes the master copy of CRDS files on the server appear to be the user&#8217;s
+personal file cache... with the exception that the files are readonly.   This
+approach avoids creating additional copies of the reference files.</p>
+<div class="section" id="hst-settings">
+<h4>HST Settings<a class="headerlink" href="#hst-settings" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-python"><pre>% setenv CRDS_PATH    /grp/crds/hst
+% setenv CRDS_SERVER_URL http://hst-crds.stsci.edu</pre>
+</div>
+</div>
+<div class="section" id="jwst-settings">
+<h4>JWST Settings<a class="headerlink" href="#jwst-settings" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-python"><pre>% setenv CRDS_PATH /grp/crds/jwst
+% setenv CRDS_SERVER_URL http://not-a-crds-server.stsci.edu</pre>
+</div>
+</div>
+<div class="section" id="remote-settings">
+<h4>Remote Settings<a class="headerlink" href="#remote-settings" title="Permalink to this headline">¶</a></h4>
+<p>Even for build-1 it&#8217;s possible to operate CRDS over the network.  These settings
+would create a cache named &#8220;crds&#8221; in the current working directory when CRDS
+tools or functions are run:</p>
+<div class="highlight-python"><pre>% setenv CRDS_PATH ./crds
+% setenv CRDS_SERVER_URL http://jwst-crds.stsci.edu</pre>
+</div>
+<p>The main caveat is that the CRDS servers are only visible within STScI so outside
+users must port-forward in order to reach the CRDS server.  As an alternative to
+port forwarding,  an on-site user can create a local cache which should continue
+to work when they are off-site and don&#8217;t have access to the server or central store.</p>
+</div>
 </div>
 <div class="section" id="advanced-environment">
 <h3>Advanced Environment<a class="headerlink" href="#advanced-environment" title="Permalink to this headline">¶</a></h3>
