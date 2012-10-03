@@ -1,10 +1,10 @@
 {% load stdtags %}
 
+{% include "fileupload/picture_form_scripts.html" %}
+
 <h3>Upload Files</h3>
 {% accordion "Upload Files" %}
     {% include "fileupload/picture_form_form.html" %}
     
-    {% include "fileupload/picture_form_gallery.html" %}
-        
-    {% include "fileupload/picture_form_scripts.html" %}
+    {% include "fileupload/picture_form_gallery.html" %}      
 {% endaccordion %}
