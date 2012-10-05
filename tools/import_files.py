@@ -14,8 +14,9 @@ import crds.server.interactive.models
 
 from crds import (rmap, utils, log)
 from crds.server.interactive import (views, models)
+from crds.rmap import locate_file
 
-def locate_file(fname, observatory):
+def xxx_locate_file(fname, observatory):
     if observatory == "hst":
         if rmap.is_mapping(fname):
             return rmap.locate_file(fname, observatory)

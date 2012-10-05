@@ -32,5 +32,7 @@ rm -f ${CRDS_PATH}/deliveries/*
 
 python tools/wipe_db.py
 
+python tools/make_cdbs_links.py
+
 ./init $observatory $mode
 
