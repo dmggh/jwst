@@ -443,7 +443,7 @@ class FileBlob(BlobModel):
             blob.filekind= filekind
         except Exception, exc:
             log.warning("Adding file with instrument and filekind UNKNOWN for file", 
-                        repr(permanent_location))
+                        repr(permanent_location), ":", str(exc))
             blob.instrument = blob.fileind = "unknown"
 
         blob.derived_from = derived_from if derived_from else "(no predecessor)"
