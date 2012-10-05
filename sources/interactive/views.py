@@ -1598,7 +1598,7 @@ def browsify_mapping2(filename, browsed_file):
     except OSError:
         return ["<h3 class='error'>File " 
                 "<span class='grey'>%s<span> not found</h3>" % (filename,)]
-    lines = ["<pre class='program'>"] + lines + ["</pre>"]
+    lines = ["<pre class='program'>"] + [l.rstrip() for l in lines] + ["</pre>"]
     return "\n".join(lines)
 
 def browsify_mapping(filename, browsed_file):
