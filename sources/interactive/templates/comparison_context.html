@@ -1,5 +1,19 @@
 
-        <h3>Comparison Context</h3>
-        {% include "select_pmap.html" %}
+        <h3>Compare Old Reference:  <input type="checkbox" name="compare_old_reference" checked /></h3>
 
-        <h3>Compare Old Reference:  <input type="checkbox" name="compare_old_reference" value="{{compare_old_reference}}" /></h3>
+        <div id="comparison-context-hide">
+            <h3>Comparison Context</h3>
+            {% include "select_pmap.html" %}
+        </div>
+        
+        <script type="text/javascript" language="javascript">
+            $("input[name='compare_old_reference']").change(function() {
+                var checkbox = $("input[name='compare_old_reference']");
+                console.log("checkbox: " + checkbox.val());
+                if (checkbox.is(":checked")) {
+                        $("#comparison-context-hide").show();
+                } else {
+                        $("#comparison-context-hide").hide();
+                };
+            });
+        </script>

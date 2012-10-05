@@ -8,48 +8,48 @@
 
     {% include "select_pmap_results.html" %}
 
-        <h3>Generated New Mappings</h3>
-        {% for map in generated_files %}
+    <h3>Generated New Mappings</h3>
+    {% for map in generated_files %}
         <p>{{map|blue}}</p>
-        {% endfor %}
+    {% endfor %}
     
     {% include "certify_include.html" %}
     
-        {%if actions %}
-            <h3>Actions on {{old_rmap|gray}}</h3>
-            
-                {% accordion "Rmap Logical Diffs" %}
-                <table border="1" cellpadding="4">
+    {%if actions %}
+        <h3>Actions on {{old_rmap|gray}}</h3>
+        
+        {% accordion "Rmap Logical Diffs" %}
+            <table border="1" cellpadding="4">
+                <tr>
+                    <th>Action</th>
+                    <th>New Reference File</th>
+                    <th>File Match</th>
+                    <th>At</th>
+                    <th>Rmap Match</th>
+                    <th>Useafter</th>
+                    <th>Replaced File</th>
+                </tr>
+                {% for action in actions %}
                     <tr>
-                        <th>Action</th>
-                        <th>New Reference File</th>
-                        <th>File Match</th>
-                        <th>At</th>
-                        <th>Rmap Match</th>
-                        <th>Useafter</th>
-                        <th>Replaced File</th>
-                    </tr>
-                    {% for action in actions %}
-                        <tr>
-                            <td>{{action.action|upper}}</td>        
-                            <td>{{action.ref_file|gray}}</td>        
-                            <td>{{action.ref_match_tuple}}</td>        
-                            <td>-</td>
-                            <td>{{action.rmap_match_tuple}}</td>        
-                            <td>{{action.useafter}}</td>
-                            <td>{{action.replaced_file|gray}}</td>        
-                        </tr>        
-                    {% endfor %}
-                </table>
-                {% endaccordion %}
-
-            {% accordion "Rmap Text Diffs" %}
-                <pre class="program">
-                {% for line in rmap_diffs %}
-                    {{line|safe}}
+                        <td>{{action.action|upper}}</td>        
+                        <td>{{action.ref_file|gray}}</td>        
+                        <td>{{action.ref_match_tuple}}</td>        
+                        <td>-</td>
+                        <td>{{action.rmap_match_tuple}}</td>        
+                        <td>{{action.useafter}}</td>
+                        <td>{{action.replaced_file|gray}}</td>        
+                    </tr>        
                 {% endfor %}
-                </pre>
-            {% endaccordion %}
+            </table>
+        {% endaccordion %}
+
+        {% accordion "Rmap Text Diffs" %}
+            <pre class="program">
+            {% for line in rmap_diffs %}
+                {{line|safe}}
+            {% endfor %}
+            </pre>
+        {% endaccordion %}
         
         {% include "collision_explain.html" %}
         

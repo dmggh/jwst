@@ -1,63 +1,34 @@
 {% extends "base.html" %}
 
+{% load stdtags %}
+
+{% block head_additions %}
+    {% include "fileupload/picture_form_head_additions.html" %}
+{% endblock %}
+
 {% block column1 %}
-    <h2>Certify File</h2>
+    <h2>Certify Files</h2>
+    {% include "select_files.html" %}
+
     <form method="post" action="/certify/" enctype="multipart/form-data"> 
       {% csrf_token %}
 
-        {% include "comparison_context.html" %}
+      {% include "comparison_context.html" %}
 
-      <h3>Checked File</h3>
-      <table width="100%">
-        <tr>
-          <td width="5%">
-            <input type="radio" name="filemode" value="file_uploaded" checked />
-          </td>
-          <td width="25%" class="label">Uploaded File:</td>
-          <td width="25%">
-            <input type='file' class="multi" maxlength="1" name='file_uploaded' size="32"
-                    onchange="crds.set_radio('filemode', 'file_uploaded');">
-          </td>
-        </tr>
-        <tr>
-          <td width="5%">
-                <input type="radio" name="filemode" value="file_known" />
-          </td>
-          <td width="25%" class="label">Known File:</td>
-          <td width="25%">
-            <input type='text' name='file_known' size="32" value="{{file_known}}"
-                onchange="crds.set_radio('filemode', 'file_known');">
-          </td>
-        </tr>
-        {% comment %}
-        <tr><td>&nbsp;</td></tr>
-        <tr>
-          <td width="5%">
-                <input type="checkbox" name="check_references_exist"/>
-          </td>
-          <td width="50%" class="label" colspan="2">Check References Exist</td>
-        </tr>
-        <tr></tr>
-        {% endcomment %}
-      </table>
       <br/>
       <br/>
-      <input type="submit" value="Certify File">
+      <input type="submit" value="Certify Files">
     </form>
 {% endblock column1 %}
 
 {% block help %}
 
-<p><b>Certify File</b> runs the same checks required for submission and
+<p><b>Certify Files</b> runs the same checks required for submission and
 presents any errors as well as provenance information for review.
 
 {% include "comparison_context_help.html" %}
 
-<p><p><b>Uploaded File</b> lets you temporarily upload a prototype reference or 
-mapping to the CRDS server for certification.
-
-<p><p><b>Known File</b> lets you re-certify a mapping or reference
-which has already been submitted to CRDS.
+{% include "select_files_help.html" %}
 
 <p><p>NOTE: If you have installed CRDS,  you can certify files locally like 
 this:

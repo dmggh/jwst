@@ -48,8 +48,7 @@
 <p><b>Submit {{crds_filetype|capfirst}} Files</b> permanently enters files into CRDS and the 
 archive.
 
-<p><p><b>Upload Files</b> is an accordion panel when enables files to be
-uploaded to the CRDS server.
+{% include "select_files_help.html" %}
 
 {% if crds_filetype == "reference" %}
 {% include "comparison_context_help.html" %}

@@ -67,10 +67,9 @@
 <p><b>Batch Submit References</b> supports uploading a list of reference
 files for a single instrument and reference type,  i.e. one rmap.  After checking and 
 storing the reference files,   new CRDS mapping files which refer to them
-are generated.
+are generated.  Each reference file must certify or the entire batch will be rejected.  
 
-<p><p><b>Upload Files</b> lets you upload new references to CRDS.  Each reference 
-file must certify or the entire batch will be rejected.  
+{% include "select_files_help.html" %}
 
 <p><p><b>Derive From Context</b> The name of the pipeline context which 
 will be recursively updated to insert the new reference files and create a new

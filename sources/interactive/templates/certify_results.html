@@ -4,43 +4,28 @@
 
 {% block contents %}
 
-    <h2>Certifying File {{certified_file|gray}}</h2>
+    <h2>Certify Files</h2>
     
-    <h3>Blacklist Status:
-    {% if blacklist_status == "OK" %}
-        <span class="success">
-    {% else %}
-        <span class="error">
-    {% endif %}
-        {{blacklist_status}}
-        </span>
-    </h3>
+    {% include "certify_include.html" %}
 
-    {% if blacklisted_by %}
-        <p>Dependent on blacklisted files:</p> 
-        {% for line in blacklisted_by %}
-            <p>{{line|safe|gray}}</p>
-        {% endfor %}
-    {% endif %}
+    <h3>Blacklist Checks</h3>
+    {% for file, blacklist in blacklist_results.items %}
     
-    {% if blacklist_exceptions %}
-        <p class="error">Errors during blacklist check:</p>
-        {% for line in blacklist_exceptions %}
-            <p>{{line|safe}}</p>    
-        {% endfor %}
-    {% endif %}
+        <div class="accordion">
+            <h3><a href="#">{{file}}  {{blacklist.0|color_status}}</a></h3>
+            <div>
+                {% if blacklist.1 %}
+                    <p>Dependent on blacklisted files:</p> 
+                    {% for line in blacklist.1 %}
+                        <p>{{line|safe|gray}}</p>
+                    {% endfor %}  
+                {% else %}
+                    <p>No blacklisted dependencies.</p>
+                {% endif %}
+            </div>  <!-- contents -->
+        </div> <!-- accordian -->
 
-    <h3>Certify Status:
-    {% if certify_status == "OK" %}
-        <span class="success">
-    {% else %}
-        <span class="error">
-    {% endif %}
-        {{certify_status}}
-        </span>
-    </h3>
-
-    <pre class="program">{{certify_output|safe}}</pre>
+    {% endfor %}
 
     <br/>
 

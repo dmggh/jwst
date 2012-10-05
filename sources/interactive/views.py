@@ -337,7 +337,10 @@ def get_files(request):
     uploads = { os.path.basename(f) : f for f in glob.glob(dir + "/*") }
     for f in uploads:
         if rmap.is_mapping(f):
-            checksum.update_checksum(uploads[f])
+            try:
+                checksum.update_checksum(uploads[f])
+            except Exception, exc:
+                log.warning("Failed updating file checksum for", repr(f),":", str(exc))
     if not uploads:
         raise CrdsError("No input files were specified.")
     return dir, uploads
@@ -1008,41 +1011,43 @@ def certify_post(request):
     context = get_recent_or_user_context(request)
     compare_old_reference = "compare_old_reference" in request.POST
     comparison_context = context if compare_old_reference else None
- 
-    
-    uploaded, original_name, certified_file = handle_known_or_uploaded_file(
-        request, "filemode", "file_known", "file_uploaded")
-    if uploaded and rmap.is_mapping(original_name):
-        checksum.update_checksum(certified_file)
-            
+
     all_files = models.get_fileblob_map()
 
-    certify_status, certify_output = captured_certify(
-        original_name, certified_file, filemap=all_files, check_references=False,
-        context=comparison_context)
+    remove_dir, uploaded_files = get_files(request)
+    
+    log.set_verbose(True)
 
-    try:
-        blacklisted_by = get_blacklists(
-            original_name, certified_file, ignore_self=False, files=all_files)
-    except Exception:
-        blacklisted_by = []
-        blacklist_status = "Error"
-    else:        
-        if blacklisted_by:
-            blacklist_status = "Blacklisted"
-        else:
-            blacklist_status = "OK"
+    certify_results = certify_file_list(uploaded_files.items(), context=comparison_context)
 
-    if uploaded:
-        remove_temporary(certified_file)
+    blacklist_results = get_blacklist_file_list(uploaded_files.items(), all_files=all_files)
 
-    return crds_render(request, "certify_results.html", 
-            {"certify_status":certify_status,
-             "blacklist_status":blacklist_status,
-             "certify_output":certify_output,
-             "blacklisted_by" : blacklisted_by,
-             "certified_file":original_name})
+    return crds_render(request, "certify_results.html", {
+             "certify_results":certify_results,
+             "blacklist_results":blacklist_results,
+    })
 
+def get_blacklist_file_list(upload_tuples, all_files):
+    """Return the mapping of blacklist status and blacklisted_by list for the
+    given `uploaded_tuples` with respect to `all_files`.
+    
+    Returns { original_name :  (blacklist_status, blacklisted_by), ... }
+    """
+    blacklist_results = {}
+    for (original_name, upload_path) in upload_tuples:
+        try:
+            blacklisted_by = get_blacklists(
+                original_name, upload_path, ignore_self=False, files=all_files)
+        except Exception:
+            blacklisted_by = []
+            blacklist_status = "Error"
+        else:        
+            if blacklisted_by:
+                blacklist_status = "Blacklisted"
+            else:
+                blacklist_status = "OK"
+        blacklist_results[original_name] = (blacklist_status, blacklisted_by)
+    return blacklist_results
 
 @capture_output
 def _captured_certify(original_name, uploaded_path, filemap=None, context=None):
