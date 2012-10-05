@@ -1016,8 +1016,6 @@ def certify_post(request):
 
     remove_dir, uploaded_files = get_files(request)
     
-    log.set_verbose(True)
-
     certify_results = certify_file_list(uploaded_files.items(), context=comparison_context)
 
     blacklist_results = get_blacklist_file_list(uploaded_files.items(), all_files=all_files)
