@@ -141,7 +141,8 @@ class BlobModel(models.Model):
     def save(self):
         blob = {}
         for name in self.blob_fields:
-            blob[name] = self.enforce_type(name, getattr(self,name))
+            if name not in self.blob_properties:
+                blob[name] = self.enforce_type(name, getattr(self,name))
         self.blob = repr(blob)
         models.Model.save(self)
         
