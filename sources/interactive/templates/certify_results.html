@@ -8,24 +8,26 @@
     
     {% include "certify_include.html" %}
 
-    <h3>Blacklist Checks</h3>
-    {% for file, blacklist in blacklist_results.items %}
+    {% if is_superuser %}
+        <h3>Blacklist Checks</h3>
+        {% for file, blacklist in blacklist_results.items %}
+        
+            <div class="accordion">
+                <h3><a href="#">{{file}}  {{blacklist.0|color_status}}</a></h3>
+                <div>
+                    {% if blacklist.1 %}
+                        <p>Dependent on blacklisted files:</p> 
+                        {% for line in blacklist.1 %}
+                            <p>{{line|safe|gray}}</p>
+                        {% endfor %}  
+                    {% else %}
+                        <p>No blacklisted dependencies.</p>
+                    {% endif %}
+                </div>  <!-- contents -->
+            </div> <!-- accordian -->
     
-        <div class="accordion">
-            <h3><a href="#">{{file}}  {{blacklist.0|color_status}}</a></h3>
-            <div>
-                {% if blacklist.1 %}
-                    <p>Dependent on blacklisted files:</p> 
-                    {% for line in blacklist.1 %}
-                        <p>{{line|safe|gray}}</p>
-                    {% endfor %}  
-                {% else %}
-                    <p>No blacklisted dependencies.</p>
-                {% endif %}
-            </div>  <!-- contents -->
-        </div> <!-- accordian -->
-
-    {% endfor %}
+        {% endfor %}
+    {% endif %}
 
     <br/>
 
