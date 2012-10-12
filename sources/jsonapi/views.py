@@ -113,7 +113,7 @@ def check_observatory(obs):
         raise InvalidObservatoryError("Unknown observatory " + repr(obs))
     
 def check_reftypes(reftypes):
-    if not isinstance(reftypes, (list, type(None))):
+    if not isinstance(reftypes, (list, tuple, type(None))):
         raise InvalidReftypesError("reftypes parameter should be a list of reftype/filekind strings or None.")
     if reftypes is not None:
         for reftype in reftypes:
@@ -132,7 +132,7 @@ def list_mappings(request, observatory, glob_pattern):
     assert glob_pattern.count("/") == 0, "Illegal glob pattern, / not permitted."
     return rmap.list_mappings(glob_pattern, observatory)
 
-@jsonrpc_method('get_best_references(String, Object, Object)')
+@jsonrpc_method('get_best_references(String, Object, Array)')
 def get_best_references(request, context, header, reftypes):
     check_context(context)
     check_header(header)
@@ -152,7 +152,7 @@ def get_reference_names(request, context):
     ctx = rmap.get_cached_mapping(context)
     return ctx.reference_names()
 
-CRDS_JSONRPC_CHUNK_SIZE = 2**26    # 64M
+CRDS_JSONRPC_CHUNK_SIZE = 2**23    # 8M
 
 @jsonrpc_method('get_file_chunk(String, String, Number)')
 def get_file_chunk(request, context, filename, chunk):
