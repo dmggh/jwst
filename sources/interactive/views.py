@@ -1407,17 +1407,18 @@ def difference_files(request):
             file1_path, file2_path, file1_orig, file2_orig)
         map_text_diffs = mapping_text_diffs(logical_diffs)
         # Compute root files separately since they may have upload paths.
-        diff_lines = textual_diff(file1_orig, file2_orig, file1_path, file2_path)
-        map_text_diffs[file1_orig, file2_orig] = diff_lines
+        difference = textual_diff(file1_orig, file2_orig, file1_path, file2_path)
+        map_text_diffs[file1_orig, file2_orig] = difference
         map_text_diff_items = sorted(map_text_diffs.items())
     elif file1_orig.endswith(".fits") and file2_orig.endswith(".fits"):
         diff_lines = pysh.lines("fitsdiff ${file1_path} ${file2_path}")
         diff_lines = format_fitsdiffs(diff_lines, file1_path, file2_path,
             file1_orig, file2_orig)
+        difference = ''.join(diff_lines)
     elif re.match(GEIS_HEADER_RE, file1_orig) and \
         re.match(GEIS_HEADER_RE, file2_orig) and \
         extension(file1_orig) == extension(file2_orig):
-        diff_lines = textual_diff(file1_orig, file2_orig, file1_path, file2_path)
+        difference = textual_diff(file1_orig, file2_orig, file1_path, file2_path)
     else:
         raise CrdsError("Files should be either CRDS mappings "
                         "of the same type or .fits files")
@@ -1427,14 +1428,14 @@ def difference_files(request):
     if uploaded2:
         remove_temporary(file2_path)
         
-    if not "".join(diff_lines).strip():
-        diff_lines = ["no differences"]
+    if not difference.strip():
+        difference = "no differences"
 
     return crds_render(request, "difference_results.html", 
                   {
                    "logical_diffs" : logical_diffs,
                    "map_text_diff_items" : map_text_diff_items,
-                   "diff_lines" : diff_lines,
+                   "difference" : difference,
                    "file1" : file1_orig,
                    "file2" : file2_orig,
                    })
@@ -1448,11 +1449,10 @@ def textual_diff(file1_orig, file2_orig, file1_path=None, file2_path=None):
     diff_lines = pysh.lines("diff -b -u -FUseAfter ${file1_path} ${file2_path}")
     result = []
     for line in diff_lines:
-        line = line.rstrip()
         line = line.replace(file1_path, file1_orig)
         line = line.replace(file2_path, file2_orig)
         result.append(line)
-    return result
+    return ''.join(result)
 
 def mapping_logical_diffs(file1, file2, file1_orig, file2_orig):
     """Return the logical differences between two mapping files."""

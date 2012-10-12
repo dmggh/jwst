@@ -28,22 +28,14 @@
             <div class="accordion">
                 <h3><a href="#">{{tdiff.0}}</a></h3>
                 <div>
-                    <pre class="program">
-{% for line in tdiff.1 %}
-{{line|safe}}
-{% endfor %}
-                    </pre>
+                    <pre class="program">{{tdiff.1|safe}}</pre>
                 </div>        
             </div>
             {% endfor %}
     
     {% else %}
     
-        <pre class="program">
-{% for line in diff_lines %}
-{{line|safe}}
-{% endfor %}
-        </pre>        
+        <pre class="program">{{difference|safe}}</pre>        
     
     {% endif %}
 
