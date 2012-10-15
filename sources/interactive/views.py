@@ -291,7 +291,7 @@ def crds_render(request, template, dict_=None, requires_pmaps=True):
         else:
             rdict[var] = jsonrpc_vars[var]
             
-    # log.write("rendering:", srepr(template), log.PP(rdict))
+    # log.info("rendering:", srepr(template), log.PP(rdict))
             
     return django_render(request, template, rdict)
 
@@ -412,30 +412,30 @@ def log_view(func):
     """
     def dolog(request, *args, **keys):
         """trap() is bound to the func parameter of decorator()."""        
-        log.write() # start with blank line to make concat logs readable
-        log.write("REQUEST:", request.path, request.method)
-#        log.write("META:", repr(request.META), stdout=None)
+        log.info() # start with blank line to make concat logs readable
+        log.info("REQUEST:", request.path, request.method)
+#        log.info("META:", repr(request.META), stdout=None)
         if request.GET:
-            log.write("GET:",   repr(request.GET))
+            log.info("GET:",   repr(request.GET))
         if request.POST:
-            log.write("POST:",  repr(request.POST))
+            log.info("POST:",  repr(request.POST))
 #        if request.COOKIES:
-#            log.write("COOKIES:", repr(request.COOKIES), stdout=None)
+#            log.info("COOKIES:", repr(request.COOKIES), stdout=None)
         if request.FILES:
-            log.write("FILES:", repr(request.FILES))
-        log.write("OUTPUT:")
+            log.info("FILES:", repr(request.FILES))
+        log.info("OUTPUT:")
         try:    
             response = func(request, *args, **keys)
-#            log.write("RESPONSE:\n" + response.content, stdout=None)
+#            log.info("RESPONSE:\n" + response.content, stdout=None)
             return response
         except Exception, exc:
-            log.write("EXCEPTION REPR:", repr(exc))
-            log.write("EXCEPTION STR:", str(exc))
-            log.write("EXCEPTION TRACEBACK:")
+            log.info("EXCEPTION REPR:", repr(exc))
+            log.info("EXCEPTION STR:", str(exc))
+            log.info("EXCEPTION TRACEBACK:")
             info = sys.exc_info()
             tb_list = traceback.extract_tb(info[2])
             for line in traceback.format_list(tb_list):
-                log.write(line.strip(), time=False)
+                log.info(line.strip(), time=False)
             raise
         finally:
             pass
@@ -2414,13 +2414,13 @@ def stream_response_generator(filename):
                                 " : " + str(exc))
             if not len(data):
                 break
-            log.write("Yielding", srepr(filename), "chunk #" + str(chunk), "of", 
+            log.info("Yielding", srepr(filename), "chunk #" + str(chunk), "of", 
                       len(data), "bytes.")
             # yield data
             chunk += 1
             total += len(data)
             yield data
-    log.write("Finished", srepr(filename), "total bytes", repr(total))
+    log.info("Finished", srepr(filename), "total bytes", repr(total))
 
 ARCH_MODES = {
     "tar" : "w|",
