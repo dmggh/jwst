@@ -41,24 +41,7 @@
       <input type="submit" value="Submit References" >
     </form>
 
-
-    <script type="text/javascript">
-    function validate_and_confirm(form) {
-        console.log("Validating batch reference form submission.");
-        if (!crds.validate_select_pmap()) {
-            return false;
-        }
-        if ($("#description").val() == "") {
-            alert("Did you add a description?");
-            return false;
-        }
-        if ($("#creator").val() == "") {
-            alert("Did you add a creator?");
-            return false;
-        }
-        return true;
-    }
-    </script>
+    {% include "validate_and_confirm.html" %}
 
 {% endblock column1 %}
 
