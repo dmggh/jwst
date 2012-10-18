@@ -596,9 +596,9 @@ def upload_delete(request, filename):
         ingest_filepath = os.path.join(ingest_path, filename)
         log.info("upload_delete removing file", srepr(ingest_filepath))
         os.remove(ingest_filepath)
-        if not glob.glob(ingest_path + "/*"):
-            log.info("upload_delete removing directory", srepr(ingest_path))
-            os.rmdir(ingest_path)
+#        if not glob.glob(ingest_path + "/*"):
+#            log.info("upload_delete removing directory", srepr(ingest_path))
+#            os.rmdir(ingest_path)
     except Exception, exc:
         log.error("upload_delete failed:", str(exc))
 
