@@ -52,6 +52,10 @@ from . import versions
 HERE = os.path.dirname(__file__) or "./"
 
 # ===========================================================================
+
+log.THE_LOGGER.add_stream_handler(sys.stderr)
+
+# ===========================================================================
 def srepr(obj):
     """Mostly for formatting unicode strings for exceptions,  to get rid of the
     annoying Python-2.x u-prefix on unicode reprs.
