@@ -78,7 +78,12 @@
 </li>
 <li><a class="reference internal" href="#private-functions">Private Functions</a><ul>
 <li><a class="reference internal" href="#batch-submit-references">Batch Submit References</a><ul>
-<li><a class="reference internal" href="#upload-files">Upload Files</a></li>
+<li><a class="reference internal" href="#upload-files">Upload Files</a><ul>
+<li><a class="reference internal" href="#web-approach">Web Approach</a></li>
+<li><a class="reference internal" href="#shell-approach">Shell Approach</a></li>
+<li><a class="reference internal" href="#cleaning-up">Cleaning Up</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#derive-from-context">Derive From Context</a><ul>
 <li><a class="reference internal" href="#edit-context">Edit Context</a></li>
 <li><a class="reference internal" href="#operational-context">Operational Context</a></li>
@@ -330,22 +335,66 @@ files are checked with respect to the derivation context by crds.certify.</p>
 </div>
 <div class="section" id="upload-files">
 <h4>Upload Files<a class="headerlink" href="#upload-files" title="Permalink to this headline">¶</a></h4>
-<p>The Upload Files accordion opens to support uploading submitted files to a user&#8217;s
-CRDS ingest directory.</p>
+<p>The first task involved with <em>Batch Submit References</em> is transferring the
+submitted files to the server.  For CRDS build-2,  there are two approaches for
+getting files on the server,  web based and shell based.   Both approaches
+involve transferring files to an ingest directory in the CRDS filestore.  Each
+CRDS user will have their own ingest directory.   Initially the only user is
+&#8220;test&#8221;.   This section applies equally to all of the file submission pages that
+have an <em>Upload Files</em> accordion.</p>
+<div class="section" id="web-approach">
+<h5>Web Approach<a class="headerlink" href="#web-approach" title="Permalink to this headline">¶</a></h5>
+<p>On the file submission pages,  the <em>Upload Files</em> accordion opens to support
+uploading submitted files to a user&#8217;s CRDS ingest directory via the browser.</p>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_upload_files.png"><img alt="file upload accordion" src="_images/web_upload_files.png" style="width: 341.5px; height: 200.0px;" /></a>
+<a class="reference internal image-reference" href="_images/web_upload_files.png"><img alt="file upload accordion" src="_images/web_upload_files.png" style="width: 374.5px; height: 203.0px;" /></a>
 </div>
 <p>Uploading files is accomplished by:</p>
 <ul class="simple">
 <li>Opening the accordion panel by clicking on it.</li>
 <li>Add files to the upload list by clicking on the <em>Add Files...</em> button.  Alternately for modern browsers (Chrome) drag-and-drop files from your desktop to the upload accordion.</li>
-<li>Click <em>Start Upload</em> to initiate the file transfer.</li>
+<li>Click <em>Start Upload</em> to initiate the file transfer.   You should see a progress bar(s) showing the status of the upload(s).   When the upload successfully completes the buttons will change to <em>delete</em>.</li>
 <li>Click <em>Delete</em> for any file added by mistake or for failed uploads.</li>
 <li>Click <em>Cancel Upload</em> to abort a file transfer during the upload.</li>
 <li>Close the accordion panel by clicking on it.</li>
 </ul>
 <p><strong>IMPORTANT</strong>  Just adding files to the file list does not upload them.   You
-must click <em>Start Upload</em> to initiate the file transfer.</p>
+must click <em>Start upload</em> to initiate the file transfer.   In the screenshot above,
+the file with the <em>delete</em> button next to it is already on the server in the
+ingest directory.   The files with <em>start</em> and <em>cancel</em> buttons next to them have
+only been declared as candidates for upload.   To finish uploading all 3 files,
+check <em>select all</em> and click <em>Start upload</em>.</p>
+</div>
+<div class="section" id="shell-approach">
+<h5>Shell Approach<a class="headerlink" href="#shell-approach" title="Permalink to this headline">¶</a></h5>
+<p>In the shell approach a user must login to UNIX (in some fashion) and transfer
+files into their CRDS ingest directory manually.   The nominal approach
+for doing this is to use the cp or scp commands.   For instance,  from my home,
+having already set up ssh and scp access, I might say:</p>
+<div class="highlight-python"><pre>% scp /this_delivery/*.fits   thor.stsci.edu:/grp/crds/hst/ingest/test</pre>
+</div>
+<p>Abstractly this is:</p>
+<div class="highlight-python"><pre>% scp &lt;submitted reference files...&gt;   &lt;host&gt;:/grp/crds/&lt;observatory&gt;/ingest/&lt;crds_username&gt;</pre>
+</div>
+<p>The submitted reference files should now be in the ingest directory for <em>HST</em>
+user <em>test</em>.   Once the files are in the ingest directory,  the CRDS web server
+will behave as if they had been uploaded through web interface.  Refreshing the
+file submission web page should make manually copied files show up in the
+<em>Upload Files</em> accordion.</p>
+<p>The purpose of using cp or scp is to improve the efficiency and reliability of
+the file transfers.  Files transferred to the ingest directory via shell should
+still be removeable using the <em>Upload Files</em> delete buttons.</p>
+</div>
+<div class="section" id="cleaning-up">
+<h5>Cleaning Up<a class="headerlink" href="#cleaning-up" title="Permalink to this headline">¶</a></h5>
+<p>No matter which file transfer approach you use,  transferring many large
+references to the CRDS ingest directories can take a long time.   As long as the
+files remain in the ingest directory,  it is possible to submit them more than
+once (if things go wrong) without uploading again.   Consequently,  for build-2,
+file removal from the ingest directory is left as a user directed activity.   To
+remove files from your ingest directory,  either use &#8220;rm&#8221; in the shell,  or use
+the delete buttons in <em>Upload Files</em>.</p>
+</div>
 </div>
 <div class="section" id="derive-from-context">
 <h4>Derive From Context<a class="headerlink" href="#derive-from-context" title="Permalink to this headline">¶</a></h4>
@@ -403,7 +452,7 @@ input is irrelevant and ignored.</p>
 <ul class="simple">
 <li><em>Starting Context</em> is the context this submission derove from.</li>
 <li><em>Generated New Mappings</em> lists the new mapping files which provide the generated context for using the submitted references.</li>
-<li><em>Actions on Rmap</em> provides two accordions showing how the rmap controlling the submitted references was modified.   The logical differences accordion has a table of actions,  either <em>insert</em> for completely new files or <em>replace</em> for files which replaced an existing file.</li>
+<li><em>Actions on Rmap</em> provides two accordions showing how the rmap controlling the submitted references was modified.   The logical differences accordion has a table of actions,  either <em>insert</em> for completely new files or <em>replace</em> for files which replaced an existing file.   The text differences are essentially output from UNIX <em>diff</em> for the old and new rmaps.</li>
 <li><em>Certify Results</em> has an accordion panel for each submitted reference file which contains the results from crds.certify.   The submitted name of each file is listed first,  followed by any official name of the file assigned by CRDS.   The status of the certification can be &#8220;OK&#8221; or &#8220;Warnings&#8221;.   Warnings should be reviewed by opening the accorion panel.</li>
 </ul>
 <p><strong>IMPORTANT</strong>  The results page only indicates the files which will be added to
