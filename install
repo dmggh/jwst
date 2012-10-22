@@ -225,8 +225,8 @@ mkdir -p -m 755 $CRDS_INGEST_DIR
 
 # These are the directories where newly submitted references and mappings 
 # will be kept by the server.
-mkdir -p -m 755 $map_path
-mkdir -p -m 755 $ref_path
+mkdir -p -m 755 $map_path/$observatory
+mkdir -p -m 755 $ref_path/$observatory
 
 
 ###
