@@ -131,13 +131,13 @@ def get_password():
 def get_dadsops(user="jmiller"):
     """Cache and return a database connection to DADSOPS."""
     if not hasattr(get_dadsops, "_dadsops"):
-        get_dadsops._dadsops = DB("DadsopsDsn", user, get_password())
+        get_dadsops._dadsops = DB("HarpoDadsopsRepDsn", user, get_password())
     return get_dadsops._dadsops
 
 def get_reffile_ops(user="jmiller"):
     """Cache and return a database connection to REFFILE_OPS."""
     if not hasattr(get_reffile_ops, "_reffile_ops"):
-        get_reffile_ops._reffile_ops = DB("ReffileOpsRepDsn", user, get_password())
+        get_reffile_ops._reffile_ops = DB("HarpoReffileOpsRepDsn", user, get_password())
     return get_reffile_ops._reffile_ops
 
 def get_instrument_db_parkeys(instrument):

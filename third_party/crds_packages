@@ -7,6 +7,6 @@ django-sugar
 
 # pyodbc stack
 unixODBC
-freetds
+freetds-dev
 pyodbc
 

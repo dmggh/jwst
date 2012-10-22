@@ -53,7 +53,8 @@ HERE = os.path.dirname(__file__) or "./"
 
 # ===========================================================================
 
-log.THE_LOGGER.add_stream_handler(sys.stderr)
+log.add_stream_handler(sys.stderr)
+log.remove_console_handler()
 
 # ===========================================================================
 def srepr(obj):

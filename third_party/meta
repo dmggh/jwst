@@ -1,11 +1,7 @@
 #! /usr/bin/env python
 #-*-python-*-
 
-"""This is a generic installation script I cobbled together for setting up my
-own Python environments.
-"""
-
-import sys, os, os.path
+import sys, os, os.path, re
 import shutil
 import hashlib
 import pprint
@@ -18,10 +14,40 @@ try:
 except:  # python3
     import io as StringIO
 
+# ==================================================================
+# ==================================================================
+
 try:
     SEP = os.path.sep
 except:
     SEP = "/"
+
+def fixpath(p):
+   """Convert windows \\ paths back to / paths for Msys"""
+   parts = [x for x in p.split(SEP) if x]
+   newp = "/".join(parts)
+   if p.startswith(SEP):
+       newp = SEP + newp
+   # verbose("fixpath:",p,"->",newp)
+   return newp
+
+PREFIX = os.environ.get("META_PREFIX", fixpath(os.getcwd()))
+
+try:
+    PACKAGE_PATH = fixpath(os.environ["PACKAGE_PATH"])
+except KeyError:
+    PACKAGE_PATH = "../sources"
+
+if sys.maxint < 2**33:
+    ARCH_BITS = "32"
+else:
+    ARCH_BITS = "64"
+
+CFLAGS = os.environ.get("CFLAGS","")
+CXXFLAGS = os.environ.get("CXXFLAGS","")
+
+os.environ["CFLAGS"] = CFLAGS + " -I" + PREFIX + "/include  -L" + PREFIX + "/lib" 
+os.environ["CXXFLAGS"] = CXXFLAGS + " -I" + PREFIX + "/include  -L" + PREFIX + "/lib" 
 
 # ==================================================================
 # ==================================================================
@@ -76,16 +102,6 @@ def evalfile(filename):
 # ==================================================================
 # ==================================================================
 
-PREFIX = os.environ.get("META_PREFIX", fixpath(os.getcwd()))
-
-try:
-    PACKAGE_PATH = fixpath(os.environ["PACKAGE_PATH"])
-except KeyError:
-    PACKAGE_PATH = "../sources"
-
-# ==================================================================
-# ==================================================================
-
 def prune(*dirs):
     """Delete a directory tree."""
     tell(*(("Pruning",) + dirs))
@@ -117,12 +133,25 @@ def pkg_pattern(fname):
     >>> pkg_pattern("../sources/foo.meta")
     'foo'
     >>> pkg_pattern("../sources/foo-bar.meta")
-    'foo'
+    'foo-bar'
+    >>> pkg_pattern("../sources/foo-bar.pygz")
+    'foo-bar'
     """
-    pkg_with_version = ".".join(os.path.basename(fname).split(".")[:-1])
-    versionless = "-".join(pkg_with_version.split("-")[:-1])
-    # pkg_with_version may not have a version...
-    return versionless or pkg_with_version
+    pkg_with_version = None
+    for exts in EXT_MAP:
+        for ext in exts:
+            if fname.endswith(ext):
+                pkg_with_version = os.path.basename(fname[:-len(ext)])
+        if pkg_with_version:
+            break
+    else:
+        raise ValueError("Bad package name " + repr(fname))
+
+    parts = pkg_with_version.split("-")
+    if re.match("\d+(\.\d+)*", parts[-1]):
+        return "-".join(parts[:-1])
+    else:
+        return pkg_with_version
     
 class Package(object):
     def __init__(self, package_source, build_dir=None, **keys):
@@ -309,7 +338,7 @@ class Package(object):
     def vcs_cmd(self):
         self.pushdir()
         try:
-            for cmd in ["svn","hg","cvs"]:
+            for cmd in ["svn","hg","cvs","git"]:
                 if os.path.exists("." + cmd):
                     return cmd
             else:
@@ -323,6 +352,7 @@ class Package(object):
         "svn":"co",
         "hg":"co",
         "cvs":"co",
+        "git":"clone",
         }
 
     def checkout(self, *args):
@@ -332,6 +362,7 @@ class Package(object):
         "svn":"update",
         "hg":"update",
         "cvs":"update",
+        "git":"pull",
         }
 
     def update(self, *args):
@@ -343,6 +374,7 @@ class Package(object):
         "svn":"commit",
         "hg":"commit",
         "cvs":"commit",
+        "git":"commit",
         }
 
     def commit(self, *args):
@@ -352,6 +384,7 @@ class Package(object):
         "svn":"log",
         "hg":"log",
         "cvs":"log",
+        "git":"log",
         }
 
     def log(self):
@@ -361,6 +394,7 @@ class Package(object):
         "svn":"merge",
         "hg":"merge",
         "cvs":"merge",
+        "git":"merge",
         }
 
     def merge(self):
@@ -370,6 +404,7 @@ class Package(object):
         "svn":"move",
         "hg":"move",
         "cvs":"move",
+        "git":"mv",
         }
 
     def move(self):
@@ -467,6 +502,13 @@ class MetaMixin(object):
     def __init__(self, *args, **keys):
         self.meta_dir = self.build_dir
         self.build_dir = self.meta_dir + "/" + self.meta_dir
+        if ARGS.home:
+            py_home_dir = ARGS.home
+            if py_home_dir.startswith("."):
+                py_home_dir = os.path.abspath(py_home_dir)
+            self.py_home_dir = py_home_dir
+        else:
+            self.py_home_dir = None
 
     def __str__(self):
         return self.meta_dir
@@ -507,7 +549,10 @@ class MetaMixin(object):
             self.unpack()
         platform_specific_cmd = "./" + cmd + "." + sys.platform
         generic_cmd = "./" + cmd
-        extra_args = (self.meta_dir, PREFIX, sys.platform, PYTHON) + args
+        extra_args = (self.meta_dir, PREFIX, sys.platform, PYTHON, ARCH_BITS,)
+        if self.py_home_dir:
+            extra_args = extra_args + (self.py_home_dir,)
+        extra_args = extra_args + args
         if exists(self.meta_dir + "/" + platform_specific_cmd):
             self.pushdir(self.meta_dir)
             try:
@@ -596,26 +641,19 @@ def process(command, packages):
 # ===================================================================
 # ===================================================================
 
-def endswith_any_of(s, endings):
-    for ending in endings:
-        if s.endswith(ending):
-            return True
-    else:
-        return False
-
 EXT_MAP = {
     (".pygz",)                   : PythonPackage,
-    (".tar.gz","tgz",".tar.bz2") : Package,
+    (".tar.gz",".tar.bz2",".tgz") : Package,
     (".meta",)                   : MetaPackage,
     }
 
 def autopkg(fname):
     """Factory which creates a subclass of Package based on filename `fname`."""
     for extensions, package_class in EXT_MAP.items():
-        if endswith_any_of(fname, extensions):
-            return package_class(fname)
+        if fname.endswith(extensions):
+        	return package_class(fname)
     else:
-        return None
+    	return None
 
 def split_cmdline_args(args):
     """Split the args list into (package_basenames, command_line_source_files)
@@ -628,7 +666,7 @@ def split_cmdline_args(args):
     arg_sources = []
     for arg in args:
         for extensions in EXT_MAP:
-            if endswith_any_of(arg, extensions):
+            if arg.endswith(extensions):
                 arg_sources.append(arg)
                 args2.append(pkg_pattern(arg))
                 break
@@ -718,7 +756,7 @@ def main():
 
     PACKAGES = introspect(arg_sources)
 
-    if ARGS.verb == "clean":
+    if ARGS.verb == "clean" and not verb_pkg_names:
         pkgs = PACKAGES.values()
     elif ARGS.verb == "test":
             print test()
