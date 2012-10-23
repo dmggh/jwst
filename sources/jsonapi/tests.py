@@ -251,6 +251,8 @@ if server_config.observatory == "hst":
          'OBSTYPE': 'IMAGING',
          'SUBARRAY': 'F',
          'TIME-OBS': '15:56:09',
+         'FLASHCUR' : 'LOW',  # just to satisfy the parameter checker.
+         'SHUTRPOS' : 'A',  # just to satisfy the parameter checker.
         }
     
         def expected_references(self):

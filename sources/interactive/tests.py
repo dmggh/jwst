@@ -271,43 +271,32 @@ class SimpleTest(TestCase):
         else:
             fits = "interactive/test_data/jwst_miri_fakeflat.fits"
         self.fake_database_files([fits])
+        self.add_file_to_ingest_dir(fits)
         response = self.client.post("/certify/", {
-            "filemode" : "file_uploaded",
-            "file_uploaded" : open(fits),
             "pmap_mode": "pmap_edit",
         })
+        # print "certify post FITS response:", response.content
         self.assert_no_errors(response)
         self.assertNotIn("ERROR", response.content)
-        self.assertEqual(response.content.count("OK"), 2)
-
-    def test_certify_post_rmap_known(self):
-        self.authenticate()
-        if sconfig.observatory == "hst":
-            rmap = "hst_cos_deadtab.rmap"
-        else:
-            rmap = "jwst_miri_flat.rmap"
-        self.fake_database_files([rmap])
-        response = self.client.post("/certify/", {
-            "filemode" : "file_known",
-            "file_known" : rmap,
-            "pmap_mode": "pmap_edit",
-        })
-        self.assert_no_errors(response)
-        self.assertNotIn("ERROR", response.content)
-        self.assertNotIn("Failed", response.content)
-        self.assertEqual(response.content.count("OK"), 2)
+        self.assertEqual(response.content.count("OK"), 1)
 
     def test_certify_post_rmap_uploaded(self):
         self.authenticate()
+        if sconfig.observatory == "hst":
+            rmap = "interactive/test_data/hst_cos_deadtab.rmap"
+            fits = ["s7g1700ql_dead.fits", "s7g1700gl_dead.fits"]
+        else:
+            rmap = "interactive/test_data/jwst_nirspec_flatfile.rmap"
+            fits = ["jwst_nirspec_flatfile.fits"]
+        self.add_file_to_ingest_dir(rmap)
+        self.fake_database_files(fits)
         response = self.client.post("/certify/", {
-            "filemode" : "file_uploaded",
-            "file_uploaded" : open("interactive/test_data/hst_cos_deadtab.rmap"),
             "pmap_mode": "pmap_edit",
         })
         self.assert_no_errors(response)
         self.assertTrue("ERROR", response.content)
         self.assertTrue("Failed" not in response.content)
-        self.assertTrue(response.content.count("OK") == 2)
+        self.assertTrue(response.content.count("OK") == 1)
 
     def test_difference_get(self):
         response = self.client.get("/difference/")

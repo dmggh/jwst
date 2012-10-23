@@ -2034,7 +2034,7 @@ def edit_rmap_post(request):
     """View fragment handling Rmap edit execution POST."""
 
     expanded, actions = collect_action_tree(request)
-    print pprint.pformat(actions)
+    # print pprint.pformat(actions)
     if not actions:
         raise CrdsError("No edit actions were found.  Aborted.")
     
@@ -2096,7 +2096,7 @@ def collect_action_tree(request):
     for var in request.FILES:
         if var.startswith("add."):
             action_vars[str(var)] = uploaded = get_uploaded_file(request, var)
-            print "uploaded ", var, uploaded.name
+            # print "uploaded ", var, uploaded.name
     
     expanded = DotExpandedDict(action_vars)
     actions = []
