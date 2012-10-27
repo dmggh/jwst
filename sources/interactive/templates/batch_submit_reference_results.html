@@ -45,9 +45,7 @@
 
         {% accordion "Rmap Text Diffs" %}
             <pre class="program">
-            {% for line in rmap_diffs %}
-                {{line|safe}}
-            {% endfor %}
+	       {{rmap_diffs|safe}}
             </pre>
         {% endaccordion %}
         
