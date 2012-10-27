@@ -723,6 +723,8 @@ def get_recent_pmaps(last_n=10):
     for f in files:
         if f.name.endswith(".pmap"):
             f.thaw()
+            if f.state == "uploaded":
+                continue
             pmaps.append((f.name, pmap_label(f)))
             if len(pmaps) >= last_n:
                 break
