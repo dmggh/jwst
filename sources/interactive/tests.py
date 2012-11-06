@@ -29,7 +29,9 @@ pysh.sh("cp ${REAL_MAPPING_DIR}/*.*map ${CRDS_PATH}/mappings/%s" % sconfig.obser
 # monkey-patch these since they're not encapsulated with functions.
 sconfig.CRDS_INGEST_DIR = os.path.join(CRDS_PATH, "ingest")
 sconfig.CRDS_DELIVERY_DIR = os.path.join(CRDS_PATH, "deliveries")
-sconfig.CRDS_CATALOG_DIR = os.path.join(CRDS_PATH, "catalog")
+sconfig.CRDS_DELIVERY_DIRS = [os.path.join(CRDS_PATH, "deliveries")]
+sconfig.CRDS_CATALOG_DIR = os.path.join(CRDS_PATH, "catalogs")
+sconfig.FILE_UPLOAD_TEMP_DIR = os.path.join(CRDS_PATH, "uploads")
 
 class SimpleTest(TestCase):
     
