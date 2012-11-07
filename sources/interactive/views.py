@@ -2387,8 +2387,40 @@ from django.views.decorators.http import condition
 # @condition(etag_func=None)
 @error_trap("base.html")
 @log_view
+def brokered_get(request, filename):
+    """Brokered get checks that a file exists in CRDS and is available and then
+    redirects the request to an optimized download server.   The optimized
+    download might be owned by the archive (TBD) or it might be handled
+    directly by CRDS Apache,  or possibly by servers better optimized than Apache.
+    
+    From a protocol standpoint,  redirecting is superior to asking for the URL
+    and then fetching it sice it cuts out the return trip to client.  The CRDS 
+    /get/<filename> URL is fixed and mapped to this broker.   The broker then
+    determines and redirects to the actual download URL.
+    """
+    try:
+        blob = models.FileBlob.load(filename)
+    except LookupError:
+        raise CrdsError("No CRDS database entry for" + srepr(filename))
+
+    assert blob.available, \
+        "File " + srepr(filename) + " is not yet available for distribution."
+
+    url = jsonapi_views.create_unchecked_url(models.OBSERVATORY, filename)
+    
+    log.info("Brokering file", repr(filename), "from", repr(url))
+
+    return HttpResponseRedirect(url)
+
+# @condition(etag_func=None)
+@error_trap("base.html")
+@log_view
 def get_file_data(request, filename):
-    """Provides a view to serve CRDS mapping and reference files via URL."""
+    """Get file data is a single URL within the CRDS/Django framework which
+    can deliver files via HTTP.   Dedicated static file servers are recommended
+    by Django,   but this is simple,  and works in debug mode.  Most likely
+    this is not used in a production environment.
+    """
     try:
         blob = models.FileBlob.load(filename)
     except LookupError:

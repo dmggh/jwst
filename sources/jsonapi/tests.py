@@ -20,12 +20,8 @@ HERE = os.path.dirname(__file__) or "."
 CRDS_PATH = os.environ["CRDS_PATH"] = server_config.install_root + "/test"
 pysh.sh("rm -rf ${CRDS_PATH}", raise_on_error=True)
 pysh.sh("mkdir -p ${CRDS_PATH}", raise_on_error=True)
-test_maps = CRDS_PATH + "/mappings"
-test_refs = CRDS_PATH + "/references"
-CRDS_REAL_MAPPATH = os.environ["CRDS_MAPPATH"]
-pysh.sh("cp -r ${CRDS_REAL_MAPPATH} ${test_maps}")
-CRDS_MAPPATH = os.environ["CRDS_MAPPATH"] = test_maps
-CRDS_REFPATH = os.environ["CRDS_REFPATH"] = test_refs
+del os.environ["CRDS_MAPPATH"]
+del os.environ["CRDS_REFPATH"]
 
 client.set_crds_server(server_config.CRDS_URL)
 

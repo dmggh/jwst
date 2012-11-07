@@ -39,6 +39,13 @@ def create_url(observatory, filename):
         url = config.CRDS_REFERENCE_URL + filename
     return url
 
+def create_unchecked_url(observatory, filename):
+    if rmap.is_mapping(filename):
+        url = config.CRDS_UNCHECKED_MAPPING_URL + filename
+    else:
+        url = config.CRDS_UNCHECKED_REFERENCE_URL + filename
+    return url
+
 # ===========================================================================
 
 class UnknownContextError(Error):
