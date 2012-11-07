@@ -102,20 +102,13 @@ def color_status(status):
 
 # ===========================================================================
 
-# Because of multiple projects this is uncomfortably complicated.  Sorry.
-#  1. Both client and server observatory "personality" live in a single package.
-#  2. The core library knows how to transform observatory -> personality.
-#  3. This code knows how to convert a filter expression to an anchor.
-
 @register.filter
 def download_url(filename):
     """Return the URL for downloading `filename`.
-
-        {{"hst.pmap"|download_url}} --> 
-            http://localhost:8000/static/mappings/hst/hst.pmap
     """
     try:
-        return jviews.create_url(config.observatory, filename)
+        # return jviews.create_url(config.observatory, filename)
+        return "/get/" + filename
     except Exception:
         return filename
 
