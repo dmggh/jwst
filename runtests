@@ -8,7 +8,9 @@ set observatory = $1
 set server_mode = $2
 
 echo "installing $1 $2..."
-./install $1 $2 >& /dev/null
+./install $1 $2 <<EOF
+yes
+EOF
 
 cd sources
 

@@ -6,7 +6,7 @@ DEBUG_EXTRAS=False
 observatory = 'jwst'
 install_root = '/grp/crds/' + observatory
 port = 4995
-CRDS_URL = "http://etcbrady.stsci.edu:" + str(port)
+CRDS_URL = "http://etcbrady.stsci.edu:" + str(port) + "/"
 
 servertype = 'mod_python'
 apachemod = "/data1/pyetc_third_party_4/lib/apache"
