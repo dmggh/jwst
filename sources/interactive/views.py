@@ -2495,7 +2495,8 @@ def get_archive(request, filename):
     response = HttpResponse(mimetype="application/octet-stream")
     
     buffer = cStringIO.StringIO()
-    tar = tarfile.open(mode=ARCH_MODES[arch_extension], fileobj=buffer)
+    tar = tarfile.open(mode=ARCH_MODES[arch_extension], fileobj=buffer,
+                       dereference=True)
     for path in filepaths:
         tar.add(path, arcname=os.path.basename(path))
     tar.close()
