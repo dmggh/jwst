@@ -17,10 +17,9 @@ import crds.server.config as config
 
 observatory_module = utils.get_object("crds." + OBSERVATORY)
 
-
 # ============================================================================
 
-OBSERVATORIES = ["hst","jwst"]
+OBSERVATORIES = ["hst", "jwst"]
 
 INSTRUMENTS = sorted(observatory_module.INSTRUMENTS) # + crds.jwst...
 FILEKINDS   = sorted(observatory_module.FILEKINDS)   # + crds.jwst...
@@ -408,6 +407,13 @@ class FileBlob(BlobModel):
                 except Exception:
                     raise CrdsError("required keyword " + field.fitskey + " is missing in " + self.uploaded_as)
     
+    def add_slow_fields(self):
+        log.info("Adding slow fields for", repr(blob.name))
+        blob.sha1sum   # property cached as _sha1sum
+        blob.size      # property cached as _size
+        if blob.type == "reference":
+            blob.init_FITS_fields()
+    
     @classmethod
     def new(cls, observatory, upload_name, permanent_location, 
             creator_name, deliverer_user, deliverer_email, description, 
@@ -432,11 +438,7 @@ class FileBlob(BlobModel):
         blob.description = description
         blob.delivery_date = timestamp.now()
         if add_slow_fields:
-            log.info("Adding slow fields for", repr(blob.name))
-            blob.sha1sum   # property cached as _sha1sum
-            blob.size      # property cached as _size
-            if blob.type == "reference":
-                blob.init_FITS_fields()
+            blob.add_slow_fields()
         try:
             instrument, filekind = utils.get_file_properties(
                 observatory, permanent_location)
@@ -602,7 +604,6 @@ def get_state(filename):
 
 def known_files():
     return [f.name for f in FileBlob.objects.all()]
-    
 
 # ============================================================================
 
