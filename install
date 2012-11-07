@@ -175,7 +175,7 @@ then
 	fi
 fi
 
-PYTHONPATH=$install_dir/python/lib/python/crds/server:$install_dir/thirdparty/lib/python:$PYTHONPATH
+PYTHONPATH=$install_dir/python/lib/python/crds/server:$install_dir/python/lib/python:$PYTHONPATH
 export PYTHONPATH
 
 PATH=$install_dir/python/bin:$install_dir/bin:$PATH

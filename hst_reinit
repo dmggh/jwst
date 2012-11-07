@@ -16,11 +16,12 @@ endif
 set mode=$1
 shift
 
+./install $observatory $mode
+
 cd `dirname $0`
 source env.csh
 
 rm -rf ${CRDS_PATH}/{webserver,test,ingest,uploads}
-
 rm -f ${CRDS_PATH}/references/hst/*
 rm -f ${CRDS_PATH}/mappings/hst/*
 rm -f ${CRDS_PATH}/catalogs/*
@@ -30,7 +31,9 @@ rm -f ${CRDS_PATH}/deliveries/*
 
 ./init_pkgs $observatory $mode
 
-python tools/wipe_db.py
+python tools/wipe_db.py <<EOF
+y
+EOF
 
 python tools/make_cdbs_links.py
 

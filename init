@@ -44,9 +44,6 @@ if ($observatory == "hst") then
     set password_file=${CRDS_INSTALL_DIR}/python/lib/python/crds/server/interactive/db_password.dat
     echo $password >$password_file
     chmod 600 $password_file
-
-	python make_cdbs_links.py
-
     python import_files.py $observatory.pmap jmiller jmiller@stsci.edu "Initial import" 0
 else if ($observatory == "jwst") then
     python import_files.py jwst.pmap jmiller jmiller@stsci.edu "Initial import" 0
