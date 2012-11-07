@@ -30,6 +30,7 @@ def main(args):
             log.info("Adding slow fields for: ", repr(blob.name))
             blob.thaw()
             blob.add_slow_fields()
+            blob.sha1sum  # property computes and caches if not cached already.
         except Exception, exc:
             log.error("Failed", repr(blob.name), "with:", str(exc))
         else:

@@ -409,7 +409,7 @@ class FileBlob(BlobModel):
     
     def add_slow_fields(self):
         log.info("Adding slow fields for", repr(self.name))
-        self.sha1sum   # property cached as _sha1sum
+        # self.sha1sum   # property cached as _sha1sum
         self.size      # property cached as _size
         if self.type == "reference":
             self.init_FITS_fields()
@@ -417,7 +417,7 @@ class FileBlob(BlobModel):
     @classmethod
     def new(cls, observatory, upload_name, permanent_location, 
             creator_name, deliverer_user, deliverer_email, description, 
-            change_level="SEVERE", add_slow_fields=False, 
+            change_level="SEVERE", add_slow_fields=True, 
             state="submitted", derived_from=None):
         """Create a new FileBlob or subclass."""
         
@@ -546,7 +546,7 @@ class FileBlob(BlobModel):
 
 def add_crds_file(observatory, upload_name, permanent_location, 
             deliverer, deliverer_email, description,
-            change_level="SEVERE", add_slow_fields=False,
+            change_level="SEVERE", add_slow_fields=True,
             creator_name="unknown", state="submitted", update_derivation=True):
     "Make a database record for this file.  Track the action of creating it."""
 
