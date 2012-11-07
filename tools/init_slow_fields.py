@@ -25,9 +25,10 @@ def main(args):
     if "sqlite" in crds.server.config.dbtype:
         hack_sqlite3_performance()
     
-    for blob in models.FileBlob.all():
+    for blob in models.FileBlob.objects.all():
         try:
             log.info("Adding slow fields for: ", repr(blob.name))
+            blob.thaw()
             blob.add_slow_fields()
         except Exception, exc:
             log.error("Failed", repr(blob.name), "with:", str(exc))
@@ -37,10 +38,7 @@ def main(args):
     log.standard_status()
 
 if __name__ == "__main__":
-    if len(sys.argv) == 1:
-        print >>sys.stderr, "usage: init_slow_fields.py"
-    else:
-        import cProfile
-        cProfile.runctx("main(sys.argv[1:])", globals(), globals(), "init_slow_fields.stats")
+    import cProfile
+    cProfile.runctx("main(sys.argv[1:])", globals(), globals(), "init_slow_fields.stats")
 
  

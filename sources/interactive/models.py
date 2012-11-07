@@ -408,11 +408,11 @@ class FileBlob(BlobModel):
                     raise CrdsError("required keyword " + field.fitskey + " is missing in " + self.uploaded_as)
     
     def add_slow_fields(self):
-        log.info("Adding slow fields for", repr(blob.name))
-        blob.sha1sum   # property cached as _sha1sum
-        blob.size      # property cached as _size
-        if blob.type == "reference":
-            blob.init_FITS_fields()
+        log.info("Adding slow fields for", repr(self.name))
+        self.sha1sum   # property cached as _sha1sum
+        self.size      # property cached as _size
+        if self.type == "reference":
+            self.init_FITS_fields()
     
     @classmethod
     def new(cls, observatory, upload_name, permanent_location, 
