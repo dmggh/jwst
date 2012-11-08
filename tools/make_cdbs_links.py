@@ -7,7 +7,7 @@ of CDBS.
 """
 import os
 
-from crds import config, log, rmap
+from crds import config, log, rmap, utils
 import crds.hst.locate as locate
 
 def main():
@@ -24,6 +24,7 @@ def main():
             log.info("Skipping existing link for", repr(filename))
             continue
         try:
+            utils.ensure_dir_exists(crds_path, mode=0755)
             os.symlink(cdbs_path, crds_path)
             log.info("Linking", repr(crds_path), "-->", repr(cdbs_path))
         except Exception, exc:

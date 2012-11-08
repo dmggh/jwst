@@ -14,27 +14,30 @@ import crds.server.config as sconfig
 from django.contrib.auth.models import User
 
 REAL_MAPPING_DIR = os.path.dirname(rmap.locate_file("foo.pmap", sconfig.observatory))
-
 # Set up test server tree
 HERE = os.path.dirname(__file__) or "."
 CRDS_PATH = os.environ["CRDS_PATH"] = sconfig.install_root + "/test"
-pysh.sh("rm -rf ${CRDS_PATH}", raise_on_error=True)
-pysh.sh("mkdir -p ${CRDS_PATH}/ingest", raise_on_error=True)
-pysh.sh("mkdir -p ${CRDS_PATH}/deliveries", raise_on_error=True)
-pysh.sh("mkdir -p ${CRDS_PATH}/catalogs", raise_on_error=True)
-pysh.sh("mkdir -p ${CRDS_PATH}/references/%s" % sconfig.observatory, raise_on_error=True)
-pysh.sh("mkdir -p ${CRDS_PATH}/mappings/%s" % sconfig.observatory, raise_on_error=True)
-pysh.sh("cp ${REAL_MAPPING_DIR}/*.*map ${CRDS_PATH}/mappings/%s" % sconfig.observatory, raise_on_error=True)
-
-# monkey-patch these since they're not encapsulated with functions.
-sconfig.CRDS_INGEST_DIR = os.path.join(CRDS_PATH, "ingest")
-sconfig.CRDS_DELIVERY_DIR = os.path.join(CRDS_PATH, "deliveries")
-sconfig.CRDS_DELIVERY_DIRS = [os.path.join(CRDS_PATH, "deliveries")]
-sconfig.CRDS_CATALOG_DIR = os.path.join(CRDS_PATH, "catalogs")
-sconfig.FILE_UPLOAD_TEMP_DIR = os.path.join(CRDS_PATH, "uploads")
+print CRDS_PATH, os.environ["CRDS_PATH"]
 
 class SimpleTest(TestCase):
-    
+
+    @classmethod
+    def setUpClass(self, *args, **keys):
+        pysh.sh("rm -rf ${CRDS_PATH}", raise_on_error=True)  #, trace_commands=True)
+        pysh.sh("mkdir -p ${CRDS_PATH}/ingest", raise_on_error=True)
+        pysh.sh("mkdir -p ${CRDS_PATH}/deliveries", raise_on_error=True)
+        pysh.sh("mkdir -p ${CRDS_PATH}/catalogs", raise_on_error=True)
+        pysh.sh("mkdir -p ${CRDS_PATH}/references/%s" % sconfig.observatory, raise_on_error=True)
+        pysh.sh("mkdir -p ${CRDS_PATH}/mappings/%s" % sconfig.observatory, raise_on_error=True)
+        pysh.sh("cp ${REAL_MAPPING_DIR}/*.*map ${CRDS_PATH}/mappings/%s" % sconfig.observatory, raise_on_error=True)
+        
+        # monkey-patch these since they're not encapsulated with functions.
+        sconfig.CRDS_INGEST_DIR = os.path.join(CRDS_PATH, "ingest")
+        sconfig.CRDS_DELIVERY_DIR = os.path.join(CRDS_PATH, "deliveries")
+        sconfig.CRDS_DELIVERY_DIRS = [os.path.join(CRDS_PATH, "deliveries")]
+        sconfig.CRDS_CATALOG_DIR = os.path.join(CRDS_PATH, "catalogs")
+        sconfig.FILE_UPLOAD_TEMP_DIR = os.path.join(CRDS_PATH, "uploads")
+        
     def runTest(self, *args, **keys):
         pass
     
@@ -79,10 +82,10 @@ class SimpleTest(TestCase):
                 ]
         self.del_maps(delete_files)
         pysh.sh("/bin/rm -rf " + lconfig.get_crds_refpath(), 
-                    raise_on_error=True,
-                ) # trace_commands=True)
+                raise_on_error=True)  # , trace_commands=True)
         if self.ingested:
-            pysh.sh("/bin/rm -rf " + self.ingest_path, raise_on_error=True)
+            pysh.sh("/bin/rm -rf " + self.ingest_path,
+                    raise_on_error=True) # , trace_commands=True)
 
     def authenticate(self):
         login = self.client.login(username="homer", password="simpson")

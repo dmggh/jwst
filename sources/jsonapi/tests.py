@@ -18,14 +18,16 @@ import crds.heavy_client as heavy_client
 
 HERE = os.path.dirname(__file__) or "."
 CRDS_PATH = os.environ["CRDS_PATH"] = server_config.install_root + "/test"
-pysh.sh("rm -rf ${CRDS_PATH}", raise_on_error=True)
-pysh.sh("mkdir -p ${CRDS_PATH}", raise_on_error=True)
-del os.environ["CRDS_MAPPATH"]
-del os.environ["CRDS_REFPATH"]
-
-client.set_crds_server(server_config.CRDS_URL)
 
 class ServiceApiBase(object):
+
+    @classmethod
+    def setUpClass(self, *args, **keys):
+        pysh.sh("rm -rf ${CRDS_PATH}", raise_on_error=True, trace_commands=True)
+        pysh.sh("mkdir -p ${CRDS_PATH}", raise_on_error=True)
+        os.environ.pop("CRDS_MAPPATH", None)
+        os.environ.pop("CRDS_REFPATH", None)
+        client.set_crds_server(server_config.CRDS_URL)
 
     def get_header(self):
         return dict(self.header)

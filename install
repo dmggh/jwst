@@ -201,8 +201,8 @@ mkdir -p $install_dir/python/bin
 
 	echo 'setenv CRDS_SERVER_URL ' $CRDS_URL
 	echo 'setenv CRDS_PATH ' $install_root
-	echo 'setenv CRDS_MAPPATH ' $map_path
-	echo 'setenv CRDS_REFPATH ' $ref_path
+	# echo 'setenv CRDS_MAPPATH ' $map_path
+	# echo 'setenv CRDS_REFPATH ' $ref_path
 ) > env.csh
 
 # This is a place for matplotlib to store cache files.  We don't actually

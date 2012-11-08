@@ -363,7 +363,7 @@ def get_known_filepath(filename):
 def remove_temporary(filepath):
     """Attempt to remove `filepath`.  Ignore errors."""
     try:
-        assert filepath.startswith(sconfig.FILE_UPLOAD_TEMP_DIR), \
+        assert not filepath.startswith("/grp/hst/cdbs"), \
             "ERROR -- attempt to delete from Central Store"
         os.remove(filepath)
     except Exception, exc:
