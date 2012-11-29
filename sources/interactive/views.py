@@ -1498,8 +1498,9 @@ def mapping_text_diffs(logical_diffs):
     """
     diff_map = {}
     for ldiff in logical_diffs:
-        for tup in ldiff[1:]:
-            if len(tup) == 2 and tup[0].endswith("map") and tup[1].endswith("map"):
+        for tup in ldiff:
+            if isinstance(tup, tuple) and len(tup) == 2 and \
+                tup[0].endswith("map") and tup[1].endswith("map"):
                 file1_orig, file2_orig = tup
                 file1_path = rmap.locate_mapping(file1_orig)
                 file2_path = rmap.locate_mapping(file2_orig)
@@ -1510,8 +1511,6 @@ def mapping_text_diffs(logical_diffs):
                     except Exception, exc:
                         diffs = "diffs failed: " + str(exc)
                     diff_map[file1_orig, file2_orig] = diffs
-                else:
-                    break
     return diff_map
 
 def format_fitsdiffs(lines, file1, file2, file1_orig, file2_orig):
