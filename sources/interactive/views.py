@@ -1900,7 +1900,7 @@ def do_create_contexts(pmap_name, updated_rmaps, description, user, email,
     # Actually generate the new mappings,  by first copying the old mappings 
     # and then substituting old names with their updated equivalents.
     new_contexts = newcontext.generate_new_contexts(
-        pmap_name, updates_by_instrument, new_name_map)
+        pmap_name, updates_by_instrument, new_name_map, observatory=models.OBSERVATORY)
  
     for ctx in new_contexts:
         if ctx.endswith(".pmap"):
