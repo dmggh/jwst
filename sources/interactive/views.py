@@ -342,10 +342,13 @@ def get_files(request):
     uploads = { os.path.basename(f) : f for f in glob.glob(dir + "/*") }
     for f in uploads:
         if rmap.is_mapping(f):
-            try:
+            # this will fail for user-scp'ed ingests.  but... maybe file already writeable.
+            with log.warn_on_exception("Failed setting file mode on", repr(f)):
+                os.chmod(uploads[f], 0660)
+            # os.chmod(uploads[f], 0222)  # XXXX test test test
+            # this will fail if `f` is not writeable.  but... maybe checksum already good.
+            with log.warn_on_exception("Failed updating checksum on", repr(f)):
                 checksum.update_checksum(uploads[f])
-            except Exception, exc:
-                log.warning("Failed updating file checksum for", repr(f),":", str(exc))
     if not uploads:
         raise CrdsError("No input files were specified.")
     return dir, uploads
@@ -550,12 +553,10 @@ def upload_new(request, template="upload_new_input.html"):
         assert re.match("[A-Za-z0-9_]+", file_local_dir), \
             "Invalid file_local_dir " + srepr(file_local_dir)
         ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir, f.name)
-        try:
+        with log.warn_on_exception("Failed removing", repr(ingest_path)):
             os.chmod(ingest_path, 0666)
             os.remove(ingest_path)
             log.info("Removed existing", repr(ingest_path))
-        except Exception, exc:
-            log.info("Failed removing", repr(ingest_path), str(exc))
         utils.ensure_dir_exists(ingest_path)
         log.info("Linking", ingest_path)
         os.link(f.temporary_file_path(), ingest_path)
