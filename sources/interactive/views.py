@@ -502,6 +502,21 @@ def index(request):
     return crds_render(request, "index.html", {}, requires_pmaps=False)
 
 # ===========================================================================
+
+@error_trap("base.html")
+@login_required
+def display_result(request, id):
+    id = int(id)
+    result = models.RepeatableResultModel.get(id)
+    pars = result.parameters
+    pars["results_id"] = id  # needed to implement "disposition", confirmed or cancelled.
+    return crds_render(request, result.page_template, pars)
+
+def render_repeatable_result(result, template, rdict):    
+    result = models.RepeatableResultModel.new(template, rdict)    
+    return HttpResponseRedirect("/display_result/" + str(result.id))
+
+# ===========================================================================
 from django.contrib.auth.views import login as django_login
 
 @error_trap("base.html")
@@ -844,7 +859,7 @@ def submit_files_post(request, crds_filetype):
 #        except Exception, exc:
 #            log.warning("Failed to remove ingest directory", repr(remove_dir), ":", str(exc))
 
-    return crds_render(request, 'submit_results.html', {
+    return render_repeatable_result(request, 'submit_results.html', {
                 "crds_filetype": crds_filetype,
                 "baseperm":new_basename,
                 "collision_list" : collision_list,
@@ -1134,7 +1149,7 @@ def batch_submit_references_post(request):
 #        except Exception, exc:
 #            log.warning("Failed to remove ingest directory", repr(remove_dir), ":", str(exc))
 
-    return crds_render(request, "batch_submit_reference_results.html", {
+    return render_repeatable_result(request, "batch_submit_reference_results.html", {
                 "actions" : actions,
                 "pmap" : pmap_name,
                 "old_rmap" : old_rmap,
@@ -1317,6 +1332,7 @@ def submit_confirm(request):
     generated_files = compat.literal_eval(request.POST["generated_files"])
     user = str(request.user)
     more_submits = validate_post(request, "more_submits", URL_RE)
+    results_id = validate_post(request, "results_id", "\d+")
     
     instrument = filekind = "unknown"
     for filename in new_files + generated_files:
@@ -1344,9 +1360,14 @@ def submit_confirm(request):
                 instrument=instrument, filekind=filekind)    
         deliver_file_list( request.user, sconfig.observatory, 
             new_files + generated_files, description, submission_kind)
+        disposition = "confirmed"
     else:
         destroy_file_list(new_files + generated_files)
+        disposition = "cancelled"
         
+    models.RepeatableResultModel.set_parameter(
+            results_id, "disposition" , disposition)
+
     return crds_render(request, "confirmed.html", {
                 "confirmed" : button=="confirm",
                 "new_file_map" : new_file_map,
@@ -2069,7 +2090,7 @@ def edit_rmap_post(request):
     
     rmap_blob = rmap.load_mapping(original_rmap)
     
-    return crds_render(request, "edit_rmap_results.html", {
+    return render_repeatable_result(request, "edit_rmap_results.html", {
                 "pmap" : pmap_name,
                 "new_references" : new_references,
                 "old_mappings" : old_mappings,

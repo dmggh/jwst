@@ -167,7 +167,13 @@ class BlobModel(models.Model):
             model = candidates[0]
             model.thaw()
             return model
-        
+    
+    @classmethod
+    def get(cls, id):
+        model = cls.objects.get(id=id)
+        model.thaw()
+        return model
+    
     def thaw(self):
         blob = eval(self.blob)
         for name, value in blob.items():
@@ -359,7 +365,7 @@ class FileBlob(BlobModel):
         description = BlobField(
             str, "Brief rationale for changes to this file.", "(none)"),
         comment = FitsBlobField("DESCRIP",
-            str, "from DESCRIPT keyword of reference file.", "(none)"),
+            str, "from DESCRIP keyword of reference file.", "(none)"),
         catalog_link = BlobField(FILEPATH_RE, 
             "Path to catalog file listing this file for delivery to OPUS. " \
             "File transitions from 'delivered' to 'operational' when deleted.",
@@ -783,6 +789,52 @@ class ContextBlob(BlobModel):
             value = blob.context
             map[state] = value
         return map
+
+# ============================================================================
+
+class RepeatableResultModel(BlobModel):
+    """A model for storing results rendered as a web page... so they can be 
+    re-rendered at later time without re-executing forms and hence back/forward 
+    arrows can work to redisplay options.
+    """
+    class Meta:
+        db_table = TABLE_PREFIX + "_results" # rename SQL table
+
+    blob_fields = dict(
+        # User supplied fields
+        parameters_repr = BlobField(
+            str, "repr of HTML rendering parameter dictionary", "{}"),
+        page_template = BlobField(
+            "\w+\.html", "HTML template which will be rendered using parameter dictionary", ""),
+    )
+
+    unicode_list = ["parameters_repr", "page_template"]
+    
+    @classmethod
+    def new(cls, page_template, parameters):
+        self = cls()
+        self.page_template = page_template
+        parameters["disposition"] = ""  # confirm/cancelled has happened
+        self.parameters_repr = repr(parameters)
+        log.info("parameters_repr", len(self.parameters_repr))
+        self.save()
+        return self
+    
+    @property
+    def parameters(self):
+        """return garbage-can dict of page template parameters"""
+        if not hasattr(self, "_parameters"):
+            self._parameters = literal_eval(self.parameters_repr)
+        return self._parameters
+
+    @classmethod
+    def set_parameter(cls, result_id, name, value):
+        result = cls.get(id=int(result_id))
+        result.parameters[name] = value
+        result.parameters_repr = repr(result._parameters)
+        result.save()
+
+# ============================================================================
 
 def set_default_context(context, observatory=OBSERVATORY, user="crds-system",
                         state="default"):
