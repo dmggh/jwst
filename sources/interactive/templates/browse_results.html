@@ -108,17 +108,9 @@
                     <td width="20%" align="left" class="label">Description</td>
                     <td>{{fileblob.description}}</td>
                  </tr>
-                <tr>
-                    <td width="20%" align="left" class="label">Comment</td>
-                    <td>{{fileblob.comment}}</td>
-                 </tr>
                  <tr>
                     <td width="20%" align="left" class="label">Derived From</td>
                     <td>{{fileblob.derived_from}}</td>
-                 </tr>
-                 <tr>
-                    <td width="20%" align="left" class="label">Pedigree</td>
-                    <td>{{fileblob.pedigree}}</td>
                  </tr>
                  <tr>
                     <td width="20%" align="left" class="label">Change Level</td>
@@ -132,10 +124,20 @@
                     <td width="20%" align="left" class="label">Activation Date</td>
                     <td>{{fileblob.activation_date}}</td>
                  </tr>
-                  <tr>
-                    <td width="20%" align="left" class="label">Useafter Date</td>
-                    <td>{{fileblob.useafter_date}}</td>
-                 </tr>
+                 {% if fileblob.type == "reference" %}
+                     <tr>
+                        <td width="20%" align="left" class="label">Comment</td>
+                        <td>{{fileblob.comment}}</td>
+                     </tr>
+                     <tr>
+                        <td width="20%" align="left" class="label">Pedigree</td>
+                        <td>{{fileblob.pedigree}}</td>
+                     </tr>
+                      <tr>
+                        <td width="20%" align="left" class="label">Useafter Date</td>
+                        <td>{{fileblob.useafter_date}}</td>
+                     </tr>
+                 {% endif %}
             </table>
         {% else %}
             <p class="error">Error loading database record for 
