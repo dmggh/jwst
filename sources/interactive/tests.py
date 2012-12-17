@@ -14,6 +14,10 @@ import crds.server.config as sconfig
 from django.contrib.auth.models import User
 
 REAL_MAPPING_DIR = os.path.dirname(rmap.locate_file("foo.pmap", sconfig.observatory))
+
+PMAP = rmap.load_mapping(sconfig.observatory + ".pmap")
+MAPPINGS = PMAP.mapping_names()
+
 # Set up test server tree
 HERE = os.path.dirname(__file__) or "."
 CRDS_PATH = os.environ["CRDS_PATH"] = sconfig.install_root + "/test"
@@ -29,8 +33,8 @@ class SimpleTest(TestCase):
         pysh.sh("mkdir -p ${CRDS_PATH}/catalogs", raise_on_error=True)
         pysh.sh("mkdir -p ${CRDS_PATH}/references/%s" % sconfig.observatory, raise_on_error=True)
         pysh.sh("mkdir -p ${CRDS_PATH}/mappings/%s" % sconfig.observatory, raise_on_error=True)
-        pysh.sh("cp ${REAL_MAPPING_DIR}/*.*map ${CRDS_PATH}/mappings/%s" % sconfig.observatory, raise_on_error=True)
-        
+        for map in MAPPINGS:
+            pysh.sh("cp ${REAL_MAPPING_DIR}/${map} ${CRDS_PATH}/mappings/%s" % sconfig.observatory, raise_on_error=True)
         # monkey-patch these since they're not encapsulated with functions.
         sconfig.CRDS_INGEST_DIR = os.path.join(CRDS_PATH, "ingest")
         sconfig.CRDS_DELIVERY_DIR = os.path.join(CRDS_PATH, "deliveries")
@@ -188,7 +192,7 @@ class SimpleTest(TestCase):
             "description" : "an identical pmap with a different name is still different",
             "change_level" : "SEVERE",
             "creator" : "Somebody else",
-            })
+            }, follow=True)
         self.assert_no_errors(response)
         self.assertIn(rmap2, response.content)
         
@@ -409,10 +413,10 @@ class SimpleTest(TestCase):
                 "change_level" : "SEVERE",
                 "description":"this is only a test.",
                 "auto_rename" : "checked",
-            })
+            }, follow=True)
         # print response
         self.assert_no_errors(response)
-        self.assertIn("Confirm or Abort", response.content)
+        self.assertIn("Confirm or Cancel", response.content)
         self.assertIn("REPLACE", response.content)
         self.assertNotIn("INSERT", response.content)
 
@@ -428,10 +432,10 @@ class SimpleTest(TestCase):
                 "creator" : "bozo",
                 "change_level" : "SEVERE",
                 "description":"this is only a test.",
-            })
+            }, follow=True)
         # print response
         self.assert_no_errors(response)
-        self.assertIn("Confirm or Abort", response.content)
+        self.assertIn("Confirm or Cancel", response.content)
         self.assertIn("INSERT", response.content)
         self.assertNotIn("REPLACE", response.content)
         
@@ -500,10 +504,10 @@ class SimpleTest(TestCase):
             "add.0.filename" : open(reference),
             "browsed_file" : rmap,    
             "creator" : "bozo",            
-            })
+            }, follow=True)
         # print response
         self.assert_no_errors(response)
-        self.assertIn("Confirm or Abort", response.content)
+        self.assertIn("Confirm or Cancel", response.content)
         self.assertIn("add", response.content)
         self.assertNotIn("delete", response.content)
 
@@ -542,10 +546,10 @@ class SimpleTest(TestCase):
             
             "browsed_file" : rmap,                
             "creator" : "bozo",            
-            })
+            }, follow=True)
         # print response
         self.assert_no_errors(response)
-        self.assertIn("Confirm or Abort", response.content)
+        self.assertIn("Confirm or Cancel", response.content)
         self.assertIn("add", response.content)
         self.assertIn("delete", response.content)
         

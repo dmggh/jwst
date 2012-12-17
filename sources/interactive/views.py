@@ -507,13 +507,13 @@ def index(request):
 @login_required
 def display_result(request, id):
     id = int(id)
-    result = models.RepeatableResultModel.get(id)
+    result = models.RepeatableResultBlob.get(id)
     pars = result.parameters
     pars["results_id"] = id  # needed to implement "disposition", confirmed or cancelled.
     return crds_render(request, result.page_template, pars)
 
 def render_repeatable_result(result, template, rdict):    
-    result = models.RepeatableResultModel.new(template, rdict)    
+    result = models.RepeatableResultBlob.new(template, rdict)    
     return HttpResponseRedirect("/display_result/" + str(result.id))
 
 # ===========================================================================
@@ -748,7 +748,7 @@ def get_recent_pmaps(last_n=10):
     
 def pmap_label(blob):
     """Return the text displayed to users selecting known pmaps."""
-    if isinstance(blob, str):
+    if isinstance(blob, basestring):
         blob = models.FileBlob.load(blob)
     available = "" if blob.available else "*unavailable*" 
     blacklisted = "*blacklisted*" if blob.blacklisted else ""
@@ -1365,7 +1365,7 @@ def submit_confirm(request):
         destroy_file_list(new_files + generated_files)
         disposition = "cancelled"
         
-    models.RepeatableResultModel.set_parameter(
+    models.RepeatableResultBlob.set_parameter(
             results_id, "disposition" , disposition)
 
     return crds_render(request, "confirmed.html", {

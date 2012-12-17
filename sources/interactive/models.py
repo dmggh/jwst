@@ -9,11 +9,13 @@ from django.db import models
 # Create your models here.
 from crds import (timestamp, rmap, utils, refactor, checksum, log, data_file, uses)
 from crds import CrdsError
-from crds.compat import (literal_eval, namedtuple, OrderedDict)
+from crds.compat import (namedtuple, OrderedDict)
 
 from crds.server.config import observatory as OBSERVATORY
 from crds.server.config import table_prefix as TABLE_PREFIX
 import crds.server.config as config
+
+from . import json_ext
 
 observatory_module = utils.get_object("crds." + OBSERVATORY)
 
@@ -792,7 +794,7 @@ class ContextBlob(BlobModel):
 
 # ============================================================================
 
-class RepeatableResultModel(BlobModel):
+class RepeatableResultBlob(BlobModel):
     """A model for storing results rendered as a web page... so they can be 
     re-rendered at later time without re-executing forms and hence back/forward 
     arrows can work to redisplay options.
@@ -802,8 +804,8 @@ class RepeatableResultModel(BlobModel):
 
     blob_fields = dict(
         # User supplied fields
-        parameters_repr = BlobField(
-            str, "repr of HTML rendering parameter dictionary", "{}"),
+        parameters_enc = BlobField(
+            str, "json encoding of HTML rendering parameter dictionary", "{}"),
         page_template = BlobField(
             "\w+\.html", "HTML template which will be rendered using parameter dictionary", ""),
     )
@@ -814,9 +816,8 @@ class RepeatableResultModel(BlobModel):
     def new(cls, page_template, parameters):
         self = cls()
         self.page_template = page_template
-        parameters["disposition"] = ""  # confirm/cancelled has happened
-        self.parameters_repr = repr(parameters)
-        log.info("parameters_repr", len(self.parameters_repr))
+        parameters["disposition"] = ""  # confirm/cancelled has happened (not)
+        self.parameters_enc = json_ext.dumps(parameters)
         self.save()
         return self
     
@@ -824,14 +825,14 @@ class RepeatableResultModel(BlobModel):
     def parameters(self):
         """return garbage-can dict of page template parameters"""
         if not hasattr(self, "_parameters"):
-            self._parameters = literal_eval(self.parameters_repr)
+            self._parameters = json_ext.loads(self.parameters_enc)
         return self._parameters
 
     @classmethod
     def set_parameter(cls, result_id, name, value):
         result = cls.get(id=int(result_id))
         result.parameters[name] = value
-        result.parameters_repr = repr(result._parameters)
+        result.parameters_enc = json_ext.dumps(result.parameters)
         result.save()
 
 # ============================================================================
