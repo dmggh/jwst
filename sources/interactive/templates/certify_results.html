@@ -21,7 +21,11 @@
                             <p>{{line|safe|gray}}</p>
                         {% endfor %}  
                     {% else %}
-                        <p>No blacklisted dependencies.</p>
+                        {% if "Error" in blacklist.0 %}
+                            <p class="error">Blacklist check failed due to error.</p>
+                        {% else %}  
+                            <p>No blacklisted dependencies.</p>
+                        {% endif %}
                     {% endif %}
                 </div>  <!-- contents -->
             </div> <!-- accordian -->

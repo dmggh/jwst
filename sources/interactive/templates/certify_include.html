@@ -10,7 +10,11 @@
             <h3><a href="#">{{file}} {{results.0|color_status}}</a></h3>
             {% endif %}
             <div>
-                <a href='/browse/{{new_file_map|lookup:file}}'>{{new_file_map|lookup:file}}</a>
+                {% if new_file_map %}
+                    <a href='/browse/{{new_file_map|lookup:file}}'>{{new_file_map|lookup:file}}</a>
+                {% else %}
+                    <a href='/browse/{{file}}'>{{file}}</a>
+                {% endif %}
                 <div class='program'>
                     <pre>{{ results.1|safe }}</pre>
                 </div>  <!-- program -->

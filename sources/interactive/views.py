@@ -731,10 +731,10 @@ def bestrefs_explore(request):
     
 def get_recent_pmaps(last_n=10):
     """Return a list of option tuples for rendering HTML to choose recent
-    pmaps (last 10) from those filtered by `filters`. This defines what users 
-    will see for the context HTML drop-down menu.
+    pmaps (last 10). This defines what users will see for the context HTML 
+    drop-down menu.
     """
-    files = models.FileBlob.objects.reverse()
+    files = models.FileBlob.objects.all()
     pmaps = []
     for f in files:
         if f.name.endswith(".pmap"):
@@ -742,9 +742,7 @@ def get_recent_pmaps(last_n=10):
             if f.state == "uploaded":
                 continue
             pmaps.append((f.name, pmap_label(f)))
-            if len(pmaps) >= last_n:
-                break
-    return pmaps
+    return list(reversed(pmaps))[:last_n]
     
 def pmap_label(blob):
     """Return the text displayed to users selecting known pmaps."""
@@ -752,7 +750,8 @@ def pmap_label(blob):
         blob = models.FileBlob.load(blob)
     available = "" if blob.available else "*unavailable*" 
     blacklisted = "*blacklisted*" if blob.blacklisted else ""
-    return " ".join([blob.name, str(blob.delivery_date)[:16], available, blacklisted])
+    rejected = "*rejected*" if blob.rejected else ""
+    return " ".join([blob.name, str(blob.delivery_date)[:16], available, blacklisted, rejected])
 
 def bestrefs_explore_post(request):
     """View to get best reference dataset parameters."""
