@@ -2488,13 +2488,7 @@ def stream_response_generator(filename):
             yield data
     log.info("Finished", srepr(filename), "total bytes", repr(total))
 
-ARCH_MODES = {
-    "tar" : "w|",
-    "tar.gz" : "w|gz",
-    "tar.bz2" : "w|bz2",
-}
-
-# @profile("get_archive.stats")
+@profile("get_archive.stats")
 @error_trap("base.html")
 @log_view
 def get_archive(request, filename):
@@ -2508,29 +2502,58 @@ def get_archive(request, filename):
             break
     assert arch_extension in ARCH_MODES, \
         "Unsupported archive extension " + repr(filename)
-    
-    files = {}
-    total_size = 0
-    for var in request.GET:
-        if var.startswith("file"):
-            blob = validate_get(request, var, is_available_file_blob)
-            total_size += blob.size
-            if total_size >= sconfig.MAX_ARCHIVE_SIZE:
-                raise CrdsError("Archive request is too large.   Request bundled mappings only.")
-            files[blob.name] = blob.pathname
-    
-    # This could be cached in a file named with an sha1sum of the names or contents.
-    # But,  assuming the bulk of the work is in the file i/o and Django view anyway.
+        
+    bundle_path = create_archive(request, arch_extension)
+
     response = HttpResponse(mimetype="application/octet-stream")
-    buffer = cStringIO.StringIO()
-    tar = tarfile.open(mode=ARCH_MODES[arch_extension], fileobj=buffer,
-                       dereference=True)
-    for filename, path in files.items():
-        tar.add(path, arcname=filename)
-    tar.close()
-    response.write(buffer.getvalue())
+    response.write(open(bundle_path).read())
     
     return response
+
+ARCH_MODES = {
+    "tar" : "w|",
+    "tar.gz" : "w|gz",
+    "tar.bz2" : "w|bz2",
+}
+
+def create_archive(request, arch_extension):
+    """Based on filenames specified in GET request,  and format defined by
+    arch_extension,  create and return an archive file,  caching it for next
+    time.   The archive is cached based on requested names.
+    """
+    bundle_path = cached_bundle_path(request, arch_extension)
+    if not os.path.exists(bundle_path):
+        files = {}
+        total_size = 0
+        for var in request.GET:
+            if var.startswith("file"):
+                blob = validate_get(request, var, is_available_file_blob)
+                total_size += blob.size
+                if total_size >= sconfig.MAX_ARCHIVE_SIZE:
+                    raise CrdsError("Archive request is too large.   Request bundled mappings only.")
+                files[blob.name] = blob.pathname
+        utils.ensure_dir_exists(bundle_path)    
+        cache_file = open(bundle_path, "wb")
+        tar = tarfile.open(mode=ARCH_MODES[arch_extension], fileobj=cache_file,
+                           dereference=True)
+        for filename, path in files.items():
+            tar.add(path, arcname=filename)
+        tar.close()
+    return bundle_path
+    
+def cached_bundle_path(request, arch_extension):
+    """Compute the sha1sum of the filenames requested for a bundle to see
+    if a bundle is already cached.
+    """
+    names = arch_extension # archive format is important,  download filename isn't
+    for var in request.GET:
+        if var.startswith("file"):
+            name = validate_get(request, var, FILE_RE)
+            names += name
+    checksum = utils.str_checksum(names)
+    path = sconfig.CRDS_ARCHIVE_CACHE_DIR + "/" + checksum + "."+ arch_extension
+    return path
+
 
 def get_archive_url(archive_name, filelist):
     """Return the URL CRDS uses to download an archive named `archive_name`

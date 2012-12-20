@@ -21,6 +21,8 @@ FILE_UPLOAD_TEMP_DIR = install_root + "/uploads"
 # Dir where deliverers can scp files for ingest.
 CRDS_INGEST_DIR = install_root + "/ingest"
 
+CRDS_ARCHIVE_CACHE_DIR = install_root + "/archive_cache"
+
 # table_prefix is added to the beginning of any database table name
 table_prefix = 'crds_' + observatory
 
@@ -32,4 +34,9 @@ table_prefix = 'crds_' + observatory
 data_dir = install_dir+"/data"
 
 crds_server_dir = install_dir + "/python/lib/python/crds/server"
+
+# Max size in bytes of interactive tar-balls,  intended for mapping bundles.
+MAX_ARCHIVE_SIZE = 10**7   # ~10M,  current full hst archive is ~100k.
+
+
 
