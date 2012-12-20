@@ -173,9 +173,9 @@ def is_known_file(filename):
 #        "File " + srepr(filename) + " has not yet been submitted."
     return filename
 
-def is_available_file(filename):
+def is_available_file_blob(filename):
     """Verify that `filename` identifies a file already known to CRDS and
-    meets any requirements for distribution.
+    meets any requirements for distribution.   Return its blob.
     """
     if not re.match(FILE_RE, filename):
         raise CrdsError("Invalid filename " + srepr(filename))
@@ -187,6 +187,13 @@ def is_available_file(filename):
         "File " + srepr(filename) + " is not yet available."
     assert not blob.blacklisted, \
         "File " + srepr(filename) + " has been blacklisted and should no longer be used."
+    return blob
+
+def is_available_file(filename):
+    """Verify that `filename` identifies a file already known to CRDS and
+    meets any requirements for distribution.   Return the filename.
+    """
+    blob = is_available_file_blob(filename)
     return filename
 
 def is_list_of_rmaps(text):
@@ -2487,13 +2494,13 @@ ARCH_MODES = {
     "tar.bz2" : "w|bz2",
 }
 
-# @profile
+# @profile("get_archive.stats")
 @error_trap("base.html")
 @log_view
 def get_archive(request, filename):
     """Supports a link for getting an archive of files of the form:
     
-    http://get_archive/<filename.tar.gz>?file1=hst.pmap&file2=hst_acs.imap?...
+    http://hst-crds.stsci.edu/get_archive/<filename.tar.gz>?file1=hst.pmap&file2=hst_acs.imap?...
     """
     arch_extension = None
     for arch_extension in ARCH_MODES:
@@ -2502,23 +2509,24 @@ def get_archive(request, filename):
     assert arch_extension in ARCH_MODES, \
         "Unsupported archive extension " + repr(filename)
     
-    files = []
+    files = {}
+    total_size = 0
     for var in request.GET:
         if var.startswith("file"):
-            filename = validate_get(request, var, is_available_file)
-            files.append(filename)
-            
-    filepaths = []
-    for filename in files:
-        filepaths.append(models.FileBlob.load(filename).pathname)
-        
-    response = HttpResponse(mimetype="application/octet-stream")
+            blob = validate_get(request, var, is_available_file_blob)
+            total_size += blob.size
+            if total_size >= sconfig.MAX_ARCHIVE_SIZE:
+                raise CrdsError("Archive request is too large.   Request bundled mappings only.")
+            files[blob.name] = blob.pathname
     
+    # This could be cached in a file named with an sha1sum of the names or contents.
+    # But,  assuming the bulk of the work is in the file i/o and Django view anyway.
+    response = HttpResponse(mimetype="application/octet-stream")
     buffer = cStringIO.StringIO()
     tar = tarfile.open(mode=ARCH_MODES[arch_extension], fileobj=buffer,
                        dereference=True)
-    for path in filepaths:
-        tar.add(path, arcname=os.path.basename(path))
+    for filename, path in files.items():
+        tar.add(path, arcname=filename)
     tar.close()
     response.write(buffer.getvalue())
     
