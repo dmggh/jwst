@@ -404,21 +404,13 @@ def error_trap(template):
             """trap() is bound to the func parameter of decorator()."""
             try:
                 return func(request, *args, **keys)
-            except AssertionError, exc:
-                return render_error(request, args, keys, exc, template)
-            except CrdsError, exc:
-                return render_error(request, args, keys, exc, template)
-            except FieldError, exc:
-                return render_error(request, args, keys, exc, template)
+            except (AssertionError, CrdsError, FieldError) as exc:
+                msg = "ERROR: " + str(exc)
+                pars = dict(keys.items() + [("error_message", msg)])
+                return crds_render(request, template, pars)
         trap.func_name = func.func_name
         return trap
     return decorator
-
-def render_error(request, args, keys, exc, template):
-    """Render `template` with an error message."""
-    msg = "ERROR: " + str(exc)
-    pars = dict(keys.items() + [("error_message", msg)])
-    return crds_render(request, template, pars)
 
 def log_view(func):
     """log() captures view inputs, output, and response to a log file.
