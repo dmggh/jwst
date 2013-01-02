@@ -15,49 +15,13 @@
     
     {% include "certify_include.html" %}
     
-    {%if actions %}
-        <h3>Actions on {{old_rmap|gray}}</h3>
-        
-        {% accordion "Rmap Logical Diffs" %}
-            <table border="1" cellpadding="4">
-                <tr>
-                    <th>Action</th>
-                    <th>New Reference File</th>
-                    <th>File Match</th>
-                    <th>At</th>
-                    <th>Rmap Match</th>
-                    <th>Useafter</th>
-                    <th>Replaced File</th>
-                </tr>
-                {% for action in actions %}
-                    <tr>
-                        <td>{{action.action|upper}}</td>        
-                        <td>{{action.ref_file|gray}}</td>        
-                        <td>{{action.ref_match_tuple}}</td>        
-                        <td>-</td>
-                        <td>{{action.rmap_match_tuple}}</td>        
-                        <td>{{action.useafter}}</td>
-                        <td>{{action.replaced_file|gray}}</td>        
-                    </tr>        
-                {% endfor %}
-            </table>
-        {% endaccordion %}
+    {% include "difference_include.html" %}
 
-        {% accordion "Rmap Text Diffs" %}
-            <pre class="program">
-	       {{rmap_diffs|safe}}
-            </pre>
-        {% endaccordion %}
-        
-        {% include "collision_explain.html" %}
-        
-        <br/>
-        
-        {% include "confirm.html" %}
+    {% include "collision_explain.html" %}
+    
+    <br/>
+    
+    {% include "confirm.html" %}
 
-    {% else %}
-        <p class="error">No changes to .rmap!</p>
-    {% endif %}
- 
 {% endblock contents %}
 

@@ -346,7 +346,7 @@ def get_files(request):
     """
     dir = str(request.user)
     dir = os.path.join(sconfig.CRDS_INGEST_DIR, dir)
-    uploads = { os.path.basename(f) : f for f in glob.glob(dir + "/*") }
+    uploads = { str(os.path.basename(f)) : str(f) for f in glob.glob(dir + "/*") }
     for f in uploads:
         if rmap.is_mapping(f):
             # this will fail for user-scp'ed ingests.  but... maybe file already writeable.
@@ -1139,16 +1139,10 @@ def batch_submit_references_post(request):
 
     new_rmap = new_mappings[0]
     old_rmap  = old_mappings[0]
-    rmap_diffs = textual_diff(old_rmap, new_rmap)
-
-#    if remove_dir is not None:
-#        try:
-#            shutil.rmtree(remove_dir, ignore_errors=True)
-#        except Exception, exc:
-#            log.warning("Failed to remove ingest directory", repr(remove_dir), ":", str(exc))
-
-    return render_repeatable_result(request, "batch_submit_reference_results.html", {
-                "actions" : actions,
+    diff_results = difference_core(
+        old_rmap, new_rmap, rmap.locate_mapping(old_rmap), rmap.locate_mapping(new_rmap))
+    
+    bsr_results = {
                 "pmap" : pmap_name,
                 "old_rmap" : old_rmap,
                 
@@ -1159,12 +1153,15 @@ def batch_submit_references_post(request):
                 "title" : "Batch Reference Submit",
                 "description" : description,
                 
+                "certify_results" : certify_results,
                 "collision_list" : collision_list,
-                "rmap_diffs" : rmap_diffs,
 
                 "more_submits" : "/batch_submit_references/",
-                "certify_results" : certify_results,
-            })
+            }
+    
+    bsr_results.update(diff_results)
+    
+    return render_repeatable_result(request, "batch_submit_reference_results.html", bsr_results)
 
 def bsr_core(pmap_name, uploaded_files, 
              description, user_name, user_email, creator, change_level, auto_rename,
@@ -1400,11 +1397,6 @@ def flatten(path):
 @log_view
 def difference_files(request):
     """Compare two files,  either known or uploaded,  and display the diffs."""
-
-    def extension(filename): 
-        """Return the file extension of `filename`."""
-        return os.path.splitext(filename)[1]
-    
     if request.method == "GET":
         file1 = request.GET.get("file1", None)
         file2 = request.GET.get("file2", None)
@@ -1422,11 +1414,22 @@ def difference_files(request):
         uploaded2, file2_orig, file2_path = handle_known_or_uploaded_file(
             request, "filemode2", "file_known2", "file_uploaded2")
                 
-        if uploaded1 and rmap.is_mapping(file1_orig):
-            checksum.update_checksum(file1_path)
-        if uploaded2 and rmap.is_mapping(file2_orig):
-            checksum.update_checksum(file2_path)
+    diff_results = difference_core(file1_orig, file2_orig, file1_path, file2_path)
+
+    if uploaded1: 
+        remove_temporary(file1_path)
+    if uploaded2:
+        remove_temporary(file2_path)
         
+    return crds_render(request, "difference_results.html", diff_results)
+    
+def difference_core(file1_orig, file2_orig, file1_path, file2_path):
+    """Compute the rendering dictionary for the differences include file."""
+    
+    def extension(filename): 
+        """Return the file extension of `filename`."""
+        return os.path.splitext(filename)[1]
+    
     logical_diffs = map_text_diff_items = None
     if rmap.is_mapping(file1_orig) and rmap.is_mapping(file2_orig) and \
         extension(file1_orig) == extension(file2_orig):
@@ -1448,24 +1451,16 @@ def difference_files(request):
         difference = textual_diff(file1_orig, file2_orig, file1_path, file2_path)
     else:
         raise CrdsError("Files should be either CRDS mappings "
-                        "of the same type or .fits files")
-        
-    if uploaded1: 
-        remove_temporary(file1_path)
-    if uploaded2:
-        remove_temporary(file2_path)
-        
+                        "of the same type or .fits files")        
     if not difference.strip():
         difference = "no differences"
-
-    return crds_render(request, "difference_results.html", 
-                  {
-                   "logical_diffs" : logical_diffs,
-                   "map_text_diff_items" : map_text_diff_items,
-                   "difference" : difference,
-                   "file1" : file1_orig,
-                   "file2" : file2_orig,
-                   })
+    return {
+       "logical_diffs" : logical_diffs,
+       "map_text_diff_items" : map_text_diff_items,
+       "difference" : difference,
+       "file1" : file1_orig,
+       "file2" : file2_orig,
+    }
 
 def textual_diff(file1_orig, file2_orig, file1_path=None, file2_path=None):
     """Return the output of the context diff of two files."""
@@ -1484,8 +1479,8 @@ def textual_diff(file1_orig, file2_orig, file1_path=None, file2_path=None):
 def mapping_logical_diffs(file1, file2, file1_orig, file2_orig):
     """Return the logical differences between two mapping files."""
     try:
-        map1 = rmap.load_mapping(file1)
-        map2 = rmap.load_mapping(file2)
+        map1 = rmap.load_mapping(file1, ignore_checksum=True)
+        map2 = rmap.load_mapping(file2, ignore_checksum=True)
         # Get logical difference tuples
         ldiffs = map1.difference(map2)
         # Substitute the name of the original file for temp file.

@@ -4,39 +4,8 @@
 
 {% block contents %}
 
-    {% include "accordion.html" %}
-
     <h2>Difference {{file1|gray}} against {{file2|gray}}</h2> 
     
-    {% if map_text_diff_items %}
-    
-        <h3>Mapping Logical Differences</h3>
-        {% accordion Logical %}
-            <table border='1' pad='1'>
-                {% for ldiff in logical_diffs %}
-                <tr>
-                        {% for tup in ldiff %}
-                            <td> {{tup}} </td>
-                        {% endfor %}
-                </tr>
-                {% endfor %}
-            </table>
-        {% endaccordion %}
-        
-        <h3>Mapping Text Differences</h3>
-            {% for tdiff in map_text_diff_items %}
-            <div class="accordion">
-                <h3><a href="#">{{tdiff.0}}</a></h3>
-                <div>
-                    <pre class="program">{{tdiff.1|safe}}</pre>
-                </div>        
-            </div>
-            {% endfor %}
-    
-    {% else %}
-    
-        <pre class="program">{{difference|safe}}</pre>        
-    
-    {% endif %}
+    {% include "difference_include.html" %}
 
 {% endblock contents %}
