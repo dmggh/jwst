@@ -19,7 +19,7 @@
   <tr>
     <td><input type="radio" name="pmap_mode" value="pmap_menu" onchange='crds.validate_select_pmap();' >Recent</td>
       <td align="right">
-        <select name="pmap_menu" onchange='crds.set_radio("pmap_mode","pmap_menu"); crds.validate_select_pmap();' />
+        <select name="pmap_menu" style="width: 20em; height: 30px; " onchange='crds.set_radio("pmap_mode","pmap_menu"); crds.validate_select_pmap();' />
             {% for pmap in pmaps %}
                 {% if pmap.0 == pmap_menu %}
                     <option value="{{pmap.0}}" selected>{{pmap.1}}</option>

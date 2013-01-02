@@ -1131,7 +1131,7 @@ def batch_submit_references_post(request):
     compare_old_reference = "compare_old_reference" in request.POST 
     remove_dir, uploaded_files = get_files(request)
     
-    actions, new_references, new_mappings, old_mappings, certify_results = bsr_core(
+    new_references, new_mappings, old_mappings, certify_results = bsr_core(
         pmap_name, uploaded_files, description, str(request.user), str(request.user.email), 
         creator, change_level, auto_rename, compare_old_reference)
     
@@ -1179,24 +1179,16 @@ def bsr_core(pmap_name, uploaded_files,
         comparison_context = pmap_name
     certify_results = certify_file_list(uploaded_files.items(), context=comparison_context)
 
-    old_rmap, tmp_actions = bsr_temporary_refactor(
-        pmap, uploaded_files, instrument, filekind)
+    old_rmap = bsr_temporary_refactor(pmap, uploaded_files, instrument, filekind)
     
-    unhandled_references = bsr_get_unhandled_references(uploaded_files, tmp_actions)
-    if unhandled_references:
-        raise CrdsError("Some files could not be added to " + srepr(old_rmap) 
-                        + ": " + srepr(unhandled_references))
-    
-    duplicate_matches = bsr_get_duplicate_matches(uploaded_files, tmp_actions)
-    if duplicate_matches:
-        raise CrdsError("Files match same rmap match tuple and useafter: " +
-                        ", ".join([srepr(x) for x in duplicate_matches]))
+    # XXX TODO unhandled files,  references resulting in no change.
+    # XXX TODO duplicate matches,  references changing the same path.
     
     new_references, reference_paths = bsr_submit_references(
         pmap, uploaded_files, 
         description, user_name, user_email, creator, change_level, auto_rename)
     
-    new_rmap, actions = bsr_generate_real_rmap(
+    new_rmap = bsr_generate_real_rmap(
         pmap, instrument, filekind, old_rmap, reference_paths,
         description, user_name, user_email, creator, change_level, auto_rename)
 
@@ -1206,7 +1198,7 @@ def bsr_core(pmap_name, uploaded_files,
     old_mappings = [old_rmap] + new_name_map.keys()
     new_mappings = [new_rmap] + new_name_map.values()
 
-    return (actions, new_references, new_mappings, old_mappings, certify_results)
+    return (new_references, new_mappings, old_mappings, certify_results)
 
 def bsr_check_files_similar(pmap, uploaded_files):
     """Verify that all have same instrument and filekind and return them."""
@@ -1235,10 +1227,9 @@ def bsr_temporary_refactor(pmap, uploaded_files, instrument, filekind):
     old_rmap_path = rmap.locate_mapping(old_rmap, pmap.observatory)
     tmp_rmap = tempfile.NamedTemporaryFile()
 
-    tmp_actions = refactor.rmap_insert_references(
-        old_rmap_path, tmp_rmap.name, uploaded_files.values())
+    refactor.rmap_insert_references(old_rmap_path, tmp_rmap.name, uploaded_files.values())
 
-    return old_rmap, tmp_actions
+    return old_rmap
 
 def bsr_get_unhandled_references(uploaded_files, tmp_actions):
     """Check all of uploaded_files against temporary actions to ensure that
@@ -1297,17 +1288,16 @@ def bsr_generate_real_rmap(pmap, instrument, filekind, old_rmap, reference_paths
     new_rmap = get_new_name(pmap.observatory, instrument, filekind, ".rmap")
     new_rmap_path = rmap.locate_mapping(new_rmap, pmap.observatory)
     old_rmap_path = rmap.locate_mapping(old_rmap, pmap.observatory)
+    
     # refactor inserting references.
-    actions = refactor.rmap_insert_references(old_rmap_path, new_rmap_path, reference_paths)
-    if not actions:
-        raise CrdsError("Internal error,  second pass rmap refactoring produced no results.""")
+    refactor.rmap_insert_references(old_rmap_path, new_rmap_path, reference_paths)
     
     # Submit the new rmap with added references
     models.add_crds_file(pmap.observatory, new_rmap, new_rmap_path,  
                          user_name, user_email, description, 
                          change_level=change_level, creator_name=creator, state="uploaded")
     
-    return new_rmap, actions
+    return new_rmap
 
 # ============================================================================
 

@@ -417,8 +417,8 @@ class SimpleTest(TestCase):
         # print response
         self.assert_no_errors(response)
         self.assertIn("Confirm or Cancel", response.content)
-        self.assertIn("REPLACE", response.content)
-        self.assertNotIn("INSERT", response.content)
+        self.assertIn("replace", response.content)
+        self.assertNotIn("insert", response.content)
 
     def test_batch_submit_insert(self):
         self.authenticate()
@@ -436,8 +436,8 @@ class SimpleTest(TestCase):
         # print response
         self.assert_no_errors(response)
         self.assertIn("Confirm or Cancel", response.content)
-        self.assertIn("INSERT", response.content)
-        self.assertNotIn("REPLACE", response.content)
+        self.assertIn("added", response.content)
+        self.assertNotIn("replace", response.content)
         
     def test_edit_rmap_browse_get(self):
         self.authenticate()
