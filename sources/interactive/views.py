@@ -1309,7 +1309,7 @@ def submit_confirm(request):
     generation mechanisms.
     """
 
-    button = validate_post(request,"button","confirm|discard")
+    button = validate_post(request,"button","confirm|cancel")
     submission_kind = validate_post(request, "submission_kind", models.AUDITED_ACTIONS)
     description = validate_post(request, "description", DESCRIPTION_RE)
     new_file_map = compat.literal_eval(request.POST["new_file_map"])
@@ -1423,13 +1423,13 @@ def difference_core(file1_orig, file2_orig, file1_path, file2_path):
     logical_diffs = map_text_diff_items = None
     if rmap.is_mapping(file1_orig) and rmap.is_mapping(file2_orig) and \
         extension(file1_orig) == extension(file2_orig):
-        logical_diffs = mapping_logical_diffs(
-            file1_path, file2_path, file1_orig, file2_orig)
+        logical_diffs = mapping_logical_diffs(file1_path, file2_path, file1_orig, file2_orig)
         map_text_diffs = mapping_text_diffs(logical_diffs)
         # Compute root files separately since they may have upload paths.
         difference = textual_diff(file1_orig, file2_orig, file1_path, file2_path)
-        map_text_diffs[file1_orig, file2_orig] = difference
+        map_text_diffs[str((file1_orig, file2_orig))] = difference
         map_text_diff_items = sorted(map_text_diffs.items())
+        logical_diffs = [[ str(tup) for tup in diff] for diff in logical_diffs]
     elif file1_orig.endswith(".fits") and file2_orig.endswith(".fits"):
         diff_lines = pysh.lines("fitsdiff ${file1_path} ${file2_path}")
         diff_lines = format_fitsdiffs(diff_lines, file1_path, file2_path,
@@ -1515,7 +1515,7 @@ def mapping_text_diffs(logical_diffs):
                             file1_orig, file2_orig, file1_path, file2_path)
                     except Exception, exc:
                         diffs = "diffs failed: " + str(exc)
-                    diff_map[file1_orig, file2_orig] = diffs
+                    diff_map[str((file1_orig, file2_orig))] = diffs
     return diff_map
 
 def format_fitsdiffs(lines, file1, file2, file1_orig, file2_orig):

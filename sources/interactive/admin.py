@@ -2,7 +2,8 @@
 
 from django.contrib import admin
 from crds.server.interactive.models import (FileBlob, ContextBlob, 
-                                            AuditBlob, CounterBlob)
+                                            AuditBlob, CounterBlob,
+                                            RepeatableResultBlob)
 
 class FileBlobAdmin(admin.ModelAdmin):
     search_fields = ["name"]
@@ -20,3 +21,6 @@ class CounterBlobAdmin(admin.ModelAdmin):
     search_fields = ["name"]
 admin.site.register(CounterBlob, CounterBlobAdmin)
 
+class RepeatableResultBlobAdmin(admin.ModelAdmin):
+    search_fields = ["id"]
+admin.site.register(RepeatableResultBlob, RepeatableResultBlobAdmin)

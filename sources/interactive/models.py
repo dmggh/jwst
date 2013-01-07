@@ -810,7 +810,7 @@ class RepeatableResultBlob(BlobModel):
             "\w+\.html", "HTML template which will be rendered using parameter dictionary", ""),
     )
 
-    unicode_list = ["parameters_repr", "page_template"]
+    unicode_list = ["id", "page_template"]
     
     @classmethod
     def new(cls, page_template, parameters):

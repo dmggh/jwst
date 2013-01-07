@@ -4,29 +4,33 @@
 
     {% if map_text_diff_items %}
     
-        <h3>Mapping Logical Differences</h3>
-        {% accordion Logical %}
-            <table border='1' pad='1'>
-                {% for ldiff in logical_diffs %}
-                <tr>
-                        {% for tup in ldiff %}
-                            <td> {{tup}} </td>
+        {% autoescape off %}
+
+            <h3>Mapping Logical Differences</h3>
+            {% accordion Logical %}
+                <table border='1' pad='1'>
+                        {% for ldiff in logical_diffs %}
+                        <tr>
+                                {% for tup in ldiff %}
+                                    <td> {{tup}} </td>
+                                {% endfor %}
+                        </tr>
                         {% endfor %}
-                </tr>
+                </table>
+            {% endaccordion %}
+            
+            <h3>Mapping Text Differences</h3>
+                {% for tdiff in map_text_diff_items %}
+                <div class="accordion">
+                    <h3><a href="#">{{tdiff.0}}</a></h3>
+                    <div>
+                        <pre class="program">{{tdiff.1}}</pre>
+                    </div>        
+                </div>
                 {% endfor %}
-            </table>
-        {% endaccordion %}
-        
-        <h3>Mapping Text Differences</h3>
-            {% for tdiff in map_text_diff_items %}
-            <div class="accordion">
-                <h3><a href="#">{{tdiff.0}}</a></h3>
-                <div>
-                    <pre class="program">{{tdiff.1|safe}}</pre>
-                </div>        
-            </div>
-            {% endfor %}
     
+        {% endautoescape %}
+
     {% else %}
     
         <pre class="program">{{difference|safe}}</pre>        
