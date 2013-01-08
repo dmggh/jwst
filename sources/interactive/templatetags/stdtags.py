@@ -134,13 +134,12 @@ def beta():
 
 @register.tag
 def accordion(parser, token):
-    tag_name, title = token.split_contents()
+    pars = token.split_contents()
+    tag_name = pars[0]
+    title_words = pars[1:]
     nodelist = parser.parse(('endaccordion',))
     parser.delete_first_token()
-    # title = parser.compile_filter(title)
-    if title.startswith(('"',"'")) and title.endswith(('"',"'")):
-        title = title[1:-1]
-    return AccordionNode(title, nodelist)
+    return AccordionNode(title_words, nodelist)
 
 accordion_template = """
 <div class="accordion">
@@ -149,12 +148,20 @@ accordion_template = """
 """
 
 class AccordionNode(template.Node):
-    def __init__(self, title, nodelist):
-        self.title = title
+    def __init__(self, title_words, nodelist):
+        self.title_words = title_words
         self.nodelist = nodelist
         
     def render(self, context):
-        output = accordion_template % self.title
+        title_words = []
+        for word in self.title_words:
+            if word.startswith(('"',"'")) and word.endswith(('"',"'")):
+                resolved = word[1:-1]
+            else:
+                resolved = template.Variable(word).resolve(context)
+            title_words.append(resolved)
+        title = " ".join(title_words)
+        output = accordion_template % title
         output += self.nodelist.render(context)
         output += "</div>\n"
         output += "</div>\n"
