@@ -235,7 +235,7 @@ def usernames():
 
 # ===========================================================================
 
-def crds_render(request, template, dict_=None, requires_pmaps=True):
+def crds_render(request, template, dict_=None, requires_pmaps=False):
     """Render a template,  making same-named inputs from request available
     for echoing.
     """
@@ -407,7 +407,7 @@ def error_trap(template):
             except (AssertionError, CrdsError, FieldError) as exc:
                 msg = "ERROR: " + str(exc)
                 pars = dict(keys.items() + [("error_message", msg)])
-                return crds_render(request, template, pars)
+                return crds_render(request, template, pars, requires_pmaps=True)
         trap.func_name = func.func_name
         return trap
     return decorator
@@ -498,7 +498,7 @@ def capture_output(func):
 
 def index(request):
     """Return the top level page for all of interactive CRDS."""
-    return crds_render(request, "index.html", {}, requires_pmaps=False)
+    return crds_render(request, "index.html")
 
 # ===========================================================================
 
@@ -635,7 +635,7 @@ def upload_delete(request, filename):
 def bestrefs(request):
     """View to get the instrument context for best references."""
     if request.method == "GET":
-        return crds_render(request, "bestrefs_index2.html", {})
+        return crds_render(request, "bestrefs_index2.html", requires_pmaps=True)
     else:
         return bestrefs_post(request)
 
@@ -724,7 +724,7 @@ def bestrefs_results(request, pmap, header, dataset_name=""):
 def bestrefs_explore(request):
     """View to get the instrument context for best references."""
     if request.method == "GET":
-        return crds_render(request, "bestrefs_explore_index.html", {})
+        return crds_render(request, "bestrefs_explore_index.html", requires_pmaps=True)
     else:
         return bestrefs_explore_post(request)
     
@@ -810,7 +810,7 @@ def submit_files(request, crds_filetype):
     if request.method == "GET":
         return crds_render(request, "submit_input.html", {
                     "crds_filetype" :  crds_filetype,
-                })
+                }, requires_pmaps=True)
     else:
         return submit_files_post(request, crds_filetype)
     
@@ -1021,7 +1021,7 @@ def set_file_enable_post(request):
 def certify_file(request):
     """View to return certify input form or process POST."""
     if request.method == "GET":
-        return crds_render(request, "certify_input.html")
+        return crds_render(request, "certify_input.html", requires_pmaps=True)
     else:
         return certify_post(request)
 
@@ -1117,7 +1117,7 @@ def certify_file_list(upload_tuples, check_references=True, context=None):
 def batch_submit_references(request):
     """View to return batch submit reference form or process POST."""
     if request.method == "GET":
-        return crds_render(request, "batch_submit_reference_input.html")
+        return crds_render(request, "batch_submit_reference_input.html", requires_pmaps=True)
     else:
         return batch_submit_references_post(request)
     
@@ -1786,7 +1786,7 @@ def auto_rename_file(observatory, upload_name, upload_path):
 def recent_activity(request):
     """recent_activity displays records from the AuditBlob database."""
     if request.method == "GET":
-        return crds_render(request, "recent_activity_input.html", {})
+        return crds_render(request, "recent_activity_input.html")
     else:
         return recent_activity_post(request)
 
@@ -1826,7 +1826,7 @@ def recent_activity_post(request):
 def browse_db(request):
     """browse_db displays records from the FileBlob (subclasses) database."""
     if request.method == "GET":
-        return crds_render(request, "browse_db_input.html", {}, requires_pmaps=False)
+        return crds_render(request, "browse_db_input.html")
     else:
         return browse_db_post(request)
 
@@ -1857,7 +1857,7 @@ def browse_db_post(request):
                 "filters": filters,
                 "filtered_db" : filtered_db,
                 "observatory" : observatory,
-            }, requires_pmaps=False)
+            })
 
 # ===========================================================================
 
@@ -1869,7 +1869,7 @@ def create_contexts(request):
     and set of new rmaps.   Note that the "new" rmaps must already be in CRDS.
     """
     if request.method == "GET":
-        return crds_render(request, "create_contexts_input.html", {})
+        return crds_render(request, "create_contexts_input.html", requires_pmaps=True)
     else:
         return create_contexts_post(request)
 
@@ -1964,7 +1964,7 @@ def new_name(old_map):
 def edit_rmap_browse(request):
     """browse_db displays records from the FileBlob (subclasses) database."""
     if request.method == "GET":    # display rmap filters
-        return crds_render(request, "edit_rmap_input.html", {})
+        return crds_render(request, "edit_rmap_input.html")
     else:   # display filtered rmaps
         return edit_rmap_browse_post(request)
 
@@ -2017,7 +2017,7 @@ def edit_rmap_get(request, filename):
             {"fileblob" : blob,
              "observatory" : blob.observatory,
              "file_contents" : file_contents,
-             "browsed_file": filename})
+             "browsed_file": filename}, requires_pmaps=True)
 
 def browsify_edit_rmap(basename, fullpath):
     """Format a CRDS mapping file as colorized HTML for editing."""
@@ -2577,7 +2577,7 @@ def set_default_context(request):
     if request.method == "GET":    # display rmap filters
         return crds_render(request, "set_default_context_input.html", {
                 "context_map" : models.ContextBlob.get_map(),
-            })
+            }, requires_pmaps=True)
     else:   # display filtered rmaps
         new_default = get_recent_or_user_context(request)
         description = validate_post(request, "description", DESCRIPTION_RE)
