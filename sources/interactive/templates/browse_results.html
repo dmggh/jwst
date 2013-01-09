@@ -154,10 +154,10 @@
 {% endaccordion %}
 
 {% if certify_results %}
-    {% accordion "Certify Results" %}
+    {% accordion "Certify Results"  {{certify_results.0|color_status}} %}
     <div class='program' id="certify_results">
         <pre>
-{{ certify_results|safe }}
+{{ certify_results.1|safe }}
         </pre>
     </div>
     {% endaccordion %}    

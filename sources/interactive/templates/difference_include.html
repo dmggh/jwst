@@ -20,11 +20,11 @@
             {% endaccordion %}
             
             <h3>Mapping Text Differences</h3>
-                {% for tdiff in map_text_diff_items %}
-                    {% accordion "Text Diff" tdiff.0 %}
-                        <pre class="program">{{tdiff.1}}</pre>
-                    {% endaccordion %}
-                {% endfor %}
+            {% for tdiff in map_text_diff_items %}
+                {% accordion "Text Diff" tdiff.0 %}
+                    <pre class="program">{{tdiff.1}}</pre>
+                {% endaccordion %}
+            {% endfor %}
     
         {% endautoescape %}
 

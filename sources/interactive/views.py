@@ -1106,7 +1106,7 @@ def certify_file_list(upload_tuples, check_references=True, context=None):
         # In order to capture output easily,  run as subprocess...
         certify_results[original_name] = captured_certify(
             original_name, upload_path, check_references=check_references, filemap=filemap, context=context)
-    return certify_results
+    return sorted(certify_results.items())
 
 # ===========================================================================
 
@@ -1131,7 +1131,7 @@ def batch_submit_references_post(request):
     compare_old_reference = "compare_old_reference" in request.POST 
     remove_dir, uploaded_files = get_files(request)
     
-    new_references, new_mappings, old_mappings, certify_results = bsr_core(
+    new_file_map, new_mappings, old_mappings, certify_results = bsr_core(
         pmap_name, uploaded_files, description, str(request.user), str(request.user.email), 
         creator, change_level, auto_rename, compare_old_reference)
     
@@ -1146,7 +1146,7 @@ def batch_submit_references_post(request):
                 "pmap" : pmap_name,
                 "old_rmap" : old_rmap,
                 
-                "new_file_map" : sorted(new_references.items()),
+                "new_file_map" : new_file_map,
                 
                 "generated_files" : sorted(new_mappings), 
                 "submission_kind" : "batch submit",
@@ -1198,7 +1198,21 @@ def bsr_core(pmap_name, uploaded_files,
     old_mappings = [old_rmap] + new_name_map.keys()
     new_mappings = [new_rmap] + new_name_map.values()
 
-    return (new_references, new_mappings, old_mappings, certify_results)
+    rmap_certify = certify_file_list([(new_rmap, rmap.locate_mapping(new_rmap))], context=comparison_context)
+    # certify_results[old_rmap] = rmap_certify.values()[0]
+    mapping_certs = bsr_certify_new_mapping_list(old_mappings, new_mappings, context=comparison_context)
+    
+    new_file_map = zip(old_mappings, new_mappings)
+    new_file_map += new_references.items()
+    
+    return (new_file_map, new_mappings, old_mappings, mapping_certs + certify_results)
+
+def bsr_certify_new_mapping_list(old_mappings, new_mappings, context):
+    files = [(mapping, rmap.locate_mapping(mapping)) for mapping in new_mappings]
+    new_to_old = dict(zip(new_mappings, old_mappings))
+    certify_results = certify_file_list(files, context=context, check_references=False)
+    certify_results = { new_to_old[mapping]: results for (mapping,results) in certify_results }
+    return sorted(certify_results.items())
 
 def bsr_check_files_similar(pmap, uploaded_files):
     """Verify that all have same instrument and filekind and return them."""
@@ -1566,13 +1580,13 @@ def browse_known_file(request, filename):
         match_paths = matches.find_full_match_paths(context, filename)
         match_paths = [flatten(path) for path in match_paths]
         try:
-            certify_results = captured_certify(filename, blob.pathname, check_references=True, context=context)[1]
+            certify_results = captured_certify(filename, blob.pathname, check_references=True, context=context)
         except Exception, exc:
             log.warning("certify failed for", blob.pathname)
             certify_results = None
     else:
         match_paths = []
-        certify_results = None
+        certify_results = captured_certify(filename, blob.pathname, check_references=False, context=context)
 
     return crds_render(request, "browse_results.html", { 
              "fileblob" : blob,
