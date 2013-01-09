@@ -9,6 +9,8 @@ from django import template
 
 from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
+from django.shortcuts import render as django_render
+
 
 from crds import (rmap, utils)
 from crds.server import (config)
@@ -157,6 +159,9 @@ class AccordionNode(template.Node):
         for word in self.title_words:
             if word.startswith(('"',"'")) and word.endswith(('"',"'")):
                 resolved = word[1:-1]
+            elif word.startswith("{{") and word.endswith("}}"):
+                t = template.Template("{% load stdtags %} " + word)
+                resolved = t.render(context)
             else:
                 resolved = template.Variable(word).resolve(context)
             title_words.append(resolved)
