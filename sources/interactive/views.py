@@ -1322,8 +1322,8 @@ def submit_confirm(request):
     """Accept or discard proposed files from various file upload and
     generation mechanisms.
     """
-
     button = validate_post(request,"button","confirm|cancel")
+    
     submission_kind = validate_post(request, "submission_kind", models.AUDITED_ACTIONS)
     description = validate_post(request, "description", DESCRIPTION_RE)
     new_file_map = compat.literal_eval(request.POST["new_file_map"])
@@ -1349,23 +1349,22 @@ def submit_confirm(request):
             filekind = blob.filekind
 
     if button=="confirm":
-        for map in generated_files:
-            if map.endswith(".pmap"):
-                models.set_default_context(map)
-        for file in new_files + generated_files:
+        for file in set(new_files + generated_files):
             models.AuditBlob.new(
                 request.user, submission_kind, file, description, 
                 str((new_file_map , generated_files)), 
                 instrument=instrument, filekind=filekind)    
         deliver_file_list( request.user, sconfig.observatory, 
-            new_files + generated_files, description, submission_kind)
+            set(new_files + generated_files), description, submission_kind)
         disposition = "confirmed"
+        for map in generated_files:
+            if map.endswith(".pmap"):
+                models.set_default_context(map)
     else:
-        destroy_file_list(new_files + generated_files)
+        destroy_file_list(set(new_files + generated_files))
         disposition = "cancelled"
         
-    models.RepeatableResultBlob.set_parameter(
-            results_id, "disposition" , disposition)
+    models.RepeatableResultBlob.set_parameter(results_id, "disposition" , disposition)
 
     return crds_render(request, "confirmed.html", {
                 "confirmed" : button=="confirm",
