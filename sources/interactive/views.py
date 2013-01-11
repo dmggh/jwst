@@ -1198,8 +1198,6 @@ def bsr_core(pmap_name, uploaded_files,
     old_mappings = [old_rmap] + new_name_map.keys()
     new_mappings = [new_rmap] + new_name_map.values()
 
-    rmap_certify = certify_file_list([(new_rmap, rmap.locate_mapping(new_rmap))], context=comparison_context)
-    # certify_results[old_rmap] = rmap_certify.values()[0]
     mapping_certs = bsr_certify_new_mapping_list(old_mappings, new_mappings, context=comparison_context)
     
     new_file_map = zip(old_mappings, new_mappings)
@@ -1208,7 +1206,7 @@ def bsr_core(pmap_name, uploaded_files,
     return (new_file_map, new_mappings, old_mappings, mapping_certs + certify_results)
 
 def bsr_certify_new_mapping_list(old_mappings, new_mappings, context):
-    files = [(mapping, rmap.locate_mapping(mapping)) for mapping in new_mappings]
+    files = [(mapping, rmap.locate_mapping(mapping)) for mapping in new_mappings if mapping.endswith(".rmap")]
     new_to_old = dict(zip(new_mappings, old_mappings))
     certify_results = certify_file_list(files, context=context, check_references=False)
     certify_results = { new_to_old[mapping]: results for (mapping,results) in certify_results }
@@ -1326,9 +1324,9 @@ def submit_confirm(request):
     
     submission_kind = validate_post(request, "submission_kind", models.AUDITED_ACTIONS)
     description = validate_post(request, "description", DESCRIPTION_RE)
-    new_file_map = compat.literal_eval(request.POST["new_file_map"])
+    new_file_map = compat.literal_eval(str(request.POST["new_file_map"]))
     new_files = dict(new_file_map).values()
-    generated_files = compat.literal_eval(request.POST["generated_files"])
+    generated_files = compat.literal_eval(str(request.POST["generated_files"]))
     user = str(request.user)
     more_submits = validate_post(request, "more_submits", URL_RE)
     results_id = validate_post(request, "results_id", "\d+")
@@ -1352,7 +1350,7 @@ def submit_confirm(request):
         for file in set(new_files + generated_files):
             models.AuditBlob.new(
                 request.user, submission_kind, file, description, 
-                str((new_file_map , generated_files)), 
+                str(new_file_map), 
                 instrument=instrument, filekind=filekind)    
         deliver_file_list( request.user, sconfig.observatory, 
             set(new_files + generated_files), description, submission_kind)

@@ -47,7 +47,7 @@
             var pmap_mode = $("input[name='pmap_mode']:checked").val();
             if ( pmap_mode == "pmap_text") {
                 var pmap = $("input[name='pmap_text']").val();
-                if (!/^.+.pmap$/.test(pmap)) {
+                if (!/^.+.pmap$/.test(pmap) && $.trim(pmap)) {
                     alert("Invalid .pmap name");
                     return false;
                 };

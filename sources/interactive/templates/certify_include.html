@@ -4,23 +4,21 @@
     <h3>Certify Results</h3>
     {# certify_results ==  { filename : (status, certify_output) }  #}
     {% for cert in certify_results %}
-        <div class="accordion">
-            {% if new_file_map %}
-            <h3><a href="#">{{cert.0}} --> {{new_file_map|lookup:cert.0|blue}}  {{cert.1.0|color_status}}</a></h3>
-            {% else %}
-            <h3><a href="#">{{cert.0}} {{cert.1.0|color_status}}</a></h3>
-            {% endif %}
-            <div>
-                {% if new_file_map %}
-                    <a href='/browse/{{new_file_map|lookup:cert.0}}'>{{new_file_map|lookup:cert.0}}</a>
-                {% else %}
-                    <a href='/browse/{{cert.0}}'>{{cert.0}}</a>
-                {% endif %}
+        {% if new_file_map %}
+            {% accordion {{cert.0}} "-->" {{new_file_map|lookup:cert.0|blue}}  {{cert.1.0|color_status}} %}
+                <a href='/browse/{{new_file_map|lookup:cert.0}}'>{{new_file_map|lookup:cert.0}}</a>
                 <div class='program'>
                     <pre>{{ cert.1.1|safe }}</pre>
                 </div>  <!-- program -->
-            </div>  <!-- contents -->
-        </div> <!-- accordian -->
+            {% endaccordion %}
+        {% else %}
+            {% accordion {{cert.0}} {{cert.1.0|color_status}} %}
+                <a href='/browse/{{cert.0}}'>{{cert.0}}</a>
+                <div class='program'>
+                    <pre>{{ cert.1.1|safe }}</pre>
+                </div>  <!-- program -->
+            {% endaccordion %}
+        {% endif %}
    {% endfor %}
    <br/>
  {% endif %} <!-- certify_results -->

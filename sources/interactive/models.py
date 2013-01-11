@@ -712,7 +712,7 @@ class AuditBlob(BlobModel):
         blob.action = action
         blob.filename = affected_file
         blob.why = why
-        blob.details = details
+        blob.details = str(details)
         if date is None:
             date = timestamp.now()
         blob.date = date

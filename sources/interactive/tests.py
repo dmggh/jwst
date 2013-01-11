@@ -420,7 +420,7 @@ class SimpleTest(TestCase):
         self.assertIn("replace", response.content)
         self.assertNotIn("insert", response.content)
 
-    def test_batch_submit_insert(self):
+    def _batch_submit_insert(self):
         self.authenticate()
         if sconfig.observatory == "hst":
             reference = "interactive/test_data/s7g1700gm_dead.fits"
@@ -438,7 +438,24 @@ class SimpleTest(TestCase):
         self.assertIn("Confirm or Cancel", response.content)
         self.assertIn("added", response.content)
         self.assertNotIn("replace", response.content)
+    
+    def test_batch_submit_insert(self):
+        self._batch_submit_insert()
         
+    def _confirm(self):
+        pass
+    
+    def _cancel(self):
+        pass
+    
+    def test_batch_submit_confirm(self):
+        self._batch_submit_insert()
+        self._confirm()
+        
+    def test_batch_submit_cancel(self):
+        self._batch_submit_insert()
+        self._cancel()
+    
     def test_edit_rmap_browse_get(self):
         self.authenticate()
         response = self.client.get("/edit_rmap_browse/")
