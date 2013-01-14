@@ -2527,6 +2527,7 @@ def create_archive(request, arch_extension):
         for filename, path in files.items():
             tar.add(path, arcname=filename)
         tar.close()
+        cache_file.close()
     return bundle_path
     
 def cached_bundle_path(request, arch_extension):
