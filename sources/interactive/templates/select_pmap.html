@@ -5,6 +5,7 @@
    <tr>
     <td><input type="radio" name="pmap_mode" value="pmap_edit" onchange='crds.validate_select_pmap();' checked >Editing</td>
       <td align="right">
+        <input type="hidden" name="pmap_edit" value="{{pmap_edit}}" />
         <p>{{edit_context_label|gray}}</p>
         <p style='margin-top: 0' class='tiny'>or more recent</p>
       </td>
@@ -12,6 +13,7 @@
    <tr>
     <td><input type="radio" name="pmap_mode" value="pmap_operational" onchange='crds.validate_select_pmap();' >Operational</td>
       <td align="right">
+        <input type="hidden" name="pmap_operational" value="{{pmap_operational}}" />
         <p>{{operational_context_label|gray}}</p>
         <p style='margin-top: 0' class='tiny'>or more recent</p>
       </td>
@@ -56,10 +58,10 @@
                 pmap_option = pmap;
                 title = "User Specified";
             } else if (pmap_mode == "pmap_edit") {
-                pmap_option = $("input[value='pmap_edit']").parent().next().children().html();
+                pmap_option = $("input[value='pmap_edit']").parent().next().children().val();
                 title = "Editing Context";
             } else if (pmap_mode == "pmap_operational") {
-                pmap_option = $("input[value='pmap_operational']").parent().next().children().html();
+                pmap_option = $("input[value='pmap_operational']").parent().next().children().val();
                 title = "Operational Context";
             } else if (pmap_mode == "pmap_menu") {
                 pmap_option = $("select[name='pmap_menu'] option:selected").text()

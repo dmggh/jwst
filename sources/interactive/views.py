@@ -267,6 +267,17 @@ def crds_render(request, template, dict_=None, requires_pmaps=False):
         "auto_rename" : False,
     }
     
+    # echo escaped inputs.
+    for key, value in request.GET.items():
+        rdict[key] = safestring.mark_for_escaping(value)
+    for key, value in request.POST.items():
+        rdict[key] = safestring.mark_for_escaping(value)
+    for key, value in request.FILES.items():
+        rdict[key] = safestring.mark_for_escaping(value)
+
+    rdict["old_pmap_edit"] = rdict.get("pmap_edit", "none")  # from request.
+    rdict["old_pmap_operational"] = rdict.get("pmap_operational", "none")
+    
     if requires_pmaps:
         pmap_edit = models.get_default_context()
         pmap_operational = models.get_default_context(state="operational")
@@ -277,14 +288,6 @@ def crds_render(request, template, dict_=None, requires_pmaps=False):
             "operational_context_label" : pmap_label(pmap_operational),
             "pmaps" : get_recent_pmaps(),
         })
-
-    # echo escaped inputs.
-    for key, value in request.GET.items():
-        rdict[key] = safestring.mark_for_escaping(value)
-    for key, value in request.POST.items():
-        rdict[key] = safestring.mark_for_escaping(value)
-    for key, value in request.FILES.items():
-        rdict[key] = safestring.mark_for_escaping(value)
 
     # include view outputs
     if dict_ is not None:
@@ -1777,6 +1780,7 @@ def auto_rename_file(observatory, upload_name, upload_path):
 
 # ===========================================================================
 
+# @profile('recent_activity.stats')
 @error_trap("recent_activity_input.html")
 @log_view
 # @login_required
@@ -1884,7 +1888,7 @@ def create_contexts_post(request):
     
     collision_list = get_collision_list(new_mappings)
     
-    return crds_render(request, "create_contexts_results.html", {
+    return render_repeatable_result(request, "create_contexts_results.html", {
                 "pmap": pmap_name,
                 "old_mappings" : old_mappings,
                 "added_rmaps" : updated_rmaps,

@@ -7,7 +7,7 @@
     
     {% include "select_pmap_results.html" %}
     
-    <h3>Instrument Mappings</h3>
+    <h3>Starting Instrument Mappings</h3>
     {% for ctx in old_mappings %}
         {% if ctx != pmap %}
             <p>{{ctx|browse}}</p>
