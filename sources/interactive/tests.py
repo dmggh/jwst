@@ -369,7 +369,7 @@ class SimpleTest(TestCase):
                 "pmap_text" : self.pmap,
                 "rmaps" : rmap1 + ", " + rmap2,
                 "description" : "updated rmaps"
-            })
+            }, follow=True)
         self.assert_no_errors(response)
         self.assertTrue(self.add_1(self.pmap) in response.content)
         self.assertTrue(self.add_1(rmap1) in response.content)
