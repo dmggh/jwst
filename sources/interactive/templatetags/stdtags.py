@@ -75,6 +75,11 @@ def seconds(value):  # handle str(datetime.datetime.now())
     parts = value.split(".")
     return ".".join(parts[:-1])
 
+@register.filter
+@stringfilter
+def endswith(s, ending):
+    return s.endswith(ending)
+
 # ===========================================================================
 
 @register.filter
