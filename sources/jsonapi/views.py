@@ -51,6 +51,9 @@ def create_unchecked_url(observatory, filename):
 class UnknownContextError(Error):
     """The specified context is not a known CRDS mapping."""
     
+class MismatchedContextError(Error):
+    """The specified context's observatory doesn't match this server."""
+    
 class UnknownMappingError(Error):
     """The specified mapping parameter is not a known CRDS mapping file."""
     
@@ -89,9 +92,13 @@ def check_known_file(file):
     return blob
 
 def check_context(context):
+    if imodels.OBSERVATORY not in context:
+            raise MismatchedContextError(("Requested context '%s' doesn't match the observatory '%s'" + 
+                                         " supported by this server.   Switch servers or contexts.") %
+                                         (context, imodels.OBSERVATORY))                
     blob = check_known_file(context)
-    if not blob or not rmap.is_mapping(context):
-        raise UnknownContextError("Context parameter '%s' is not a known CRDS mapping file." % context)
+    if blob is None or not rmap.is_mapping(context) or not context.endswith(".pmap"):
+        raise UnknownContextError("Context parameter '%s' is not a known CRDS .pmap file." % context)
     return blob
 
 def check_mapping(mapping):
@@ -116,8 +123,10 @@ def check_header(header):
             raise InvalidHeaderError("Bad value in header... not a str, int, float, or bool.")
 
 def check_observatory(obs):
-    if obs not in ["hst","jwst"]:
-        raise InvalidObservatoryError("Unknown observatory " + repr(obs))
+    if obs != imodels.OBSERVATORY:
+        raise InvalidObservatoryError("Mismatch between requested observatory " + 
+                                      repr(obs) + " and server observatory " + 
+                                      repr(imodels.OBSERVATORY))
     
 def check_reftypes(reftypes):
     if not isinstance(reftypes, (list, tuple, type(None))):
