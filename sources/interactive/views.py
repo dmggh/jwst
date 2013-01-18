@@ -901,8 +901,8 @@ def do_submit_file(observatory, original_name, upload_location, description,
         else:
             permanent_name = os.path.basename(original_name)   
 
-    # CRDS keeps all new files in a standard layout.   Older files can be
-    # grandfathered in by special calls to add_crds_file rather than "submission".
+    # CRDS keeps all new files in a standard layout.  Existing files in /grp/cdbs
+    # are currently referenced by standard symlinks in the CRDS server file tree.
     permanent_location = rmap.locate_file(permanent_name, observatory)
 
     # Make sure none of the dependencies are blacklisted,  else fail w/o state.
@@ -1919,8 +1919,7 @@ def do_create_contexts(pmap_name, updated_rmaps, description, user, email,
     
     # Actually generate the new mappings,  by first copying the old mappings 
     # and then substituting old names with their updated equivalents.
-    new_contexts = newcontext.generate_new_contexts(
-        pmap_name, updates_by_instrument, new_name_map, observatory=models.OBSERVATORY)
+    new_contexts = newcontext.generate_new_contexts(pmap_name, updates_by_instrument, new_name_map)
  
     for ctx in new_contexts:
         if ctx.endswith(".pmap"):
@@ -2560,6 +2559,8 @@ def get_archive_url(archive_name, filelist):
     else:
         return ""
     
+# ============================================================================
+
 @error_trap("base.html")
 @superuser_login_required
 def version_info(request):
@@ -2568,6 +2569,8 @@ def version_info(request):
                 "version_info" : sorted(versions.get_all_versions().items()),
                 "crds_env" : sorted(config.get_crds_env_vars().items()),
             })
+
+# ============================================================================
 
 @error_trap("base.html")
 @log_view
