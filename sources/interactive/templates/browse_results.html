@@ -4,8 +4,6 @@
 
 {% block contents %}
 
-{% include "accordion.html" %}
-
 {% if ".rmap" in browsed_file and is_authenticated %}
      <FORM name="edit_form" method="LINK" action="/edit_rmap/{{browsed_file}}">                
            <h2>Browse {{browsed_file|gray}}
