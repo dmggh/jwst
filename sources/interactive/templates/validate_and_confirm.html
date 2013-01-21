@@ -3,18 +3,22 @@ function validate_and_confirm(form) {
     console.log("Validating batch reference form submission.");
     if (!crds.validate_select_pmap()) {
         return false;
-    }
+    };
     console.log("Validating description.");
     if (!$("#description").val()) {
         alert("Did you add a Description?");
         return false;
-    }
+    };
     console.log("Validating creator.");
     if (!$("#creator").val()) {
         alert("Did you add a Creator?");
         return false;
-    }
-    $("div.column1").append("<div style='font-size: 2.0em; font-weight: bold; color: green;'><p>Processing references on the server now.</p><p style='color:darkblue;'>This may take several minutes depending on how many files you submitted and how.</p></div>");
+    };
+    crds.set_info_box({text: "Processing references on the server now."});
+    crds.append_info_box({
+        text: "This may take several minutes depending on how many files you submitted and how.",
+        css: {color: "darkblue"},
+    });
     return true;
 }
 </script>

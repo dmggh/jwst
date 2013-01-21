@@ -112,6 +112,10 @@
       }     
       
       function set_contents(file) {
+        
+        crds.set_info_box({text: "Loading FITS header..."});                                   
+        crds.append_info_box({text: "This may take a while for large files.", css:{color:"darkblue"}});
+                                   
         readBlob(file.id, function (contents) {
             // replace the file element with a text area containing header lines
             var header_val = get_header(file.value, contents);
@@ -130,7 +134,8 @@
             $(file).val(crds.basename(file.value))
         }); 
         crds.set_radio("dataset_mode", "dataset_local");
-      }
+        crds.clear_info_box();
+      };
       
       function validate(evt) {
         if (!crds.validate_select_pmap()) {
@@ -156,6 +161,7 @@
         } else {
             console.log("Invalid dataset_mode");
         }
+        
         return true;
       }
 </script>

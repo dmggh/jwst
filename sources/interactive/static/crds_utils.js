@@ -16,3 +16,24 @@ crds.basename = function (path, suffix) {
     }
     return b;
  };
+
+crds.info_html = function(pars) {
+    var css = pars["css"] || {       
+        "font-size": "1.4em",
+        "font-weight": "bold",
+        "color":"green",
+    };
+    return $("</p>").text(pars["text"]).css(css);
+};
+
+crds.set_info_box = function(pars) {
+    $("#crds_info_box").html(crds.info_html(pars));
+};
+
+crds.append_info_box = function(pars) {
+    $("#crds_info_box").append(crds.info_html(pars));
+};
+
+crds.clear_info_box = function () { 
+    crds.set_info_box({text:""}); 
+};
