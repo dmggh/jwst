@@ -29,10 +29,8 @@ urlpatterns = patterns('',
 
   url(r'^create_contexts/$', 'crds.server.interactive.views.create_contexts'),        
 
-  url(r'^edit_rmap_browse/$', 'crds.server.interactive.views.edit_rmap_browse'),        
-  url(r'^edit_rmap/((?P<filename>[A-Za-z0-9_.]+rmap)/)?$', 'crds.server.interactive.views.edit_rmap'),
-  
   url(r'^submit/(?P<crds_filetype>reference|mapping)/$', 'crds.server.interactive.views.submit_files'),
+  
   (r'^upload/list/$', 'crds.server.interactive.views.upload_list', {}, 'upload-list'),
   (r'^upload/new/$', 'crds.server.interactive.views.upload_new', {}, 'upload-new'),
   (r'^upload/delete/(?P<filename>[A-Za-z0-9_.]+)$', 'crds.server.interactive.views.upload_delete', {}, 'upload-delete'),
