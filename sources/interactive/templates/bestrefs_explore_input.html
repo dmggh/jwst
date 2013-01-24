@@ -21,20 +21,18 @@
                     {% endfor %} 
                 </select>
             {% else %}
-                <input type='text' name='{{key}}' />
+                <input type='text' name='{{key}}' value="*" />
             {% endif %}
           </td>
         </tr>
       {% endfor %}
         <tr>
           <td width="25%" class="label">DATE-OBS:</td>
-          <td width="25%"><input type="text" name="DATE-OBS" /><td/>
-          <td width="25%" class="hint">e.g. 2011-01-01</td>
+          <td width="60%"><input type="text" name="DATE-OBS" value="{{dateobs}}" /> <span class="hint">e.g. 2011-01-01</span> <td/>
         </tr>
         <tr>
           <td width="25%" class="label">TIME-OBS:</td>
-          <td width="25%"><input type="text" name="TIME-OBS" /><td/>
-          <td width="25%" class="hint">e.g. 12:00:00</td>
+          <td width="60%"><input type="text" name="TIME-OBS" value="{{timeobs}}"/> <span class="hint">e.g. 12:00:00</span> </td>
         </tr>
       </table>
       <p></p>

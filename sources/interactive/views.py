@@ -756,11 +756,23 @@ def bestrefs_explore_post(request):
     context = get_recent_or_user_context(request)
     pmap = rmap.get_cached_mapping(context)
     instrument = validate_post(request, "instrument", models.INSTRUMENTS)
-    valid_values = pmap.get_imap(instrument).get_parkey_map().items()
+    valid_values = dict(pmap.get_imap(instrument).get_parkey_map())
+    for key, values in valid_values.items():
+        if values == ["N/A"]:
+            values = []
+        if values and "*" not in values:
+            values = values + ["*"]
+        if values and "N/A" not in values:
+            values = values + ["N/A"]
+        valid_values[key] = values
+    dateobs, timeobs = timestamp.now().split()
+    timeobs = timeobs.split(".")[0]
     return crds_render(request, "bestrefs_explore_input.html", {
             "mapping" : pmap,
-            "valid_values" : sorted(valid_values),
+            "valid_values" : sorted(valid_values.items()),
             "instrument":instrument,
+            "dateobs" : dateobs,
+            "timeobs" : timeobs,
         })
 
 def is_available_pmap(context):
