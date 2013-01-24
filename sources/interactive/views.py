@@ -840,10 +840,10 @@ def submit_files_post(request, crds_filetype):
     remove_dir, uploaded_files = get_files(request)
     for uploaded in uploaded_files:
         if crds_filetype == "mapping":
-            if not rmap.is_mapping(uploaded[0]):
+            if not rmap.is_mapping(uploaded):
                 raise CrdsError("Can't submit non-mapping file: " + repr(uploaded[0]) + " using this page.")
         else:
-            if rmap.is_mapping(uploaded[0]):
+            if rmap.is_mapping(uploaded):
                 raise CrdsError("Can't submit mapping file: " + repr(uploaded[0]) + " using this page.")
             
     # Verify that ALL references certify,  raise CrdsError on first error.
@@ -1964,6 +1964,19 @@ def new_name(old_map):
     assert not (rmap.mapping_exists(new_map) or models.FileBlob.exists(new_map)), \
         "Program error.  New mapping " + srepr(new_map) + " already exists."
     return new_map
+
+def get_collision_list(newfiles):
+    """Given a list of `newfiles`,  newly created files,
+    check the database for other children of the same parent.   Return a
+    list of triplets:  [ (newfile, parent, other_children_of_parent), ... ]
+    """
+    collision_list = []
+    for newfile in newfiles:
+        blob = models.FileBlob.load(newfile)
+        collisions = blob.collisions  # collisions is a db property so cache
+        if collisions:
+            collision_list.append((newfile, blob.derived_from, collisions))
+    return collision_list
 
 # ============================================================================
 '''
