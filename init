@@ -48,4 +48,7 @@ if ($observatory == "hst") then
 else if ($observatory == "jwst") then
     python import_files.py jwst.pmap jmiller jmiller@stsci.edu "Initial import" 0
     python import_files.py jwst_0000.pmap jmiller jmiller@stsci.edu "Initial import" 0
+else
+	echo "unknown observatory"
+	exit -1;
 endif
