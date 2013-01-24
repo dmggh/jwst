@@ -39,6 +39,12 @@
         {% include "auto_rename_input.html" %}
         </h3>
         
+        {% if crds_filetype == "mapping" %}
+            <h3>Generate Contexts:
+                <input name='generate_contexts' type='checkbox' value='on' checked >
+            </h3>
+        {% endif %}
+        
       <p></p>
       <input type="submit" value="Submit Files">
     </form>
@@ -66,9 +72,12 @@ impact science results.
 the expected impacts are.
 
 <p><p><b>Creator</b> author of the contents or changes to the file,  not 
-necessarily the submitter.   The submitter is known based on login information.
+necessarily the submitter.  The submitter is known based on login information.
 
 {% include "auto_rename_help.html" %}
+
+<p><p><b>Generate Contexts</b> Automatically generate a new .pmap and .imap 
+utilizing submitted rmaps.  Ignored for submitted .pmaps or .imaps.
 
 <p><p><b>NOTE:</b> All submitted files must pass certification before they will
 be accepted by CRDS.  All references referred to by a mapping must be submitted

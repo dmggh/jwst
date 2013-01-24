@@ -703,10 +703,8 @@ def bestrefs_results(request, pmap, header, dataset_name=""):
     bestrefs_items = []
     archive_files = []
     for key, val in sorted(recommendations.items()):
-        if val.startswith("NOT FOUND"):
+        if isinstance(val, basestring) and val.startswith("NOT FOUND"):
             val = val[len("NOT FOUND"):]
-        else:
-            archive_files.append(val)
         bestrefs_items.append((key.upper, val))
         
     archive_name = os.path.splitext(dataset_name)[0] + "_bestrefs.tar.gz"
@@ -716,8 +714,6 @@ def bestrefs_results(request, pmap, header, dataset_name=""):
             "dataset_name" : dataset_name,
             "header_items" : header_items,
             "bestrefs_items" : bestrefs_items,
-            "archive_url" : get_archive_url(archive_name, archive_files),
-            "archive_name" : archive_name,
         })
 
 # ===========================================================================
@@ -760,7 +756,7 @@ def bestrefs_explore_post(request):
     context = get_recent_or_user_context(request)
     pmap = rmap.get_cached_mapping(context)
     instrument = validate_post(request, "instrument", models.INSTRUMENTS)
-    valid_values = pmap.get_imap(instrument).get_valid_values_map().items()
+    valid_values = pmap.get_imap(instrument).get_parkey_map().items()
     return crds_render(request, "bestrefs_explore_input.html", {
             "mapping" : pmap,
             "valid_values" : sorted(valid_values),
@@ -1111,6 +1107,15 @@ def captured_certify(original_name, uploaded_path, check_references=True, filema
     return status, output
 
 def certify_file_list(upload_tuples, check_references=True, context=None):
+    """Certify the list of `upload_tuples` specifying uploaded files.
+    
+    If `check_references` is True,  make sure references referred to by mappings exist.
+    
+    If `context` is specified, verify references and mappings relative to the corresponding
+    files in that context.
+    
+    Returns sorted({uploaded_name :  <certify_output> }.items())
+    """
     filemap = models.get_fileblob_map(models.OBSERVATORY)
     certify_results = {}
     for (original_name, upload_path) in upload_tuples:
@@ -1696,7 +1701,6 @@ def browsify_mapping_line(line):
     line = re.sub(r"(.*\}.*)",  r"\1\n</div>\n", line)
     
     return line
-
 
 def browsify_reference(browsed_file):
     """Format a CRDS reference file for HTML display.   Return HTML lines.
