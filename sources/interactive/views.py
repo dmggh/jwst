@@ -831,13 +831,21 @@ def submit_files_post(request, crds_filetype):
         context = get_recent_or_user_context(request)
     else:
         context = None
+
     description = validate_post(request, "description", DESCRIPTION_RE)
     creator = validate_post(request, "creator", PERSON_RE)
     auto_rename = "auto_rename" in request.POST    
     change_level = validate_post(request, "change_level", models.CHANGE_LEVELS)
             
     remove_dir, uploaded_files = get_files(request)
-    
+    for uploaded in uploaded_files:
+        if crds_filetype == "mapping":
+            if not rmap.is_mapping(uploaded[0]):
+                raise CrdsError("Can't submit non-mapping file: " + repr(uploaded[0]) + " using this page.")
+        else:
+            if rmap.is_mapping(uploaded[0]):
+                raise CrdsError("Can't submit mapping file: " + repr(uploaded[0]) + " using this page.")
+            
     # Verify that ALL references certify,  raise CrdsError on first error.
     certify_results = certify_file_list(uploaded_files.items(), context=context)
 
@@ -2289,8 +2297,8 @@ def deliver_file_list(user, observatory, delivered_files, description, action):
     if not len(delivered_files):
         raise CrdsError("No files were selected for delivery.")
     user = str(user)
-    delivered_files = sorted(delivered_files)
-    catalog = deliver_file_catalog(observatory, delivered_files, "I")
+    delivered_files = [str(x) for x in sorted(delivered_files)]
+    catalog = str(deliver_file_catalog(observatory, delivered_files, "I"))
     paths = deliver_file_get_paths(observatory, delivered_files)
     try:
         catalog_link = deliver_make_links(observatory, catalog, paths)
