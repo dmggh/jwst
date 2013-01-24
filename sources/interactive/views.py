@@ -1822,6 +1822,7 @@ def recent_activity_post(request):
         if value not in ["*",""]:
             filters[var] = value
     filtered_activities = models.AuditBlob.filter(**filters)[::-1]
+    filtered_activities = [blob for blob in filtered_activities if not blob.filename.endswith((".cat",))]
     return crds_render(request, "recent_activity_results.html", {
                 "filters": filters,
                 "filtered_activities" : filtered_activities,
