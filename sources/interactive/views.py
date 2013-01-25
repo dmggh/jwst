@@ -528,7 +528,7 @@ def login(request):
             request.session.delete_test_cookie()
             return django_login(request, "login.html")
         else:
-           raise CrdsError("Please enable cookies and try again.")
+            raise CrdsError("Please enable cookies and try again.")
     else:
         request.session.set_test_cookie()
         return django_login(request, "login.html")
@@ -554,9 +554,9 @@ def response_mimetype(request):
 
 class JSONResponse(HttpResponse):
     """JSON response class."""
-    def __init__(self,obj='',json_opts={},mimetype="application/json",*args,**kwargs):
-        content = simplejson.dumps(obj,**json_opts)
-        super(JSONResponse,self).__init__(content,mimetype,*args,**kwargs)
+    def __init__(self, obj='', json_opts={}, mimetype="application/json", *args, **kwargs):
+        content = simplejson.dumps(obj, **json_opts)
+        super(JSONResponse, self).__init__(content, mimetype, *args, **kwargs)
 
 @log_view
 @error_trap("base.html")
@@ -790,7 +790,7 @@ def get_recent_or_user_context(request):
         context = models.get_default_context(state="operational")
     else:
         context = validate_post(request, pmap_mode, is_pmap)
-    return context
+    return str(context)
 
 @error_trap("bestrefs_explore_input.html")
 @log_view
@@ -1237,7 +1237,7 @@ def bsr_certify_new_mapping_list(old_mappings, new_mappings, context):
     files = [(mapping, rmap.locate_mapping(mapping)) for mapping in new_mappings if mapping.endswith(".rmap")]
     new_to_old = dict(zip(new_mappings, old_mappings))
     certify_results = certify_file_list(files, context=context, check_references=False)
-    certify_results = { new_to_old[mapping]: results for (mapping,results) in certify_results }
+    certify_results = { new_to_old[mapping]: results for (mapping, results) in certify_results }
     return sorted(certify_results.items())
 
 def bsr_check_files_similar(pmap, uploaded_files):
@@ -1348,7 +1348,7 @@ def submit_confirm(request):
     """Accept or discard proposed files from various file upload and
     generation mechanisms.
     """
-    button = validate_post(request,"button","confirm|cancel")
+    button = validate_post(request, "button", "confirm|cancel")
     
     submission_kind = validate_post(request, "submission_kind", models.AUDITED_ACTIONS)
     description = validate_post(request, "description", DESCRIPTION_RE)
@@ -1374,7 +1374,7 @@ def submit_confirm(request):
         if blob.filekind != "unknown":
             filekind = blob.filekind
 
-    if button=="confirm":
+    if button == "confirm":
         for file in set(new_files + generated_files):
             models.AuditBlob.new(
                 request.user, submission_kind, file, description, 
@@ -1393,7 +1393,7 @@ def submit_confirm(request):
     models.RepeatableResultBlob.set_parameter(results_id, "disposition" , disposition)
 
     return crds_render(request, "confirmed.html", {
-                "confirmed" : button=="confirm",
+                "confirmed" : button == "confirm",
                 "new_file_map" : new_file_map,
                 "generated_files" : generated_files,
             })
@@ -1904,6 +1904,11 @@ def create_contexts_post(request):
     pmap_name = get_recent_or_user_context(request)
     updated_rmaps = validate_post(request, "rmaps", is_list_of_rmaps)
     description = validate_post(request, "description", DESCRIPTION_RE)
+    
+    existing_names = rmap.get_cached_mapping(pmap_name).mapping_names()
+    for updated in updated_rmaps:
+        assert updated not in existing_names, "Rmap " + repr(updated) + " is already in context " + repr(pmap_name)
+        
 
     new_name_map = do_create_contexts(pmap_name, updated_rmaps, description,
         request.user, request.user.email, state="uploaded")
