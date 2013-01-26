@@ -1,4 +1,37 @@
-from crds import cmdline
+"""This module defines the functions used to submit references and mappings to CRDS.  
+
+Functions performed:
+
+0. Authentication and multiple login prevention.
+
+1. Input sanity checking.
+
+2. File certification, dependenct existence and blacklist checking.
+* Optional file comparisons to prior references.
+
+3. Optional file renaming to official CRDS names.
+
+4. Optional generation of supporting mappings, including limited updates to multiple rmaps.
+
+5. Entry into the CRDS database,  audit trail.
+
+6. Presentation of preliminary persistent results.   
+
+7. Delivery confirmation or rejection.  audit trail,  reject reason?
+
+8. Final acceptance processing.
+* Data transfer from ingest to storage directories.  Ownership transfer.
+* Sha1sum generation for future verification of file integrity.
+* File delivery for archive pickup.
+
+9. Final rejection processing
+* Possible recovery of official CRDS file serial numbers.
+* Removal or sealing of database traces.
+
+9. Removal of delivered files from ingest area.
+10. Presentation of final results.
+"""
+from crds import cmdline, log
 
 class SubmitFilesScript(cmdline.Script):
     """Command line version of CRDS file submissions."""
