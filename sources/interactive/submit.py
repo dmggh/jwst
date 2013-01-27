@@ -2,22 +2,31 @@
 
 Functions performed:
 
-0. Authentication and multiple login prevention.
+0. Authentication and multiple login prevention?
+* If unspecified,  get username from environment and ensure member of crdsoper.
+* Verify username against CRDS database.
 
-1. Input sanity checking.
+1. Input sanity checking and security screening.
+* Ensure no submitted file is a copy of an existing file.
+* Ensure inputs aren't trojaned.
 
-2. File certification, dependenct existence and blacklist checking.
+2. File certification, dependency existence and blacklist checking.
 * Optional file comparisons to prior references.
 
 3. Optional file renaming to official CRDS names.
+* If not renamed,  ensure not existing.
 
 4. Optional generation of supporting mappings, including limited updates to multiple rmaps.
+* Warn if any submitted or generated file, other than the .pmap,  is not mentioned 
+  in a difference as an addition or replacement.
+* Ensure 
 
 5. Entry into the CRDS database,  audit trail.
 
-6. Presentation of preliminary persistent results.   
+6. Presentation of preliminary persistent results, including an emphatic summary of errors and/or warnings.   
 
-7. Delivery confirmation or rejection.  audit trail,  reject reason?
+7. Delivery confirmation or rejection.  audit trail,  accept/reject reason?
+* accept comments about what were fatal problems or why warnings were ignored.
 
 8. Final acceptance processing.
 * Data transfer from ingest to storage directories.  Ownership transfer.
@@ -29,7 +38,7 @@ Functions performed:
 * Removal or sealing of database traces.
 
 9. Removal of delivered files from ingest area.
-10. Presentation of final results.
+10. Presentation of final result,  including an emphatic summary of errors and/or warnings.
 """
 from crds import cmdline, log
 
