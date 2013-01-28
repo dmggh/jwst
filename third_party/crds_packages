@@ -5,6 +5,9 @@ django-json-rpc-git
 django-debug-toolbar
 django-sugar
 
+# STSCI JWST
+models.pygz
+
 # pyodbc stack
 unixODBC
 freetds-dev
