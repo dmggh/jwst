@@ -347,8 +347,7 @@ def get_files(request):
     """Obtain uploaded files from a common multi-mode form mechanism,  
     returning:   remove_dir,   { original_name : file_path }
     """
-    dir = str(request.user)
-    dir = os.path.join(sconfig.CRDS_INGEST_DIR, dir)
+    dir = os.path.join(sconfig.CRDS_INGEST_DIR, str(request.user))
     uploads = { str(os.path.basename(f)) : str(f) for f in glob.glob(dir + "/*") }
     for f in uploads:
         if rmap.is_mapping(f):
@@ -611,6 +610,15 @@ def upload_list(request, template="upload_new_input.html"):
 @log_view
 @login_required
 def upload_delete(request, filename):
+    _upload_delete(request, filename)
+    if request.is_ajax():
+        response = JSONResponse(True, {}, response_mimetype(request))
+        response['Content-Disposition'] = 'inline; filename=files.json'
+        return response
+    else:
+        return HttpResponseRedirect('/upload/new')
+
+def _upload_delete(request, filename):
     try:
         file_local_dir = str(request.user)
         assert re.match("[A-Za-z0-9_]+", file_local_dir), \
@@ -619,19 +627,14 @@ def upload_delete(request, filename):
         ingest_filepath = os.path.join(ingest_path, filename)
         log.info("upload_delete removing file", srepr(ingest_filepath))
         os.remove(ingest_filepath)
-#        if not glob.glob(ingest_path + "/*"):
-#            log.info("upload_delete removing directory", srepr(ingest_path))
-#            os.rmdir(ingest_path)
     except Exception, exc:
         log.error("upload_delete failed:", str(exc))
+   
+def clear_uploads(request, uploads):
+    """Remove the basenames listed in `uploads` from the upload directory."""
+    for filename in uploads:
+        _upload_delete(request, filename)
 
-    if request.is_ajax():
-        response = JSONResponse(True, {}, response_mimetype(request))
-        response['Content-Disposition'] = 'inline; filename=files.json'
-        return response
-    else:
-        return HttpResponseRedirect('/upload/new')
-    
 # ===========================================================================
 
 @error_trap("bestrefs_index2.html")
@@ -1126,7 +1129,7 @@ def certify_file_list(upload_tuples, check_references=True, context=None):
     If `context` is specified, verify references and mappings relative to the corresponding
     files in that context.
     
-    Returns sorted({uploaded_name :  <certify_output> }.items())
+    Returns sorted({uploaded_name :  (status, <certify_output>) }.items())
     """
     filemap = models.get_fileblob_map(models.OBSERVATORY)
     certify_results = {}
@@ -1159,106 +1162,114 @@ def batch_submit_references_post(request):
     compare_old_reference = "compare_old_reference" in request.POST 
     remove_dir, uploaded_files = get_files(request)
     
-    new_file_map, new_mappings, old_mappings, certify_results = bsr_core(
+    new_references_map, new_mappings_map, reference_certs, mapping_certs, mapping_diffs, collision_list = bsr_core(
         pmap_name, uploaded_files, description, str(request.user), str(request.user.email), 
         creator, change_level, auto_rename, compare_old_reference)
     
-    collision_list = get_collision_list(new_mappings)
-
-    new_rmap = new_mappings[0]
-    old_rmap  = old_mappings[0]
-    diff_results = difference_core(
-        old_rmap, new_rmap, rmap.locate_mapping(old_rmap), rmap.locate_mapping(new_rmap))
+    # Map from old filenames to new filenames,  regardless of origin / purpose
+    new_file_map = new_mappings_map.items() + new_references_map.items()
     
     bsr_results = {
                 "pmap" : pmap_name,
-                "old_rmap" : old_rmap,
-                
+
                 "new_file_map" : new_file_map,
                 
-                "generated_files" : sorted(new_mappings), 
+                "generated_files" : sorted(new_mappings_map.values()), 
                 "submission_kind" : "batch submit",
                 "title" : "Batch Reference Submit",
                 "description" : description,
                 
-                "certify_results" : certify_results,
+#                "reference_certs" : reference_certs,
+#                "mapping_certs" : mapping_certs, 
+                "certify_results" : reference_certs + mapping_certs,
                 "collision_list" : collision_list,
+                
+                "diff_results" : mapping_diffs,
 
                 "more_submits" : "/batch_submit_references/",
             }
     
-    bsr_results.update(diff_results)
-    
     return render_repeatable_result(request, "batch_submit_reference_results.html", bsr_results)
 
-def bsr_core(pmap_name, uploaded_files, 
-             description, user_name, user_email, creator, change_level, auto_rename,
-             compare_old_reference):
+def bsr_core(pmap_name, uploaded_files, description, user_name, user_email, creator, 
+             change_level, auto_rename, compare_old_reference):
     """bsr_core implements batch submit reference functionality independently of 
     web requests and responses.  bsr_core does however interact with Django models.
     """
     pmap = rmap.get_cached_mapping(pmap_name)
 
-    instrument, filekind = bsr_check_files_similar(pmap, uploaded_files)
-
     # Verify that ALL references certify,  raise CrdsError on first error.
-    comparison_context = None
-    if compare_old_reference:
-        comparison_context = pmap_name
-    certify_results = certify_file_list(uploaded_files.items(), context=comparison_context)
+    comparison_context = pmap_name if compare_old_reference else None
+    reference_certs = certify_file_list(uploaded_files.items(), context=comparison_context)
 
-    old_rmap = bsr_temporary_refactor(pmap, uploaded_files, instrument, filekind)
+    # Refactor with temporary rmap files and refrerences to support detecting 
+    # problems with refactoring prior to generating official names.
+    old_rmaps = bsr_temporary_refactor(pmap, uploaded_files)
     
-    # XXX TODO unhandled files,  references resulting in no change.
-    # XXX TODO duplicate matches,  references changing the same path.
-    
-    new_references, reference_paths = bsr_submit_references(
-        pmap, uploaded_files, 
+    # name the references and get them into CRDS.
+    new_references_map = bsr_submit_references(pmap, uploaded_files, 
         description, user_name, user_email, creator, change_level, auto_rename)
     
-    new_rmap = bsr_generate_real_rmap(
-        pmap, instrument, filekind, old_rmap, reference_paths,
-        description, user_name, user_email, creator, change_level, auto_rename)
-
+    # Generate modified rmaps using real reference names and
+    new_mappings_map = bsr_generate_real_rmaps(pmap, old_rmaps, new_references_map,
+        description, user_name, user_email, creator, change_level)
+    
+    rmap_certs = bsr_certify_new_mapping_list(new_mappings_map, context=comparison_context)
+    
     # Generate a new context referring to the new rmap
-    new_name_map = do_create_contexts(pmap.name, [new_rmap], description, 
-        user_name, user_email, state="uploaded")
-    old_mappings = [old_rmap] + new_name_map.keys()
-    new_mappings = [new_rmap] + new_name_map.values()
-
-    mapping_certs = bsr_certify_new_mapping_list(old_mappings, new_mappings, context=comparison_context)
+    higher_level_mapping_map = do_create_contexts(pmap.name, new_mappings_map.values(), 
+        description, user_name, user_email, state="uploaded")
     
-    new_file_map = zip(old_mappings, new_mappings)
-    new_file_map += new_references.items()
-    
-    return (new_file_map, new_mappings, old_mappings, mapping_certs + certify_results)
+    new_mappings_map.update(higher_level_mapping_map)
 
-def bsr_certify_new_mapping_list(old_mappings, new_mappings, context):
-    files = [(mapping, rmap.locate_mapping(mapping)) for mapping in new_mappings if mapping.endswith(".rmap")]
-    new_to_old = dict(zip(new_mappings, old_mappings))
+    collision_list = get_collision_list(new_mappings_map.values())
+    
+    # Just display the .pmap,  which recursively captures the others and sorts first.
+    diff_results = mass_differences(sorted(new_mappings_map.items())[:1])
+
+    return (new_references_map, new_mappings_map, reference_certs, rmap_certs, diff_results, collision_list)
+
+def bsr_certify_new_mapping_list(rmap_replacement_map, context):
+    """Certify the new rmaps from `rmap_replacement_map` relative to .pmap `context`.
+    Return { old_rmap : certify_output_for_new_rmap,  ... }
+    """
+    files = [(mapping, rmap.locate_mapping(mapping)) for mapping in rmap_replacement_map.values()]
+    new_to_old = utils.invert_dict(rmap_replacement_map)
     certify_results = certify_file_list(files, context=context, check_references=False)
     certify_results = { new_to_old[mapping]: results for (mapping, results) in certify_results }
     return sorted(certify_results.items())
 
-def bsr_check_files_similar(pmap, uploaded_files):
-    """Verify that all have same instrument and filekind and return them."""
-    old_instr, old_filekind = None, None
+# .............................................................................
+
+def bsr_temporary_refactor(pmap, uploaded_files):
+    """Try out refactoring,  filekind-by-filekind,  and return a list of the affected rmaps.
+    Returns [ replaced_rmaps... ]
+    """
+    instr_filekind_groups = bsr_group_references(pmap, uploaded_files)
+    return [ bsr_temporary_refactor_filekind(pmap, uploaded_references, instrument, filekind)
+            for ((instrument, filekind), uploaded_references) in instr_filekind_groups.items() ]
+
+def bsr_group_references(pmap, uploaded_files):
+    """Groups uploaded files by instrument and type.
+    Returns {(instrument,filekind) : [part_of_uploaded_files...]}
+    """
+    old_instr = None
+    groups = {}
     for (original_name, uploaded_path) in uploaded_files.items():
         try:
-            instrument, filekind = utils.get_file_properties(
-                pmap.observatory, uploaded_path)
+            instrument, filekind = utils.get_file_properties(pmap.observatory, uploaded_path)
         except Exception:
-            raise CrdsError("Can't determine instrument or file type for " + 
-                            srepr(original_name))
+            raise CrdsError("Can't determine instrument or file type for " + srepr(original_name))
         if old_instr is not None:
-            assert instrument == old_instr, \
-                "More than one instrument submitted at " + srepr(original_name)
-            assert filekind == old_filekind, \
-                "More than one reference type submitted at " + srepr(original_name)
-        old_instr, old_filekind = instrument, filekind
-    return old_instr, old_filekind
+            assert instrument == old_instr, "More than one instrument submitted at " + srepr(original_name) + \
+            " " + srepr(old_instr) + " vs. " + srepr(instrument)
+        old_instr = instrument
+        if (instrument, filekind) not in groups:
+            groups[(instrument, filekind)] = {}
+        groups[(instrument, filekind)][original_name] = uploaded_path 
+    return groups
 
-def bsr_temporary_refactor(pmap, uploaded_files, instrument, filekind):
+def bsr_temporary_refactor_filekind(pmap, uploaded_files, instrument, filekind):
     """Refactor the original rmap inserting temporary references, creating a 
     temporary rmap to see what actions will occur.   Raise an exception if 
     any of the submitted files are duds.
@@ -1266,78 +1277,62 @@ def bsr_temporary_refactor(pmap, uploaded_files, instrument, filekind):
     old_rmap = pmap.get_imap(instrument).get_rmap(filekind).name
     old_rmap_path = rmap.locate_mapping(old_rmap, pmap.observatory)
     tmp_rmap = tempfile.NamedTemporaryFile()
-
     refactor.rmap_insert_references(old_rmap_path, tmp_rmap.name, uploaded_files.values())
-
+    # XXX TODO unhandled files,  references resulting in no change.
+    # XXX TODO duplicate matches,  references changing the same path.    
     return old_rmap
 
-def bsr_get_unhandled_references(uploaded_files, tmp_actions):
-    """Check all of uploaded_files against temporary actions to ensure that
-    each file is successfully added to the new rmap.   Return a list of files
-    that were not handled by some action.
-    """
-    unhandled_references = []
-    for (original_name, uploaded_path) in uploaded_files.items():
-        ref_file = os.path.basename(uploaded_path)
-        for action in tmp_actions:
-            if action.ref_file == ref_file:
-                break
-        else:
-            unhandled_references.append(str(original_name))
-    return unhandled_references
-
-def bsr_get_duplicate_matches(uploaded_files, tmp_actions):
-    """Get duplicate match tuples / useafter cases."""    
-    duplicate_matches = set()
-    for (original_name, uploaded_path) in uploaded_files.items():
-        for action in tmp_actions:
-            if action.ref_file != os.path.basename(uploaded_path):
-                continue
-            for action2 in tmp_actions:
-                if action != action2 and \
-                    action.rmap_match_tuple == action2.rmap_match_tuple and \
-                    action.useafter == action2.useafter:
-                    duplicate_matches.add(original_name)
-    return duplicate_matches
+# .............................................................................
 
 def bsr_submit_references(pmap, uploaded_files, description, user_name, user_email,
                           creator, change_level, auto_rename):
-    """Add the uploaded references to CRDS with the supplied metadata."""
+    """Add the uploaded references to CRDS with the supplied metadata.
+    Returns { uploaded_name :  official_name, ... }
+    """
     # Once both references and refactoring checks out,  submit reference files
     # and collect mapping from uploaded names to official names.
     new_references = {}
-    for (original_name, uploaded_path) in uploaded_files.items():
+    for (original_name, uploaded_path) in sorted(uploaded_files.items()):
         new_basename = do_submit_file( 
             pmap.observatory, original_name, uploaded_path,
             description, user_name, user_email, creator, 
             change_level, creation_method="batch submit",
             state="uploaded", auto_rename=auto_rename)
         new_references[original_name] = str(new_basename)
+    return new_references
 
-    # Get paths for new official CRDS reference files.
-    reference_paths = [
-        models.FileBlob.load(name).pathname for name in new_references.values()]
+# .............................................................................
 
-    return new_references, reference_paths
-
-def bsr_generate_real_rmap(pmap, instrument, filekind, old_rmap, reference_paths,
-                           description, user_name, user_email, creator, change_level, auto_rename):
-    """Now that we know that refactoring works and what the new references will be
-    called,  refactor again for real.
+def bsr_generate_real_rmaps(pmap, old_rmaps, new_references_map,
+        description, user_name, user_email, creator, change_level):
+    """Generate and submit official rmaps correspending to `old_rmaps` in 
+    derivation context `pmap`,  inserting references from `new_references_map`.
+    
+    Now that we know that refactoring works and what the new references will be
+    named,  allocate new supporting rmap names and refactor again for real.
+    
+    Return { old_rmap : new_rmap, ...}
     """
-    new_rmap = get_new_name(pmap.observatory, instrument, filekind, ".rmap")
-    new_rmap_path = rmap.locate_mapping(new_rmap, pmap.observatory)
-    old_rmap_path = rmap.locate_mapping(old_rmap, pmap.observatory)
-    
-    # refactor inserting references.
-    refactor.rmap_insert_references(old_rmap_path, new_rmap_path, reference_paths)
-    
-    # Submit the new rmap with added references
-    models.add_crds_file(pmap.observatory, new_rmap, new_rmap_path,  
+    observ = pmap.observatory
+    # Dig these out of the database rather than passing them around.
+    reference_paths = [ models.FileBlob.load(new_reference).pathname
+                        for new_reference in new_references_map.values() ]
+    rmap_replacement_map = {}
+    for old_rmap in old_rmaps:
+        (instrument, filekind) = utils.get_file_properties(pmap.observatory, old_rmap)
+        these_ref_paths = [ refpath for refpath in reference_paths 
+            if (instrument, filekind) == utils.get_file_properties(pmap.observatory, refpath) ]
+        new_rmap = get_new_name(pmap.observatory, instrument, filekind, ".rmap")
+        rmap_replacement_map[old_rmap] = new_rmap
+        new_rmap_path = rmap.locate_mapping(new_rmap)
+        old_rmap_path = rmap.locate_mapping(old_rmap)
+        # refactor inserting references.
+        refactor.rmap_insert_references(old_rmap_path, new_rmap_path, these_ref_paths)
+        # Submit the new rmap with added references
+        models.add_crds_file(pmap.observatory, new_rmap, new_rmap_path,  
                          user_name, user_email, description, 
                          change_level=change_level, creator_name=creator, state="uploaded")
-    
-    return new_rmap
+    return rmap_replacement_map
 
 # ============================================================================
 
@@ -1443,17 +1438,33 @@ def difference_files(request):
         uploaded2, file2_orig, file2_path = handle_known_or_uploaded_file(
             request, "filemode2", "file_known2", "file_uploaded2")
                 
-    diff_results = difference_core(file1_orig, file2_orig, file1_path, file2_path)
+    diff_results = mass_differences([(file1_orig, file2_orig, file1_path, file2_path)])
 
     if uploaded1: 
         remove_temporary(file1_path)
     if uploaded2:
         remove_temporary(file2_path)
         
-    return crds_render(request, "difference_results.html", diff_results)
-    
-def difference_core(file1_orig, file2_orig, file1_path, file2_path):
+    return crds_render(request, "difference_results.html", { "diff_results" : diff_results })
+
+def mass_differences(pair_or_quad_tuples, connector=" --> "):
+    """Get the differences info for each tuple in `pair_or_quad_tuples`,  where
+    a pair is a tuple of two known file basenames,  and a quad adds full paths
+    corresponding to the basenames,  which are probably file temporaries not in
+    the official file tree. Used for file submission and multiple generated files.
+    """
+    # key must be a string to json encode as a repeatable result.
+    diffs = { tup[0] +  connector + "<span class='blue'>" + tup[1] + "</span>" : 
+                difference_core(*tup) for tup in pair_or_quad_tuples }
+    return sorted(diffs.items())
+
+def difference_core(file1_orig, file2_orig, file1_path=None, file2_path=None):
     """Compute the rendering dictionary for the differences include file."""
+
+    if file1_path is None:
+        file1_path = rmap.locate_mapping(file1_orig)
+    if file2_path is None:
+        file2_path = rmap.locate_mapping(file2_orig)
     
     def extension(filename): 
         """Return the file extension of `filename`."""
@@ -1474,8 +1485,7 @@ def difference_core(file1_orig, file2_orig, file1_path, file2_path):
         diff_lines = format_fitsdiffs(diff_lines, file1_path, file2_path,
             file1_orig, file2_orig)
         difference = ''.join(diff_lines)
-    elif re.match(GEIS_HEADER_RE, file1_orig) and \
-        re.match(GEIS_HEADER_RE, file2_orig) and \
+    elif re.match(GEIS_HEADER_RE, file1_orig) and re.match(GEIS_HEADER_RE, file2_orig) and \
         extension(file1_orig) == extension(file2_orig):
         difference = textual_diff(file1_orig, file2_orig, file1_path, file2_path)
     else:
@@ -1906,8 +1916,8 @@ def create_contexts_post(request):
     description = validate_post(request, "description", DESCRIPTION_RE)
     
     existing_names = rmap.get_cached_mapping(pmap_name).mapping_names()
-    for updated in updated_rmaps:
-        assert updated not in existing_names, "Rmap " + repr(updated) + " is already in context " + repr(pmap_name)
+#    for updated in updated_rmaps:
+#        assert updated not in existing_names, "Rmap " + repr(updated) + " is already in context " + repr(pmap_name)
         
 
     new_name_map = do_create_contexts(pmap_name, updated_rmaps, description,
@@ -1951,10 +1961,9 @@ def do_create_contexts(pmap_name, updated_rmaps, description, user, email,
     # and then substituting old names with their updated equivalents.
     new_contexts = newcontext.generate_new_contexts(pmap_name, updates_by_instrument, new_name_map)
  
-    for ctx in new_contexts:
-        if ctx.endswith(".pmap"):
-            new_loc = rmap.locate_mapping(ctx)  
-            do_certify_file(new_loc, new_loc, context=pmap_name)
+    new_pmap = [ctx for ctx in new_contexts if ctx.endswith(".pmap")][0]
+    new_loc = rmap.locate_mapping(new_pmap)  
+    do_certify_file(new_loc, new_loc, context=pmap_name)
 
     # Create delivery records for each of the new files
     observatory = rmap.get_cached_mapping(pmap_name).observatory

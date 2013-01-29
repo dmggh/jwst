@@ -13,14 +13,16 @@
         {% if new_file_map %}
             <h3>Uploaded Files</h3>
             {% for file in new_file_map %}
-                <p>File submitted as {{file.0|gray}} will be renamed to {{file.1|browse}} in CRDS.</p>
+                {% if file.1 not in generated_files %}
+                    <p>File submitted as {{file.0|gray}} will be renamed to {{file.1|browse}} in CRDS.</p>
+                {% endif %}
             {% endfor %}
         {% endif %}
         
         {% if generated_files %}
             <h3>Generated Files</h3>
             {% for map in generated_files %}
-            <p>{{map|browse}}</p>
+                <p>{{map|browse}}</p>
             {% endfor %}
         {% endif %}
     

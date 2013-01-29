@@ -15,7 +15,14 @@
     
     {% include "certify_include.html" %}
     
-    {% include "difference_include.html" %}
+    <h3>Differences</h3>
+    
+    {% for diff_name,diffs in diff_results %}
+        {% accordion diff_name  %}
+        {% include "difference_include.html" %}
+        {% endaccordion %}
+    {% endfor %}
+
 
     {% include "collision_explain.html" %}
     
