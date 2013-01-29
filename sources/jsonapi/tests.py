@@ -82,6 +82,9 @@ class ServiceApiBase(object):
         context = client.get_default_context(self.observatory)
         self.assertIn(".pmap", context)
         
+    def test_client_list_mappings(self):
+        client.list_mappings(server_config.observatory, "*.rmap")
+        
     def getreferences(self, *args, **keys):
         keys = dict(keys)
         # get_processing_mode is cached to avoid repeat network traffic

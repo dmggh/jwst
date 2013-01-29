@@ -4,6 +4,7 @@ import os
 import os.path
 import base64
 import math
+import re
 
 from jsonrpc import jsonrpc_method
 from jsonrpc.exceptions import Error
@@ -48,6 +49,9 @@ def create_unchecked_url(observatory, filename):
 
 # ===========================================================================
 
+FILE_RE = r"[A-Za-z0-9_]+(\.fits|\.pmap|\.imap|\.rmap|\.r\d[hd])"
+LIST_GLOB_RE = r"[A-Za-z0-9_\.\*\+\(\)\-\[\]]+"
+
 class UnknownContextError(Error):
     """The specified context is not a known CRDS mapping."""
     
@@ -79,9 +83,17 @@ class BlacklistedFile(Error):
 
 class InvalidChunk(Error):
     """The data chunk number requested from a file was invalid."""
+    
+class BadFilenameError(Error):
+    """A filename uses characters prohibited to prevent SQL injection."""
+
+class BadListGlobError(Error):
+    """A list search pattern uses characters prohibited to prevent SQL injection."""
 
 def check_known_file(file):
     """Check that `file` is known to CRDS, available, and/or not blacklisted."""
+    if not re.match(FILE_RE, file):
+        raise BadFilenameError("Invalid filename '%s'" % file)
     blob = imodels.file_exists(file)
     if not blob:
         return blob
@@ -145,7 +157,8 @@ def list_mappings(request, observatory, glob_pattern):
     if observatory is None:
         observatory = config.observatory
     check_observatory(observatory)
-    assert glob_pattern.count("/") == 0, "Illegal glob pattern, / not permitted."
+    if not re.match(LIST_GLOB_RE, glob_pattern):
+        raise BadListGlobError("Illegal glob pattern, / not permitted '%s'" % glob_pattern)
     return rmap.list_mappings(glob_pattern, observatory)
 
 @jsonrpc_method('get_best_references(String, Object, Array)')
