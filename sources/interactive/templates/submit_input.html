@@ -15,9 +15,43 @@
         onsubmit="return validate_and_confirm(this);" > {% csrf_token %}
 
         <input type='hidden' name='observatory' value='{{observatory}}' />
-
+        
         {% if crds_filetype == "reference" %}
-            {% include "comparison_context.html" %}
+            <h3>Compare Old Reference:  <input type="checkbox" name="compare_old_reference" checked /></h3>
+            <div id="comparison-context-hide">
+                <h3>Comparison Context</h3>
+                {% include "select_pmap.html" %}
+            </div>        
+            <script type="text/javascript" language="javascript">
+                $("input[name='compare_old_reference']").change(function() {
+                    var checkbox = $("input[name='compare_old_reference']");
+                    if (checkbox.is(":checked")) {
+                            $("#comparison-context-hide").show();
+                    } else {
+                            $("#comparison-context-hide").hide();
+                    };
+                });
+            </script>
+        {% endif %}
+        
+        {% if crds_filetype == "mapping" %}
+            <h3>Generate Contexts:
+                <input name='generate_contexts' type='checkbox' value='on' checked >
+            </h3>
+            <div id="derivation-context-hide">
+                <h3>Derive From Context</h3>
+                {% include "select_pmap.html" %}  
+            </div>      
+            <script type="text/javascript" language="javascript">
+                $("input[name='generate_contexts']").change(function() {
+                    var checkbox = $("input[name='generate_contexts']");
+                    if (checkbox.is(":checked")) {
+                            $("#derivation-context-hide").show();
+                    } else {
+                            $("#derivation-context-hide").hide();
+                    };
+                });
+            </script>
         {% endif %}
         
         <h3>Change Level:
@@ -39,12 +73,6 @@
         {% include "auto_rename_input.html" %}
         </h3>
         
-        {% if crds_filetype == "mapping" %}
-            <h3>Generate Contexts:
-                <input name='generate_contexts' type='checkbox' value='on' checked >
-            </h3>
-        {% endif %}
-        
       <p></p>
       <input type="submit" value="Submit Files">
     </form>
@@ -62,7 +90,14 @@ archive.
 {% include "select_files_help.html" %}
 
 {% if crds_filetype == "reference" %}
-{% include "comparison_context_help.html" %}
+    <p><p><b>Compare Old Reference</b> check this to perform comparisons
+    against prior versions of the submitted reference files identified by the
+    comparison context.  If left unchecked,  the comparison context is ignored
+    and no comparison to prior versions is performed.
+    
+    <p><p><b>Comparison Context</b> specifies the context used to locate
+    comparison references.  The submitted references are matched against references
+    in this context with the same parameters for the sake of comparison.
 {% endif %}
 
 <p><p><b>Change Level</b> The degree to which the new files are expected to 
@@ -76,8 +111,12 @@ necessarily the submitter.  The submitter is known based on login information.
 
 {% include "auto_rename_help.html" %}
 
-<p><p><b>Generate Contexts</b> Automatically generate a new .pmap and .imap 
-utilizing submitted rmaps.  Ignored for submitted .pmaps or .imaps.
+{% if crds_filetype == "mapping" %}
+    <p><p><b>Generate Contexts</b> Automatically generate a new .pmap and .imap 
+    utilizing submitted rmaps.  Ignored for submitted .pmaps or .imaps.
+    <p><p><b>Derivation Context</b> Generate new .imaps and .pmaps by inserting
+    the submitted .rmaps into this context to derive a new one.
+{% endif %}
 
 <p><p><b>NOTE:</b> All submitted files must pass certification before they will
 be accepted by CRDS.  All references referred to by a mapping must be submitted

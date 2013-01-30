@@ -111,7 +111,7 @@ FILE_RE = r"[A-Za-z0-9_]+(\.fits|\.pmap|\.imap|\.rmap|\.r\d[hd])"
 DESCRIPTION_RE = r"[A-Za-z0-9._ ]+"
 GEIS_HEADER_RE = r"\w+(\.r\dh)"
 PERSON_RE = r"[A-Za-z_0-9\.@]*"
-DATASET_ID_RE = r"\w+"
+DATASET_ID_RE = r"[A-Za-z0-9_]+"
 URL_RE = r"(/[A-Za-z0-9_]?)+"
 
 def is_pmap(filename):
@@ -836,52 +836,22 @@ def file_exists_somehow(filename):
 
 def submit_files_post(request, crds_filetype):
     """Handle the POST case of submit_files, returning dict of template vars."""
+    # crds_filetype constrained by RE in URL to 'mapping' or 'reference'.
     observatory = get_observatory(request)
     compare_old_reference = "compare_old_reference" in request.POST 
-    if crds_filetype == "reference" and compare_old_reference:
-        context = get_recent_or_user_context(request)
-    else:
-        context = None
-
+    context = get_recent_or_user_context(request)
     description = validate_post(request, "description", DESCRIPTION_RE)
     creator = validate_post(request, "creator", PERSON_RE)
     auto_rename = "auto_rename" in request.POST    
-    change_level = validate_post(request, "change_level", models.CHANGE_LEVELS)
-            
+    change_level = validate_post(request, "change_level", models.CHANGE_LEVELS)            
     remove_dir, uploaded_files = get_files(request)
-    for uploaded in uploaded_files:
-        if crds_filetype == "mapping":
-            if not rmap.is_mapping(uploaded):
-                raise CrdsError("Can't submit non-mapping file: " + repr(uploaded[0]) + " using this page.")
-        else:
-            if rmap.is_mapping(uploaded):
-                raise CrdsError("Can't submit mapping file: " + repr(uploaded[0]) + " using this page.")
-            
-    # Verify that ALL references certify,  raise CrdsError on first error.
-    certify_results = certify_file_list(uploaded_files.items(), context=context)
-
-    collision_list = []
-    new_file_map = {}
     
-    for (original_name, uploaded_path) in uploaded_files.items():
-        
-        new_basename = do_submit_file( observatory, original_name, uploaded_path,
-            description, str(request.user), request.user.email, creator, 
-            change_level, state="uploaded", auto_rename=auto_rename)
-        
-        collision_list += get_collision_list([new_basename])
-    
-        new_file_map[original_name] =  new_basename
-    
-#    if remove_dir is not None:
-#        try:
-#            shutil.rmtree(remove_dir, ignore_errors=True)
-#        except Exception, exc:
-#            log.warning("Failed to remove ingest directory", repr(remove_dir), ":", str(exc))
+    disposition, certify_results, new_file_map, collision_list = submit_files_core(
+        observatory, crds_filetype, uploaded_files, context, compare_old_reference, 
+        description, str(request.user), request.user.email, creator, change_level, auto_rename)
 
     return render_repeatable_result(request, 'submit_results.html', {
                 "crds_filetype": crds_filetype,
-                "baseperm":new_basename,
                 "collision_list" : collision_list,
 
                 "generated_files" : [],
@@ -892,15 +862,59 @@ def submit_files_post(request, crds_filetype):
                 
                 "certify_results" : certify_results,
                 "more_submits" : "/submit/" + crds_filetype + "/",
+                
+                "disposition" : disposition,
                 })
+
+def submit_files_core(observatory, crds_filetype, uploaded_files, context, compare_old_reference, 
+        description, submitter, submitter_email, creator, change_level, auto_rename):
+    """Submit simple files to CRDS, literally,  without making automatic rules adjustments."""
     
+    restrict_genre(crds_filetype, uploaded_files)
+
+    # Verify that ALL files certify.
+    disposition, certify_results = certify_file_list(
+        uploaded_files.items(), context=context, compare_old_reference=compare_old_reference)
+    
+    # Add the files to the CRDS database as "uploaded",  pending confirmation.
+    new_file_map = submit_file_list(observatory, uploaded_files, description, 
+        submitter, submitter_email, creator_name=creator, change_level=change_level, 
+        creation_method="submit file", auto_rename=auto_rename, state="uploaded")
+
+    collision_list = get_collision_list(new_file_map.values())
+    
+    return disposition, certify_results, new_file_map, collision_list
+
+
+def restrict_genre(crds_filetype, uploaded_files):
+    """Ensure all `uploaded_files` tuples correspond to the genre specified by
+    crds_filetype:  mapping or reference.    
+    """
+    for uploaded in uploaded_files:
+        if crds_filetype == "mapping":
+            if not rmap.is_mapping(uploaded):
+                raise CrdsError("Can't submit non-mapping file: " + repr(uploaded) + " using this page.")
+        else:
+            if rmap.is_mapping(uploaded):
+                raise CrdsError("Can't submit mapping file: " + repr(uploaded) + " using this page.")
+
+def submit_file_list(observatory, uploaded_files, description, submitter, submitter_email, 
+        creator_name="unknown", change_level="SEVERE", creation_method="submit file", 
+        auto_rename=True, state="uploaded"):
+    """Ingest a list of `uploaded_files` tuples into CRDS."""
+    new_file_map = {}
+    for (original_name, uploaded_path) in uploaded_files.items():
+        new_basename = do_submit_file( observatory, original_name, uploaded_path,
+            description, submitter, submitter_email, creator_name=creator_name, 
+            change_level=change_level, state="uploaded", auto_rename=auto_rename)
+        new_file_map[original_name] =  new_basename
+    return new_file_map
+
 def do_submit_file(observatory, original_name, upload_location, description, 
-        submitter, submitter_email, creator_name="unknown",
-        change_level="SEVERE", creation_method="submit file", auto_rename=True,
-        state="uploaded"):
-    """Do the core processing of a file submission,  including file
-    certification and blacklist checking, naming, upload,  and record
-    keeping.
+        submitter, submitter_email, creator_name="unknown", change_level="SEVERE", 
+        creation_method="submit file", auto_rename=True, state="uploaded"):
+    """Do the core processing of a file submission,  including file certification 
+    and blacklist checking, naming, upload, and record keeping.
     """
     if rmap.is_mapping(original_name):
         try:
@@ -1059,7 +1073,8 @@ def certify_post(request):
 
     remove_dir, uploaded_files = get_files(request)
     
-    certify_results = certify_file_list(uploaded_files.items(), context=comparison_context)
+    _disposition, certify_results = certify_file_list(uploaded_files.items(), context=comparison_context, 
+        compare_old_reference=compare_old_reference)
 
     blacklist_results = get_blacklist_file_list(uploaded_files.items(), all_files=all_files)
 
@@ -1091,15 +1106,16 @@ def get_blacklist_file_list(upload_tuples, all_files):
     return blacklist_results
 
 @capture_output
-def _captured_certify(original_name, uploaded_path, filemap=None, context=None):
+def _captured_certify(original_name, uploaded_path, filemap=None, context=None, compare_old_reference=False):
     """Configure certify and capture it's stdout/stderr."""
     certify.certify_files([uploaded_path], context=context, dump_provenance=True, check_references=False, 
                           is_mapping=rmap.is_mapping(original_name), trap_exceptions=True)
 
-def captured_certify(original_name, uploaded_path, check_references=True, filemap=None, context=None):
-    output = _captured_certify(original_name, uploaded_path, filemap, context)[1]
-    if "ERROR" not in output:
-        if "WARNING" not in output:
+def captured_certify(original_name, uploaded_path, check_references=True, filemap=None, context=None,
+                     compare_old_reference=False):
+    output = _captured_certify(original_name, uploaded_path, filemap, context, compare_old_reference)[1]
+    if ": ERROR" not in output:
+        if ": WARNING" not in output:
             status = "OK"
         else:
             status = "Warnings"
@@ -1121,7 +1137,7 @@ def captured_certify(original_name, uploaded_path, check_references=True, filema
                     
     return status, output
 
-def certify_file_list(upload_tuples, check_references=True, context=None):
+def certify_file_list(upload_tuples, check_references=True, context=None, compare_old_reference=False):
     """Certify the list of `upload_tuples` specifying uploaded files.
     
     If `check_references` is True,  make sure references referred to by mappings exist.
@@ -1129,15 +1145,24 @@ def certify_file_list(upload_tuples, check_references=True, context=None):
     If `context` is specified, verify references and mappings relative to the corresponding
     files in that context.
     
-    Returns sorted({uploaded_name :  (status, <certify_output>) }.items())
+    If `compare_old_references` is True,  compare references to the corresponding files in the context.
+    
+    Returns disposition,  sorted({uploaded_name :  (status, <certify_output>) }.items())
+    
+    where disposition is either "" or "bad files" and used to suppress confirmation.
     """
     filemap = models.get_fileblob_map(models.OBSERVATORY)
     certify_results = {}
+    disposition = ""
     for (original_name, upload_path) in upload_tuples:
         # In order to capture output easily,  run as subprocess...
-        certify_results[original_name] = captured_certify(
-            original_name, upload_path, check_references=check_references, filemap=filemap, context=context)
-    return sorted(certify_results.items())
+        status, output = captured_certify(original_name, upload_path, 
+            check_references=check_references, filemap=filemap, context=context, 
+            compare_old_reference=compare_old_reference)
+        certify_results[original_name] = status, output
+        if status == "Failed.":
+            disposition = "bad files"
+    return disposition, sorted(certify_results.items())
 
 # ===========================================================================
 
@@ -1162,7 +1187,7 @@ def batch_submit_references_post(request):
     compare_old_reference = "compare_old_reference" in request.POST 
     remove_dir, uploaded_files = get_files(request)
     
-    new_references_map, new_mappings_map, reference_certs, mapping_certs, mapping_diffs, collision_list = bsr_core(
+    disposition, new_references_map, new_mappings_map, reference_certs, mapping_certs, mapping_diffs, collision_list = bsr_core(
         pmap_name, uploaded_files, description, str(request.user), str(request.user.email), 
         creator, change_level, auto_rename, compare_old_reference)
     
@@ -1187,6 +1212,7 @@ def batch_submit_references_post(request):
                 "diff_results" : mapping_diffs,
 
                 "more_submits" : "/batch_submit_references/",
+                "disposition": disposition,                
             }
     
     return render_repeatable_result(request, "batch_submit_reference_results.html", bsr_results)
@@ -1200,7 +1226,8 @@ def bsr_core(pmap_name, uploaded_files, description, user_name, user_email, crea
 
     # Verify that ALL references certify,  raise CrdsError on first error.
     comparison_context = pmap_name if compare_old_reference else None
-    reference_certs = certify_file_list(uploaded_files.items(), context=comparison_context)
+    reference_disposition, reference_certs = certify_file_list(uploaded_files.items(), 
+        context=comparison_context, compare_old_reference=compare_old_reference)
 
     # Refactor with temporary rmap files and refrerences to support detecting 
     # problems with refactoring prior to generating official names.
@@ -1214,7 +1241,7 @@ def bsr_core(pmap_name, uploaded_files, description, user_name, user_email, crea
     new_mappings_map = bsr_generate_real_rmaps(pmap, old_rmaps, new_references_map,
         description, user_name, user_email, creator, change_level)
     
-    rmap_certs = bsr_certify_new_mapping_list(new_mappings_map, context=comparison_context)
+    rmap_disposition, rmap_certs = bsr_certify_new_mapping_list(new_mappings_map, context=comparison_context)
     
     # Generate a new context referring to the new rmap
     higher_level_mapping_map = do_create_contexts(pmap.name, new_mappings_map.values(), 
@@ -1226,8 +1253,10 @@ def bsr_core(pmap_name, uploaded_files, description, user_name, user_email, crea
     
     # Just display the .pmap,  which recursively captures the others and sorts first.
     diff_results = mass_differences(sorted(new_mappings_map.items())[:1])
-
-    return (new_references_map, new_mappings_map, reference_certs, rmap_certs, diff_results, collision_list)
+    
+    disposition = rmap_disposition or reference_disposition
+    
+    return (disposition, new_references_map, new_mappings_map, reference_certs, rmap_certs, diff_results, collision_list)
 
 def bsr_certify_new_mapping_list(rmap_replacement_map, context):
     """Certify the new rmaps from `rmap_replacement_map` relative to .pmap `context`.
@@ -1235,9 +1264,9 @@ def bsr_certify_new_mapping_list(rmap_replacement_map, context):
     """
     files = [(mapping, rmap.locate_mapping(mapping)) for mapping in rmap_replacement_map.values()]
     new_to_old = utils.invert_dict(rmap_replacement_map)
-    certify_results = certify_file_list(files, context=context, check_references=False)
+    disposition, certify_results = certify_file_list(files, context=context, check_references=False)
     certify_results = { new_to_old[mapping]: results for (mapping, results) in certify_results }
-    return sorted(certify_results.items())
+    return disposition, sorted(certify_results.items())
 
 # .............................................................................
 

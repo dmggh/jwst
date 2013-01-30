@@ -816,7 +816,8 @@ class RepeatableResultBlob(BlobModel):
     def new(cls, page_template, parameters):
         self = cls()
         self.page_template = page_template
-        parameters["disposition"] = ""  # confirm/cancelled has happened (not)
+        if "disposition" not in parameters:
+            parameters["disposition"] = ""  # confirm/cancelled has happened (not)
         self.parameters_enc = json_ext.dumps(parameters)
         self.save()
         return self

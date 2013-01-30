@@ -192,6 +192,7 @@ class SimpleTest(TestCase):
             "description" : "an identical pmap with a different name is still different",
             "change_level" : "SEVERE",
             "creator" : "Somebody else",
+            "pmap_mode" : "pmap_edit",
             }, follow=True)
         self.assert_no_errors(response)
         self.assertIn(rmap2, response.content)
