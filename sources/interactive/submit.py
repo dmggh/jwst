@@ -116,22 +116,20 @@ def submit_files(_context, _files):
 class FileSubmission(object):
     """Baseclass for file submissions,  carrier object for submission metadata and files."""
     
-    def __init__(self, pmap_name, uploaded_files, description, user_name, user_email, creator="UNKNOWN",
+    def __init__(self, pmap_name, uploaded_files, description, user, creator="UNKNOWN",
                  change_level="SEVERE", auto_rename=True, compare_old_reference=False):
-        self.pmap_name = pmap_name
         self.pmap = rmap.get_cached_mapping(pmap_name)
-        self.observatory = self.pmap.observatory    
+        self.observatory = self.pmap.observatory
         self.uploaded_files = uploaded_files
         self.description = description
-        self.user_name = user_name
-        self.user_email = user_email
+        self.user = user   # Django user
         self.creator = creator
         self.change_level = change_level
         self.auto_rename = auto_rename
         self.compare_old_reference = compare_old_reference
-        
+    
     def submit(self):
-        pass
+        """Validate the submitted files and add them to the database."""
     
     def submit_file_list(self, creation_method):
         """Ingest a list of `uploaded_files` tuples into CRDS."""
@@ -175,10 +173,50 @@ class FileSubmission(object):
         
         return os.path.basename(permanent_location)
 
+    def do_create_contexts(self, updated_rmaps):
+        """Create new contexts based on `pmap_name` which refer to `updated_rmaps`
+        instead of the corresponding old rmaps.  Add the new contexts to the
+        CRDS database and return a list of new context mapping names.
+        """
+        # Get the mapping from old imap to new rmap, basically the imaps that
+        # must be updated onto the list of rmap updates to do.
+        updates_by_instrument = newcontext.get_update_map(self.pmap.name, updated_rmaps)
+        
+        # For each imap being edited,  and the pipeline context,  reserve new
+        # official names and return the dictionary { old_mapping : new_mapping }.
+        new_name_map = self.generate_new_names(updates_by_instrument)
+        
+        # Actually generate the new mappings,  by first copying the old mappings 
+        # and then substituting old names with their updated equivalents.
+        new_contexts = newcontext.generate_new_contexts(self.pmap.name, updates_by_instrument, new_name_map)
+     
+        new_pmap = [ctx for ctx in new_contexts if ctx.endswith(".pmap")][0]
+        new_loc = rmap.locate_mapping(new_pmap)  
+        web_certify.do_certify_file(new_loc, new_loc, context=self.pmap.name)
+    
+        # Create delivery records for each of the new files
+        for old_ctx, new_ctx in new_name_map.items():
+            self.add_crds_file(old_ctx, rmap.locate_mapping(new_ctx))
+        
+        return new_name_map
+    
+    def generate_new_names(self, updates):
+        """Generate a map from old pipeline and instrument context names to the
+        names for their replacements.
+        """
+        return { old:new_name(old) for old in [self.pmap.name] + updates.keys() }
+
     def add_crds_file(self, original_name, filepath, state="uploaded"):
         """Create a FileBlob model instance using properties of this FileSubmission."""
-        return models.add_crds_file(self.observatory, original_name, filepath,  self.user_name, self.user_email, 
+        return models.add_crds_file(self.observatory, original_name, filepath,  str(self.user), self.user.email, 
             self.description, change_level=self.change_level, creator_name=self.creator, state=state)
+        
+# ------------------------------------------------------------------------------------------------
+
+def do_create_contexts(pmap_name, updated_rmaps, description, user):
+    """Support the create contexts view with a function call."""
+    creator = FileSubmission(pmap_name, uploaded_files=None, description=description, user=user, creator="crds")
+    return creator.do_create_contexts(updated_rmaps)
 
 # ------------------------------------------------------------------------------------------------
 
@@ -189,7 +227,7 @@ class BatchReferenceSubmission(FileSubmission):
     def submit(self):
         """Certify and submit the files,  returning information to confirm/cancel."""
         # Verify that ALL references certify,  raise CrdsError on first error.
-        comparison_context = self.pmap_name if self.compare_old_reference else None
+        comparison_context = self.pmap.name if self.compare_old_reference else None
         reference_disposition, reference_certs = web_certify.certify_file_list(self.uploaded_files.items(), 
             context=comparison_context, compare_old_reference=self.compare_old_reference)
     
@@ -206,8 +244,7 @@ class BatchReferenceSubmission(FileSubmission):
         rmap_disposition, rmap_certs = self.bsr_certify_new_mapping_list(new_mappings_map, context=comparison_context)
         
         # Generate a new context referring to the new rmap
-        higher_level_mapping_map = do_create_contexts(self.pmap_name, new_mappings_map.values(), 
-            self.description, self.user_name, self.user_email, state="uploaded")
+        higher_level_mapping_map = self.do_create_contexts(new_mappings_map.values())
         
         new_mappings_map.update(higher_level_mapping_map)
     
@@ -235,7 +272,7 @@ class BatchReferenceSubmission(FileSubmission):
         any of the submitted files are duds.
         """
         old_rmap = self.pmap.get_imap(instrument).get_rmap(filekind).name
-        old_rmap_path = rmap.locate_mapping(old_rmap, self.pmap.observatory)
+        old_rmap_path = rmap.locate_mapping(old_rmap, self.observatory)
         tmp_rmap = tempfile.NamedTemporaryFile()
         refactor.rmap_insert_references(old_rmap_path, tmp_rmap.name, uploaded_group.values())
         # XXX TODO unhandled files,  references resulting in no change.
@@ -320,13 +357,13 @@ class SimpleFileSubmission(FileSubmission):
     """Submit primitive files."""
 
     def submit(self, crds_filetype):
-        """Submit simple files to CRDS, literally,  without making automatic rules adjustments."""
+        """Submit simple files to CRDS, literally, without making automatic rules adjustments."""
         
         self.restrict_genre(crds_filetype)
     
         # Verify that ALL files certify.
         disposition, certify_results = web_certify.certify_file_list(
-            self.uploaded_files.items(), context=self.pmap_name, compare_old_reference=self.compare_old_reference)
+            self.uploaded_files.items(), context=self.pmap.name, compare_old_reference=self.compare_old_reference)
         
         # Add the files to the CRDS database as "uploaded",  pending confirmation.
         new_file_map = self.submit_file_list("submit files")
@@ -388,47 +425,6 @@ def auto_rename_file(observatory, upload_name, upload_path):
         observatory, upload_path)
     return get_new_name(observatory, instrument, filekind, extension)
 
-# ------------------------------------------------------------------------------------------------
-        
-def do_create_contexts(pmap_name, updated_rmaps, description, user, email,
-                       state="uploaded"):
-    """Create new contexts based on `pmap_name` which refer to `updated_rmaps`
-    instead of the corresponding old rmaps.  Add the new contexts to the
-    CRDS database and return a list of new context mapping names.
-    """
-    # Get the mapping from old imap to new rmap, basically the imaps that
-    # must be updated onto the list of rmap updates to do.
-    updates_by_instrument = newcontext.get_update_map(pmap_name, updated_rmaps)
-    
-    # For each imap being edited,  and the pipeline context,  reserve new
-    # official names and return the dictionary { old_mapping : new_mapping }.
-    new_name_map = generate_new_names(pmap_name, updates_by_instrument)
-    
-    # Actually generate the new mappings,  by first copying the old mappings 
-    # and then substituting old names with their updated equivalents.
-    new_contexts = newcontext.generate_new_contexts(pmap_name, updates_by_instrument, new_name_map)
- 
-    new_pmap = [ctx for ctx in new_contexts if ctx.endswith(".pmap")][0]
-    new_loc = rmap.locate_mapping(new_pmap)  
-    web_certify.do_certify_file(new_loc, new_loc, context=pmap_name)
-
-    # Create delivery records for each of the new files
-    observatory = rmap.get_cached_mapping(pmap_name).observatory
-    for old_ctx, new_ctx in new_name_map.items():
-        models.add_crds_file(
-            observatory, old_ctx, rmap.locate_mapping(new_ctx),  user, email, 
-            description, 
-            srepr(pmap_name) + " : " + ",".join([srepr(x) for x in updated_rmaps]),
-            state=state)
-    
-    return new_name_map
-
-def generate_new_names(old_pipeline, updates):
-    """Generate a map from old pipeline and instrument context names to the
-    names for their replacements.
-    """
-    return { old:new_name(old) for old in [old_pipeline] + updates.keys() }
-
 def new_name(old_map):
     """Given an old mapping name, `old_map`, adjust the serial number to 
     create a new mapping name of the same series.
@@ -442,6 +438,8 @@ def new_name(old_map):
         "Program error.  New mapping " + srepr(new_map) + " already exists."
     return new_map
 
+# ------------------------------------------------------------------------------------------------
+        
 def get_collision_list(newfiles):
     """Given a list of `newfiles`,  newly created files,
     check the database for other children of the same parent.   Return a
@@ -459,6 +457,7 @@ def get_collision_list(newfiles):
         
 def submit_confirm_core(button, submission_kind, description, new_file_map, new_files, generated_files, user,
                         more_submits, results_id):
+    """Handle the confirm/cancel decision of a file submission."""
     instrument = filekind = "unknown"
     for filename in new_files + generated_files:
         try:
@@ -475,8 +474,8 @@ def submit_confirm_core(button, submission_kind, description, new_file_map, new_
             filekind = blob.filekind
 
     if button == "confirm":
-        for file in set(new_files + generated_files):
-            models.AuditBlob.new(user, submission_kind, file, description, str(new_file_map), instrument=instrument, filekind=filekind)    
+        for filename in set(new_files + generated_files):
+            models.AuditBlob.new(user, submission_kind, filename, description, str(new_file_map), instrument=instrument, filekind=filekind)    
         deliver_file_list( user, sconfig.observatory, set(new_files + generated_files), description, submission_kind)
         disposition = "confirmed"
         for mapping in generated_files:

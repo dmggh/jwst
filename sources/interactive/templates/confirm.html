@@ -6,16 +6,8 @@
     {% endif %}
 {% else %}
     <h2>Confirm or Cancel Submission</h2>
-    <form method="post" action="/submit_confirm/" enctype="multipart/form-data">  {% csrf_token %}
-    
-        <input type='hidden' name='new_file_map' value='{{new_file_map}}' />
-        <input type='hidden' name='generated_files' value='{{generated_files}}' />
-        <input type='hidden' name='submission_kind' value='{{submission_kind}}' />
-        <input type='hidden' name='description' value='{{description}}' />
-        <input type='hidden' name='title' value='{{title}}' />
-        <input type='hidden' name='more_submits' value="{{more_submits}}" />
+    <form method="post" action="/submit_confirm/" enctype="multipart/form-data">  {% csrf_token %}    
         <input type='hidden' name='results_id' value="{{results_id}}" />
-        
         <input type="submit" name="button" value="confirm" class="green">
         <input type="submit" name="button" value="cancel" class="red">
     </form>

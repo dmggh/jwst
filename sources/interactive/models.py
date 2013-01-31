@@ -14,6 +14,7 @@ from crds.compat import (namedtuple, OrderedDict)
 from crds.server.config import observatory as OBSERVATORY
 from crds.server.generic_config import table_prefix as TABLE_PREFIX
 import crds.server.config as config
+from . import common
 
 from . import json_ext
 
@@ -674,7 +675,7 @@ def set_reject(rejected_filename, rejected_bool):
 
 AUDITED_ACTIONS = [
     "mass import", "submit file", "blacklist", "new context", "batch submit", 
-    "edit rmap", "deliver", "set default context"
+    "deliver", "set default context"
     ]
 
 class AuditBlob(BlobModel):
@@ -827,7 +828,7 @@ class RepeatableResultBlob(BlobModel):
         """return garbage-can dict of page template parameters"""
         if not hasattr(self, "_parameters"):
             self._parameters = json_ext.loads(self.parameters_enc)
-        return self._parameters
+        return common.Struct(self._parameters)
 
     @classmethod
     def set_parameter(cls, result_id, name, value):

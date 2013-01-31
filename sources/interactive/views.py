@@ -876,9 +876,8 @@ def batch_submit_references_post(request):
     compare_old_reference = "compare_old_reference" in request.POST 
     remove_dir, uploaded_files = get_files(request)
     
-    bsr = submit.BatchReferenceSubmission(pmap_name, uploaded_files, description, 
-        user_name=str(request.user), user_email=str(request.user.email), creator=creator, change_level=change_level, 
-        auto_rename=auto_rename, compare_old_reference=compare_old_reference)
+    bsr = submit.BatchReferenceSubmission(pmap_name, uploaded_files, description, user=request.user, creator=creator, 
+        change_level=change_level, auto_rename=auto_rename, compare_old_reference=compare_old_reference)
     
     disposition, new_references_map, new_mappings_map, reference_certs, mapping_certs, mapping_diffs, collision_list = bsr.submit()
     
@@ -918,17 +917,22 @@ def submit_confirm(request):
     generation mechanisms.
     """
     button = validate_post(request, "button", "confirm|cancel")
-    submission_kind = validate_post(request, "submission_kind", models.AUDITED_ACTIONS)
-    description = validate_post(request, "description", DESCRIPTION_RE)
-    new_file_map = compat.literal_eval(str(request.POST["new_file_map"]))
-    new_files = dict(new_file_map).values()
-    generated_files = compat.literal_eval(str(request.POST["generated_files"]))
-    user = str(request.user)
-    more_submits = validate_post(request, "more_submits", URL_RE)
+#    submission_kind = validate_post(request, "submission_kind", models.AUDITED_ACTIONS)
+#    description = validate_post(request, "description", DESCRIPTION_RE)
+#    new_file_map = compat.literal_eval(str(request.POST["new_file_map"]))
+#    new_files = dict(new_file_map).values()
+#    generated_files = compat.literal_eval(str(request.POST["generated_files"]))
+#    user = str(request.user)
+#    more_submits = validate_post(request, "more_submits", URL_RE)
     results_id = validate_post(request, "results_id", "\d+")
+    result = models.RepeatableResultBlob.get(int(results_id)).parameters
+
+    assert request.user == result.user, "User mismatch between submit and confirmation: " + \
+        repr(str(request.user)) + " vs. " + repr(result.user)
 
     confirm_results = submit.submit_confirm_core(
-        button, submission_kind, description, new_file_map, new_files, generated_files, user, more_submits, results_id)
+        button, result.submission_kind, result.description, result.new_file_map, result.new_files, 
+        result.generated_files, result.user, result.more_submits, results_id)
 
     return crds_render(request, "confirmed.html", confirm_results)
     
@@ -956,8 +960,7 @@ def create_contexts_post(request):
 #    for updated in updated_rmaps:
 #        assert updated not in existing_names, "Rmap " + repr(updated) + " is already in context " + repr(pmap_name)
 
-    new_name_map = submit.do_create_contexts(pmap_name, updated_rmaps, description, 
-        request.user, request.user.email, state="uploaded")
+    new_name_map = submit.do_create_contexts(pmap_name, updated_rmaps, description=description, user=request.user)
 
     old_mappings = sorted(new_name_map.keys())
     new_mappings = sorted(new_name_map.values())
@@ -1005,9 +1008,8 @@ def submit_files_post(request, crds_filetype):
     change_level = validate_post(request, "change_level", models.CHANGE_LEVELS)            
     remove_dir, uploaded_files = get_files(request)
     
-    simple = submit.SimpleFileSubmission(
-        context, uploaded_files, description, str(request.user), request.user.email,  creator, change_level, 
-        auto_rename, compare_old_reference)
+    simple = submit.SimpleFileSubmission(context, uploaded_files, description, user=request.user,  
+        creator=creator, change_level=change_level, auto_rename=auto_rename, compare_old_reference=compare_old_reference)
     
     disposition, certify_results, new_file_map, collision_list = simple.submit(crds_filetype)
 
@@ -1458,8 +1460,7 @@ def create_archive(request, arch_extension):
                 files[blob.name] = blob.pathname
         utils.ensure_dir_exists(bundle_path)    
         cache_file = open(bundle_path, "wb")
-        tar = tarfile.open(mode=ARCH_MODES[arch_extension], fileobj=cache_file,
-                           dereference=True)
+        tar = tarfile.open(mode=ARCH_MODES[arch_extension], fileobj=cache_file, dereference=True)
         for filename, path in files.items():
             tar.add(path, arcname=filename)
         tar.close()
@@ -1475,8 +1476,8 @@ def cached_bundle_path(request, arch_extension):
         if var.startswith("file"):
             name = validate_get(request, var, FILE_RE)
             names += name
-    checksum = utils.str_checksum(names)
-    path = sconfig.CRDS_ARCHIVE_CACHE_DIR + "/" + checksum + "."+ arch_extension
+    xsum = utils.str_checksum(names)
+    path = sconfig.CRDS_ARCHIVE_CACHE_DIR + "/" + xsum + "."+ arch_extension
     return path
 
 
