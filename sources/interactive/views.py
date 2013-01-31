@@ -8,20 +8,15 @@ import os.path
 import re
 import cProfile
 import cStringIO
-import pprint
 import traceback
-import datetime
 import tarfile
-import mimetypes
-import tempfile
-import shutil
 import glob
 
 # from django.http import HttpResponse
-from django.shortcuts import render_to_response, redirect
+# from django.template import RequestContext
+from django.shortcuts import redirect
 from django.shortcuts import render as django_render
 from django.http import HttpResponse, HttpResponseRedirect
-from django.template import RequestContext
 import django.utils.safestring as safestring
 from django.utils import simplejson
 from django.core.urlresolvers import reverse
@@ -29,25 +24,20 @@ from django.core.urlresolvers import reverse
 import django.contrib.auth
 import django.contrib.auth.models
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_protect, csrf_exempt
-from django.utils.datastructures import DotExpandedDict
 
 import pyfits
 
-from crds import (rmap, utils, certify, timestamp, uses, matches, newcontext, 
-                  refactor, checksum, pysh, compat, log, config)
-
-from crds.timestamp import (is_datetime, DATE_RE_STR, TIME_RE_STR, DATETIME_RE_STR)
+from crds import (rmap, utils, timestamp, uses, matches, checksum, compat, log, config)
 from crds import CrdsError
 
-import crds.server.config as sconfig
-from crds.server.interactive import (models, database)
-from crds.server.interactive.models import FieldError, MissingInputError
-from crds.server import settings
+from crds.timestamp import (DATE_RE_STR, TIME_RE_STR)
 
-import crds.server.jsonapi.views as jsonapi_views
+from . import (models, database, web_certify, web_difference, submit, versions)
+from .models import FieldError, MissingInputError
+from .common import capture_output, srepr
 
-from . import versions
+import crds.server.generic_config as sconfig
+from ..jsonapi import views as jsonapi_views
 
 HERE = os.path.dirname(__file__) or "./"
 
@@ -57,11 +47,6 @@ log.add_stream_handler(sys.stderr)
 log.remove_console_handler()
 
 # ===========================================================================
-def srepr(obj):
-    """Mostly for formatting unicode strings for exceptions,  to get rid of the
-    annoying Python-2.x u-prefix on unicode reprs.
-    """
-    return repr(str(obj))
 
 def check_value(value, pattern, msg):
     """Ensure that `value` satisifies the conditions implied by `pattern`,
@@ -109,7 +94,6 @@ def validate_get(request, variable, pattern):
 
 FILE_RE = r"[A-Za-z0-9_]+(\.fits|\.pmap|\.imap|\.rmap|\.r\d[hd])"
 DESCRIPTION_RE = r"[A-Za-z0-9._ ]+"
-GEIS_HEADER_RE = r"\w+(\.r\dh)"
 PERSON_RE = r"[A-Za-z_0-9\.@]*"
 DATASET_ID_RE = r"[A-Za-z0-9_]+"
 URL_RE = r"(/[A-Za-z0-9_]?)+"
@@ -166,7 +150,7 @@ def is_known_file(filename):
     if not re.match(FILE_RE, filename):
         raise CrdsError("Invalid filename " + srepr(filename))
     try:
-        blob = models.FileBlob.load(filename)
+        _blob = models.FileBlob.load(filename)
     except LookupError:
         raise CrdsError("No database entry for " + srepr(filename) + ".")
 #    assert blob.state != "uploaded", \
@@ -193,7 +177,7 @@ def is_available_file(filename):
     """Verify that `filename` identifies a file already known to CRDS and
     meets any requirements for distribution.   Return the filename.
     """
-    blob = is_available_file_blob(filename)
+    _blob = is_available_file_blob(filename)
     return filename
 
 def is_list_of_rmaps(text):
@@ -348,6 +332,7 @@ def get_files(request):
     returning:   remove_dir,   { original_name : file_path }
     """
     dir = os.path.join(sconfig.CRDS_INGEST_DIR, str(request.user))
+    log.info("Scanning", srepr(dir), "for uploaded files.")
     uploads = { str(os.path.basename(f)) : str(f) for f in glob.glob(dir + "/*") }
     for f in uploads:
         if rmap.is_mapping(f):
@@ -470,30 +455,6 @@ def profile(filename=None):
         return profile_core
     return decomaker
 
-# ===================================================================
-
-def capture_output(func):
-    """Decorate a function with @capture_output to make it capture and return
-    stdout/stderr as part of it's result.   Returns (original_result, outlines)
-    """
-    def captured(*args, **keys):
-        """Temorarily re-assign stdout/stderr to a StringIO, run func,
-        return captured output.
-        """
-        oldout, olderr = sys.stdout, sys.stderr
-        out = cStringIO.StringIO()
-        sys.stdout, sys.stderr = out, out
-        handler = log.add_stream_handler(out)
-        try:
-            result = func(*args, **keys)
-        finally:
-            out.flush()
-            log.remove_stream_handler(handler)
-            sys.stdout, sys.stderr = oldout, olderr
-        out.seek(0)
-        return result, out.read()
-    return captured
-
 # ===========================================================================
 # ===========================================================================
 # ===========================================================================
@@ -506,14 +467,16 @@ def index(request):
 
 @error_trap("base.html")
 @login_required
-def display_result(request, id):
-    id = int(id)
-    result = models.RepeatableResultBlob.get(id)
+def display_result(request, results_id):
+    """Render the repeatable result with `results_id`.  Handle the /display_result/ URL."""
+    results_id = int(results_id)
+    result = models.RepeatableResultBlob.get(results_id)
     pars = result.parameters
-    pars["results_id"] = id  # needed to implement "disposition", confirmed or cancelled.
+    pars["results_id"] = results_id  # needed to implement "disposition", confirmed or cancelled.
     return crds_render(request, result.page_template, pars)
 
-def render_repeatable_result(result, template, rdict):    
+def render_repeatable_result(result, template, rdict):
+    """Create a repeatable results model instance and redirect to it."""    
     result = models.RepeatableResultBlob.new(template, rdict)    
     return HttpResponseRedirect("/display_result/" + str(result.id))
 
@@ -561,6 +524,7 @@ class JSONResponse(HttpResponse):
 @error_trap("base.html")
 @login_required
 def upload_new(request, template="upload_new_input.html"):
+    """Support adding new files to the upload area."""
     if request.method == "GET":
         return crds_render(request, template)
     else:
@@ -814,199 +778,6 @@ def bestrefs_explore_compute(request):
     header["TIME-OBS"] = validate_post(request, "TIME-OBS", TIME_RE_STR)
     return bestrefs_results(request, pmap, header, instrument)
 
-# ============================================================================
-
-@error_trap("submit_input.html")
-@log_view
-@login_required
-def submit_files(request, crds_filetype):
-    """Handle file submission,  crds_filetype=reference|mapping."""
-    if request.method == "GET":
-        return crds_render(request, "submit_input.html", {
-                    "crds_filetype" :  crds_filetype,
-                }, requires_pmaps=True)
-    else:
-        return submit_files_post(request, crds_filetype)
-    
-def file_exists_somehow(filename):
-    """Return True IFF `filepath` really exists or CRDS thinks it does."""
-    filepath = rmap.locate_file(filename, sconfig.observatory)
-    return os.path.exists(filepath) or \
-        models.FileBlob.exists(os.path.basename(filepath))
-
-def submit_files_post(request, crds_filetype):
-    """Handle the POST case of submit_files, returning dict of template vars."""
-    # crds_filetype constrained by RE in URL to 'mapping' or 'reference'.
-    observatory = get_observatory(request)
-    compare_old_reference = "compare_old_reference" in request.POST 
-    context = get_recent_or_user_context(request)
-    description = validate_post(request, "description", DESCRIPTION_RE)
-    creator = validate_post(request, "creator", PERSON_RE)
-    auto_rename = "auto_rename" in request.POST    
-    change_level = validate_post(request, "change_level", models.CHANGE_LEVELS)            
-    remove_dir, uploaded_files = get_files(request)
-    
-    disposition, certify_results, new_file_map, collision_list = submit_files_core(
-        observatory, crds_filetype, uploaded_files, context, compare_old_reference, 
-        description, str(request.user), request.user.email, creator, change_level, auto_rename)
-
-    return render_repeatable_result(request, 'submit_results.html', {
-                "crds_filetype": crds_filetype,
-                "collision_list" : collision_list,
-
-                "generated_files" : [],
-                "new_file_map" : sorted(new_file_map.items()),
-                "submission_kind" : "submit file",
-                "title" : "Submit File",
-                "description" : description,
-                
-                "certify_results" : certify_results,
-                "more_submits" : "/submit/" + crds_filetype + "/",
-                
-                "disposition" : disposition,
-                })
-
-def submit_files_core(observatory, crds_filetype, uploaded_files, context, compare_old_reference, 
-        description, submitter, submitter_email, creator, change_level, auto_rename):
-    """Submit simple files to CRDS, literally,  without making automatic rules adjustments."""
-    
-    restrict_genre(crds_filetype, uploaded_files)
-
-    # Verify that ALL files certify.
-    disposition, certify_results = certify_file_list(
-        uploaded_files.items(), context=context, compare_old_reference=compare_old_reference)
-    
-    # Add the files to the CRDS database as "uploaded",  pending confirmation.
-    new_file_map = submit_file_list(observatory, uploaded_files, description, 
-        submitter, submitter_email, creator_name=creator, change_level=change_level, 
-        creation_method="submit file", auto_rename=auto_rename, state="uploaded")
-
-    collision_list = get_collision_list(new_file_map.values())
-    
-    return disposition, certify_results, new_file_map, collision_list
-
-
-def restrict_genre(crds_filetype, uploaded_files):
-    """Ensure all `uploaded_files` tuples correspond to the genre specified by
-    crds_filetype:  mapping or reference.    
-    """
-    for uploaded in uploaded_files:
-        if crds_filetype == "mapping":
-            if not rmap.is_mapping(uploaded):
-                raise CrdsError("Can't submit non-mapping file: " + repr(uploaded) + " using this page.")
-        else:
-            if rmap.is_mapping(uploaded):
-                raise CrdsError("Can't submit mapping file: " + repr(uploaded) + " using this page.")
-
-def submit_file_list(observatory, uploaded_files, description, submitter, submitter_email, 
-        creator_name="unknown", change_level="SEVERE", creation_method="submit file", 
-        auto_rename=True, state="uploaded"):
-    """Ingest a list of `uploaded_files` tuples into CRDS."""
-    new_file_map = {}
-    for (original_name, uploaded_path) in uploaded_files.items():
-        new_basename = do_submit_file( observatory, original_name, uploaded_path,
-            description, submitter, submitter_email, creator_name=creator_name, 
-            change_level=change_level, state="uploaded", auto_rename=auto_rename)
-        new_file_map[original_name] =  new_basename
-    return new_file_map
-
-def do_submit_file(observatory, original_name, upload_location, description, 
-        submitter, submitter_email, creator_name="unknown", change_level="SEVERE", 
-        creation_method="submit file", auto_rename=True, state="uploaded"):
-    """Do the core processing of a file submission,  including file certification 
-    and blacklist checking, naming, upload, and record keeping.
-    """
-    if rmap.is_mapping(original_name):
-        try:
-            checksum.update_checksum(upload_location)
-        except rmap.MappingError, exc:
-            raise CrdsError("Error updating checksum: " + srepr(exc))
-    
-#    # Check the file,  leaving no server state if it fails.  Give error results.
-#    do_certify_file(original_name, upload_location, check_references="exist")
-#    
-    # Automatically 
-    if auto_rename:
-        permanent_name = auto_rename_file(observatory, original_name, upload_location)
-    else:
-        if file_exists_somehow(original_name):
-            raise FieldError("File " + srepr(original_name) + " already exists.") 
-        else:
-            permanent_name = os.path.basename(original_name)   
-
-    # CRDS keeps all new files in a standard layout.  Existing files in /grp/cdbs
-    # are currently referenced by standard symlinks in the CRDS server file tree.
-    permanent_location = rmap.locate_file(permanent_name, observatory)
-
-    # Make sure none of the dependencies are blacklisted,  else fail w/o state.
-    blacklisted_by = get_blacklists(original_name, upload_location)
-    if blacklisted_by:
-        raise CrdsError("File " + srepr(original_name) + 
-                        " is blacklisted by " + srepr(blacklisted_by))
-    
-    # Move or copy the temporary file to its permanent location.
-    utils.ensure_dir_exists(permanent_location)
-    os.link(upload_location, permanent_location)
-
-    # Make a database record for this file.
-    blob = models.add_crds_file(observatory, original_name, permanent_location, 
-            submitter, submitter_email, description, 
-            change_level=change_level, creator_name=creator_name, state=state)
-    
-    return os.path.basename(permanent_location)
-
-def do_certify_file(basename, certifypath, check_references=False, filemap=None,
-                    context=None):
-    """Run un-trapped components of crds.certify and re-raise any exception
-    as a CrdsError which will be displayed as a form error on the submission
-    page.
-    
-    basename is the name of the file on the user's system,  hopefully with a
-    sane extension.   certifypath is a fully qualified path,  but sometimes
-    with a temporary filename which is total garbage.
-    """
-    try:
-        certify.certify_files([certifypath], check_references=None,
-            trap_exceptions=False, is_mapping = rmap.is_mapping(basename),
-            context=context)
-    except Exception, exc:
-        raise CrdsError("Certifying " + srepr(basename) + ": " + str(exc))
-
-    if check_references and rmap.is_mapping(basename):
-        if filemap is None:
-            filemap = models.get_fileblob_map(models.OBSERVATORY)
-        ctx = rmap.load_mapping(certifypath)
-        for ref in ctx.reference_names():
-            assert ref in filemap, \
-                "Reference " + srepr(ref) + " in " + srepr(basename) + " is not known to CRDS."
-
-def get_blacklists(basename, certifypath, ignore_self=True, files=None):
-    """Return a list of the files referenced by `basename` which are
-    blacklisted.
-    """
-    basename = str(basename)
-    if rmap.is_mapping(basename):
-        blacklisted_by = set()
-        try:
-            mapping = rmap.load_mapping(certifypath)
-        except Exception, exc:
-            raise CrdsError("Error loading " + srepr(basename) + 
-                            " for blacklist checking:  " + str(exc))
-        if files is None:
-            files = models.get_fileblob_map(mapping.observatory)
-        
-        for child in mapping.mapping_names() + mapping.reference_names():       
-            if ignore_self and child == os.path.basename(certifypath): 
-                continue
-            if child not in files:   # Unknown file,  what to do?
-                continue   # XXXX TODO blacklist instead?
-            if files[child].blacklisted:
-                blacklisted_by.add(child)
-                
-        return sorted(list(blacklisted_by))
-    else:
-        return []
-
 # ===========================================================================
 
 @error_trap("blacklist_input.html")
@@ -1068,101 +839,19 @@ def certify_post(request):
     context = get_recent_or_user_context(request)
     compare_old_reference = "compare_old_reference" in request.POST
     comparison_context = context if compare_old_reference else None
-
-    all_files = models.get_fileblob_map()
-
     remove_dir, uploaded_files = get_files(request)
     
-    _disposition, certify_results = certify_file_list(uploaded_files.items(), context=comparison_context, 
+    all_files = models.get_fileblob_map()
+
+    _disposition, certify_results = web_certify.certify_file_list(uploaded_files.items(), context=comparison_context, 
         compare_old_reference=compare_old_reference)
 
-    blacklist_results = get_blacklist_file_list(uploaded_files.items(), all_files=all_files)
+    blacklist_results = web_certify.get_blacklist_file_list(uploaded_files.items(), all_files=all_files)
 
     return crds_render(request, "certify_results.html", {
              "certify_results":certify_results,
              "blacklist_results":blacklist_results,
     })
-
-def get_blacklist_file_list(upload_tuples, all_files):
-    """Return the mapping of blacklist status and blacklisted_by list for the
-    given `uploaded_tuples` with respect to `all_files`.
-    
-    Returns { original_name :  (blacklist_status, blacklisted_by), ... }
-    """
-    blacklist_results = {}
-    for (original_name, upload_path) in upload_tuples:
-        try:
-            blacklisted_by = get_blacklists(
-                original_name, upload_path, ignore_self=False, files=all_files)
-        except Exception:
-            blacklisted_by = []
-            blacklist_status = "Error"
-        else:        
-            if blacklisted_by:
-                blacklist_status = "Blacklisted"
-            else:
-                blacklist_status = "OK"
-        blacklist_results[original_name] = (blacklist_status, blacklisted_by)
-    return blacklist_results
-
-@capture_output
-def _captured_certify(original_name, uploaded_path, filemap=None, context=None, compare_old_reference=False):
-    """Configure certify and capture it's stdout/stderr."""
-    certify.certify_files([uploaded_path], context=context, dump_provenance=True, check_references=False, 
-                          is_mapping=rmap.is_mapping(original_name), trap_exceptions=True)
-
-def captured_certify(original_name, uploaded_path, check_references=True, filemap=None, context=None,
-                     compare_old_reference=False):
-    output = _captured_certify(original_name, uploaded_path, filemap, context, compare_old_reference)[1]
-    if ": ERROR" not in output:
-        if ": WARNING" not in output:
-            status = "OK"
-        else:
-            status = "Warnings"
-    else:
-        status = "Failed."
-    output = output.replace(uploaded_path, original_name)
-    output = output.replace(os.path.basename(uploaded_path), original_name)
-    
-    if status != "Failed.":    # if OK the rmap should load...
-        if check_references and rmap.is_mapping(original_name):
-            if filemap is None:
-                filemap = models.get_fileblob_map(models.OBSERVATORY)
-            ctx = rmap.load_mapping(uploaded_path)
-            for ref in ctx.reference_names():
-                if ref not in filemap:
-                    output += "ERROR: Reference " + srepr(ref) + " in " + \
-                            srepr(original_name) + " is not known to CRDS.\n"
-                    status = "Failed."
-                    
-    return status, output
-
-def certify_file_list(upload_tuples, check_references=True, context=None, compare_old_reference=False):
-    """Certify the list of `upload_tuples` specifying uploaded files.
-    
-    If `check_references` is True,  make sure references referred to by mappings exist.
-    
-    If `context` is specified, verify references and mappings relative to the corresponding
-    files in that context.
-    
-    If `compare_old_references` is True,  compare references to the corresponding files in the context.
-    
-    Returns disposition,  sorted({uploaded_name :  (status, <certify_output>) }.items())
-    
-    where disposition is either "" or "bad files" and used to suppress confirmation.
-    """
-    filemap = models.get_fileblob_map(models.OBSERVATORY)
-    certify_results = {}
-    disposition = ""
-    for (original_name, upload_path) in upload_tuples:
-        # In order to capture output easily,  run as subprocess...
-        status, output = captured_certify(original_name, upload_path, 
-            check_references=check_references, filemap=filemap, context=context, 
-            compare_old_reference=compare_old_reference)
-        certify_results[original_name] = status, output
-        if status == "Failed.":
-            disposition = "bad files"
-    return disposition, sorted(certify_results.items())
 
 # ===========================================================================
 
@@ -1187,7 +876,7 @@ def batch_submit_references_post(request):
     compare_old_reference = "compare_old_reference" in request.POST 
     remove_dir, uploaded_files = get_files(request)
     
-    disposition, new_references_map, new_mappings_map, reference_certs, mapping_certs, mapping_diffs, collision_list = bsr_core(
+    disposition, new_references_map, new_mappings_map, reference_certs, mapping_certs, mapping_diffs, collision_list = submit.bsr_core(
         pmap_name, uploaded_files, description, str(request.user), str(request.user.email), 
         creator, change_level, auto_rename, compare_old_reference)
     
@@ -1217,152 +906,6 @@ def batch_submit_references_post(request):
     
     return render_repeatable_result(request, "batch_submit_reference_results.html", bsr_results)
 
-def bsr_core(pmap_name, uploaded_files, description, user_name, user_email, creator, 
-             change_level, auto_rename, compare_old_reference):
-    """bsr_core implements batch submit reference functionality independently of 
-    web requests and responses.  bsr_core does however interact with Django models.
-    """
-    pmap = rmap.get_cached_mapping(pmap_name)
-
-    # Verify that ALL references certify,  raise CrdsError on first error.
-    comparison_context = pmap_name if compare_old_reference else None
-    reference_disposition, reference_certs = certify_file_list(uploaded_files.items(), 
-        context=comparison_context, compare_old_reference=compare_old_reference)
-
-    # Refactor with temporary rmap files and refrerences to support detecting 
-    # problems with refactoring prior to generating official names.
-    old_rmaps = bsr_temporary_refactor(pmap, uploaded_files)
-    
-    # name the references and get them into CRDS.
-    new_references_map = bsr_submit_references(pmap, uploaded_files, 
-        description, user_name, user_email, creator, change_level, auto_rename)
-    
-    # Generate modified rmaps using real reference names and
-    new_mappings_map = bsr_generate_real_rmaps(pmap, old_rmaps, new_references_map,
-        description, user_name, user_email, creator, change_level)
-    
-    rmap_disposition, rmap_certs = bsr_certify_new_mapping_list(new_mappings_map, context=comparison_context)
-    
-    # Generate a new context referring to the new rmap
-    higher_level_mapping_map = do_create_contexts(pmap.name, new_mappings_map.values(), 
-        description, user_name, user_email, state="uploaded")
-    
-    new_mappings_map.update(higher_level_mapping_map)
-
-    collision_list = get_collision_list(new_mappings_map.values())
-    
-    # Just display the .pmap,  which recursively captures the others and sorts first.
-    diff_results = mass_differences(sorted(new_mappings_map.items())[:1])
-    
-    disposition = rmap_disposition or reference_disposition
-    
-    return (disposition, new_references_map, new_mappings_map, reference_certs, rmap_certs, diff_results, collision_list)
-
-def bsr_certify_new_mapping_list(rmap_replacement_map, context):
-    """Certify the new rmaps from `rmap_replacement_map` relative to .pmap `context`.
-    Return { old_rmap : certify_output_for_new_rmap,  ... }
-    """
-    files = [(mapping, rmap.locate_mapping(mapping)) for mapping in rmap_replacement_map.values()]
-    new_to_old = utils.invert_dict(rmap_replacement_map)
-    disposition, certify_results = certify_file_list(files, context=context, check_references=False)
-    certify_results = { new_to_old[mapping]: results for (mapping, results) in certify_results }
-    return disposition, sorted(certify_results.items())
-
-# .............................................................................
-
-def bsr_temporary_refactor(pmap, uploaded_files):
-    """Try out refactoring,  filekind-by-filekind,  and return a list of the affected rmaps.
-    Returns [ replaced_rmaps... ]
-    """
-    instr_filekind_groups = bsr_group_references(pmap, uploaded_files)
-    return [ bsr_temporary_refactor_filekind(pmap, uploaded_references, instrument, filekind)
-            for ((instrument, filekind), uploaded_references) in instr_filekind_groups.items() ]
-
-def bsr_group_references(pmap, uploaded_files):
-    """Groups uploaded files by instrument and type.
-    Returns {(instrument,filekind) : [part_of_uploaded_files...]}
-    """
-    old_instr = None
-    groups = {}
-    for (original_name, uploaded_path) in uploaded_files.items():
-        try:
-            instrument, filekind = utils.get_file_properties(pmap.observatory, uploaded_path)
-        except Exception:
-            raise CrdsError("Can't determine instrument or file type for " + srepr(original_name))
-        if old_instr is not None:
-            assert instrument == old_instr, "More than one instrument submitted at " + srepr(original_name) + \
-            " " + srepr(old_instr) + " vs. " + srepr(instrument)
-        old_instr = instrument
-        if (instrument, filekind) not in groups:
-            groups[(instrument, filekind)] = {}
-        groups[(instrument, filekind)][original_name] = uploaded_path 
-    return groups
-
-def bsr_temporary_refactor_filekind(pmap, uploaded_files, instrument, filekind):
-    """Refactor the original rmap inserting temporary references, creating a 
-    temporary rmap to see what actions will occur.   Raise an exception if 
-    any of the submitted files are duds.
-    """
-    old_rmap = pmap.get_imap(instrument).get_rmap(filekind).name
-    old_rmap_path = rmap.locate_mapping(old_rmap, pmap.observatory)
-    tmp_rmap = tempfile.NamedTemporaryFile()
-    refactor.rmap_insert_references(old_rmap_path, tmp_rmap.name, uploaded_files.values())
-    # XXX TODO unhandled files,  references resulting in no change.
-    # XXX TODO duplicate matches,  references changing the same path.    
-    return old_rmap
-
-# .............................................................................
-
-def bsr_submit_references(pmap, uploaded_files, description, user_name, user_email,
-                          creator, change_level, auto_rename):
-    """Add the uploaded references to CRDS with the supplied metadata.
-    Returns { uploaded_name :  official_name, ... }
-    """
-    # Once both references and refactoring checks out,  submit reference files
-    # and collect mapping from uploaded names to official names.
-    new_references = {}
-    for (original_name, uploaded_path) in sorted(uploaded_files.items()):
-        new_basename = do_submit_file( 
-            pmap.observatory, original_name, uploaded_path,
-            description, user_name, user_email, creator, 
-            change_level, creation_method="batch submit",
-            state="uploaded", auto_rename=auto_rename)
-        new_references[original_name] = str(new_basename)
-    return new_references
-
-# .............................................................................
-
-def bsr_generate_real_rmaps(pmap, old_rmaps, new_references_map,
-        description, user_name, user_email, creator, change_level):
-    """Generate and submit official rmaps correspending to `old_rmaps` in 
-    derivation context `pmap`,  inserting references from `new_references_map`.
-    
-    Now that we know that refactoring works and what the new references will be
-    named,  allocate new supporting rmap names and refactor again for real.
-    
-    Return { old_rmap : new_rmap, ...}
-    """
-    observ = pmap.observatory
-    # Dig these out of the database rather than passing them around.
-    reference_paths = [ models.FileBlob.load(new_reference).pathname
-                        for new_reference in new_references_map.values() ]
-    rmap_replacement_map = {}
-    for old_rmap in old_rmaps:
-        (instrument, filekind) = utils.get_file_properties(pmap.observatory, old_rmap)
-        these_ref_paths = [ refpath for refpath in reference_paths 
-            if (instrument, filekind) == utils.get_file_properties(pmap.observatory, refpath) ]
-        new_rmap = get_new_name(pmap.observatory, instrument, filekind, ".rmap")
-        rmap_replacement_map[old_rmap] = new_rmap
-        new_rmap_path = rmap.locate_mapping(new_rmap)
-        old_rmap_path = rmap.locate_mapping(old_rmap)
-        # refactor inserting references.
-        refactor.rmap_insert_references(old_rmap_path, new_rmap_path, these_ref_paths)
-        # Submit the new rmap with added references
-        models.add_crds_file(pmap.observatory, new_rmap, new_rmap_path,  
-                         user_name, user_email, description, 
-                         change_level=change_level, creator_name=creator, state="uploaded")
-    return rmap_replacement_map
-
 # ============================================================================
 
 @error_trap("base.html")
@@ -1373,7 +916,6 @@ def submit_confirm(request):
     generation mechanisms.
     """
     button = validate_post(request, "button", "confirm|cancel")
-    
     submission_kind = validate_post(request, "submission_kind", models.AUDITED_ACTIONS)
     description = validate_post(request, "description", DESCRIPTION_RE)
     new_file_map = compat.literal_eval(str(request.POST["new_file_map"]))
@@ -1382,56 +924,104 @@ def submit_confirm(request):
     user = str(request.user)
     more_submits = validate_post(request, "more_submits", URL_RE)
     results_id = validate_post(request, "results_id", "\d+")
+
+    confirm_results = submit.submit_confirm_core(
+        button, submission_kind, description, new_file_map, new_files, generated_files, user, more_submits, results_id)
+
+    return crds_render(request, "confirmed.html", confirm_results)
     
-    instrument = filekind = "unknown"
-    for filename in new_files + generated_files:
-        try:
-            blob = models.FileBlob.load(filename)
-        except LookupError:
-            raise CrdsError("Unknown CRDS file " + srepr(filename))
-        assert user == blob.deliverer_user, \
-            "User " + srepr(user) + " did not create " + srepr(filename)
-        assert blob.state == "uploaded", \
-            "File " + srepr(filename) + " is no longer in the 'uploaded' state."
-        if blob.instrument != "unknown":
-            instrument = blob.instrument
-        if blob.filekind != "unknown":
-            filekind = blob.filekind
+# ===========================================================================
 
-    if button == "confirm":
-        for file in set(new_files + generated_files):
-            models.AuditBlob.new(
-                request.user, submission_kind, file, description, 
-                str(new_file_map), 
-                instrument=instrument, filekind=filekind)    
-        deliver_file_list( request.user, sconfig.observatory, 
-            set(new_files + generated_files), description, submission_kind)
-        disposition = "confirmed"
-        for map in generated_files:
-            if map.endswith(".pmap"):
-                models.set_default_context(map)
+@error_trap("create_contexts_input.html")
+@log_view
+@login_required
+def create_contexts(request):
+    """create_contexts generates a new pmap and imaps given an existing pmap
+    and set of new rmaps.   Note that the "new" rmaps must already be in CRDS.
+    """
+    if request.method == "GET":
+        return crds_render(request, "create_contexts_input.html", requires_pmaps=True)
     else:
-        destroy_file_list(set(new_files + generated_files))
-        disposition = "cancelled"
-        
-    models.RepeatableResultBlob.set_parameter(results_id, "disposition" , disposition)
+        return create_contexts_post(request)
 
-    return crds_render(request, "confirmed.html", {
-                "confirmed" : button == "confirm",
-                "new_file_map" : new_file_map,
-                "generated_files" : generated_files,
+def create_contexts_post(request):
+    """View fragment handling create_contexts POST case."""
+    pmap_name = get_recent_or_user_context(request)
+    updated_rmaps = validate_post(request, "rmaps", is_list_of_rmaps)
+    description = validate_post(request, "description", DESCRIPTION_RE)
+    
+    existing_names = rmap.get_cached_mapping(pmap_name).mapping_names()
+#    for updated in updated_rmaps:
+#        assert updated not in existing_names, "Rmap " + repr(updated) + " is already in context " + repr(pmap_name)
+
+    new_name_map = submit.do_create_contexts(pmap_name, updated_rmaps, description, 
+        request.user, request.user.email, state="uploaded")
+
+    old_mappings = sorted(new_name_map.keys())
+    new_mappings = sorted(new_name_map.values())
+    
+    collision_list = submit.get_collision_list(new_mappings)
+    
+    return render_repeatable_result(request, "create_contexts_results.html", {
+                "pmap": pmap_name,
+                "old_mappings" : old_mappings,
+                "added_rmaps" : updated_rmaps,
+                
+                "new_file_map" : [],
+                "generated_files" : new_mappings, 
+                "submission_kind" : "new context",
+                "title" : "Create Contexts",
+                "description" : description,
+                "more_submits" : "/create_contexts/",
+                "collision_list" : collision_list,
+ 
             })
     
-def change_file_state(files, new_state):
-    for filename in files:
-        blob = models.FileBlob.load(filename)
-        blob.state = new_state
-        blob.save()
+# ============================================================================
 
-def destroy_file_list(files):
-    for filename in files:
-        blob = models.FileBlob.load(filename)
-        blob.destroy()
+@error_trap("submit_input.html")
+@log_view
+@login_required
+def submit_files(request, crds_filetype):
+    """Handle file submission,  crds_filetype=reference|mapping."""
+    if request.method == "GET":
+        return crds_render(request, "submit_input.html", {
+                    "crds_filetype" :  crds_filetype,
+                }, requires_pmaps=True)
+    else:
+        return submit_files_post(request, crds_filetype)
+    
+def submit_files_post(request, crds_filetype):
+    """Handle the POST case of submit_files, returning dict of template vars."""
+    # crds_filetype constrained by RE in URL to 'mapping' or 'reference'.
+    observatory = get_observatory(request)
+    compare_old_reference = "compare_old_reference" in request.POST 
+    context = get_recent_or_user_context(request)
+    description = validate_post(request, "description", DESCRIPTION_RE)
+    creator = validate_post(request, "creator", PERSON_RE)
+    auto_rename = "auto_rename" in request.POST    
+    change_level = validate_post(request, "change_level", models.CHANGE_LEVELS)            
+    remove_dir, uploaded_files = get_files(request)
+    
+    disposition, certify_results, new_file_map, collision_list = submit.submit_files_core(
+        observatory, crds_filetype, uploaded_files, context, compare_old_reference, 
+        description, str(request.user), request.user.email, creator, change_level, auto_rename)
+
+    return render_repeatable_result(request, 'submit_results.html', {
+                "crds_filetype": crds_filetype,
+                "collision_list" : collision_list,
+
+                "generated_files" : [],
+                "new_file_map" : sorted(new_file_map.items()),
+                "submission_kind" : "submit file",
+                "title" : "Submit File",
+                "description" : description,
+                
+                "certify_results" : certify_results,
+                "more_submits" : "/submit/" + crds_filetype + "/",
+                
+                "disposition" : disposition,
+                })
 
 # ===========================================================================
 
@@ -1467,7 +1057,7 @@ def difference_files(request):
         uploaded2, file2_orig, file2_path = handle_known_or_uploaded_file(
             request, "filemode2", "file_known2", "file_uploaded2")
                 
-    diff_results = mass_differences([(file1_orig, file2_orig, file1_path, file2_path)])
+    diff_results = web_difference.mass_differences([(file1_orig, file2_orig, file1_path, file2_path)])
 
     if uploaded1: 
         remove_temporary(file1_path)
@@ -1475,147 +1065,6 @@ def difference_files(request):
         remove_temporary(file2_path)
         
     return crds_render(request, "difference_results.html", { "diff_results" : diff_results })
-
-def mass_differences(pair_or_quad_tuples, connector=" --> "):
-    """Get the differences info for each tuple in `pair_or_quad_tuples`,  where
-    a pair is a tuple of two known file basenames,  and a quad adds full paths
-    corresponding to the basenames,  which are probably file temporaries not in
-    the official file tree. Used for file submission and multiple generated files.
-    """
-    # key must be a string to json encode as a repeatable result.
-    diffs = { tup[0] +  connector + "<span class='blue'>" + tup[1] + "</span>" : 
-                difference_core(*tup) for tup in pair_or_quad_tuples }
-    return sorted(diffs.items())
-
-def difference_core(file1_orig, file2_orig, file1_path=None, file2_path=None):
-    """Compute the rendering dictionary for the differences include file."""
-
-    if file1_path is None:
-        file1_path = rmap.locate_mapping(file1_orig)
-    if file2_path is None:
-        file2_path = rmap.locate_mapping(file2_orig)
-    
-    def extension(filename): 
-        """Return the file extension of `filename`."""
-        return os.path.splitext(filename)[1]
-    
-    logical_diffs = map_text_diff_items = None
-    if rmap.is_mapping(file1_orig) and rmap.is_mapping(file2_orig) and \
-        extension(file1_orig) == extension(file2_orig):
-        logical_diffs = mapping_logical_diffs(file1_path, file2_path, file1_orig, file2_orig)
-        map_text_diffs = mapping_text_diffs(logical_diffs)
-        # Compute root files separately since they may have upload paths.
-        difference = textual_diff(file1_orig, file2_orig, file1_path, file2_path)
-        map_text_diffs[str((file1_orig, file2_orig))] = difference
-        map_text_diff_items = sorted(map_text_diffs.items())
-        logical_diffs = [[ str(tup) for tup in diff] for diff in logical_diffs]
-    elif file1_orig.endswith(".fits") and file2_orig.endswith(".fits"):
-        diff_lines = pysh.lines("fitsdiff ${file1_path} ${file2_path}")
-        diff_lines = format_fitsdiffs(diff_lines, file1_path, file2_path,
-            file1_orig, file2_orig)
-        difference = ''.join(diff_lines)
-    elif re.match(GEIS_HEADER_RE, file1_orig) and re.match(GEIS_HEADER_RE, file2_orig) and \
-        extension(file1_orig) == extension(file2_orig):
-        difference = textual_diff(file1_orig, file2_orig, file1_path, file2_path)
-    else:
-        raise CrdsError("Files should be either CRDS mappings "
-                        "of the same type or .fits files")        
-    if not difference.strip():
-        difference = "no differences"
-    return {
-       "logical_diffs" : logical_diffs,
-       "map_text_diff_items" : map_text_diff_items,
-       "difference" : difference,
-       "file1" : file1_orig,
-       "file2" : file2_orig,
-    }
-
-def textual_diff(file1_orig, file2_orig, file1_path=None, file2_path=None):
-    """Return the output of the context diff of two files."""
-    if file1_path is None:
-        file1_path = rmap.locate_mapping(file1_orig)
-    if file2_path is None:
-        file2_path = rmap.locate_mapping(file2_orig)
-    diff_lines = pysh.lines("diff -b -u -FUseAfter ${file1_path} ${file2_path}")
-    result = []
-    for line in diff_lines:
-        line = line.replace(file1_path, file1_orig)
-        line = line.replace(file2_path, file2_orig)
-        result.append(line)
-    return ''.join(result)
-
-def mapping_logical_diffs(file1, file2, file1_orig, file2_orig):
-    """Return the logical differences between two mapping files."""
-    try:
-        map1 = rmap.load_mapping(file1, ignore_checksum=True)
-        map2 = rmap.load_mapping(file2, ignore_checksum=True)
-        # Get logical difference tuples
-        ldiffs = map1.difference(map2)
-        # Substitute the name of the original file for temp file.
-#        for ldiff in ldiffs:
-#            ldiff = replace_ldiff_file(ldiff, file1, file1_orig)
-#            ldiff = replace_ldiff_file(ldiff, file2, file2_orig)
-        return ldiffs
-    except Exception, exc:
-        return [("Mapping logical difference failed: " + str(exc),)]
-
-def replace_ldiff_file(ldiff, file_temp, file_orig):
-    """Replaces name of web temporary file in ldiff tuple with original upload 
-    name.
-    """ 
-    if not len(ldiff):
-        return ldiff
-    tup = ldiff[0]
-    if len(tup) == 2:
-        if tup[0] == file_temp:
-            tup = (file_orig, tup[1])
-        if tup[1] == file_temp:
-            tup = (tup[0], file_orig)
-    return (tup,) + replace_ldiff_file(ldiff[1:], file_temp, file_orig)
-
-def mapping_text_diffs(logical_diffs):
-    """Return a mapping of file pairs to the textual differences between them
-    for all of the mappings mentioned in `logical_diffs`.   Skips over the first
-    logical difference tuple since that corresponds to the top level files,  
-    which might have been uploaded and hence the file paths aren't known here.
-    """
-    diff_map = {}
-    for ldiff in logical_diffs:
-        for tup in ldiff:
-            if isinstance(tup, tuple) and len(tup) == 2 and \
-                tup[0].endswith("map") and tup[1].endswith("map"):
-                file1_orig, file2_orig = tup
-                file1_path = rmap.locate_mapping(file1_orig)
-                file2_path = rmap.locate_mapping(file2_orig)
-                if (file1_orig, file2_orig) not in diff_map:
-                    try:
-                        diffs = textual_diff(
-                            file1_orig, file2_orig, file1_path, file2_path)
-                    except Exception, exc:
-                        diffs = "diffs failed: " + str(exc)
-                    diff_map[str((file1_orig, file2_orig))] = diffs
-    return diff_map
-
-def format_fitsdiffs(lines, file1, file2, file1_orig, file2_orig):
-    """Add some colorization to output `lines` from fitsdiff, replacing
-    `file1` and `file2` with their basenames.
-    """
-    for i in range(len(lines)):
-        line = clean_path(lines[i], file1, file1_orig)
-        line = clean_path(line, file2, file2_orig)
-        if "Primary HDU" in line or re.search("Extension HDU \d+", line):
-            line = "<h3>" + line + "</h3>"
-        line = re.sub(r"([Kk]eyword)\s*([A-Za-z0-9_]*)",
-                      r"\1 <span class='green'>\2</span>", line)
-        lines[i] = line
-    return lines
-
-def clean_path(line, path, file_orig):
-    """Replace occurrences of `path` in `line` with a greyed version of
-    the `path`s basename.
-    """
-    base = "<span class='grey'>" + os.path.basename(file_orig) + "</span>"
-    return line.replace(path, base)
 
 # ===========================================================================
 
@@ -1644,13 +1093,13 @@ def browse_known_file(request, filename):
         match_paths = matches.find_full_match_paths(context, filename)
         match_paths = [flatten(path) for path in match_paths]
         try:
-            certify_results = captured_certify(filename, blob.pathname, check_references=True, context=context)
+            certify_results = web_certify.captured_certify(filename, blob.pathname, check_references=True, context=context)
         except Exception, exc:
             log.warning("certify failed for", blob.pathname)
             certify_results = None
     else:
         match_paths = []
-        certify_results = captured_certify(filename, blob.pathname, check_references=False, context=context)
+        certify_results = web_certify.captured_certify(filename, blob.pathname, check_references=False, context=context)
 
     return crds_render(request, "browse_results.html", { 
              "fileblob" : blob,
@@ -1800,49 +1249,6 @@ def finfo(filename):
 
 # ===========================================================================
 
-def get_new_serial(observatory, instrument, filekind, extension):
-    """Return the next reference or mapping serial number associated with the
-    given parameters and update the database.   There's no guarantee the
-    number isn't already taken by an ad hoc filename.
-    """
-    return models.CounterBlob.next(observatory, instrument, filekind, extension)
-
-def _get_new_name(observatory, instrument, filekind, extension):
-    """Generate a candidate new name,  possibly with an existing serial number.
-    """
-    num = get_new_serial(observatory, instrument, filekind, extension)
-    parts = [x for x in [observatory, instrument, filekind, "%04d" % num] if x]
-    return "_".join(parts) + extension
-
-def get_new_name(observatory, instrument, filekind, extension):
-    """get_new_name() iterates over candidate serial numbers until it finds
-    one which does not already exist and composes a new filename based on its
-    parameters.   For a rigid naming scheme,  the first try should work.   For 
-    more free-form names,   multiple tries may be required to get an unused 
-    serial number.
-    
-    get_new_name() works by guaranteeing that:
-    1) Any generated name is not already "reserved" using the CounterBlob.
-    2) No generated name has already been submitted by using FileBlobs.
-    """
-    name = _get_new_name(observatory, instrument, filekind, extension)
-    while True:
-        try:
-            already_in_use = models.FileBlob.load(name)
-        except LookupError:
-            break
-        name = _get_new_name(observatory, instrument, filekind, extension)
-    return name
-
-def auto_rename_file(observatory, upload_name, upload_path):
-    """Generate a CRDS name for an uploaded file."""
-    extension = os.path.splitext(upload_name)[-1]
-    instrument, filekind = utils.get_file_properties(
-        observatory, upload_path)
-    return get_new_name(observatory, instrument, filekind, extension)
-
-# ===========================================================================
-
 # @profile('recent_activity.stats')
 @error_trap("recent_activity_input.html")
 @log_view
@@ -1924,309 +1330,8 @@ def browse_db_post(request):
                 "observatory" : observatory,
             })
 
-# ===========================================================================
-
-@error_trap("create_contexts_input.html")
-@log_view
-@login_required
-def create_contexts(request):
-    """create_contexts generates a new pmap and imaps given an existing pmap
-    and set of new rmaps.   Note that the "new" rmaps must already be in CRDS.
-    """
-    if request.method == "GET":
-        return crds_render(request, "create_contexts_input.html", requires_pmaps=True)
-    else:
-        return create_contexts_post(request)
-
-def create_contexts_post(request):
-    """View fragment handling create_contexts POST case."""
-    pmap_name = get_recent_or_user_context(request)
-    updated_rmaps = validate_post(request, "rmaps", is_list_of_rmaps)
-    description = validate_post(request, "description", DESCRIPTION_RE)
-    
-    existing_names = rmap.get_cached_mapping(pmap_name).mapping_names()
-#    for updated in updated_rmaps:
-#        assert updated not in existing_names, "Rmap " + repr(updated) + " is already in context " + repr(pmap_name)
-        
-
-    new_name_map = do_create_contexts(pmap_name, updated_rmaps, description,
-        request.user, request.user.email, state="uploaded")
-
-    old_mappings = sorted(new_name_map.keys())
-    new_mappings = sorted(new_name_map.values())
-    
-    collision_list = get_collision_list(new_mappings)
-    
-    return render_repeatable_result(request, "create_contexts_results.html", {
-                "pmap": pmap_name,
-                "old_mappings" : old_mappings,
-                "added_rmaps" : updated_rmaps,
-                
-                "new_file_map" : [],
-                "generated_files" : new_mappings, 
-                "submission_kind" : "new context",
-                "title" : "Create Contexts",
-                "description" : description,
-                "more_submits" : "/create_contexts/",
-                "collision_list" : collision_list,
- 
-            })
-    
-def do_create_contexts(pmap_name, updated_rmaps, description, user, email,
-                       state="uploaded"):
-    """Create new contexts based on `pmap_name` which refer to `updated_rmaps`
-    instead of the corresponding old rmaps.  Add the new contexts to the
-    CRDS database and return a list of new context mapping names.
-    """
-    # Get the mapping from old imap to new rmap, basically the imaps that
-    # must be updated onto the list of rmap updates to do.
-    updates_by_instrument = newcontext.get_update_map(pmap_name, updated_rmaps)
-    
-    # For each imap being edited,  and the pipeline context,  reserve new
-    # official names and return the dictionary { old_mapping : new_mapping }.
-    new_name_map = generate_new_names(pmap_name, updates_by_instrument)
-    
-    # Actually generate the new mappings,  by first copying the old mappings 
-    # and then substituting old names with their updated equivalents.
-    new_contexts = newcontext.generate_new_contexts(pmap_name, updates_by_instrument, new_name_map)
- 
-    new_pmap = [ctx for ctx in new_contexts if ctx.endswith(".pmap")][0]
-    new_loc = rmap.locate_mapping(new_pmap)  
-    do_certify_file(new_loc, new_loc, context=pmap_name)
-
-    # Create delivery records for each of the new files
-    observatory = rmap.get_cached_mapping(pmap_name).observatory
-    for old_ctx, new_ctx in new_name_map.items():
-        models.add_crds_file(
-            observatory, old_ctx, rmap.locate_mapping(new_ctx),  user, email, 
-            description, 
-            srepr(pmap_name) + " : " + ",".join([srepr(x) for x in updated_rmaps]),
-            state=state)
-    
-    return new_name_map
-
-def generate_new_names(old_pipeline, updates):
-    """Generate a map from old pipeline and instrument context names to the
-    names for their replacements.
-    """
-    return { old:new_name(old) for old in [old_pipeline] + updates.keys() }
-
-def new_name(old_map):
-    """Given an old mapping name, `old_map`, adjust the serial number to 
-    create a new mapping name of the same series.
-    """
-    observatory = rmap.get_cached_mapping(old_map).observatory
-    instrument, filekind = utils.get_file_properties(
-        observatory, old_map)
-    extension = os.path.splitext(old_map)[-1]
-    new_map = get_new_name(observatory, instrument, filekind, extension)
-    assert not (rmap.mapping_exists(new_map) or models.FileBlob.exists(new_map)), \
-        "Program error.  New mapping " + srepr(new_map) + " already exists."
-    return new_map
-
-def get_collision_list(newfiles):
-    """Given a list of `newfiles`,  newly created files,
-    check the database for other children of the same parent.   Return a
-    list of triplets:  [ (newfile, parent, other_children_of_parent), ... ]
-    """
-    collision_list = []
-    for newfile in newfiles:
-        blob = models.FileBlob.load(newfile)
-        collisions = blob.collisions  # collisions is a db property so cache
-        if collisions:
-            collision_list.append((newfile, blob.derived_from, collisions))
-    return collision_list
-
-# ============================================================================
-'''
-@error_trap("delivery_options_input.html")
-@log_view
-@login_required
-def deliver_context(request):
-    """Based on a pmap, find the list of referenced files which have not yet
-    been delivered and present them as candiates for delivery.
-    """
-    if request.method == "GET":
-        raise ServerError("Can't GET from /deliver_context/")
-    context = get_recent_or_user_context(request)
-    pmap = rmap.load_mapping(context)
-    candidates = pmap.mapping_names() + pmap.reference_names()
-    allfiles = models.FileBlob.dictionary()
-    delivered_files = []
-    for cand in candidates:
-        if cand in allfiles and allfiles[cand].state == "submitted":
-            delivered_files.append(allfiles[cand])
-    return crds_render(request, "delivery_options_results.html", {
-                "observatory": pmap.observatory,
-                "context" : context,
-                "prechecked" : "CHECKED",
-                "filtered_db" : delivered_files,
-            })
-
-@error_trap("delivery_options_input.html")
-@log_view
-@login_required
-def delivery_options(request):
-    """Present filtering criteria (GET) and a list of filtered files from
-    which to compose a delivery (POST).
-    """
-    if request.method == "GET":
-        return crds_render(request, "delivery_options_input.html", {
-            "pmaps": get_recent_pmaps(status="submitted"),
-        })
-    else:
-        return delivery_options_post(request)
-
-def delivery_options_post(request):
-    """Execute filtering criteria to present candidates for delivery."""
-    observatory = validate_post(
-        request, "observatory", models.OBSERVATORIES+[r"\*"])
-    instrument = validate_post(
-        request, "instrument", models.INSTRUMENTS+[r"\*"])
-    filekind = validate_post(
-        request, "filekind", models.FILEKINDS+[r"\*"])
-    filename = validate_post(
-        request, "filename", r"[A-Za-z0-9_.\*]+")
-    deliverer_user = validate_post(
-        request, "deliverer_user", r"[A-Za-z0-9_.\*]+")
-    status = "submitted"
-    
-    filters = {}
-    for var in ["observatory", "instrument", "filekind", 
-                "filename", "deliverer_user", "status"]:
-        value = locals()[var].strip()
-        if value not in ["*",""]:
-            filters[var] = value
-    filtered_db = models.FileBlob.filter(**filters)[::-1]
-
-    return crds_render(request, "delivery_options_results.html", {
-                "filters": filters,
-                "filtered_db" : filtered_db,
-            })
-'''
-
-
-def deliver_file_list(user, observatory, delivered_files, description, action):
-    """Perform delivery actions for `delivered_files` by setting up the
-    catalog file and making links, updating database and audit trail.
-    """
-    if not len(delivered_files):
-        raise CrdsError("No files were selected for delivery.")
-    user = str(user)
-    delivered_files = [str(x) for x in sorted(delivered_files)]
-    catalog = str(deliver_file_catalog(observatory, delivered_files, "I"))
-    paths = deliver_file_get_paths(observatory, delivered_files)
-    try:
-        catalog_link = deliver_make_links(observatory, catalog, paths)
-    except Exception, exc:
-        deliver_remove_fail(observatory, catalog, paths)
-        raise CrdsError("Delivery failed: " + str(exc))
-    deliver_file_set_catalog_links(observatory, delivered_files, catalog_link)
-    models.AuditBlob.new(
-        user, action, os.path.basename(catalog), description, 
-        repr([os.path.basename(catalog)] + delivered_files), observatory)        
-
-def deliver_file_get_paths(observatory, files):
-    """Adjust the database to account for this delivery.   Returns a list of
-    absolute paths to `files`.
-    """
-    paths = []
-    for filename in files:
-        blob = models.FileBlob.load(filename)
-        paths.append(blob.pathname)
-    return paths
-
-def deliver_file_set_catalog_links(observatory, files, catalog_link):
-    """Set the `catalog_link` in each FileBlob in `files` and mark each
-    blob as state="delivered".   This just means that OPUS now has the
-    opportunity to pick up the file.   As long as `catalog_link` exists, it is
-    considered to remain in "delivered" state.  When the catalog_link no longer
-    exists,  it is assumed OPUS has copied the file, deleted the delivery link,
-    and the file transitions from "delivered" to "operational".   Here,
-    "operational" means that OPUS and the archives have the context or file 
-    available,  not necessarily that the pipeline is currently using the context.
-    """
-    for filename in files:
-        blob = models.FileBlob.load(filename)
-        blob.catalog_link = catalog_link
-        blob.state = "delivered"
-        blob.save()
-
-def deliver_file_catalog(observatory, files, operation="I"):
-    """Generate the delivery catalog file and return its path.   The catalog
-    file is a kind of manifest and semaphore used by OPUS to know that a
-    delivery has been made and what files are in it.   When CRDS links the
-    catalog file and deliveries into the delivery directories,  they are
-    considered "delivered". When OPUS deletes the catalog link,  the file is
-    considered "operational".
-
-    The filepath is something like:
-       /hstdev/store/srefpipe/deliverfilesauto/opus_12314_i.cat    
-
-    Each line of the catalog has the form:
-       <filename> <operation> <kind>
-        .e.g. V9M1422QI_DRK I R
-
-    where operation can be I=insert or D=delete
-    where kind can be M=mapping or R=reference or T=table
-    
-    CRDS uses the catalog file name to name the delivery for auditing.
-    """
-    assert operation in ["I","D"], \
-        "Invalid delivery operation " + srepr(operation)
-    delivery_id = models.CounterBlob.next(observatory, "delivery_id")
-    catalog = "_".join(["opus", str(delivery_id), operation.lower()])+".cat"
-    catpath = os.path.join(sconfig.CRDS_CATALOG_DIR, catalog)
-    utils.ensure_dir_exists(catpath)
-    cat = open(catpath, "w")
-    for filename in files:
-        if rmap.is_mapping(filename):
-            kind = "M"
-        else:
-            kind = "R"
-        cat.write(filename + " " + operation + " " + kind + "\n")
-    cat.close()
-    return catpath
-
-def deliver_make_links(observatory, catalog, paths):
-    """Copy file `paths` of `observatory` to the proper holding area
-    for observatory and then make hard links to each file in each
-    of the delivery site directories.   Return the path of the of
-    the master catalog link;  when the master link is deleted by
-    the recipient the entire delivery is considered complete and
-    the files transition from "delivered" to "operational".
-    """
-    dirs = sconfig.CRDS_DELIVERY_DIRS
-    for site in dirs:
-        utils.ensure_dir_exists(site)
-        for filename in paths + [catalog]:
-            dest = site +"/" + os.path.basename(filename)
-            try:
-                os.link(filename, dest)
-            except Exception, exc:
-                raise CrdsError("failed to link " + srepr(filename) + " to " +
-                                srepr(dest) + " : " + str(exc))
-    master_catalog_link = os.path.join(dirs[0], os.path.basename(catalog))
-    return master_catalog_link
-
-def deliver_remove_fail(observatory, catalog, paths):
-    """Delete all the delivery links for a failed but possibly partially
-    completed delivery.
-    """
-    for site in sconfig.CRDS_DELIVERY_DIRS + [os.path.dirname(catalog)]:
-        utils.ensure_dir_exists(site)
-        for filename in paths + [catalog]:
-            dest = site +"/" + os.path.basename(filename)
-            try:
-                os.remove(dest)
-            except Exception:
-                pass
-
 # ============================================================================
 
-from django.views.decorators.http import condition
-
-# @condition(etag_func=None)
 @error_trap("base.html")
 @log_view
 def brokered_get(request, filename):

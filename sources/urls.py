@@ -58,7 +58,7 @@ urlpatterns = patterns('',
   url(r'^set_default_context/$', 
       'crds.server.interactive.views.set_default_context'),
 
-  url(r'^display_result/(?P<id>\d+)$', 
+  url(r'^display_result/(?P<results_id>\d+)$', 
       'crds.server.interactive.views.display_result'),
 
 #        (r'site_media/(?P<path>.*)$', 'django.views.static.serve',

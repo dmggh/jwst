@@ -9,7 +9,7 @@ from crds import (rmap, utils, pysh, log)
 import crds.config as lconfig
 
 import crds.server.interactive.models as models
-import crds.server.config as sconfig
+import crds.server.generic_config as sconfig
 
 from django.contrib.auth.models import User
 
