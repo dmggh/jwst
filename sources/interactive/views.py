@@ -876,9 +876,11 @@ def batch_submit_references_post(request):
     compare_old_reference = "compare_old_reference" in request.POST 
     remove_dir, uploaded_files = get_files(request)
     
-    disposition, new_references_map, new_mappings_map, reference_certs, mapping_certs, mapping_diffs, collision_list = submit.bsr_core(
-        pmap_name, uploaded_files, description, str(request.user), str(request.user.email), 
-        creator, change_level, auto_rename, compare_old_reference)
+    bsr = submit.BatchReferenceSubmission(pmap_name, uploaded_files, description, 
+        user_name=str(request.user), user_email=str(request.user.email), creator=creator, change_level=change_level, 
+        auto_rename=auto_rename, compare_old_reference=compare_old_reference)
+    
+    disposition, new_references_map, new_mappings_map, reference_certs, mapping_certs, mapping_diffs, collision_list = bsr.submit()
     
     # Map from old filenames to new filenames,  regardless of origin / purpose
     new_file_map = new_mappings_map.items() + new_references_map.items()
@@ -1003,9 +1005,11 @@ def submit_files_post(request, crds_filetype):
     change_level = validate_post(request, "change_level", models.CHANGE_LEVELS)            
     remove_dir, uploaded_files = get_files(request)
     
-    disposition, certify_results, new_file_map, collision_list = submit.submit_files_core(
-        observatory, crds_filetype, uploaded_files, context, compare_old_reference, 
-        description, str(request.user), request.user.email, creator, change_level, auto_rename)
+    simple = submit.SimpleFileSubmission(
+        context, uploaded_files, description, str(request.user), request.user.email,  creator, change_level, 
+        auto_rename, compare_old_reference)
+    
+    disposition, certify_results, new_file_map, collision_list = simple.submit(crds_filetype)
 
     return render_repeatable_result(request, 'submit_results.html', {
                 "crds_filetype": crds_filetype,
