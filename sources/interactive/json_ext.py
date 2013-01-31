@@ -16,12 +16,17 @@ class CrdsEncoder(json.JSONEncoder):
                     o[key] = list(value)
         return o
 
-class CrdsDecoder(json.JSONDecoder):
-    pass   # stub this for now and just return the object dict
-
-
 def dumps(o):
     return json.dumps(o, cls=CrdsEncoder)
 
 def loads(enc):
-    return json.loads(enc, cls=CrdsDecoder)
+    o = json.loads(enc)
+    if isinstance(o, dict):    # fix str --> unicode key decoding side effect.
+        p = {}
+        for key,val in o.items():
+            if isinstance(key,basestring):
+                p[str(key)] = val
+            else:
+                p[key] = val
+        return p
+    return o

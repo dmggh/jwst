@@ -228,6 +228,9 @@ class BatchReferenceSubmission(FileSubmission):
         """Certify and submit the files,  returning information to confirm/cancel."""
         # Verify that ALL references certify,  raise CrdsError on first error.
         comparison_context = self.pmap.name if self.compare_old_reference else None
+        
+        self.bsr_ensure_references()
+        
         reference_disposition, reference_certs = web_certify.certify_file_list(self.uploaded_files.items(), 
             context=comparison_context, compare_old_reference=self.compare_old_reference)
     
@@ -258,6 +261,12 @@ class BatchReferenceSubmission(FileSubmission):
         return (disposition, new_references_map, new_mappings_map, reference_certs, rmap_certs, diff_results, collision_list)
 
 # .............................................................................
+
+    def bsr_ensure_references(self):
+        """Check for references only.   If this fails, certification will fail."""
+        for uploaded in self.uploaded_files:
+            assert not rmap.is_mapping(uploaded), \
+                "Non-reference-file's cannot be submitted in a batch submission: " + srepr(uploaded)
 
     def bsr_temporary_refactor(self):
         """Try out refactoring,  filekind-by-filekind,  and return a list of the affected rmaps.
@@ -356,10 +365,10 @@ class BatchReferenceSubmission(FileSubmission):
 class SimpleFileSubmission(FileSubmission):
     """Submit primitive files."""
 
-    def submit(self, crds_filetype):
+    def submit(self, crds_filetype, generate_contexts):
         """Submit simple files to CRDS, literally, without making automatic rules adjustments."""
         
-        self.restrict_genre(crds_filetype)
+        self.restrict_genre(crds_filetype, generate_contexts)
     
         # Verify that ALL files certify.
         disposition, certify_results = web_certify.certify_file_list(
@@ -367,17 +376,23 @@ class SimpleFileSubmission(FileSubmission):
         
         # Add the files to the CRDS database as "uploaded",  pending confirmation.
         new_file_map = self.submit_file_list("submit files")
+        
+        if generate_contexts:
+            new_contexts = self.do_create_contexts(new_file_map.values())
+            new_file_map.update(new_contexts)
     
         collision_list = get_collision_list(new_file_map.values())
         
         return disposition, certify_results, new_file_map, collision_list
 
-    def restrict_genre(self, crds_filetype):
+    def restrict_genre(self, crds_filetype, generate_contexts):
         """Ensure all `uploaded_files` tuples correspond to the genre specified by crds_filetype:  mapping or reference."""
         for uploaded in self.uploaded_files:
             if crds_filetype == "mapping":
                 if not rmap.is_mapping(uploaded):
                     raise CrdsError("Can't submit non-mapping file: " + repr(uploaded) + " using this page.")
+                if generate_contexts and not uploaded.endswith(".rmap"):
+                    raise CrdsError("Can't submit non-rmap's and generate contexts: " + srepr(uploaded))
             else:
                 if rmap.is_mapping(uploaded):
                     raise CrdsError("Can't submit mapping file: " + repr(uploaded) + " using this page.")

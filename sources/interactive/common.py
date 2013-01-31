@@ -40,15 +40,9 @@ def srepr(string):
 
 class Struct(dict):
     """A dictionary which supports dotted access to members."""
-    def __getattr__(self,name):
-        try:
-            return self[name]
-        except KeyError:
-            return super(Struct,self).getattr(self,name)
+    def __getattr__(self, name):
+        return self[name]
 
-    def __setattr__(self,name,val):
-        if name in dir(self):
-            super(Struct,self).setattr(self,name,val)
-        else:
-            self[name]=val
+    def __setattr__(self, name, val):
+        self[name]=val
 

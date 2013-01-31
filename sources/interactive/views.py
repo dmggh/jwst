@@ -475,8 +475,9 @@ def display_result(request, results_id):
     pars["results_id"] = results_id  # needed to implement "disposition", confirmed or cancelled.
     return crds_render(request, result.page_template, pars)
 
-def render_repeatable_result(result, template, rdict):
-    """Create a repeatable results model instance and redirect to it."""    
+def render_repeatable_result(request, template, rdict):
+    """Create a repeatable results model instance and redirect to it."""
+    rdict["user"] = str(request.user)    
     result = models.RepeatableResultBlob.new(template, rdict)    
     return HttpResponseRedirect("/display_result/" + str(result.id))
 
@@ -927,11 +928,11 @@ def submit_confirm(request):
     results_id = validate_post(request, "results_id", "\d+")
     result = models.RepeatableResultBlob.get(int(results_id)).parameters
 
-    assert request.user == result.user, "User mismatch between submit and confirmation: " + \
-        repr(str(request.user)) + " vs. " + repr(result.user)
+    usr = str(request.user)
+    assert usr == result.user, "User mismatch between submit and confirmation: " + repr(usr) + " vs. " + repr(result.user)
 
     confirm_results = submit.submit_confirm_core(
-        button, result.submission_kind, result.description, result.new_file_map, result.new_files, 
+        button, result.submission_kind, result.description, result.new_file_map, dict(result.new_file_map).values(), 
         result.generated_files, result.user, result.more_submits, results_id)
 
     return crds_render(request, "confirmed.html", confirm_results)
@@ -1000,7 +1001,8 @@ def submit_files_post(request, crds_filetype):
     """Handle the POST case of submit_files, returning dict of template vars."""
     # crds_filetype constrained by RE in URL to 'mapping' or 'reference'.
     observatory = get_observatory(request)
-    compare_old_reference = "compare_old_reference" in request.POST 
+    compare_old_reference = "compare_old_reference" in request.POST
+    generate_contexts = "generate_contexts" in request.POST
     context = get_recent_or_user_context(request)
     description = validate_post(request, "description", DESCRIPTION_RE)
     creator = validate_post(request, "creator", PERSON_RE)
@@ -1011,7 +1013,7 @@ def submit_files_post(request, crds_filetype):
     simple = submit.SimpleFileSubmission(context, uploaded_files, description, user=request.user,  
         creator=creator, change_level=change_level, auto_rename=auto_rename, compare_old_reference=compare_old_reference)
     
-    disposition, certify_results, new_file_map, collision_list = simple.submit(crds_filetype)
+    disposition, certify_results, new_file_map, collision_list = simple.submit(crds_filetype, generate_contexts)
 
     return render_repeatable_result(request, 'submit_results.html', {
                 "crds_filetype": crds_filetype,
