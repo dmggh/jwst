@@ -3,10 +3,10 @@ from crds.server.config import install_root, observatory
 install_dir= install_root + '/webserver'
 ref_path= install_root + '/references'
 map_path= install_root + '/mappings'
-
 ref_path_full = install_root + "/references/" + observatory
 map_path_full = install_root + "/mappings/" + observatory
 
+# Where files are linked for pickup by DMS / archive.
 CRDS_DELIVERY_DIR = install_root + "/deliveries"
 
 # List of directories where delivered files are linked
@@ -23,6 +23,7 @@ FILE_UPLOAD_TEMP_DIR = install_root + "/uploads"
 # Dir where deliverers can scp files for ingest.
 CRDS_INGEST_DIR = install_root + "/ingest"
 
+# Dir where dynamic mapping bundles are kept.
 CRDS_ARCHIVE_CACHE_DIR = install_root + "/archive_cache"
 
 # table_prefix is added to the beginning of any database table name
