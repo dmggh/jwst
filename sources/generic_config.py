@@ -1,4 +1,4 @@
-from crds.server.config import install_root, observatory
+from config import install_root, observatory
 
 install_dir= install_root + '/webserver'
 ref_path= install_root + '/references'

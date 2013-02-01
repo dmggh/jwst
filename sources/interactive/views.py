@@ -6,7 +6,6 @@ and return HTTP response objects.
 import sys
 import os.path
 import re
-import cProfile
 import cStringIO
 import traceback
 import tarfile
@@ -34,7 +33,7 @@ from crds.timestamp import (DATE_RE_STR, TIME_RE_STR)
 
 from . import (models, database, web_certify, web_difference, submit, versions)
 from .models import FieldError, MissingInputError
-from .common import capture_output, srepr
+from .common import capture_output, srepr, profile
 
 import crds.server.generic_config as sconfig
 from ..jsonapi import views as jsonapi_views
@@ -366,6 +365,23 @@ def remove_temporary(filepath):
     except Exception, exc:
         log.warning("Failed to remove temporary", repr(filepath), ":", str(exc))
 
+def is_available_pmap(context):
+    is_pmap(context)
+    is_available_file(context)
+    return context
+
+def get_recent_or_user_context(request):
+    """Process standard request parameters for specifying context."""
+    pmap_mode = validate_post(
+            request, "pmap_mode", "pmap_menu|pmap_text|pmap_edit|pmap_operational")
+    if pmap_mode == "pmap_edit":
+        context = models.get_default_context()
+    elif pmap_mode == "pmap_operational":
+        context = models.get_default_context(state="operational")
+    else:
+        context = validate_post(request, pmap_mode, is_pmap)
+    return str(context)
+
 # ===========================================================================
 
 class ServerError(Exception):
@@ -435,25 +451,6 @@ def log_view(func):
             pass
     dolog.func_name = func.func_name
     return dolog
-
-# ===========================================================================
-def profile(filename=None):
-    """Decorate a view with @profile to run cProfile when the view is accessed.
-    """
-    def decomaker(func):
-        """Decorator function maker
-        """
-        def profile_core(*args, **keys):
-            """profile_request runs the runit() hack under the profiler and
-            extracts the function result from a global.
-            """
-            def runit():
-                """executes a function and stores the result globally."""
-                profile_core.result = func(*args, **keys)
-            cProfile.runctx("runit()", locals(), locals(), filename=filename)
-            return profile_core.result
-        return profile_core
-    return decomaker
 
 # ===========================================================================
 # ===========================================================================
@@ -539,7 +536,7 @@ def upload_new(request, template="upload_new_input.html"):
             os.remove(ingest_path)
             log.info("Removed existing", repr(ingest_path))
         utils.ensure_dir_exists(ingest_path)
-        log.info("Linking", ingest_path)
+        log.info("Linking", f.temporary_file_path(), "to", ingest_path)
         os.link(f.temporary_file_path(), ingest_path)
         data = [json_file_details(f.name, f.temporary_file_path())]
         response = JSONResponse(data, {}, response_mimetype(request))
@@ -742,23 +739,6 @@ def bestrefs_explore_post(request):
             "dateobs" : dateobs,
             "timeobs" : timeobs,
         })
-
-def is_available_pmap(context):
-    is_pmap(context)
-    is_available_file(context)
-    return context
-
-def get_recent_or_user_context(request):
-    """Process standard request parameters for specifying context."""
-    pmap_mode = validate_post(
-            request, "pmap_mode", "pmap_menu|pmap_text|pmap_edit|pmap_operational")
-    if pmap_mode == "pmap_edit":
-        context = models.get_default_context()
-    elif pmap_mode == "pmap_operational":
-        context = models.get_default_context(state="operational")
-    else:
-        context = validate_post(request, pmap_mode, is_pmap)
-    return str(context)
 
 @error_trap("bestrefs_explore_input.html")
 @log_view

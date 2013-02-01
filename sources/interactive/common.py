@@ -2,6 +2,7 @@
 
 import sys
 import cStringIO
+import cProfile
 
 from crds import log
 
@@ -28,6 +29,26 @@ def capture_output(func):
         out.seek(0)
         return result, out.read()
     return captured
+
+# ===========================================================================
+
+def profile(filename=None):
+    """Decorate a view with @profile to run cProfile when the function is called.
+    """
+    def decomaker(func):
+        """Decorator function maker
+        """
+        def profile_core(*args, **keys):
+            """profile_request runs the runit() hack under the profiler and
+            extracts the function result from a global.
+            """
+            def runit():
+                """executes a function and stores the result globally."""
+                profile_core.result = func(*args, **keys)
+            cProfile.runctx("runit()", locals(), locals(), filename=filename)
+            return profile_core.result
+        return profile_core
+    return decomaker
 
 # ===================================================================
 
