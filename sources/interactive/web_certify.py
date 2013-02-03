@@ -59,7 +59,7 @@ def captured_certify(original_name, uploaded_path, check_references=True, filema
         if check_references and rmap.is_mapping(original_name):
             if filemap is None:
                 filemap = models.get_fileblob_map(models.OBSERVATORY)
-            ctx = rmap.load_mapping(uploaded_path)
+            ctx = rmap.fetch_mapping(uploaded_path)
             for ref in ctx.reference_names():
                 if ref not in filemap:
                     output += "ERROR: Reference " + srepr(ref) + " in " + \
@@ -104,7 +104,7 @@ def get_blacklists(basename, certifypath, ignore_self=True, files=None):
     if rmap.is_mapping(basename):
         blacklisted_by = set()
         try:
-            mapping = rmap.load_mapping(certifypath)
+            mapping = rmap.fetch_mapping(certifypath)
         except Exception, exc:
             raise CrdsError("Error loading " + srepr(basename) + " : " + str(exc))
         if files is None:
@@ -142,7 +142,7 @@ def do_certify_file(basename, certifypath, check_references=False, filemap=None,
     if check_references and rmap.is_mapping(basename):
         if filemap is None:
             filemap = models.get_fileblob_map(models.OBSERVATORY)
-        ctx = rmap.load_mapping(certifypath)
+        ctx = rmap.fetch_mapping(certifypath)
         for ref in ctx.reference_names():
             assert ref in filemap, \
                 "Reference " + srepr(ref) + " in " + srepr(basename) + " is not known to CRDS."

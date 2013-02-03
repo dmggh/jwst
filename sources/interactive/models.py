@@ -449,8 +449,7 @@ class FileBlob(BlobModel):
         if add_slow_fields:
             blob.add_slow_fields()
         try:
-            instrument, filekind = utils.get_file_properties(
-                observatory, permanent_location)
+            instrument, filekind = utils.get_file_properties(observatory, permanent_location)
             blob.instrument = instrument
             blob.filekind= filekind
         except Exception, exc:
@@ -560,12 +559,12 @@ def add_crds_file(observatory, upload_name, permanent_location,
     "Make a database record for this file.  Track the action of creating it."""
 
     if rmap.is_mapping(upload_name):
-        mapping = rmap.load_mapping(permanent_location)
         if update_derivation:
             derived_from = refactor.update_derivation(permanent_location)
         else:
+            mapping = rmap.fetch_mapping(permanent_location)
             derived_from = mapping.derived_from
-    else:
+    else:  # references
         if update_derivation:
             derived_from = upload_name
         else:

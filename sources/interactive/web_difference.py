@@ -76,8 +76,8 @@ def textual_diff(file1_orig, file2_orig, file1_path=None, file2_path=None):
 def mapping_logical_diffs(file1, file2, file1_orig, file2_orig):
     """Return the logical differences between two mapping files."""
     try:
-        map1 = rmap.load_mapping(file1, ignore_checksum=True)
-        map2 = rmap.load_mapping(file2, ignore_checksum=True)
+        map1 = rmap.fetch_mapping(file1, ignore_checksum=True)
+        map2 = rmap.fetch_mapping(file2, ignore_checksum=True)
         # Get logical difference tuples
         ldiffs = map1.difference(map2)
         # Substitute the name of the original file for temp file.
