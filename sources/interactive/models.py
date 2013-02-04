@@ -365,36 +365,28 @@ class FileBlob(BlobModel):
         creator_name = BlobField(str, "person who made this file",""),
         deliverer_user = BlobField(str, "username who uploaded the file", ""),
         deliverer_email = BlobField(str, "person's e-mail who uploaded the file", ""),
-        description = BlobField(
-            str, "Brief rationale for changes to this file.", "(none)"),
-        comment = FitsBlobField("DESCRIP",
-            str, "from DESCRIP keyword of reference file.", "(none)"),
+        description = BlobField(str, "Brief rationale for changes to this file.", "(none)"),
         catalog_link = BlobField(FILEPATH_RE, 
             "Path to catalog file listing this file for delivery to OPUS. " \
-            "File transitions from 'delivered' to 'operational' when deleted.",
-            ""),
-        delivery_date = BlobField(str, 
-            "date file was delivered to CRDS", "(none)"),
+            "File transitions from 'delivered' to 'operational' when deleted.", ""),
+        delivery_date = BlobField(str, "date file was delivered to CRDS", "(none)"),
         activation_date = BlobField(str, "i.e. opus load date", "(none)"),
-        useafter_date = FitsBlobField("USEAFTER", str, "date after which file should be used", "(none)"),
-
         # Automatically generated fields
-        pathname = BlobField("^[A-Za-z0-9_./]+$", 
-            "path/filename to CRDS master copy of file", "(none)"),
-        blacklisted_by = BlobField(list,
-            "List of blacklisted files this file refers to directly or indirectly.",
-            []),
+        pathname = BlobField("^[A-Za-z0-9_./]+$", "path/filename to CRDS master copy of file", "(none)"),
+        blacklisted_by = BlobField(list,"List of blacklisted files this file refers to directly or indirectly.", []),
         reject_by_file_name = BlobField(FILENAME_RE, "", ""),
         _sha1sum = BlobField(str, "checksum of file at upload time", ""),
         _size = BlobField(long, "size of file in bytes.", -1),
-
-        pedigree = FitsBlobField("PEDIGREE", str, "source of reference file", ""),
-        change_level = BlobField(CHANGE_LEVELS,
-            "Do the changes to this file force recalibration of science data?",
-            ""), 
-        reference_file_type = FitsBlobField("REFTYPE",
-            str, "From the REFTYPE keyword", ""),
+        change_level = BlobField(CHANGE_LEVELS, "Do the changes to this file force recalibration of science data?", ""), 
     )
+
+    if OBSERVATORY == "hst":
+        blob_fields.update(dict(
+            pedigree = FitsBlobField("PEDIGREE", str, "source of reference file", ""),
+            reference_file_type = FitsBlobField("REFTYPE", str, "From the REFTYPE keyword", ""),
+            useafter_date = FitsBlobField("USEAFTER", str, "date after which file should be used", "(none)"),
+            comment = FitsBlobField("DESCRIP", str, "from DESCRIP keyword of reference file.", "(none)"),
+        ))
     
     @property
     def is_bad_file(self):
@@ -539,16 +531,14 @@ class FileBlob(BlobModel):
     @property
     def collisions(self):
         """A list of other files derived from the same source file...  possibly bad."""
-        return [col.name for col in \
-                self.__class__.filter(derived_from=self.derived_from) \
-                if col.name != self.name]
+        # include file.state == "uploaded",  those pending confirmation.
+        return [col.name for col in BlobModel._filter(FileBlob, derived_from=self.derived_from) if col.name != self.name]
 
     # Hokeyness because BlobModel doesn't actually have .objects because it
     # it is abstract... so normal class method inheritance techniques fail.
     @classmethod
     def filter(cls, **matches):  # omit "uploaded" files from filter result
-        return [file_ for file_ in BlobModel._filter(FileBlob, **matches) if \
-                file_.state != "uploaded"]
+        return [file_ for file_ in BlobModel._filter(FileBlob, **matches) if file_.state != "uploaded"]
 
 # ============================================================================
 

@@ -42,6 +42,7 @@ of errors and/or warnings.
 """
 import os
 import tempfile
+import getpass
 
 from crds import cmdline, log, rmap, utils, refactor, newcontext, checksum, CrdsError
 
@@ -102,10 +103,21 @@ class SubmitFilesScript(cmdline.Script):
                           help="If specified, check references against the files they replace in derive-from-context, where applicable.")
         self.add_argument("--generate-rules", action="store_true", default=False,
                           help="If specified, generate mappings as required to add the submitted files to the derived-from-context.")
+        self.add_argument("--creator", default="(unknown)",
+                          help="Name of the person who originally authored the file.")
         
     def main(self):
         submit_files(self.args.derive_from_context, self.args.files)
         
+    def batch_submission(self):
+        self.user = None
+        self.bsr = BatchReferenceSubmission(args.derive_from_context, args.files, args.description, 
+                        user=self.user, creator=self.args.creator, change_level=self.args.change_level, 
+                        auto_rename=self.args.auto_rename, compare_old_reference=self.args.compare_old_reference)
+        self.bsr.submit()
+        
+    def confirm_or_cancel(self):
+        pass
 
 def submit_files(_context, _files):
     "placeholder"
@@ -366,7 +378,18 @@ class SimpleFileSubmission(FileSubmission):
     """Submit primitive files."""
 
     def submit(self, crds_filetype, generate_contexts):
-        """Submit simple files to CRDS, literally, without making automatic rules adjustments."""
+        """Submit simple files to CRDS, literally, without making automatic rules adjustments.
+        
+        crds_filetype:       str  -- "reference" or "mapping"
+        generate_contexts:   bool -- for rmap's,  automaticaly generate appropriate .imap's and .pmap.
+        
+        Returns:  disposition, certify_results, new_file_map, collision_list
+        
+        disposition:    str --  "Failed" for certify errors or None for no errors
+        certify_results:   { original_file's : (status, cerify_output), ... }
+        new_file_map:  { original_filename : new_filename, ... }
+        collision_list :   info about derivation sources used multiple times.
+        """
         
         self.restrict_genre(crds_filetype, generate_contexts)
     
@@ -490,7 +513,8 @@ def submit_confirm_core(button, submission_kind, description, new_file_map, new_
 
     if button == "confirm":
         for filename in set(new_files + generated_files):
-            models.AuditBlob.new(user, submission_kind, filename, description, str(new_file_map), instrument=instrument, filekind=filekind)    
+            models.AuditBlob.new(user, submission_kind, filename, description, str(new_file_map), 
+                                 instrument=instrument, filekind=filekind)    
         deliver_file_list( user, sconfig.observatory, set(new_files + generated_files), description, submission_kind)
         disposition = "confirmed"
         for mapping in generated_files:
@@ -587,6 +611,9 @@ def deliver_file_catalog(observatory, files, operation="I"):
 
     where operation can be I=insert or D=delete
     where kind can be M=mapping or R=reference or T=table
+    
+    NOTE: The T=table kind is obsolete and not used.  All reference files, tables and 
+    not-tables alike,  are type R.
     
     CRDS uses the catalog file name to name the delivery for auditing.
     """

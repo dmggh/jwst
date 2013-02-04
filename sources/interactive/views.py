@@ -36,7 +36,7 @@ from .models import FieldError, MissingInputError
 from .common import capture_output, srepr, profile
 
 import crds.server.generic_config as sconfig
-from ..jsonapi import views as jsonapi_views
+from crds.server.jsonapi import views as jsonapi_views
 
 HERE = os.path.dirname(__file__) or "./"
 
@@ -587,7 +587,7 @@ def _upload_delete(request, filename):
             "Invalid file_local_dir " + srepr(file_local_dir)
         ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir)
         ingest_filepath = os.path.join(ingest_path, filename)
-        log.info("upload_delete removing file", srepr(ingest_filepath))
+        log.info("upload_delete", srepr(ingest_filepath))
         os.remove(ingest_filepath)
     except Exception, exc:
         log.error("upload_delete failed:", str(exc))
@@ -869,7 +869,7 @@ def batch_submit_references_post(request):
                 "pmap" : pmap_name,
 
                 "new_file_map" : new_file_map,
-                
+                "uploaded_basenames" : uploaded_files.keys(),
                 "generated_files" : sorted(new_mappings_map.values()), 
                 "submission_kind" : "batch submit",
                 "title" : "Batch Reference Submit",
@@ -914,6 +914,8 @@ def submit_confirm(request):
     confirm_results = submit.submit_confirm_core(
         button, result.submission_kind, result.description, result.new_file_map, dict(result.new_file_map).values(), 
         result.generated_files, result.user, result.more_submits, results_id)
+    
+    clear_uploads(request, result.uploaded_basenames)
 
     return crds_render(request, "confirmed.html", confirm_results)
     
@@ -1001,6 +1003,7 @@ def submit_files_post(request, crds_filetype):
 
                 "generated_files" : [],
                 "new_file_map" : sorted(new_file_map.items()),
+                "uploaded_basenames" : uploaded_files.keys(),
                 "submission_kind" : "submit file",
                 "title" : "Submit File",
                 "description" : description,
