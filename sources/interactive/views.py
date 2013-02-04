@@ -956,6 +956,7 @@ def create_contexts_post(request):
                 "added_rmaps" : updated_rmaps,
                 
                 "new_file_map" : [],
+                "uploaded_basenames": [],
                 "generated_files" : new_mappings, 
                 "submission_kind" : "new context",
                 "title" : "Create Contexts",
