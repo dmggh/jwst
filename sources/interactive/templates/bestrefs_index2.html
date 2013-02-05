@@ -80,7 +80,11 @@
         var header = "";
         for(i in cards) {
             var card = cards[i];
-            header += card_line(card);
+            if (card.slice(8,9) == "=") {
+                header += card_line(card);
+            } else {
+                console.log("skipping card: " + card)
+            }
             if (fits_keyword(card) == "END") {
                 return [ header, true ];
             }
