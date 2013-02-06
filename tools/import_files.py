@@ -12,19 +12,9 @@ import traceback
 import crds.server.config
 import crds.server.interactive.models
 
-from crds import (rmap, utils, log)
-from crds.server.interactive import (views, models)
+from crds import (rmap, log)
+from crds.server.interactive import (models, submit)
 from crds.rmap import locate_file
-
-def xxx_locate_file(fname, observatory):
-    if observatory == "hst":
-        if rmap.is_mapping(fname):
-            return rmap.locate_file(fname, observatory)
-        else:
-            import crds.hst.locate
-            return crds.hst.locate.locate_server_reference(fname)
-    else:
-        return rmap.locate_file(fname, observatory)
 
 def submit_files(files, observatory, deliverer, 
     deliverer_email="support@stsci.edu", 
@@ -88,7 +78,7 @@ def main(args):
     models.set_default_context(args[0], state="operational")
     
     try:
-        views.deliver_file_list(args[1], ctx.observatory, ctx.mapping_names(), 
+        submit.deliver_file_list(args[1], ctx.observatory, ctx.mapping_names(), 
                                 "system initialization", "mass import")
     except Exception, exc:
         log.warning("File deliveries for", args[1], "failed:", str(exc))
@@ -103,7 +93,7 @@ def main(args):
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
-        print >>sys.stderr, "usage: import_files.py <context> <deliverer> <email> <modifier> <description> <add_slow_fields>"
+        print >> sys.stderr, "usage: import_files.py <context> <deliverer> <email> <modifier> <description> <add_slow_fields>"
     else:
         import cProfile
         cProfile.runctx("main(sys.argv[1:])", globals(), globals(), "init.stats")
