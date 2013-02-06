@@ -150,8 +150,11 @@ def accordion(parser, token):
 
 accordion_template = """
 <div class="accordion">
-<h3><a href="#">%s</a></h3>
-<div>
+    <h3><a href="#">%s</a></h3>
+    <div>
+    %s
+    </div>
+</div>
 """
 
 class AccordionNode(template.Node):
@@ -171,8 +174,5 @@ class AccordionNode(template.Node):
                 resolved = template.Variable(word).resolve(context)
             title_words.append(resolved)
         title = " ".join(title_words)
-        output = accordion_template % title
-        output += self.nodelist.render(context)
-        output += "</div>\n"
-        output += "</div>\n"
-        return output
+        content = self.nodelist.render(context)
+        return accordion_template % (title, content)

@@ -68,7 +68,7 @@ class BlobModel(models.Model):
     unicode_list = None  # fields shown in __unicode__ or ALL if None
     
     name = models.CharField(
-        max_length = 64, default="(none)",
+        max_length = 64, default="none",
         help_text = "descriptive string uniquely identifying this instance")
     
     blob = models.TextField( 
@@ -365,14 +365,14 @@ class FileBlob(BlobModel):
         creator_name = BlobField(str, "person who made this file",""),
         deliverer_user = BlobField(str, "username who uploaded the file", ""),
         deliverer_email = BlobField(str, "person's e-mail who uploaded the file", ""),
-        description = BlobField(str, "Brief rationale for changes to this file.", "(none)"),
+        description = BlobField(str, "Brief rationale for changes to this file.", "none"),
         catalog_link = BlobField(FILEPATH_RE, 
             "Path to catalog file listing this file for delivery to OPUS. " \
             "File transitions from 'delivered' to 'operational' when deleted.", ""),
-        delivery_date = BlobField(str, "date file was delivered to CRDS", "(none)"),
-        activation_date = BlobField(str, "i.e. opus load date", "(none)"),
+        delivery_date = BlobField(str, "date file was delivered to CRDS", "none"),
+        activation_date = BlobField(str, "i.e. opus load date", "none"),
         # Automatically generated fields
-        pathname = BlobField("^[A-Za-z0-9_./]+$", "path/filename to CRDS master copy of file", "(none)"),
+        pathname = BlobField("^[A-Za-z0-9_./]+$", "path/filename to CRDS master copy of file", "none"),
         blacklisted_by = BlobField(list,"List of blacklisted files this file refers to directly or indirectly.", []),
         reject_by_file_name = BlobField(FILENAME_RE, "", ""),
         _sha1sum = BlobField(str, "checksum of file at upload time", ""),
@@ -380,13 +380,12 @@ class FileBlob(BlobModel):
         change_level = BlobField(CHANGE_LEVELS, "Do the changes to this file force recalibration of science data?", ""), 
     )
 
-    if OBSERVATORY == "hst":
-        blob_fields.update(dict(
-            pedigree = FitsBlobField("PEDIGREE", str, "source of reference file", ""),
-            reference_file_type = FitsBlobField("REFTYPE", str, "From the REFTYPE keyword", ""),
-            useafter_date = FitsBlobField("USEAFTER", str, "date after which file should be used", "(none)"),
-            comment = FitsBlobField("DESCRIP", str, "from DESCRIP keyword of reference file.", "(none)"),
-        ))
+    blob_fields.update(dict(
+        pedigree = FitsBlobField("PEDIGREE", str, "source of reference file", "none"),
+        reference_file_type = FitsBlobField("REFTYPE", str, "From the REFTYPE keyword", "none"),
+        useafter_date = FitsBlobField("USEAFTER", str, "date after which file should be used", "none"),
+        comment = FitsBlobField("DESCRIP", str, "from DESCRIP keyword of reference file.", "none"),
+    ))
     
     @property
     def is_bad_file(self):
@@ -406,7 +405,7 @@ class FileBlob(BlobModel):
                     value = data_file.getval(self.pathname, field.fitskey)
                     setattr(self, name, value)
                 except Exception:
-                    raise CrdsError("required keyword " + field.fitskey + " is missing in " + self.uploaded_as)
+                    log.warning("required keyword '%s' is missing in '%s'" % (field.fitskey, self.uploaded_as))
     
     def add_slow_fields(self):
         log.info("Adding slow fields for", repr(self.name))

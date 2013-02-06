@@ -83,6 +83,7 @@ class SimpleTest(TestCase):
                 "jwst_nircam_0001.imap",
                 "jwst_miri_flat_0001.rmap",
                 "jwst_nircam_flat_0001.rmap",
+                "jwst_miri_photom_0001.rmap",
                 ]
         self.del_maps(delete_files)
         pysh.sh("/bin/rm -rf " + lconfig.get_crds_refpath(), 
@@ -196,6 +197,10 @@ class SimpleTest(TestCase):
             }, follow=True)
         self.assert_no_errors(response)
         self.assertIn(rmap2, response.content)
+        
+    def add_files_to_ingest_dir(self, filepaths):
+        for path in filepaths:
+            self.add_file_to_ingest_dir(path)
         
     def add_file_to_ingest_dir(self, filepath):
         self.ingested = True
@@ -404,10 +409,11 @@ class SimpleTest(TestCase):
     def test_batch_submit_replace(self):
         self.authenticate()
         if sconfig.observatory == "hst":
-            reference = "interactive/test_data/s7g1700gl_dead.fits"
+            references = ["interactive/test_data/s7g1700gl_dead.fits"]
         else:
-            reference = "interactive/test_data/jwst_miri_fakeflat.fits"
-        self.add_file_to_ingest_dir(reference)
+            references = ["interactive/test_data/jwst_miri_photom_0001.fits",
+                          "interactive/test_data/jwst_miri_amplifier_0001.fits"]
+        self.add_files_to_ingest_dir(references)
         response = self.client.post("/batch_submit_references/", {
                 "pmap_mode" : "pmap_edit",
                 "creator" : "bozo",
@@ -426,7 +432,7 @@ class SimpleTest(TestCase):
         if sconfig.observatory == "hst":
             reference = "interactive/test_data/s7g1700gm_dead.fits"
         else:
-            reference = "interactive/test_data/jwst_miri_flat_insert.fits"
+            reference = "interactive/test_data/jwst_miri_photom_0001.fits"
         self.add_file_to_ingest_dir(reference)
         response = self.client.post("/batch_submit_references/", {
                 "pmap_mode" : "pmap_edit",
