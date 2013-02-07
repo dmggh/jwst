@@ -16,18 +16,22 @@ import crds.client as client
 import crds.server.config as server_config
 import crds.heavy_client as heavy_client
 
-HERE = os.path.dirname(__file__) or "."
-CRDS_PATH = os.environ["CRDS_PATH"] = server_config.install_root + "/test"
-
 class ServiceApiBase(object):
 
     @classmethod
     def setUpClass(self, *args, **keys):
+        
+        self.CRDS_PATH = CRDS_PATH = os.environ["CRDS_PATH"] = server_config.install_root + "/test"
+
         pysh.sh("rm -rf ${CRDS_PATH}", raise_on_error=True, trace_commands=True)
         pysh.sh("mkdir -p ${CRDS_PATH}", raise_on_error=True)
         os.environ.pop("CRDS_MAPPATH", None)
         os.environ.pop("CRDS_REFPATH", None)
         client.set_crds_server(server_config.CRDS_URL)
+    
+    @classmethod
+    def tearDownClass(self, *args, **keys):
+        os.environ["CRDS_PATH"] = server_config.install_root
 
     def get_header(self):
         return dict(self.header)
@@ -40,10 +44,10 @@ class ServiceApiBase(object):
         return client.get_best_references(self.pmap, header, reftypes)
 
     def purge_mappings(self):
-        pysh.sh("rm -rf " + CRDS_PATH)        
+        pysh.sh("rm -rf " + self.CRDS_PATH)        
         
     def purge_references(self):
-        pysh.sh("rm -rf " + CRDS_PATH)
+        pysh.sh("rm -rf " + self.CRDS_PATH)
 
     def test_client_dump_mappings(self):
         client.dump_mappings(self.pmap)
@@ -304,6 +308,8 @@ if server_config.observatory == "jwst":
         header = {
             "meta.instrument.type": "MIRI",
             "meta.observation.date": "2012-07-25T00:00:00",
+            "meta.instrument.detector" : "MIRIMAGE",
+            "meta.instrument.filter" : "F",
         }
         
         instr_key = "meta.instrument.type"
@@ -312,7 +318,7 @@ if server_config.observatory == "jwst":
         requested_types = ["flat"]
         
         test_reference = 'jwst_miri_flat_0001.fits'        
-        test_dataset = "interactive/test_data/jwst_fake_raw.fits"
+        test_dataset = "interactive/test_data/jw00001001001_01101_00001_MIRIMAGE_uncal.fits"
         
         def expected_references(self):
             return {

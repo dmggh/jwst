@@ -13,27 +13,28 @@ import crds.server.generic_config as sconfig
 
 from django.contrib.auth.models import User
 
-REAL_MAPPING_DIR = os.path.dirname(rmap.locate_file("foo.pmap", sconfig.observatory))
-
-PMAP = rmap.load_mapping(sconfig.observatory + ".pmap")
-MAPPINGS = PMAP.mapping_names()
-
-# Set up test server tree
-HERE = os.path.dirname(__file__) or "."
-CRDS_PATH = os.environ["CRDS_PATH"] = sconfig.install_root + "/test"
-print CRDS_PATH, os.environ["CRDS_PATH"]
-
-class SimpleTest(TestCase):
+class InteractiveBase(object):
 
     @classmethod
-    def setUpClass(self, *args, **keys):
+    def setUpClass(cls, *args, **keys):
+        
+        log.info("Setting up tests:", cls.__name__)
+                
+        # The results of locate_file will change when CRDS_PATH is redefined below.  Remember the real one here.
+        REAL_MAPPING_DIR = os.path.dirname(rmap.locate_file("foo.pmap", sconfig.observatory))
+        cached_pmap = rmap.get_cached_mapping(cls.pmap)        
+        
+        # Set up test server tree
+        CRDS_PATH = os.environ["CRDS_PATH"] = sconfig.install_root + "/test"
+        log.info("Test CRDS_PATH", CRDS_PATH, os.environ["CRDS_PATH"])
+
         pysh.sh("rm -rf ${CRDS_PATH}", raise_on_error=True)  #, trace_commands=True)
         pysh.sh("mkdir -p ${CRDS_PATH}/ingest", raise_on_error=True)
         pysh.sh("mkdir -p ${CRDS_PATH}/deliveries", raise_on_error=True)
         pysh.sh("mkdir -p ${CRDS_PATH}/catalogs", raise_on_error=True)
         pysh.sh("mkdir -p ${CRDS_PATH}/references/%s" % sconfig.observatory, raise_on_error=True)
         pysh.sh("mkdir -p ${CRDS_PATH}/mappings/%s" % sconfig.observatory, raise_on_error=True)
-        for map in MAPPINGS:
+        for map in cached_pmap.mapping_names():
             pysh.sh("cp ${REAL_MAPPING_DIR}/${map} ${CRDS_PATH}/mappings/%s" % sconfig.observatory, raise_on_error=True)
         # monkey-patch these since they're not encapsulated with functions.
         sconfig.CRDS_INGEST_DIR = os.path.join(CRDS_PATH, "ingest")
@@ -41,12 +42,14 @@ class SimpleTest(TestCase):
         sconfig.CRDS_DELIVERY_DIRS = [os.path.join(CRDS_PATH, "deliveries")]
         sconfig.CRDS_CATALOG_DIR = os.path.join(CRDS_PATH, "catalogs")
         sconfig.FILE_UPLOAD_TEMP_DIR = os.path.join(CRDS_PATH, "uploads")
+
+    @classmethod
+    def tearDownClass(self):
+        os.environ["CRDS_PATH"] = sconfig.install_root
         
     def runTest(self, *args, **keys):
         pass
     
-    pmap = sconfig.observatory + ".pmap"
-
     def setUp(self): 
         self.user = User.objects.create_user('homer', 'homer@simpson.net', 'simpson')
         try:
@@ -62,35 +65,10 @@ class SimpleTest(TestCase):
         self.ingested = False
         
     def tearDown(self):
-        if sconfig.observatory == "hst":
-            delete_files = [
-                "hst_0001.pmap",
-                "hst_0002.pmap",
-                "hst_0003.pmap",
-                "hst_cos_0001.imap",
-                "hst_acs_0001.imap",
-                "hst_acs_0002.imap",
-                "hst_acs_0003.imap",
-                "hst_cos_deadtab_0001.rmap",
-                "hst_acs_biasfile_0001.rmap",
-                "hst_acs_dgeofile_0001.rmap",
-                "hst_acs_darkfile_0001.rmap",
-                ]
-        else:
-            delete_files = [
-                "jwst_0001.pmap",
-                "jwst_miri_0001.imap",
-                "jwst_nircam_0001.imap",
-                "jwst_miri_flat_0001.rmap",
-                "jwst_nircam_flat_0001.rmap",
-                "jwst_miri_photom_0001.rmap",
-                ]
-        self.del_maps(delete_files)
-        pysh.sh("/bin/rm -rf " + lconfig.get_crds_refpath(), 
-                raise_on_error=True)  # , trace_commands=True)
+        self.del_maps(self.delete_files)
+        pysh.sh("/bin/rm -rf " + lconfig.get_crds_refpath(), raise_on_error=True)  # , trace_commands=True)
         if self.ingested:
-            pysh.sh("/bin/rm -rf " + self.ingest_path,
-                    raise_on_error=True) # , trace_commands=True)
+            pysh.sh("/bin/rm -rf " + self.ingest_path, raise_on_error=True) # , trace_commands=True)
 
     def authenticate(self):
         login = self.client.login(username="homer", password="simpson")
@@ -136,11 +114,6 @@ class SimpleTest(TestCase):
         response = self.client.get('/')
         self.assert_no_errors(response)
 
-#    def test_login(self):
-#        response = self.client.post("/login/", 
-#                {"username":"you", "password":"lemme guess"})
-#self.assert_no_errors(response)
-    
     def test_logout(self):
         response = self.client.get("/logout/") 
         self.assert_no_errors(response, status=302) #redirect
@@ -160,7 +133,7 @@ class SimpleTest(TestCase):
         if sconfig.observatory == "hst":
             dataset1 = "interactive/test_data/j8bt05njq_raw.fits"
         else:
-            dataset1 = "interactive/test_data/jwst_fake_raw.fits"
+            dataset1 = "interactive/test_data/jw00001001001_01101_00001_MIRIMAGE_uncal.fits"
         response = self.client.post("/bestrefs/", {
             "pmap_mode" : "pmap_text",
             "pmap_text" : self.pmap,
@@ -176,17 +149,9 @@ class SimpleTest(TestCase):
 
     def test_submit_post(self):
         self.authenticate()
-        if sconfig.observatory == "hst":
-            rmap1 = "interactive/test_data/hst_cos_deadtab.rmap"
-            self.fake_database_files([
-                "interactive/test_data/s7g1700gl_dead.fits", 
-                "interactive/test_data/s7g1700ql_dead.fits",]) 
-        else:
-            rmap1 = "interactive/test_data/jwst_miri_flat.rmap"
-            self.fake_database_files([
-                "interactive/test_data/jwst_miri_flat_0001.fits",])
-        self.add_file_to_ingest_dir(rmap1)
-        rmap2 = self.add_1(rmap1)
+        self.fake_database_files(self.submit_references)
+        self.add_file_to_ingest_dir(self.submit_rmap)
+        rmap2 = self.add_1(self.submit_rmap)
         response = self.client.post("/submit/mapping/", {
             "observatory" : sconfig.observatory,
             "auto_rename" : "on",
@@ -219,22 +184,17 @@ class SimpleTest(TestCase):
         self.assert_no_errors(response)
 
     def test_set_file_enable_blacklist_post(self):
-        if sconfig.observatory == "hst":
-            imap = "hst_acs.imap"
-            rmap = "hst_acs_biasfile.rmap"            
-        else:
-            imap = "jwst_miri.imap"
-            rmap = "jwst_miri_flat.rmap"
         self.authenticate()
-        self.fake_database_files([imap, rmap])
+        self.fake_database_files(self.blacklist_files)
         response = self.client.post("/set_file_enable/", {
             "observatory" : sconfig.observatory,
-            "file_known" : rmap,
+            "file_known" : self.blacklist_files[1],
             "badflag" : "bad",
             "reject_type" : "blacklist",
             "why" : "just had a feeling.",
             })
         # print response.content
+        imap, rmap = self.blacklist_files
         self.assert_no_errors(response)
         self.assertTrue(self.pmap in response.content)
         self.assertTrue(imap in response.content)
@@ -247,22 +207,17 @@ class SimpleTest(TestCase):
         self.assertFalse(imapblob.rejected)
 
     def test_set_file_enable_reject_post(self):
-        if sconfig.observatory == "hst":
-            imap = "hst_acs.imap"
-            rmap = "hst_acs_biasfile.rmap"            
-        else:
-            imap = "jwst_miri.imap"
-            rmap = "jwst_miri_flat.rmap"
         self.authenticate()
-        self.fake_database_files([imap, rmap])
+        self.fake_database_files(self.blacklist_files)
         response = self.client.post("/set_file_enable/", {
             "observatory" : sconfig.observatory,
-            "file_known" : rmap,
+            "file_known" : self.blacklist_files[1],
             "badflag" : "bad",
             "reject_type" : "reject",
             "why" : "just had a feeling.",
             })
         # print response.content
+        imap, rmap = self.blacklist_files
         self.assert_no_errors(response)
         self.assertTrue(self.pmap not in response.content)
         self.assertTrue(imap not in response.content)
@@ -281,12 +236,8 @@ class SimpleTest(TestCase):
 
     def test_certify_post_fits_uploaded(self):
         self.authenticate()
-        if sconfig.observatory == "hst":
-            fits = "interactive/test_data/s7g1700gl_dead.fits"
-        else:
-            fits = "interactive/test_data/jwst_miri_fakeflat.fits"
-        self.fake_database_files([fits])
-        self.add_file_to_ingest_dir(fits)
+        self.fake_database_files([self.certify_post_fits])
+        self.add_file_to_ingest_dir(self.certify_post_fits)
         response = self.client.post("/certify/", {
             "pmap_mode": "pmap_edit",
         })
@@ -297,14 +248,8 @@ class SimpleTest(TestCase):
 
     def test_certify_post_rmap_uploaded(self):
         self.authenticate()
-        if sconfig.observatory == "hst":
-            rmap = "interactive/test_data/hst_cos_deadtab.rmap"
-            fits = ["s7g1700ql_dead.fits", "s7g1700gl_dead.fits"]
-        else:
-            rmap = "interactive/test_data/jwst_nirspec_flatfile.rmap"
-            fits = ["jwst_nirspec_flatfile.fits"]
-        self.add_file_to_ingest_dir(rmap)
-        self.fake_database_files(fits)
+        self.add_file_to_ingest_dir(self.certify_rmap)
+        self.fake_database_files(self.certify_rmap_fits)
         response = self.client.post("/certify/", {
             "pmap_mode": "pmap_edit",
         })
@@ -318,18 +263,12 @@ class SimpleTest(TestCase):
         self.assert_no_errors(response)
 
     def test_difference_post(self):
-        if sconfig.observatory == "hst":
-            file1 = "hst_acs.imap"
-            file2 = "hst_cos.imap"
-        else:
-            file1 = "jwst_miri.imap"
-            file2 = "jwst_nircam.imap"
-        self.fake_database_files([file1, file2])
+        self.fake_database_files(self.difference_files)
         response = self.client.post("/difference/", {
             "filemode1": "file_known1",
-            "file_known1" : file1,
+            "file_known1" : self.difference_files[0],
             "filemode2": "file_known2",
-            "file_known2" : file2,
+            "file_known2" : self.difference_files[1],
         })
         self.assert_no_errors(response)
     
@@ -363,19 +302,14 @@ class SimpleTest(TestCase):
 
     def test_create_contexts_post(self):
         self.authenticate()
-        if sconfig.observatory == "hst":
-            rmap1 = "hst_acs_biasfile.rmap"
-            rmap2 = "hst_cos_deadtab.rmap"
-        else:
-            rmap1 = "jwst_miri_flat.rmap"
-            rmap2 = "jwst_nircam_flat.rmap"
-        self.fake_database_files([rmap1, rmap2])
+        self.fake_database_files(self.create_contexts_rmaps)
         response = self.client.post("/create_contexts/", {
                 "pmap_mode" : "pmap_text",
                 "pmap_text" : self.pmap,
-                "rmaps" : rmap1 + ", " + rmap2,
+                "rmaps" : " ".join(self.create_contexts_rmaps),
                 "description" : "updated rmaps"
             }, follow=True)
+        rmap1, rmap2 = self.create_contexts_rmaps
         self.assert_no_errors(response)
         self.assertTrue(self.add_1(self.pmap) in response.content)
         self.assertTrue(self.add_1(rmap1) in response.content)
@@ -408,12 +342,7 @@ class SimpleTest(TestCase):
 
     def test_batch_submit_replace(self):
         self.authenticate()
-        if sconfig.observatory == "hst":
-            references = ["interactive/test_data/s7g1700gl_dead.fits"]
-        else:
-            references = ["interactive/test_data/jwst_miri_photom_0001.fits",
-                          "interactive/test_data/jwst_miri_amplifier_0001.fits"]
-        self.add_files_to_ingest_dir(references)
+        self.add_files_to_ingest_dir(self.batch_submit_replace_references)
         response = self.client.post("/batch_submit_references/", {
                 "pmap_mode" : "pmap_edit",
                 "creator" : "bozo",
@@ -429,11 +358,7 @@ class SimpleTest(TestCase):
 
     def _batch_submit_insert(self):
         self.authenticate()
-        if sconfig.observatory == "hst":
-            reference = "interactive/test_data/s7g1700gm_dead.fits"
-        else:
-            reference = "interactive/test_data/jwst_miri_photom_0001.fits"
-        self.add_file_to_ingest_dir(reference)
+        self.add_files_to_ingest_dir(self.batch_submit_insert_references)
         response = self.client.post("/batch_submit_references/", {
                 "pmap_mode" : "pmap_edit",
                 "creator" : "bozo",
@@ -465,4 +390,84 @@ class SimpleTest(TestCase):
       
     def test_get(self):
         pass
+
+if sconfig.observatory == "hst":
+    
+    class HstInteractiveTest(InteractiveBase, TestCase):
+        
+        pmap = "hst.pmap"
+        
+        delete_files = [
+            "hst_0001.pmap",
+            "hst_0002.pmap",
+            "hst_0003.pmap",
+            "hst_cos_0001.imap",
+            "hst_acs_0001.imap",
+            "hst_acs_0002.imap",
+            "hst_acs_0003.imap",
+            "hst_cos_deadtab_0001.rmap",
+            "hst_acs_biasfile_0001.rmap",
+            "hst_acs_dgeofile_0001.rmap",
+            "hst_acs_darkfile_0001.rmap",
+        ]
+
+        rmap1 = "interactive/test_data/hst_cos_deadtab.rmap"
+
+        difference_files = ["hst_acs.imap", "hst_cos.imap"]
+
+        certify_rmap = "interactive/test_data/hst_cos_deadtab.rmap"
+        certify_rmap_fits = ["s7g1700ql_dead.fits", "s7g1700gl_dead.fits"]
+
+        certify_post_fits = "interactive/test_data/s7g1700gl_dead.fits"
+        
+        submit_rmap = "interactive/test_data/hst_cos_deadtab.rmap"
+        submit_references = [
+                "interactive/test_data/s7g1700gl_dead.fits", 
+                "interactive/test_data/s7g1700ql_dead.fits"
+        ]         
+
+        batch_submit_replace_references = ["interactive/test_data/s7g1700gl_dead.fits"]
+        batch_submit_insert_references = ["interactive/test_data/s7g1700gm_dead.fits"]
+        
+        create_contexts_rmaps = ["hst_acs_biasfile.rmap", "hst_cos_deadtab.rmap"]
+
+        blacklist_files = ["hst_acs.imap", "hst_acs_biasfile.rmap"]           
+
+else:  # JWST
+    
+    class JwstInteractiveTest(InteractiveBase, TestCase):
+
+        pmap = "jwst_0000.pmap"
+        
+        delete_files = [
+            "jwst_0001.pmap",
+            "jwst_miri_0001.imap",
+            "jwst_nircam_0001.imap",
+            "jwst_miri_flat_0001.rmap",
+            "jwst_miri_amplifier_0001.rmap",
+            "jwst_miri_photom_0001.rmap",
+        ]
+
+        difference_files = ["jwst_miri_0000.imap", "jwst_nircam_0000.imap"]
+
+        certify_rmap = "interactive/test_data/jwst_miri_amplifier_0000.rmap"
+        certify_rmap_fits = ["jwst_miri_amplifier_0000.fits",
+                             "jwst_miri_amplifier_0001.fits",
+                             "jwst_miri_amplifier_0002.fits"]
+        certify_post_fits = "interactive/test_data/jwst_miri_photom_0001.fits"
+
+        submit_rmap = "interactive/test_data/jwst_miri_amplifier_9999.rmap"
+        submit_references = ["jwst_miri_amplifier_0000.fits",
+                             "jwst_miri_amplifier_0001.fits",
+                             "jwst_miri_amplifier_0002.fits"]
+
+        batch_submit_replace_references = ["interactive/test_data/jwst_miri_amplifier_9999.fits",
+                                           "interactive/test_data/jwst_miri_photom_9999.fits"]
+        batch_submit_insert_references = ["interactive/test_data/jwst_miri_amplifier_9998.fits",
+                                          "interactive/test_data/jwst_miri_photom_9998.fits"]
+
+        create_contexts_rmaps = ["jwst_miri_amplifier_0000.rmap", 
+                                 "jwst_miri_photom_0000.rmap"]
+
+        blacklist_files = ["jwst_miri_0000.imap", "jwst_miri_photom_0000.rmap"]
 

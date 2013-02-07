@@ -33,6 +33,7 @@ MODULE_LIST = (
     'jsonrpc',
     
     'pyfits',
+    'jwstlib.models',
     )
 
 def get_all_versions( mods = MODULE_LIST ):
