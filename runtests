@@ -19,8 +19,8 @@ if ($# > 2) then
     # subsequent parameters are apps to test
     python manage.py test $3 $4 $5 $6 $7 $8 $9 --verbosity=2
 else if ($observatory == "jwst") then
-    echo "Using implied JWST tests " jsonapi
-    python manage.py test jsonapi --verbosity=2
+    echo "Using implied JWST tests " ALL
+    python manage.py test --verbosity=2
 else
     echo "Using implied HST tests " ALL
     python manage.py test --verbosity=2
