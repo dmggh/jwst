@@ -348,22 +348,25 @@ class InteractiveBase(object):
                 "creator" : "bozo",
                 "change_level" : "SEVERE",
                 "description":"this is only a test.",
-                "auto_rename" : "checked",
             }, follow=True)
         # print response
         self.assert_no_errors(response)
         self.assertIn("Confirm or Cancel", response.content)
         self.assertIn("replace", response.content)
         self.assertNotIn("insert", response.content)
+        self.assertIn("Reversion at", response.content)
 
-    def _batch_submit_insert(self):
+    def _batch_submit_insert(self, references=None):
         self.authenticate()
-        self.add_files_to_ingest_dir(self.batch_submit_insert_references)
+        if references is None:
+            references = self.batch_submit_insert_references
+        self.add_files_to_ingest_dir(references)
         response = self.client.post("/batch_submit_references/", {
                 "pmap_mode" : "pmap_edit",
                 "creator" : "bozo",
                 "change_level" : "SEVERE",
                 "description":"this is only a test.",
+                "auto_rename" : "checked",
             }, follow=True)
         # print response
         self.assert_no_errors(response)
@@ -426,7 +429,8 @@ if sconfig.observatory == "hst":
                 "interactive/test_data/s7g1700ql_dead.fits"
         ]         
 
-        batch_submit_replace_references = ["interactive/test_data/s7g1700gl_dead.fits"]
+        batch_submit_replace_references = ["interactive/test_data/s7g1700gl_dead.fits",
+                                           "interactive/test_data/aaaa.fits"]
         batch_submit_insert_references = ["interactive/test_data/s7g1700gm_dead.fits"]
         
         create_contexts_rmaps = ["hst_acs_biasfile.rmap", "hst_cos_deadtab.rmap"]
@@ -461,11 +465,11 @@ else:  # JWST
                              "jwst_miri_amplifier_0001.fits",
                              "jwst_miri_amplifier_0002.fits"]
 
-        batch_submit_replace_references = ["interactive/test_data/jwst_miri_amplifier_9999.fits",
+        batch_submit_replace_references = ["interactive/test_data/jwst_miri_amplifier_0000.fits",
                                            "interactive/test_data/jwst_miri_photom_9999.fits"]
         batch_submit_insert_references = ["interactive/test_data/jwst_miri_amplifier_9998.fits",
                                           "interactive/test_data/jwst_miri_photom_9998.fits"]
-
+        
         create_contexts_rmaps = ["jwst_miri_amplifier_0000.rmap", 
                                  "jwst_miri_photom_0000.rmap"]
 
