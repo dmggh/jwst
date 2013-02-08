@@ -1,3 +1,5 @@
+"""Handles web presentation of CRDS file differences."""
+
 import os.path
 import re
 

@@ -96,6 +96,8 @@ DESCRIPTION_RE = r"[A-Za-z0-9._ ]+"
 PERSON_RE = r"[A-Za-z_0-9\.@]*"
 DATASET_ID_RE = r"[A-Za-z0-9_]+"
 URL_RE = r"(/[A-Za-z0-9_]?)+"
+FITS_KEY_RE = r"[A-Z0-9_\-]+"
+FITS_VAL_RE = r"[A-Za-z0-9_\- :\.]*"   
 
 def is_pmap(filename):
     """Verify that `filename` names a known CRDS pipeline mapping.
@@ -645,23 +647,27 @@ def bestrefs_post(request):
     return results
 
 def header_string_to_header(hstring):
+    """Convert a string representing a FITS header into a dictionary, screening
+    for illegal keys or values.
+    """
     header = {}
     for line in cStringIO.StringIO(str(hstring)):
         words = line.split()
         key = words[0]
-        value = utils.condition_value(" ".join(words[1:]))
+        if not re.match(FITS_KEY_RE, key) and re.match(FITS_VAL_RE, value):
+            log.warning("Dropping illegal keyword '%s' with value '%s'." % (key,value))
+            continue
+        value = " ".join(words[1:])
+        value = utils.condition_value(value)
         header[key] = value
     return header
 
-# @profile
-@error_trap("bestrefs_explore_index.html")
-@log_view
 def bestrefs_results(request, pmap, header, dataset_name=""):
     """Render best reference recommendations under context `pmap` for
     critical parameters dictionary `header`.
     """
         
-    recommendations = pmap.get_best_references(header)
+    recommendations = rmap.get_best_references(pmap, header)
     
     # organize and format results for HTML display    
     header_items = sorted(header.items())
@@ -915,7 +921,8 @@ def submit_confirm(request):
         button, result.submission_kind, result.description, result.new_file_map, dict(result.new_file_map).values(), 
         result.generated_files, result.user, result.more_submits, results_id)
     
-    clear_uploads(request, result.uploaded_basenames)
+    if button == "confirm":
+        clear_uploads(request, result.uploaded_basenames)
 
     return crds_render(request, "confirmed.html", confirm_results)
     
