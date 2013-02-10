@@ -103,6 +103,7 @@ class InteractiveBase(object):
     def assert_no_errors(self, response, status=200):
         self.assertEqual(response.status_code, status)
         self.assertNotIn("ERROR", response.content)
+        self.assertNotIn("Error", response.content)
         
     def assert_has_error(self, response, msg=None):
         self.assertEqual(response.status_code, 200)
@@ -272,6 +273,16 @@ class InteractiveBase(object):
         })
         self.assert_no_errors(response)
     
+    def test_difference_post_uploaded(self):
+        self.fake_database_files(self.difference_files)
+        response = self.client.post("/difference/", {
+            "filemode1": "file_uploaded2",
+            "file_uploaded1" : open(self.difference_files_uploaded[0]),
+            "filemode2": "file_uploaded2",
+            "file_uploaded2" : open(self.difference_files_uploaded[1]),
+        })
+        self.assert_no_errors(response)
+    
     def test_recent_activity_get(self):
         self.authenticate()
         response = self.client.get("/recent_activity/")
@@ -417,6 +428,8 @@ if sconfig.observatory == "hst":
         rmap1 = "interactive/test_data/hst_cos_deadtab.rmap"
 
         difference_files = ["hst_acs.imap", "hst_cos.imap"]
+        difference_files_uploaded = ["interactive/test_data/hst_acs.imap", 
+                                     "interactive/test_data/hst_cos.imap"]
 
         certify_rmap = "interactive/test_data/hst_cos_deadtab.rmap"
         certify_rmap_fits = ["s7g1700ql_dead.fits", "s7g1700gl_dead.fits"]
@@ -452,7 +465,11 @@ else:  # JWST
             "jwst_miri_photom_0001.rmap",
         ]
 
-        difference_files = ["jwst_miri_0000.imap", "jwst_nircam_0000.imap"]
+        difference_files = ["jwst_miri_0000.imap", 
+                            "jwst_nircam_0000.imap"]
+
+        difference_files_uploaded = ["interactive/test_data/jwst_miri_0000.imap", 
+                                     "interactive/test_data/jwst_nircam_0000.imap"]
 
         certify_rmap = "interactive/test_data/jwst_miri_amplifier_0000.rmap"
         certify_rmap_fits = ["jwst_miri_amplifier_0000.fits",

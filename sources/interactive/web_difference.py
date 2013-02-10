@@ -3,7 +3,7 @@
 import os.path
 import re
 
-from crds import rmap, pysh, CrdsError
+from crds import rmap, pysh, log, CrdsError
 
 GEIS_HEADER_RE = r"\w+(\.r\dh)"
 
@@ -33,7 +33,7 @@ def difference_core(file1_orig, file2_orig, file1_path=None, file2_path=None):
     logical_diffs = map_text_diff_items = None
     if rmap.is_mapping(file1_orig) and rmap.is_mapping(file2_orig) and \
         extension(file1_orig) == extension(file2_orig):
-        logical_diffs = mapping_logical_diffs(file1_path, file2_path, file1_orig, file2_orig)
+        logical_diffs = mapping_logical_diffs(file1_orig, file2_orig, file1_path, file2_path)
         map_text_diffs = mapping_text_diffs(logical_diffs)
         # Compute root files separately since they may have upload paths.
         difference = textual_diff(file1_orig, file2_orig, file1_path, file2_path)
@@ -75,20 +75,24 @@ def textual_diff(file1_orig, file2_orig, file1_path=None, file2_path=None):
         result.append(line)
     return ''.join(result)
 
-def mapping_logical_diffs(file1, file2, file1_orig, file2_orig):
+def mapping_logical_diffs(file1_orig, file2_orig, file1, file2):
     """Return the logical differences between two mapping files."""
     try:
         map1 = rmap.fetch_mapping(file1, ignore_checksum=True)
         map2 = rmap.fetch_mapping(file2, ignore_checksum=True)
         # Get logical difference tuples
         ldiffs = map1.difference(map2)
+        ldiffs2 = []
         # Substitute the name of the original file for temp file.
-#        for ldiff in ldiffs:
-#            ldiff = replace_ldiff_file(ldiff, file1, file1_orig)
-#            ldiff = replace_ldiff_file(ldiff, file2, file2_orig)
-        return ldiffs
+        for ldiff in ldiffs:
+            ldiff = replace_ldiff_file(ldiff, file1, file1_orig)
+            ldiff = replace_ldiff_file(ldiff, file2, file2_orig)
+            ldiffs2.append(ldiff)
+        return ldiffs2
     except Exception, exc:
-        return [("Mapping logical difference failed: " + str(exc),)]
+        file1, file2 = map(os.path.basename, [file1, file2])
+        exc = str(exc).replace(file1, file1_orig).replace(file2, file2_orig)
+        return [("ERROR: " + exc,)]
 
 def replace_ldiff_file(ldiff, file_temp, file_orig):
     """Replaces name of web temporary file in ldiff tuple with original upload 
@@ -96,11 +100,12 @@ def replace_ldiff_file(ldiff, file_temp, file_orig):
     """ 
     if not len(ldiff):
         return ldiff
+    file_temp = os.path.basename(file_temp)
     tup = ldiff[0]
     if len(tup) == 2:
-        if tup[0] == file_temp:
+        if file_temp in tup[0]:
             tup = (file_orig, tup[1])
-        if tup[1] == file_temp:
+        if file_temp in tup[1]:
             tup = (tup[0], file_orig)
     return (tup,) + replace_ldiff_file(ldiff[1:], file_temp, file_orig)
 

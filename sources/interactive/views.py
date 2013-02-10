@@ -12,7 +12,7 @@ import tarfile
 import glob
 
 # from django.http import HttpResponse
-# from django.template import RequestContext
+from django.template import loader, RequestContext
 from django.shortcuts import redirect
 from django.shortcuts import render as django_render
 from django.http import HttpResponse, HttpResponseRedirect
@@ -292,6 +292,19 @@ def crds_render(request, template, dict_=None, requires_pmaps=False):
             rdict[var] = jsonrpc_vars[var]
             
     # log.info("rendering:", srepr(template), log.PP(rdict))
+    
+    loaded_template = loader.get_template(template)
+    context = RequestContext(request, rdict)
+    response = loaded_template.render(context)
+    
+    observatory = models.OBSERVATORY
+    
+    response = response.replace(config.get_crds_config_path() + "/", "")
+    response = response.replace(config.get_crds_mappath() + "/" + observatory + "/", "")
+    response = response.replace(config.get_crds_refpath() + "/" + observatory + "/", "")
+    response = response.replace(sconfig.install_root + "/", "")
+    
+    return HttpResponse(response)
             
     return django_render(request, template, rdict)
 
@@ -641,8 +654,8 @@ def bestrefs_post(request):
 
     results = bestrefs_results(request, pmap, header, dataset_name)
 
-    if remove_temp_flag:
-        remove_temporary(dataset_path)
+#    if remove_temp_flag:
+#        remove_temporary(dataset_path)
 
     return results
 
@@ -1058,11 +1071,11 @@ def difference_files(request):
                 
     diff_results = web_difference.mass_differences([(file1_orig, file2_orig, file1_path, file2_path)])
 
-    if uploaded1: 
-        remove_temporary(file1_path)
-    if uploaded2:
-        remove_temporary(file2_path)
-        
+#    if uploaded1: 
+#        remove_temporary(file1_path)
+#    if uploaded2:
+#        remove_temporary(file2_path)
+#        
     return crds_render(request, "difference_results.html", { "diff_results" : diff_results })
 
 # ===========================================================================
