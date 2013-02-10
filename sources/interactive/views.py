@@ -293,20 +293,45 @@ def crds_render(request, template, dict_=None, requires_pmaps=False):
             
     # log.info("rendering:", srepr(template), log.PP(rdict))
     
+    # Generate a first pass of the response HTML.
     loaded_template = loader.get_template(template)
     context = RequestContext(request, rdict)
     response = loaded_template.render(context)
     
-    observatory = models.OBSERVATORY
-    
-    response = response.replace(config.get_crds_config_path() + "/", "")
-    response = response.replace(config.get_crds_mappath() + "/" + observatory + "/", "")
-    response = response.replace(config.get_crds_refpath() + "/" + observatory + "/", "")
-    response = response.replace(sconfig.install_root + "/", "")
+    # Remove file paths and fix temporary names with client side names
+    uploaded_pairs = rdict.get("uploaded_file_names", get_uploaded_filepaths(request))
+    response = scrub_file_paths(response, uploaded_pairs)
     
     return HttpResponse(response)
             
-    return django_render(request, template, rdict)
+def scrub_file_paths(response, uploaded_pairs):
+    """Fix filepath leakage here as a brevity and security issue.   Uploaded file
+    temporary names or paths are replaced with the client-side original name.  CRDS
+    file tree paths of various kinds are replaced with the empty string.
+    
+    response:   the original un-scrubbed fully instantiated HTML response string.
+    
+    uploaded_pairs:  [(client_side_filename, temporary_upload_path), ...]
+    """
+    for (original_name, path) in uploaded_pairs:
+        response = response.replace(path, original_name)
+        path = os.path.basename(path)
+        response = response.replace(path, original_name)
+    observatory = models.OBSERVATORY
+    response = response.replace(config.get_crds_mappath() + "/" + observatory + "/", "")
+    response = response.replace(config.get_crds_refpath() + "/" + observatory + "/", "")
+    response = response.replace(config.get_crds_path() + "/", "")
+    response = response.replace(sconfig.install_root + "/", "")
+    return response
+
+def get_uploaded_filepaths(request):
+    """Return [ (original_name, temporary_path), ...] for uploaded files in `request`."""
+    pairs = []
+    for ufile in request.FILES.values():
+        filepath = str(ufile.temporary_file_path())
+        original_name = str(ufile.name)
+        pairs.append((original_name, filepath))
+    return pairs
 
 # ===========================================================================
 
@@ -320,13 +345,11 @@ def handle_known_or_uploaded_file(request, modevar, knownvar, uploadvar):
         # certified_file is a basename,  but CRDS figures out where it is.
         original_name = validate_post(request, knownvar, is_known_file)
         filepath = get_known_filepath(original_name)
-        uploaded = False
     else:
         ufile = get_uploaded_file(request, uploadvar)
         filepath = ufile.temporary_file_path()
         original_name = ufile.name
-        uploaded = True
-    return uploaded, str(original_name), str(filepath)
+    return str(original_name), str(filepath)
 
 def get_uploaded_file(request, formvar):
     """Return the DJango UploadedFile associated with `request` and `formvar`,
@@ -370,15 +393,6 @@ def get_known_filepath(filename):
     except LookupError:
         raise FieldError("CRDS doesn't know about file " + srepr(filename))
     return blob.pathname
-
-def remove_temporary(filepath):
-    """Attempt to remove `filepath`.  Ignore errors."""
-    try:
-        assert not filepath.startswith("/grp/hst/cdbs"), \
-            "ERROR -- attempt to delete from Central Store"
-        os.remove(filepath)
-    except Exception, exc:
-        log.warning("Failed to remove temporary", repr(filepath), ":", str(exc))
 
 def is_available_pmap(context):
     is_pmap(context)
@@ -489,7 +503,8 @@ def display_result(request, results_id):
 
 def render_repeatable_result(request, template, rdict):
     """Create a repeatable results model instance and redirect to it."""
-    rdict["user"] = str(request.user)    
+    rdict["user"] = str(request.user)
+    rdict["uploaded_file_names"] = get_uploaded_filepaths(request)
     result = models.RepeatableResultBlob.new(template, rdict)    
     return HttpResponseRedirect("/display_result/" + str(result.id))
 
@@ -632,16 +647,13 @@ def bestrefs_post(request):
         uploaded_file = get_uploaded_file(request, "dataset_uploaded")
         dataset_path = uploaded_file.temporary_file_path()
         dataset_name = uploaded_file.name
-        remove_temp_flag = True
         # base on the context and datset,  compute best references
         header = pmap.get_minimum_header(dataset_path, original_name=dataset_name)
     elif dataset_mode == "dataset_local":
-        remove_temp_flag = False
         header = header_string_to_header(request.POST["dataset_local"])
         header = pmap.minimize_header(header)
         dataset_name = validate_post(request, "dataset_name", FILE_RE)
     elif dataset_mode == "dataset_archive":
-        remove_temp_flag = False
         dataset_name = validate_post(request, "dataset_archive", DATASET_ID_RE)
         try:
             header = database.get_dataset_header(dataset_name, pmap.observatory)
@@ -653,9 +665,6 @@ def bestrefs_post(request):
         raise ValueError("Bad dataset_mode " + srepr(dataset_mode))
 
     results = bestrefs_results(request, pmap, header, dataset_name)
-
-#    if remove_temp_flag:
-#        remove_temporary(dataset_path)
 
     return results
 
@@ -1064,18 +1073,13 @@ def difference_files(request):
             file2_path = models.FileBlob.load(file2_orig).pathname
             uploaded1 = uploaded2 = None
     else:
-        uploaded1, file1_orig, file1_path = handle_known_or_uploaded_file(
+        file1_orig, file1_path = handle_known_or_uploaded_file(
             request, "filemode1", "file_known1", "file_uploaded1")
-        uploaded2, file2_orig, file2_path = handle_known_or_uploaded_file(
+        file2_orig, file2_path = handle_known_or_uploaded_file(
             request, "filemode2", "file_known2", "file_uploaded2")
                 
     diff_results = web_difference.mass_differences([(file1_orig, file2_orig, file1_path, file2_path)])
 
-#    if uploaded1: 
-#        remove_temporary(file1_path)
-#    if uploaded2:
-#        remove_temporary(file2_path)
-#        
     return crds_render(request, "difference_results.html", { "diff_results" : diff_results })
 
 # ===========================================================================

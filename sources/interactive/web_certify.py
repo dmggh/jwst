@@ -52,9 +52,6 @@ def captured_certify(original_name, uploaded_path, check_references=True, filema
             status = "Warnings"
     else:
         status = "Failed."
-    output = output.replace(uploaded_path, original_name)
-    output = output.replace(os.path.basename(uploaded_path), original_name)
-    
     if status != "Failed.":    # if OK the rmap should load...
         if check_references and rmap.is_mapping(original_name):
             if filemap is None:

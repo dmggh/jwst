@@ -82,32 +82,11 @@ def mapping_logical_diffs(file1_orig, file2_orig, file1, file2):
         map2 = rmap.fetch_mapping(file2, ignore_checksum=True)
         # Get logical difference tuples
         ldiffs = map1.difference(map2)
-        ldiffs2 = []
-        # Substitute the name of the original file for temp file.
-        for ldiff in ldiffs:
-            ldiff = replace_ldiff_file(ldiff, file1, file1_orig)
-            ldiff = replace_ldiff_file(ldiff, file2, file2_orig)
-            ldiffs2.append(ldiff)
-        return ldiffs2
+        return ldiffs
     except Exception, exc:
         file1, file2 = map(os.path.basename, [file1, file2])
         exc = str(exc).replace(file1, file1_orig).replace(file2, file2_orig)
         return [("ERROR: " + exc,)]
-
-def replace_ldiff_file(ldiff, file_temp, file_orig):
-    """Replaces name of web temporary file in ldiff tuple with original upload 
-    name.
-    """ 
-    if not len(ldiff):
-        return ldiff
-    file_temp = os.path.basename(file_temp)
-    tup = ldiff[0]
-    if len(tup) == 2:
-        if file_temp in tup[0]:
-            tup = (file_orig, tup[1])
-        if file_temp in tup[1]:
-            tup = (tup[0], file_orig)
-    return (tup,) + replace_ldiff_file(ldiff[1:], file_temp, file_orig)
 
 def mapping_text_diffs(logical_diffs):
     """Return a mapping of file pairs to the textual differences between them
