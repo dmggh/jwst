@@ -1080,7 +1080,11 @@ def difference_files(request):
                 
     diff_results = web_difference.mass_differences([(file1_orig, file2_orig, file1_path, file2_path)])
 
-    return crds_render(request, "difference_results.html", { "diff_results" : diff_results })
+    return crds_render(request, "difference_results.html", { 
+            "file1" : file1_orig,
+            "file2" : file2_orig,
+            "diff_results" : diff_results 
+        })
 
 # ===========================================================================
 
