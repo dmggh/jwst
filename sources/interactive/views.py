@@ -676,11 +676,11 @@ def header_string_to_header(hstring):
     for line in cStringIO.StringIO(str(hstring)):
         words = line.split()
         key = words[0]
+        value = " ".join(words[1:])
+        value = utils.condition_value(value)
         if not re.match(FITS_KEY_RE, key) and re.match(FITS_VAL_RE, value):
             log.warning("Dropping illegal keyword '%s' with value '%s'." % (key,value))
             continue
-        value = " ".join(words[1:])
-        value = utils.condition_value(value)
         header[key] = value
     return header
 
