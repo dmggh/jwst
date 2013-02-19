@@ -142,6 +142,16 @@ class FileSubmission(object):
     
     def submit(self):
         """Validate the submitted files and add them to the database."""
+        
+    def ensure_unique_uploaded_names(self):
+        """Make sure there are no duplicate names in the submitted file list."""
+        # This is a sensible check for files originating on the command line.
+        uploaded_as, paths = zip(*self.uploaded_files)
+        pathmap = dict(*zip(paths, uploaded_as))
+        for name in uploaded_as:
+            assert uploaded_as.count(name) == 1, "File '%s' appears more than once." % name
+        for path in paths:
+            assert paths.count(path) == 1, "File path for '%s' appears more than once." %  pathmap[path]
     
     def submit_file_list(self, creation_method):
         """Ingest a list of `uploaded_files` tuples into CRDS."""
@@ -246,7 +256,7 @@ class BatchReferenceSubmission(FileSubmission):
         reference_disposition, reference_certs = web_certify.certify_file_list(self.uploaded_files.items(), 
             context=comparison_context, compare_old_reference=self.compare_old_reference)
     
-        # Refactor with temporary rmap files and refrerences to support detecting 
+        # Refactor with temporary rmap files and references to support detecting 
         # problems with refactoring prior to generating official names.
         old_rmaps = self.bsr_temporary_refactor()
         
@@ -564,7 +574,7 @@ def deliver_file_list(user, observatory, delivered_files, description, action):
         deliver_remove_fail(catalog, paths)
         raise CrdsError("Delivery failed: " + str(exc))
     deliver_file_set_catalog_links(delivered_files, catalog_link)
-    models.AuditBlob.new(
+    models.AuditBlob.new( 
         user, action, os.path.basename(catalog), description, 
         repr([os.path.basename(catalog)] + delivered_files), observatory)        
 
@@ -625,10 +635,10 @@ def deliver_file_catalog(observatory, files, operation="I"):
     utils.ensure_dir_exists(catpath)
     cat = open(catpath, "w")
     for filename in files:
-        if rmap.is_mapping(filename):
-            kind = "M"
-        else:
-            kind = "R"
+#        if rmap.is_mapping(filename):
+#            kind = "M"
+#        else:
+        kind = "R"
         cat.write(filename + " " + operation + " " + kind + "\n")
     cat.close()
     return catpath

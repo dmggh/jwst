@@ -6,6 +6,8 @@
     {% for cert in certify_results %}
         {% if new_file_map %}
             {% accordion {{cert.0}} "-->" {{new_file_map|lookup:cert.0|blue}}  {{cert.1.0|color_status}} %}
+                <a href='/browse/{{cert.0}}'>{{cert.0}}</a>
+                <br/>
                 <a href='/browse/{{new_file_map|lookup:cert.0}}'>{{new_file_map|lookup:cert.0}}</a>
                 <div class='program'>
                     <pre>{{ cert.1.1|safe }}</pre>

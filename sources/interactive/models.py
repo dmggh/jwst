@@ -326,11 +326,7 @@ class FileBlob(BlobModel):
     unicode_list = ["name", "type", "instrument", "filekind", "state", "blacklisted"]
         
     exclude_from_info = BlobModel.exclude_from_info + \
-        ["pathname","creator","deliverer", "deliverer_email","catalog_link",
-         "_sha1sum", "_size"]
-
-    blob_properties = BlobModel.blob_properties + \
-        ["sha1sum", "size"]
+        ["pathname","creator","deliverer", "deliverer_email","catalog_link"]
 
     state = SimpleCharField( FILE_STATUS_MAP.keys(),
         "operational status of this file.", "submitted" )
@@ -375,8 +371,8 @@ class FileBlob(BlobModel):
         pathname = BlobField("^[A-Za-z0-9_./]+$", "path/filename to CRDS master copy of file", "none"),
         blacklisted_by = BlobField(list,"List of blacklisted files this file refers to directly or indirectly.", []),
         reject_by_file_name = BlobField(FILENAME_RE, "", ""),
-        _sha1sum = BlobField(str, "checksum of file at upload time", ""),
-        _size = BlobField(long, "size of file in bytes.", -1),
+        sha1sum = BlobField(str, "checksum of file at upload time", "none"),
+        size = BlobField(long, "size of file in bytes.", -1),
         change_level = BlobField(CHANGE_LEVELS, "Do the changes to this file force recalibration of science data?", ""), 
     )
 
@@ -409,11 +405,21 @@ class FileBlob(BlobModel):
     
     def add_slow_fields(self):
         log.info("Adding slow fields for", repr(self.name))
-        # self.sha1sum   # property cached as _sha1sum
-        self.size      # property cached as _size
+        self.sha1sum = self.compute_checksum()
+        self.size = self.compute_size()
         if self.type == "reference":
             self.init_FITS_fields()
-    
+        self.save()
+            
+    def check_unique_sha1sum(self):
+        # matches = self.__class__.filter(sha1sum=self.sha1sum)
+        return # XXXX TODO file uniqueness sha1sum not verified
+        if len(matches) < 1:
+            raise CrdsError("Checksum computation error for '%s'.  No matching blob found." % self.uploaded_as)
+        if len(matches) > 1:
+            others = ", ".join([str(x.name) for x in matches if str(x.name) != str(self.name)])
+            raise CrdsError("Submitted file '%s' renamed to '%s' is identical to existing files: %s" % (self.uploaded_as, self.name, others))
+
     @classmethod
     def new(cls, observatory, upload_name, permanent_location, 
             creator_name, deliverer_user, deliverer_email, description, 
@@ -439,6 +445,7 @@ class FileBlob(BlobModel):
         blob.delivery_date = timestamp.now()
         if add_slow_fields:
             blob.add_slow_fields()
+            blob.check_unique_sha1sum()
         try:
             instrument, filekind = utils.get_file_properties(observatory, permanent_location)
             blob.instrument = instrument
@@ -464,32 +471,19 @@ class FileBlob(BlobModel):
     def filename(self):
         return os.path.basename(self.pathname)
     
-    @property 
-    def size(self):
-        if self._size <= -1:
-            try:
-                self._size = os.stat(self.pathname).st_size
-                self.save()
-            except Exception, exc:
-                log.error("Computing size of", repr(self.name),"failed:", str(exc))
-        return self._size
+    def compute_size(self):
+        try:
+            return os.stat(self.pathname).st_size
+        except Exception, exc:
+            log.error("Computing size of", repr(self.name),"failed:", str(exc))
+            return "compute size failed: " + str(exc)
     
-    @property
-    def sha1sum(self):
-        if not self._sha1sum:
-            try:
-                self._sha1sum = self.checksum()
-                self.save()
-            except Exception, exc:
-                log.error("Computing sha1sum of", repr(self.name), "failed:", str(exc))
-        return self._sha1sum
-
     @property
     def status(self):
         if self.blacklisted:
             return "blacklisted"
         elif self.state == "delivered":
-            if os.path.exists(self.catalog_link):
+            if os.path.exists(self.catalog_link) or os.path.exists(self.catalog_link + "_proc"):
                 return "delivered"
             else:
                 self.state = "operational"
@@ -506,12 +500,16 @@ class FileBlob(BlobModel):
         parts = os.path.splitext(self.filename)
         return parts[-1]
     
-    def checksum(self):
-        return utils.checksum(self.pathname)
+    def compute_checksum(self):
+        try:
+            return utils.checksum(self.pathname)
+        except Exception, exc:
+            log.error("Computing sha1sum of", repr(self.name), "failed:", str(exc))
+            return "checksum failed: " + str(exc)
 
     @property
     def checksum_ok(self):
-        return self.sha1sum and (self.checksum() == self.sha1sum)
+        return self.compute_checksum() == self.sha1sum
     
     def destroy(self):
         """Destroy this FileBlob and it's associated file.   This
