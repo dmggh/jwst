@@ -51,6 +51,8 @@ from .common import srepr
 
 from crds.server import config as sconfig
 
+from django.contrib.auth.models import User
+
 # ----------------------------------------------------------------------------------------------------
 
 def file_exists_somehow(filename):
@@ -134,11 +136,12 @@ class FileSubmission(object):
         self.observatory = self.pmap.observatory
         self.uploaded_files = uploaded_files
         self.description = description
-        self.user = user   # Django user
+        self.user = user if isinstance(user, User) else User.objects.get(username=user)
         self.creator = creator
         self.change_level = change_level
         self.auto_rename = auto_rename
         self.compare_old_reference = compare_old_reference
+        self.instrument = None
     
     def submit(self):
         """Validate the submitted files and add them to the database."""
@@ -237,8 +240,8 @@ class FileSubmission(object):
 
 def do_create_contexts(pmap_name, updated_rmaps, description, user):
     """Support the create contexts view with a function call."""
-    creator = FileSubmission(pmap_name, uploaded_files=None, description=description, user=user, creator="crds")
-    return creator.do_create_contexts(updated_rmaps)
+    submission = FileSubmission(pmap_name, uploaded_files=None, description=description, user=user, creator="crds")
+    return submission.do_create_contexts(updated_rmaps)
 
 # ------------------------------------------------------------------------------------------------
 
@@ -268,15 +271,15 @@ class BatchReferenceSubmission(FileSubmission):
         
         rmap_disposition, rmap_certs = self.bsr_certify_new_mapping_list(new_mappings_map, context=comparison_context)
         
-        # Generate a new context referring to the new rmap
-        higher_level_mapping_map = self.do_create_contexts(new_mappings_map.values())
-        
-        new_mappings_map.update(higher_level_mapping_map)
+#        # Generate a new context referring to the new rmap
+#        higher_level_mapping_map = self.do_create_contexts(new_mappings_map.values())
+#        
+#        new_mappings_map.update(higher_level_mapping_map)
     
         collision_list = get_collision_list(new_mappings_map.values())
         
         # Just display the .pmap,  which recursively captures the others and sorts first.
-        diff_results = web_difference.mass_differences(sorted(new_mappings_map.items())[:1])
+        diff_results = web_difference.mass_differences(sorted(new_mappings_map.items()))
         
         disposition = rmap_disposition or reference_disposition
         
@@ -314,17 +317,16 @@ class BatchReferenceSubmission(FileSubmission):
         """Groups uploaded files by instrument and type.
         Returns {(instrument,filekind) : [part_of_uploaded_files...]}
         """
-        old_instr = None
         groups = {}
         for (original_name, uploaded_path) in self.uploaded_files.items():
             try:
                 instrument, filekind = utils.get_file_properties(self.observatory, uploaded_path)
             except Exception:
                 raise CrdsError("Can't determine instrument or file type for " + srepr(original_name))
-            if old_instr is not None:
-                assert instrument == old_instr, "More than one instrument submitted at " + srepr(original_name) + \
-                    " " + srepr(old_instr) + " vs. " + srepr(instrument)
-            old_instr = instrument
+            if self.instrument is not None:
+                assert instrument == self.instrument, \
+                    "More than one instrument submitted at '%s' : '%s' vs. '%s'." % (original_name, self.instrument, instrument)
+            self.instrument = instrument
             if (instrument, filekind) not in groups:
                 groups[(instrument, filekind)] = {}
             groups[(instrument, filekind)][original_name] = uploaded_path 
@@ -410,17 +412,17 @@ class SimpleFileSubmission(FileSubmission):
         # Add the files to the CRDS database as "uploaded",  pending confirmation.
         new_file_map = self.submit_file_list("submit files")
         
-        if generate_contexts:
-            new_contexts = self.do_create_contexts(new_file_map.values())
-            new_file_map.update(new_contexts)
-    
         collision_list = get_collision_list(new_file_map.values())
         
         return disposition, certify_results, new_file_map, collision_list
 
     def restrict_genre(self, crds_filetype, generate_contexts):
-        """Ensure all `uploaded_files` tuples correspond to the genre specified by crds_filetype:  mapping or reference."""
+        """Ensure all `uploaded_files` tuples correspond to the genre specified by crds_filetype:  
+        mapping or reference.   If generate_contexts is True,  only .rmaps may be submitted.
+        """
         for uploaded in self.uploaded_files:
+            if generate_contexts:
+                assert uploaded.endswith(".rmap"), "Only .rmaps may be submitted if Generate Contexts is selected."
             if crds_filetype == "mapping":
                 if not rmap.is_mapping(uploaded):
                     raise CrdsError("Can't submit non-mapping file: " + repr(uploaded) + " using this page.")
@@ -504,7 +506,8 @@ def get_collision_list(newfiles):
 # ------------------------------------------------------------------------------------------------
         
 def submit_confirm_core(button, submission_kind, description, new_file_map, new_files, generated_files, user,
-                        more_submits, results_id):
+                        more_submits, generate_contexts, pmap_name, results_id):
+    
     """Handle the confirm/cancel decision of a file submission."""
     instrument = filekind = "unknown"
     for filename in new_files + generated_files:
@@ -513,7 +516,7 @@ def submit_confirm_core(button, submission_kind, description, new_file_map, new_
         except LookupError:
             raise CrdsError("Unknown CRDS file " + srepr(filename))
         assert user == blob.deliverer_user, \
-            "User " + srepr(user) + " did not create " + srepr(filename)
+            "User " + srepr(user) + " did not submit " + srepr(filename)
         assert blob.state == "uploaded", \
             "File " + srepr(filename) + " is no longer in the 'uploaded' state."
         if blob.instrument != "unknown":
@@ -522,11 +525,20 @@ def submit_confirm_core(button, submission_kind, description, new_file_map, new_
             filekind = blob.filekind
 
     if button == "confirm":
+        if generate_contexts:
+            updated_rmaps = [filename for (old, filename) in new_file_map if filename.endswith(".rmap")]
+            created_contexts_map = do_create_contexts(pmap_name, updated_rmaps, description, user)
+            new_file_map = sorted( new_file_map + created_contexts_map.items())
+            generated_files = sorted(generated_files + created_contexts_map.values())
+            
         for filename in set(new_files + generated_files):
-            models.AuditBlob.new(user, submission_kind, filename, description, str(new_file_map), 
-                                 instrument=instrument, filekind=filekind)    
+            models.AuditBlob.new(user, submission_kind, filename, description, str(fix_unicode(new_file_map)), 
+                                 instrument=instrument, filekind=filekind)
+ 
         deliver_file_list( user, sconfig.observatory, set(new_files + generated_files), description, submission_kind)
+
         disposition = "confirmed"
+
         for mapping in generated_files:
             if mapping.endswith(".pmap"):
                 models.set_default_context(mapping)
@@ -543,6 +555,9 @@ def submit_confirm_core(button, submission_kind, description, new_file_map, new_
                 "more_submits" : more_submits,
             }
     
+def fix_unicode(items):
+    return [(str(old), str(new)) for (old, new) in items]
+
 def change_file_state(files, new_state):
     """Update the model state of `files` to `newstate`."""
     for filename in files:

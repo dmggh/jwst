@@ -12,7 +12,7 @@ from django.utils.safestring import mark_safe
 from django.shortcuts import render as django_render
 
 
-from crds import (rmap, utils)
+from crds import (rmap, utils, log)
 from crds.server import (config)
 import crds.server.jsonapi.views as jviews
 
@@ -171,7 +171,11 @@ class AccordionNode(template.Node):
                 t = template.Template("{% load stdtags %} " + word)
                 resolved = t.render(context)
             else:
-                resolved = template.Variable(word).resolve(context)
+                try:
+                    resolved = template.Variable(word).resolve(context)
+                except Exception, exc:
+                    log.info("Accordion tag failed resolving: ", repr(word), "under context", repr(context))
+                    raise
             title_words.append(resolved)
         title = " ".join(title_words)
         content = self.nodelist.render(context)

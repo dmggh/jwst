@@ -902,6 +902,7 @@ def batch_submit_references_post(request):
                 "submission_kind" : "batch submit",
                 "title" : "Batch Reference Submit",
                 "description" : description,
+                "generate_contexts" : True,
                 
 #                "reference_certs" : reference_certs,
 #                "mapping_certs" : mapping_certs, 
@@ -926,13 +927,6 @@ def submit_confirm(request):
     generation mechanisms.
     """
     button = validate_post(request, "button", "confirm|cancel")
-#    submission_kind = validate_post(request, "submission_kind", models.AUDITED_ACTIONS)
-#    description = validate_post(request, "description", DESCRIPTION_RE)
-#    new_file_map = compat.literal_eval(str(request.POST["new_file_map"]))
-#    new_files = dict(new_file_map).values()
-#    generated_files = compat.literal_eval(str(request.POST["generated_files"]))
-#    user = str(request.user)
-#    more_submits = validate_post(request, "more_submits", URL_RE)
     results_id = validate_post(request, "results_id", "\d+")
     result = models.RepeatableResultBlob.get(int(results_id)).parameters
 
@@ -941,7 +935,7 @@ def submit_confirm(request):
 
     confirm_results = submit.submit_confirm_core(
         button, result.submission_kind, result.description, result.new_file_map, dict(result.new_file_map).values(), 
-        result.generated_files, result.user, result.more_submits, results_id)
+        result.generated_files, result.user, result.more_submits, result.generate_contexts, result.pmap, results_id)
     
     if button == "confirm":
         clear_uploads(request, result.uploaded_basenames)
@@ -952,7 +946,7 @@ def submit_confirm(request):
 
 @error_trap("create_contexts_input.html")
 @log_view
-@login_required
+@superuser_login_required
 def create_contexts(request):
     """create_contexts generates a new pmap and imaps given an existing pmap
     and set of new rmaps.   Note that the "new" rmaps must already be in CRDS.
@@ -992,7 +986,6 @@ def create_contexts_post(request):
                 "description" : description,
                 "more_submits" : "/create_contexts/",
                 "collision_list" : collision_list,
- 
             })
     
 # ============================================================================
@@ -1015,14 +1008,14 @@ def submit_files_post(request, crds_filetype):
     observatory = get_observatory(request)
     compare_old_reference = "compare_old_reference" in request.POST
     generate_contexts = "generate_contexts" in request.POST
-    context = get_recent_or_user_context(request)
+    pmap_name = get_recent_or_user_context(request)
     description = validate_post(request, "description", DESCRIPTION_RE)
     creator = validate_post(request, "creator", PERSON_RE)
     auto_rename = "auto_rename" in request.POST    
     change_level = validate_post(request, "change_level", models.CHANGE_LEVELS)            
     remove_dir, uploaded_files = get_files(request)
     
-    simple = submit.SimpleFileSubmission(context, uploaded_files, description, user=request.user,  
+    simple = submit.SimpleFileSubmission(pmap_name, uploaded_files, description, user=request.user,  
         creator=creator, change_level=change_level, auto_rename=auto_rename, compare_old_reference=compare_old_reference)
     
     disposition, certify_results, new_file_map, collision_list = simple.submit(crds_filetype, generate_contexts)
@@ -1037,6 +1030,8 @@ def submit_files_post(request, crds_filetype):
                 "submission_kind" : "submit file",
                 "title" : "Submit File",
                 "description" : description,
+                "generate_contexts": generate_contexts,
+                "pmap" : pmap_name,
                 
                 "certify_results" : certify_results,
                 "more_submits" : "/submit/" + crds_filetype + "/",

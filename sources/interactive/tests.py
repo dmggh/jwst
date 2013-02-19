@@ -52,6 +52,7 @@ class InteractiveBase(object):
     
     def setUp(self): 
         self.user = User.objects.create_user('homer', 'homer@simpson.net', 'simpson')
+        self.user.is_superuser = True
         try:
             self.user.save()    
         except Exception, exc:
@@ -245,7 +246,7 @@ class InteractiveBase(object):
         # print "certify post FITS response:", response.content
         self.assert_no_errors(response)
         self.assertNotIn("ERROR", response.content)
-        self.assertEqual(response.content.count("OK"), 1)
+        self.assertEqual(response.content.count("OK"), 2)
 
     def test_certify_post_rmap_uploaded(self):
         self.authenticate()
@@ -257,7 +258,7 @@ class InteractiveBase(object):
         self.assert_no_errors(response)
         self.assertTrue("ERROR", response.content)
         self.assertTrue("Failed" not in response.content)
-        self.assertTrue(response.content.count("OK") == 1)
+        self.assertTrue(response.content.count("OK") == 2)
 
     def test_difference_get(self):
         response = self.client.get("/difference/")
@@ -359,7 +360,7 @@ class InteractiveBase(object):
                 "creator" : "bozo",
                 "change_level" : "SEVERE",
                 "description":"this is only a test.",
-            }, follow=True)
+                }, follow=True)
         # print response
         self.assert_no_errors(response)
         self.assertIn("Confirm or Cancel", response.content)
@@ -442,7 +443,7 @@ if sconfig.observatory == "hst":
                 "interactive/test_data/s7g1700ql_dead.fits"
         ]         
 
-        batch_submit_replace_references = ["interactive/test_data/s7g1700gl_dead.fits",
+        batch_submit_replace_references = ["interactive/test_data/s7g1700gj_dead.fits",
                                            "interactive/test_data/aaaa.fits"]
         batch_submit_insert_references = ["interactive/test_data/s7g1700gm_dead.fits"]
         
