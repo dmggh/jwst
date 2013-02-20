@@ -4,37 +4,17 @@
 
 {% block contents %}
 
-{% if ".rmap" in browsed_file and is_authenticated %}
-     <FORM name="edit_form" method="LINK" action="/edit_rmap/{{browsed_file}}">                
-           <h2>Browse {{browsed_file|gray}}
-               
-                &nbsp;
-                <a href="/edit_rmap" onclick="document.edit_form.submit(); return false;">
-                    <span style="font-size: 0.75em;">edit</span>
-                </a> 
-               
-                &nbsp;
-                <a href='{{browsed_file|download_url}}'>
-                    <span style="font-size: 0.75em;">download</span>
-                </a>
-    
-               {% include "browse_results_diff_link.html" %}
-                       
-            </h2> 
-     </FORM>
-{% else %}
-    <h2>
-        Browse {{browsed_file|gray}}     
+<h2>
+    Browse {{browsed_file|gray}}     
 
-        &nbsp;&nbsp;
-        <a href='{{browsed_file|download_url}}'>
-            <span style="font-size: 0.75em;">download</span>
-        </a>
+    &nbsp;&nbsp;
+    <a href='{{browsed_file|download_url}}'>
+        <span style="font-size: 0.75em;">download</span>
+    </a>
 
-        {% include "browse_results_diff_link.html" %}
-    
-    </h2> 
-{% endif %}    
+    {% include "browse_results_diff_link.html" %}
+
+</h2> 
 
 {% accordion "Database" %}
         {% if fileblob %}        
