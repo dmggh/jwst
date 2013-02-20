@@ -1,20 +1,21 @@
 {% load stdtags %}
-
         {% if diffs.map_text_diff_items %}
-        
+
             {% autoescape off %}
-                <h3>Logical Differences</h3>
-                {% accordion "Logical Diff" diffs.logical_diffs.0.0 %}
-                    <table border='1' pad='1'>
-                        {% for ldiff in diffs.logical_diffs %}
-                        <tr>
-                                {% for tup in ldiff|slice:"1:" %}
-                                    <td> {{tup}} </td>
-                                {% endfor %}
-                        </tr>
-                        {% endfor %}
-                    </table>
-                {% endaccordion %}
+                {% if diffs.logical_diffs %}
+                    <h3>Logical Differences</h3>
+                    {% accordion "Logical Diff" diffs.logical_diffs.0.0 %}
+                        <table border='1' pad='1'>
+                            {% for ldiff in diffs.logical_diffs %}
+                            <tr>
+                                    {% for tup in ldiff|slice:"1:" %}
+                                        <td> {{tup}} </td>
+                                    {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    {% endaccordion %}
+                {% endif %}
                 
                 <h3>Text Differences</h3>
                 {% for tdiff in diffs.map_text_diff_items %}
