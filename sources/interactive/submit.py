@@ -564,6 +564,11 @@ def destroy_file_list(files):
 
 # ------------------------------------------------------------------------------------------------
 
+def deliver_file_list(user, observatory, delivered_files, description, action):
+    """Deliver a list of files,  making them available for OPUS pickup but not yet archived."""
+    delivery = Delivery(user, delivered_files, description, action, observatory=observatory)
+    return delivery.deliver()
+
 class Delivery(object):
     """The Delivery class manages creating a delivery catalog and file links for delivered files
     in the appropriate directory.  Afterward it updates FileBlobs to refer to the delivery .cat file
