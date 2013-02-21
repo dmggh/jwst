@@ -387,7 +387,7 @@ class BatchReferenceSubmission(FileSubmission):
 # ------------------------------------------------------------------------------------------------
 
 class SimpleFileSubmission(FileSubmission):
-    """Submit primitive files."""
+    """Submit primitive files.   For pure-rmap submissions,  optionally generate contexts."""
 
     def submit(self, crds_filetype, generate_contexts):
         """Submit simple files to CRDS, literally, without making automatic rules adjustments.
@@ -402,7 +402,6 @@ class SimpleFileSubmission(FileSubmission):
         new_file_map:  { original_filename : new_filename, ... }
         collision_list :   info about derivation sources used multiple times.
         """
-        
         self.restrict_genre(crds_filetype, generate_contexts)
     
         # Verify that ALL files certify.
@@ -414,7 +413,13 @@ class SimpleFileSubmission(FileSubmission):
         
         collision_list = get_collision_list(new_file_map.values())
         
-        return disposition, certify_results, new_file_map, collision_list
+        # Get rmaps  used as a basis for creating a new context.
+        if generate_contexts:
+            context_rmaps = [filename for filename in new_file_map.values() if filename.endswith(".rmap")]
+        else:
+            context_rmaps = []
+        
+        return disposition, certify_results, new_file_map, collision_list, context_rmaps
 
     def restrict_genre(self, crds_filetype, generate_contexts):
         """Ensure all `uploaded_files` tuples correspond to the genre specified by crds_filetype:  
@@ -505,12 +510,12 @@ def get_collision_list(newfiles):
 
 # ------------------------------------------------------------------------------------------------
         
-def submit_confirm_core(button, submission_kind, description, new_file_map, new_files, generated_files, user,
-                        more_submits, generate_contexts, pmap_name, results_id):
-    
-    """Handle the confirm/cancel decision of a file submission."""
+def submit_confirm_core(confirmed, submission_kind, description, new_files, context_rmaps, user, pmap_name):
+    """Handle the confirm/cancel decision of a file submission.  If context_rmaps is not [],  then it's a list
+    of .rmaps from which to generate new contexts.   
+    """
     instrument = filekind = "unknown"
-    for filename in new_files + generated_files:
+    for filename in new_files:
         try:
             blob = models.FileBlob.load(filename)
         except LookupError:
@@ -524,173 +529,164 @@ def submit_confirm_core(button, submission_kind, description, new_file_map, new_
         if blob.filekind != "unknown":
             filekind = blob.filekind
 
-    if button == "confirm":
-        if generate_contexts:
-            updated_rmaps = [filename for (old, filename) in new_file_map if filename.endswith(".rmap")]
-            created_contexts_map = do_create_contexts(pmap_name, updated_rmaps, description, user)
-            new_file_map = sorted( new_file_map + created_contexts_map.items())
-            generated_files = sorted(generated_files + created_contexts_map.values())
-            
-        for filename in set(new_files + generated_files):
-            models.AuditBlob.new(user, submission_kind, filename, description, str(fix_unicode(new_file_map)), 
-                                 instrument=instrument, filekind=filekind)
- 
-        deliver_file_list( user, sconfig.observatory, set(new_files + generated_files), description, submission_kind)
+    context_name_map = {}
+    if confirmed:
+        if context_rmaps:
+            # context_rmaps aren't necessarily in new_file_map and may be existing files.  So they only
+            # specify changes to `pmap_name`,  not file deliveries.
+            context_name_map = do_create_contexts(pmap_name, context_rmaps, description, user)
+            delivered_files = sorted(new_files + context_name_map.values())
+        else:
+            delivered_files = new_files
+      
+        delivery = Delivery(user, delivered_files, description, submission_kind)
+        delivery.deliver()
 
-        disposition = "confirmed"
-
-        for mapping in generated_files:
+        for mapping in new_files:
             if mapping.endswith(".pmap"):
                 models.set_default_context(mapping)
+                break
     else:
-        destroy_file_list(set(new_files + generated_files))
-        disposition = "cancelled"
-        
-    models.RepeatableResultBlob.set_parameter(results_id, "disposition" , disposition)
-    
-    return  {
-                "confirmed" : button == "confirm",
-                "new_file_map" : new_file_map,
-                "generated_files" : generated_files,
-                "more_submits" : more_submits,
-            }
+        destroy_file_list(new_files)
+
+    return  context_name_map
     
 def fix_unicode(items):
-    return [(str(old), str(new)) for (old, new) in items]
-
-def change_file_state(files, new_state):
-    """Update the model state of `files` to `newstate`."""
-    for filename in files:
-        blob = models.FileBlob.load(filename)
-        blob.state = new_state
-        blob.save()
+    return [(str(old),str(new)) for (old,new) in items]
 
 def destroy_file_list(files):
-    """Remove the database record of `files` as well as `files` themselves."""
+    """Remove the database record of `files` as well as `files` themselves.
+    NOTE: This only removes the CRDS official copy of the file, not the original upload copy.
+    """
     for filename in files:
         blob = models.FileBlob.load(filename)
         blob.destroy()
 
 # ------------------------------------------------------------------------------------------------
+
+class Delivery(object):
+    """The Delivery class manages creating a delivery catalog and file links for delivered files
+    in the appropriate directory.  Afterward it updates FileBlobs to refer to the delivery .cat file
+    and to have state "delivered".   While the CRDS pipeline is executing the delivery,  the .cat
+    file is renamed to .cat_proc.   When the archive has accepted the delivery,  the .cat_proc file
+    is removed.   CRDS updates the state of "delivered" files
+    """
+    def __init__(self, user, delivered_files, description, action, observatory=sconfig.observatory):
+        self.user = str(user)
+        self.description = description
+        self.action = action
+        if not len(delivered_files):
+            raise CrdsError("No files were selected for delivery.")
+        self.delivered_files = [str(x) for x in sorted(delivered_files)]
+        self.observatory = observatory
+            
+    def deliver(self):
+        """Perform delivery actions for `delivered_files` by setting up the
+        catalog file and making links, updating database and audit trail.
+        """
+        catalog = self.deliver_file_catalog()
+        paths = self.delivered_paths
+        try:
+            catalog_link = self.deliver_make_links(catalog, paths)
+        except Exception, exc:
+            self.deliver_remove_fail(catalog, paths)
+            raise CrdsError("Delivery failed: " + str(exc))
+        self.update_file_blobs(catalog_link)
+        details = repr([os.path.basename(catalog)] + self.delivered_files)
+        models.AuditBlob.new( 
+            self.user, self.action, os.path.basename(catalog), self.description, details, self.observatory)        
+        for filename in self.delivered_files:
+            models.AuditBlob.new(self.user, self.action, filename, self.description, details, self.observatory)
+
+    @property
+    def delivered_paths(self):
+        """Adjust the database to account for this delivery.   Returns a list of
+        absolute paths to `files`.
+        """
+        return [models.FileBlob.load(filename).pathname for filename in self.delivered_files]
+
+    def update_file_blobs(self, catalog_link):
+        """Set the `catalog_link` in the FileBlob for each delivered file and change
+        state to "delivered".  Delivered means that OPUS now has the opportunity to pick up the file.   
+        As long as the .cat or .cat_proc (variants of catalog_link) exists, it is considered "delivered"
+        but not yet archived or "operational".  When the catalog_link no longer
+        exists,  it is assumed OPUS has copied the file, deleted the delivery link,
+        and the file transitions from "delivered" to "operational".   Here,
+        "operational" means that OPUS and the archives have the context or file 
+        available,  not necessarily that the pipeline is currently using the context.
+        """
+        for filename in self.delivered_files:
+            blob = models.FileBlob.load(filename)
+            blob.catalog_link = catalog_link
+            blob.state = "delivered"
+            blob.save()
+    
+    def deliver_file_catalog(self, operation="I"):
+        """Generate the delivery catalog file and return its path.   The catalog
+        file is a kind of manifest and semaphore used by OPUS to know that a
+        delivery has been made and what files are in it.   When CRDS links the
+        catalog file and deliveries into the delivery directories,  they are
+        considered "delivered". When OPUS deletes the catalog link,  the file is
+        considered "operational".
+    
+        The filepath is something like:
+           /hstdev/store/srefpipe/deliverfilesauto/opus_12314_i.cat    
+    
+        Each line of the catalog has the form:
+           <filename> <operation> <kind>
+            .e.g. V9M1422QI_DRK I R
+    
+        where operation can be I=insert or D=delete
+        where kind can be M=mapping or R=reference or T=table
         
-def deliver_file_list(user, observatory, delivered_files, description, action):
-    """Perform delivery actions for `delivered_files` by setting up the
-    catalog file and making links, updating database and audit trail.
-    """
-    if not len(delivered_files):
-        raise CrdsError("No files were selected for delivery.")
-    user = str(user)
-    delivered_files = [str(x) for x in sorted(delivered_files)]
-    catalog = str(deliver_file_catalog(observatory, delivered_files, "I"))
-    paths = deliver_file_get_paths(delivered_files)
-    try:
-        catalog_link = deliver_make_links(catalog, paths)
-    except Exception, exc:
-        deliver_remove_fail(catalog, paths)
-        raise CrdsError("Delivery failed: " + str(exc))
-    deliver_file_set_catalog_links(delivered_files, catalog_link)
-    models.AuditBlob.new( 
-        user, action, os.path.basename(catalog), description, 
-        repr([os.path.basename(catalog)] + delivered_files), observatory)        
+        NOTE: The T=table kind is obsolete and not used.  All reference files, tables and 
+        not-tables alike,  are type R.
+        
+        CRDS uses the catalog file name to name the delivery for auditing.
+        """
+        assert operation in ["I","D"], "Invalid delivery operation " + srepr(operation)
+        delivery_id = models.CounterBlob.next(self.observatory, "delivery_id")
+        catalog = "_".join(["opus", str(delivery_id), operation.lower()])+".cat"
+        catpath = os.path.join(sconfig.CRDS_CATALOG_DIR, catalog)
+        utils.ensure_dir_exists(catpath)
+        cat = open(catpath, "w")
+        for filename in self.delivered_files:
+            kind = "R"
+            cat.write(filename + " " + operation + " " + kind + "\n")
+        cat.close()
+        return catpath
 
-def deliver_file_get_paths(files):
-    """Adjust the database to account for this delivery.   Returns a list of
-    absolute paths to `files`.
-    """
-    paths = []
-    for filename in files:
-        blob = models.FileBlob.load(filename)
-        paths.append(blob.pathname)
-    return paths
+    def deliver_make_links(self, catalog, paths):
+        """Copy file `paths` to the proper holding area and then make hard links to
+        each file in each of the delivery site directories.   Return the path of 
+        the of the master catalog link;  when the master link is deleted by the 
+        recipient the entire delivery is considered complete and the files
+        transition from "delivered" to "operational".
+        """
+        dirs = sconfig.CRDS_DELIVERY_DIRS
+        for site in dirs:
+            utils.ensure_dir_exists(site)
+            for filename in paths + [catalog]:
+                dest = site +"/" + os.path.basename(filename)
+                try:
+                    os.link(filename, dest)
+                except Exception, exc:
+                    raise CrdsError("failed to link " + srepr(filename) + " to " + srepr(dest) + " : " + str(exc))
+        master_catalog_link = os.path.join(dirs[0], os.path.basename(catalog))
+        return master_catalog_link
 
-def deliver_file_set_catalog_links(files, catalog_link):
-    """Set the `catalog_link` in each FileBlob in `files` and mark each
-    blob as state="delivered".   This just means that OPUS now has the
-    opportunity to pick up the file.   As long as `catalog_link` exists, it is
-    considered to remain in "delivered" state.  When the catalog_link no longer
-    exists,  it is assumed OPUS has copied the file, deleted the delivery link,
-    and the file transitions from "delivered" to "operational".   Here,
-    "operational" means that OPUS and the archives have the context or file 
-    available,  not necessarily that the pipeline is currently using the context.
-    """
-    for filename in files:
-        blob = models.FileBlob.load(filename)
-        blob.catalog_link = catalog_link
-        blob.state = "delivered"
-        blob.save()
-
-def deliver_file_catalog(observatory, files, operation="I"):
-    """Generate the delivery catalog file and return its path.   The catalog
-    file is a kind of manifest and semaphore used by OPUS to know that a
-    delivery has been made and what files are in it.   When CRDS links the
-    catalog file and deliveries into the delivery directories,  they are
-    considered "delivered". When OPUS deletes the catalog link,  the file is
-    considered "operational".
-
-    The filepath is something like:
-       /hstdev/store/srefpipe/deliverfilesauto/opus_12314_i.cat    
-
-    Each line of the catalog has the form:
-       <filename> <operation> <kind>
-        .e.g. V9M1422QI_DRK I R
-
-    where operation can be I=insert or D=delete
-    where kind can be M=mapping or R=reference or T=table
+    def deliver_remove_fail(self, catalog, paths):
+        """Delete all the delivery links for a failed but possibly partially
+        completed delivery.
+        """
+        for site in sconfig.CRDS_DELIVERY_DIRS + [os.path.dirname(catalog)]:
+            for filename in paths + [catalog]:
+                dest = site +"/" + os.path.basename(filename)
+                try:
+                    os.remove(dest)
+                except Exception:
+                    pass
     
-    NOTE: The T=table kind is obsolete and not used.  All reference files, tables and 
-    not-tables alike,  are type R.
-    
-    CRDS uses the catalog file name to name the delivery for auditing.
-    """
-    assert operation in ["I","D"], \
-        "Invalid delivery operation " + srepr(operation)
-    delivery_id = models.CounterBlob.next(observatory, "delivery_id")
-    catalog = "_".join(["opus", str(delivery_id), operation.lower()])+".cat"
-    catpath = os.path.join(sconfig.CRDS_CATALOG_DIR, catalog)
-    utils.ensure_dir_exists(catpath)
-    cat = open(catpath, "w")
-    for filename in files:
-#        if rmap.is_mapping(filename):
-#            kind = "M"
-#        else:
-        kind = "R"
-        cat.write(filename + " " + operation + " " + kind + "\n")
-    cat.close()
-    return catpath
-
-def deliver_make_links(catalog, paths):
-    """Copy file `paths` of `observatory` to the proper holding area
-    for observatory and then make hard links to each file in each
-    of the delivery site directories.   Return the path of the of
-    the master catalog link;  when the master link is deleted by
-    the recipient the entire delivery is considered complete and
-    the files transition from "delivered" to "operational".
-    """
-    dirs = sconfig.CRDS_DELIVERY_DIRS
-    for site in dirs:
-        utils.ensure_dir_exists(site)
-        for filename in paths + [catalog]:
-            dest = site +"/" + os.path.basename(filename)
-            try:
-                os.link(filename, dest)
-            except Exception, exc:
-                raise CrdsError("failed to link " + srepr(filename) + " to " + srepr(dest) + " : " + str(exc))
-    master_catalog_link = os.path.join(dirs[0], os.path.basename(catalog))
-    return master_catalog_link
-
-def deliver_remove_fail(catalog, paths):
-    """Delete all the delivery links for a failed but possibly partially
-    completed delivery.
-    """
-    for site in sconfig.CRDS_DELIVERY_DIRS + [os.path.dirname(catalog)]:
-        utils.ensure_dir_exists(site)
-        for filename in paths + [catalog]:
-            dest = site +"/" + os.path.basename(filename)
-            try:
-                os.remove(dest)
-            except Exception:
-                pass
-
 # ------------------------------------------------------------------------------------------------
         
 if __name__ == "__main__":

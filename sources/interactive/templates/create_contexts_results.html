@@ -7,21 +7,9 @@
     
     {% include "select_pmap_results.html" %}
     
-    <h3>Starting Instrument Mappings</h3>
-    {% for ctx in old_mappings %}
-        {% if ctx != pmap %}
-            <p>{{ctx|browse}}</p>
-        {% endif %}
-    {% endfor %}
-    
     <h3>For Rmaps</h3>
-    {% for rmap in added_rmaps %}
+    {% for rmap in context_rmaps %}
         <p>{{rmap|browse}}</p>
-    {% endfor %}
-
-    <h3>Created New Contexts</h3>
-    {% for ctx in generated_files %}
-        <p>{{ctx|browse}}</p>
     {% endfor %}
 
     <br/>

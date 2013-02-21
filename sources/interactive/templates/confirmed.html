@@ -6,27 +6,72 @@
 
     <h2>{{title}}</h2>
 
-    {% if confirmed %}
-    
-        <p class='success'>Submission Confirmed.</p>
+    <div>
+        <style scoped>
+            table, th, td {
+                border: 1px solid black;
+            }
+            th {
+                font-size: 0.8em;
+                font-weight: bold;
+                color: darkblue;
+                text-align: left;
+            }
+        </style>
 
-        {% if new_file_map %}
-            <h3>Uploaded Files</h3>
-            {% for file in new_file_map %}
-                {% if file.1 not in generated_files %}
-                    <p>File submitted as {{file.0|gray}} will be renamed to {{file.1|browse}} in CRDS.</p>
-                {% endif %}
-            {% endfor %}
-        {% endif %}
+        {% if confirmed %}
         
-        {% if generated_files %}
-            <h3>Generated Files</h3>
-            {% for map in generated_files %}
-                <p>{{map|browse}}</p>
-            {% endfor %}
+            <p class='success'>Submission Confirmed.</p>
+            
+            {% if uploaded_files %}
+                <h3>Uploaded Files</h3>
+                <table>
+                    <thead>
+                        <tr> <td>Upload Name</td> <td></td>  <td>CRDS Name</td>  </tr>
+                    </thead>
+                    <tbody>
+                    {% for file in uploaded_files %}
+                        <tr> <td>{{file.0|gray}}</td> <td>--></td> <td>{{file.1|browse}}</td> </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+            
+            {% if context_rmaps %}
+                <h3>Rmaps Added To Contexts</h3>
+                <table>
+                    {% for file in context_rmaps %}
+                        <tr><td>{{file|browse}}</td></tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+            
+            {% if generated_files %}
+                <h3>Generated Files</h3>
+                <table>
+                    <thead>
+                        <tr> <td>Source Mapping</td> <td></td>  <td>New Mapping</td> </tr>
+                    </thead>
+                    <tbody>
+                    {% for file in generated_files %}
+                        <tr> <td>{{file.0|gray}}</td> <td>--></td>  <td>{{file.1|browse}}</td>  </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        
+        {% else %}
+            <p class='error'>Submission Discarded.</p>
         {% endif %}
+    </div>
     
-        {% if more_submits %}
+    {% if more_submits %}
+        <div>
+            <style scoped>
+                table, th, td {
+                    border: none;
+                }
+            </style>
             <br/>
             <table>
                 <tr>
@@ -44,11 +89,8 @@
                     </td>
                 </tr>
             </table>
-        {% endif %}
-    
-    {% else %}
-        <p class='error'>Submission Discarded.</p>
+        </div>
     {% endif %}
-
+    
 {% endblock contents %}
 

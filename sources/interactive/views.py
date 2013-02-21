@@ -496,7 +496,10 @@ def index(request):
 def display_result(request, results_id):
     """Render the repeatable result with `results_id`.  Handle the /display_result/ URL."""
     results_id = int(results_id)
-    result = models.RepeatableResultBlob.get(results_id)
+    try:
+        result = models.RepeatableResultBlob.get(results_id)
+    except Exception, exc:
+        raise CrdsError("Error loading result " + str(results_id) + " : " + str(exc))
     pars = result.parameters
     pars["results_id"] = results_id  # needed to implement "disposition", confirmed or cancelled.
     return crds_render(request, result.page_template, pars)
@@ -898,11 +901,10 @@ def batch_submit_references_post(request):
 
                 "new_file_map" : new_file_map,
                 "uploaded_basenames" : uploaded_files.keys(),
-                "generated_files" : sorted(new_mappings_map.values()), 
                 "submission_kind" : "batch submit",
                 "title" : "Batch Reference Submit",
                 "description" : description,
-                "generate_contexts" : True,
+                "context_rmaps" : sorted(new_mappings_map.values()), 
                 
 #                "reference_certs" : reference_certs,
 #                "mapping_certs" : mapping_certs, 
@@ -928,19 +930,43 @@ def submit_confirm(request):
     """
     button = validate_post(request, "button", "confirm|cancel")
     results_id = validate_post(request, "results_id", "\d+")
-    result = models.RepeatableResultBlob.get(int(results_id)).parameters
+    try:
+        result = models.RepeatableResultBlob.get(int(results_id)).parameters
+    except Exception, exc:
+        raise CrdsError("Error fetching result: " + results_id + " : " + str(exc))
 
     usr = str(request.user)
     assert usr == result.user, "User mismatch between submit and confirmation: " + repr(usr) + " vs. " + repr(result.user)
 
-    confirm_results = submit.submit_confirm_core(
-        button, result.submission_kind, result.description, result.new_file_map, dict(result.new_file_map).values(), 
-        result.generated_files, result.user, result.more_submits, result.generate_contexts, result.pmap, results_id)
-    
-    if button == "confirm":
-        clear_uploads(request, result.uploaded_basenames)
+    confirmed = (button == "confirm")
+    new_file_map = dict(result.new_file_map)
+    new_files = new_file_map.values()
 
-    return crds_render(request, "confirmed.html", confirm_results)
+    context_map = submit.submit_confirm_core( confirmed, result.submission_kind, result.description, new_files, 
+                                              result.context_rmaps, result.user,  result.pmap)
+
+    new_file_map = sorted(new_file_map.items() + context_map.items())
+    generated_files = sorted([(old, new) for (old,new) in new_file_map if old not in result.uploaded_basenames])
+    uploaded_files = [(old, new) for (old, new) in new_file_map if (old, new) not in generated_files]
+    
+    # rmaps specified for context generation but not uploaded or generated
+    context_rmaps = [filename for filename in result.context_rmaps if filename not in dict(generated_files).values() + result.uploaded_basenames]
+    
+    confirm_results = dict(
+        uploaded_files=uploaded_files,
+        context_rmaps=context_rmaps,
+        generated_files=generated_files,
+        new_file_map=new_file_map,
+        more_submits=result.more_submits,
+        confirmed=confirmed)
+    
+    if confirmed:
+        clear_uploads(request, result.uploaded_basenames)
+        models.RepeatableResultBlob.set_parameter(results_id, "disposition" , "confirmed")
+    else:
+        models.RepeatableResultBlob.set_parameter(results_id, "disposition" , "cancelled")
+    
+    return render_repeatable_result(request, "confirmed.html", confirm_results)
     
 # ===========================================================================
 
@@ -961,31 +987,16 @@ def create_contexts_post(request):
     pmap_name = get_recent_or_user_context(request)
     updated_rmaps = validate_post(request, "rmaps", is_list_of_rmaps)
     description = validate_post(request, "description", DESCRIPTION_RE)
-    
-    existing_names = rmap.get_cached_mapping(pmap_name).mapping_names()
-#    for updated in updated_rmaps:
-#        assert updated not in existing_names, "Rmap " + repr(updated) + " is already in context " + repr(pmap_name)
-
-    new_name_map = submit.do_create_contexts(pmap_name, updated_rmaps, description=description, user=request.user)
-
-    old_mappings = sorted(new_name_map.keys())
-    new_mappings = sorted(new_name_map.values())
-    
-    collision_list = submit.get_collision_list(new_mappings)
-    
     return render_repeatable_result(request, "create_contexts_results.html", {
                 "pmap": pmap_name,
-                "old_mappings" : old_mappings,
-                "added_rmaps" : updated_rmaps,
-                
                 "new_file_map" : [],
                 "uploaded_basenames": [],
-                "generated_files" : new_mappings, 
+                "context_rmaps" : updated_rmaps, 
                 "submission_kind" : "new context",
                 "title" : "Create Contexts",
                 "description" : description,
                 "more_submits" : "/create_contexts/",
-                "collision_list" : collision_list,
+                "collision_list" : [],
             })
     
 # ============================================================================
@@ -1018,19 +1029,18 @@ def submit_files_post(request, crds_filetype):
     simple = submit.SimpleFileSubmission(pmap_name, uploaded_files, description, user=request.user,  
         creator=creator, change_level=change_level, auto_rename=auto_rename, compare_old_reference=compare_old_reference)
     
-    disposition, certify_results, new_file_map, collision_list = simple.submit(crds_filetype, generate_contexts)
+    disposition, certify_results, new_file_map, collision_list, context_rmaps = simple.submit(crds_filetype, generate_contexts)    
 
     return render_repeatable_result(request, 'submit_results.html', {
                 "crds_filetype": crds_filetype,
                 "collision_list" : collision_list,
 
-                "generated_files" : [],
+                "context_rmaps" : context_rmaps,
                 "new_file_map" : sorted(new_file_map.items()),
                 "uploaded_basenames" : uploaded_files.keys(),
                 "submission_kind" : "submit file",
                 "title" : "Submit File",
                 "description" : description,
-                "generate_contexts": generate_contexts,
                 "pmap" : pmap_name,
                 
                 "certify_results" : certify_results,

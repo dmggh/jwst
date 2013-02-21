@@ -406,7 +406,6 @@ class FileBlob(BlobModel):
     def add_slow_fields(self):
         log.info("Adding slow fields for", repr(self.name))
         self.sha1sum = self.compute_checksum()
-        self.size = self.compute_size()
         if self.type == "reference":
             self.init_FITS_fields()
         self.save()
@@ -457,6 +456,8 @@ class FileBlob(BlobModel):
 
         blob.derived_from = derived_from if derived_from else "(no predecessor)"
         
+        blob.size = blob.compute_size()
+
         # These need to be checked before the file is copied and the blob is made.
         if not rmap.is_mapping(upload_name):
             blob.change_level = change_level

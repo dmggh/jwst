@@ -9,13 +9,6 @@
          <h3 class="error">Submission Failed.</h3>
     {% else %}
         
-        {% comment %}
-        {% for names in new_file_map %}
-        <h3 class="success">Submitted {{names.0|gray}} as {{names.1|browse}}</h3>
-        {% endfor %}
-        <br/>
-        {% endcomment %}
-        
         {% include "certify_include.html" %}
         
         {% include "collision_explain.html" %}
