@@ -21,9 +21,11 @@ def submit_files(files, observatory, deliverer,
     description="Initial mass database import", 
     add_slow_fields=False, state="submitted"):
     
+    file_map = models.get_fileblob_map()
+    
     for file in files:
         
-        if models.file_exists(file):
+        if file in file_map:
             log.info("Skipping existing file", repr(file))
             continue
 
