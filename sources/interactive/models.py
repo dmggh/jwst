@@ -374,15 +374,13 @@ class FileBlob(BlobModel):
         sha1sum = BlobField(str, "checksum of file at upload time", "none"),
         size = BlobField(long, "size of file in bytes.", -1),
         change_level = BlobField(CHANGE_LEVELS, "Do the changes to this file force recalibration of science data?", ""), 
-    )
 
-    blob_fields.update(dict(
         pedigree = FitsBlobField("PEDIGREE", str, "source of reference file", "none"),
         reference_file_type = FitsBlobField("REFTYPE", str, "From the REFTYPE keyword", "none"),
         useafter_date = FitsBlobField("USEAFTER", str, "date after which file should be used", "none"),
         comment = FitsBlobField("DESCRIP", str, "from DESCRIP keyword of reference file.", "none"),
-    ))
-    
+)
+
     @property
     def is_bad_file(self):
         """Return the 'reject state' of this file,  either True or False."""
@@ -401,7 +399,8 @@ class FileBlob(BlobModel):
                     value = data_file.getval(self.pathname, field.fitskey)
                     setattr(self, name, value)
                 except Exception:
-                    log.warning("required keyword '%s' is missing in '%s'" % (field.fitskey, self.uploaded_as))
+                    name = self.uploaded_as or self.name
+                    log.warning("required keyword '%s' is missing in '%s'" % (field.fitskey, name))
     
     def add_slow_fields(self):
         log.info("Adding slow fields for", repr(self.name))
@@ -422,12 +421,8 @@ class FileBlob(BlobModel):
     @classmethod
     def new(cls, observatory, upload_name, permanent_location, 
             creator_name, deliverer_user, deliverer_email, description, 
-            change_level="SEVERE", add_slow_fields=True, 
-            state="submitted", derived_from=None):
+            change_level="SEVERE", state="submitted", derived_from="(no predecessor)"):
         """Create a new FileBlob or subclass."""
-        
-        assert isinstance(add_slow_fields, (bool,int)), "parameter type error"
-        
         blob = cls()
         blob.observatory = observatory
         blob.uploaded_as = upload_name
@@ -442,9 +437,6 @@ class FileBlob(BlobModel):
         blob.deliverer_email = deliverer_email
         blob.description = description
         blob.delivery_date = timestamp.now()
-        if add_slow_fields:
-            blob.add_slow_fields()
-            blob.check_unique_sha1sum()
         try:
             instrument, filekind = utils.get_file_properties(observatory, permanent_location)
             blob.instrument = instrument
@@ -454,7 +446,7 @@ class FileBlob(BlobModel):
                         repr(permanent_location), ":", str(exc))
             blob.instrument = blob.fileind = "unknown"
 
-        blob.derived_from = derived_from if derived_from else "(no predecessor)"
+        blob.derived_from = derived_from
         
         blob.size = blob.compute_size()
 
@@ -477,7 +469,7 @@ class FileBlob(BlobModel):
             return os.stat(self.pathname).st_size
         except Exception, exc:
             log.error("Computing size of", repr(self.name),"failed:", str(exc))
-            return "compute size failed: " + str(exc)
+            return -1
     
     @property
     def status(self):
@@ -505,7 +497,7 @@ class FileBlob(BlobModel):
         try:
             return utils.checksum(self.pathname)
         except Exception, exc:
-            log.error("Computing sha1sum of", repr(self.name), "failed:", str(exc))
+            log.error("Computing sha1sum of", repr(self.pathname), "failed:", str(exc))
             return "checksum failed: " + str(exc)
 
     @property
@@ -563,13 +555,16 @@ def add_crds_file(observatory, upload_name, permanent_location,
     except Exception:
         pass
 
-    fileblob = FileBlob.new(
+    blob = FileBlob.new(
         observatory, upload_name, permanent_location, 
         creator_name, deliverer, deliverer_email, description,
-        change_level=change_level, add_slow_fields=add_slow_fields,
-        state=state, derived_from=derived_from)
+        change_level=change_level, state=state, derived_from=derived_from)
+
+    if add_slow_fields:
+        blob.add_slow_fields()
+        blob.check_unique_sha1sum()
     
-    return fileblob
+    return blob
 
 def file_exists(filename, observatory=OBSERVATORY):
     """Return True IFF `filename` is a known CRDS reference or mapping file."""
@@ -819,6 +814,28 @@ class RepeatableResultBlob(BlobModel):
         result.parameters_enc = json_ext.dumps(result.parameters)
         result.save()
 
+# ============================================================================
+
+class LockBlob(BlobModel):
+    """Crude concurrency management, inferior to true OS semaphores but easier."""
+    class Meta:
+        db_table = TABLE_PREFIX + "_lock" # rename SQL table
+
+    blob_fields = dict(
+        # User supplied fields
+        type = BlobField(str, "Kind of lock.", ["instrument", "context", "none"]),
+        user = BlobField(str, "User holding the lock", ""),
+        date = BlobField(str, "Date the lock was grabbed.", "")
+    )
+
+    unicode_list = ["id", "name", "user", "date", "type"]
+    
+    def acquire(cls, name, user="unknown", type="none", timeout=0):
+        pass
+    
+    def release(cls, name, user="unknown", type="none", timeout=0):
+        pass
+        
 # ============================================================================
 
 def set_default_context(context, observatory=OBSERVATORY, user="crds-system",
