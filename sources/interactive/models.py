@@ -816,28 +816,6 @@ class RepeatableResultBlob(BlobModel):
 
 # ============================================================================
 
-class LockBlob(BlobModel):
-    """Crude concurrency management, inferior to true OS semaphores but easier."""
-    class Meta:
-        db_table = TABLE_PREFIX + "_lock" # rename SQL table
-
-    blob_fields = dict(
-        # User supplied fields
-        type = BlobField(str, "Kind of lock.", ["instrument", "context", "none"]),
-        user = BlobField(str, "User holding the lock", ""),
-        date = BlobField(str, "Date the lock was grabbed.", "")
-    )
-
-    unicode_list = ["id", "name", "user", "date", "type"]
-    
-    def acquire(cls, name, user="unknown", type="none", timeout=0):
-        pass
-    
-    def release(cls, name, user="unknown", type="none", timeout=0):
-        pass
-        
-# ============================================================================
-
 def set_default_context(context, observatory=OBSERVATORY, user="crds-system",
                         state="default"):
     assert context.endswith(".pmap"), "context must be a .pmap"
