@@ -1,5 +1,6 @@
 Django
 django-json-rpc-git
+django-locking-master
 
 # debug tools
 django-debug-toolbar
