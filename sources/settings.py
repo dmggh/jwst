@@ -133,7 +133,7 @@ INSTALLED_APPS = (
     "crds.server.stats",
     
     "crds.server.fileupload",
-    "locking",
+    "crds.server.locking",     # from git-hub django-locking
 
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',

@@ -18,6 +18,11 @@ setup(name="crds.server",
         
         'crds.server.fileupload',
         'crds.server.fileupload.templatetags',
+        
+        'crds.server.locking',
+        'crds.server.locking.management',
+        'crds.server.locking.management.commands',
+        'crds.server.locking.migrations',
         ],
 
       package_dir = {
@@ -34,6 +39,11 @@ setup(name="crds.server",
         
         'crds.server.fileupload' : './fileupload',
         'crds.server.fileupload.templatetags' : './fileupload/templatetags',
+
+        'crds.server.locking' : './locking',
+        'crds.server.locking.management' : './locking/management',
+        'crds.server.locking.management.commands' : './locking/management/commands',
+        'crds.server.locking.migrations' : './locking/migrations',
         },
 
       package_data = {
