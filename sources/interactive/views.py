@@ -22,7 +22,7 @@ from django.core.urlresolvers import reverse
 
 import django.contrib.auth
 import django.contrib.auth.models
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required as django_login_required
 
 import pyfits
 
@@ -416,15 +416,6 @@ def get_recent_or_user_context(request):
 class ServerError(Exception):
     """Uncaught exception which will be returned as HTTP 500"""
     
-def superuser_login_required(func):
-    @login_required
-    def _inner(request, *args, **keys):
-        if not request.user.is_superuser:
-            raise CrdsError(str(request.user) + " is not a super user.")
-        return func(request, *args, **keys)
-    _inner.func_name = func.func_name
-    return _inner
-
 def error_trap(template):
     """error_trap() is a 'decorator maker' which returns a decorator which 
     traps exceptions in views and re-issues the input `template` with an 
@@ -485,6 +476,28 @@ def log_view(func):
 # ===========================================================================
 # ===========================================================================
 
+def login_required(func):
+    @django_login_required
+    def _inner(request, *args, **keys):
+        # XXXX do something with request.user and instrument locking.
+        # XXXX do something with automatic logouts.
+        return func(request, *args, **keys)
+    _inner.func_name = func.func_name
+    return _inner
+
+# ===========================================================================
+
+def superuser_login_required(func):
+    @django_login_required
+    def _inner(request, *args, **keys):
+        if not request.user.is_superuser:
+            raise CrdsError(str(request.user) + " is not a super user.")
+        return func(request, *args, **keys)
+    _inner.func_name = func.func_name
+    return _inner
+
+# ===========================================================================
+
 def index(request):
     """Return the top level page for all of interactive CRDS."""
     return crds_render(request, "index.html")
@@ -519,12 +532,12 @@ def login(request):
     if request.method == 'POST':
         if request.session.test_cookie_worked():
             request.session.delete_test_cookie()
-            return django_login(request, "login.html")
+            return django_login(request, "login.html", extra_context=dict(instruments=models.INSTRUMENTS))
         else:
             raise CrdsError("Please enable cookies and try again.")
     else:
         request.session.set_test_cookie()
-        return django_login(request, "login.html")
+        return django_login(request, "login.html", extra_context=dict(instruments=models.INSTRUMENTS))
 
 
 def logout(request):
