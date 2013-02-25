@@ -22,7 +22,7 @@ from django.core.urlresolvers import reverse
 
 import django.contrib.auth
 import django.contrib.auth.models
-from django.contrib.auth.decorators import login_required as django_login_required
+from django.contrib.auth.decorators import login_required as login_required
 
 import pyfits
 
@@ -31,12 +31,13 @@ from crds import CrdsError
 
 from crds.timestamp import (DATE_RE_STR, TIME_RE_STR)
 
-from . import (models, database, web_certify, web_difference, submit, versions)
+from . import (models, database, web_certify, web_difference, submit, versions, locks)
 from .models import FieldError, MissingInputError
 from .common import capture_output, srepr, profile
 
 import crds.server.generic_config as sconfig
 from crds.server.jsonapi import views as jsonapi_views
+from crds.server import settings
 
 HERE = os.path.dirname(__file__) or "./"
 
@@ -451,6 +452,7 @@ def log_view(func):
             log.info("POST:",  repr(request.POST))
 #        if request.COOKIES:
 #            log.info("COOKIES:", repr(request.COOKIES), stdout=None)
+        log.info("SESSION:", request.session.session_key, "expires", request.session.get_expiry_date())
         if request.FILES:
             log.info("FILES:", repr(request.FILES))
         log.info("OUTPUT:")
@@ -475,20 +477,32 @@ def log_view(func):
 # ===========================================================================
 # ===========================================================================
 # ===========================================================================
+"""Authentication and locking strategy:
 
-def login_required(func):
-    @django_login_required
-    def _inner(request, *args, **keys):
-        # XXXX do something with request.user and instrument locking.
-        # XXXX do something with automatic logouts.
-        return func(request, *args, **keys)
-    _inner.func_name = func.func_name
-    return _inner
+1. File submission views require an authenticated user
 
-# ===========================================================================
+2. As part of login,  an instrument is reserved to that user,  and only they can submit for it.
+This part is triggered by the user_logged_in signal which allocates database based locks for that
+instrument and user.
+
+3. Database-based locks are refreshed whenever the session is refreshed.
+This is achieved by providing lock refreshing middleware.
+
+4. Both Sessions and locks expire 36 hours after the last access by the logged in user.
+
+5. Logging out releases locks owned by a user.
+
+
+There are two ways for a session to expire:
+a. The session clock runs out and it expires.
+b. The user logs out.
+
+Sessions are normally refreshed using middleware on every request.
+Additional middleware is defined for CRDS which refreshes locks on all requests, including unprivileged requests.
+"""
 
 def superuser_login_required(func):
-    @django_login_required
+    @login_required
     def _inner(request, *args, **keys):
         if not request.user.is_superuser:
             raise CrdsError(str(request.user) + " is not a super user.")
@@ -496,6 +510,56 @@ def superuser_login_required(func):
     _inner.func_name = func.func_name
     return _inner
 
+# ===========================================================================
+
+# These signal handlers are called after a user is logged in or out to manage instrument locks.
+
+from django.contrib.auth.signals import user_logged_in, user_logged_out
+
+def instrument_lock_login_receiver(sender, **keys):
+    """Signal handler to acquire locks for a user when they login."""
+    request = keys["request"]
+    user = str(keys["user"])
+    instrument = validate_post(request, "instrument", models.INSTRUMENTS + ["none"])
+    request.session["instrument"] = instrument
+    log.info("Login receiver releasing all instrument locks for user '%s' session '%s'." % (user, request.session.session_key))
+    locks.release_locks(user=user, type="instrument")
+    if instrument != "none":
+        log.info("Login receiver acquiring '%s' instrument lock for user '%s' session '%s'." % (instrument, user, request.session.session_key))
+        try:
+            locks.acquire(user=user, type="instrument", name=instrument, timeout=settings.CRDS_LOCK_ACQUIRE_TIMEOUT, 
+                          max_age=settings.CRDS_MAX_LOCK_AGE)
+        except locks.ResourceLockedError:
+            owner = locks.owner_of(name=instrument, type="instrument")
+            raise CrdsError("User '%s' has already locked instrument '%s'." % (owner, instrument))
+
+user_logged_in.connect(instrument_lock_login_receiver, dispatch_uid="instrument_lock_login_receiver")
+
+def instrument_lock_logout_receiver(sender, **keys):
+    """Signal handler to release a user's locks if they log out."""
+    request = keys["request"]
+    user = str(keys["user"])
+    instrument = request.session.get("instrument", None)
+    if instrument is not None:
+        log.info("Logout receiver releasing all instrument locks for user '%s' session '%s'." % (user, request.session.session_key))
+        locks.release_locks(user=user, type="instrument")    
+        request.session["instrument"] = "none"
+
+user_logged_out.connect(instrument_lock_logout_receiver, dispatch_uid="instrument_lock_logout_receiver")
+
+def instrument_lock_required(func):
+    """Decorator to ensure a user still owns an un-expired lock defined by their session data."""
+    def _wrapped(request, *args, **keys):
+        assert request.user.is_authenticated(), "You must log in."
+        instrument = request.session["instrument"]
+        user = str(request.user)
+        if instrument != "none":
+            locks.verify_locked(type="instrument", name=instrument, user=user)
+        else:
+            raise CrdsError("You can't access this function without logging in for a particular instrument.")
+        return func(request, *args, **keys)
+    _wrapped.func_name = func.func_name
+    return _wrapped
 # ===========================================================================
 
 def index(request):
@@ -532,12 +596,12 @@ def login(request):
     if request.method == 'POST':
         if request.session.test_cookie_worked():
             request.session.delete_test_cookie()
-            return django_login(request, "login.html", extra_context=dict(instruments=models.INSTRUMENTS))
+            return django_login(request, "login.html", extra_context=dict(instruments=models.INSTRUMENTS + ["none"]))
         else:
             raise CrdsError("Please enable cookies and try again.")
     else:
         request.session.set_test_cookie()
-        return django_login(request, "login.html", extra_context=dict(instruments=models.INSTRUMENTS))
+        return django_login(request, "login.html", extra_context=dict(instruments=models.INSTRUMENTS + ["none"]))
 
 
 def logout(request):
@@ -883,6 +947,7 @@ def certify_post(request):
 @error_trap("batch_submit_reference_input.html")
 @log_view
 @login_required
+@instrument_lock_required
 # @profile("batch_submit_reference.stats")
 def batch_submit_references(request):
     """View to return batch submit reference form or process POST."""
@@ -937,6 +1002,7 @@ def batch_submit_references_post(request):
 @error_trap("base.html")
 @login_required
 @log_view
+@instrument_lock_required
 def submit_confirm(request):
     """Accept or discard proposed files from various file upload and
     generation mechanisms.
@@ -1017,6 +1083,7 @@ def create_contexts_post(request):
 @error_trap("submit_input.html")
 @log_view
 @login_required
+@instrument_lock_required
 def submit_files(request, crds_filetype):
     """Handle file submission,  crds_filetype=reference|mapping."""
     if request.method == "GET":

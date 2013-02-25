@@ -1,10 +1,23 @@
 """This module implements locking to protect critical regions for the CRDS server.
 
 The current implementation is based on the github project django-locking which is
-plugged in as crds.server.locking with minimal changes.   The locks are database
+plugged in as crds.server.locking with no changes.   The locks are database
 based.
 
 Locks can also be released by going to the admin interface and deleting them.
+
+This module customizes django-locking to CRDS by layering additional concepts
+onto the basic locks:
+
+1. Users who own locks (locks persisting across HTTP requests.)
+2. Types of locks (different namespaces for lock names.)
+3. Acquisition timeouts  (Fail with an exception rather than deadlocking.)
+
+Both users and types are supported by adding them to the lock name.
+
+Locks which persist by user are supported by using paired locks, one for the resource,
+and one for the resource owned by a particular user.  First a user obtains the resource,
+next they leave behind a breadcrumb lock proving they are the one that owns it.
 """
 
 import time
@@ -14,6 +27,7 @@ from ..locking.models import Lock
 from ..locking.exceptions import AlreadyLocked
 
 from crds import CrdsError, log
+from crds.server import settings
 
 NEVER=60*60*24*365*1000   # 1000 years in seconds
 
@@ -27,7 +41,10 @@ class CrdsLock(object):
     """Management class to add the notion of a particular user holding a lock 
     without modifying the django-locking package.
     """
-    def __init__(self, user, type, name, max_age=NEVER):
+    def __init__(self, user, type, name, max_age=settings.CRDS_MAX_LOCK_AGE):
+        assert "_" not in user
+        assert "_" not in type
+        assert "_" not in name
         self.user = user
         self.type = type
         self.name = name
@@ -115,22 +132,48 @@ class CrdsLock(object):
         self._user_lock = self._get_existing(self.user_lock)
         self._resource_lock = self._get_existing(self.resource_lock)
         return True
-            
     
-def acquire(name, type="", user="", timeout=NEVER, max_age=NEVER):
+    def expires_on(self):
+        self._resource_lock = self._get_existing(self.resource_lock)
+        return self._resource_lock.expires_on()
+    
+    def reset_expiry(self):
+        self.verify_locked()
+        now = datetime.datetime.now()
+        self._reset_expiry(self._resource_lock, now)
+        if self._user_lock:
+            self._reset_expiry(self._user_lock, now)
+    
+    def _reset_expiry(self, lock, now):
+        lock.created_on = now
+        lock.save()
+        self._std_info("reset expiry", lock.locked_object)
+    
+def acquire(name, type="", user="", timeout=NEVER, max_age=settings.CRDS_MAX_LOCK_AGE):
+    """Acquire the locks associated with `name` and `type` on behalf of `user`.   Fail after `timeout` seconds
+    if the lock is already locked, defaulting to waiting forever.  The acquired lock will expire
+    after `max_age` seconds even if it is not released.
+    """
     lock = CrdsLock(user=user, type=type, name=name, max_age=max_age)
     lock.acquire(timeout)
     return lock
 
 def release(name, type="", user=""):
+    """Release the lock for the specified `name`, `type`, and `user`."""
     lock = CrdsLock(user=user, type=type, name=name)
     lock.release()
     return lock
     
 def verify_locked(name, type="", user=""):
+    """Ensure that `user` owns the locks associated with `name` and `type`."""
     lock = CrdsLock(user=user, type=type, name=name)
     lock.verify_locked()
     return lock
+
+def reset_expiry(name, type="", user=""):
+    """Reset the expiration timer on locks associated with `name`, `type`, and `user`."""
+    lock = CrdsLock(user=user, type=type, name=name)
+    lock.reset_expiry()
 
 def release_all():
     """Release all locks of all types."""
@@ -142,3 +185,37 @@ def listall():
     locks = Lock.objects.all()
     for lock in locks:
         log.info("Lock ", repr(lock))
+        
+def filter_locks(name=None, type=None, user=None):
+    """Return the primitive locks which match name, user, and/or type."""
+    filtered = []
+    for lock in Lock.objects.all():
+        lock_name = str(lock.locked_object)
+        parts = lock_name.split("_")
+        if len(parts) == 2:
+            continue
+        elif len(parts) == 3:
+            l_type, l_name, l_user = parts
+        else:
+            raise CrdsError("Lock name error: '%s'." % lock_name)
+        if name is not None and name != l_name:
+            continue
+        if type is not None and type != l_type:
+            continue
+        if user is not None and l_user is not None and user != l_user:
+            continue
+        c_lock = CrdsLock(name=l_name, user=l_user, type=l_type, max_age=lock.max_age)
+        filtered.append(c_lock)
+    return filtered
+
+def release_locks(name=None, user=None, type=None):
+    """Release all CRDS locks matching the specified parameters."""
+    for lock in filter_locks(name=name, type=type, user=user):
+        lock.release()
+        
+def owner_of(name, type=None):
+    """Return the owner of the first CrdsLock found with the specified `name` and `type`, or 'unknown'."""
+    for lock in filter_locks(name=name, type=type):
+        return lock.user
+    return "unknown"
+        

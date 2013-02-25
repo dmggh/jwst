@@ -90,6 +90,13 @@ FILE_UPLOAD_HANDLERS = (
      "django.core.files.uploadhandler.TemporaryFileUploadHandler",
 )
 
+# Session management, logins and expiration
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_COOKIE_AGE = 60*60*24*1.5   # 36 hours
+CRDS_MAX_LOCK_AGE = SESSION_COOKIE_AGE
+CRDS_LOCK_ACQUIRE_TIMEOUT = 10 # seconds
+
 MIDDLEWARE_CLASSES = (
     # must precede middleware which assumes CSRF already dealt with
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -100,6 +107,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     
     'crds.server.stats.middleware.LogMiddleware',
+    'crds.server.interactive.middleware.ResetLockExpirationMiddleware',
 )
 
 if DEBUG_EXTRAS:
