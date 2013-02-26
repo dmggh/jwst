@@ -46,7 +46,7 @@ import getpass
 
 from crds import cmdline, log, rmap, utils, refactor, newcontext, checksum, CrdsError
 
-from . import models, web_certify, web_difference
+from . import models, web_certify, web_difference, locks
 from .common import srepr
 
 from crds.server import config as sconfig
@@ -142,7 +142,6 @@ class FileSubmission(object):
         self.change_level = change_level
         self.auto_rename = auto_rename
         self.compare_old_reference = compare_old_reference
-        self.instrument = None
         self.locked_instrument = locked_instrument
 
     def submit(self):
@@ -205,6 +204,13 @@ class FileSubmission(object):
         instead of the corresponding old rmaps.  Add the new contexts to the
         CRDS database and return a list of new context mapping names.
         """
+        context_lock = locks.acquire(user=str(self.user), type="context", name="all")
+        try:
+            return self._do_create_context(updated_rmaps)
+        finally:
+            context_lock.release()
+
+    def _do_create_context(self, updated_rmaps):
         # Get the mapping from old imap to new rmap, basically the imaps that
         # must be updated onto the list of rmap updates to do.
         updates_by_instrument = newcontext.get_update_map(self.pmap.name, updated_rmaps)
@@ -238,11 +244,13 @@ class FileSubmission(object):
         return models.add_crds_file(self.observatory, original_name, filepath,  str(self.user), self.user.email, 
             self.description, change_level=self.change_level, creator_name=self.creator, state=state)
         
-    def verify_instrument_lock(self, instrument):
-        if self.locked_instrument:
-            assert instrument == self.locked_instrument, \
-                "Instrument Error:  Logged in for '%s'. Submitted files for '%s'."
-        
+    def verify_instrument_lock(self, generating_files=True):
+        """Ensure that all the submitted files correspond to the locked instrument."""
+        paths = dict(self.uploaded_files).values()
+        if not generating_files:
+            self.instrument_lock = None
+        locks.verify_instrument_locked_files(self.user, self.locked_instrument, paths, self.observatory)
+
 # ------------------------------------------------------------------------------------------------
 
 def do_create_contexts(pmap_name, updated_rmaps, description, user):
@@ -260,6 +268,8 @@ class BatchReferenceSubmission(FileSubmission):
         """Certify and submit the files,  returning information to confirm/cancel."""
         # Verify that ALL references certify,  raise CrdsError on first error.
         comparison_context = self.pmap.name if self.compare_old_reference else None
+        
+        self.verify_instrument_lock()
         
         self.bsr_ensure_references()
         
@@ -331,11 +341,11 @@ class BatchReferenceSubmission(FileSubmission):
                 instrument, filekind = utils.get_file_properties(self.observatory, uploaded_path)
             except Exception:
                 raise CrdsError("Can't determine instrument or file type for " + srepr(original_name))
-            if self.instrument is not None:
-                assert instrument == self.instrument, \
-                    "More than one instrument submitted at '%s' : '%s' vs. '%s'." % (original_name, self.instrument, instrument)
-            self.instrument = instrument
-            self.verify_instrument_lock(instrument)
+            if seen_instrument is None:
+                seen_instrument = instrument
+            else:
+                assert instrument == seen_instrument, \
+                    "More than one instrument submitted at '%s' : '%s' vs. '%s'." % (original_name, seen_instrument, instrument)
             if (instrument, filekind) not in groups:
                 groups[(instrument, filekind)] = {}
             groups[(instrument, filekind)][original_name] = uploaded_path 
@@ -411,6 +421,8 @@ class SimpleFileSubmission(FileSubmission):
         new_file_map:  { original_filename : new_filename, ... }
         collision_list :   info about derivation sources used multiple times.
         """
+        self.verify_instrument_lock(generating_files=generate_contexts)
+        
         self.restrict_genre(crds_filetype, generate_contexts)
     
         # Verify that ALL files certify.
@@ -519,11 +531,13 @@ def get_collision_list(newfiles):
 
 # ------------------------------------------------------------------------------------------------
         
-def submit_confirm_core(confirmed, submission_kind, description, new_files, context_rmaps, user, pmap_name):
+def submit_confirm_core(confirmed, submission_kind, description, new_files, context_rmaps, user, pmap_name, 
+                        locked_instrument):
     """Handle the confirm/cancel decision of a file submission.  If context_rmaps is not [],  then it's a list
     of .rmaps from which to generate new contexts.   
     """
     instrument = filekind = "unknown"
+    paths = []
     for filename in new_files:
         try:
             blob = models.FileBlob.load(filename)
@@ -537,7 +551,13 @@ def submit_confirm_core(confirmed, submission_kind, description, new_files, cont
             instrument = blob.instrument
         if blob.filekind != "unknown":
             filekind = blob.filekind
-
+        paths.append(blob.pathname)
+        
+    if not paths:
+        raise CrdsError("No files submitted.")
+    
+    verify_instrument_lock(user, locked_instrument, paths, blob.observatory)
+    
     context_name_map = {}
     if confirmed:
         if context_rmaps:

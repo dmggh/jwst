@@ -26,7 +26,7 @@ import datetime
 from ..locking.models import Lock
 from ..locking.exceptions import AlreadyLocked
 
-from crds import CrdsError, log
+from crds import CrdsError, log, utils
 from crds.server import settings
 
 NEVER=60*60*24*365*1000   # 1000 years in seconds
@@ -42,9 +42,9 @@ class CrdsLock(object):
     without modifying the django-locking package.
     """
     def __init__(self, user, type, name, max_age=settings.CRDS_MAX_LOCK_AGE):
-        assert "_" not in user
-        assert "_" not in type
-        assert "_" not in name
+        assert "_" not in user, "Illegal lock user name '%s'" % user
+        assert "_" not in type, "Illegal lock type name '%s'" % type
+        assert "_" not in name, "Illegal lock name '%s'" % name
         self.user = user
         self.type = type
         self.name = name
@@ -174,6 +174,7 @@ def reset_expiry(name, type="", user=""):
     """Reset the expiration timer on locks associated with `name`, `type`, and `user`."""
     lock = CrdsLock(user=user, type=type, name=name)
     lock.reset_expiry()
+    return lock
 
 def release_all():
     """Release all locks of all types."""
@@ -218,4 +219,25 @@ def owner_of(name, type=None):
     for lock in filter_locks(name=name, type=type):
         return lock.user
     return "unknown"
+
+# -----------------------------------------------------------------------------
+
+def verify_instrument_locked_files(user, locked_instrument, filepaths, observatory):
+    """Ensure that all the submitted files correspond to the locked instrument and
+    that the instrument is still locked.
+    
+    user                   username or Django User
+    locked_instrument      name of instrument
+    filepaths              paths of submitted files
+    observatory            name of observatory, 'hst' or 'jwst'
+    """
+    if locked_instrument is None:
+        log.info("Operating in unlocked mode.")
+    verify_locked(user=str(user), type="instrument", name=locked_instrument)
+    for path in filepaths:
+        instrument, filekind = utils.get_file_properties(observatory, path)
+        assert instrument == locked_instrument, \
+            "Instrument Mismatch:  Logged in for '%s'. Submitted files for '%s'." % (locked_instrument, instrument)
+     
+
         
