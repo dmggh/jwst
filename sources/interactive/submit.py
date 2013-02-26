@@ -556,7 +556,7 @@ def submit_confirm_core(confirmed, submission_kind, description, new_files, cont
     if not paths:
         raise CrdsError("No files submitted.")
     
-    verify_instrument_lock(user, locked_instrument, paths, blob.observatory)
+    verify_instrument_locked_files(user, locked_instrument, paths, blob.observatory)
     
     context_name_map = {}
     if confirmed:
