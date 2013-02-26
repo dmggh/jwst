@@ -131,7 +131,8 @@ class FileSubmission(object):
     """Baseclass for file submissions,  carrier object for submission metadata and files."""
     
     def __init__(self, pmap_name, uploaded_files, description, user, creator="UNKNOWN",
-                 change_level="SEVERE", auto_rename=True, compare_old_reference=False):
+                 change_level="SEVERE", auto_rename=True, compare_old_reference=False,
+                 locked_instrument=None):
         self.pmap = rmap.get_cached_mapping(pmap_name)
         self.observatory = self.pmap.observatory
         self.uploaded_files = uploaded_files
@@ -142,7 +143,8 @@ class FileSubmission(object):
         self.auto_rename = auto_rename
         self.compare_old_reference = compare_old_reference
         self.instrument = None
-    
+        self.locked_instrument = locked_instrument
+
     def submit(self):
         """Validate the submitted files and add them to the database."""
         
@@ -236,6 +238,11 @@ class FileSubmission(object):
         return models.add_crds_file(self.observatory, original_name, filepath,  str(self.user), self.user.email, 
             self.description, change_level=self.change_level, creator_name=self.creator, state=state)
         
+    def verify_instrument_lock(self, instrument):
+        if self.locked_instrument:
+            assert instrument == self.locked_instrument, \
+                "Instrument Error:  Logged in for '%s'. Submitted files for '%s'."
+        
 # ------------------------------------------------------------------------------------------------
 
 def do_create_contexts(pmap_name, updated_rmaps, description, user):
@@ -297,8 +304,9 @@ class BatchReferenceSubmission(FileSubmission):
         """Try out refactoring,  filekind-by-filekind,  and return a list of the affected rmaps.
         Returns [ replaced_rmaps... ]
         """
+        groups = self.bsr_group_references()
         return [ self.bsr_temp_refactor_filekind(uploaded_group, instrument, filekind)
-                for ((instrument, filekind), uploaded_group) in self.bsr_group_references() ]
+                for ((instrument, filekind), uploaded_group) in groups ]
     
     def bsr_temp_refactor_filekind(self, uploaded_group, instrument, filekind):
         """Refactor the original rmap inserting temporary references, creating a 
@@ -327,6 +335,7 @@ class BatchReferenceSubmission(FileSubmission):
                 assert instrument == self.instrument, \
                     "More than one instrument submitted at '%s' : '%s' vs. '%s'." % (original_name, self.instrument, instrument)
             self.instrument = instrument
+            self.verify_instrument_lock(instrument)
             if (instrument, filekind) not in groups:
                 groups[(instrument, filekind)] = {}
             groups[(instrument, filekind)][original_name] = uploaded_path 

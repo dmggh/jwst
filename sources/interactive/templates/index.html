@@ -20,14 +20,16 @@
     </ol>
     
 {% if is_authenticated %}
-    <h3>Restricted Services</h3>
+    <h3>Restricted Services  <span class='locked_instrument'>{{locked_instrument}}</span>  </h3>
     <ol>
-        <li><a href="/batch_submit_references/">Batch Submit References</a></li>
-        <br/>        
         <li><a href="/certify/">Certify Files</a></li>
-        <li><a href="/submit/reference/">Submit References</a></li>
-        <li><a href="/submit/mapping/">Submit Mappings</a></li>
-        <br/>
+        <br>
+        {% if locked_instrument %}
+            <li><a href="/batch_submit_references/">Batch Submit References</a></li>
+            <li><a href="/submit/reference/">Submit References</a></li>
+            <li><a href="/submit/mapping/">Submit Mappings</a></li>
+            <br/>
+        {% endif %}  
         {% if is_superuser %}
             <li><a href="/set_file_enable/">Set File Enable</a></li>
             <li><a href="/version_info/">Server Version Info</a></li>

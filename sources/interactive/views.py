@@ -228,6 +228,9 @@ def crds_render(request, template, dict_=None, requires_pmaps=False):
     statuses = ["*"] + models.FILE_STATUS_MAP.keys()
     statuses.remove("uploaded")
     
+    locked = get_locked_instrument(request)
+    locked = locked if locked else ""
+    
     rdict = {   # standard template variables
         "observatory" : models.OBSERVATORY,
              
@@ -250,6 +253,8 @@ def crds_render(request, template, dict_=None, requires_pmaps=False):
         "deliverer_user" : "*",
         "current_path" : request.get_full_path(),
         
+        "locked_instrument" : locked,
+
         "auto_rename" : False,
     }
     
@@ -486,7 +491,7 @@ This part is triggered by the user_logged_in signal which allocates database bas
 instrument and user.
 
 3. Database-based locks are refreshed whenever the session is refreshed.
-This is achieved by providing lock refreshing middleware.
+This is achieved by providing lock refreshing middleware.  Any interactive use of the site causes refresh.
 
 4. Both Sessions and locks expire 36 hours after the last access by the logged in user.
 
@@ -496,9 +501,6 @@ This is achieved by providing lock refreshing middleware.
 There are two ways for a session to expire:
 a. The session clock runs out and it expires.
 b. The user logs out.
-
-Sessions are normally refreshed using middleware on every request.
-Additional middleware is defined for CRDS which refreshes locks on all requests, including unprivileged requests.
 """
 
 def superuser_login_required(func):
@@ -521,14 +523,16 @@ def instrument_lock_login_receiver(sender, **keys):
     request = keys["request"]
     user = str(keys["user"])
     instrument = validate_post(request, "instrument", models.INSTRUMENTS + ["none"])
-    request.session["instrument"] = instrument
-    log.info("Login receiver releasing all instrument locks for user '%s' session '%s'." % (user, request.session.session_key))
+    # log.info("Login receiver releasing all instrument locks for user '%s' session '%s'." % (user, request.session.session_key))
     locks.release_locks(user=user, type="instrument")
+    del_locked_instrument(request)
     if instrument != "none":
-        log.info("Login receiver acquiring '%s' instrument lock for user '%s' session '%s'." % (instrument, user, request.session.session_key))
+        # log.info("Login receiver acquiring '%s' instrument lock for user '%s' session '%s'." % (instrument, user, request.session.session_key))
         try:
-            locks.acquire(user=user, type="instrument", name=instrument, timeout=settings.CRDS_LOCK_ACQUIRE_TIMEOUT, 
+            locks.acquire(user=user, type="instrument", name=instrument, 
+                          timeout=settings.CRDS_LOCK_ACQUIRE_TIMEOUT, 
                           max_age=settings.CRDS_MAX_LOCK_AGE)
+            set_locked_instrument(request, instrument)
         except locks.ResourceLockedError:
             owner = locks.owner_of(name=instrument, type="instrument")
             raise CrdsError("User '%s' has already locked instrument '%s'." % (owner, instrument))
@@ -539,11 +543,8 @@ def instrument_lock_logout_receiver(sender, **keys):
     """Signal handler to release a user's locks if they log out."""
     request = keys["request"]
     user = str(keys["user"])
-    instrument = request.session.get("instrument", None)
-    if instrument is not None:
-        log.info("Logout receiver releasing all instrument locks for user '%s' session '%s'." % (user, request.session.session_key))
-        locks.release_locks(user=user, type="instrument")    
-        request.session["instrument"] = "none"
+    locks.release_locks(user=user, type="instrument")
+    del_locked_instrument(request)
 
 user_logged_out.connect(instrument_lock_logout_receiver, dispatch_uid="instrument_lock_logout_receiver")
 
@@ -551,15 +552,31 @@ def instrument_lock_required(func):
     """Decorator to ensure a user still owns an un-expired lock defined by their session data."""
     def _wrapped(request, *args, **keys):
         assert request.user.is_authenticated(), "You must log in."
-        instrument = request.session["instrument"]
+        instrument = get_locked_instrument(request)
         user = str(request.user)
-        if instrument != "none":
+        if instrument is not None:
             locks.verify_locked(type="instrument", name=instrument, user=user)
         else:
             raise CrdsError("You can't access this function without logging in for a particular instrument.")
         return func(request, *args, **keys)
     _wrapped.func_name = func.func_name
     return _wrapped
+
+def get_locked_instrument(request):
+    """Based on the request,  return the instrument locked inside @instrument_lock_required."""
+    return request.session.get("locked_instrument", None)
+
+def set_locked_instrument(request, instrument):
+    """Record which instrument is locked relative to this request."""
+    request.session["locked_instrument"] = instrument
+    
+def del_locked_instrument(request):
+    """Remove any trace of a locked instrument."""
+    try:
+        del request.session["locked_instrument"]
+    except:
+        pass
+
 # ===========================================================================
 
 def index(request):
@@ -965,11 +982,15 @@ def batch_submit_references_post(request):
     auto_rename = "auto_rename" in request.POST
     compare_old_reference = "compare_old_reference" in request.POST 
     remove_dir, uploaded_files = get_files(request)
+    locked_instrument = get_locked_instrument(request)
     
-    bsr = submit.BatchReferenceSubmission(pmap_name, uploaded_files, description, user=request.user, creator=creator, 
-        change_level=change_level, auto_rename=auto_rename, compare_old_reference=compare_old_reference)
+    bsr = submit.BatchReferenceSubmission(pmap_name, uploaded_files, description, 
+        user=request.user, creator=creator, change_level=change_level, 
+        auto_rename=auto_rename, compare_old_reference=compare_old_reference,
+        locked_instrument=locked_instrument)
     
-    disposition, new_references_map, new_mappings_map, reference_certs, mapping_certs, mapping_diffs, collision_list = bsr.submit()
+    disposition, new_references_map, new_mappings_map, reference_certs, mapping_certs, \
+        mapping_diffs, collision_list = bsr.submit()
     
     # Map from old filenames to new filenames,  regardless of origin / purpose
     new_file_map = new_mappings_map.items() + new_references_map.items()
@@ -990,6 +1011,7 @@ def batch_submit_references_post(request):
                 "collision_list" : collision_list,
                 
                 "diff_results" : mapping_diffs,
+                "should_still_be_locked" : locked_instrument,
 
                 "more_submits" : "/batch_submit_references/",
                 "disposition": disposition,                
@@ -1009,10 +1031,14 @@ def submit_confirm(request):
     """
     button = validate_post(request, "button", "confirm|cancel")
     results_id = validate_post(request, "results_id", "\d+")
+    locked_instrument = get_locked_instrument(request)
     try:
         result = models.RepeatableResultBlob.get(int(results_id)).parameters
     except Exception, exc:
         raise CrdsError("Error fetching result: " + results_id + " : " + str(exc))
+    assert locked_instrument == result.should_still_be_locked, \
+        "CRSD locking failure.  Currently locked '%s' but submitted for '%s'." % \
+        (locked_instrument, result.should_still_be_locked)
 
     usr = str(request.user)
     assert usr == result.user, "User mismatch between submit and confirmation: " + repr(usr) + " vs. " + repr(result.user)
@@ -1105,9 +1131,11 @@ def submit_files_post(request, crds_filetype):
     auto_rename = "auto_rename" in request.POST    
     change_level = validate_post(request, "change_level", models.CHANGE_LEVELS)            
     remove_dir, uploaded_files = get_files(request)
+    locked_instrument = get_locked_instrument(request)
     
     simple = submit.SimpleFileSubmission(pmap_name, uploaded_files, description, user=request.user,  
-        creator=creator, change_level=change_level, auto_rename=auto_rename, compare_old_reference=compare_old_reference)
+        creator=creator, change_level=change_level, auto_rename=auto_rename, 
+        compare_old_reference=compare_old_reference, locked_instrument=locked_instrument)
     
     disposition, certify_results, new_file_map, collision_list, context_rmaps = simple.submit(crds_filetype, generate_contexts)    
 

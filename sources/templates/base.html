@@ -57,6 +57,9 @@
            {% else %}
                 <a href="/login/?next={{current_path}}" class="tiny"><image src="/static/log_in.ico" alt='login' height='24' width='24' /></a>          
            {% endif %}
+           {% if locked_instrument %}
+               <span class='locked_instrument'>{{locked_instrument}}</span> 
+           {% endif %}
         </div>
         <div style="clear:both;" />
     </div>
