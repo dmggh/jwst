@@ -8,8 +8,8 @@ from django.test import TestCase
 from crds import (rmap, utils, pysh, log)
 import crds.config as lconfig
 
-import crds.server.interactive.models as models
 import crds.server.generic_config as sconfig
+from crds.server.interactive import models, locks
 
 from django.contrib.auth.models import User
 
@@ -50,11 +50,18 @@ class InteractiveBase(object):
     def runTest(self, *args, **keys):
         pass
     
+    passwords = {
+        "homer" : "simposon",
+        "bozo" : "the clown",
+    }
+    
     def setUp(self): 
-        self.user = User.objects.create_user('homer', 'homer@simpson.net', 'simpson')
+        self.user = User.objects.create_user('homer', 'homer@simpson.net', self.passwords["homer"])
+        self.user2 = User.objects.create_user('bozo', 'bozo@godaddy.com', self.passwords["bozo"])
         self.user.is_superuser = True
         try:
-            self.user.save()    
+            self.user.save() 
+            self.user2.save()   
         except Exception, exc:
             print "failed user save:", str(exc)
         self.ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, str(self.user))
@@ -70,11 +77,23 @@ class InteractiveBase(object):
         pysh.sh("/bin/rm -rf " + lconfig.get_crds_refpath(), raise_on_error=True)  # , trace_commands=True)
         if self.ingested:
             pysh.sh("/bin/rm -rf " + self.ingest_path, raise_on_error=True) # , trace_commands=True)
+        locks.release_all()
 
-    def authenticate(self):
-        login = self.client.login(username="homer", password="simpson")
-        self.assertTrue(login)
+    def login(self, username="homer", locked_instrument=None):
+        instrument = locked_instrument if locked_instrument is not None else self.locked_instrument
+        response = self.client.get("/login/")
+        self.assert_no_errors(response)
+        response = self.client.post("/login/", {
+                "username" : username,
+                "password" : self.passwords[username],
+                "instrument" : instrument,
+            })
+        self.assert_no_errors(response, 302)
         
+    def logout(self):
+        response = self.client.post("/logout/")
+        self.assert_no_errors(response)
+
     def del_maps(self, maps):
         for map in maps:
             where = rmap.locate_mapping(map)
@@ -145,12 +164,12 @@ class InteractiveBase(object):
         self.assert_no_errors(response)
     
     def test_submit_get(self):
-        self.authenticate()
+        self.login()
         response = self.client.get("/submit/reference/")
         self.assert_no_errors(response)
 
     def test_submit_post(self):
-        self.authenticate()
+        self.login()
         self.fake_database_files(self.submit_references)
         self.add_file_to_ingest_dir(self.submit_rmap)
         rmap2 = self.add_1(self.submit_rmap)
@@ -181,12 +200,12 @@ class InteractiveBase(object):
             log.info("failed to add file:", str(exc))
         
     def test_set_file_enable_get(self):
-        self.authenticate()
+        self.login()
         response = self.client.get("/set_file_enable/")
         self.assert_no_errors(response)
 
     def test_set_file_enable_blacklist_post(self):
-        self.authenticate()
+        self.login()
         self.fake_database_files(self.blacklist_files)
         response = self.client.post("/set_file_enable/", {
             "observatory" : sconfig.observatory,
@@ -209,7 +228,7 @@ class InteractiveBase(object):
         self.assertFalse(imapblob.rejected)
 
     def test_set_file_enable_reject_post(self):
-        self.authenticate()
+        self.login()
         self.fake_database_files(self.blacklist_files)
         response = self.client.post("/set_file_enable/", {
             "observatory" : sconfig.observatory,
@@ -232,12 +251,12 @@ class InteractiveBase(object):
         self.assertFalse(imapblob.rejected)
 
     def test_certify_get(self):
-        self.authenticate()
+        self.login()
         response = self.client.get("/certify/")
         self.assert_no_errors(response)
 
     def test_certify_post_fits_uploaded(self):
-        self.authenticate()
+        self.login()
         self.fake_database_files([self.certify_post_fits])
         self.add_file_to_ingest_dir(self.certify_post_fits)
         response = self.client.post("/certify/", {
@@ -249,7 +268,7 @@ class InteractiveBase(object):
         self.assertEqual(response.content.count("OK"), 2)
 
     def test_certify_post_rmap_uploaded(self):
-        self.authenticate()
+        self.login()
         self.add_file_to_ingest_dir(self.certify_rmap)
         self.fake_database_files(self.certify_rmap_fits)
         response = self.client.post("/certify/", {
@@ -285,12 +304,12 @@ class InteractiveBase(object):
         self.assert_no_errors(response)
     
     def test_recent_activity_get(self):
-        self.authenticate()
+        self.login()
         response = self.client.get("/recent_activity/")
         self.assert_no_errors(response)
 
     def test_recent_activity_post(self):
-        self.authenticate()
+        self.login()
         response = self.client.post("/recent_activity/", {
                 "action" : "new context",
                 "observatory" : "*",
@@ -303,7 +322,7 @@ class InteractiveBase(object):
         self.assert_no_errors(response)
 
     def test_create_contexts(self):
-        self.authenticate()
+        self.login()
         response = self.client.get("/create_contexts/")
         self.assert_no_errors(response)
         
@@ -313,7 +332,7 @@ class InteractiveBase(object):
         return os.path.basename(name).replace(ext, "_0001" + ext)
 
     def test_create_contexts_post(self):
-        self.authenticate()
+        self.login()
         self.fake_database_files(self.create_contexts_rmaps)
         response = self.client.post("/create_contexts/", {
                 "pmap_mode" : "pmap_text",
@@ -332,12 +351,12 @@ class InteractiveBase(object):
         self.assert_no_errors(response)
 
     def test_browse_db_get(self):
-        self.authenticate()
+        self.login()
         response = self.client.get("/browse_db/")
         self.assert_no_errors(response)
 
     def test_browse_db_post(self):
-        self.authenticate()
+        self.login()
         response = self.client.post("/browse_db/", {
                 "observatory" : sconfig.observatory,
                 "instrument" : "*",
@@ -353,7 +372,7 @@ class InteractiveBase(object):
         self.assertEqual(response.content.count("<tr>"), 4)
 
     def test_batch_submit_replace(self):
-        self.authenticate()
+        self.login()
         self.add_files_to_ingest_dir(self.batch_submit_replace_references)
         response = self.client.post("/batch_submit_references/", {
                 "pmap_mode" : "pmap_edit",
@@ -369,7 +388,7 @@ class InteractiveBase(object):
         self.assertIn("Reversion at", response.content)
 
     def _batch_submit_insert(self, references=None):
-        self.authenticate()
+        self.login()
         if references is None:
             references = self.batch_submit_insert_references
         self.add_files_to_ingest_dir(references)
@@ -441,7 +460,8 @@ if sconfig.observatory == "hst":
         submit_references = [
                 "interactive/test_data/s7g1700gl_dead.fits", 
                 "interactive/test_data/s7g1700ql_dead.fits"
-        ]         
+        ]
+        locked_instrument = "cos"         
 
         batch_submit_replace_references = ["interactive/test_data/s7g1700gj_dead.fits",
                                            "interactive/test_data/aaaa.fits"]
@@ -482,6 +502,7 @@ else:  # JWST
         submit_references = ["jwst_miri_amplifier_0000.fits",
                              "jwst_miri_amplifier_0001.fits",
                              "jwst_miri_amplifier_0002.fits"]
+        locked_instrument = "miri"
 
         batch_submit_replace_references = ["interactive/test_data/jwst_miri_amplifier_0000.fits",
                                            "interactive/test_data/jwst_miri_photom_9999.fits"]

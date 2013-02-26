@@ -336,6 +336,7 @@ class BatchReferenceSubmission(FileSubmission):
         Returns {(instrument,filekind) : [part_of_uploaded_files...]}
         """
         groups = {}
+        seen_instrument = None
         for (original_name, uploaded_path) in self.uploaded_files.items():
             try:
                 instrument, filekind = utils.get_file_properties(self.observatory, uploaded_path)
@@ -451,12 +452,10 @@ class SimpleFileSubmission(FileSubmission):
                 assert uploaded.endswith(".rmap"), "Only .rmaps may be submitted if Generate Contexts is selected."
             if crds_filetype == "mapping":
                 if not rmap.is_mapping(uploaded):
-                    raise CrdsError("Can't submit non-mapping file: " + repr(uploaded) + " using this page.")
-                if generate_contexts and not uploaded.endswith(".rmap"):
-                    raise CrdsError("Can't submit non-rmap's and generate contexts: " + srepr(uploaded))
+                    raise CrdsError("Can't submit non-mapping file: '%s' using this page." % uploaded)
             else:
                 if rmap.is_mapping(uploaded):
-                    raise CrdsError("Can't submit mapping file: " + repr(uploaded) + " using this page.")
+                    raise CrdsError("Can't submit mapping file: '%s' using this page." % uploaded)
 
 # ------------------------------------------------------------------------------------------------
         
