@@ -408,11 +408,19 @@ class InteractiveBase(object):
     def test_batch_submit_insert(self):
         self._batch_submit_insert()
         
-    def _confirm(self):
-        pass
-    
-    def _cancel(self):
-        pass
+    def _confirm(self, id=1):
+        response = self.client.post("/submit_confirm/", {
+                "results_id" : str(id),
+                "button" : "confirm",
+            })
+        self.assert_no_errors(response, 302)
+
+    def _cancel(self, id=1):
+        response = self.client.post("/submit_confirm/", {
+                "results_id" : str(id),
+                "button" : "cancel",
+            })
+        self.assert_no_errors(response, 302)
     
     def test_batch_submit_confirm(self):
         self._batch_submit_insert()
