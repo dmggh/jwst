@@ -244,11 +244,9 @@ class FileSubmission(object):
         return models.add_crds_file(self.observatory, original_name, filepath,  str(self.user), self.user.email, 
             self.description, change_level=self.change_level, creator_name=self.creator, state=state)
         
-    def verify_instrument_lock(self, generating_files=True):
+    def verify_instrument_lock(self):
         """Ensure that all the submitted files correspond to the locked instrument."""
         paths = dict(self.uploaded_files).values()
-        if not generating_files:
-            self.instrument_lock = None
         locks.verify_instrument_locked_files(self.user, self.locked_instrument, paths, self.observatory)
 
 # ------------------------------------------------------------------------------------------------
@@ -422,10 +420,11 @@ class SimpleFileSubmission(FileSubmission):
         new_file_map:  { original_filename : new_filename, ... }
         collision_list :   info about derivation sources used multiple times.
         """
-        self.verify_instrument_lock(generating_files=generate_contexts)
-        
         self.restrict_genre(crds_filetype, generate_contexts)
     
+        if generate_contexts:
+            self.verify_instrument_lock()
+        
         # Verify that ALL files certify.
         disposition, certify_results = web_certify.certify_file_list(
             self.uploaded_files.items(), context=self.pmap.name, compare_old_reference=self.compare_old_reference)
@@ -555,11 +554,11 @@ def submit_confirm_core(confirmed, submission_kind, description, new_files, cont
     if not paths:
         raise CrdsError("No files submitted.")
     
-    locks.verify_instrument_locked_files(user, locked_instrument, paths, blob.observatory)
-    
     context_name_map = {}
     if confirmed:
         if context_rmaps:
+            # Instrument lock required since we're generating a new .imap from context_rmaps.
+            locks.verify_instrument_locked_files(user, locked_instrument, paths, blob.observatory)
             # context_rmaps aren't necessarily in new_file_map and may be existing files.  So they only
             # specify changes to `pmap_name`,  not file deliveries.
             context_name_map = do_create_contexts(pmap_name, context_rmaps, description, user)

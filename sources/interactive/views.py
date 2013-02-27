@@ -1056,7 +1056,7 @@ def submit_confirm(request):
         (locked_instrument, result.should_still_be_locked)
 
     usr = str(request.user)
-    assert usr == result.user, "User mismatch between submit and confirmation: " + repr(usr) + " vs. " + repr(result.user)
+    assert usr == result.user, "User mismatch: file Submitter='%s' and Confirmer='%s' don't match." % (usr, result.user)
 
     confirmed = (button == "confirm")
     new_file_map = dict(result.new_file_map)
@@ -1168,6 +1168,7 @@ def submit_files_post(request, crds_filetype):
                 
                 "certify_results" : certify_results,
                 "more_submits" : "/submit/" + crds_filetype + "/",
+                "should_still_be_locked": locked_instrument,
                 
                 "disposition" : disposition,
                 })
