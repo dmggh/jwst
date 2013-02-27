@@ -1,5 +1,6 @@
-"""Unit tests to exercise the interactive portions of the CRDS server.
-"""
+"""Unit tests to exercise the interactive portions of the CRDS server."""
+
+import sys
 import os
 import shutil
 
@@ -134,7 +135,7 @@ class InteractiveBase(object):
             self.assertNotIn("ERROR", response.content)
             self.assertNotIn("Error", response.content)
         except:
-            print response.content
+            print >>sys.stderr, response.content
             raise
         
     def assert_has_error(self, response, msg=None, status=200):
@@ -144,7 +145,7 @@ class InteractiveBase(object):
             if msg is not None:
                 self.assertIn(msg, response.content)
         except:
-            print response.content
+            print >> sys.stderr, response.content
             raise
 
     def test_index(self):
@@ -179,27 +180,6 @@ class InteractiveBase(object):
             })  
         self.assert_no_errors(response)
     
-    def test_submit_get(self):
-        self.login()
-        response = self.client.get("/submit/reference/")
-        self.assert_no_errors(response)
-
-    def test_submit_post(self):
-        self.login()
-        self.fake_database_files(self.submit_references)
-        self.add_file_to_ingest_dir(self.submit_rmap)
-        rmap2 = self.add_1(self.submit_rmap)
-        response = self.client.post("/submit/mapping/", {
-            "observatory" : sconfig.observatory,
-            "auto_rename" : "on",
-            "description" : "an identical pmap with a different name is still different",
-            "change_level" : "SEVERE",
-            "creator" : "Somebody else",
-            "pmap_mode" : "pmap_edit",
-            }, follow=True)
-        self.assert_no_errors(response)
-        self.assertIn(rmap2, response.content)
-        
     def add_files_to_ingest_dir(self, filepaths):
         for path in filepaths:
             self.add_file_to_ingest_dir(path)
@@ -458,6 +438,7 @@ class InteractiveBase(object):
     def test_batch_submit_broken_lock_2(self):
         self.login()
         response = self._batch_submit_insert()
+        self._assert_normal_bsr_insert(response)
         locks.release_all()   # simulate broken locks
         response = self._confirm()
         self.assert_has_error(response, "no longer holds lock")
@@ -465,15 +446,123 @@ class InteractiveBase(object):
     def test_batch_submit_broken_lock_3(self):
         self.login()
         response = self._batch_submit_insert()
+        self._assert_normal_bsr_insert(response)
         locks.release_all()   # simulate broken locks
         response = self._cancel()
         self.assert_has_error(response, "no longer holds lock")
 
     def test_login_collision(self):
         self.login()
-        response = self.login("bozo", status=200)   # error page is a clean response
+        response = self.login("bozo", status=200)   # error page not a redirect
         self.assert_has_error(response, "has already locked")
     
+    def test_submit_references_get(self):
+        self.login()
+        response = self.client.get("/submit/reference/")
+        self.assert_no_errors(response)
+
+    def test_submit_mapping_get(self):
+        self.login()
+        response = self.client.get("/submit/mapping/")
+        self.assert_no_errors(response)
+
+    def _submit_references_post(self):
+        self.fake_database_files(self.submit_references)
+        self.add_files_to_ingest_dir(self.submit_references)
+        response = self.client.post("/submit/reference/", {
+            "observatory" : sconfig.observatory,
+            "auto_rename" : "on",
+            "description" : "an identical pmap with a different name is still different",
+            "change_level" : "SEVERE",
+            "creator" : "Somebody else",
+            "pmap_mode" : "pmap_edit",
+            }, follow=True)
+        self.assert_no_errors(response)
+        for ref in self.submit_references:
+            self.assertIn(os.path.basename(ref), response.content)
+        return response
+    
+    def test_submit_references_post_confirm(self):
+        self.login()
+        response = self._submit_references_post()
+        response = self._confirm()
+        self.assert_no_errors(response, status=302)
+    
+    def test_submit_references_post_cancel(self):
+        self.login()
+        response = self._submit_references_post()
+        response = self._cancel()
+        self.assert_no_errors(response, status=302)
+    
+    def _submit_mappings_post(self, generate_contexts):
+        self.fake_database_files(self.submit_references)
+        self.add_file_to_ingest_dir(self.submit_rmap)
+        rmap2 = self.add_1(self.submit_rmap)
+        context = {
+            "observatory" : sconfig.observatory,
+            "auto_rename" : "on",
+            "description" : "an identical pmap with a different name is still different",
+            "change_level" : "SEVERE",
+            "creator" : "Somebody else",
+            "pmap_mode" : "pmap_edit",
+            }
+        if generate_contexts:
+            context["generate_contexts"] = "on"
+        response = self.client.post("/submit/mapping/", context, follow=True)
+        return rmap2, response
+    
+    def test_submit_mappings_post_confirm(self):
+        self.login()
+        rmap2, response = self._submit_mappings_post(generate_contexts=False)
+        self.assert_no_errors(response)
+        self.assertIn(rmap2, response.content)
+        response = self._confirm()
+        self.assert_no_errors(response, status=302)
+        
+    def test_submit_mappings_post_cancel(self):
+        self.login()
+        rmap2, response = self._submit_mappings_post(generate_contexts=False)
+        self.assert_no_errors(response)
+        self.assertIn(rmap2, response.content)
+        response = self._cancel()
+        self.assert_no_errors(response, status=302)
+        
+    def test_submit_mappings_post_generate_contexts_confirm(self):
+        self.login()
+        rmap2, response = self._submit_mappings_post(generate_contexts=True)
+        self.assert_no_errors(response)
+        self.assertIn(rmap2, response.content)
+        response = self._confirm()
+        self.assert_no_errors(response, status=302)
+
+    def test_submit_mappings_post_generate_contexts_cancel(self):
+        self.login()
+        rmap2, response = self._submit_mappings_post(generate_contexts=True)
+        self.assert_no_errors(response)
+        self.assertIn(rmap2, response.content)
+        response = self._cancel()
+        self.assert_no_errors(response, status=302)
+
+    def test_submit_mappings_post_generate_contexts_broken_lock_1(self):
+        self.login()
+        locks.release_all()
+        rmap2, response = self._submit_mappings_post(generate_contexts=True)
+        self.assert_has_error(response, "no longer holds lock")
+
+    def test_submit_mappings_post_generate_contexts_broken_lock_2(self):
+        self.login()
+        rmap2, response = self._submit_mappings_post(generate_contexts=True)
+        locks.release_all()
+        response = self._confirm()
+        self.assert_has_error(response, "no longer holds lock")
+
+    def test_submit_mappings_post_generate_contexts_broken_lock_3(self):
+        self.login()
+        rmap2, response = self._submit_mappings_post(generate_contexts=True)
+        locks.release_all()
+        response = self._cancel()
+        self.assert_has_error(response, "no longer holds lock")
+        
     def test_get(self):   # XXX TODO implememnt get test
         pass
 
@@ -495,6 +584,9 @@ if sconfig.observatory == "hst":
             "hst_acs_biasfile_0001.rmap",
             "hst_acs_dgeofile_0001.rmap",
             "hst_acs_darkfile_0001.rmap",
+            "hst_cos_deadtab_0001.fits",
+            "hst_cos_deadtab_0002.fits",
+            "opus_1_i.cat",
         ]
 
         rmap1 = "interactive/test_data/hst_cos_deadtab.rmap"
@@ -536,6 +628,7 @@ else:  # JWST
             "jwst_miri_flat_0001.rmap",
             "jwst_miri_amplifier_0001.rmap",
             "jwst_miri_photom_0001.rmap",
+            "opus_1_i.cat",
         ]
 
         difference_files = ["jwst_miri_0000.imap", 
