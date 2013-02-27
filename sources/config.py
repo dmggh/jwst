@@ -1,4 +1,4 @@
-from config import install_root, observatory
+from site_config import *
 
 install_dir= install_root + '/webserver'
 ref_path= install_root + '/references'

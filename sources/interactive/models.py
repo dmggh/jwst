@@ -12,7 +12,7 @@ from crds import CrdsError
 from crds.compat import (namedtuple, OrderedDict)
 
 from crds.server.config import observatory as OBSERVATORY
-from crds.server.generic_config import table_prefix as TABLE_PREFIX
+from crds.server.config import table_prefix as TABLE_PREFIX
 import crds.server.config as config
 from . import common
 

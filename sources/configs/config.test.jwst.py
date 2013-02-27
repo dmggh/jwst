@@ -28,6 +28,3 @@ CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/"
 # XXX TODO restrict to archived or operational
 CRDS_DISTRIBUTION_STATES = ["delivered","archived","operational"]
 
-# inline the contents of generic_config.py
-HERE = os.path.dirname(__file__) or "./"
-execfile(HERE + "/generic_config.py")

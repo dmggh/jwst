@@ -679,13 +679,12 @@ class Delivery(object):
         """
         assert operation in ["I","D"], "Invalid delivery operation " + srepr(operation)
         delivery_id = models.CounterBlob.next(self.observatory, "delivery_id")
-        catalog = "_".join(["opus", str(delivery_id), operation.lower()])+".cat"
+        catalog = "_".join(["opus", str(delivery_id), operation.lower()]) + ".cat"
         catpath = os.path.join(sconfig.CRDS_CATALOG_DIR, catalog)
         utils.ensure_dir_exists(catpath)
         cat = open(catpath, "w")
         for filename in self.delivered_files:
-            kind = "R"
-            cat.write(filename + " " + operation + " " + kind + "\n")
+            cat.write(filename + "\n")
         cat.close()
         return catpath
 

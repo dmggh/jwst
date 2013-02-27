@@ -11,13 +11,25 @@ onto the basic locks:
 
 1. Users who own locks (locks persisting across HTTP requests.)
 2. Types of locks (different namespaces for lock names.)
-3. Acquisition timeouts  (Fail with an exception rather than deadlocking.)
+3. Acquisition timeouts  (Retry acquires every second until a deadline has passed, then raise)
 
-Both users and types are supported by adding them to the lock name.
+Both users and types are supported by adding them to the lock name separated by "$".
+Hence "$" may not appear in a lock name, type, or username.
 
 Locks which persist by user are supported by using paired locks, one for the resource,
 and one for the resource owned by a particular user.  First a user obtains the resource,
 next they leave behind a breadcrumb lock proving they are the one that owns it.
+
+The expiration dates of resource,user lock pairs are set to approximately the same thing.
+In practice this should be good enough.
+
+These locks are relatively slow but should still be fast enough for their
+intended purpose of coordinating file submissions between different users.   This
+module encapsulates django-locking so that it can be replaced if something improved
+comes along.   The key feature of django-locking is atomic get-and-set:  two processes
+cannot get-and-set the same lock at the same time.
+
+A solid alternative to django-locking would be to use file locks on a local file system.
 """
 
 import time
@@ -35,16 +47,16 @@ class ResourceLockedError(CrdsError):
     """The lock for a resource could not be obtained within the timeout period."""
 
 class BrokenLockError(CrdsError):
-    """The desired lock no longer exists.   It expired or was killed."""
+    """The desired lock no longer exists.   It expired or was released."""
 
 class CrdsLock(object):
     """Management class to add the notion of a particular user holding a lock 
     without modifying the django-locking package.
     """
     def __init__(self, user, type, name, max_age=settings.CRDS_MAX_LOCK_AGE):
-        assert "_" not in user, "Illegal lock user name '%s'" % user
-        assert "_" not in type, "Illegal lock type name '%s'" % type
-        assert "_" not in name, "Illegal lock name '%s'" % name
+        assert "$" not in user, "Illegal lock user name '%s'" % user
+        assert "$" not in type, "Illegal lock type name '%s'" % type
+        assert "$" not in name, "Illegal lock name '%s'" % name
         self.user = user
         self.type = type
         self.name = name
@@ -58,11 +70,11 @@ class CrdsLock(object):
 
     @property
     def resource_lock(self):
-        return self.type + "_" + self.name if self.type else self.name
+        return self.type + "$" + self.name if self.type else self.name
 
     @property
     def user_lock(self):
-        return self.resource_lock + "_" + self.user
+        return self.resource_lock + "$" + self.user
     
     def _std_info(self, verb, lock_name):
         msg = "%s lock '%s' at %s" % (verb.upper(), lock_name, datetime.datetime.now())
@@ -192,7 +204,7 @@ def filter_locks(name=None, type=None, user=None):
     filtered = []
     for lock in Lock.objects.all():
         lock_name = str(lock.locked_object)
-        parts = lock_name.split("_")
+        parts = lock_name.split("$")
         if len(parts) == 2:
             continue
         elif len(parts) == 3:

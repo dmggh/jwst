@@ -35,9 +35,9 @@ from . import (models, database, web_certify, web_difference, submit, versions, 
 from .models import FieldError, MissingInputError
 from .common import capture_output, srepr, profile
 
-import crds.server.generic_config as sconfig
 from crds.server.jsonapi import views as jsonapi_views
 from crds.server import settings
+from crds.server import config as sconfig
 
 HERE = os.path.dirname(__file__) or "./"
 

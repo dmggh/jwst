@@ -8,8 +8,8 @@ from django.test import TestCase
 from crds import (rmap, utils, pysh, log)
 import crds.config as lconfig
 
-import crds.server.generic_config as sconfig
 from crds.server import settings
+from crds.server import config as sconfig
 from crds.server.interactive import models, locks
 
 from django.contrib.auth.models import User
@@ -44,7 +44,6 @@ class InteractiveBase(object):
         sconfig.CRDS_DELIVERY_DIRS = [os.path.join(CRDS_PATH, "deliveries")]
         sconfig.CRDS_CATALOG_DIR = os.path.join(CRDS_PATH, "catalogs")
         sconfig.FILE_UPLOAD_TEMP_DIR = os.path.join(CRDS_PATH, "uploads")
-        
         settings.CRDS_LOCK_ACQUIRE_TIMEOUT = 0.5  # Don't waste time during tests with SQLite
 
     @classmethod
@@ -84,7 +83,7 @@ class InteractiveBase(object):
         locks.release_all()
 
     def login(self, username="homer", locked_instrument=None, status=302):
-        instrument = locked_instrument if locked_instrument is not None else self.locked_instrument
+        instrument = locked_instrument if locked_instrument else self.locked_instrument
         response = self.client.get("/login/")
         self.assert_no_errors(response)
         response = self.client.post("/login/", {
@@ -138,9 +137,9 @@ class InteractiveBase(object):
             print response.content
             raise
         
-    def assert_has_error(self, response, msg=None):
+    def assert_has_error(self, response, msg=None, status=200):
         try:
-            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.status_code, status)
             self.assertIn("ERROR", response.content)
             if msg is not None:
                 self.assertIn(msg, response.content)
@@ -321,12 +320,10 @@ class InteractiveBase(object):
         self.assert_no_errors(response)
     
     def test_recent_activity_get(self):
-        self.login()
         response = self.client.get("/recent_activity/")
         self.assert_no_errors(response)
 
     def test_recent_activity_post(self):
-        self.login()
         response = self.client.post("/recent_activity/", {
                 "action" : "new context",
                 "observatory" : "*",
@@ -429,27 +426,49 @@ class InteractiveBase(object):
                 "results_id" : str(id),
                 "button" : "confirm",
             })
-        self.assert_no_errors(response, status=302)
+        return response
 
     def _cancel(self, id=1):
         response = self.client.post("/submit_confirm/", {
                 "results_id" : str(id),
                 "button" : "cancel",
             })
-        self.assert_no_errors(response, status=302)
+        return response
     
     def test_batch_submit_confirm(self):
         self.login()
         response = self._batch_submit_insert()
         self._assert_normal_bsr_insert(response)
-        self._confirm()
+        response = self._confirm()
+        self.assert_no_errors(response, status=302)
         
     def test_batch_submit_cancel(self):
         self.login()
         response = self._batch_submit_insert()
         self._assert_normal_bsr_insert(response)
-        self._cancel()
+        response = self._cancel()
+        self.assert_no_errors(response, status=302)
     
+    def test_batch_submit_broken_lock_1(self):
+        self.login()
+        locks.release_all()   # simulate broken locks
+        response = self._batch_submit_insert()
+        self.assert_has_error(response, "no longer holds lock")
+
+    def test_batch_submit_broken_lock_2(self):
+        self.login()
+        response = self._batch_submit_insert()
+        locks.release_all()   # simulate broken locks
+        response = self._confirm()
+        self.assert_has_error(response, "no longer holds lock")
+
+    def test_batch_submit_broken_lock_3(self):
+        self.login()
+        response = self._batch_submit_insert()
+        locks.release_all()   # simulate broken locks
+        response = self._cancel()
+        self.assert_has_error(response, "no longer holds lock")
+
     def test_login_collision(self):
         self.login()
         response = self.login("bozo", status=200)   # error page is a clean response
