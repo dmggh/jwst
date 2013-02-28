@@ -460,11 +460,14 @@ def log_view(func):
         log.info("SESSION:", request.session.session_key, "expires", request.session.get_expiry_date())
         if request.FILES:
             log.info("FILES:", repr(request.FILES))
-        log.info("OUTPUT:")
+        # log.info("OUTPUT:")
         try:    
             response = func(request, *args, **keys)
 #            log.info("RESPONSE:\n" + response.content, stdout=None)
             return response
+        except locks.LockingError, exc:  # Skip the traceback for these,  remove manually for debug to log tracebacks
+            log.error("Locking error: " + str(exc))
+            raise  
         except Exception, exc:
             log.info("EXCEPTION REPR:", repr(exc))
             log.info("EXCEPTION STR:", str(exc))

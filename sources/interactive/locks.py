@@ -43,11 +43,16 @@ from crds.server import settings
 
 NEVER=60*60*24*365*1000   # 1000 years in seconds
 
-class ResourceLockedError(CrdsError):
+class LockingError(CrdsError):
+    """A routine locking error occurred which shouldn't generate a traceback
+    int the CRDS log.
+    """
+
+class ResourceLockedError(LockingError):
     """The lock for a resource could not be obtained within the timeout period."""
 
-class BrokenLockError(CrdsError):
-    """The desired lock no longer exists.   It expired or was released."""
+class BrokenLockError(LockingError):
+    """The desired lock no longer exists.  It expired or was released."""
 
 class CrdsLock(object):
     """Management class to add the notion of a particular user holding a lock 
