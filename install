@@ -21,7 +21,7 @@ server_mode=$1; shift
 
 config="sources/configs/config.${server_mode}.${observatory}.py"
 echo "Using configuration " ${config}
-cp ${config} sources/config.py
+cp ${config} sources/site_config.py
 
 crds_database="sources/configs/database.${server_mode}.${observatory}.py"
 echo "Using crds_database" ${crds_database}
