@@ -37,6 +37,7 @@ try:
     PACKAGE_PATH = fixpath(os.environ["PACKAGE_PATH"])
 except KeyError:
     PACKAGE_PATH = "../sources"
+    sys.exc_clear()
 
 if sys.maxint < 2**33:
     ARCH_BITS = "32"
@@ -48,6 +49,9 @@ CXXFLAGS = os.environ.get("CXXFLAGS","")
 
 os.environ["CFLAGS"] = CFLAGS + " -I" + PREFIX + "/include  -L" + PREFIX + "/lib" 
 os.environ["CXXFLAGS"] = CXXFLAGS + " -I" + PREFIX + "/include  -L" + PREFIX + "/lib" 
+
+# Link-time alternative to LD_LIBRARY_PATH
+os.environ["LD_RUN_PATH"] = LD_RUN_PATH = PREFIX + "/lib"
 
 # ==================================================================
 # ==================================================================
@@ -111,7 +115,7 @@ def prune(*dirs):
             verbose("Pruning:", repr(d))
             try:
                 shutil.rmtree(d)
-            except:
+            except Exception:
                 errors.append(d)
         if errors:
             raise OSError("Failed to remove: " + repr(errors))
@@ -204,7 +208,7 @@ class Package(object):
             tell("Executing:", repr(l), file=sys.stderr)
             retval = os.system(l)
             if retval != 0:
-                raise SystemError("Command " + repr(l) + "failed with status = " + str(retval))
+                raise SystemError("Command " + repr(l) + " failed with status = " + str(retval))
 
     def nested_system(self, *args, **keys):
         dir = keys.get("dir", None)
@@ -434,7 +438,7 @@ class Package(object):
     def track_install(self):
         try:
             installs = evalfile("./packages.dat")
-        except:
+        except Exception:
             warn("Couldn't load ./packages.dat.  Creating empty state.")
             installs = {}
         base, version = self.split_name()
@@ -555,28 +559,20 @@ class MetaMixin(object):
         if self.py_home_dir:
             extra_args = extra_args + (self.py_home_dir,)
         extra_args = extra_args + args
-        if exists(self.meta_dir + "/" + platform_specific_cmd):
-            self.pushdir(self.meta_dir)
-            try:
+        self.pushdir(self.meta_dir)
+        try:
+            if exists(platform_specific_cmd):
                 self.system(platform_specific_cmd, *extra_args)
-            finally:
-                self.popdir()
-        elif exists(self.meta_dir + "/" + generic_cmd):
-            self.pushdir(self.meta_dir)
-            try:
+            elif exists(generic_cmd):
                 self.system(generic_cmd, *extra_args)
-            finally:
-                self.popdir()
-        else:
-            verbose("Trying getattr(super)", cmd, "...", eol="")
-            f = getattr(super(MetaMixin, self), cmd)
-            verbose("succeeded.")
-            self.pushdir(self.meta_dir)
-            try:
-                f(self, *args)
-            finally:
-                self.popdir()
-        
+            else:
+                verbose("Trying getattr(super)", cmd, "...", eol="")
+                f = getattr(super(MetaMixin, self), cmd)
+                verbose("succeeded.")
+                f(*args)
+        finally:
+            self.popdir()
+
     def build(self, *args):
         self.meta_command("build", *args)
 
@@ -741,18 +737,18 @@ def main():
     
     parser.add_argument(
         "--python", dest="python", metavar="PYTHON_BINARY",
-        type=is_dir, default=None, help='Python setup.py --home directory.')
+        type=is_dir, default=None, help='Python executable this installation applies to.')
 
     parser.add_argument(
         "--home", dest="home", metavar="HOME_DIR",
-        default=None, help='Python executable this installation applies to.')
+        default=None, help='Python setup.py --home directory.')
 
     ARGS = parser.parse_args()
 
     if ARGS.python:
         PYTHON = ARGS.python
     else:
-        PYTHON = PREFIX + "/bin/python"
+        PYTHON = os.environ.get("META_PYTHON", PREFIX + "/bin/python")
 
     verb_pkg_names, arg_sources = split_cmdline_args(ARGS.names_and_sources)
 
