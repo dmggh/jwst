@@ -14,8 +14,8 @@ from crds.compat import (namedtuple, OrderedDict)
 from crds.server.config import observatory as OBSERVATORY
 from crds.server.config import table_prefix as TABLE_PREFIX
 import crds.server.config as config
-from . import common
 
+from . import common
 from . import json_ext
 
 observatory_module = utils.get_object("crds." + OBSERVATORY)
@@ -273,13 +273,46 @@ class CounterBlob(BlobModel):
 
     @classmethod
     def set(cls, *args): 
-        """Like next,  but set the counter identified by args[:-1] to args[-1]
+        """Like next(),  but set the counter identified by args[:-1] to args[-1]
         """
         # nominally class, observatory, instrument, filekind, number
         num = int(args[-1])
         blob = cls.setup(args[:-1])
         blob.counter = num
         blob.save()
+        
+    def mirror(cls, *args):
+        """Make filename counters reflect what is on the file system as files are added.
+        
+        counter_name_parts = args[:-1]
+        existing_serial = args[-1]
+        
+        if existing_serial >= counter(args):  counter(args) = existing_serial + 1
+        
+        This is done rather than merely reflecting the file system so that serial
+        numbers can be allocated simply without requiring that a real file or stub to
+        be present,  as would be the case if the CRDS server did not have a complete
+        copy of all CRDS references and mappings.
+        """
+        existing_serial = int(args[-1])
+        blob = cls.setup(args[:-1])
+        if blob.counter <= existing_serial:
+            blob.counter = existing_serial + 1
+            blob.save()
+            Log.info("Advanced file counter for '%s' to '%05d' based on existing id '%04d'", (blob.name, blob.counter, existing_serial))
+            
+def mirror_filename_counters(observatory, official_path):
+    """As files are added,  make sure that the name serial number counters are consistent
+    with the supplied `official name`.   This is particularly required for generated files
+    which arrive with pre-assigned names.
+    """
+    locator = utils.get_locator_module(observatory)
+    try:
+        path, observatory, instrument, filekind, serial, ext = locator.decompose_newstyle_filename(official_path)
+    except AssertionError:
+        pass
+    else:
+        CounterBlob.mirror([observatory, instrument, filekind, ext, serial])
 
 # ============================================================================
 
@@ -667,16 +700,12 @@ class AuditBlob(BlobModel):
         user = BlobField(str, "user performing this action", ""),
         date = BlobField(str, "date action performed", ""),
         action = BlobField(AUDITED_ACTIONS,"name of action performed", ""),        
-        filename = BlobField("^[A-Za-z0-9_./]*$", 
-                "file affected by this action", "None"),
+        filename = BlobField("^[A-Za-z0-9_./]*$","file affected by this action", "None"),
         why = BlobField(str, "reason this action was performed",""),
         details = BlobField(str, "supplementary info", ""),
-        observatory = BlobField(
-            OBSERVATORIES, "associated observatory", ""),
-        instrument = BlobField(
-            INSTRUMENTS + ["unknown"], "associated instrument", ""),
-        filekind = BlobField(
-            FILEKINDS + ["unknown"], "associated filekind", ""),
+        observatory = BlobField(OBSERVATORIES, "associated observatory", ""),
+        instrument = BlobField(INSTRUMENTS + ["unknown"], "associated instrument", ""),
+        filekind = BlobField(FILEKINDS + ["unknown"], "associated filekind", ""),
     )
     
     unicode_list = ["action", "user", "date", "filename", "why"]
@@ -723,7 +752,6 @@ class AuditBlob(BlobModel):
 
     @property
     def extension(self):  return os.path.splitext(self.filename)[-1]
-
 
 # ============================================================================
 
