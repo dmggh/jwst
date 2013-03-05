@@ -1,7 +1,7 @@
 import os.path
 import traceback
 
-from crds import log
+from crds import log, rmap
 from crds.cmdline import Script
 
 import crds.server.interactive.models as models
@@ -44,10 +44,13 @@ Does not move, rename, or deliver files.
         final locations,  suitable for recreating the CRDS database from a CRDS file
         cache.
         """
-        
         paths = self.get_files(self.args.files)
-        file_map = models.get_fileblob_map()
+        self.add_files(paths)
+        self.set_default_contexts()
         
+    def add_files(self, paths):
+        """Add the files specified in list `paths` to the CRDS database."""
+        file_map = models.get_fileblob_map()
         for path in paths:
             
             file = os.path.basename(path)
@@ -55,7 +58,7 @@ Does not move, rename, or deliver files.
                 log.info("Skipping existing file", repr(file))
                 continue
     
-            log.info("Submitting", repr(file), "from", repr(file))
+            log.info("Adding", repr(file), "from", repr(path))
             try:
                 blob = models.add_crds_file(
                     observatory=self.observatory, 
@@ -66,14 +69,27 @@ Does not move, rename, or deliver files.
                     description=self.args.description,
                     add_slow_fields=self.args.add_slow_fields,
                     state=self.args.state, update_derivation=False)
+                models.mirror_filename_counters(self.observatory, path)
                 details = ""
             except Exception, exc:
-                log.error("Submission FAILED for", repr(file), ":", str(exc))
+                log.error("Add FAILED for", repr(path), ":", str(exc))
                 traceback.print_exc()
-                details = "add_files FAILED: " + repr(str(exc))
-            models.AuditBlob.new(self.args.deliverer, "mass import", self.args.description, file, 
-                details, observatory=self.observatory, instrument=blob.instrument, filekind=blob.filekind)
-  
+                details = "add_files FAILED for %s: " %  path + repr(str(exc))
+            models.AuditBlob.new(user=self.args.deliverer, action="mass import", affected_file=file, why=self.args.description, 
+                details=details, observatory=self.observatory, instrument=blob.instrument, filekind=blob.filekind)
+    
+    def set_default_contexts(self, context=None):
+        """Set the default contexts in the CRDS database."""
+        if context is None:
+            context = self.choose_default_context()
+        log.info("Setting default context to", repr(context))
+        models.set_default_context(context)    
+        models.set_default_context(context, state="operational")
+    
+    def choose_default_context(self):
+        contexts = sorted(rmap.list_mappings("*.pmap", observatory=self.observatory))
+        return contexts[-1]
+ 
 if __name__ == "__main__":
     AddFilesScript()()
 

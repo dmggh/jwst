@@ -1,8 +1,20 @@
-import crds.server.interactive.models as imodels
+import os
+
+from crds import log
+from crds.server.interactive import models as imodels
+from crds.server import crds_database
 
 def wipe_interactive():
     print "Wiping the database removes all existing objects,  forgetting all CRDS metadata."
     print "Prior to wiping a production database,  make sure it's backed up or you know what you're doing."
+    
+    print crds_database.DATABASES
+   
+    for var in os.environ:
+        if var.upper().startswith("CRDS"):
+            log.verbose(var, "=", repr(os.environ[var]))
+
+
     ans = raw_input("Are you sure you want to wipe the database? (y/n) ")
     if ans.lower() != "y":
         print "Aborting..."
