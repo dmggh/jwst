@@ -1,3 +1,14 @@
+"""This script handles basic database initialization and file delivery for
+filepaths listed on the command line.   It is distinct from file submission
+because it has no support for file generation, file certification, or user
+coordination via locking.   It's a primitive script intended to reinitialize
+a CRDS database,  including fileblobs, filename counters, audit trail, and 
+deliveries from files already assumed good and in the CRDS cache.
+
+File delivery is included because that's a normal part of bootstrapping CRDS
+from generated files.
+"""
+
 import os.path
 import traceback
 
@@ -5,7 +16,7 @@ from crds import log, rmap
 from crds.cmdline import Script
 
 import crds.server.config
-import crds.server.interactive.models as models
+from crds.server.interactive import models, submit
 
 def hack_sqlite3_performance():
     """These pragmas make a huge difference on Fedora 15.  Mac OS-X seems to
@@ -40,11 +51,13 @@ Does not move, rename, or deliver files.
                    help='List of files and/or @-files to add to CRDS database.')
         self.add_argument('-S', '--add-slow-fields', action='store_true', dest="add_slow_fields",
                           help='Initialize DB fields which require significant time,  like sha1sums.')
-        self.add_argument('-T', '--state', default='submitted',  help="CRDS server file state.", 
+        self.add_argument('-T', '--state', default='operational',  help="CRDS server file state.", 
                           choices=models.FILE_STATUS_MAP.keys()) 
-        self.add_argument('-D', '--description', default="Initial mass database import")
-        self.add_argument('-U', '--deliverer', default="crds")
+        self.add_argument('-D', '--description', default="Initial mass file import")
+        self.add_argument('-U', '--deliverer', default="crds",  help="Username of person adding these files.")
         self.add_argument('-E', '--deliverer-email', default="support@stsci.edu")
+        self.add_argument('-R', '--deliver', action='store_true',
+                          help="Generate file delivery lists and links for OPUS pickup of the added files.")
 
     # ------------------------------------------------------------------------------------------
     
@@ -56,13 +69,20 @@ Does not move, rename, or deliver files.
         """
         if "sqlite" in crds.server.config.dbtype:
             hack_sqlite3_performance()
+        if self.args.deliver:
+            self.args.state = "delivered"
         paths = self.get_files(self.args.files)
-        self.add_files(paths)
+        added = self.add_files(paths)
+        if self.args.deliver and added:
+            self.deliver_files(added)
         self.set_default_contexts()
         
     def add_files(self, paths):
-        """Add the files specified in list `paths` to the CRDS database."""
+        """Add the files specified in list `paths` to the CRDS database.
+        Return list of files added, omitting any already in the db.
+        """
         file_map = models.get_fileblob_map()
+        added = []
         for path in paths:
             
             file = os.path.basename(path)
@@ -86,13 +106,22 @@ Does not move, rename, or deliver files.
                     state=self.args.state, update_derivation=False)
                 models.mirror_filename_counters(self.observatory, path)
                 details = ""
+                added.append(path)
             except Exception, exc:
                 log.error("Add FAILED for", repr(path), ":", str(exc))
                 traceback.print_exc()
                 details = "add_files FAILED for %s: " %  path + repr(str(exc))
             models.AuditBlob.new(user=self.args.deliverer, action="mass import", affected_file=file, why=self.args.description, 
                 details=details, observatory=self.observatory, instrument=blob.instrument, filekind=blob.filekind)
-            
+        return added
+
+    def deliver_files(self, paths):
+        """Generate a delivery .cat and links so that OPUS can pick files in `paths`."""
+        log.info("Delivering:", paths)
+        d = submit.Delivery(user=self.args.deliverer, delivered_files=paths, 
+                            description=self.args.description, action="mass import", observatory=self.observatory)
+        with log.error_on_exception("File delivery failed."):
+            d.deliver()
     
     def set_default_contexts(self, context=None):
         """Set the default contexts in the CRDS database."""

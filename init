@@ -29,25 +29,22 @@ set password=$<
 echo "Adding test user"
 python adduser.py test jmiller@stsci.edu "$password"
 
-# ========================================================================
-#               Django database import for HST
-# ========================================================================
-# This initializes a developer database for the
-# first time.  It creates database blobs for every file under the closure of
-# hst.pmap,  references as well as mappings.   By default, potentially slow or
-# non-essential stuff (sha1sum, instrument, filekind, serial) is not added by
-# the trailing "0" flag.  Switch to "1" to add those.
-
 if ($observatory == "hst") then
     echo -n "Database password for DADSOPS? "
     set password=$<
     set password_file=${CRDS_INSTALL_DIR}/python/lib/python/crds/server/interactive/db_password.dat
     echo $password >$password_file
     chmod 600 $password_file
-    python -m crds.list --hst --cached-mappings --cached-references --full-path >hst_files
-    python add_files.py --hst @hst_files   # see command line options
+    python make_cdbs_links.py
+    python -m crds.list --hst --cached-mappings --full-path >hst_mappings
+    python -m crds.list --hst --cached-references --full-path >hst_references
+    # see command line options
+    python add_files.py --hst --add-slow-fields --deliver @hst_mappings    
+    python add_files.py --hst @hst_references
+
     # Add just enough slow fields to pass unit tests
     python add_slow_fields.py u1r1346ri_bia.fits n9i1435li_crr.fits t3420177i_drk.fits w2r1956ri_idc.fits n9n16196i_a2d.fits t291659mi_ccd.fits u5d2012li_bpx.fits q911321oi_osc.fits wbj1825si_imp.fits v8816168i_pfl.fits w7j1705di_fls.fits ubi1853qi_mdz.fits
+
 else if ($observatory == "jwst") then
 	if ($mode == "dev") then
 		echo "Linking files from Central Store /grp/crds/jwst/..."
@@ -56,8 +53,10 @@ else if ($observatory == "jwst") then
 		mkdir -p ../jwst/references/jwst
 		ln -s /grp/crds/jwst/references/jwst/* ../jwst/references/jwst
 	endif
-    python -m crds.list --jwst --cached-mappings --cached-references --full-path >jwst_files
-    python add_files.py --jwst @jwst_files   # see command line options
+    python -m crds.list --jwst --cached-mappings --full-path >jwst_mappings
+    python -m crds.list --jwst --cached-references --full-path >jwst_references
+    python add_files.py --jwst --add-slow-fields --deliver @jwst_mappings
+    python add_files.py --jwst --deliver @jwst_references
 else
 	echo "unknown observatory"
 	exit -1;
