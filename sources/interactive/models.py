@@ -178,6 +178,9 @@ class BlobModel(models.Model):
         return model
     
     def thaw(self):
+        if hasattr(self, "_thawed"):
+            return
+        self._thawed = True
         blob = eval(self.blob)
         for name, value in blob.items():
             setattr(self, name, value)
@@ -440,6 +443,7 @@ class FileBlob(BlobModel):
                     log.warning("required keyword '%s' is missing in '%s'" % (field.fitskey, name))
     
     def add_slow_fields(self):
+        self.thaw()
         log.info("Adding slow fields for", repr(self.name))
         self.sha1sum = self.compute_checksum()
         if self.type == "reference":
