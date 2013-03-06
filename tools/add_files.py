@@ -4,7 +4,17 @@ import traceback
 from crds import log, rmap
 from crds.cmdline import Script
 
+import crds.server.config
 import crds.server.interactive.models as models
+
+def hack_sqlite3_performance():
+    """These pragmas make a huge difference on Fedora 15.  Mac OS-X seems to
+    have good performance (perhaps these are already turned on) by default.
+    """
+    from django.db import connection
+    cursor = connection.cursor()
+    cursor.execute('PRAGMA temp_store = MEMORY;')
+    cursor.execute('PRAGMA synchronous=OFF')
 
 class AddFilesScript(Script):
     """Command line script for adding files to the CRDS database."""
@@ -44,6 +54,8 @@ Does not move, rename, or deliver files.
         final locations,  suitable for recreating the CRDS database from a CRDS file
         cache.
         """
+        if "sqlite" in crds.server.config.dbtype:
+            hack_sqlite3_performance()
         paths = self.get_files(self.args.files)
         self.add_files(paths)
         self.set_default_contexts()
@@ -55,6 +67,9 @@ Does not move, rename, or deliver files.
             
             file = os.path.basename(path)
             if file in file_map:
+                if self.args.add_slow_fields:
+                    with log.error_on_exception("Failed adding slow fields for", repr(file)):
+                        file_map[file].add_slow_fields()
                 log.info("Skipping existing file", repr(file))
                 continue
     
@@ -77,6 +92,7 @@ Does not move, rename, or deliver files.
                 details = "add_files FAILED for %s: " %  path + repr(str(exc))
             models.AuditBlob.new(user=self.args.deliverer, action="mass import", affected_file=file, why=self.args.description, 
                 details=details, observatory=self.observatory, instrument=blob.instrument, filekind=blob.filekind)
+            
     
     def set_default_contexts(self, context=None):
         """Set the default contexts in the CRDS database."""
