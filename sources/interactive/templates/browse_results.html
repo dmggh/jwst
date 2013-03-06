@@ -21,7 +21,7 @@
             <table border="1">
                 <tr>
                     <td width="20%" align="left" class="label">CRDS Name</td>
-                    <td>{{fileblob.filename}}</td>
+                    <td>{{fileblob.pathname|exists_color}}</td>
                 </tr>
                  <tr>
                     <td width="20%" align="left" class="label">Uploaded Name</td>
@@ -64,10 +64,6 @@
                  </tr>
                 
                 {% if is_authenticated %}
-                 <tr>
-                    <td width="20%" align="left" class="label">Path</td>
-                    <td>{{fileblob.pathname|exists_color}}</td>
-                 </tr>
                  <tr>
                     <td width="20%" align="left" class="label">Submitter</td>
                     <td>{{fileblob.deliverer_user}}</td>
