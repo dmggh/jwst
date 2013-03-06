@@ -90,11 +90,12 @@ class ServiceApiBase(object):
         client.list_mappings(server_config.observatory, "*.rmap")
         
     def getreferences(self, *args, **keys):
-        keys = dict(keys)
         # get_processing_mode is cached to avoid repeat network traffic
         heavy_client.get_processing_mode.cache.clear()
+        keys = dict(keys)
         # Override other (default) context mechanisms with test context.
-        keys["context"] = self.pmap
+        if "context" not in keys:
+            keys["context"] = self.pmap
         keys["observatory"] = self.observatory
         os.environ["CRDS_DOWNLOAD_MODE"] = "http"
         log.debug("Skipping getreferences download mode RPC")
@@ -104,11 +105,12 @@ class ServiceApiBase(object):
 #        return crds.getreferences(*args, **keys)
 
     def getrecommendations(self, *args, **keys):
-        keys = dict(keys)
         # get_processing_mode is cached to avoid repeat network traffic
         heavy_client.get_processing_mode.cache.clear()
+        keys = dict(keys)
+        if "context" not in keys:
+            keys["context"] = self.pmap
         # Override other (default) context mechanisms with test context.
-        keys["context"] = self.pmap
         keys["observatory"] = self.observatory
         os.environ["CRDS_DOWNLOAD_MODE"] = "http"
         log.debug("Skipping getrecommendations download mode RPC")
@@ -118,11 +120,19 @@ class ServiceApiBase(object):
 #        return crds.getreferences(*args, **keys)
 
     def test_getreferences_defaults(self, ignore_cache=False):
-        bestrefs = self.getreferences(self.get_header(), ignore_cache=ignore_cache)
+        bestrefs = self.getreferences(self.get_header(), ignore_cache=ignore_cache, context=self.pmap)
+        self._check_bestrefs(bestrefs, self.expected_references().keys())
+
+    def test_getreferences_defaults_imap(self, ignore_cache=False):
+        bestrefs = self.getreferences(self.get_header(), ignore_cache=ignore_cache, context=self.imap)
         self._check_bestrefs(bestrefs, self.expected_references().keys())
 
     def test_getrecommendations_defaults(self, ignore_cache=False):
-        bestrefs = self.getrecommendations(self.get_header(), ignore_cache=ignore_cache)
+        bestrefs = self.getrecommendations(self.get_header(), ignore_cache=ignore_cache, context=self.pmap)
+        self._check_bestrefs(bestrefs, self.expected_references().keys())
+
+    def test_getrecommendations_defaults_imap(self, ignore_cache=False):
+        bestrefs = self.getrecommendations(self.get_header(), ignore_cache=ignore_cache, context=self.imap)
         self._check_bestrefs(bestrefs, self.expected_references().keys())
 
     def test_getreferences_specific_reftypes(self):
@@ -228,6 +238,7 @@ if server_config.observatory == "hst":
     print "testing hst"
     class HstServiceApiTest(ServiceApiBase, TestCase):
         pmap = "hst.pmap"
+        imap = "hst_wfc3.imap"
         
         observatory = server_config.observatory
         
@@ -303,6 +314,8 @@ if server_config.observatory == "jwst":
     print "testing jwst"
     class JwstServiceApiTest(ServiceApiBase, TestCase):
         pmap = "jwst.pmap"
+        imap = "jwst_miri.imap"
+
         observatory = server_config.observatory
     
         header = {
