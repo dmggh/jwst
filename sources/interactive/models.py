@@ -280,8 +280,9 @@ class CounterBlob(BlobModel):
         blob = cls.setup(args[:-1])
         blob.counter = num
         blob.save()
-        
-    def mirror(cls, *args):
+    
+    @classmethod
+    def mirror(cls, filepath, *args):
         """Make filename counters reflect what is on the file system as files are added.
         
         counter_name_parts = args[:-1]
@@ -294,12 +295,15 @@ class CounterBlob(BlobModel):
         be present,  as would be the case if the CRDS server did not have a complete
         copy of all CRDS references and mappings.
         """
+        if not args[-1]:
+            return
         existing_serial = int(args[-1])
         blob = cls.setup(args[:-1])
         if blob.counter <= existing_serial:
             blob.counter = existing_serial + 1
             blob.save()
-            Log.info("Advanced file counter for '%s' to '%05d' based on existing id '%04d'", (blob.name, blob.counter, existing_serial))
+            log.info("Advanced file counter for '%s' to '%05d' based on from '%s'." % \
+                     (blob.name, blob.counter, filepath))
             
 def mirror_filename_counters(observatory, official_path):
     """As files are added,  make sure that the name serial number counters are consistent
@@ -308,11 +312,11 @@ def mirror_filename_counters(observatory, official_path):
     """
     locator = utils.get_locator_module(observatory)
     try:
-        path, observatory, instrument, filekind, serial, ext = locator.decompose_newstyle_filename(official_path)
+        path, observatory, instrument, filekind, serial, ext = locator.decompose_newstyle_name(official_path)
     except AssertionError:
         pass
     else:
-        CounterBlob.mirror([observatory, instrument, filekind, ext, serial])
+        CounterBlob.mirror(official_path, observatory, instrument, filekind, ext, serial)
 
 # ============================================================================
 
@@ -596,7 +600,7 @@ def add_crds_file(observatory, upload_name, permanent_location,
     if add_slow_fields:
         blob.add_slow_fields()
         blob.check_unique_sha1sum()
-    
+        
     return blob
 
 def file_exists(filename, observatory=OBSERVATORY):

@@ -3,6 +3,7 @@
 import sys
 import os
 import shutil
+import os.path
 
 from django.test import TestCase
 
@@ -22,8 +23,9 @@ class InteractiveBase(object):
         
         log.info("Setting up tests:", cls.__name__)
                 
-        # The results of locate_file will change when CRDS_PATH is redefined below.  Remember the real one here.
-        REAL_MAPPING_DIR = os.path.dirname(rmap.locate_file("foo.pmap", sconfig.observatory))
+        # The results of locate_file will change when CRDS_PATH is redefined below.
+        # Remember the real one here.
+        REAL_MAPPING_DIR = os.path.dirname(rmap.locate_file("foo.pmap", cls.observatory))
         cached_pmap = rmap.get_cached_mapping(cls.pmap)        
         
         # Set up test server tree
@@ -34,11 +36,14 @@ class InteractiveBase(object):
         pysh.sh("mkdir -p ${CRDS_PATH}/ingest", raise_on_error=True)
         pysh.sh("mkdir -p ${CRDS_PATH}/deliveries", raise_on_error=True)
         pysh.sh("mkdir -p ${CRDS_PATH}/catalogs", raise_on_error=True)
-        pysh.sh("mkdir -p ${CRDS_PATH}/references/%s" % sconfig.observatory, raise_on_error=True)
-        pysh.sh("mkdir -p ${CRDS_PATH}/mappings/%s" % sconfig.observatory, raise_on_error=True)
-        for map in cached_pmap.mapping_names():
-            pysh.sh("cp ${REAL_MAPPING_DIR}/${map} ${CRDS_PATH}/mappings/%s" % sconfig.observatory, raise_on_error=True)
+        pysh.sh("mkdir -p ${CRDS_PATH}/references/%s" % cls.observatory, raise_on_error=True)
+        pysh.sh("mkdir -p ${CRDS_PATH}/mappings/%s" % cls.observatory, raise_on_error=True)
 
+        mappings = cached_pmap.mapping_names()
+        for map in mappings:
+            pysh.sh("cp ${REAL_MAPPING_DIR}/${map} ${CRDS_PATH}/mappings/%s" % cls.observatory, raise_on_error=True)
+        cls.fake_database_files(mappings)
+            
         # monkey-patch these since they're not encapsulated with functions.
         sconfig.CRDS_INGEST_DIR = os.path.join(CRDS_PATH, "ingest")
         sconfig.CRDS_DELIVERY_DIR = os.path.join(CRDS_PATH, "deliveries")
@@ -69,7 +74,6 @@ class InteractiveBase(object):
         except Exception, exc:
             print "failed user save:", str(exc)
         self.ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, str(self.user))
-        self.fake_database_files([self.pmap])
         models.set_default_context(self.pmap)
         models.set_default_context(self.pmap, state="operational")
         utils.ensure_dir_exists(lconfig.get_crds_refpath())
@@ -77,7 +81,7 @@ class InteractiveBase(object):
         self.ingested = False
         
     def tearDown(self):
-        self.del_maps(self.delete_files)
+        self.remove_files(self.delete_list)
         pysh.sh("/bin/rm -rf " + lconfig.get_crds_refpath(), raise_on_error=True)  # , trace_commands=True)
         if self.ingested:
             pysh.sh("/bin/rm -rf " + self.ingest_path, raise_on_error=True) # , trace_commands=True)
@@ -98,36 +102,35 @@ class InteractiveBase(object):
     def logout(self):
         response = self.client.post("/logout/")
         self.assert_no_errors(response)
+        
+    def remove(self, file):
+        try:
+            log.verbose("Removing", repr(file))
+            os.remove(file)        
+        except OSError:
+            pass
 
-    def del_maps(self, maps):
-        for map in maps:
-            where = rmap.locate_mapping(map)
-            try:
-                os.remove(where)
-            except OSError:
-                pass
-            try:
-                os.remove(map)
-            except OSError:
-                pass
-            try:
-                os.remove(sconfig.CRDS_DELIVERY_DIR + "/" + map)
-            except:
-                pass
+    def remove_files(self, files):
+        for file in files:
+            self.remove(file)
+            self.remove(rmap.locate_file(file, self.observatory))
+            self.remove(sconfig.CRDS_DELIVERY_DIR + "/" + file)
 
+    @classmethod
     def fake_database_files(self, files):
         for filename in files:
             name = os.path.basename(filename)
-            location = filename if os.path.dirname(filename) else rmap.locate_file(filename, sconfig.observatory)
+            filepath = filename if os.path.dirname(filename) else rmap.locate_file(filename, self.observatory)
             models.add_crds_file(
-                sconfig.observatory, name, location, 
+                self.observatory, name, filepath, 
                 deliverer="homer", deliverer_email="homer@simpsons.com", 
                 description="delivered by the man",
                 add_slow_fields=False,
                 state="delivered",
                 update_derivation=False)
+            models.mirror_filename_counters(self.observatory, filepath)
             models.AuditBlob.new("homer", "mass import", name, "becuz", "some details",
-                                 observatory=sconfig.observatory)
+                                 observatory=self.observatory)
 
     def assert_no_errors(self, response, status=200):
         try:            
@@ -168,7 +171,7 @@ class InteractiveBase(object):
         pass
     
     def test_bestrefs_post_uploaded_dataset(self):
-        if sconfig.observatory == "hst":
+        if self.observatory == "hst":
             dataset1 = "interactive/test_data/j8bt05njq_raw.fits"
         else:
             dataset1 = "interactive/test_data/jw00001001001_01101_00001_MIRIMAGE_uncal.fits"
@@ -188,8 +191,9 @@ class InteractiveBase(object):
         self.ingested = True
         ingest_file = os.path.join(self.ingest_path, os.path.basename(filepath))
         utils.ensure_dir_exists(ingest_file)
+        filepath = os.path.abspath(filepath)
         try:
-            log.info("linking ingest", ingest_file, "to", filepath)
+            log.info("testing add_files_to_ingest_dir:  linking ingest", ingest_file, "to", filepath)
             shutil.copy(filepath, ingest_file)
             os.chmod(ingest_file, 0666)
         except Exception, exc:
@@ -202,9 +206,9 @@ class InteractiveBase(object):
 
     def test_set_file_enable_blacklist_post(self):
         self.login()
-        self.fake_database_files(self.blacklist_files)
+        # self.fake_database_files(self.blacklist_files)
         response = self.client.post("/set_file_enable/", {
-            "observatory" : sconfig.observatory,
+            "observatory" : self.observatory,
             "file_known" : self.blacklist_files[1],
             "badflag" : "bad",
             "reject_type" : "blacklist",
@@ -225,9 +229,9 @@ class InteractiveBase(object):
 
     def test_set_file_enable_reject_post(self):
         self.login()
-        self.fake_database_files(self.blacklist_files)
+        # self.fake_database_files(self.blacklist_files)
         response = self.client.post("/set_file_enable/", {
-            "observatory" : sconfig.observatory,
+            "observatory" : self.observatory,
             "file_known" : self.blacklist_files[1],
             "badflag" : "bad",
             "reject_type" : "reject",
@@ -280,7 +284,7 @@ class InteractiveBase(object):
         self.assert_no_errors(response)
 
     def test_difference_post(self):
-        self.fake_database_files(self.difference_files)
+        # self.fake_database_files(self.difference_files)
         response = self.client.post("/difference/", {
             "filemode1": "file_known1",
             "file_known1" : self.difference_files[0],
@@ -290,7 +294,7 @@ class InteractiveBase(object):
         self.assert_no_errors(response)
     
     def test_difference_post_uploaded(self):
-        self.fake_database_files(self.difference_files)
+        # self.fake_database_files(self.difference_files)
         response = self.client.post("/difference/", {
             "filemode1": "file_uploaded2",
             "file_uploaded1" : open(self.difference_files_uploaded[0]),
@@ -327,7 +331,7 @@ class InteractiveBase(object):
 
     def test_create_contexts_post(self):
         self.login()
-        self.fake_database_files(self.create_contexts_rmaps)
+        # self.fake_database_files(self.create_contexts_rmaps)
         response = self.client.post("/create_contexts/", {
                 "pmap_mode" : "pmap_text",
                 "pmap_text" : self.pmap,
@@ -352,7 +356,7 @@ class InteractiveBase(object):
     def test_browse_db_post(self):
         self.login()
         response = self.client.post("/browse_db/", {
-                "observatory" : sconfig.observatory,
+                "observatory" : self.observatory,
                 "instrument" : "*",
                 "filekind" : "*",
                 "extension": "*",
@@ -470,7 +474,7 @@ class InteractiveBase(object):
         self.fake_database_files(self.submit_references)
         self.add_files_to_ingest_dir(self.submit_references)
         response = self.client.post("/submit/reference/", {
-            "observatory" : sconfig.observatory,
+            "observatory" : self.observatory,
             "auto_rename" : "on",
             "description" : "an identical pmap with a different name is still different",
             "change_level" : "SEVERE",
@@ -499,7 +503,7 @@ class InteractiveBase(object):
         self.add_file_to_ingest_dir(self.submit_rmap)
         rmap2 = self.add_1(self.submit_rmap)
         context = {
-            "observatory" : sconfig.observatory,
+            "observatory" : self.observatory,
             "auto_rename" : "on",
             "description" : "an identical pmap with a different name is still different",
             "change_level" : "SEVERE",
@@ -570,9 +574,10 @@ if sconfig.observatory == "hst":
     
     class HstInteractiveTest(InteractiveBase, TestCase):
         
+        observatory = "hst"
         pmap = "hst.pmap"
         
-        delete_files = [
+        delete_list = [
             "hst_0001.pmap",
             "hst_0002.pmap",
             "hst_0003.pmap",
@@ -619,15 +624,27 @@ else:  # JWST
     
     class JwstInteractiveTest(InteractiveBase, TestCase):
 
+        observatory = "jwst"
         pmap = "jwst_0000.pmap"
         
-        delete_files = [
+        delete_list = [
             "jwst_0001.pmap",
+            "jwst_0002.pmap",
             "jwst_miri_0001.imap",
+            "jwst_miri_0002.imap",
             "jwst_nircam_0001.imap",
             "jwst_miri_flat_0001.rmap",
-            "jwst_miri_amplifier_0001.rmap",
+            "jwst_miri_amplifier_0002.rmap",
+            "jwst_miri_photom_0002.rmap",
+            "jwst_miri_amplifier_0001.fits",
+            "jwst_miri_amplifier_0002.fits",
+            "jwst_miri_amplifier_0003.fits",
+            "jwst_miri_amplifier_0004.fits",
+            "jwst_miri_amplifier_0005.fits",
+            "jwst_miri_amplifier_0006.fits",
             "jwst_miri_photom_0001.rmap",
+            "jwst_miri_amplifier_9999.rmap",
+            "jwst_miri_amplifier_9998.fits",
             "opus_1_i.cat",
         ]
 
@@ -641,12 +658,11 @@ else:  # JWST
         certify_rmap_fits = ["jwst_miri_amplifier_0000.fits",
                              "jwst_miri_amplifier_0001.fits",
                              "jwst_miri_amplifier_0002.fits"]
-        certify_post_fits = "interactive/test_data/jwst_miri_photom_0001.fits"
+        certify_post_fits = "interactive/test_data/jwst_miri_amplifier_0001.fits"
 
         submit_rmap = "interactive/test_data/jwst_miri_amplifier_9999.rmap"
-        submit_references = ["jwst_miri_amplifier_0000.fits",
-                             "jwst_miri_amplifier_0001.fits",
-                             "jwst_miri_amplifier_0002.fits"]
+        submit_references = ["interactive/test_data/jwst_miri_amplifier_0000.fits",
+                             "interactive/test_data/jwst_miri_amplifier_0001.fits"]        
         locked_instrument = "miri"
 
         batch_submit_replace_references = ["interactive/test_data/jwst_miri_amplifier_0000.fits",

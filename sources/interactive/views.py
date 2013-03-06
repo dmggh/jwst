@@ -375,8 +375,8 @@ def get_files(request):
     returning:   remove_dir,   { original_name : file_path }
     """
     dir = os.path.join(sconfig.CRDS_INGEST_DIR, str(request.user))
-    log.info("Scanning", srepr(dir), "for uploaded files.")
     uploads = { str(os.path.basename(f)) : str(f) for f in glob.glob(dir + "/*") }
+    log.info("Scanned", srepr(dir), "for uploaded files:", uploads)
     for f in uploads:
         if rmap.is_mapping(f):
             # this will fail for user-scp'ed ingests.  but... maybe file already writeable.
