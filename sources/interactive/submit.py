@@ -99,7 +99,7 @@ class SubmitFilesScript(cmdline.Script):
         self.add_argument("--change-level", choices=["trivial", "medium", "severe"], store_in="change_level", default="severe",
                           help="Degree to which submitted files impact science results.")
         self.add_argument("--description", help="Free text description of file submission.")
-        self.add_argument("--auto-rename", action="store_true", default=False,
+        self.add_argument("--auto-rename", action="store_true", default=True,
                           help="If specified,  automatically rename files to CRDS-style versioned names.")
         self.add_argument("--compare-old-references", action="store_true", default=False,
                           help="If specified, check references against the files they replace in derive-from-context, where applicable.")
@@ -555,6 +555,7 @@ def submit_confirm_core(confirmed, submission_kind, description, new_files, cont
         raise CrdsError("No files submitted.")
     
     context_name_map = {}
+    collisions = None
     if confirmed:
         if context_rmaps:
             # Instrument lock required since we're generating a new .imap from context_rmaps.
@@ -569,14 +570,15 @@ def submit_confirm_core(confirmed, submission_kind, description, new_files, cont
         delivery = Delivery(user, delivered_files, description, submission_kind)
         delivery.deliver()
 
-        for mapping in new_files:
+        for mapping in context_name_map.values():
             if mapping.endswith(".pmap"):
                 models.set_default_context(mapping)
                 break
+        collisions = get_collision_list(context_name_map.values())
     else:
         destroy_file_list(new_files)
 
-    return  context_name_map
+    return  context_name_map, collisions
     
 def fix_unicode(items):
     return [(str(old),str(new)) for (old,new) in items]

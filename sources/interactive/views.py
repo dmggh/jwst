@@ -539,7 +539,8 @@ def lock_login_receiver(sender, **keys):
     user = str(keys["user"])
     instrument = validate_post(request, "instrument", models.INSTRUMENTS + ["none"])
     # log.info("Login receiver releasing all instrument locks for user '%s' session '%s'." % (user, request.session.session_key))
-    locks.release_locks(user=user)
+    with log.info_on_exception("releasing locks failed"):
+        locks.release_locks(user=user)
     del_locked_instrument(request)
     if instrument != "none":
         # log.info("Login receiver acquiring '%s' instrument lock for user '%s' session '%s'." % (instrument, user, request.session.session_key))
@@ -558,7 +559,8 @@ def lock_logout_receiver(sender, **keys):
     """Signal handler to release a user's locks if they log out."""
     request = keys["request"]
     user = str(keys["user"])
-    locks.release_locks(user=user)
+    with log.info_on_exception("releasing locks failed"):
+        locks.release_locks(user=user)        
     del_locked_instrument(request)
 
 user_logged_out.connect(lock_logout_receiver, dispatch_uid="lock_logout_receiver")
@@ -587,10 +589,9 @@ def set_locked_instrument(request, instrument):
     
 def del_locked_instrument(request):
     """Remove any trace of a locked instrument."""
-    try:
-        del request.session["locked_instrument"]
-    except:
-        pass
+    if "locked_instrument" in request.session:
+        with log.info_on_exception("forgetting locked instrument failed"):
+            del request.session["locked_instrument"]
 
 # ===========================================================================
 
@@ -1065,8 +1066,8 @@ def submit_confirm(request):
     new_file_map = dict(result.new_file_map)
     new_files = new_file_map.values()
 
-    context_map = submit.submit_confirm_core( confirmed, result.submission_kind, result.description, new_files, 
-                                              result.context_rmaps, result.user,  result.pmap, locked_instrument)
+    context_map, collision_list = submit.submit_confirm_core( confirmed, result.submission_kind, result.description, 
+                                        new_files, result.context_rmaps, result.user,  result.pmap, locked_instrument)
 
     new_file_map = sorted(new_file_map.items() + context_map.items())
     generated_files = sorted([(old, new) for (old,new) in new_file_map if old not in result.uploaded_basenames])
@@ -1081,6 +1082,7 @@ def submit_confirm(request):
         generated_files=generated_files,
         new_file_map=new_file_map,
         more_submits=result.more_submits,
+        collision_list=collision_list,
         confirmed=confirmed)
     
     if confirmed:

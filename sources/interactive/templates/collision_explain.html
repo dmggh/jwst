@@ -1,7 +1,7 @@
 {% load stdtags %}
 
 {% if collision_list %}
-    {% accordion "<span class="error">Edit Collision Warnings</span>" %}
+    {% accordion "<span class="warning">Edit Collision Warnings</span>" %}
     <div>
     {% for colinfo in collision_list %}
         {% for collision in colinfo.2 %}
@@ -12,16 +12,14 @@
         {% endfor %}
     {% endfor %}
     <br/>
-    <p>This file was derived from the same parent file as one or more others.   
+    <p>A file was derived from the same parent file as one or more others.
     
-    <p>This suggests that two people edited the same file at the same time 
+    <p>Possibly two people edited the same file at the same time 
     and will not incorporate one another's changes.   
     
-    <p>The person receiving this warning should derive a new update,  most 
-    likely from the best of the files this submission collided with.   
-    
-    <p class="warning"> Do not confirm the file(s) submitted/generated here unless 
-    the collision is known to be harmless.
+    <p class="warning">If this is an unexplained collision, consider cancelling this submission (if you have the option).
+	This warning is expected whenever you derive a new context from a historical context which already has descendents, 
+    i.e. whenever you derive from other than the default editing context.
     </div>
     {% endaccordion %}
 {% endif %}
