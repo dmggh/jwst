@@ -676,7 +676,7 @@ def upload_new(request, template="upload_new_input.html"):
         ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir, f.name)
         # locked_instrument = get_locked_instrument(request)
         # submit.verify_instrument_locked_files(request.user, locked_instrument, [ingest_path], models.OBSERVATORY)
-        with log.warn_on_exception("Failed removing", repr(ingest_path)):
+        with log.verbose_on_exception("Failed removing", repr(ingest_path)):
             os.chmod(ingest_path, 0666)
             os.remove(ingest_path)
             log.info("Removed existing", repr(ingest_path))

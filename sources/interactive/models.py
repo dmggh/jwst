@@ -365,7 +365,7 @@ class FileBlob(BlobModel):
     
     model_fields = BlobModel.model_fields + \
         ["state", "blacklisted", "rejected", "observatory", "instrument", "filekind", 
-         "type", "derived_from"]
+         "type", "derived_from", "sha1sum"]
         
     unicode_list = ["name", "type", "instrument", "filekind", "state", "blacklisted"]
         
@@ -395,8 +395,11 @@ class FileBlob(BlobModel):
     type = SimpleCharField( ["reference","mapping"],
         "type of file,  reference data or CRDS rule or context", "")
     
-    derived_from = models.CharField(max_length=128,
+    derived_from = models.CharField(max_length=128, default="none",
         help_text = "Previous version of this file this one was based on.")
+
+    sha1sum = models.CharField(max_length=40,
+        help_text = "hex sha1sum of file contents as delivered", default="none")
 
     # ===============================
     
@@ -415,7 +418,6 @@ class FileBlob(BlobModel):
         pathname = BlobField("^[A-Za-z0-9_./]+$", "path/filename to CRDS master copy of file", "none"),
         blacklisted_by = BlobField(list,"List of blacklisted files this file refers to directly or indirectly.", []),
         reject_by_file_name = BlobField(FILENAME_RE, "", ""),
-        sha1sum = BlobField(str, "checksum of file at upload time", "none"),
         size = BlobField(long, "size of file in bytes.", -1),
         change_level = BlobField(CHANGE_LEVELS, "Do the changes to this file force recalibration of science data?", ""), 
 
@@ -449,20 +451,31 @@ class FileBlob(BlobModel):
     def add_slow_fields(self):
         self.thaw()
         log.info("Adding slow fields for", repr(self.name))
-        self.sha1sum = self.compute_checksum()
         if self.type == "reference":
             self.init_FITS_fields()
+        self.sha1sum = self.compute_checksum()
         self.save()
             
     def check_unique_sha1sum(self):
-        # matches = self.__class__.filter(sha1sum=self.sha1sum)
-        return # XXXX TODO file uniqueness sha1sum not verified
-        if len(matches) < 1:
-            raise CrdsError("Checksum computation error for '%s'.  No matching blob found." % self.uploaded_as)
-        if len(matches) > 1:
-            others = ", ".join([str(x.name) for x in matches if str(x.name) != str(self.name)])
-            raise CrdsError("Submitted file '%s' renamed to '%s' is identical to existing files: %s" % (self.uploaded_as, self.name, others))
+        sum = self.compute_checksum()
+        matches = self.__class__.filter(sha1sum=sum)
+        if len(matches) >= 1:
+            others = ", ".join([repr(str(x.name)) for x in matches if str(x.name) != str(self.name)])
+            raise CrdsError("Submitted file '%s' is identical to existing files: %s" % (self.uploaded_as, others))
 
+    def compute_checksum(self):
+        try:
+            checksum = utils.checksum(self.pathname)
+            log.verbose("Computed checksum for", repr(self.name), "as", repr(checksum))
+            return checksum
+        except Exception, exc:
+            log.error("Computing sha1sum of", repr(self.pathname), "failed:", str(exc))
+            return "checksum failed: " + str(exc)
+
+    @property
+    def checksum_ok(self):
+        return self.compute_checksum() == self.sha1sum
+    
     @classmethod
     def new(cls, observatory, upload_name, permanent_location, 
             creator_name, deliverer_user, deliverer_email, description, 
@@ -537,17 +550,6 @@ class FileBlob(BlobModel):
         parts = os.path.splitext(self.filename)
         return parts[-1]
     
-    def compute_checksum(self):
-        try:
-            return utils.checksum(self.pathname)
-        except Exception, exc:
-            log.error("Computing sha1sum of", repr(self.pathname), "failed:", str(exc))
-            return "checksum failed: " + str(exc)
-
-    @property
-    def checksum_ok(self):
-        return self.compute_checksum() == self.sha1sum
-    
     def destroy(self):
         """Destroy this FileBlob and it's associated file.   This
         cannot be revoked and should *ONLY* be called as part of cleanup for
@@ -582,32 +584,34 @@ def add_crds_file(observatory, upload_name, permanent_location,
             creator_name="unknown", state="submitted", update_derivation=True):
     "Make a database record for this file.  Track the action of creating it."""
 
+    blob = FileBlob.new(
+        observatory, upload_name, permanent_location, 
+        creator_name, deliverer, deliverer_email, description,
+        change_level=change_level, state=state, derived_from="none")
+
+    try:
+        if add_slow_fields:
+            blob.check_unique_sha1sum()
+    except CrdsError:
+        blob.destroy()
+        raise
+    
     if rmap.is_mapping(upload_name):
         if update_derivation:
             derived_from = refactor.update_derivation(permanent_location)
         else:
-            mapping = rmap.fetch_mapping(permanent_location)
-            derived_from = mapping.derived_from
-    else:  # references
-        if update_derivation:
-            derived_from = upload_name
-        else:
-            derived_from = "initial reference import " + str(datetime.datetime.now())
-    try:
-        # Set file permissions to read only.
-        os.chmod(permanent_location, 0444)
-    except Exception:
-        pass
-
-    blob = FileBlob.new(
-        observatory, upload_name, permanent_location, 
-        creator_name, deliverer, deliverer_email, description,
-        change_level=change_level, state=state, derived_from=derived_from)
-
+            derived_from = rmap.fetch_mapping(permanent_location).derived_from
+        blob.derived_from = derived_from
+        blob.save()
+    
+    # note that modifying derivation fields changes the sha1sum of mappings.
     if add_slow_fields:
         blob.add_slow_fields()
-        blob.check_unique_sha1sum()
-        
+
+    # Set file permissions to read only.
+    with log.error_on_exception("failed chmod'ing ", repr(permanent_location), "to 0444"):
+        os.chmod(permanent_location, 0444)
+
     return blob
 
 def file_exists(filename, observatory=OBSERVATORY):

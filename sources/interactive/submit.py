@@ -211,6 +211,7 @@ class FileSubmission(object):
             context_lock.release()
 
     def _do_create_context(self, updated_rmaps):
+        """Create new contexts from `updated_rmaps` with no concern for locking."""
         # Get the mapping from old imap to new rmap, basically the imaps that
         # must be updated onto the list of rmap updates to do.
         updates_by_instrument = newcontext.get_update_map(self.pmap.name, updated_rmaps)
@@ -581,8 +582,8 @@ def submit_confirm_core(confirmed, submission_kind, description, new_files, cont
     return  context_name_map, collisions
     
 def fix_unicode(items):
-    return [(str(old),str(new)) for (old,new) in items]
-
+    return [(str(old), str(new)) for (old, new) in items]
+ 
 def destroy_file_list(files):
     """Remove the database record of `files` as well as `files` themselves.
     NOTE: This only removes the CRDS official copy of the file, not the original upload copy.
