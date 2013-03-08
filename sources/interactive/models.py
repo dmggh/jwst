@@ -1,15 +1,16 @@
+"""Database models for crds.server.interactive."""
+
 import os
 import os.path
 import re
-import hashlib
 import datetime
 
 from django.db import models
 
 # Create your models here.
-from crds import (timestamp, rmap, utils, refactor, checksum, log, data_file, uses)
+from crds import (timestamp, rmap, utils, refactor, log, data_file, uses)
 from crds import CrdsError
-from crds.compat import (namedtuple, OrderedDict)
+from crds.compat import OrderedDict
 
 from crds.server.config import observatory as OBSERVATORY
 from crds.server.config import table_prefix as TABLE_PREFIX
@@ -60,7 +61,7 @@ class BlobModel(models.Model):
     class Meta:
         abstract = True    # Collapse model inheritance for flat SQL tables
 
-    model_fields = ["id","name","blob"]  # field directly in database
+    model_fields = ["id", "name", "blob"]  # field directly in database
     blob_fields = {}  # field in database as part of blob
     blob_properties = []  # computed field
     exclude_from_info = ["blob"]    # not included in self.info()
@@ -88,7 +89,7 @@ class BlobModel(models.Model):
                       list(self.blob_fields) + 
                       list(self.blob_properties))
 
-    def __repr__(self, displayed=None):
+    def _repr(self, displayed=None):
         """Display values of fields in `self.repr_list` else display
         values of all fields in name-sorted order.
         """
@@ -106,10 +107,13 @@ class BlobModel(models.Model):
         rep = rep[:-2] + ")"
         return rep
     
+    def __repr__(self):
+        return self._repr()
+    
     def __unicode__(self):
         """To support Django db admin views."""
         self.thaw()
-        return self.__repr__(self.unicode_list)
+        return self._repr(self.unicode_list)
     
     def enforce_type(self, attr, value):
         """Ensure `value` meets the constraints for field `attr`.  Return
@@ -144,7 +148,7 @@ class BlobModel(models.Model):
         blob = {}
         for name in self.blob_fields:
             if name not in self.blob_properties:
-                blob[name] = self.enforce_type(name, getattr(self,name))
+                blob[name] = self.enforce_type(name, getattr(self, name))
         self.blob = repr(blob)
         models.Model.save(self)
         
@@ -323,7 +327,7 @@ def mirror_filename_counters(observatory, official_path):
 
 # ============================================================================
 
-PEDIGREES = ["INFLIGHT","GROUND","DUMMY","MODEL"]
+PEDIGREES = ["INFLIGHT", "GROUND", "DUMMY", "MODEL"]   # note: INFLIGHT include date
 CHANGE_LEVELS = ["SEVERE", "MEDIUM", "TRIVIAL"]
 
 FILENAME_RE = "^[A-Za-z0-9_.]+$"
@@ -481,7 +485,7 @@ class FileBlob(BlobModel):
         try:
             instrument, filekind = utils.get_file_properties(observatory, permanent_location)
             blob.instrument = instrument
-            blob.filekind= filekind
+            blob.filekind = filekind
         except Exception, exc:
             log.warning("Adding file with instrument and filekind UNKNOWN for file", 
                         repr(permanent_location), ":", str(exc))
@@ -506,11 +510,10 @@ class FileBlob(BlobModel):
         return os.path.basename(self.pathname)
     
     def compute_size(self):
-        try:
+        """Determine the size of this file."""
+        with log.error_on_exception("Computing size of", repr(self.name)):
             return os.stat(self.pathname).st_size
-        except Exception, exc:
-            log.error("Computing size of", repr(self.name),"failed:", str(exc))
-            return -1
+        return -1
     
     @property
     def status(self):
@@ -557,7 +560,7 @@ class FileBlob(BlobModel):
             os.remove(self.pathname)
             self.delete()
         except Exception, exc:
-            log.error("Problem destroying",repr(self.pathname))
+            log.error("Problem destroying", repr(self.pathname))
 
     @property
     def collisions(self):
@@ -777,7 +780,7 @@ class ContextBlob(BlobModel):
         # User supplied fields
         observatory = BlobField(
             OBSERVATORIES, "associated observatory", ""),
-        context = BlobField("\w+\.pmap", "default pipeline context", ""),
+        context = BlobField(r"\w+\.pmap", "default pipeline context", ""),
     )
     
     unicode_list = ["name", "context"]
@@ -821,7 +824,7 @@ class RepeatableResultBlob(BlobModel):
         parameters_enc = BlobField(
             str, "json encoding of HTML rendering parameter dictionary", "{}"),
         page_template = BlobField(
-            "\w+\.html", "HTML template which will be rendered using parameter dictionary", ""),
+            r"\w+\.html", "HTML template which will be rendered using parameter dictionary", ""),
     )
 
     unicode_list = ["id", "page_template"]

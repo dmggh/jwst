@@ -65,5 +65,5 @@ class Struct(dict):
         return self[name]
 
     def __setattr__(self, name, val):
-        self[name]=val
+        self[name] = val
 

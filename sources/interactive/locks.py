@@ -41,7 +41,7 @@ from ..locking.exceptions import AlreadyLocked
 from crds import CrdsError, log, utils
 from crds.server import settings
 
-NEVER=60*60*24*365*1000   # 1000 years in seconds
+NEVER = 60 * 60 * 24 * 365 * 1000   # 1000 years in seconds
 
 class LockingError(CrdsError):
     """A routine locking error occurred which shouldn't generate a traceback
@@ -75,25 +75,31 @@ class CrdsLock(object):
 
     @property
     def resource_lock(self):
+        """The name of the generic resource being locked."""
         return self.type + "$" + self.name if self.type else self.name
 
     @property
     def user_lock(self):
+        """The name of a generic resource combined with the name of the user that locked it."""
         return self.resource_lock + "$" + self.user
     
     def _std_info(self, verb, lock_name):
+        """Log a locking info() message in a standard style."""
         msg = "%s lock '%s' at %s" % (verb.upper(), lock_name, datetime.datetime.now())
         if self.user:
             msg = "User " + repr(self.user) + " " + msg
         log.info(msg)
         
     def acquire(self, timeout=NEVER):
+        """Acquire both halves of a CrdsLock, timing out after `timeout` seconds."""
         self._resource_lock = self._acquire(self.resource_lock, timeout)
         if self.user:
-            self._user_lock = self._acquire(self.user_lock, timeout=30)
+            self._user_lock = self._acquire(self.user_lock, timeout)
     
     def _acquire(self, lock_name, timeout=NEVER):
-        """Get the `lock_name`.  Return a lock object."""
+        """Get the locking.Lock `lock_name`.  Return a lock object.   Raise ResourceLockedError
+        exception if `lock_name` cannot be acquired within `timeout` seconds.
+        """
         start = datetime.datetime.now()
         deadline = start + datetime.timedelta(seconds=timeout)
         naptime = 1.0
@@ -136,8 +142,8 @@ class CrdsLock(object):
         """
         try:
             lock = Lock.objects.get(locked_object=lock_name)
-        except Exception, exc:
-            # log.info("_get_existing: " + str(exc))
+        except Exception, _exc:
+            # log.info("_get_existing: " + str(_exc))
             lock = None
         if lock is None or lock.is_expired:
             raise BrokenLockError("User " + repr(self.user) + " no longer holds lock " + repr(lock_name))
@@ -151,18 +157,21 @@ class CrdsLock(object):
         return True
     
     def expires_on(self):
+        """Return the expiration data of the resource lock half of this CrdsLock."""
         self._resource_lock = self._get_existing(self.resource_lock)
         return self._resource_lock.expires_on()
     
     def reset_expiry(self):
+        """Verify this lock is still locked and reset the expiry dates of both halves."""
         self.verify_locked()
         now = datetime.datetime.now()
-        self._reset_expiry(self._resource_lock, now)
+        self._set_created_on(self._resource_lock, now)
         if self._user_lock:
-            self._reset_expiry(self._user_lock, now)
+            self._set_created_on(self._user_lock, now)
     
-    def _reset_expiry(self, lock, now):
-        lock.created_on = now
+    def _set_created_on(self, lock, when):
+        """Set the created_on field of a primitive locking.Lock `lock`."""
+        lock.created_on = when
         lock.save()
         self._std_info("reset expiry", lock.locked_object)
     
@@ -252,7 +261,7 @@ def verify_instrument_locked_files(user, locked_instrument, filepaths, observato
         log.info("Operating in unlocked mode.")
     verify_locked(user=str(user), type="instrument", name=locked_instrument)
     for path in filepaths:
-        instrument, filekind = utils.get_file_properties(observatory, path)
+        instrument, _filekind = utils.get_file_properties(observatory, path)
         assert instrument == locked_instrument, \
             "Instrument Mismatch:  Logged in for '%s'. Submitted files for '%s'." % (locked_instrument, instrument)
      

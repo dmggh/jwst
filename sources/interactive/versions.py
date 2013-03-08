@@ -4,18 +4,8 @@ in pyetc.
 
 from __future__ import division
 
-import os
 import sys
-import datetime
-import hashlib
 import re
-
-from django.db import connection
-from django.shortcuts import render_to_response
-from django.http import HttpResponse
-
-import crds.server.config as config
-import crds.log as log
 
 MODULE_LIST = (
     'django',
@@ -65,7 +55,7 @@ def get_version(modname):
     try:
         mod = dynamic_import(modname)
     except ImportError:
-        return { key:"missing" for key in ["str","rev","svnurl","file"]}
+        return { key:"missing" for key in ["str", "rev", "svnurl", "file"]}
     
     # try all the "standard" ways for it to say a version number
     try:
@@ -86,16 +76,16 @@ def get_version(modname):
 
     # where is it in the filesystem?
     try :
-        file = mod.__file__  # WARNING:  overriding builtin function file()
+        filename = mod.__file__  # WARNING:  overriding builtin function file()
     except AttributeError :
-        file = ''
+        filename = ''
 
     # extract svn version from STScI code
     try:
         mod = dynamic_import("%s.svn_version" % modname)
         svnrev = mod.__svn_version__
         svnurl = mod.__full_svn_info__ .split('URL: ')[1].split('\n')[0]
-    except Exception, exc:
+    except Exception:
         svnrev = ''
         svnurl = ''
 
@@ -103,7 +93,7 @@ def get_version(modname):
         'str'   : ans,
         'rev'   : svnrev,
         'svnurl': svnurl,
-        'file'  : file
+        'file'  : filename
         }
     return vers
 
@@ -125,6 +115,6 @@ def dynamic_import(package):
     """
     if not PACKAGE_RE.match(package):
         raise ImportError("Invalid dynamic import " + repr(package))
-    exec "import " + package + " as m" in locals(), locals()
-    return m
+    exec "import " + package + " as module" in locals(), locals()
+    return module
 

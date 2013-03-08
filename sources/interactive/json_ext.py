@@ -8,25 +8,27 @@ class CrdsEncoder(json.JSONEncoder):
     """Convert non-standard objects to attr dicts to support template rendering.
     This works for simple objects with encode-able attributes.
     """
-    def default(self, o):
-        if not isinstance(o, (bool, int, float, list, tuple, dict, basestring)):
-            o = dict(o.__dict__)
-            for key, value in o.items():
+    def default(self, obj):
+        if not isinstance(obj, (bool, int, float, list, tuple, dict, basestring)):
+            obj = dict(obj.__dict__)
+            for key, value in obj.items():
                 if isinstance(value, tuple):
-                    o[key] = list(value)
-        return o
+                    obj[key] = list(value)
+        return obj
 
-def dumps(o):
-    return json.dumps(o, cls=CrdsEncoder)
+def dumps(obj):
+    """Render obj as a json string using CrdsEncoder."""
+    return json.dumps(obj, cls=CrdsEncoder)
 
 def loads(enc):
-    o = json.loads(enc)
-    if isinstance(o, dict):    # fix str --> unicode key decoding side effect.
-        p = {}
-        for key,val in o.items():
-            if isinstance(key,basestring):
-                p[str(key)] = val
+    """Create a Python object from a json string.  Hack away unicode keys."""
+    obj = json.loads(enc)
+    if isinstance(obj, dict):    # fix str --> unicode key decoding side effect.
+        pobj = {}
+        for key, val in obj.items():
+            if isinstance(key, basestring):
+                pobj[str(key)] = val
             else:
-                p[key] = val
-        return p
-    return o
+                pobj[key] = val
+        return pobj
+    return obj

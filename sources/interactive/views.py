@@ -795,7 +795,7 @@ def header_string_to_header(hstring):
         value = " ".join(words[1:])
         value = utils.condition_value(value)
         if not re.match(FITS_KEY_RE, key) and re.match(FITS_VAL_RE, value):
-            log.warning("Dropping illegal keyword '%s' with value '%s'." % (key,value))
+            log.warning("Dropping illegal keyword '%s' with value '%s'." % (key, value))
             continue
         header[key] = value
     return header
@@ -1070,7 +1070,7 @@ def submit_confirm(request):
                                         new_files, result.context_rmaps, result.user,  result.pmap, locked_instrument)
 
     new_file_map = sorted(new_file_map.items() + context_map.items())
-    generated_files = sorted([(old, new) for (old,new) in new_file_map if old not in result.uploaded_basenames])
+    generated_files = sorted([(old, new) for (old, new) in new_file_map if old not in result.uploaded_basenames])
     uploaded_files = [(old, new) for (old, new) in new_file_map if (old, new) not in generated_files]
     
     # rmaps specified for context generation but not uploaded or generated

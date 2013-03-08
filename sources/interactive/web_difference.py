@@ -3,7 +3,7 @@
 import os.path
 import re
 
-from crds import rmap, pysh, log, CrdsError
+from crds import rmap, pysh, CrdsError
 
 GEIS_HEADER_RE = r"\w+(\.r\dh)"
 
@@ -118,7 +118,7 @@ def format_fitsdiffs(lines, file1, file2, file1_orig, file2_orig):
     for i in range(len(lines)):
         line = clean_path(lines[i], file1, file1_orig)
         line = clean_path(line, file2, file2_orig)
-        if "Primary HDU" in line or re.search("Extension HDU \d+", line):
+        if "Primary HDU" in line or re.search(r"Extension HDU \d+", line):
             line = "<h3>" + line + "</h3>"
         line = re.sub(r"([Kk]eyword)\s*([A-Za-z0-9_]*)",
                       r"\1 <span class='green'>\2</span>", line)

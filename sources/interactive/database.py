@@ -2,14 +2,10 @@
 unixODBC,  and FreeTDS,  to get dataset headers from the HST DADSOPS 
 catalog.
 """
-import sys
 import pprint
-import cPickle
-import random
 import getpass
 from collections import OrderedDict
 import os.path
-import datetime
 
 import pyodbc
 
