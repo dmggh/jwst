@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import *
+from django.conf.urls import *
 from jsonrpc import jsonrpc_site
 
 import crds.server.jsonapi.views
