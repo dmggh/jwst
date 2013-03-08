@@ -212,7 +212,6 @@ label, .label, .label2 {
     }
 
 input {
-    size: 8;
     border: gray solid 2px;
     border-radius: 6px;
     margin: 2px 2px 2px 2px;
@@ -230,6 +229,15 @@ select {
     font-family: monospace; 
     font-size:1.0em; 
     background-color:lightyellow;
+}
+
+.log {
+    font-family: monospace; 
+    font-size:1.0em; 
+    background-color:lightyellow;
+    line-height: 1.0;
+    margin-top: 0.25em;
+    margin-bottom: 0em;
 }
 
 select, textarea {

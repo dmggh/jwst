@@ -3,6 +3,7 @@
 import sys
 import cStringIO
 import cProfile
+import re
 
 from crds import log
 
@@ -66,4 +67,19 @@ class Struct(dict):
 
     def __setattr__(self, name, val):
         self[name] = val
+
+# ===================================================================
+
+def html_colorize_log(output):
+    """Format CRDS log output as colorized HTML paragraphs."""
+    html = []
+    for line in output.splitlines():
+        html.append("<p>" + colorize_line(line) + "</p>")
+    return "\n".join(html)
+
+def colorize_line(line):
+    """Add color to one CRDS log line."""
+    line = re.sub(": ERROR", ": <span class='red'>ERROR</span>", line)
+    line = re.sub(": WARNING", ": <span class='orange'>WARNING</span>", line)
+    return line
 

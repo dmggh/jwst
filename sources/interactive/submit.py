@@ -63,6 +63,7 @@ def file_exists_somehow(filename):
 
 # ----------------------------------------------------------------------------------------------------
 
+'''
 class SubmitFilesScript(cmdline.Script):
     """Command line version of CRDS file submissions."""
     
@@ -96,15 +97,15 @@ class SubmitFilesScript(cmdline.Script):
         self.add_argument("files", nargs="+", help="Paths of references and mappings to add to CRDS.""")
         self.add_argument("--derive-from-context", store_in="derive_from_context",
                           help=".pmap used for certification or basis for new mappings/.pmap")
-        self.add_argument("--change-level", choices=["trivial", "medium", "severe"], store_in="change_level", default="severe",
-                          help="Degree to which submitted files impact science results.")
+        self.add_argument("--change-level", choices=["trivial", "medium", "severe"], store_in="change_level", 
+                          default="severe", help="Degree to which submitted files impact science results.")
         self.add_argument("--description", help="Free text description of file submission.")
         self.add_argument("--auto-rename", action="store_true", default=True,
                           help="If specified,  automatically rename files to CRDS-style versioned names.")
         self.add_argument("--compare-old-references", action="store_true", default=False,
-                          help="If specified, check references against the files they replace in derive-from-context, where applicable.")
+                          help="Check references against replaced files in derive-from-context, where applicable.")
         self.add_argument("--generate-rules", action="store_true", default=False,
-                          help="If specified, generate mappings as required to add the submitted files to the derived-from-context.")
+                          help="Generate mappings as required to add the submitted files to the derived-from-context.")
         self.add_argument("--creator", default="(unknown)",
                           help="Name of the person who originally authored the file.")
         
@@ -124,7 +125,8 @@ class SubmitFilesScript(cmdline.Script):
 def submit_files(_context, _files):
     "placeholder"
     raise NotImplementedError("command line interface not finished yet.")
-        
+'''
+
 # ------------------------------------------------------------------------------------------------
 
 class FileSubmission(object):
@@ -299,7 +301,8 @@ class BatchReferenceSubmission(FileSubmission):
         
         disposition = rmap_disposition or reference_disposition
         
-        return (disposition, new_references_map, new_mappings_map, reference_certs, rmap_certs, diff_results, collision_list)
+        return (disposition, new_references_map, new_mappings_map, reference_certs, rmap_certs, 
+                diff_results, collision_list)
 
 # .............................................................................
 
@@ -326,8 +329,6 @@ class BatchReferenceSubmission(FileSubmission):
         old_rmap_path = rmap.locate_mapping(old_rmap, self.observatory)
         tmp_rmap = tempfile.NamedTemporaryFile()
         refactor.rmap_insert_references(old_rmap_path, tmp_rmap.name, uploaded_group.values())
-        # XXX TODO unhandled files,  references resulting in no change.
-        # XXX TODO duplicate matches,  references changing the same path.    
         return old_rmap
     
     def bsr_group_references(self):
@@ -345,7 +346,8 @@ class BatchReferenceSubmission(FileSubmission):
                 seen_instrument = instrument
             else:
                 assert instrument == seen_instrument, \
-                    "More than one instrument submitted at '%s' : '%s' vs. '%s'." % (original_name, seen_instrument, instrument)
+                    "More than one instrument submitted at '%s' : '%s' vs. '%s'." % \
+                    (original_name, seen_instrument, instrument)
             if (instrument, filekind) not in groups:
                 groups[(instrument, filekind)] = {}
             groups[(instrument, filekind)][original_name] = uploaded_path 
@@ -431,7 +433,7 @@ class SimpleFileSubmission(FileSubmission):
             self.uploaded_files.items(), context=self.pmap.name, compare_old_reference=self.compare_old_reference)
         
         # Add the files to the CRDS database as "uploaded",  pending confirmation.
-        new_file_map = self.submit_file_list("submit files")
+        new_file_map = self.submit_file_list("submit_files")
         
         collision_list = get_collision_list(new_file_map.values())
         

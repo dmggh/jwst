@@ -5,11 +5,11 @@ while making the output look sane.
 
 import os.path
 
-from crds import rmap, certify
+from crds import rmap, certify, log
 from crds import CrdsError
 
 from . import models
-from .common import capture_output, srepr
+from .common import capture_output, srepr, html_colorize_log
 
 def certify_file_list(upload_tuples, check_references=True, context=None, compare_old_reference=False):
     """Certify the list of `upload_tuples` specifying uploaded files.
@@ -33,10 +33,12 @@ def certify_file_list(upload_tuples, check_references=True, context=None, compar
         status, output = captured_certify(original_name, upload_path, 
             check_references=check_references, filemap=filemap, context=context, 
             compare_old_reference=compare_old_reference)
-        certify_results[original_name] = status, output
+        html = html_colorize_log(output)
+        certify_results[original_name] = status, html
         if status == "Failed.":
             disposition = "bad files"
     return disposition, sorted(certify_results.items())
+
 
 def captured_certify(original_name, uploaded_path, check_references=True, filemap=None, context=None,
                      compare_old_reference=False):
@@ -44,32 +46,37 @@ def captured_certify(original_name, uploaded_path, check_references=True, filema
     
     Returns ("OK|"Warnings"|"Failed", certify_output) 
     """
-    output = _captured_certify(original_name, uploaded_path, filemap, context, compare_old_reference)[1]
-    if ": ERROR" not in output:
-        if ": WARNING" not in output:
-            status = "OK"
-        else:
-            status = "Warnings"
-    else:
+    output = _captured_certify(original_name, uploaded_path, context, compare_old_reference,
+                               check_references, filemap)[1]
+    if ": ERROR" in output:
         status = "Failed."
-    if status != "Failed.":    # if OK the rmap should load...
-        if check_references and rmap.is_mapping(original_name):
-            if filemap is None:
-                filemap = models.get_fileblob_map(models.OBSERVATORY)
-            ctx = rmap.fetch_mapping(uploaded_path)
-            for ref in ctx.reference_names():
-                if ref not in filemap:
-                    output += "ERROR: Reference " + srepr(ref) + " in " + \
-                            srepr(original_name) + " is not known to CRDS.\n"
-                    status = "Failed."
-                    
+    elif ": WARNING" in output:
+        status = "Warnings"
+    else:
+        status = "OK"
     return status, output
 
 @capture_output
-def _captured_certify(original_name, uploaded_path, filemap=None, context=None, compare_old_reference=False):
+def _captured_certify(original_name, uploaded_path, context=None, compare_old_reference=False, check_references=False, 
+                      filemap=None):
     """Run  crds.certify_files on `uploaded_path` and capture it's stdout/stderr."""
     certify.certify_files([uploaded_path], context=context, dump_provenance=True, check_references=False, 
-                          is_mapping=rmap.is_mapping(original_name), trap_exceptions=True)
+                          is_mapping=rmap.is_mapping(original_name), trap_exceptions=True, 
+                          compare_old_reference=compare_old_reference)
+
+    if check_references and rmap.is_mapping(original_name):
+        if filemap is None:
+            filemap = models.get_fileblob_map(models.OBSERVATORY)
+        with log.error_on_exception("Failed checking mapping '%s'" % original_name):
+            ctx = rmap.fetch_mapping(uploaded_path)
+            for filename in  ctx.mapping_names() + ctx.reference_names():
+                if filename not in filemap:
+                    log.error("File '%s' is not known to CRDS." % filename)
+                else:
+                    if filemap[filename].blacklisted:
+                        log.error("File '%s' is blacklisted." % filename)
+                    if filemap[filename].rejected:
+                        log.warning("File '%s' is rejected." % filename)
 
 def get_blacklist_file_list(upload_tuples, all_files):
     """Return the mapping of blacklist status and blacklisted_by list for the
@@ -111,6 +118,7 @@ def get_blacklists(basename, certifypath, ignore_self=True, files=None):
             if ignore_self and child == os.path.basename(certifypath): 
                 continue
             if child not in files:   # Unknown file,  what to do?
+                log.error("get_blacklists for", repr(basename), "missing file", repr(child))
                 continue   # XXXX TODO blacklist instead?
             if files[child].blacklisted:
                 blacklisted_by.add(child)

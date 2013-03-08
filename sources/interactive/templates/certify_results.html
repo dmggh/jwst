@@ -15,7 +15,7 @@
                 {% if blacklist.1 %}
                     <p>Dependent on blacklisted files:</p> 
                     {% for line in blacklist.1 %}
-                        <p>{{line|safe|gray}}</p>
+                        <p>{{line|safe|browse}}</p>
                     {% endfor %}  
                 {% else %}
                     {% if "Error" in blacklist.0 %}
