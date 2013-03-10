@@ -634,7 +634,10 @@ def login(request):
             raise CrdsError("Please enable cookies and try again.")
     else:
         request.session.set_test_cookie()
-        return django_login(request, "login.html", extra_context=dict(instruments=models.INSTRUMENTS + ["none"]))
+        return django_login(request, "login.html", extra_context={
+                    "observatory" : models.OBSERVATORY,
+                    "instruments" : models.INSTRUMENTS + ["none"],
+                })
 
 
 def logout(request):
