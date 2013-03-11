@@ -26,11 +26,14 @@ def wipe_interactive():
     print "wiping audits..."
     imodels.AuditBlob.objects.all().delete()
 
+    print "wiping repeatable results..."
+    imodels.RepeatableResultBlob.objects.all().delete()
+
     print "wiping contexts..."
-    imodels.ContextBlob.objects.all().delete()
+    imodels.ContexModel.objects.all().delete()
 
     print "wiping counters..."
-    imodels.CounterBlob.objects.all().delete()
+    imodels.CounterModel.objects.all().delete()
 
     print "done."
 
