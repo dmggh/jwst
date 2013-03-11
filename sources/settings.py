@@ -92,9 +92,9 @@ FILE_UPLOAD_HANDLERS = (
 # Session management, logins and expiration
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
-SESSION_COOKIE_AGE = 60*30   # 30 minutes
-CRDS_MAX_LOCK_AGE = SESSION_COOKIE_AGE
-CRDS_LOCK_ACQUIRE_TIMEOUT = 10 # seconds
+SESSION_COOKIE_AGE = 60*60*24*365*1000   # 1000 years
+CRDS_MAX_LOCK_AGE = 60*60 # 1 hour,  refreshed every request
+CRDS_LOCK_ACQUIRE_TIMEOUT = 30 # seconds
 
 MIDDLEWARE_CLASSES = (
     # must precede middleware which assumes CSRF already dealt with

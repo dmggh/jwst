@@ -132,12 +132,15 @@ class InteractiveBase(object):
             models.AuditBlob.new("homer", "mass import", name, "becuz", "some details",
                                  observatory=self.observatory)
 
-    def assert_no_errors(self, response, status=200):
+    def assert_no_errors(self, response, msg=None, status=200):
         try:            
             self.assertEqual(response.status_code, status)
             self.assertNotIn("ERROR", response.content)
             self.assertNotIn("Error", response.content)
-        except:
+            if msg is not None:
+                self.assertIn(msg, response.content)
+        except Exception, exc:
+            print >>sys.stderr, str(exc)
             print >>sys.stderr, response.content
             raise
         
@@ -147,7 +150,8 @@ class InteractiveBase(object):
             self.assertIn("ERROR", response.content)
             if msg is not None:
                 self.assertIn(msg, response.content)
-        except:
+        except Exception, exc:
+            print >>sys.stderr, str(exc)
             print >> sys.stderr, response.content
             raise
 
@@ -409,14 +413,14 @@ class InteractiveBase(object):
         response = self.client.post("/submit_confirm/", {
                 "results_id" : str(id),
                 "button" : "confirm",
-            })
+            }, follow=True)
         return response
 
     def _cancel(self, id=1):
         response = self.client.post("/submit_confirm/", {
                 "results_id" : str(id),
                 "button" : "cancel",
-            })
+            }, follow=True)
         return response
     
     def test_batch_submit_confirm(self):
@@ -424,14 +428,14 @@ class InteractiveBase(object):
         response = self._batch_submit_insert()
         self._assert_normal_bsr_insert(response)
         response = self._confirm()
-        self.assert_no_errors(response, status=302)
+        self.assert_no_errors(response, msg="Submission Confirmed")
         
     def test_batch_submit_cancel(self):
         self.login()
         response = self._batch_submit_insert()
         self._assert_normal_bsr_insert(response)
         response = self._cancel()
-        self.assert_no_errors(response, status=302)
+        self.assert_no_errors(response, msg="cancelled by submitter")
     
     def test_batch_submit_broken_lock_1(self):
         self.login()
@@ -445,15 +449,15 @@ class InteractiveBase(object):
         self._assert_normal_bsr_insert(response)
         locks.release_all()   # simulate broken locks
         response = self._confirm()
-        self.assert_has_error(response, "no longer holds lock")
+        self.assert_no_errors(response, msg="cancelled due to")
 
     def test_batch_submit_broken_lock_3(self):
         self.login()
         response = self._batch_submit_insert()
         self._assert_normal_bsr_insert(response)
         locks.release_all()   # simulate broken locks
-        response = self._cancel()
-        self.assert_has_error(response, "no longer holds lock")
+        response = self._cancel()  # broken lock preempts user cancel.
+        self.assert_no_errors(response, msg="cancelled due to")
 
     def test_login_collision(self):
         self.login()
@@ -490,13 +494,13 @@ class InteractiveBase(object):
         self.login()
         response = self._submit_references_post()
         response = self._confirm()
-        self.assert_no_errors(response, status=302)
+        self.assert_no_errors(response, msg="Submission Confirmed")
     
     def test_submit_references_post_cancel(self):
         self.login()
         response = self._submit_references_post()
         response = self._cancel()
-        self.assert_no_errors(response, status=302)
+        self.assert_no_errors(response, msg="cancelled by submitter")
     
     def _submit_mappings_post(self, generate_contexts):
         self.fake_database_files(self.submit_references)
@@ -521,7 +525,7 @@ class InteractiveBase(object):
         self.assert_no_errors(response)
         self.assertIn(rmap2, response.content)
         response = self._confirm()
-        self.assert_no_errors(response, status=302)
+        self.assert_no_errors(response, msg="Submission Confirmed")
         
     def test_submit_mappings_post_cancel(self):
         self.login()
@@ -529,7 +533,7 @@ class InteractiveBase(object):
         self.assert_no_errors(response)
         self.assertIn(rmap2, response.content)
         response = self._cancel()
-        self.assert_no_errors(response, status=302)
+        self.assert_no_errors(response, msg="cancelled by submitter")
         
     def test_submit_mappings_post_generate_contexts_confirm(self):
         self.login()
@@ -537,7 +541,7 @@ class InteractiveBase(object):
         self.assert_no_errors(response)
         self.assertIn(rmap2, response.content)
         response = self._confirm()
-        self.assert_no_errors(response, status=302)
+        self.assert_no_errors(response, msg="Submission Confirmed")
 
     def test_submit_mappings_post_generate_contexts_cancel(self):
         self.login()
@@ -545,7 +549,7 @@ class InteractiveBase(object):
         self.assert_no_errors(response)
         self.assertIn(rmap2, response.content)
         response = self._cancel()
-        self.assert_no_errors(response, status=302)
+        self.assert_no_errors(response, msg="cancelled by submitter")
 
     def test_submit_mappings_post_generate_contexts_broken_lock_1(self):
         self.login()
@@ -558,14 +562,14 @@ class InteractiveBase(object):
         rmap2, response = self._submit_mappings_post(generate_contexts=True)
         locks.release_all()
         response = self._confirm()
-        self.assert_has_error(response, "no longer holds lock")
+        self.assertIn("cancelled due to", response.content)
 
     def test_submit_mappings_post_generate_contexts_broken_lock_3(self):
         self.login()
         rmap2, response = self._submit_mappings_post(generate_contexts=True)
         locks.release_all()
-        response = self._cancel()
-        self.assert_has_error(response, "no longer holds lock")
+        response = self._cancel()  # broken lock preempts user cancel
+        self.assertIn("cancelled due to", response.content)
         
     def test_get(self):   # XXX TODO implememnt get test
         pass

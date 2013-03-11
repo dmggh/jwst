@@ -1,6 +1,7 @@
 """Middleware classes (request/response filters) for crds.server.interactive."""
 
-from . import locks
+from crds import log
+from . import locks, views
 
 class ResetLockExpirationMiddleware(object):
     """Manage lock expirations."""
@@ -11,6 +12,7 @@ class ResetLockExpirationMiddleware(object):
         """
         user = getattr(request, "user", None)
         if user and user.is_authenticated():
-            instrument = request.session.get("instrument", None)
+            instrument = views.get_locked_instrument(request)
             if instrument and instrument != "none":
-                locks.reset_expiry(type="instrument", name=instrument, user=str(user))
+                with log.info_on_exception("failed resetting lock expiration"):
+                    locks.reset_expiry(type="instrument", name=instrument, user=str(user))

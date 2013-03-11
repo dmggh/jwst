@@ -6,6 +6,7 @@ import re
 import datetime
 
 from django.db import models
+from django.core.exceptions import ObjectDoesNotExist
 
 # Create your models here.
 from crds import (timestamp, rmap, utils, refactor, log, data_file, uses)
@@ -53,41 +54,19 @@ class MissingInputError(FieldError):
     
 # ============================================================================
 
-class BlobModel(models.Model):
-    """A generic hybrid format which contains several fast static fields
-    as well as a "blob" of slow fields which are easier to declare and
-    don't change the database schema.
-    """
+class CrdsModel(models.Model):
     class Meta:
         abstract = True    # Collapse model inheritance for flat SQL tables
+        
+    name = models.CharField(max_length=64, default="", help_text="unique name of this model.")
 
-    model_fields = ["id", "name", "blob"]  # field directly in database
-    blob_fields = {}  # field in database as part of blob
-    blob_properties = []  # computed field
-    exclude_from_info = ["blob"]    # not included in self.info()
-    repr_list = None    # fields shown in __repr__ or ALL if None
-    unicode_list = None  # fields shown in __unicode__ or ALL if None
-    
-    name = models.CharField(
-        max_length = 64, default="none",
-        help_text = "descriptive string uniquely identifying this instance")
-    
-    blob = models.TextField( 
-            help_text  = "repr() of value of this blob,  probably repr(dict).",
-            default = "{}")
-    
-    def __init__(self, *args, **keys):
-        models.Model.__init__(self, *args)
-        for fieldname in self.blob_fields:
-            setattr(self, fieldname, self.blob_fields[fieldname].default)
-        for fieldname in keys:
-            setattr(self, fieldname, keys[fieldname])
-            
+    unicode_list = ["name"]
+    repr_list = ["name"]
+    model_fields = ["name"]
+
     @property
     def fields(self):
-        return sorted(list(self.model_fields) + 
-                      list(self.blob_fields) + 
-                      list(self.blob_properties))
+        return self.model_fields
 
     def _repr(self, displayed=None):
         """Display values of fields in `self.repr_list` else display
@@ -108,13 +87,185 @@ class BlobModel(models.Model):
         return rep
     
     def __repr__(self):
-        return self._repr()
+        return self._repr(self.repr_list)
     
     def __unicode__(self):
         """To support Django db admin views."""
-        self.thaw()
         return self._repr(self.unicode_list)
+
+    @classmethod
+    def get_or_create(cls, *args):
+        """Get the model for `name`, or create it."""
+        name = "_".join(args)
+        try:
+            model = cls.objects.get(name=name)
+        except ObjectDoesNotExist:
+            model = cls(name=name)
+        return model
+
+# ============================================================================
+
+class CounterModel(CrdsModel):
+    """The serial number counter for a single kind of file,  named:
+            <observatory> _ <instrument> _ <filekind>
+            
+    Automatically generates a new counter if it doesn't already exist:
+    use with care.
+    """
+    class Meta:
+        db_table = TABLE_PREFIX + "_counters" 
+
+    counter = models.IntegerField(default=0, help_text="Value of the counter.")
     
+    repr_list = unicode_list = ["id", "name","counter"]
+    
+    @classmethod
+    def next(cls, *args):
+        """Return the next integer in the series identified by `args`,  
+        which are nominally class, observatory, instrument, filekind.
+        .e.g.  mapping, hst, acs, biasfile
+               reference, jwst, miri, biasfile
+        """
+        model = cls.get_or_create(*args)
+        model.counter += 1
+        model.save()
+        return model.counter
+
+    @classmethod
+    def last(cls, *args):
+        """Like next,  but return the last number issued."""
+        return cls.get_or_create(*args).counter
+
+    @classmethod
+    def set(cls, *args): 
+        """Like next(),  but set the counter identified by args[:-1] to args[-1]
+        """
+        # nominally class, observatory, instrument, filekind, number
+        num = int(args[-1])
+        model = cls.get_or_create(*args[:-1])
+        model.counter = num
+        model.save()
+    
+    @classmethod
+    def mirror(cls, filepath, *args):
+        """Make filename counters reflect what is on the file system as files are added.
+        
+        counter_name_parts = args[:-1]
+        existing_serial = args[-1]
+        
+        if existing_serial >= counter(args):  counter(args) = existing_serial + 1
+        
+        This is done rather than merely reflecting the file system so that serial
+        numbers can be allocated simply without requiring that a real file or stub to
+        be present,  as would be the case if the CRDS server did not have a complete
+        copy of all CRDS references and mappings.
+        """
+        if not args[-1]:
+            return
+        existing_serial = int(args[-1])
+        model = cls.get_or_create(*args[:-1])
+        if model.counter <= existing_serial:
+            model.counter = existing_serial + 1
+            model.save()
+            log.info("Advanced file counter for '%s' to '%05d' based on from '%s'." % \
+                     (model.name, model.counter, filepath))
+            
+def mirror_filename_counters(observatory, official_path):
+    """As files are added,  make sure that the name serial number counters are consistent
+    with the supplied `official name`.   This is particularly required for generated files
+    which arrive with pre-assigned names.
+    """
+    locator = utils.get_locator_module(observatory)
+    try:
+        path, observatory, instrument, filekind, serial, ext = locator.decompose_newstyle_name(official_path)
+    except AssertionError:
+        pass
+    else:
+        CounterModel.mirror(official_path, observatory, instrument, filekind, ext, serial)
+
+# ============================================================================
+
+CONTEXT_TYPES = ["default", "operational"]
+
+# "default" is synonymous with "edit", the suggested derivation point for edits.
+
+class ContextModel(CrdsModel):
+    """Keeps track of which mappings are the default."""
+    class Meta:
+        db_table = TABLE_PREFIX + "_contexts" 
+
+    model_fields = repr_list = unicode_list = CrdsModel.model_fields + ["observatory", "kind", "context"]
+    
+    context = models.CharField(max_length=64, default="",
+        help_text="name of .pmap assigned to for this kind of context.")
+    
+    @property
+    def observatory(self):
+        return self.name.split("_")[0]
+
+    @property
+    def kind(self):
+        return self.name.split("_")[1]
+    
+    def __init__(self, *args, **keys):
+        # observatory="", kind="", context=""):
+        super(ContextModel, self).__init__(*args, **keys)
+
+    @classmethod
+    def get_map(cls):   # XXX TODO observatory handling
+        """Return the mapping { kind : context }"""
+        return { blob.kind : blob.context for blob in cls.objects.all() }
+
+def set_default_context(context, observatory=OBSERVATORY, state="default"):
+    """Remember `context` as the default for `observatory` and `state`."""
+    assert context.endswith(".pmap"), "context must be a .pmap"
+    blob = ContextModel.get_or_create(observatory, state, "context")
+    blob.context = context
+    blob.save()
+
+def get_default_context(observatory=OBSERVATORY, state="default"):
+    """Return the latest context which is in `state`."""
+    return ContextModel.get_or_create(observatory, state, "context").context
+
+# ============================================================================
+
+class BlobModel(CrdsModel):
+    """A generic hybrid format which contains several fast static fields
+    as well as a "blob" of slow fields which are easier to declare and
+    don't change the database schema.
+    """
+    class Meta:
+        abstract = True    # Collapse model inheritance for flat SQL tables
+
+    model_fields = CrdsModel.model_fields + ["blob"]  # field directly in database
+    
+    blob_fields = {}  # field in database as part of blob
+    blob_properties = []  # computed field
+    exclude_from_info = ["blob"]    # not included in self.info()
+    repr_list = None    # fields shown in __repr__ or ALL if None
+    unicode_list = None  # fields shown in __unicode__ or ALL if None
+    
+    blob = models.TextField( 
+            help_text  = "repr() of value of this blob,  probably repr(dict).",
+            default = "{}")
+    
+    def __init__(self, *args, **keys):
+        models.Model.__init__(self, *args)
+        for fieldname in self.blob_fields:
+            setattr(self, fieldname, self.blob_fields[fieldname].default)
+        for fieldname in keys:
+            setattr(self, fieldname, keys[fieldname])
+            
+    def _repr(self, displayed=None):
+        self.thaw()
+        return super(BlobModel, self)._repr()
+    
+    @property
+    def fields(self):
+        return sorted(list(self.model_fields) + 
+                      list(self.blob_fields) + 
+                      list(self.blob_properties))
+
     def enforce_type(self, attr, value):
         """Ensure `value` meets the constraints for field `attr`.  Return
         a possibly coerced `value` if it's legal,  else raise an exception.
@@ -150,7 +301,7 @@ class BlobModel(models.Model):
             if name not in self.blob_properties:
                 blob[name] = self.enforce_type(name, getattr(self, name))
         self.blob = repr(blob)
-        models.Model.save(self)
+        super(BlobModel, self).save()
         
     @classmethod
     def load(cls, name):
@@ -235,98 +386,6 @@ class BlobModel(models.Model):
 
 # ============================================================================
 
-class CounterBlob(BlobModel):
-    """The serial number counter for a single kind of file,  named:
-            <observatory> _ <instrument> _ <filekind>
-            
-    Automatically generates a new counter if it doesn't already exist:
-    use with care.
-    """
-    class Meta:
-        db_table = TABLE_PREFIX + "_counters" # rename SQL table from interactive_fileblob
-
-    blob_fields = dict(
-        counter = BlobField(int, "an integer counter", 0),
-    )
-    
-    unicode_list = ["name","counter"]
-    
-    @classmethod
-    def setup(cls, args):
-        name = "_".join(args)
-        try:
-            blob = cls.load(name)
-        except LookupError:
-            blob = CounterBlob(name=name)
-        return blob
-    
-    @classmethod
-    def next(cls, *args):
-        """Return the next integer in the series identified by `args`,  
-        which are nominally class, observatory, instrument, filekind.
-        .e.g.  mapping, hst, acs, biasfile
-               reference, jwst, miri, biasfile
-        """
-        blob = cls.setup(args)
-        blob.counter += 1
-        blob.save()
-        return blob.counter
-
-    @classmethod
-    def last(cls, *args):
-        """Like next,  but return the last number issued."""
-        blob = cls.setup(args)
-        return blob.counter
-
-    @classmethod
-    def set(cls, *args): 
-        """Like next(),  but set the counter identified by args[:-1] to args[-1]
-        """
-        # nominally class, observatory, instrument, filekind, number
-        num = int(args[-1])
-        blob = cls.setup(args[:-1])
-        blob.counter = num
-        blob.save()
-    
-    @classmethod
-    def mirror(cls, filepath, *args):
-        """Make filename counters reflect what is on the file system as files are added.
-        
-        counter_name_parts = args[:-1]
-        existing_serial = args[-1]
-        
-        if existing_serial >= counter(args):  counter(args) = existing_serial + 1
-        
-        This is done rather than merely reflecting the file system so that serial
-        numbers can be allocated simply without requiring that a real file or stub to
-        be present,  as would be the case if the CRDS server did not have a complete
-        copy of all CRDS references and mappings.
-        """
-        if not args[-1]:
-            return
-        existing_serial = int(args[-1])
-        blob = cls.setup(args[:-1])
-        if blob.counter <= existing_serial:
-            blob.counter = existing_serial + 1
-            blob.save()
-            log.info("Advanced file counter for '%s' to '%05d' based on from '%s'." % \
-                     (blob.name, blob.counter, filepath))
-            
-def mirror_filename_counters(observatory, official_path):
-    """As files are added,  make sure that the name serial number counters are consistent
-    with the supplied `official name`.   This is particularly required for generated files
-    which arrive with pre-assigned names.
-    """
-    locator = utils.get_locator_module(observatory)
-    try:
-        path, observatory, instrument, filekind, serial, ext = locator.decompose_newstyle_name(official_path)
-    except AssertionError:
-        pass
-    else:
-        CounterBlob.mirror(official_path, observatory, instrument, filekind, ext, serial)
-
-# ============================================================================
-
 PEDIGREES = ["INFLIGHT", "GROUND", "DUMMY", "MODEL"]   # note: INFLIGHT include date
 CHANGE_LEVELS = ["SEVERE", "MEDIUM", "TRIVIAL"]
 
@@ -341,6 +400,7 @@ FILE_STATUS_MAP = OrderedDict([
     ("operational", "darkgreen"), # In operational use in the pipeline.
     ("blacklisted", "red"),
     ("rejected", "red"),
+    ("cancelled", "red"),
 ])
 
 class SimpleCharField(models.CharField):
@@ -770,51 +830,6 @@ class AuditBlob(BlobModel):
 
 # ============================================================================
 
-CONTEXT_TYPES = ["default", "operational"]
-
-# "default" is synonymous with "edit", the suggested derivation point for edits.
-
-class ContextBlob(BlobModel):
-    """Keeps track of which mappings are the default.
-    """
-    class Meta:
-        db_table = TABLE_PREFIX + "_contexts" # rename SQL table from interactive_fileblob
-
-    blob_fields = dict(
-        # User supplied fields
-        observatory = BlobField(
-            OBSERVATORIES, "associated observatory", ""),
-        context = BlobField(r"\w+\.pmap", "default pipeline context", ""),
-    )
-    
-    unicode_list = ["name", "context"]
-    
-    @classmethod
-    def check_type(self, state):
-        assert state in CONTEXT_TYPES, "Unknown context type " + repr(state)
-    
-    @classmethod
-    def get(cls, observatory, state="default"):
-        cls.check_type(state)
-        return cls.load(observatory + "." + state + "_context")
-
-    def save(self, state="default"):
-        self.__class__.check_type(state)
-        self.name = self.observatory + "." + state + "_context"
-        return BlobModel.save(self)
-    
-    @classmethod
-    def get_map(cls):
-        contexts = cls.filter()
-        map = {}
-        for blob in contexts:
-            state = blob.name.split(".")[1].split("_")[0]
-            value = blob.context
-            map[state] = value
-        return map
-
-# ============================================================================
-
 class RepeatableResultBlob(BlobModel):
     """A model for storing results rendered as a web page... so they can be 
     re-rendered at later time without re-executing forms and hence back/forward 
@@ -856,23 +871,6 @@ class RepeatableResultBlob(BlobModel):
         result.parameters[name] = value
         result.parameters_enc = json_ext.dumps(result.parameters)
         result.save()
-
-# ============================================================================
-
-def set_default_context(context, observatory=OBSERVATORY, user="crds-system",
-                        state="default"):
-    assert context.endswith(".pmap"), "context must be a .pmap"
-    ctxblob = FileBlob.load(context)  # make sure it exists
-    try:
-        blob = ContextBlob.get(observatory, state)
-        blob.context = context
-    except LookupError:
-        blob = ContextBlob(observatory=observatory, context=context)
-    blob.save(state=state)
-
-def get_default_context(observatory=OBSERVATORY, state="default"):
-    """Return the latest context which is in `state`."""
-    return ContextBlob.get(observatory, state).context
 
 # =============================================================================
 

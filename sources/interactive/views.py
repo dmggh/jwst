@@ -537,30 +537,34 @@ def lock_login_receiver(sender, **keys):
     """Signal handler to acquire locks for a user when they login."""
     request = keys["request"]
     user = str(keys["user"])
-    instrument = validate_post(request, "instrument", models.INSTRUMENTS + ["none"])
+    
     # log.info("Login receiver releasing all instrument locks for user '%s' session '%s'." % (user, request.session.session_key))
-    with log.info_on_exception("releasing locks failed"):
+    with log.info_on_exception("login releasing locks failed"):
         locks.release_locks(user=user)
+    
     del_locked_instrument(request)
-    if instrument != "none":
-        # log.info("Login receiver acquiring '%s' instrument lock for user '%s' session '%s'." % (instrument, user, request.session.session_key))
-        try:
-            locks.acquire(user=user, type="instrument", name=instrument, 
-                          timeout=settings.CRDS_LOCK_ACQUIRE_TIMEOUT, 
-                          max_age=settings.CRDS_MAX_LOCK_AGE)
-            set_locked_instrument(request, instrument)
-        except locks.ResourceLockedError:
-            owner = locks.owner_of(name=instrument, type="instrument")
-            raise CrdsError("User '%s' has already locked instrument '%s'." % (owner, instrument))
+
+    if "instrument" in request.POST:
+        instrument = validate_post(request, "instrument", models.INSTRUMENTS + ["none"])
+        if instrument != "none":
+            # log.info("Login receiver acquiring '%s' instrument lock for user '%s' session '%s'." % (instrument, user, request.session.session_key))
+            try:
+                locks.acquire(user=user, type="instrument", name=instrument, 
+                              timeout=settings.CRDS_LOCK_ACQUIRE_TIMEOUT, 
+                              max_age=settings.CRDS_MAX_LOCK_AGE)
+                set_locked_instrument(request, instrument)
+            except locks.ResourceLockedError:
+                owner = locks.owner_of(name=instrument, type="instrument")
+                raise CrdsError("User '%s' has already locked instrument '%s'." % (owner, instrument))
 
 user_logged_in.connect(lock_login_receiver, dispatch_uid="lock_login_receiver")
 
 def lock_logout_receiver(sender, **keys):
     """Signal handler to release a user's locks if they log out."""
-    request = keys["request"]
-    user = str(keys["user"])
     with log.info_on_exception("releasing locks failed"):
-        locks.release_locks(user=user)        
+        request = keys["request"]
+        user = str(keys["user"])
+        locks.release_locks(user=user)   
     del_locked_instrument(request)
 
 user_logged_out.connect(lock_logout_receiver, dispatch_uid="lock_logout_receiver")
@@ -589,7 +593,7 @@ def set_locked_instrument(request, instrument):
     
 def del_locked_instrument(request):
     """Remove any trace of a locked instrument."""
-    if "locked_instrument" in request.session:
+    if hasattr(request, "session") and "locked_instrument" in request.session:
         with log.info_on_exception("forgetting locked instrument failed"):
             del request.session["locked_instrument"]
 
@@ -857,7 +861,10 @@ def get_recent_pmaps(last_n=10):
 def pmap_label(blob):
     """Return the text displayed to users selecting known pmaps."""
     if isinstance(blob, basestring):
-        blob = models.FileBlob.load(blob)
+        try:
+            blob = models.FileBlob.load(blob)
+        except LookupError:
+            return "FILE LOOKUP FAILED -- invalid context"
     available = "" if blob.available else "*unavailable*" 
     blacklisted = "*blacklisted*" if blob.blacklisted else ""
     rejected = "*rejected*" if blob.rejected else ""
@@ -1046,7 +1053,6 @@ def batch_submit_references_post(request):
 @error_trap("base.html")
 @login_required
 @log_view
-@instrument_lock_required
 def submit_confirm(request):
     """Accept or discard proposed files from various file upload and
     generation mechanisms.
@@ -1054,6 +1060,7 @@ def submit_confirm(request):
     button = validate_post(request, "button", "confirm|cancel")
     results_id = validate_post(request, "results_id", "\d+")
     locked_instrument = get_locked_instrument(request)
+
     try:
         result = models.RepeatableResultBlob.get(int(results_id)).parameters
     except Exception, exc:
@@ -1061,39 +1068,52 @@ def submit_confirm(request):
     assert locked_instrument == result.should_still_be_locked, \
         "CRSD locking failure.  Currently locked '%s' but submitted for '%s'." % \
         (locked_instrument, result.should_still_be_locked)
-
-    usr = str(request.user)
-    assert usr == result.user, "User mismatch: file Submitter='%s' and Confirmer='%s' don't match." % (usr, result.user)
-
-    confirmed = (button == "confirm")
     new_file_map = dict(result.new_file_map)
     new_files = new_file_map.values()
-
-    context_map, collision_list = submit.submit_confirm_core( confirmed, result.submission_kind, result.description, 
-                                        new_files, result.context_rmaps, result.user,  result.pmap, locked_instrument)
-
-    new_file_map = sorted(new_file_map.items() + context_map.items())
-    generated_files = sorted([(old, new) for (old, new) in new_file_map if old not in result.uploaded_basenames])
-    uploaded_files = [(old, new) for (old, new) in new_file_map if (old, new) not in generated_files]
-    
-    # rmaps specified for context generation but not uploaded or generated
-    context_rmaps = [filename for filename in result.context_rmaps if filename not in dict(generated_files).values() + result.uploaded_basenames]
-    
-    confirm_results = dict(
-        uploaded_files=uploaded_files,
-        context_rmaps=context_rmaps,
-        generated_files=generated_files,
-        new_file_map=new_file_map,
-        more_submits=result.more_submits,
-        collision_list=collision_list,
-        confirmed=confirmed)
-    
-    if confirmed:
-        clear_uploads(request, result.uploaded_basenames)
-        models.RepeatableResultBlob.set_parameter(results_id, "disposition" , "confirmed")
+        
+    try:
+        locks.verify_locked(type="instrument", name=locked_instrument, user=str(request.user))
+    except locks.LockingError:
+        disposition = "cancelled due to '%s' lock timeout" % locked_instrument
+        confirmed = False
     else:
-        models.RepeatableResultBlob.set_parameter(results_id, "disposition" , "cancelled")
+        usr = str(request.user)
+        assert usr == result.user, "User mismatch: file Submitter='%s' and Confirmer='%s' don't match." % (usr, result.user)
+        confirmed = (button == "confirm")
+        disposition = "confirmed" if confirmed else "cancelled by submitter"
+        
+    if confirmed:
+        context_map, collision_list = submit.submit_confirm_core( confirmed, result.submission_kind, result.description, 
+                                            new_files, result.context_rmaps, result.user,  result.pmap, locked_instrument)
     
+        new_file_map = sorted(new_file_map.items() + context_map.items())
+        generated_files = sorted([(old, new) for (old, new) in new_file_map if old not in result.uploaded_basenames])
+        uploaded_files = [(old, new) for (old, new) in new_file_map if (old, new) not in generated_files]
+        
+        # rmaps specified for context generation but not uploaded or generated
+        context_rmaps = [filename for filename in result.context_rmaps if filename not in dict(generated_files).values() + result.uploaded_basenames]
+        
+        confirm_results = dict(
+            uploaded_files=uploaded_files,
+            context_rmaps=context_rmaps,
+            generated_files=generated_files,
+            new_file_map=new_file_map,
+            more_submits=result.more_submits,
+            collision_list=collision_list)
+        
+        clear_uploads(request, result.uploaded_basenames)
+        models.RepeatableResultBlob.set_parameter(results_id, "disposition" , disposition)
+    else:
+        for new in new_files:
+            with log.error_on_exception("Failed marking", repr(new), "as cancelled."):
+                blob = models.FileBlob.load(new)
+                blob.destroy()
+        confirm_results = dict()
+        models.RepeatableResultBlob.set_parameter(results_id, "disposition" , disposition)
+    
+    confirm_results["disposition"] = disposition
+    confirm_results["confirmed"] = confirmed
+
     return render_repeatable_result(request, "confirmed.html", confirm_results)
     
 # ===========================================================================
@@ -1666,9 +1686,9 @@ def set_default_context(request):
     """
     if request.method == "GET":    # display rmap filters
         return crds_render(request, "set_default_context_input.html", {
-                "context_map" : models.ContextBlob.get_map(),
+                "context_map" : models.ContextModel.get_map(),
             }, requires_pmaps=True)
-    else:   # display filtered rmaps
+    else:
         new_default = get_recent_or_user_context(request)
         description = validate_post(request, "description", DESCRIPTION_RE)
         context_type = validate_post(request, "context_type", models.CONTEXT_TYPES)
@@ -1676,7 +1696,7 @@ def set_default_context(request):
         if old_default == new_default:
             raise CrdsError(srepr(old_default) + " is already in use for the " + 
                             srepr(context_type) + " context.")
-        models.set_default_context(new_default, user=request.user, state=context_type)
+        models.set_default_context(new_default, state=context_type)
         models.AuditBlob.new(request.user, "set default context", 
                              new_default, description, 
                              context_type + " context changed from " +  

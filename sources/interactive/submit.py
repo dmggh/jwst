@@ -466,7 +466,7 @@ def get_new_serial(observatory, instrument, filekind, extension):
     given parameters and update the database.   There's no guarantee the
     number isn't already taken by an ad hoc filename.
     """
-    return models.CounterBlob.next(observatory, instrument, filekind, extension)
+    return models.CounterModel.next(observatory, instrument, filekind, extension)
 
 def _get_new_name(observatory, instrument, filekind, extension):
     """Generate a candidate new name,  possibly with an existing serial number.
@@ -483,7 +483,7 @@ def get_new_name(observatory, instrument, filekind, extension):
     serial number.
     
     get_new_name() works by guaranteeing that:
-    1) Any generated name is not already "reserved" using the CounterBlob.
+    1) Any generated name is not already "reserved" using the CounterModel.
     2) No generated name has already been submitted by using FileBlobs.
     """
     name = _get_new_name(observatory, instrument, filekind, extension)
@@ -682,7 +682,7 @@ class Delivery(object):
         CRDS uses the catalog file name to name the delivery for auditing.
         """
         assert operation in ["I","D"], "Invalid delivery operation " + srepr(operation)
-        delivery_id = models.CounterBlob.next(self.observatory, "delivery_id")
+        delivery_id = models.CounterModel.next(self.observatory, "delivery_id")
         catalog = "_".join(["opus", str(delivery_id), operation.lower()]) + ".cat"
         catpath = os.path.join(sconfig.CRDS_CATALOG_DIR, catalog)
         utils.ensure_dir_exists(catpath)

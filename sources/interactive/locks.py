@@ -173,7 +173,7 @@ class CrdsLock(object):
         """Set the created_on field of a primitive locking.Lock `lock`."""
         lock.created_on = when
         lock.save()
-        self._std_info("reset expiry", lock.locked_object)
+        # self._std_info("reset expiry", lock.locked_object)
     
 def acquire(name, type="", user="", timeout=NEVER, max_age=settings.CRDS_MAX_LOCK_AGE):
     """Acquire the locks associated with `name` and `type` on behalf of `user`.   Fail after `timeout` seconds
