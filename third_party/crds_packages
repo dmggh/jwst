@@ -9,11 +9,11 @@ django-json-rpc-git
 django-debug-toolbar
 django-sugar
 
-# STSCI JWST
-stpipe
-
 # pyodbc stack
 unixODBC
 freetds-dev
 pyodbc
+
+# Apache mod_wsgi
+mod_wsgi
 
