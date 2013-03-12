@@ -387,7 +387,7 @@ else
         cpio_quiet=''
 fi
 
-find htdocs | grep -v '\.svn' | cpio $cpio_quiet -oc | ( cd $install_dir ; cpio $cpio_quiet -icdum  )
+# find htdocs | grep -v '\.svn' | cpio $cpio_quiet -oc | ( cd $install_dir ; cpio $cpio_quiet -icdum  )
 
 case "$rc"
 in
