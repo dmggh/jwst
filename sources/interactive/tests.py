@@ -609,7 +609,7 @@ if sconfig.observatory == "hst":
 
         certify_post_fits = "interactive/test_data/s7g1700gl_dead.fits"
         
-        submit_rmap = "interactive/test_data/hst_cos_deadtab.rmap"
+        submit_rmap = "interactive/test_data/hst_cos_deadtab_9999.rmap"
         submit_references = [
                 "interactive/test_data/s7g1700gl_dead.fits", 
                 "interactive/test_data/s7g1700ql_dead.fits"

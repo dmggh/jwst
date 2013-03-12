@@ -69,7 +69,7 @@ def _captured_certify(original_name, uploaded_path, context=None, compare_old_re
             filemap = models.get_fileblob_map(models.OBSERVATORY)
         with log.error_on_exception("Failed checking mapping '%s'" % original_name):
             ctx = rmap.fetch_mapping(uploaded_path)
-            for filename in  ctx.mapping_names() + ctx.reference_names():
+            for filename in ctx.reference_names():
                 if filename not in filemap:
                     log.error("File '%s' is not known to CRDS." % filename)
                 else:

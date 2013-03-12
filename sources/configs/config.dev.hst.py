@@ -4,7 +4,7 @@ DEBUG=True
 DEBUG_EXTRAS=False
 
 observatory= 'hst'
-install_root='/home/jmiller/work/workspace_crds/CRDS_server/' + observatory 
+install_root='/Users/jmiller/work/workspace_crds/CRDS_server/' + observatory 
 
 #
 # servertype is what type of web server the install script should
