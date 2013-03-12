@@ -19,7 +19,6 @@ def add_slow_fields(files):
             blob = file_map[file]
             blob.thaw()
             blob.add_slow_fields()
-            log.info("Adding slow fields for", repr(file))
         except Exception, exc:
             log.info("Skipping non-existent file", repr(file), ":", str(exc))
             continue
