@@ -124,7 +124,8 @@ fi
 
 python ${SERVER_SOURCES}/sh_config.py install_root install_dir port PYSYN_CDBS\
  servertype dbtype debug data_dir debug_javascript noreload map_path ref_path\
- CRDS_URL CRDS_CATALOG_DIR CRDS_DELIVERY_DIR FILE_UPLOAD_TEMP_DIR CRDS_INGEST_DIR > tmp
+ CRDS_URL CRDS_CATALOG_DIR CRDS_DELIVERY_DIR FILE_UPLOAD_TEMP_DIR CRDS_INGEST_DIR\
+ apachemod > tmp
 . ./tmp
 rm -f tmp
 
@@ -234,6 +235,92 @@ mkdir -p -m 755 $ref_path/$observatory
 ###
 case "$servertype"
 in
+
+# apache with mod_python
+mod_wsgi)
+
+        mkdir -p $install_dir/server/logs $install_dir/server/run $install_dir/server/conf  $install_dir/server/wsgi-scripts
+
+        cp servers/httpd.mod_wsgi.conf $install_dir/server/conf/httpd.conf
+	cp servers/*.wsgi $install_dir/server/wsgi-scripts
+   
+	apache_version=`/usr/sbin/httpd -v | sed -n 's?Server version: Apache/??p'`
+	case "$apache_version"
+	in
+	2.2.*)
+		dso_version=2.2
+		;;
+	2.0.*)
+		dso_version=2.0
+		;;
+	*)
+		echo do not have a config for this apache version -"$apache_version"-
+		exit 1
+		;;
+	esac
+
+	cat servers/apache_dso.$dso_version >>  $install_dir/server/conf/httpd.conf
+
+        python ${SERVER_SOURCES}/sh_config.py add_ldap_auth > tmp
+        . tmp
+
+	if [ "$apachemod" = "" ]
+	then
+		apachemod=$third/lib/apache
+		export apachemod
+	fi	
+	if [ ! -f $apachemod/mod_wsgi.so ]
+	    then
+	    echo NO MOD_WSGI FOUND
+	    echo must setenv apachemod to a directory that contains the mod_wsgi.so file
+	    exit 1
+	fi
+
+        if [ "$add_ldap_auth" = "True" ]
+        then
+		if [ "$rc" = 1 ]
+		then
+			echo do not use authentication in a release candidate system
+			exit 1
+		fi
+                cat servers/httpd.add_ldap >> $install_dir/server/conf/httpd.conf
+        fi
+
+#        if [ "$debug" = "True" ]
+#        then
+#                cat servers/httpd.redirect_debug >> $install_dir/server/conf/httpd.conf
+#        else
+#                cat servers/httpd.redirect_nodebug >> $install_dir/server/conf/httpd.conf
+#        fi
+
+        sed -e "s?SUB_APACHEMOD?$apachemod?g" -e "s?SUB_DIR?$install_dir?g" -e "s?SUB_PORT?$port?g" -e "s?SUB_CDBS?$PYSYN_CDBS?g"  < $install_dir/server/conf/httpd.conf > tmp
+        mv tmp $install_dir/server/conf/httpd.conf
+
+
+        # create the shell script that runs the server.  We want everything that
+        # has gotten in to env.csh so far, but nothing that comes later.  (Everything
+        # that comes later is for debug environments; we don't want to contaminate
+        # our production environment with possible dependencies on that data.)
+        (
+        echo '#!/bin/csh'
+        cat env.csh
+        echo "/usr/sbin/httpd -f $install_dir/server/conf/httpd.conf"
+        ) > run
+
+        echo 'kill `cat '$install_dir'/server/run/httpd.pid` ' > stop
+
+
+        ln -fs /etc/httpd/modules $install_dir/server/
+
+        ln -fs /etc/httpd/conf/magic $install_dir/server/conf/
+
+        # add debug-only values to env.csh
+        (
+        echo 'setenv DJANGO_SETTINGS_MODULE crds.server.settings'
+        echo 'setenv PYSYN_CDBS '$PYSYN_CDBS
+        ) >> env.csh
+
+        ;;
 
 # apache with mod_python
 mod_python)

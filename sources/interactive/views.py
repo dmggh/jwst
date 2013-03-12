@@ -1629,13 +1629,14 @@ def create_archive(request, arch_extension):
                 if total_size >= sconfig.MAX_ARCHIVE_SIZE:
                     raise CrdsError("Archive request is too large.   Request bundled mappings only.")
                 files[blob.name] = blob.pathname
-        utils.ensure_dir_exists(bundle_path)    
-        cache_file = open(bundle_path, "wb")
-        tar = tarfile.open(mode=ARCH_MODES[arch_extension], fileobj=cache_file, dereference=True)
-        for filename, path in files.items():
-            tar.add(path, arcname=filename)
-        tar.close()
-        cache_file.close()
+        with log.error_on_exception("failed creating bundle", repr(bundle_path)):
+            utils.ensure_dir_exists(bundle_path)    
+            cache_file = open(bundle_path, "wb")
+            tar = tarfile.open(mode=ARCH_MODES[arch_extension], fileobj=cache_file, dereference=True)
+            for filename, path in files.items():
+                tar.add(path, arcname=filename)
+            tar.close()
+            cache_file.close()
     return bundle_path
     
 def cached_bundle_path(request, arch_extension):

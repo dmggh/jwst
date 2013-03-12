@@ -8,8 +8,8 @@ install_root = '/grp/crds/' + observatory
 port = 4995
 CRDS_URL = "http://etcbrady.stsci.edu:" + str(port) + "/"
 
-servertype = 'mod_python'
-apachemod = "/data1/pyetc_third_party_4/lib/apache"
+servertype = 'mod_wsgi'
+apachemod = install_root + "/webserver/lib"
 
 debug = True
 dbtype='mysql'
