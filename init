@@ -11,8 +11,8 @@ endif
 set observatory=$1
 shift
 
-if (( "$1" != "dev") && ("$1" != "test")) then
-	echo 'usage: ./init [jwst|hst] [dev|test]'
+if (( "$1" != "dev") && ( "$1" != "hdev") && ("$1" != "test")) then
+	echo 'usage: ./init [jwst|hst] [dev|hdev|test]'
 	exit -1;
 endif
 
@@ -46,7 +46,7 @@ if ($observatory == "hst") then
     python add_slow_fields.py u1r1346ri_bia.fits n9i1435li_crr.fits t3420177i_drk.fits w2r1956ri_idc.fits n9n16196i_a2d.fits t291659mi_ccd.fits u5d2012li_bpx.fits q911321oi_osc.fits wbj1825si_imp.fits v8816168i_pfl.fits w7j1705di_fls.fits ubi1853qi_mdz.fits
 
 else if ($observatory == "jwst") then
-	if ($mode == "dev") then
+	if (($mode == "dev") || ($mode == "hdev")) then
 		echo "Linking files from Central Store /grp/crds/jwst/..."
 		mkdir -p ../jwst/mappings/jwst
 		ln -s /grp/crds/jwst/mappings/jwst/* ../jwst/mappings/jwst
