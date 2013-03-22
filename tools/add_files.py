@@ -71,8 +71,7 @@ Does not move, rename, or deliver files.
             hack_sqlite3_performance()
         if self.args.deliver:
             self.args.state = "delivered"
-        paths = self.get_files(self.args.files)
-        added = self.add_files(paths)
+        added = self.add_files(self.files)
         if self.args.deliver and added:
             self.deliver_files(added)
         self.set_default_contexts()
