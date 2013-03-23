@@ -265,9 +265,7 @@ mod_wsgi)
 	fi	
 	if [ ! -f $apachemod/mod_wsgi.so ]
 	    then
-	    echo NO MOD_WSGI FOUND
-	    echo must setenv apachemod to a directory that contains the mod_wsgi.so file
-	    exit 1
+	    echo "WARNING: NO MOD_WSGI FOUND (possibly installed later by init_pkgs)"
 	fi
 
 #         python ${SERVER_SOURCES}/sh_config.py add_ldap_auth >tmp
@@ -486,12 +484,13 @@ esac
 # prevent the user from having .pydistutilsrc that hurts us
 here=`pwd`
 
-for x in sources ../CRDS/lib ../CRDS/$observatory ../CRDS/client
+for x in sources ../CRDS/lib ../CRDS/$observatory ../CRDS/client ../CRDS/third_party/Parsley-1.1
 do
 	if [ ! -d $x ]
 	then
 		echo WARNING: NO SOURCE DIRECTORY FOR $x
 	else
+	    echo "Installing $x"
 		(
 			HOME=$here
 			export HOME
