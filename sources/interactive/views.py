@@ -1585,7 +1585,7 @@ def stream_response_generator(filename):
             yield data
     log.info("Finished", srepr(filename), "total bytes", repr(total))
 
-@profile("get_archive.stats")
+# @profile("get_archive.stats")
 @error_trap("base.html")
 @log_view
 def get_archive(request, filename):
