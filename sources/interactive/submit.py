@@ -226,9 +226,8 @@ class FileSubmission(object):
         # and then substituting old names with their updated equivalents.
         new_contexts = newcontext.generate_new_contexts(self.pmap.name, updates_by_instrument, new_name_map)
      
-        new_pmap = [ctx for ctx in new_contexts if ctx.endswith(".pmap")][0]
-        new_loc = rmap.locate_mapping(new_pmap)  
-        web_certify.do_certify_file(new_loc, new_loc, context=self.pmap.name)
+        for new_loc in new_contexts:
+            web_certify.do_certify_file(new_loc, new_loc, context=self.pmap.name)
     
         # Create delivery records for each of the new files
         for old_ctx, new_ctx in new_name_map.items():

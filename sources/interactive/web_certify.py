@@ -69,6 +69,8 @@ def _captured_certify(original_name, uploaded_path, context=None, compare_old_re
             filemap = models.get_fileblob_map(models.OBSERVATORY)
         with log.error_on_exception("Failed checking mapping '%s'" % original_name):
             ctx = rmap.fetch_mapping(uploaded_path)
+            # NOTE: There is some overlap between these checks and those crds.certify can do.
+            # Checking for file existence this ways is faster than checking the file system.
             for filename in ctx.reference_names():
                 if filename not in filemap:
                     log.error("File '%s' is not known to CRDS." % filename)
@@ -77,6 +79,30 @@ def _captured_certify(original_name, uploaded_path, context=None, compare_old_re
                         log.error("File '%s' is blacklisted." % filename)
                     if filemap[filename].rejected:
                         log.warning("File '%s' is rejected." % filename)
+
+def do_certify_file(basename, certifypath, check_references=False, filemap=None, context=None):
+    """Run un-trapped components of crds.certify and re-raise any exception
+    as a CrdsError which will be displayed as a form error on the submission
+    page.
+    
+    basename is the name of the file on the user's system,  hopefully with a
+    sane extension.   certifypath is a fully qualified path,  but sometimes
+    with a temporary filename which is total garbage.
+    """
+    try:
+        certify.certify_files([certifypath], check_references=None,
+            trap_exceptions=False, is_mapping = rmap.is_mapping(basename),
+            context=context)
+    except Exception, exc:
+        raise CrdsError("Certifying " + srepr(basename) + ": " + str(exc))
+
+    if check_references and rmap.is_mapping(basename):
+        if filemap is None:
+            filemap = models.get_fileblob_map(models.OBSERVATORY)
+        ctx = rmap.fetch_mapping(certifypath)
+        for ref in ctx.reference_names():
+            assert ref in filemap, \
+                "Reference " + srepr(ref) + " in " + srepr(basename) + " is not known to CRDS."
 
 def get_blacklist_file_list(upload_tuples, all_files):
     """Return the mapping of blacklist status and blacklisted_by list for the
@@ -126,29 +152,4 @@ def get_blacklists(basename, certifypath, ignore_self=True, files=None):
         return sorted(list(blacklisted_by))
     else:
         return []
-
-def do_certify_file(basename, certifypath, check_references=False, filemap=None,
-                    context=None):
-    """Run un-trapped components of crds.certify and re-raise any exception
-    as a CrdsError which will be displayed as a form error on the submission
-    page.
-    
-    basename is the name of the file on the user's system,  hopefully with a
-    sane extension.   certifypath is a fully qualified path,  but sometimes
-    with a temporary filename which is total garbage.
-    """
-    try:
-        certify.certify_files([certifypath], check_references=None,
-            trap_exceptions=False, is_mapping = rmap.is_mapping(basename),
-            context=context)
-    except Exception, exc:
-        raise CrdsError("Certifying " + srepr(basename) + ": " + str(exc))
-
-    if check_references and rmap.is_mapping(basename):
-        if filemap is None:
-            filemap = models.get_fileblob_map(models.OBSERVATORY)
-        ctx = rmap.fetch_mapping(certifypath)
-        for ref in ctx.reference_names():
-            assert ref in filemap, \
-                "Reference " + srepr(ref) + " in " + srepr(basename) + " is not known to CRDS."
 
