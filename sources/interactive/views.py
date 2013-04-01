@@ -1053,6 +1053,8 @@ def batch_submit_references_post(request):
 @error_trap("base.html")
 @login_required
 @log_view
+# critical to omit:   @instrument_lock_required
+# @ilr will get a new lock.  critical that lock not expire prior to confirm.
 def submit_confirm(request):
     """Accept or discard proposed files from various file upload and
     generation mechanisms.
