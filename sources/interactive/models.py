@@ -73,7 +73,7 @@ class CrdsModel(models.Model):
         values of all fields in name-sorted order.
         """
         if displayed is None:
-            displayed = self.repr_list or self.fields
+            displayed = self.repr_list or ["id"] + self.fields
         if "blob" in displayed:
             displayed.remove("blob")
         rep = self.__class__.__name__ + "(" 
@@ -427,7 +427,7 @@ class FileBlob(BlobModel):
         ["state", "blacklisted", "rejected", "observatory", "instrument", "filekind", 
          "type", "derived_from", "sha1sum"]
         
-    unicode_list = ["name", "type", "instrument", "filekind", "state", "blacklisted"]
+    unicode_list = ["id", "name", "type", "instrument", "filekind", "state", "blacklisted"]
         
     exclude_from_info = BlobModel.exclude_from_info + \
         ["pathname","creator","deliverer", "deliverer_email","catalog_link"]
