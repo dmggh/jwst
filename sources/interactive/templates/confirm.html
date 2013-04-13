@@ -9,10 +9,16 @@
     <form method="post" action="/submit_confirm/" enctype="multipart/form-data">  {% csrf_token %}    
         <input type='hidden' name='results_id' value="{{results_id}}" />
         <input type="submit" name="button" value="confirm" class="green">
-        <input type="submit" name="button" value="cancel" class="red">
+        <input type="submit" name="button" value="cancel"  class="red">
     </form>
 {% endif %}
  
  <br/>
  <br/>
  
+<script>
+crds.lock_timeout_action = function () {
+    console.log("lock timeout cancel action");
+    window.location = "/submit_confirm/?button=timeout&results_id={{results_id}}";
+}
+</script>

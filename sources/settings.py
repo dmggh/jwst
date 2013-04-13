@@ -93,7 +93,7 @@ FILE_UPLOAD_HANDLERS = (
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_COOKIE_AGE = 60*60*24*365*1000   # 1000 years
-CRDS_MAX_LOCK_AGE = 60*60 # 1 hour,  refreshed every request
+CRDS_MAX_LOCK_AGE = 60*60*4  # 4 hours,  refreshed every request
 CRDS_LOCK_ACQUIRE_TIMEOUT = 30 # seconds
 
 MIDDLEWARE_CLASSES = (

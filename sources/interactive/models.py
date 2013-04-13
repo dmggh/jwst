@@ -863,8 +863,8 @@ class RepeatableResultBlob(BlobModel):
     def parameters(self):
         """return garbage-can dict of page template parameters"""
         if not hasattr(self, "_parameters"):
-            self._parameters = json_ext.loads(self.parameters_enc)
-        return common.Struct(self._parameters)
+            self._parameters = common.Struct(json_ext.loads(self.parameters_enc))
+        return self._parameters
 
     @classmethod
     def set_parameter(cls, result_id, name, value):

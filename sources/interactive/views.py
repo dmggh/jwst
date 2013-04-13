@@ -87,6 +87,15 @@ def validate_get(request, variable, pattern):
     value = str(request.GET[variable]).strip()
     return check_value(value, pattern, "Invalid value " + srepr(value) + 
                                         " for " + srepr(variable))
+def validate(request, variable, pattern):
+    """Check a `variable` from `request`,  ensuring that it meets the
+    check_value() conditions specified by `pattern`.  Use GET or POST
+    depending on request type.
+    """
+    vars = request.GET if request.method == "GET" else request.POST
+    value = str(vars[variable]).strip()
+    return check_value(value, pattern, "Invalid value " + srepr(value) + 
+                                        " for " + srepr(variable))
 
 # ===========================================================================
 
@@ -254,6 +263,7 @@ def crds_render(request, template, dict_=None, requires_pmaps=False):
         "current_path" : request.get_full_path(),
         
         "locked_instrument" : locked,
+        "lock_timeout_seconds" : settings.CRDS_MAX_LOCK_AGE if locked else "",
 
         "auto_rename" : False,
     }
@@ -457,7 +467,7 @@ def log_view(func):
             log.info("POST:",  repr(request.POST))
 #        if request.COOKIES:
 #            log.info("COOKIES:", repr(request.COOKIES), stdout=None)
-        log.info("SESSION:", request.session.session_key, "expires", request.session.get_expiry_date())
+        # log.info("SESSION:", request.session.session_key, "expires", request.session.get_expiry_date())
         if request.FILES:
             log.info("FILES:", repr(request.FILES))
         # log.info("OUTPUT:")
@@ -1059,10 +1069,9 @@ def submit_confirm(request):
     """Accept or discard proposed files from various file upload and
     generation mechanisms.
     """
-    button = validate_post(request, "button", "confirm|cancel")
-    results_id = validate_post(request, "results_id", "\d+")
+    button = validate(request, "button", "confirm|cancel|timeout")
+    results_id = validate(request, "results_id", "\d+")
     locked_instrument = get_locked_instrument(request)
-
     try:
         result = models.RepeatableResultBlob.get(int(results_id)).parameters
     except Exception, exc:
@@ -1072,22 +1081,27 @@ def submit_confirm(request):
         (locked_instrument, result.should_still_be_locked)
     new_file_map = dict(result.new_file_map)
     new_files = new_file_map.values()
-        
+
     try:
         locks.verify_locked(type="instrument", name=locked_instrument, user=str(request.user))
-    except locks.LockingError:
-        disposition = "cancelled due to '%s' lock timeout" % locked_instrument
+    except locks.LockingError, exc:
+        button = "timeout"
+        log.info("Lock timout exception:", str(exc))
+
+    if button == "timeout":
+        locks.release_locks(user=request.user)
+        del_locked_instrument(request)
+        disposition = "cancelled due to '%s' session lock timeout" % locked_instrument
         confirmed = False
-    else:
+    else:    
         usr = str(request.user)
         assert usr == result.user, "User mismatch: file Submitter='%s' and Confirmer='%s' don't match." % (usr, result.user)
         confirmed = (button == "confirm")
         disposition = "confirmed" if confirmed else "cancelled by submitter"
-        
+
     if confirmed:
         context_map, collision_list = submit.submit_confirm_core( confirmed, result.submission_kind, result.description, 
                                             new_files, result.context_rmaps, result.user,  result.pmap, locked_instrument)
-    
         new_file_map = sorted(new_file_map.items() + context_map.items())
         generated_files = sorted([(old, new) for (old, new) in new_file_map if old not in result.uploaded_basenames])
         uploaded_files = [(old, new) for (old, new) in new_file_map if (old, new) not in generated_files]
@@ -1104,15 +1118,15 @@ def submit_confirm(request):
             collision_list=collision_list)
         
         clear_uploads(request, result.uploaded_basenames)
-        models.RepeatableResultBlob.set_parameter(results_id, "disposition" , disposition)
+
     else:
         for new in new_files:
             with log.error_on_exception("Failed marking", repr(new), "as cancelled."):
                 blob = models.FileBlob.load(new)
                 blob.destroy()
         confirm_results = dict()
-        models.RepeatableResultBlob.set_parameter(results_id, "disposition" , disposition)
     
+    models.RepeatableResultBlob.set_parameter(results_id, "disposition" , disposition)
     confirm_results["disposition"] = disposition
     confirm_results["confirmed"] = confirmed
 

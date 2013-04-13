@@ -58,7 +58,7 @@
                 <a href="/login/?next={{current_path}}" class="tiny"><image src="/static/log_in.ico" alt='login' height='24' width='24' /></a>          
            {% endif %}
            {% if locked_instrument %}
-               <span class='locked_instrument'>{{locked_instrument}}</span> 
+               <p><span class='locked_instrument'>{{locked_instrument}}</span>  <span class='lock_timer'> </span></p>
            {% endif %}
         </div>
         <div style="clear:both;" />
@@ -102,7 +102,50 @@
         <br/>
         <br/>
  
-    </div>   
+    </div>
+    
+{% if lock_timeout_seconds %}
+<script>
+
+crds.update_locktime = function () {
+    crds.lock_timer -= 1;
+    if (! crds.lock_timer ) {
+        /* window.location = "/logout/"; */
+        $('#contents').html("<br/><br/><br/><h3 class='red' style='font-size: 1.5em;' align='center' >{{locked_instrument}} lock expired.</h3>");
+        $('.locked_instrument').html("");
+        $('.lock_timer').html("");
+        clearInterval(crds.lock_timer_interval);
+        if (crds.lock_timeout_action) {
+            crds.lock_timeout_action();
+        };
+    };
+    $('.lock_timer').html(crds.format_time(crds.lock_timer));
+};
+
+crds.format_time = function(seconds) {
+    var days = Math.floor(seconds / 3600 / 24);
+    var seconds = seconds % (3600 * 24);
+    var hours = Math.floor(seconds / 3600);
+    seconds = seconds % 3600;
+    var minutes = Math.floor(seconds / 60);
+    seconds = seconds % 60;
+    return days + ":" + f02d(hours) + ":" + f02d(minutes) + ":" + f02d(seconds);
+};
+
+f02d = function(n) {
+    if (n > 9) {
+        return "" + n;
+    } else {
+        return "0" + n;
+    }
+};
+
+crds.lock_timer = {{lock_timeout_seconds}};
+crds.lock_timer_interval = setInterval("crds.update_locktime();", 990);  /* ~1 second,  conservative */
+crds.update_locktime();
+
+</script>
+{% endif %}
 
   </body>
 </html>
