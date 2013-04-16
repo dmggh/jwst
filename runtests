@@ -4,13 +4,15 @@ source env.csh
 
 # <observatory=hst|jwst> <server_mode=dev|test|ops>
 
-set observatory = $1
-set server_mode = $2
+set observatory = "$1"
+set server_mode = "$2"
 
+if ($server_mode == dev) then
 echo "installing $1 $2..."
 ./install $1 $2 <<EOF
 yes
 EOF
+endif
 
 cd sources
 
