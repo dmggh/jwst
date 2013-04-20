@@ -456,8 +456,8 @@ class InteractiveBase(object):
         response = self._batch_submit_insert()
         self._assert_normal_bsr_insert(response)
         locks.release_all()   # simulate broken locks
-        response = self._cancel()  # broken lock preempts user cancel.
-        self.assert_no_errors(response, msg="cancelled due to")
+        response = self._cancel()
+        self.assert_no_errors(response, msg="cancelled by submitter")
 
     def test_login_collision(self):
         self.login()
@@ -568,8 +568,8 @@ class InteractiveBase(object):
         self.login()
         rmap2, response = self._submit_mappings_post(generate_contexts=True)
         locks.release_all()
-        response = self._cancel()  # broken lock preempts user cancel
-        self.assertIn("cancelled due to", response.content)
+        response = self._cancel()
+        self.assertIn("cancelled by submitter", response.content)
         
     def test_get(self):   # XXX TODO implememnt get test
         pass

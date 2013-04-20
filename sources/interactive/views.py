@@ -560,7 +560,7 @@ def lock_login_receiver(sender, **keys):
             # log.info("Login receiver acquiring '%s' instrument lock for user '%s' session '%s'." % (instrument, user, request.session.session_key))
             try:
                 locks.acquire(user=user, type="instrument", name=instrument, 
-                              timeout=settings.CRDS_LOCK_ACQUIRE_TIMEOUT, 
+                              timeout=settings.CRDS_LOCK_ACQUIRE_TIMEOUT,
                               max_age=settings.CRDS_MAX_LOCK_AGE)
                 set_locked_instrument(request, instrument)
             except locks.ResourceLockedError:
@@ -1051,6 +1051,7 @@ def batch_submit_references_post(request):
                 
                 "diff_results" : mapping_diffs,
                 "should_still_be_locked" : locked_instrument,
+                "lock_datestr" : locks.get_lock_datestr(locked_instrument, type="instrument", user=str(request.user)),
 
                 "more_submits" : "/batch_submit_references/",
                 "disposition": disposition,                
@@ -1072,32 +1073,42 @@ def submit_confirm(request):
     button = validate(request, "button", "confirm|cancel|timeout")
     results_id = validate(request, "results_id", "\d+")
     locked_instrument = get_locked_instrument(request)
+
     try:
         result = models.RepeatableResultBlob.get(int(results_id)).parameters
     except Exception, exc:
         raise CrdsError("Error fetching result: " + results_id + " : " + str(exc))
+
     assert locked_instrument == result.should_still_be_locked, \
         "CRSD locking failure.  Currently locked '%s' but submitted for '%s'." % \
         (locked_instrument, result.should_still_be_locked)
+
+    usr = str(request.user)
+    assert usr == result.user, "User mismatch: file Submitter='%s' and Confirmer='%s' don't match." % (usr, result.user)
+    
     new_file_map = dict(result.new_file_map)
     new_files = new_file_map.values()
-
-    try:
-        locks.verify_locked(type="instrument", name=locked_instrument, user=str(request.user))
-    except locks.LockingError, exc:
-        button = "timeout"
-        log.info("Lock timout exception:", str(exc))
+    
+    if button == "confirm":
+        try:
+            locks.verify_locked(type="instrument", name=locked_instrument, user=str(request.user), datestr=result["lock_datestr"])
+        except locks.LockingError, exc:
+            button = "timeout"
+            disposition = "cancelled due to: " + str(exc)
+            log.info("Locking exception:", str(exc))
+        else:
+            confirmed = True
+            disposition = "confirmed"
+    elif button == "cancel":
+        confirmed = False
+        disposition = "cancelled by submitter"
+    elif button == "timeout":
+        disposition = "cancelled due to '%s' session lock timeout" % locked_instrument
 
     if button == "timeout":
         locks.release_locks(user=request.user)
         del_locked_instrument(request)
-        disposition = "cancelled due to '%s' session lock timeout" % locked_instrument
         confirmed = False
-    else:    
-        usr = str(request.user)
-        assert usr == result.user, "User mismatch: file Submitter='%s' and Confirmer='%s' don't match." % (usr, result.user)
-        confirmed = (button == "confirm")
-        disposition = "confirmed" if confirmed else "cancelled by submitter"
 
     if confirmed:
         context_map, collision_list = submit.submit_confirm_core( confirmed, result.submission_kind, result.description, 
@@ -1213,6 +1224,7 @@ def submit_files_post(request, crds_filetype):
                 "certify_results" : certify_results,
                 "more_submits" : "/submit/" + crds_filetype + "/",
                 "should_still_be_locked": locked_instrument,
+                "lock_datestr" : locks.get_lock_datestr(locked_instrument, type="instrument", user=str(request.user)),
                 
                 "disposition" : disposition,
                 })

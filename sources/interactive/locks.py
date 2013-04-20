@@ -68,6 +68,21 @@ class CrdsLock(object):
         self.max_age = max_age
         self._resource_lock = None
         self._user_lock = None
+    
+    @property    
+    def created_on(self):
+        self._get_locks()
+        return self._resource_lock.created_on
+    
+    @property
+    def expires_on(self):
+        self._get_locks()
+        return self._resource_lock.created_on + datetime.timedelta(seconds=self._resource_lock.max_age)
+    
+    @property
+    def time_remaining(self):
+        self._get_locks()
+        return self.expires_on - datetime.datetime.now()
 
     def __repr__(self):
         return self.__class__.__name__ + "(user='%s', type='%s', name='%s', max_age=%d)" % \
@@ -119,7 +134,7 @@ class CrdsLock(object):
         """Release this lock on behalf of self.user."""
         if self.user:
             self._user_lock = self._release(self.user_lock, silent=False)
-        self._resource_lock = self._release(self.resource_lock)
+        self._resource_lock = self._release(self.resource_lock, silent=False)
             
     def _release(self, lock_name, silent=True):
         """Release the given `lock_kind`,   loading it from the database if it's
@@ -149,30 +164,44 @@ class CrdsLock(object):
             raise BrokenLockError("User " + repr(self.user) + " no longer holds lock " + repr(lock_name))
         else:
             return lock
-
-    def verify_locked(self):
-        """Ensure that both components of this lock are still held."""
-        self._user_lock = self._get_existing(self.user_lock)
-        self._resource_lock = self._get_existing(self.resource_lock)
-        return True
     
-    def expires_on(self):
-        """Return the expiration data of the resource lock half of this CrdsLock."""
+    def _get_locks(self):
         self._resource_lock = self._get_existing(self.resource_lock)
-        return self._resource_lock.expires_on()
+        if self.user:
+            self._user_lock = self._get_existing(self.user_lock)
+        
+    def _check_unbroken(self, lock_name, lock, datestr=None):
+        if datestr:
+            datestr = str(datestr)
+        if (datestr and datestr != lock.created_on and datestr != str(self.created_on)):
+            log.error("User " + repr(self.user) + " lost and re-acquired lock " + repr(lock_name), 
+                      "datestr", datestr, "lock datestr", lock.created_on)
+            raise BrokenLockError("User " + repr(self.user) + " lost and re-acquired lock " + repr(lock_name))            
+ 
+    def verify_locked(self, datestr=None):
+        """Ensure that both components of this lock are still held."""
+        self._get_locks()
+        self._check_unbroken(self.resource_lock, self._resource_lock, datestr)
+        if self.user:
+            self._check_unbroken(self.user_lock, self._user_lock, datestr)
+        return True
     
     def reset_expiry(self):
         """Verify this lock is still locked and reset the expiry dates of both halves."""
         self.verify_locked()
         now = datetime.datetime.now()
-        self._set_created_on(self._resource_lock, now)
+        self._set_max_age(self._resource_lock, now)
         if self._user_lock:
-            self._set_created_on(self._user_lock, now)
+            self._set_max_age(self._user_lock, now)
     
-    def _set_created_on(self, lock, when):
+    def _set_max_age(self, lock, now):
         """Set the created_on field of a primitive locking.Lock `lock`."""
-        lock.created_on = when
+        delta = now - lock.created_on
+        delta += datetime.timedelta(seconds=self.max_age)
+        lock.max_age = int(delta.total_seconds())
         lock.save()
+        new_expire = lock.created_on + datetime.timedelta(seconds=lock.max_age)
+        # log.info("New lock duration", new_expire-now)
         # self._std_info("reset expiry", lock.locked_object)
     
 def acquire(name, type="", user="", timeout=NEVER, max_age=settings.CRDS_MAX_LOCK_AGE):
@@ -190,11 +219,16 @@ def release(name, type="", user=""):
     lock.release()
     return lock
     
-def verify_locked(name, type="", user=""):
+def verify_locked(name, type="", user="", datestr=None):
     """Ensure that `user` owns the locks associated with `name` and `type`."""
     lock = CrdsLock(user=user, type=type, name=name)
-    lock.verify_locked()
+    lock.verify_locked(datestr)
     return lock
+
+def get_lock_datestr(name, type="", user=""):
+    """Get the creation date string of the specified lock."""
+    lock = verify_locked(name, type=type, user=user)
+    return str(lock.created_on)
 
 def reset_expiry(name, type="", user=""):
     """Reset the expiration timer on locks associated with `name`, `type`, and `user`."""
