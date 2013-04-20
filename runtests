@@ -1,7 +1,5 @@
 #! /bin/tcsh
 
-source env.csh
-
 # <observatory=hst|jwst> <server_mode=dev|test|ops>
 
 set observatory = "$1"
@@ -13,6 +11,8 @@ echo "installing $1 $2..."
 yes
 EOF
 endif
+
+source env.csh
 
 cd sources
 
