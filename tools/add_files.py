@@ -118,7 +118,7 @@ Does not move, rename, or deliver files.
         """Generate a delivery .cat and links so that OPUS can pick files in `paths`."""
         files = [os.path.basename(file) for file in paths]
         log.info("Delivering:", paths)
-        d = submit.Delivery(user=self.args.deliverer, delivered_files=paths, 
+        d = submit.Delivery(user=self.args.deliverer, delivered_files=files, 
                             description=self.args.description, action="mass import", observatory=self.observatory)
         with log.error_on_exception("File delivery failed."):
             d.deliver()
