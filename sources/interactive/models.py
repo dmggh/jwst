@@ -185,7 +185,7 @@ def mirror_filename_counters(observatory, official_path):
 
 # ============================================================================
 
-CONTEXT_TYPES = ["default", "operational"]
+CONTEXT_TYPES = ["operational", "edit"]
 
 # "default" is synonymous with "edit", the suggested derivation point for edits.
 
@@ -201,7 +201,7 @@ class ContextModel(CrdsModel):
     
     @property
     def observatory(self):
-        return self.name.split("_")[0]
+        return self.context.split("_")[0]
 
     @property
     def kind(self):
@@ -216,17 +216,57 @@ class ContextModel(CrdsModel):
         """Return the mapping { kind : context }"""
         return { blob.kind : blob.context for blob in cls.objects.all() }
 
-def set_default_context(context, observatory=OBSERVATORY, state="default"):
+def set_default_context(context, observatory=OBSERVATORY, state="edit", description="set by system"):
     """Remember `context` as the default for `observatory` and `state`."""
     assert context.endswith(".pmap"), "context must be a .pmap"
     blob = ContextModel.get_or_create(observatory, state, "context")
     blob.context = context
     blob.save()
 
-def get_default_context(observatory=OBSERVATORY, state="default"):
+    history = get_context_history(observatory=observatory, state=state)
+    old_context = history[0].context if history else "none"
+    if old_context != context:
+        new_hist = ContextHistoryModel()
+        new_hist.description = description
+        new_hist.context = context
+        new_hist.state = state
+        new_hist.save()
+
+def get_default_context(observatory=OBSERVATORY, state="edit"):
     """Return the latest context which is in `state`."""
     return ContextModel.get_or_create(observatory, state, "context").context
 
+class ContextHistoryModel(CrdsModel):
+    """Keeps track of interval at which the specified context was active and the reason for the switch."""
+    class Meta:
+        db_table = TABLE_PREFIX + "_context_history"
+        ordering = ("start_date","context")
+
+    model_fields = repr_list = unicode_list = ["observatory", "start_date", "context", "state", "description"]
+    
+    @property
+    def observatory(self):
+        return self.context.split("_")[0]
+
+    start_date = models.DateTimeField(auto_now_add=True)
+
+    context = models.CharField(max_length=64, default="",
+        help_text="name of .pmap assigned to for this kind of context.")
+    
+    state = models.CharField(max_length=32, default="operational", choices=zip(CONTEXT_TYPES, CONTEXT_TYPES))
+    
+    description = models.TextField( 
+            help_text  = "Reason for the switch to this context.",
+            default = "routine update")
+
+    def __init__(self, *args, **keys):
+        # observatory="", kind="", context=""):
+        super(ContextHistoryModel, self).__init__(*args, **keys)
+        
+def get_context_history(observatory=OBSERVATORY, state="operational"):
+    """Return the history of the specified context,  in reverse order of start date."""
+    return [o for o in ContextHistoryModel.objects.filter(state=state).reverse() if o.observatory == observatory]
+    # return [o for o in ContextHistoryModel.objects.all().reverse()]
 # ============================================================================
 
 class BlobModel(CrdsModel):

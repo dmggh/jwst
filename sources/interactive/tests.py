@@ -571,6 +571,37 @@ class InteractiveBase(object):
         response = self._cancel()
         self.assertIn("cancelled by submitter", response.content)
         
+    def test_display_context_history(self):
+        self.login()
+        response = self.client.get("/display_context_history/")
+        self.assert_no_errors(response)
+    
+    def test_set_context_get(self):
+        self.login()
+        response = self.client.get("/set_default_context/")
+        self.assert_no_errors(response)
+    
+    def test_set_context_post(self):
+        self.login()
+        self.fake_database_files([self.new_context])
+        new_context = os.path.basename(self.new_context)
+        response = self.client.post("/set_default_context/", {
+            "context_type" : "operational",
+            "pmap_mode" : "pmap_text",
+            "pmap_text" : new_context,
+            "description" : "a reason for the new context.",
+        })
+        # print "certify post FITS response:", response.content
+        self.assert_no_errors(response)
+        self.assertNotIn("ERROR", response.content)
+        self.assertEqual(
+            models.get_default_context(observatory=self.observatory, state="operational"), 
+            new_context)
+        first_history = models.get_context_history(
+            observatory=self.observatory, state="operational")[0].context
+        self.assertEqual(new_context, first_history)
+        #  XXX check history
+    
     def test_get(self):   # XXX TODO implememnt get test
         pass
 
@@ -580,6 +611,8 @@ if sconfig.observatory == "hst":
         
         observatory = "hst"
         pmap = "hst.pmap"
+        
+        new_context = "interactive/test_data/hst_0027.pmap"
         
         delete_list = [
             "hst_0001.pmap",
@@ -630,6 +663,8 @@ else:  # JWST
 
         observatory = "jwst"
         pmap = "jwst_0000.pmap"
+        
+        new_context = "interactive/test_data/jwst_0027.pmap"
         
         delete_list = [
             "jwst_0001.pmap",

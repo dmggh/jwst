@@ -17,12 +17,15 @@
         <br/>
         <li><a href="/browse_db/">Browse Database</a></li>
         <li><a href="/recent_activity/">Recent Activity</a></li>
+        <li><a href="/display_context_history/">Context History</a></li>
     </ol>
     
 {% if is_authenticated %}
     <h3>Restricted Services  <span class='locked_instrument'>{{locked_instrument}}</span>  </h3>
     <ol>
         <li><a href="/certify/">Certify Files</a></li>
+        <li><a href="/set_file_enable/">Enable/Disable File</a></li>
+        <li><a href="/set_default_context/">Set Context</a></li>
         <br>
         {% if locked_instrument %}
             <li><a href="/batch_submit_references/">Batch Submit References</a></li>
@@ -31,9 +34,7 @@
             <br/>
         {% endif %}  
         {% if is_superuser %}
-            <li><a href="/set_file_enable/">Set File Enable</a></li>
             <li><a href="/version_info/">Server Version Info</a></li>
-            <li><a href="/set_default_context/">Set Default Context</a></li>
             <li><a href="/create_contexts/">Create Contexts</a></li>
             <li><a href="/admin/">Admin</a></li>
         {% endif %}

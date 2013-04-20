@@ -1,28 +1,32 @@
 {% extends "base.html" %}
 
 {% block column1 %}
-    <h2>Set Default Context</h2>
+    <h2>Set Context</h2>
     <form method="post" action="/set_default_context/" enctype="multipart/form-data">  {% csrf_token %}
 
-      <h3>Current States</h3>
-      <table border="1">
-        <tr> <td class="label">Context</td>  <td class="label">Value</td> </tr>
-        {% for context in context_map.items %}
-            <tr><td>{{context.0}}</td><td>{{context.1}}</td></tr>
-        {% endfor %}
+      <h3>Select</h3>
+      <table border='1'>
+            <tr>
+                <th>Context Type</th>
+                <th>Value</th>
+            </tr>
+            <tr>
+                <td>
+                    <select name="context_type" onchange="crds.set_context_display(sel.options[sel.selectedIndex].value);">
+                        {% for ctype in context_types %}
+                            {% if ctype == "operational" %}
+                                <option selected>{{ctype}}</option>
+                            {% else %}
+                                <option>{{ctype}}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </td>
+                <td id='context_display'></td>
+            </tr>
       </table>
-      
-      <h3>Select Context Type</h3>
-      <p>
-            <select name="context_type">
-                {% for ctype in context_map.keys %}
-                    <option>{{ctype}}</option>
-                {% endfor %}
-            </select>
-      </p>
-      <br/>
 
-      <h3>Set Selected to this Context</h3>
+      <h3>Set To</h3>
       {% include "select_pmap.html" %}
       
       <h3>Reason for Change</h3>
@@ -33,17 +37,35 @@
 
       <input type="submit" value="Set Default Context" >
     </form>
+    
+    <script>
+        crds.context_map = {
+            {% for context in context_map.items %}
+                "{{context.0}}" : "{{context.1}}",
+            {% endfor %}
+        };
+        crds.context_pmaps = {
+            {% for pmap in context_pmaps.items %}
+                "{{pmap.0}}" : "{{pmap.1}}",
+            {% endfor %}
+        };
+        crds.set_context_display = function(value) {
+            $('#context_display').html(crds.context_pmaps[crds.context_map[value]]);
+        };
+        crds.set_context_display("operational");
+    </script>
+    
 {% endblock column1 %}
 
 {% block help %}
 
-<p><b>Set Default Context</b> is used to change the pipeline context which is
-used for creating new mappings (default) or determining best references 
-(operational).
+<p><b>Set Context</b> is typically used to define the pipeline mapping which
+will be used in operations.   Set Context can also be used to modify the context which
+will be used as the basis of the next set of rules.
 
-<p><b>Default Context</b>  starting point for editing/deriving new mappings.  
-
-<p><b>Operational Context</b> Pipeline mapping which will be used operationally
+<p><b>Operational Context</b> Default pipeline mapping which will be used operationally
 to determine best references.
+
+<p><b>Edit Context</b>  Default starting point for editing/deriving new mappings.  
 
 {% endblock help %}

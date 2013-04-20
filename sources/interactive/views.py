@@ -1708,31 +1708,63 @@ def version_info(request):
 
 @error_trap("base.html")
 @log_view
-@superuser_login_required
+@login_required
 def set_default_context(request):
     """Change the default context presented to users as the nominal start from
     which to derive new contexts.
     """
     if request.method == "GET":    # display rmap filters
+        context_map = models.ContextModel.get_map()    # { operational : hst.pmap }
+        context_pmaps = get_context_pmaps(context_map)  # { hst.pmap : hst.pmap <date> blacklisted }
         return crds_render(request, "set_default_context_input.html", {
-                "context_map" : models.ContextModel.get_map(),
+                "context_map" : context_map,
+                "context_pmaps" : context_pmaps,
+                "context_types" : models.CONTEXT_TYPES,
             }, requires_pmaps=True)
     else:
         new_default = get_recent_or_user_context(request)
-        description = validate_post(request, "description", DESCRIPTION_RE)
         context_type = validate_post(request, "context_type", models.CONTEXT_TYPES)
-        old_default = models.get_default_context(models.OBSERVATORY, state=context_type)
-        if old_default == new_default:
-            raise CrdsError(srepr(old_default) + " is already in use for the " + 
-                            srepr(context_type) + " context.")
-        models.set_default_context(new_default, state=context_type)
-        models.AuditBlob.new(request.user, "set default context", 
-                             new_default, description, 
-                             context_type + " context changed from " +  
-                             srepr(old_default) + " to " + srepr(new_default))
+        description = validate_post(request, "description", DESCRIPTION_RE)
+        old_default = update_default_context(new_default, description, context_type, str(request.user))
         return crds_render(request, "set_default_context_results.html", {
                     "new_default" :  new_default,
                     "old_default" :  old_default,
                     "context_type" : context_type,
                 })
-    
+
+def get_context_pmaps(context_map):
+    """Return a list of option tuples for rendering HTML to choose context
+    pmaps (last 10). This defines what users will see for the context HTML 
+    drop-down menu.
+    """
+    context_pmaps = {}
+    files = models.FileBlob.objects.all()
+    for f in files:
+        if f.name in context_map.values():
+            f.thaw()
+            context_pmaps[f.name] = pmap_label(f)
+    return context_pmaps
+
+def update_default_context(new_default, description, context_type, user):
+    """Do the work of choosing a new context."""
+    old_default = models.get_default_context(models.OBSERVATORY, state=context_type)
+    if old_default == new_default:
+        raise CrdsError(srepr(old_default) + " is already in use for the " + 
+                        srepr(context_type) + " context.")
+    models.set_default_context(new_default, state=context_type, description=description)
+    models.AuditBlob.new(user, "set default context", 
+                         new_default, description, 
+                         context_type + " context changed from " +  
+                         srepr(old_default) + " to " + srepr(new_default))
+    return old_default
+
+@error_trap("base.html")
+@log_view
+def display_context_history(request):
+    """Change the default context presented to users as the nominal start from
+    which to derive new contexts.
+    """
+    history = models.get_context_history(observatory=models.OBSERVATORY, state="operational")
+    return crds_render(request, "display_context_history.html", {
+            "history" : history,
+        }, requires_pmaps=False)

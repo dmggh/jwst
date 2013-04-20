@@ -55,8 +55,12 @@ urlpatterns = patterns('',
 
   url(r'^version_info/$', 
       'crds.server.interactive.views.version_info'),
+
   url(r'^set_default_context/$', 
       'crds.server.interactive.views.set_default_context'),
+  url(r'^display_context_history/$', 
+      'crds.server.interactive.views.display_context_history'),
+                       
 
   url(r'^display_result/(?P<results_id>\d+)$', 
       'crds.server.interactive.views.display_result'),

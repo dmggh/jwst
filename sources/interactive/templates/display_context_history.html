@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% load stdtags %}
+
+{% block contents %}
+
+    <h2>Operational Context History</h2>
+
+    <table border="1">
+        <tr>
+            <th width="10%" align="center">start date</th>
+            <th width="10%" align="center">context</th>
+            <th width="50%" align="center">description</th>
+        </tr>
+        {% for hist in history %}
+            <tr>
+                <td align="center">{{hist.start_date|seconds}}</td>
+                <td align="center">{{hist.context|browse}}</span></td>
+                <td align="left">{{hist.description}}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+{% endblock contents %}

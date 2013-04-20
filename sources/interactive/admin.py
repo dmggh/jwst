@@ -1,12 +1,16 @@
 """This module supports the Django /admin/ site for CRDS."""
 
 from django.contrib import admin
-from crds.server.interactive.models import (ContextModel, CounterModel,
+from crds.server.interactive.models import (ContextModel, ContextHistoryModel, CounterModel,
                                             FileBlob, AuditBlob, RepeatableResultBlob)
 
 class ContextModelAdmin(admin.ModelAdmin):
     search_fields = ["name"]
 admin.site.register(ContextModel, ContextModelAdmin)
+
+class ContextHistoryModelAdmin(admin.ModelAdmin):
+    search_fields = ["start_date","context"]
+admin.site.register(ContextHistoryModel, ContextModelAdmin)
 
 class CounterModelAdmin(admin.ModelAdmin):
     search_fields = ["name"]
