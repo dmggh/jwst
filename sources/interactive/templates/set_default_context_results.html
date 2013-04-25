@@ -2,12 +2,16 @@
 
 {% load stdtags %}
 
-{% block contents %}
+{% block column1 %}
+
     <h2>Set Default Context</h2>
     {% if error_messages %}
      <h3 class="error">Setting {{context_type}} context to {{new_default|browse}} failed.</h3>
     {% else %}
      <h3 class="success">Changed {{context_type}} context from {{old_default|browse}} to {{new_default|browse}}</h3>
     {% endif %}
-{% endblock contents %}
+
+    {% include "home_button_trailer.html" %}
+
+{% endblock column1 %}
 

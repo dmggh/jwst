@@ -96,7 +96,7 @@
                  </tr>
                  <tr>
                     <td width="20%" align="left" class="label">Activation Date</td>
-                    <td>{{fileblob.activation_date}}</td>
+                    <td>{{fileblob.activation_date|seconds}}</td>
                  </tr>
                  {% if fileblob.type == "reference" %}
                      <tr>
@@ -109,7 +109,7 @@
                      </tr>
                       <tr>
                         <td width="20%" align="left" class="label">Useafter Date</td>
-                        <td>{{fileblob.useafter_date}}</td>
+                        <td>{{fileblob.useafter_date|seconds}}</td>
                      </tr>
                  {% endif %}
             </table>

@@ -2,7 +2,8 @@
 
 {% load stdtags %}
 
-{% block contents %}
+{% block column1 %}
+
     <h2>Set File Enable {{file_known|gray}}</h2>
     <h3>Files marked: {{badflag|gray}}</h3>
     <h3>Reject type: {{reject_type|gray}}<h3>
@@ -12,5 +13,8 @@
         <tr><td>{{set_file|browse}}</td></tr>
     {% endfor %}
     </table>
-{% endblock contents %}
+    
+    {% include "home_button_trailer.html" %}
+    
+{% endblock column1 %}
 
