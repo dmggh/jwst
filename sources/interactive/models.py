@@ -219,6 +219,7 @@ class ContextModel(CrdsModel):
 def set_default_context(context, observatory=OBSERVATORY, state="edit", description="set by system"):
     """Remember `context` as the default for `observatory` and `state`."""
     assert context.endswith(".pmap"), "context must be a .pmap"
+    log.info("Setting {} default {} context to {}".format(observatory, state, context))
     blob = ContextModel.get_or_create(observatory, state, "context")
     blob.context = context
     blob.save()
@@ -231,6 +232,20 @@ def set_default_context(context, observatory=OBSERVATORY, state="edit", descript
         new_hist.context = context
         new_hist.state = state
         new_hist.save()
+    
+    # Update activation dates of the new files in this context.
+    if state == "operational":
+        datestr = timestamp.format_date(new_hist.start_date)
+        context = rmap.load_mapping(context)
+        supported_files = context.reference_names() + context.mapping_names()
+        files = get_fileblob_map()
+        for fname, blob in files.items():
+            if fname in supported_files:
+                blob.thaw()
+                if blob.activation_date == "none":
+                    log.verbose("Setting activation date of {} to {}".format(fname, datestr))
+                    blob.activation_date = datestr
+                    blob.save()
 
 def get_default_context(observatory=OBSERVATORY, state="edit"):
     """Return the latest context which is in `state`."""
