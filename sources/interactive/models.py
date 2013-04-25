@@ -201,7 +201,7 @@ class ContextModel(CrdsModel):
     
     @property
     def observatory(self):
-        return self.context.split("_")[0]
+        return self.context.split("_")[0].split(".")[0]
 
     @property
     def kind(self):
@@ -217,13 +217,15 @@ class ContextModel(CrdsModel):
         return { blob.kind : blob.context for blob in cls.objects.all() }
 
 def set_default_context(context, observatory=OBSERVATORY, state="edit", description="set by system"):
-    """Remember `context` as the default for `observatory` and `state`."""
+    """Remember `context` as the default for `observatory` and `state`.  Update context history."""
+    
     assert context.endswith(".pmap"), "context must be a .pmap"
-    log.info("Setting {} default {} context to {}".format(observatory, state, context))
-    blob = ContextModel.get_or_create(observatory, state, "context")
-    blob.context = context
-    blob.save()
+    log.info("Setting '{}' default '{}' context to '{}'".format(observatory, state, context))
+    model = ContextModel.get_or_create(observatory, state, "context")
+    model.context = context
+    model.save()
 
+    # Create a context history record for this context switch.
     history = get_context_history(observatory=observatory, state=state)
     old_context = history[0].context if history else "none"
     if old_context != context:
@@ -233,19 +235,19 @@ def set_default_context(context, observatory=OBSERVATORY, state="edit", descript
         new_hist.state = state
         new_hist.save()
     
-    # Update activation dates of the new files in this context.
-    if state == "operational":
-        datestr = timestamp.format_date(new_hist.start_date)
-        context = rmap.load_mapping(context)
-        supported_files = context.reference_names() + context.mapping_names()
-        files = get_fileblob_map()
-        for fname, blob in files.items():
-            if fname in supported_files:
-                blob.thaw()
-                if blob.activation_date == "none":
-                    log.verbose("Setting activation date of {} to {}".format(fname, datestr))
-                    blob.activation_date = datestr
-                    blob.save()
+        # Update activation dates of the new files in this context.
+        if state == "operational":
+            datestr = timestamp.format_date(new_hist.start_date)
+            context = rmap.load_mapping(context)
+            supported_files = context.reference_names() + context.mapping_names()
+            files = get_fileblob_map()
+            for fname, blob in files.items():
+                if fname in supported_files:
+                    blob.thaw()
+                    if blob.activation_date == "none":
+                        log.verbose("Setting activation date of '{}' to '{}'".format(fname, datestr))
+                        blob.activation_date = datestr
+                        blob.save()
 
 def get_default_context(observatory=OBSERVATORY, state="edit"):
     """Return the latest context which is in `state`."""
@@ -261,7 +263,7 @@ class ContextHistoryModel(CrdsModel):
     
     @property
     def observatory(self):
-        return self.context.split("_")[0]
+        return self.context.split("_")[0].split(".")[0]
 
     start_date = models.DateTimeField(auto_now_add=True)
 

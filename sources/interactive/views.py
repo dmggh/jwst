@@ -1751,7 +1751,7 @@ def update_default_context(new_default, description, context_type, user):
     if old_default == new_default:
         raise CrdsError(srepr(old_default) + " is already in use for the " + 
                         srepr(context_type) + " context.")
-    models.set_default_context(new_default, state=context_type, description=description)
+    models.set_default_context(new_default, observatory=models.OBSERVATORY, state=context_type, description=description)
     models.AuditBlob.new(user, "set default context", 
                          new_default, description, 
                          context_type + " context changed from " +  

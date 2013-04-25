@@ -3,7 +3,8 @@
 {% accordion  "<span name='pmap_status'></span>" %}
 <table>
    <tr>
-    <td><input type="radio" name="pmap_mode" value="pmap_edit" onchange='crds.validate_select_pmap();' checked >Editing</td>
+    <td><input type="radio" name="pmap_mode" value="pmap_edit" 
+                onchange='crds.validate_select_pmap(); crds.close_pmap_accordion();' checked >Editing</td>
       <td align="right">
         <input type="hidden" name="pmap_edit" value="{{pmap_edit}}" />
         <p>{{edit_context_label|gray}}</p>
@@ -11,7 +12,8 @@
       </td>
    </tr>
    <tr>
-    <td><input type="radio" name="pmap_mode" value="pmap_operational" onchange='crds.validate_select_pmap();' >Operational</td>
+    <td><input type="radio" name="pmap_mode" value="pmap_operational" 
+                onchange='crds.validate_select_pmap(); crds.close_pmap_accordion();' >Operational</td>
       <td align="right">
         <input type="hidden" name="pmap_operational" value="{{pmap_operational}}" />
         <p>{{operational_context_label|gray}}</p>
@@ -19,9 +21,11 @@
       </td>
    </tr>
   <tr>
-    <td><input type="radio" name="pmap_mode" value="pmap_menu" onchange='crds.validate_select_pmap();' >Recent</td>
+    <td><input type="radio" name="pmap_mode" value="pmap_menu" 
+               onchange='crds.validate_select_pmap();' >Recent</td>
       <td align="right">
-        <select name="pmap_menu" style="width: 20em; height: 30px; " onchange='crds.set_radio("pmap_mode","pmap_menu"); crds.validate_select_pmap();' />
+        <select name="pmap_menu" style="width: 20em; height: 30px; " 
+                onchange='crds.set_radio("pmap_mode","pmap_menu"); crds.validate_select_pmap(); crds.close_pmap_accordion();' />
             {% for pmap in pmaps %}
                 {% if pmap.0 == pmap_menu %}
                     <option value="{{pmap.0}}" selected>{{pmap.1}}</option>
@@ -33,9 +37,10 @@
       </td>
   </tr>
   <tr>
-    <td><input type="radio" name="pmap_mode" value="pmap_text" onchange='crds.validate_select_pmap();' >User Specified</td>
+    <td><input type="radio" name="pmap_mode" value="pmap_text" 
+                onchange='crds.validate_select_pmap();' >User Specified</td>
       <td align="right"><input type="text" name="pmap_text" value="{{pmap_text}}"
-            onchange='crds.set_radio("pmap_mode","pmap_text"); crds.validate_select_pmap();' /></td>
+            onchange='crds.set_radio("pmap_mode","pmap_text"); crds.validate_select_pmap(); crds.close_pmap_accordion();' /></td>
       <td class="hint">e.g. hst_0001.pmap</td>
   </tr>
 </table>
@@ -89,8 +94,14 @@ for the first submission.
             };
             pmap_status = pmap_option + " (" + title + ")";
             $("span[name='pmap_status']").html(pmap_status);
+            
             return true;
         };
+        crds.close_pmap_accordion = function () {
+            $(".accordion").accordion({
+                active: false
+            });
+        }
         crds.validate_select_pmap();
     });
 </script>
