@@ -132,6 +132,12 @@ class InteractiveBase(object):
             models.AuditBlob.new("homer", "mass import", name, "becuz", "some details",
                                  observatory=self.observatory)
 
+    def install_files(self, files):
+        for path in files:
+            cached = rmap.locate_file(os.path.basename(path), observatory=self.observatory)
+            pysh.sh("cp -f ${path} ${cached}", trace_commands=True)
+            pysh.sh("chmod +r -w -x ${cached}", trace_commands=True)
+
     def assert_no_errors(self, response, msg=None, status=200):
         try:            
             self.assertEqual(response.status_code, status)
@@ -584,6 +590,7 @@ class InteractiveBase(object):
     def test_set_context_post(self):
         self.login()
         self.fake_database_files([self.new_context])
+        self.install_files([self.new_context])
         new_context = os.path.basename(self.new_context)
         response = self.client.post("/set_default_context/", {
             "context_type" : "operational",
