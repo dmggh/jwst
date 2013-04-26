@@ -357,7 +357,7 @@ class BlobModel(CrdsModel):
         for name in self.blob_fields:
             if name not in self.blob_properties:
                 blob[name] = self.enforce_type(name, getattr(self, name))
-        self.blob = repr(blob)
+        self.blob = json_ext.dumps(blob)
         super(BlobModel, self).save()
         
     @classmethod
@@ -393,7 +393,7 @@ class BlobModel(CrdsModel):
         if hasattr(self, "_thawed"):
             return
         self._thawed = True
-        blob = eval(self.blob)
+        blob = json_ext.loads(self.blob)
         for name, value in blob.items():
             setattr(self, name, value)
 

@@ -26,6 +26,8 @@ def loads(enc):
     if isinstance(obj, dict):    # fix str --> unicode key decoding side effect.
         pobj = {}
         for key, val in obj.items():
+            if isinstance(val, basestring):
+                val = str(val)
             if isinstance(key, basestring):
                 pobj[str(key)] = val
             else:
