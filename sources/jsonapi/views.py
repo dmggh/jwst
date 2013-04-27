@@ -9,8 +9,7 @@ import re
 from jsonrpc import jsonrpc_method
 from jsonrpc.exceptions import Error
 
-import crds.server.interactive.versions as versions
-import crds.server.interactive.models as imodels
+from crds.server.interactive import models as imodels, versions, database
 import crds.server.config as config
 from crds import rmap, utils, log
 
@@ -232,14 +231,14 @@ def get_dataset_headers(request, context, dataset_ids):
     check_context(context)
     check_list_of_strings(dataset_ids)
     pmap = rmap.get_cached_mapping(context)
-    return db.get_dataset_headers(dataset_ids=dataset_ids, observatory=pmap.observatory)
+    return database.get_dataset_headers(dataset_ids=dataset_ids, observatory=pmap.observatory)
 
 @jsonrpc_method('get_datset_ids(String, String)')
 def get_dataset_ids(request, context, instrument):
     check_context(context)
     check_instrument(instrument)
     pmap = rmap.get_cached_mapping(context)
-    return db.get_dataset_ids(instrument, observatory=pmap.observatory)
+    return database.get_dataset_ids(instrument, observatory=pmap.observatory)
 
 # ===============================================================
 
