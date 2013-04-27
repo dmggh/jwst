@@ -4,13 +4,13 @@ catalog.
 """
 import pprint
 import getpass
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 import os.path
 
 import pyodbc
 
 from crds import rmap, log, utils, timestamp
-from . import models
+from crds.server.interactive import models
 
 if models.OBSERVATORY == "hst":
     import crds.hst
@@ -81,14 +81,14 @@ class DB(object):
         self.user = user
         if password is None:
             password = getpass.getpass("password: ")
-        self.connection = pyodbc.connect(
-            "DSN=%s;Uid=%s;Pwd=%s" % (dsn, user, password))
+        self.connection = pyodbc.connect("DSN=%s;Uid=%s;Pwd=%s" % (dsn, user, password))
         self.cursor = self.connection.cursor()
 
     def __repr__(self):
         return self.__class__.__name__ + "(%s, %s)" % (repr(self.dsn), repr(self.user))
 
     def execute(self, sql):
+        log.verbose("Executing SQL:", repr(sql))
         return self.cursor.execute(sql)
 
     def get_tables(self):
@@ -97,8 +97,7 @@ class DB(object):
     def get_columns(self, table):
         return [col.column_name for col in self.cursor.columns(table=table)]
 
-    def make_dicts(self, table, col_list=None, ordered=False, 
-                   where="", dataset=None, lowercase=True):
+    def make_dicts(self, table, col_list=None, ordered=False, where="", dataset=None, lowercase=True):
         if dataset is not None:
             all_cols = self.get_columns(table)
             for col in all_cols:
@@ -111,7 +110,7 @@ class DB(object):
             col_list = self.get_columns(table)
         col_names = ", ".join(col_list)
 
-        for row in self.cursor.execute("select %s from %s %s" % (col_names, table, where)):
+        for row in self.execute("select %s from %s %s" % (col_names, table, where)):
             items = zip(col_list, [str(x).lower() for x in row] if lowercase else row)
             kind = OrderedDict if ordered else dict
             yield kind(items)
@@ -239,12 +238,15 @@ FROM Persons
 FULL JOIN Orders
 ON Persons.P_Id=Orders.P_Id
 ORDER BY Persons.LastName
+
+select * from table where name in (word1,word2,word3)
 """
 
 class HeaderGenerator(object):
-    def __init__(self, instrument, header_to_db_map):
-        self.h_to_db = header_to_db_map
+    def __init__(self, instrument, catalog_db, header_to_db_map):
         self.instrument = instrument.lower()
+        self.catalog_db = catalog_db        
+        self.h_to_db = header_to_db_map
 
     @property
     def header_keys(self):
@@ -262,76 +264,100 @@ class HeaderGenerator(object):
             tables.add(table)
         return list(tables)
 
-    def getter_sql(self, extra_constraints={}):
-        sql = "SELECT %s FROM %s " % (", ".join(self.db_columns), 
-                                      ", ".join(self.db_tables))
-        if len(self.db_tables) >= 2:
-            sql += "WHERE %s" % self.join_expr(extra_constraints)
-        return sql
-
-    def join_expr(self, extra_constraints={}):
-        dadsops = get_dadsops()
+    @property
+    def all_columns(self):
         all_cols = []
         for table in self.db_tables:
-            all_cols += [table + "." + col for col in dadsops.get_columns(table)]
+            all_cols += [table + "." + col for col in self.catalog_db.get_columns(table)]
+        return all_cols
+
+    def getter_sql(self, extra_constraints={}, extra_clauses=()):
+        sql = "SELECT %s FROM %s " % (", ".join(self.db_columns), ", ".join(self.db_tables))
+        clauses = self.join_clauses() 
+        if extra_constraints:
+            clauses.extend(self.constraint_clauses(extra_constraints))
+        clauses.extend(list(extra_clauses))
+        sql += "WHERE " + (" AND ").join(clauses)
+        return sql
+
+    def join_clauses(self, join_suffices=("program_id", "obset_id", "obsnum")):
         clauses = []
-        for suffix in ["program_id", "obset_id", "obsnum"]:
+        if len(self.db_tables) < 2:
+            return clauses
+        for suffix in join_suffices:
             joined = []
-            for col in all_cols:
+            for col in self.all_columns:
                 if col.endswith(suffix):
                     joined.append(col)
             if len(joined) >= 2:
                 for more in joined[1:]:
                     clauses.append(joined[0] + "=" + more)
+        return clauses
+
+    def constraint_clauses(extra_constraints):
         for key in extra_constraints:
-            for col in all_cols:
+            for col in self.all_columns:
                 if key.lower() in col:
                     break
             else:
                 raise ValueError("No db column found for constraint " + repr(key))
             clauses.append(col + "=" + repr(extra_constraints[key]))
-        return (" and ").join(clauses)
+        return clauses
 
-    def get_headers(self, extra_constraints={}):
-        dadsops = get_dadsops()
-        sql = self.getter_sql(extra_constraints)
-        for dataset in dadsops.execute(sql):
-            hdr = dict(zip(self.header_keys, [utils.condition_value(x) for x in dataset]))
-            self.fix_time(hdr)
-            hdr["INSTRUME"] = self.instrument.upper()
+    def get_headers(self, extra_constraints={}, extra_clauses=(), condition=True):
+        sql = self.getter_sql(extra_constraints, extra_clauses)
+        for dataset in self.catalog_db.execute(sql):
+            hdr = dict(zip(self.header_keys, list(dataset)))
+            if condition:
+                hdr = { key:utils.condition_value(hdr[key]) for key in hdr }
+            hdr = self.fix_hdr(hdr)
             yield hdr
 
-    def fix_time(self, hdr):
+    def fix_hdr(self, hdr):
+        hdr["INSTRUME"] = self.instrument.upper()
+        hdr = dict(hdr)
         expstart = hdr.get("EXPSTART", hdr.get("TEXPSTRT"))
         try:
             hdr["DATE-OBS"], hdr["TIME-OBS"] = timestamp.format_date(expstart).split()
         except:
             log.warning("Bad database EXPSTART", expstart)
+        return hdr 
 
-try:
+with log.error_on_exception("Failed loading", repr(HEADER_TABLES)):
     HEADER_MAP = eval(open(HEADER_TABLES).read())
-
-    HEADER_GENERATORS = {}
-    for instr in HEADER_MAP:
-        HEADER_GENERATORS[instr] = HeaderGenerator(instr, HEADER_MAP[instr])
-except:
-    log.error("Failed loading " + repr(HEADER_TABLES))
+    with log.error_on_exception("Failed getting catalog connection"):
+        connection = get_dadsops()
+        with log.error_on_exception("Failed setting up header generators"):
+            HEADER_GENERATORS = {}
+            for instr in HEADER_MAP:
+                HEADER_GENERATORS[instr] = HeaderGenerator(instr, connection, HEADER_MAP[instr])
 
 
 def get_dataset_header(dataset, observatory="hst"):
     """Get the header for a particular dataset,  nominally in a context where
     one only cares about a small list of specific datasets.
     """
-    instrument = dataset_to_instrument(dataset)
-    try:
-        igen = HEADER_GENERATORS[instrument]
-        headers = list(igen.get_headers({"DATA_SET":dataset.upper()}))
-    except Exception, exc:
-        raise RuntimeError("Error accessing catalog for dataset " + repr(dataset) + ":" + str(exc))
-    if len(headers) == 1:
-        return headers[0]
-    elif len(headers) == 0:
-        raise LookupError("No header found for " + repr(instrument) + " dataset " + repr(dataset))
-    elif len(headers) > 1:
-        raise LookupError("More than one header found for " + repr(instrument) + " dataset " + repr(dataset))
+    return get_dataset_headers([dataset], observatory)
 
+def get_dataset_headers(datasets, observatory="hst"):
+    """Get the header for a particular dataset,  nominally in a context where
+    one only cares about a small list of specific datasets.
+    """
+    datasets = sorted(list(set(datasets)))
+    by_instrument = defaultdict(list)
+    for dataset in datasets:
+        instrument = dataset_to_instrument(dataset)
+        by_instrument[instrument].append(dataset)
+    all_headers = {}
+    for instrument, datasets in by_instrument.items():
+        try:
+            igen = HEADER_GENERATORS[instrument]
+            dataset_column = igen.h_to_db["data_set"]
+            dataset_ids = ", ".join(["'{}'".format(id.upper()) for id in datasets])
+            datasets_clause = "{} in ({})".format(dataset_column, dataset_ids)
+            headers = { hdr["DATA_SET"]:hdr for hdr in igen.get_headers(extra_clauses=[datasets_clause]) }
+        except Exception, exc:
+            raise
+            raise RuntimeError("Error accessing catalog for dataset " + repr(dataset) + ":" + str(exc))
+        all_headers.update(headers)
+    return all_headers
