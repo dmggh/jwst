@@ -323,6 +323,9 @@ class HeaderGenerator(object):
             log.warning("Bad database EXPSTART", expstart)
         return hdr 
 
+    def get_dataset_ids(self):
+        return list(igen.catalog_db.execute("SELECT {} FROM {}".format(self.h_to_db["data_set"], self.db_tables)))
+
 with log.error_on_exception("Failed loading", repr(HEADER_TABLES)):
     HEADER_MAP = eval(open(HEADER_TABLES).read())
     with log.error_on_exception("Failed getting catalog connection"):
@@ -357,7 +360,14 @@ def get_dataset_headers(datasets, observatory="hst"):
             datasets_clause = "{} in ({})".format(dataset_column, dataset_ids)
             headers = { hdr["DATA_SET"]:hdr for hdr in igen.get_headers(extra_clauses=[datasets_clause]) }
         except Exception, exc:
-            raise
             raise RuntimeError("Error accessing catalog for dataset " + repr(dataset) + ":" + str(exc))
         all_headers.update(headers)
     return all_headers
+
+def get_dataset_ids(instrument, observatory="hst"):
+    """Return a list of the known dataset ids for `instrument`."""
+    try:
+        igen = HEADER_GENERATORS[instrument]
+        return igen.get_dataset_ids()
+    except Exception, exc:
+        raise RuntimeError("Error accessing catalog for dataset " + repr(dataset) + ":" + str(exc))

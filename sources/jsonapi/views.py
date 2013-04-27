@@ -90,6 +90,9 @@ class BadFilenameError(Error):
 class BadListGlobError(Error):
     """A list search pattern uses characters prohibited to prevent SQL injection."""
 
+class InvalidDatasetIds(Error):
+    """Expected a list of dataset id strings but got something else."""
+
 def check_known_file(file):
     """Check that `file` is known to CRDS, available, and/or not blacklisted."""
     if not re.match(FILE_RE, file):
@@ -139,7 +142,13 @@ def check_observatory(obs):
         raise InvalidObservatoryError("Mismatch between requested observatory " + 
                                       repr(obs) + " and server observatory " + 
                                       repr(imodels.OBSERVATORY))
-    
+
+def check_instrument(instr):
+    if instr not in imodels.INSTRUMENTS:
+        raise InvalidInstrumentError("Mismatch between requested instrument " + 
+                                     repr(instr) + " and server instruments " + 
+                                     repr(imodels.INSTRUMENTS))
+
 def check_reftypes(reftypes):
     if not isinstance(reftypes, (list, tuple, type(None))):
         raise InvalidReftypesError("reftypes parameter should be a list of reftype/filekind strings or None.")
@@ -149,6 +158,13 @@ def check_reftypes(reftypes):
                 raise InvalidReftypesError("Non-string reftype: " + repr(reftype))
             if reftype not in imodels.FILEKINDS:
                 raise InvalidReftypesError("Reftype '%s' is not a known reference type." % imodels.FILEKINDS)
+
+def check_dataset_ids(datasets):
+    if not isinstance(datasets, list):
+        raise InvalidDatasetIds("Expected list of dataset ids.")
+    for dataset in datasets:
+        if not isinstance(dataset, basestring):
+            raise InvalidDatasetIds("Expected datasets to be id strings.")
 
 # ===========================================================================
 
@@ -210,6 +226,20 @@ def get_file_info(request, context, file):
     check_context(context)
     blob = check_known_file(file)
     return blob.info
+
+@jsonrpc_method('get_datset_headers(String, Array)')
+def get_dataset_headers(request, context, dataset_ids):
+    check_context(context)
+    check_list_of_strings(dataset_ids)
+    pmap = rmap.get_cached_mapping(context)
+    return db.get_dataset_headers(dataset_ids=dataset_ids, observatory=pmap.observatory)
+
+@jsonrpc_method('get_datset_ids(String, String)')
+def get_dataset_ids(request, context, instrument):
+    check_context(context)
+    check_instrument(instrument)
+    pmap = rmap.get_cached_mapping(context)
+    return db.get_dataset_ids(instrument, observatory=pmap.observatory)
 
 # ===============================================================
 
