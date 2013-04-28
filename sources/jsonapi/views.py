@@ -226,12 +226,19 @@ def get_file_info(request, context, file):
     blob = check_known_file(file)
     return blob.info
 
-@jsonrpc_method('get_dataset_headers(String, Array)')
-def get_dataset_headers(request, context, dataset_ids):
+@jsonrpc_method('get_dataset_headers_by_id(String, Array)')
+def get_dataset_headers_by_id(request, context, dataset_ids):
     check_context(context)
-    check_list_of_strings(dataset_ids)
+    check_dataset_ids(dataset_ids)
     pmap = rmap.get_cached_mapping(context)
-    return database.get_dataset_headers(dataset_ids=dataset_ids, observatory=pmap.observatory)
+    return database.get_dataset_headers_by_id(dataset_ids=dataset_ids, observatory=pmap.observatory)
+
+@jsonrpc_method('get_dataset_headers_by_instrument(String, Array)')
+def get_dataset_headers_by_instrument(request, context, instrument):
+    check_context(context)
+    check_instrument(instrument)
+    pmap = rmap.get_cached_mapping(context)
+    return database.get_dataset_headers_by_instrument(instrument, observatory=pmap.observatory)
 
 @jsonrpc_method('get_dataset_ids(String, String)')
 def get_dataset_ids(request, context, instrument):

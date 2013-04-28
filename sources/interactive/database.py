@@ -324,7 +324,9 @@ class HeaderGenerator(object):
         return hdr 
 
     def get_dataset_ids(self):
-        return list(igen.catalog_db.execute("SELECT {} FROM {}".format(self.h_to_db["data_set"], self.db_tables)))
+        return [id[0] for id in self.catalog_db.execute("SELECT {} FROM {}".format(
+            self.h_to_db["data_set"], self.h_to_db["data_set"].split(".")[0]))]
+
 
 HEADER_MAP = None
 HEADER_GENERATORS = {}
@@ -346,15 +348,17 @@ def get_dataset_header(dataset, observatory="hst"):
     """Get the header for a particular dataset,  nominally in a context where
     one only cares about a small list of specific datasets.
     """
-    init_db()
-    return get_dataset_headers([dataset], observatory)
+    return get_dataset_headers_by_id([dataset], observatory)
 
-def get_dataset_headers(datasets, observatory="hst"):
+def get_dataset_headers_by_id(dataset_ids, observatory="hst"):
     """Get the header for a particular dataset,  nominally in a context where
     one only cares about a small list of specific datasets.
     """
     init_db()
-    datasets = sorted(list(set(datasets)))
+    
+    datasets = sorted(list(set(dataset_ids)))
+    assert len(datasets) < 1000, "Too many ids.   More than 1000 datasets specified."
+        
     by_instrument = defaultdict(list)
     for dataset in datasets:
         instrument = dataset_to_instrument(dataset)
@@ -371,6 +375,18 @@ def get_dataset_headers(datasets, observatory="hst"):
             raise RuntimeError("Error accessing catalog for dataset " + repr(dataset) + ":" + str(exc))
         all_headers.update(headers)
     return all_headers
+
+def get_dataset_headers_by_instrument(instrument, observatory="hst"):
+    """Get the header for a particular dataset,  nominally in a context where
+    one only cares about a small list of specific datasets.
+    """
+    init_db()
+    try:
+        igen = HEADER_GENERATORS[instrument]
+        headers = { hdr["DATA_SET"]:hdr for hdr in igen.get_headers() }
+        return headers
+    except Exception, exc:
+        raise RuntimeError("Error accessing catalog for instrument" + repr(instrument) + ":" + str(exc))
 
 def get_dataset_ids(instrument, observatory="hst"):
     """Return a list of the known dataset ids for `instrument`."""
