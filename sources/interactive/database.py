@@ -350,14 +350,14 @@ def get_dataset_header(dataset, observatory="hst"):
     """
     return get_dataset_headers_by_id([dataset], observatory)
 
-def get_dataset_headers_by_id(dataset_ids, observatory="hst"):
-    """Get the header for a particular dataset,  nominally in a context where
-    one only cares about a small list of specific datasets.
-    """
+MAX_IDS = 5000
+
+def _get_dataset_headers_by_id(dataset_ids, observatory="hst"):
     init_db()
     
     datasets = sorted(list(set(dataset_ids)))
-    assert len(datasets) < 1000, "Too many ids.   More than 1000 datasets specified."
+    assert len(datasets) <= MAX_IDS, \
+           "Too many ids.   More than %d datasets specified." % MAX_IDS
         
     by_instrument = defaultdict(list)
     for dataset in datasets:
@@ -375,6 +375,15 @@ def get_dataset_headers_by_id(dataset_ids, observatory="hst"):
             raise RuntimeError("Error accessing catalog for dataset " + repr(dataset) + ":" + str(exc))
         all_headers.update(headers)
     return all_headers
+
+def get_dataset_headers_by_id(dataset_ids, observatory="hst"):
+    """Get the header for a particular dataset,  nominally in a context where
+    one only cares about a small list of specific datasets.
+    """
+    headers = {}
+    for i in range(0,len(dataset_ids),MAX_IDS):
+        headers.update(_get_dataset_headers_by_id(dataset_ids[i:i+MAX_IDS], observatory))
+    return headers
 
 def get_dataset_headers_by_instrument(instrument, observatory="hst"):
     """Get the header for a particular dataset,  nominally in a context where
