@@ -31,11 +31,9 @@ rm -f ${CRDS_PATH}/deliveries/*
 
 ./init_pkgs $observatory $mode
 
-python tools/wipe_db.py <<EOF
-y
-EOF
-
-python tools/make_cdbs_links.py
+foreach app (interactive jsonapi locking fileupload stats)
+./manage sqlclear $app | ./manage dbshell
+end
+./manage syncdb
 
 ./init $observatory $mode
-
