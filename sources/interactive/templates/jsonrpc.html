@@ -5,7 +5,7 @@
 
 
 <script type="text/javascript">MochiKit = {__export__: false};</script>
-<script type="application/x-javascript" src="{% url jsonrpc_browser %}?f=mochikit.js"></script>
+<script type="application/x-javascript" src='{% url "jsonrpc_browser" %}?f=mochikit.js'></script>
 
 {# <script type="application/x-javascript" src="{% url jsonrpc_browser %}?f=interpreter.js"></script> #}
 
@@ -24,7 +24,7 @@ $(function() {
           'method': name,
           'jsonrpc': '1.0'
         });
-        var d = MochiKit.Async.doXHR('{% url jsonrpc_mountpoint %}', {
+        var d = MochiKit.Async.doXHR('{% url "jsonrpc_mountpoint" %}', {
           'method': 'POST',
           'sendContent': req,
           'mimeType': 'application/x-javascript'
