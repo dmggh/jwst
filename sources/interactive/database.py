@@ -326,26 +326,34 @@ class HeaderGenerator(object):
     def get_dataset_ids(self):
         return list(igen.catalog_db.execute("SELECT {} FROM {}".format(self.h_to_db["data_set"], self.db_tables)))
 
-with log.error_on_exception("Failed loading", repr(HEADER_TABLES)):
-    HEADER_MAP = eval(open(HEADER_TABLES).read())
-    with log.error_on_exception("Failed getting catalog connection"):
-        connection = get_dadsops()
-        with log.error_on_exception("Failed setting up header generators"):
-            HEADER_GENERATORS = {}
-            for instr in HEADER_MAP:
-                HEADER_GENERATORS[instr] = HeaderGenerator(instr, connection, HEADER_MAP[instr])
+HEADER_MAP = None
+HEADER_GENERATORS = {}
+
+def init_db():
+    global HEADER_MAP, HEADER_TABLES, HEADER_GENERATORS
+    if HEADER_MAP is None:
+        with log.error_on_exception("Failed loading", repr(HEADER_TABLES)):
+            HEADER_MAP = eval(open(HEADER_TABLES).read())
+            with log.error_on_exception("Failed getting catalog connection"):
+                connection = get_dadsops()
+                with log.error_on_exception("Failed setting up header generators"):
+                    HEADER_GENERATORS = {}
+                    for instr in HEADER_MAP:
+                        HEADER_GENERATORS[instr] = HeaderGenerator(instr, connection, HEADER_MAP[instr])
 
 
 def get_dataset_header(dataset, observatory="hst"):
     """Get the header for a particular dataset,  nominally in a context where
     one only cares about a small list of specific datasets.
     """
+    init_db()
     return get_dataset_headers([dataset], observatory)
 
 def get_dataset_headers(datasets, observatory="hst"):
     """Get the header for a particular dataset,  nominally in a context where
     one only cares about a small list of specific datasets.
     """
+    init_db()
     datasets = sorted(list(set(datasets)))
     by_instrument = defaultdict(list)
     for dataset in datasets:
@@ -366,8 +374,6 @@ def get_dataset_headers(datasets, observatory="hst"):
 
 def get_dataset_ids(instrument, observatory="hst"):
     """Return a list of the known dataset ids for `instrument`."""
-    try:
-        igen = HEADER_GENERATORS[instrument]
-        return igen.get_dataset_ids()
-    except Exception, exc:
-        raise RuntimeError("Error accessing catalog for dataset " + repr(dataset) + ":" + str(exc))
+    init_db()
+    igen = HEADER_GENERATORS[instrument]
+    return igen.get_dataset_ids()

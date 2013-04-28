@@ -124,6 +124,7 @@ TEMPLATE_DIRS = (
     crds_server_dir + "/templates",
     crds_server_dir + "/interactive/templates",
     crds_server_dir + "/fileupload/templates",
+    crds_server_dir + "/jsonapi/templates",
 )
 
 INSTALLED_APPS = (
