@@ -5,14 +5,14 @@
 ./install [hst|jwst]  [dev|test]
 
 # Install third party database components, pyodbc and unixODBC/FreeTDS stack
-# Enter system passwords.
 ./init_pkgs [hst|jwst] [dev|test]
-<enter database password for dataset catalog>
-<enter password for test user>
 
 # Initilize the CRDS catalog with existing reference files, deliver initial
 # set of mappings.
+# Enter system passwords.
 ./init [hst|jwst] [dev|test]
+<enter password for test user>
+<enter database password for dataset catalog>
 
 2. Procedure for starting the sever:
 

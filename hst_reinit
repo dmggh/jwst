@@ -27,13 +27,10 @@ rm -f ${CRDS_PATH}/mappings/hst/*
 rm -f ${CRDS_PATH}/catalogs/*
 rm -f ${CRDS_PATH}/deliveries/*
 
+./reset_db
+
 ./install $observatory $mode
 
 ./init_pkgs $observatory $mode
-
-foreach app (interactive jsonapi locking fileupload stats)
-./manage sqlclear $app | ./manage dbshell
-end
-./manage syncdb
 
 ./init $observatory $mode
