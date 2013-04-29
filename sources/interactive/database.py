@@ -348,7 +348,7 @@ def get_dataset_header(dataset, observatory="hst"):
     """Get the header for a particular dataset,  nominally in a context where
     one only cares about a small list of specific datasets.
     """
-    return get_dataset_headers_by_id([dataset], observatory)
+    return get_dataset_headers_by_id([dataset], observatory)[dataset.upper()]
 
 MAX_IDS = 5000
 
