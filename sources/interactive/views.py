@@ -790,10 +790,10 @@ def bestrefs_post(request):
         dataset_name = validate_post(request, "dataset_archive", DATASET_ID_RE)
         try:
             header = database.get_dataset_header(dataset_name, pmap.observatory)
-            header = pmap.minimize_header(header)
         except Exception, exc:
             raise CrdsError("Problem getting header for dataset " + 
                             srepr(dataset_name) + ": " + str(exc))
+        header = pmap.minimize_header(header)
     else:
         raise ValueError("Bad dataset_mode " + srepr(dataset_mode))
 
