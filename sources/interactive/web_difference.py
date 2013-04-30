@@ -3,7 +3,7 @@
 import os.path
 import re
 
-from crds import rmap, pysh, CrdsError
+from crds import rmap, pysh, CrdsError, log
 
 GEIS_HEADER_RE = r"\w+(\.r\dh)"
 
@@ -102,13 +102,13 @@ def mapping_text_diffs(logical_diffs):
                 file1_orig, file2_orig = tup
                 file1_path = rmap.locate_mapping(file1_orig)
                 file2_path = rmap.locate_mapping(file2_orig)
-                if (file1_orig, file2_orig) not in diff_map:
+                key = str((os.path.basename(file1_orig), os.path.basename(file2_orig)))
+                if  key not in diff_map:
                     try:
-                        diffs = textual_diff(
-                            file1_orig, file2_orig, file1_path, file2_path)
+                        diffs = textual_diff(file1_orig, file2_orig, file1_path, file2_path)
                     except Exception, exc:
                         diffs = "diffs failed: " + str(exc)
-                    diff_map[str((file1_orig, file2_orig))] = diffs
+                    diff_map[key] = diffs
     return diff_map
 
 def format_fitsdiffs(lines, file1, file2, file1_orig, file2_orig):
