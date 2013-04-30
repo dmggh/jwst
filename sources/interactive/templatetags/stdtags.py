@@ -73,7 +73,10 @@ def minutes(value):  # handle str(datetime.datetime.now())
 def seconds(value):  # handle str(datetime.datetime.now())
     """Return date & time formatted to seconds."""
     parts = value.split(".")
-    return ".".join(parts[:-1])
+    if len(parts) > 1:
+        return ".".join(parts[:-1])
+    else:
+        return parts[0]
 
 @register.filter
 @stringfilter
