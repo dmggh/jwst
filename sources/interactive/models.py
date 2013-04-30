@@ -239,7 +239,7 @@ def set_default_context(context, observatory=OBSERVATORY, state="edit", descript
         if state == "operational":
             datestr = timestamp.format_date(new_hist.start_date)
             context = rmap.load_mapping(context)
-            supported_files = context.reference_names() + context.mapping_names()
+            supported_files = set(context.reference_names() + context.mapping_names())
             files = get_fileblob_map()
             for fname, blob in files.items():
                 if fname in supported_files:
