@@ -277,7 +277,8 @@ class HeaderGenerator(object):
         if extra_constraints:
             clauses.extend(self.constraint_clauses(extra_constraints))
         clauses.extend(list(extra_clauses))
-        sql += "WHERE " + (" AND ").join(clauses)
+        if clauses:
+            sql += "WHERE " + (" AND ").join(clauses)
         return sql
 
     def join_clauses(self, join_suffices=("program_id", "obset_id", "obsnum")):
