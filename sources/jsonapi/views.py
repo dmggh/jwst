@@ -72,6 +72,9 @@ class InvalidObservatoryError(Error):
 class InvalidReftypesError(Error):
     """The specified reftypes is not a list of strings."""
 
+class UnknownFile(Error):
+    """There's no record of a file in the CRDS database."""
+
 class UnavailableFile(Error):
     """A known file is not available for download,  either because it is waiting
     for archiving or not yet generally available.
@@ -98,7 +101,7 @@ def check_known_file(file):
         raise BadFilenameError("Invalid filename '%s'" % file)
     blob = imodels.file_exists(file)
     if not blob:
-        return blob
+        raise UnknownFile("File '%s' is not known to CRDS."  % file)
     if not blob.available:
         raise UnavailableFile("File '%s' is not yet available."  % file)
     if blob.blacklisted:
@@ -109,21 +112,21 @@ def check_context(context):
     if imodels.OBSERVATORY not in context:
             raise MismatchedContextError(("Requested context '%s' doesn't match the observatory '%s'" + 
                                          " supported by this server.   Switch servers or contexts.") %
-                                         (context, imodels.OBSERVATORY))                
+                                         (context, imodels.OBSERVATORY))
     blob = check_known_file(context)
-    if blob is None or not rmap.is_mapping(context) or not context.endswith((".imap", ".pmap")):
+    if not rmap.is_mapping(context) or not context.endswith((".imap", ".pmap")):
         raise UnknownContextError("Context parameter '%s' is not a known CRDS .pmap or .imap file." % context)
     return blob
 
 def check_mapping(mapping):
     blob = check_known_file(mapping)
-    if not blob or not blob.type == "mapping":
+    if blob.type != "mapping":
         raise UnknownMappingError("Mapping parameter '%s' is not a known CRDS mapping file." % mapping)
     return blob
     
 def check_reference(reference):
     blob = check_known_file(reference)
-    if not blob or not blob.type == "reference":
+    if blob.type != "reference":
         raise UnknownReferenceError("Reference parameter '%s' is not a known CRDS reference file." % reference)
     return blob
 
