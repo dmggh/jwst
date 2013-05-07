@@ -114,8 +114,8 @@ def check_context(context):
                                          " supported by this server.   Switch servers or contexts.") %
                                          (context, imodels.OBSERVATORY))
     blob = check_known_file(context)
-    if not rmap.is_mapping(context) or not context.endswith((".imap", ".pmap")):
-        raise UnknownContextError("Context parameter '%s' is not a known CRDS .pmap or .imap file." % context)
+    if not rmap.is_mapping(context):
+        raise UnknownContextError("Context parameter '%s' is not a known CRDS .pmap, .imap, or .rmap file." % context)
     return blob
 
 def check_mapping(mapping):
