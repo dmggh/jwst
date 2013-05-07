@@ -98,7 +98,6 @@
 <li><a class="reference internal" href="#confirm-or-discard">Confirm or Discard</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#edit-rmap">Edit Rmap</a></li>
 <li><a class="reference internal" href="#certify-file">Certify File</a></li>
 <li><a class="reference internal" href="#submit-references">Submit References</a></li>
 <li><a class="reference internal" href="#submit-mappings">Submit Mappings</a></li>
@@ -144,7 +143,7 @@
             
   <div class="section" id="using-the-crds-web-site">
 <h1>Using the CRDS Web Site<a class="headerlink" href="#using-the-crds-web-site" title="Permalink to this headline">¶</a></h1>
-<p>CRDS has websites at <a href="#id3"><span class="problematic" id="id4">hst-crds.stsci.edu_</span></a> and <a href="#id5"><span class="problematic" id="id6">jwst-crds.stsci.edu_</span></a> which support the submission, use,
+<p>CRDS has websites at <a class="reference external" href="http://hst-crds.stsci.edu/">hst-crds.stsci.edu</a> and <a class="reference external" href="http://jwst-crds.stsci.edu/">jwst-crds.stsci.edu</a> which support the submission, use,
 and distribution of CRDS reference and mappings files.   Functions on the CRDS
 website are either public functions which do not require authentication or private
 functions which require a CRDS login account.</p>
@@ -308,7 +307,7 @@ tracked:</p>
 </div>
 <p>The first page lists a number of constraints which can be used to choose
 activities of interest.   To ignore any constraint,  leave it set at the default
-value of <a href="#id1"><span class="problematic" id="id2">*</span></a>.   The result of the activity search is a table of matching actions:</p>
+value of *.   The result of the activity search is a table of matching actions:</p>
 <div class="figure">
 <a class="reference internal image-reference" href="_images/web_recent_activity_results.png"><img alt="database browse details page" src="_images/web_recent_activity_results.png" style="width: 605.5px; height: 246.0px;" /></a>
 </div>
@@ -496,43 +495,6 @@ and file copies are removed.</p>
 is updated to that pipeline mapping making it the default starting point for
 future submissions.</p>
 </div>
-</div>
-<div class="section" id="edit-rmap">
-<h3>Edit Rmap<a class="headerlink" href="#edit-rmap" title="Permalink to this headline">¶</a></h3>
-<p><em>Edit Rmap</em> provides a Javascript based rmap editor which supports adding or
-replacing new rmap rows.   The existing prototype can add new USEAFTER rows
-but cannot add new Match tuple cases.   The prototype works only on HST-style
-rmaps which consist of an outer Match() selector and a number of inner
-UseAfter() selectors.</p>
-<div class="figure">
-<a class="reference internal image-reference" href="_images/web_edit_rmap_filter.png"><img alt="edit rmap filtering" src="_images/web_edit_rmap_filter.png" style="width: 533.5px; height: 264.0px;" /></a>
-</div>
-<p>The first step is to select an rmap to edit by choosing filters of rmaps to list
-and then clicking on one of the links in the <em>name</em> column:</p>
-<div class="figure">
-<a class="reference internal image-reference" href="_images/web_edit_rmap_select.png"><img alt="edit rmap selection" src="_images/web_edit_rmap_select.png" style="width: 551.5px; height: 356.0px;" /></a>
-</div>
-<p>The second step is to add or replace file lines in an rmap by clicking on a
-useafter-date/filename line:</p>
-<div class="figure">
-<a class="reference internal image-reference" href="_images/web_edit_rmap_click.png"><img alt="edit rmap editing" src="_images/web_edit_rmap_click.png" style="width: 442.0px; height: 53.0px;" /></a>
-</div>
-<p>Clicking on a line exposes two buttons adjacent to it:  <em>+</em> and <em>replace</em>.</p>
-<div class="figure">
-<a class="reference internal image-reference" href="_images/web_edit_rmap_edit.png"><img alt="edit rmap editing" src="_images/web_edit_rmap_edit.png" style="width: 537.0px; height: 355.5px;" /></a>
-</div>
-<p>New lines are added by clicking on the <em>+</em>.   This will open a line with a text
-entry box below the clicked line for entering a USEAFTER date and a file input
-as well as some additional parameters.   A newly submitted reference file can
-be entered into the file input box and will be uploaded and submitted to CRDS
-when the page is submitted.</p>
-<p>Clicking <em>replace</em> strikes out the clicked line and adds inputs below it at the
-same USEAFTER time.</p>
-<p>Additional lines can be added by clicking the <em>+</em> adjacent to an added line.  An
-added line can be removed by clicking the <em>delete</em> button adjacent to it.   A
-replaced line can be restored by clicking on <em>unreplace</em>.</p>
-<p>When the edited rmap is submitted,  the supplied reference files are uploaded
-and certified.</p>
 </div>
 <div class="section" id="certify-file">
 <h3>Certify File<a class="headerlink" href="#certify-file" title="Permalink to this headline">¶</a></h3>

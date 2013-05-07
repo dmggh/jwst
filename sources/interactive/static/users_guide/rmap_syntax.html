@@ -289,7 +289,7 @@ strings,  which is a simplified syntax for a 1-tuple:</p>
 <h4>Single Parameter Values<a class="headerlink" href="#single-parameter-values" title="Permalink to this headline">¶</a></h4>
 <p>Each value within the match tuples of a Match operator can be an expression in
 its own right.   There are a number of special values associated with each
-match expression:  Ors <a href="#id1"><span class="problematic" id="id2">|</span></a>, Wildcards <a href="#id3"><span class="problematic" id="id4">*</span></a>,  Regular Expressions (), Literals {},
+match expression:  Ors |, Wildcards *,  Regular Expressions (), Literals {},
 Relationals, between, N/A, and Substitutions.</p>
 </div>
 <div class="section" id="or">
@@ -411,7 +411,7 @@ of match rules.</p>
 winnowing match algorithm which works on a parameter-by-parameter basis by
 discarding match tuples which cannot possibly match. After examining all
 parameters,   CRDS is left with a list of candidate matches.</p>
-<p>For each literal, <a href="#id5"><span class="problematic" id="id6">*</span></a>, or regular expression parameter that matched,  CRDS
+<p>For each literal, *, or regular expression parameter that matched,  CRDS
 increases its sense of the goodness of the match by 1.   For each N/A that was
 ignored, CRDS doesn&#8217;t change the weight of the match.   The highest ranked match
 is the one CRDS chooses as best.   When more than one match tuple has the same
