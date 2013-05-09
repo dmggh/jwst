@@ -64,6 +64,11 @@ urlpatterns = patterns('',
 
   url(r'^display_result/(?P<results_id>\d+)$', 
       'crds.server.interactive.views.display_result'),
+                       
+  url(r'^jpoll/open_channel/$', 'crds.server.jpoll.views.open_channel'),
+  url(r'^jpoll/pull_messages/$', 'crds.server.jpoll.views.pull_messages'),
+  url(r'^jpoll/test_page/$', 'crds.server.jpoll.views.test_page'),
+  url(r'^jpoll/test_worker/$', 'crds.server.jpoll.views.test_worker'),
 
 #        (r'site_media/(?P<path>.*)$', 'django.views.static.serve',
 #         {'document_root': settings.MEDIA_ROOT }),

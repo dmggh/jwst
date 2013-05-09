@@ -125,6 +125,7 @@ TEMPLATE_DIRS = (
     crds_server_dir + "/interactive/templates",
     crds_server_dir + "/fileupload/templates",
     crds_server_dir + "/jsonapi/templates",
+    crds_server_dir + "/jpoll/templates",
 )
 
 INSTALLED_APPS = (
@@ -137,6 +138,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     
     "crds.server.interactive",
+    "crds.server.jpoll",
     "crds.server.jsonapi",
     "crds.server.stats",
     

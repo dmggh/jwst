@@ -13,6 +13,8 @@ setup(name="crds.server",
         'crds.server.interactive.templatetags',
         'crds.server.jsonapi',
         'crds.server.jsonapi.templatetags',
+        'crds.server.jpoll',
+        'crds.server.jpoll.templatetags',
         'crds.server.utils',
         'crds.server.stats',
         
@@ -31,6 +33,9 @@ setup(name="crds.server",
         'crds.server.jsonapi':'./jsonapi',
         'crds.server.jsonapi.templatetags':'./jsonapi/templatetags',
 
+        'crds.server.jpoll':'./jpoll',
+        # 'crds.server.jpoll.templatetags':'./jpoll/templatetags',        
+
         'crds.server.interactive':'./interactive',
         'crds.server.interactive.templatetags':'./interactive/templatetags',
         
@@ -44,6 +49,7 @@ setup(name="crds.server",
         'crds.server.locking.management' : './locking/management',
         'crds.server.locking.management.commands' : './locking/management/commands',
         'crds.server.locking.migrations' : './locking/migrations',
+
         },
 
       package_data = {
@@ -68,6 +74,9 @@ setup(name="crds.server",
               "interactive/static/jquery-ui/js/*.js",
               
               "jsonapi/templates/*.html",  
+
+              "jpoll/templates/*.html",  
+              "jpoll/static/*.js",  
 
               "fileupload/templates/*.html",  
               "fileupload/templates/fileupload/*.html",  

@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+       <title>Jpoll Test Page</title>
+
+      {% block head_additions %} 
+      {% endblock %}
+
+      <link type="text/css" rel="stylesheet" href="/static/style.css" />
+      <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+      <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+      <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/jquery-ui.min.js"></script>
+      <script src="/static/jpoll.js" type="text/javascript" language="javascript"></script> 
+      
+      {% block head_overrides %}
+      {% endblock %}     
+
+  </head>
+
+  <body>
+    <noscript>
+      <h2>This page requires JavaScript to be enabled.</h2>
+    </noscript>
+    
+    <div>
+        <div id="page_header">
+            <h1>Jpoll Test Page</h1>
+        </div>
+    
+    <div id="contents">
+    
+        {% block contents %} 
+        {% endblock %}
+        
+        <div id="jpoll_log" class="full_width">
+        </div>
+        
+        <br/>
+        <br/>
+ 
+    </div>
+    
+  </body>
+</html>
+
+<script>
+    jpoll.test_worker = function () {
+        $.getJSON("/jpoll/test_worker").done( function(response) {
+            jpoll.log("test_worker succeeded: " + response)
+            // This event should basically execute jpoll.XXX(YYY) where XXX is msg[0] and YYY is msg[1]
+            jpoll.stop();
+        }).fail(function(response) {
+            jpoll.log("test_worker failed: " + response)
+        });
+    };
+    
+    $(function () {
+        jpoll.start();
+        jpoll.test_worker();
+    });
+</script>
+
