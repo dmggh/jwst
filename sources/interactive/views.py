@@ -234,6 +234,20 @@ def crds_render(request, template, dict_=None, requires_pmaps=False):
     """Render a template,  making same-named inputs from request available
     for echoing.
     """
+    rdict = get_rendering_dict(request, dict_=dict_, requires_pmaps=requires_pmaps)
+    # Generate a first pass of the response HTML.
+    loaded_template = loader.get_template(template)
+    context = RequestContext(request, rdict)
+    response = loaded_template.render(context)
+    # Remove file paths and fix temporary names with client side names
+    uploaded_pairs = rdict.get("uploaded_file_names", get_uploaded_filepaths(request))
+    response = scrub_file_paths(response, uploaded_pairs)
+    return HttpResponse(response)
+
+def get_rendering_dict(request, dict_=None, requires_pmaps=False):
+    """Render a template,  making same-named inputs from request available
+    for echoing.
+    """
     statuses = ["*"] + models.FILE_STATUS_MAP.keys()
     statuses.remove("uploaded")
     
@@ -307,18 +321,7 @@ def crds_render(request, template, dict_=None, requires_pmaps=False):
         else:
             rdict[var] = jsonrpc_vars[var]
             
-    # log.info("rendering:", srepr(template), log.PP(rdict))
-    
-    # Generate a first pass of the response HTML.
-    loaded_template = loader.get_template(template)
-    context = RequestContext(request, rdict)
-    response = loaded_template.render(context)
-    
-    # Remove file paths and fix temporary names with client side names
-    uploaded_pairs = rdict.get("uploaded_file_names", get_uploaded_filepaths(request))
-    response = scrub_file_paths(response, uploaded_pairs)
-    
-    return HttpResponse(response)
+    return rdict
             
 def scrub_file_paths(response, uploaded_pairs):
     """Fix filepath leakage here as a brevity and security issue.   Uploaded file

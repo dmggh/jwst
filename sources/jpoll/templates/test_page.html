@@ -5,18 +5,12 @@
   <head>
        <title>Jpoll Test Page</title>
 
-      {% block head_additions %} 
-      {% endblock %}
-
-      <link type="text/css" rel="stylesheet" href="/static/style.css" />
       <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
       <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
       <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/jquery-ui.min.js"></script>
-      <script src="/static/jpoll.js" type="text/javascript" language="javascript"></script> 
-      
-      {% block head_overrides %}
-      {% endblock %}     
 
+      {% include "jpoll/jpoll_head_additions.html" %}
+      
   </head>
 
   <body>
@@ -33,32 +27,38 @@
     
         {% block contents %} 
         {% endblock %}
+
+    <form id="test_form" method="post" 
+        action="/jpoll/test_worker/" 
+        enctype="multipart/form-data"
+        onsubmit="jpoll.log('validating.'); jpoll.start(); return true;"
+        class="jpoll_ajax_html_form"
+    >  {% csrf_token %}
+
+    <h3>Name:
+    <input type='text' name='name' id='creator' size="40" value="{{creator}}">
+    </h3>
+
+      <h3>Text: <textarea name="text" id="description" rows="4" cols="50"></textarea>   
+      </h3>
+
+      <h3>Checkbox:  <input type="checkbox" name="Checkbox" /></h3>
+
+      <br/>
+      <br/>
+      <input type="submit" value="Submit" >
+    </form>
         
-        <div id="jpoll_log" class="full_width">
-        </div>
-        
-        <br/>
-        <br/>
+    <br/>
+    <br/>
+
+    <div id="jpoll_log" class="full_width" style="overflow: auto; height: 6em; max-height: 6em; border: 1px solid;">
+    </div>
+    
+    <br/>
+    <br/>
  
     </div>
     
   </body>
 </html>
-
-<script>
-    jpoll.test_worker = function () {
-        $.getJSON("/jpoll/test_worker").done( function(response) {
-            jpoll.log("test_worker succeeded: " + response)
-            // This event should basically execute jpoll.XXX(YYY) where XXX is msg[0] and YYY is msg[1]
-            jpoll.stop();
-        }).fail(function(response) {
-            jpoll.log("test_worker failed: " + response)
-        });
-    };
-    
-    $(function () {
-        jpoll.start();
-        jpoll.test_worker();
-    });
-</script>
-

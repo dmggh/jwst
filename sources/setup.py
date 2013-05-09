@@ -76,6 +76,7 @@ setup(name="crds.server",
               "jsonapi/templates/*.html",  
 
               "jpoll/templates/*.html",  
+              "jpoll/templates/jpoll/*.html",  
               "jpoll/static/*.js",  
 
               "fileupload/templates/*.html",  

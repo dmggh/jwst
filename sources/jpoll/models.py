@@ -32,17 +32,12 @@ class ChannelModel(models.Model):
     @classmethod
     def open(cls, key):
         """Reopen an existing channel."""
-        try:
-            channels = ChannelModel.objects.filter(key=key)
-            if len(channels) > 1:
-                raise JpollError("Duplicate channel model for '{}'".format(key))
-            if len(channels) < 1:
-                raise JpollError("Channel key '{}' not found.".format(key))
-            return channels[0]
-        except:
-            for chan in ChannelModel.objects.filter(key=key):
-                chan.wipe()
-            return cls.new(key)
+        channels = ChannelModel.objects.filter(key=key)
+        if len(channels) > 1:
+            raise JpollError("Duplicate channel model for '{}'".format(key))
+        if len(channels) < 1:
+            raise JpollError("Channel key '{}' not found.".format(key))
+        return channels[0]
     
     def log(self, text):
         """Send a log message to the client."""

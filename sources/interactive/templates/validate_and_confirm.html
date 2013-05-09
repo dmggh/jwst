@@ -19,6 +19,14 @@ function validate_and_confirm(form) {
         text: "This may take several minutes depending on how many files you submitted and how.",
         css: {color: "darkblue"},
     });
+
+    jpoll.log_message = function(message) {
+        console.log("JPOLL: " + message);
+        $("#column2").append("<p>" + message + "</p>");
+    };
+    $("#column2").html("");                            
+    jpoll.start();                   
+
     return true;
 }
 </script>

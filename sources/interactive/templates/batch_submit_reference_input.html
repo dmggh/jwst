@@ -4,6 +4,10 @@
     {% include "fileupload/picture_form_head_additions.html" %}
 {% endblock %}
 
+{% block head_overrides %}
+    {% include "jpoll/jpoll_head_additions.html" %}
+{% endblock %}
+
 {% block contents_top %}
 {% endblock %}
 
@@ -12,6 +16,7 @@
     {% include "select_files.html" %}        
 
     <form method="post" action="/batch_submit_references/" enctype="multipart/form-data"
+          id="batch_submit_form" class="jpoll_ajax_html_form"
     	  onsubmit="return validate_and_confirm(this);">  {% csrf_token %}
 
       <h3>Derive From Context</h3>
