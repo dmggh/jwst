@@ -6,8 +6,8 @@ jpoll.log = function (text) {
 };
 
 // Function which handles a "log_message" message.
-jpoll.log_message = function(text) {
-    $("#jpoll_log").append("<p>" + text + "<p>");
+jpoll.log_message = function(time, text) {
+    $("#jpoll_log").append("<p>[" + time + "]  " + text + "<p>");
     $("#jpoll_log").scrollTop($("#jpoll_log")[0].scrollHeight);
     console.log("JPOLL (built-in): " + text);
 };
@@ -22,16 +22,22 @@ jpoll.open_channel = function() {
     });
 };
 
+jpoll.interval_msec = 2500;
+
 // Start the poller.
 jpoll.start = function (interval_msec) {
+    jpoll.log("starting.");
     if (interval_msec) {
         jpoll.interval_msec = interval_msec;
+    } else {
+        jpoll.interval_msec = 2500;
     };
     jpoll.poll_interval_id = setInterval(jpoll.pull_messages, jpoll.interval_msec);
 };
 
 // Stop the poller.
 jpoll.stop = function () {
+    jpoll.log("stopping.");
     if (jpoll.poll_interval_id) {
         clearInterval(jpoll.poll_interval_id);
         jpoll.poll_interval_id = null;
@@ -41,23 +47,23 @@ jpoll.stop = function () {
 
 // Poll for messages
 jpoll.pull_messages = function() {
-    return $.getJSON("/jpoll/pull_messages/").done(function(response) {
+    jpoll.log("pulling messages.")
+    return $.getJSON("/jpoll/pull_messages/", "pull", function (response) {
         jpoll.log("pull_messages succeeded: " + response);
         // This event should basically execute jpoll.XXX(YYY) where XXX is msg[0] and YYY is msg[1]
-        for (var msg in response) {
-            jpoll.log("processing " + response[msg]);
-            switch(response[msg][0]) {
+        for (var index in response) {
+            var msg = response[index];
+            jpoll.log("processing " + msg);
+            switch(msg.type) {
                 case "log_message" : 
-                    jpoll.log_message(response[msg][1]);
+                    jpoll.log_message(msg.time, msg.data);
                     break;
             };
         };
-    }).fail(function(response) {
+    }).error(function(response) {
         jpoll.log("pull_messages failed: " + response);
     });
 };
-
-jpoll.interval_msec = 2500;
 
 // Set up a form to submit an asynchronous request using AJAX
 jpoll.make_form_ajax = function(form_id, data_type) {

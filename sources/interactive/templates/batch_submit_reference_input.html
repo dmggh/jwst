@@ -53,15 +53,15 @@
 {% block help %}
 
 <p><b>Batch Submit References</b> supports uploading a list of reference
-files for a single instrument and reference type,  i.e. one rmap.  After checking and 
-storing the reference files,   new CRDS mapping files which refer to them
-are generated.  Each reference file must certify or the entire batch will be rejected.  
+files for one or more reference types of a single instrument.  After checking and 
+storing the reference files,   new CRDS rmap files which refer to them
+are generated.  Finally a new imap and pmap are generated to refer to the new rmaps.
+Each reference file must certify or the entire batch will be rejected.  
 
 {% include "select_files_help.html" %}
 
 <p><p><b>Derive From Context</b> The name of the pipeline context which 
-will be recursively updated to insert the new reference files and create a new
-context which includes them.
+will be recursively updated to insert the new reference files.
 
 <p><p><b>Change Level</b> The degree to which the new files are expected to 
 impact science results.

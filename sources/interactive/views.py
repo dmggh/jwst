@@ -575,7 +575,7 @@ user_logged_in.connect(lock_login_receiver, dispatch_uid="lock_login_receiver")
 
 def lock_logout_receiver(sender, **keys):
     """Signal handler to release a user's locks if they log out."""
-    with log.info_on_exception("releasing locks failed"):
+    with log.info_on_exception("logout releasing locks failed"):
         request = keys["request"]
         user = str(keys["user"])
         locks.release_locks(user=user)   
@@ -1084,6 +1084,9 @@ def submit_confirm(request):
         result = models.RepeatableResultBlob.get(int(results_id)).parameters
     except Exception, exc:
         raise CrdsError("Error fetching result: " + results_id + " : " + str(exc))
+    
+    if result.get("disposition", None):
+        raise CrdsError("This submission was already confirmed or cancelled.")
 
     assert locked_instrument == result.should_still_be_locked, \
         "CRSD locking failure.  Currently locked '%s' but submitted for '%s'." % \

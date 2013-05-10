@@ -7,11 +7,7 @@
 {% else %}
     <h2>Confirm or Cancel Submission</h2>
     <form method="post" action="/submit_confirm/" enctype="multipart/form-data"
-        onsubmit='crds.set_info_box({
-                        text: "This may take a minute or so to update the database.",
-                        css: {color: "green"},
-                        }); return True;'
-        >  {% csrf_token %}    
+        onsubmit='return crds.submit_confirm_or_cancel();' >  {% csrf_token %}    
         <input type='hidden' name='results_id' value="{{results_id}}" />
         <input type="submit" name="button" value="confirm" class="green">
         <input type="submit" name="button" value="cancel"  class="red">
@@ -19,8 +15,15 @@
 {% endif %}
  
 <script>
-crds.lock_timeout_action = function () {
-    console.log("lock timeout cancel action");
-    window.location = "/submit_confirm/?button=timeout&results_id={{results_id}}";
-}
+    crds.submit_confirm_or_cancel = function () {
+        crds.set_info_box({
+            text: "This may take a minute or so to update the database.",
+             css: {color: "green"},
+        });
+    };
+    
+    crds.lock_timeout_action = function () {
+        console.log("lock timeout cancel action");
+        window.location = "/submit_confirm/?button=timeout&results_id={{results_id}}";
+    }
 </script>

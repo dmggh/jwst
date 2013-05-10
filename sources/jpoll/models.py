@@ -20,6 +20,10 @@ class ChannelModel(models.Model):
     last_returned = models.DateTimeField(auto_now_add=True, help_text="Datetime channel opened.")
     key = models.CharField(max_length=128, default="", help_text="Identifying key for channel.")
 
+    def __unicode__(self):
+        return "{}(last_returned='{}',  key='{}'')".format(
+            self.__class__.__name__, self.last_returned, self.key)
+
     # user = models.CharField(max_length=32, default="", help_text="Name of user who opened this channel.")
     @classmethod
     def new(cls, key):
@@ -41,17 +45,18 @@ class ChannelModel(models.Model):
     
     def log(self, text):
         """Send a log message to the client."""
-        self.push(["log_message", text])
+        self.push("log_message", text)
         
 #     def eval_js(self, js):
 #         """Execute the specified javascript on the client."""
 #         self.push(["eval_js", js])
 
-    def push(self, message_obj):
+    def push(self, type, data):
         """Add a json encodable `message_obj` to this channel."""
         message = MessageModel()
         message.channel = self
-        message.json = json.dumps(message_obj)
+        message.type = type
+        message.json = json.dumps(data)
         message.save()
     
     def pull(self, since=None):
@@ -92,9 +97,14 @@ class MessageModel(models.Model):
 
     channel = models.ForeignKey(ChannelModel)
     timestamp = models.DateTimeField(auto_now_add=True)
+    type = models.CharField(max_length = 16, help_text = "type of message.", default="")
     json = models.TextField(help_text  = "JSON contents of message.", default="")
+    
+    def __unicode__(self):
+        return "{}(timestamp='{}', key='{}', type='{}'  json='{}')".format(
+            self.__class__.__name__, self.timestamp, self.channel.key, self.type, self.json)
     
     @property
     def message(self):
-        return json.loads(self.json)
+        return { "type":self.type, "time":str(self.timestamp), "data": json.loads(self.json) }
     

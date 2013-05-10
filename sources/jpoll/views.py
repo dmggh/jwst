@@ -10,9 +10,12 @@ import logging
 from django.shortcuts import render as django_render
 from django.http import HttpResponse, HttpResponseRedirect
 
-from crds.server.jpoll import models as jmodels
+from . import models as jmodels
 
 #---------------------------------------------------------------------------------------------
+
+def jdebug(*args):
+    """print(*args, file=sys.stderr)"""
 
 def new_key(request):
     return request.session.session_key
@@ -26,14 +29,14 @@ def get_channel(request):
 
 def open_channel(request):
     key = new_key(request)
-    print("open_channel:", key, file=sys.stderr)
+    jdebug("jpoll: open_channel:", key)
     jmodels.ChannelModel.wipe_key(key)
     jmodels.ChannelModel.new(key)
     return HttpResponse(json.dumps(key), mimetype='application/json')
 
 def close_channel(request):
     key = get_key(request)
-    print("close_channel:", key, file=sys.stderr)
+    jdebug("jpoll: close_channel:", key)
     channel = get_channel(request)
     channel.wipe()
     return HttpResponse(json.dumps(key), mimetype='application/json')
@@ -41,6 +44,7 @@ def close_channel(request):
 def pull_messages(request):
     channel = get_channel(request)
     messages = channel.pull()
+    jdebug("jpoll: pulling messages for", repr(channel.key),"=", messages)
     return HttpResponse(json.dumps(messages), mimetype='application/json')
 
 #---------------------------------------------------------------------------------------------
@@ -67,7 +71,7 @@ class JpollStream(object):
 
 def log_message(request, message):
     """Add `text` to the series of log messages."""
-    print("jpoll.log_message", message, file=sys.stderr)
+    jdebug("jpoll: log_message: ", message)
     channel = get_channel(request)
     channel.log(message)
 
