@@ -141,7 +141,7 @@ class CrdsLock(object):
         not already loaded.  Set this object's copy to None afterward.
         """
         try:
-            lock = self._get_existing(lock_name)
+            lock = self._get_existing(lock_name, return_expired=True)
         except BrokenLockError:
             if not silent:
                 raise
@@ -151,17 +151,18 @@ class CrdsLock(object):
             self._std_info("released", lock_name)
         return None
 
-    def _get_existing(self, lock_name):
+    def _get_existing(self, lock_name, return_expired=False):
         """Fetch the Lock object for `lock_name`,  raising an exception if it
         does not exist and silent is False.
         """
         try:
             lock = Lock.objects.get(locked_object=lock_name)
         except Exception, _exc:
-            # log.info("_get_existing: " + str(_exc))
+            log.info("_get_existing: " + str(_exc))
             lock = None
-        if lock is None or lock.is_expired:
-            raise BrokenLockError("User " + repr(self.user) + " no longer holds lock " + repr(lock_name))
+        broken = BrokenLockError("User " + repr(self.user) + " no longer holds lock " + repr(lock_name))
+        if lock is None or (not return_expired and lock.is_expired):
+            raise broken
         else:
             return lock
     
