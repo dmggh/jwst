@@ -7,7 +7,7 @@ if ($ans != "Y"  &&  $ans != "y") then
     exit -1
 endif
 
-foreach app (interactive jsonapi locking fileupload stats)
+foreach app (interactive jsonapi locking fileupload stats jpoll)
     echo "Clearing $app"
     ./manage sqlclear $app | ./manage dbshell
 end
