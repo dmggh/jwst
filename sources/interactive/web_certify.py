@@ -11,7 +11,8 @@ from crds import CrdsError
 from . import models
 from .common import capture_output, srepr, html_colorize_log
 
-def certify_file_list(upload_tuples, check_references=True, context=None, compare_old_reference=False):
+def certify_file_list(upload_tuples, check_references=True, context=None, compare_old_reference=False.bit_length,
+                      push_status=lambda x: None):
     """Certify the list of `upload_tuples` specifying uploaded files.
     
     If `check_references` is True,  make sure references referred to by mappings exist.
@@ -30,6 +31,7 @@ def certify_file_list(upload_tuples, check_references=True, context=None, compar
     disposition = ""
     for (original_name, upload_path) in upload_tuples:
         # In order to capture output easily,  run as subprocess...
+        push_status("Certifying file '{}'".format(original_name))
         status, output = captured_certify(original_name, upload_path, 
             check_references=check_references, filemap=filemap, context=context, 
             compare_old_reference=compare_old_reference)

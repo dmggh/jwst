@@ -134,7 +134,7 @@ class FileSubmission(object):
     
     def __init__(self, pmap_name, uploaded_files, description, user, creator="UNKNOWN",
                  change_level="SEVERE", auto_rename=True, compare_old_reference=False,
-                 locked_instrument=None):
+                 locked_instrument=None, status_channel=None):
         self.pmap = rmap.get_cached_mapping(pmap_name)
         self.observatory = self.pmap.observatory
         self.uploaded_files = uploaded_files
@@ -145,6 +145,7 @@ class FileSubmission(object):
         self.auto_rename = auto_rename
         self.compare_old_reference = compare_old_reference
         self.locked_instrument = locked_instrument
+        self.status_channel = status_channel
 
     def submit(self):
         """Validate the submitted files and add them to the database."""
@@ -158,6 +159,15 @@ class FileSubmission(object):
             assert uploaded_as.count(name) == 1, "File '%s' appears more than once." % name
         for path in paths:
             assert paths.count(path) == 1, "File path for '%s' appears more than once." %  pathmap[path]
+
+    def push_status(self, message):
+        """Push status messages to the user's client,  nominally a browser which
+        picks up the messages from Django via AJAX polling in the jpoll app.
+        """
+        if self.status_channel is not None:
+            log.info("push_status: " + repr(message))
+            self.status_channel.write(message)
+            self.status_channel.flush()
     
     def submit_file_list(self, creation_method):
         """Ingest a list of `uploaded_files` tuples into CRDS."""
@@ -168,6 +178,7 @@ class FileSubmission(object):
         """Do the core processing of a file submission,  including file certification 
         and blacklist checking, naming, upload, and record keeping.
         """
+        self.push_status("Processing '{}'".format(original_name))
         if rmap.is_mapping(original_name):
             try:
                 checksum.update_checksum(upload_location)
@@ -195,6 +206,9 @@ class FileSubmission(object):
         # Move or copy the temporary file to its permanent location.
         utils.ensure_dir_exists(permanent_location)
         os.link(upload_location, permanent_location)
+        
+#        data_file.setval("COMMENT", "Header parameters of this file only reflect the original CRDS assignment rules.")
+#        data_file.setval("COMMENT", "The CRDS rules,  which can change independently, define how this file is assigned now.")
     
         # Make a database record for this file.
         self.add_crds_file(original_name, permanent_location)
@@ -206,6 +220,7 @@ class FileSubmission(object):
         instead of the corresponding old rmaps.  Add the new contexts to the
         CRDS database and return a list of new context mapping names.
         """
+        self.push_status("Creating contexts '{}' for '{}'.".format(repr(updated_rmaps), str(self.user)))
         context_lock = locks.acquire(user=str(self.user), type="context", name="all")
         try:
             return self._do_create_context(updated_rmaps)
@@ -250,6 +265,29 @@ class FileSubmission(object):
         """Ensure that all the submitted files correspond to the locked instrument."""
         paths = dict(self.uploaded_files).values()
         locks.verify_instrument_locked_files(self.user, self.locked_instrument, paths, self.observatory)
+        
+    def get_collision_list(self, newfiles):
+        """Return the collision list associated with newfiles and push a status message."""
+        self.push_status("Checking for derivation collisions.")
+        return get_collision_list(newfiles)
+
+    def mass_differences(self, new_file_map):
+        """Compute differences html for `new_file_map` and push a status message."""
+        self.push_status("Computing file differences.")
+        return web_difference.mass_differences(sorted(new_file_map.items()))   
+
+
+def get_collision_list(newfiles):
+    """Given a list of `newfiles`,  newly created files, check the database for other children 
+    of the same parent.   Return a list of triplets:  [ (newfile, parent, other_children_of_parent), ... ]
+    """
+    collision_list = []
+    for newfile in newfiles:
+        blob = models.FileBlob.load(newfile)
+        collisions = blob.collisions  # collisions is a db property so cache
+        if collisions:
+            collision_list.append((newfile, blob.derived_from, collisions))
+    return collision_list
 
 # ------------------------------------------------------------------------------------------------
 
@@ -274,7 +312,7 @@ class BatchReferenceSubmission(FileSubmission):
         self.bsr_ensure_references()
         
         reference_disposition, reference_certs = web_certify.certify_file_list(self.uploaded_files.items(), 
-            context=comparison_context, compare_old_reference=self.compare_old_reference)
+            context=comparison_context, compare_old_reference=self.compare_old_reference, push_status=self.push_status)
     
         # Refactor with temporary rmap files and references to support detecting 
         # problems with refactoring prior to generating official names.
@@ -292,11 +330,10 @@ class BatchReferenceSubmission(FileSubmission):
 #        higher_level_mapping_map = self.do_create_contexts(new_mappings_map.values())
 #        
 #        new_mappings_map.update(higher_level_mapping_map)
-    
-        collision_list = get_collision_list(new_mappings_map.values())
+        collision_list = self.get_collision_list(new_mappings_map.values())
         
         # Just display the .pmap,  which recursively captures the others and sorts first.
-        diff_results = web_difference.mass_differences(sorted(new_mappings_map.items()))
+        diff_results = self.mass_differences(new_mappings_map)
         
         disposition = rmap_disposition or reference_disposition
         
@@ -371,7 +408,8 @@ class BatchReferenceSubmission(FileSubmission):
         """
         files = [(mapping, rmap.locate_mapping(mapping)) for mapping in rmap_replacement_map.values()]
         new_to_old = utils.invert_dict(rmap_replacement_map)
-        disposition, certify_results = web_certify.certify_file_list(files, context=context, check_references=False)
+        disposition, certify_results = web_certify.certify_file_list(files, context=context, check_references=False,
+                push_status=self.push_status)
         certify_results = { new_to_old[mapping]: results for (mapping, results) in certify_results }
         return disposition, sorted(certify_results.items())
 
@@ -398,6 +436,7 @@ class BatchReferenceSubmission(FileSubmission):
             rmap_replacement_map[old_rmap] = new_rmap
             new_rmap_path = rmap.locate_mapping(new_rmap)
             old_rmap_path = rmap.locate_mapping(old_rmap)
+            self.push_status("Generating new rmap '{}' from '{}' with added files.".format(new_rmap, old_rmap))
             # refactor inserting references.
             refactor.rmap_insert_references(old_rmap_path, new_rmap_path, these_ref_paths)
             # Submit the new rmap with added references
@@ -429,12 +468,13 @@ class SimpleFileSubmission(FileSubmission):
         
         # Verify that ALL files certify.
         disposition, certify_results = web_certify.certify_file_list(
-            self.uploaded_files.items(), context=self.pmap.name, compare_old_reference=self.compare_old_reference)
+            self.uploaded_files.items(), context=self.pmap.name, compare_old_reference=self.compare_old_reference,
+            push_status=self.push_status)
         
         # Add the files to the CRDS database as "uploaded",  pending confirmation.
         new_file_map = self.submit_file_list("submit_files")
         
-        collision_list = get_collision_list(new_file_map.values())
+        collision_list = self.get_collision_list(new_file_map.values())
         
         # Get rmaps  used as a basis for creating a new context.
         if generate_contexts:
@@ -516,19 +556,6 @@ def new_name(old_map):
 
 # ------------------------------------------------------------------------------------------------
         
-def get_collision_list(newfiles):
-    """Given a list of `newfiles`,  newly created files,
-    check the database for other children of the same parent.   Return a
-    list of triplets:  [ (newfile, parent, other_children_of_parent), ... ]
-    """
-    collision_list = []
-    for newfile in newfiles:
-        blob = models.FileBlob.load(newfile)
-        collisions = blob.collisions  # collisions is a db property so cache
-        if collisions:
-            collision_list.append((newfile, blob.derived_from, collisions))
-    return collision_list
-
 # ------------------------------------------------------------------------------------------------
         
 def submit_confirm_core(confirmed, submission_kind, description, new_files, context_rmaps, user, pmap_name, 

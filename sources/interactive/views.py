@@ -35,6 +35,7 @@ from . import (models, database, web_certify, web_difference, submit, versions, 
 from .models import FieldError, MissingInputError
 from .common import capture_output, srepr, profile
 
+from crds.server.jpoll import views as jpoll_views
 from crds.server.jsonapi import views as jsonapi_views
 from crds.server import settings
 from crds.server import config as sconfig
@@ -1026,10 +1027,12 @@ def batch_submit_references_post(request):
     remove_dir, uploaded_files = get_files(request)
     locked_instrument = get_locked_instrument(request)
     
+    jpoll_handler = jpoll_views.get_jpoll_log_handler(request)
+    
     bsr = submit.BatchReferenceSubmission(pmap_name, uploaded_files, description, 
         user=request.user, creator=creator, change_level=change_level, 
         auto_rename=auto_rename, compare_old_reference=compare_old_reference,
-        locked_instrument=locked_instrument)
+        locked_instrument=locked_instrument, status_channel = jpoll_handler)
     
     disposition, new_references_map, new_mappings_map, reference_certs, mapping_certs, \
         mapping_diffs, collision_list = bsr.submit()
@@ -1206,9 +1209,12 @@ def submit_files_post(request, crds_filetype):
     remove_dir, uploaded_files = get_files(request)
     locked_instrument = get_locked_instrument(request)
     
+    jpoll_handler = jpoll_views.get_jpoll_log_handler(request)
+    
     simple = submit.SimpleFileSubmission(pmap_name, uploaded_files, description, user=request.user,  
         creator=creator, change_level=change_level, auto_rename=auto_rename, 
-        compare_old_reference=compare_old_reference, locked_instrument=locked_instrument)
+        compare_old_reference=compare_old_reference, locked_instrument=locked_instrument,
+        status_channel=jpoll_handler)
     
     disposition, certify_results, new_file_map, collision_list, context_rmaps = simple.submit(crds_filetype, generate_contexts)    
 

@@ -9,7 +9,7 @@ jpoll.log = function (text) {
 jpoll.log_message = function(text) {
     $("#jpoll_log").append("<p>" + text + "<p>");
     $("#jpoll_log").scrollTop($("#jpoll_log")[0].scrollHeight);
-    console.log(text);
+    console.log("JPOLL (built-in): " + text);
 };
 
 // Establish the polling channel.

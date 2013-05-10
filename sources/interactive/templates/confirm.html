@@ -6,15 +6,17 @@
     {% endif %}
 {% else %}
     <h2>Confirm or Cancel Submission</h2>
-    <form method="post" action="/submit_confirm/" enctype="multipart/form-data">  {% csrf_token %}    
+    <form method="post" action="/submit_confirm/" enctype="multipart/form-data"
+        onsubmit='crds.set_info_box({
+                        text: "This may take a minute or so to update the database.",
+                        css: {color: "green"},
+                        }); return True;'
+        >  {% csrf_token %}    
         <input type='hidden' name='results_id' value="{{results_id}}" />
         <input type="submit" name="button" value="confirm" class="green">
         <input type="submit" name="button" value="cancel"  class="red">
     </form>
 {% endif %}
- 
- <br/>
- <br/>
  
 <script>
 crds.lock_timeout_action = function () {

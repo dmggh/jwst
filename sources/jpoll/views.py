@@ -51,10 +51,14 @@ def get_jpoll_log_handler(request):
 class JpollStream(object):
     """A stream handler for the Python logger which routes to the jpoll log_message stream."""
     def __init__(self,  key):
-        self.channel = jmodels.ChannelModel.open(key)
-        
+        try:
+            self.channel = jmodels.ChannelModel.open(key)
+        except:
+            self.channel = None
+
     def write(self, message):
-        self.channel.log(message)
+        if self.channel is not None:
+            self.channel.log(message)
         
     def flush(self):
         pass

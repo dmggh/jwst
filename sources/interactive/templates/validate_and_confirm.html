@@ -23,8 +23,10 @@ function validate_and_confirm(form) {
     jpoll.log_message = function(message) {
         console.log("JPOLL: " + message);
         $("#column2").append("<p>" + message + "</p>");
+        $("#column2").scrollTop($("#column2")[0].scrollHeight);
     };
-    $("#column2").html("");                            
+    $("#column2").text("").css({"overflow": "auto", "height": "40em", "max-height": "40em", "border": "2px solid", "border-color":"gray"});
+
     jpoll.start();                   
 
     return true;
