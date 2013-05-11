@@ -862,14 +862,13 @@ def get_recent_pmaps(last_n=10):
     pmaps (last 10). This defines what users will see for the context HTML 
     drop-down menu.
     """
-    files = models.FileBlob.objects.all()
+    files = models.FileBlob.objects.filter(name__endswith=".pmap")
     pmaps = []
     for f in files:
-        if f.name.endswith(".pmap"):
-            f.thaw()
-            if f.state == "uploaded":
-                continue
-            pmaps.append((f.name, pmap_label(f)))
+        f.thaw()
+        if f.state == "uploaded":
+            continue
+        pmaps.append((f.name, pmap_label(f)))
     return list(reversed(pmaps))[:last_n]
     
 def pmap_label(blob):
