@@ -166,11 +166,38 @@ def check_dataset_ids(datasets):
         raise InvalidDatasetIds("Expected list of dataset ids.")
     for dataset in datasets:
         if not isinstance(dataset, basestring):
-            raise InvalidDatasetIds("Expected datasets to be id strings.")
+            raise InvalidDatasetIds("Expected datasets to be official id strings.")
+
+def check_header_map(header_map):
+    if not isinstance(header_map, dict):
+        raise InvalidDatasetIds("Expected object mapping dataset ids to headers: { dataset_id : { header } }.")
+    for dataset, header in header_map.items():
+        if not isinstance(dataset, basestring):
+            raise InvalidDatasetIds("Bad dataset id: " + repr(dataset))
+        try:
+            check_header(header)
+        except Exception as exc:
+            raise InvalidHeaderError("Invalid header at dataset id '{}' : '{}'".format(dataset, str(exc)))
+
+def check_file_list(files):
+    if not isinstance(files, (list, tuple, type(None))):
+        raise InvalidFileList("Expected list of filenames or None.")
+    if files:
+        for name in files:
+            if not isinstance(name, basestring):
+                raise InvalidFileList("Expected list of filenames or None.")
+
+def check_string_list(strings):
+    if not isinstance(strings, (list, tuple, type(None))):
+        raise Invalid("Expected list of strings or None.")
+    if strings:
+        for name in strings:
+            if not isinstance(name, basestring):
+                raise InvalidFileList("Expected list of strings or None.")
 
 # ===========================================================================
 
-@jsonrpc_method('list_mappings(String, String)')
+@jsonrpc_method('list_mappings(observatory=String, glob_pattern=String)')
 def list_mappings(request, observatory, glob_pattern):
     if observatory is None:
         observatory = config.observatory
@@ -179,7 +206,7 @@ def list_mappings(request, observatory, glob_pattern):
         raise BadListGlobError("Illegal glob pattern, / not permitted '%s'" % glob_pattern)
     return rmap.list_mappings(glob_pattern, observatory)
 
-@jsonrpc_method('get_best_references(String, Object, Array)')
+@jsonrpc_method('get_best_references(context=String, header=Object, reftypes=Array)')
 def get_best_references(request, context, header, reftypes):
     check_context(context)
     check_header(header)
@@ -187,13 +214,43 @@ def get_best_references(request, context, header, reftypes):
     conditioned = utils.condition_header(header)
     return rmap.get_best_references(context, conditioned, include=reftypes)
 
-@jsonrpc_method('get_mapping_names(String)')
+'''
+@jsonrpc_method('get_best_references_by_ids(context=String, dataset_ids=Array, reftypes=Array)')
+def get_best_references_by_ids(request, context, dataset_ids, reftypes):
+    check_context(context)
+    check_dataset_ids(dataset_ids)
+    check_reftypes(reftypes)
+    pmap = rmap.get_cached_mapping(context)
+    headers = database.get_dataset_headers_by_id(dataset_ids=dataset_ids, observatory=pmap.observatory)
+    result = {}
+    for id, header in headers.items():
+        try:
+            result[id] = (True, rmap.get_best_references(context, header, include=reftypes, condition=True))
+        except Exception as exc:
+            result[id] = (False, "FAILED: " + str(exc))
+    return result
+
+@jsonrpc_method('get_best_references_by_header_map(context=String, headers=Object, reftypes=Array)')
+def get_best_references_by_header_map(request, context, headers, reftypes):
+    check_context(context)
+    check_header_map(headers)
+    check_reftypes(reftypes)
+    result = {}
+    for id, header in headers.items():
+        try:
+            result[id] = (True, rmap.get_best_references(context, header, include=reftypes, condition=True))
+        except Exception as exc:
+            result[id] = (False, "FAILED: " + str(exc))
+    return result
+'''
+
+@jsonrpc_method('get_mapping_names(context=String)')
 def get_mapping_names(request, context):
     check_context(context)
     ctx = rmap.get_cached_mapping(context)
     return ctx.mapping_names()
 
-@jsonrpc_method('get_reference_names(String)')
+@jsonrpc_method('get_reference_names(context=String)')
 def get_reference_names(request, context):
     check_context(context)
     ctx = rmap.get_cached_mapping(context)
@@ -201,7 +258,7 @@ def get_reference_names(request, context):
 
 CRDS_JSONRPC_CHUNK_SIZE = 2**23    # 8M
 
-@jsonrpc_method('get_file_chunk(String, String, Number)')
+@jsonrpc_method('get_file_chunk(context=String, filename=String, chunk=Number)')
 def get_file_chunk(request, context, filename, chunk):
     check_context(context)
     blob = check_known_file(filename)
@@ -216,34 +273,54 @@ def get_file_chunk(request, context, filename, chunk):
     edata = base64.b64encode(data)
     return [chunks, edata]
 
-@jsonrpc_method('get_url(String, String)')
+@jsonrpc_method('get_url(context=String, file=String)')
 def get_url(request, context, file):
     check_context(context)
     check_known_file(file)
     ctx = rmap.get_cached_mapping(context)
     return create_url(ctx.observatory, file)
 
-@jsonrpc_method('get_file_info(String, String)')
+@jsonrpc_method('get_file_info(context=String, file=String)')
 def get_file_info(request, context, file):
     check_context(context)
     blob = check_known_file(file)
     return blob.info
 
-@jsonrpc_method('get_dataset_headers_by_id(String, Array)')
+@jsonrpc_method('get_file_info_map(observatory=String, files=Array, fields=Array)')
+def get_file_info_map(request, observatory, files, fields):
+    check_observatory(observatory)
+    check_file_list(files)
+    check_string_list(fields)
+    filemap = imodels.get_fileblob_map(observatory=observatory)
+    if not files:
+        files = filemap.keys()
+    if fields is None:
+        fields = filemap.values()[0].info.keys()
+    result = {}
+    for name in files:
+        try:
+            blob = filemap[name]
+        except KeyError:
+            result[name] = "NOT FOUND"
+            continue
+        result[name] = { field:value for (field, value) in blob.info.items() if field in fields }
+    return result
+
+@jsonrpc_method('get_dataset_headers_by_id(context=String, dataset_ids=Array)')
 def get_dataset_headers_by_id(request, context, dataset_ids):
     check_context(context)
     check_dataset_ids(dataset_ids)
     pmap = rmap.get_cached_mapping(context)
     return database.get_dataset_headers_by_id(dataset_ids=dataset_ids, observatory=pmap.observatory)
 
-@jsonrpc_method('get_dataset_headers_by_instrument(String, Array)')
+@jsonrpc_method('get_dataset_headers_by_instrument(context=String, instrument=Array)')
 def get_dataset_headers_by_instrument(request, context, instrument):
     check_context(context)
     check_instrument(instrument)
     pmap = rmap.get_cached_mapping(context)
     return database.get_dataset_headers_by_instrument(instrument, observatory=pmap.observatory)
 
-@jsonrpc_method('get_dataset_ids(String, String)')
+@jsonrpc_method('get_dataset_ids(context=String, instrument=String)')
 def get_dataset_ids(request, context, instrument):
     check_context(context)
     check_instrument(instrument)
@@ -292,11 +369,11 @@ def get_reference_url(request, context, reference):
 
 # ===============================================================
 
-@jsonrpc_method('file_exists(String)')
+@jsonrpc_method('file_exists(filename=String)')
 def file_exists(request, filename):
     return bool(imodels.file_exists(filename))
 
-@jsonrpc_method('get_default_context(String)')
+@jsonrpc_method('get_default_context(observatory=String)')
 def get_default_context(request, observatory):
     if observatory is None:
         observatory = config.observatory
