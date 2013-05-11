@@ -26,10 +26,18 @@ function validate_and_confirm(form) {
         var combined_text = "[" +  seconds_only + "] " + message;
         console.log("JPOLL: " + combined_text);
         // var combined_html = $("<span class='darkgreen'>").html(seconds_only) + $("<span class='darkblue'>").html("  " + message)
-        $("#column2").append("<p style='font-size: 1.25em;'>" + combined_text + "</p>");
-        $("#column2").scrollTop($("#column2")[0].scrollHeight);
+        $("#jpoll_log").append("<p style='font-size: 1.25em;'>" + combined_text + "</p>");
+        $("#jpoll_log").scrollTop($("#column2")[0].scrollHeight);
     };
-    $("#column2").text("").css({
+    $("#column2").text("");
+    $("#column2").append(
+        "<br/><br/>"
+    ).append(
+        $("<h3>").html("Submission Status")
+    ).append(
+        $("<div>").attr({id:"jpoll_log"})
+    );
+    $("#jpoll_log").css({
             "overflow": "auto", 
             "height": "40em", 
             "max-height": "40em", 
@@ -38,7 +46,6 @@ function validate_and_confirm(form) {
             "border-radius" : "6px",
             "padding" : "3px",
     });
-
     jpoll.start();                   
 
     return true;
