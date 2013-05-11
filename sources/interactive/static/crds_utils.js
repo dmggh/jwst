@@ -37,3 +37,13 @@ crds.append_info_box = function(pars) {
 crds.clear_info_box = function () { 
     crds.set_info_box({text:""}); 
 };
+
+$(function() {
+    // tune jquery-ui accordions to be closed at start.
+    $( ".accordion" ).accordion({
+             autoHeight: false,
+             collapsible: true,
+             active:false,
+     });
+});
+

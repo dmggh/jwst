@@ -280,3 +280,8 @@ td {
     font-weight: bold;
     color: green;
 }
+
+.ui-accordion-content{ 
+    zoom: 1; 
+} 
+
