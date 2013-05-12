@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block head_overrides %}
-    {% include "jpoll/jpoll_head_additions.html" %}
+    {% include "jpoll/jpoll_head_overrides.html" %}
 {% endblock %}
 
 {% block contents_top %}
@@ -17,7 +17,7 @@
 
     <form method="post" action="/batch_submit_references/" enctype="multipart/form-data"
           id="batch_submit_form" class="jpoll_ajax_html_form"
-    	  onsubmit="return validate_and_confirm(this);">  {% csrf_token %}
+    	  onsubmit="return crds.validate_and_confirm(this);">  {% csrf_token %}
 
       <h3>Derive From Context</h3>
       {% include "select_pmap.html" %}

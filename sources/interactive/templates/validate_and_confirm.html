@@ -1,54 +1,56 @@
 <script type="text/javascript">
-function validate_and_confirm(form) {
-    console.log("Validating batch reference form submission.");
-    if (!crds.validate_select_pmap()) {
-        return false;
+$(function () {               
+    crds.validate_and_confirm = function(form) {
+        console.log("Validating batch reference form submission.");
+        if (!crds.validate_select_pmap()) {
+            return false;
+        };
+        console.log("Validating description.");
+        if (!$("#description").val()) {
+            alert("Did you add a Description?");
+            return false;
+        };
+        console.log("Validating creator.");
+        if (!$("#creator").val()) {
+            alert("Did you add a Creator?");
+            return false;
+        };
+        crds.set_info_box({text: "Processing references on the server now."});
+        crds.append_info_box({
+            text: "This may take several minutes depending on how many files you submitted and how.",
+            css: {color: "darkblue"},
+        });
+    
+        jpoll.log = function (text) { };  // Turn off jpoll console output.
+        jpoll.log_message = function(time, message) {
+            var seconds_only = time.split(".")[0];
+            var combined_text = "[" +  seconds_only + "] " + message;
+            console.log("JPOLL: " + combined_text);
+            // var combined_html = $("<span class='darkgreen'>").html(seconds_only) + $("<span class='darkblue'>").html("  " + message)
+            $("#jpoll_log").append("<p style='font-size: 1.25em;'>" + combined_text + "</p>");
+            $("#jpoll_log").scrollTop($("#column2")[0].scrollHeight);
+        };
+        $("#column2").text("");
+        $("#column2").append(
+            "<br/><br/>"
+        ).append(
+            $("<h3>").html("Submission Status")
+        ).append(
+            $("<div>").attr({id:"jpoll_log"})
+        );
+        $("#jpoll_log").css({
+                "overflow": "auto", 
+                "height": "40em", 
+                "max-height": "40em", 
+                "border": "2px solid", 
+                "border-color":"gray",
+                "border-radius" : "6px",
+                "padding" : "3px",
+        });
+        jpoll.start();                   
+    
+        return true;
     };
-    console.log("Validating description.");
-    if (!$("#description").val()) {
-        alert("Did you add a Description?");
-        return false;
-    };
-    console.log("Validating creator.");
-    if (!$("#creator").val()) {
-        alert("Did you add a Creator?");
-        return false;
-    };
-    crds.set_info_box({text: "Processing references on the server now."});
-    crds.append_info_box({
-        text: "This may take several minutes depending on how many files you submitted and how.",
-        css: {color: "darkblue"},
-    });
-
-    jpoll.log = function (text) { };  // Turn off jpoll console output.
-    jpoll.log_message = function(time, message) {
-        var seconds_only = time.split(".")[0];
-        var combined_text = "[" +  seconds_only + "] " + message;
-        console.log("JPOLL: " + combined_text);
-        // var combined_html = $("<span class='darkgreen'>").html(seconds_only) + $("<span class='darkblue'>").html("  " + message)
-        $("#jpoll_log").append("<p style='font-size: 1.25em;'>" + combined_text + "</p>");
-        $("#jpoll_log").scrollTop($("#column2")[0].scrollHeight);
-    };
-    $("#column2").text("");
-    $("#column2").append(
-        "<br/><br/>"
-    ).append(
-        $("<h3>").html("Submission Status")
-    ).append(
-        $("<div>").attr({id:"jpoll_log"})
-    );
-    $("#jpoll_log").css({
-            "overflow": "auto", 
-            "height": "40em", 
-            "max-height": "40em", 
-            "border": "2px solid", 
-            "border-color":"gray",
-            "border-radius" : "6px",
-            "padding" : "3px",
-    });
-    jpoll.start();                   
-
-    return true;
-}
+});
 </script>
 

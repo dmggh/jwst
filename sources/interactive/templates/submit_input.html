@@ -4,6 +4,10 @@
     {% include "fileupload/picture_form_head_additions.html" %}
 {% endblock %}
 
+{% block head_overrides %}
+    {% include "jpoll/jpoll_head_overrides.html" %}
+{% endblock %}
+
 {% block contents_top %}
 {% endblock %}
 
@@ -12,7 +16,8 @@
     {% include "select_files.html" %}        
 
     <form method="post" action="/submit/{{crds_filetype}}/" enctype="multipart/form-data"
-        onsubmit="return validate_and_confirm(this);" > {% csrf_token %}
+        id="batch_submit_form" class="jpoll_ajax_html_form"
+        onsubmit="return crds.validate_and_confirm(this);" > {% csrf_token %}
 
         <input type='hidden' name='observatory' value='{{observatory}}' />
         

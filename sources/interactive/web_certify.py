@@ -31,7 +31,7 @@ def certify_file_list(upload_tuples, check_references=True, context=None, compar
     disposition = ""
     for (original_name, upload_path) in upload_tuples:
         # In order to capture output easily,  run as subprocess...
-        push_status("Certifying file '{}'".format(original_name))
+        push_status("Certifying '{}'".format(original_name))
         status, output = captured_certify(original_name, upload_path, 
             check_references=check_references, filemap=filemap, context=context, 
             compare_old_reference=compare_old_reference)

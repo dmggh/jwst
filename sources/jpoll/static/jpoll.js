@@ -48,12 +48,12 @@ jpoll.stop = function () {
 // Poll for messages
 jpoll.pull_messages = function() {
     jpoll.log("pulling messages.")
-    return $.getJSON("/jpoll/pull_messages/", "pull", function (response) {
+    return $.getJSON("/jpoll/pull_messages/", function (response) {
         jpoll.log("pull_messages succeeded: " + response);
         // This event should basically execute jpoll.XXX(YYY) where XXX is msg[0] and YYY is msg[1]
         for (var index in response) {
             var msg = response[index];
-            jpoll.log("processing " + msg);
+            jpoll.log("processing " + msg.time + " " + msg.type);
             switch(msg.type) {
                 case "log_message" : 
                     jpoll.log_message(msg.time, msg.data);
@@ -66,21 +66,22 @@ jpoll.pull_messages = function() {
 };
 
 // Set up a form to submit an asynchronous request using AJAX
-jpoll.make_form_ajax = function(form_id, data_type) {
-    // prepare the form when the DOM is ready
-    if (!data_type) {
-        data_type = "html"
-    };
-    $("#" + form_id).ajaxForm({ 
+jpoll.make_form_ajax = function(junk, form) {
+    jpoll.log("Ajaxifying form=" + form);
+    $(form).ajaxForm({ 
         // dataType identifies the expected content type of the server response 
-        dataType:  data_type,
-        done: function (html) {
-            jpoll.log(form_id + " succeeded.");
+        dataType:  "html",
+        // context: document,
+        success: function (html) {
+            jpoll.log("AJAX submit " + form + " succeeded: " + html);
             jpoll.stop();
-            document.body.innerHtml = html;
+            document.open();
+            document.write(html);
+            document.close();
+            // document.body.innerHtml = html;
         },
-        fail: function(html) {
-            jpoll.log(form_id + " succeeded.");
+        error: function(html) {
+            jpoll.log("AJAX submit " + form + " failed: " + html);
             jpoll.stop();
         },
     });
@@ -90,5 +91,5 @@ jpoll.make_form_ajax = function(form_id, data_type) {
 // Automatically set up every form on the page with class='jpoll_ajax_html_form' as an ajax form returning html.
 // This is essentially a non-blocking submit,  which at first order,  "just works" thanks to jquery.forms.js
 $(function () {
-   $(".jpoll_ajax_html_form").each(jpoll.make_form_ajax);  
+   $.each($(".jpoll_ajax_html_form"), (jpoll.make_form_ajax));  
 });

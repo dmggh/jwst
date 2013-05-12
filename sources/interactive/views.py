@@ -463,7 +463,7 @@ def log_view(func):
     def dolog(request, *args, **keys):
         """trap() is bound to the func parameter of decorator()."""        
         log.info() # start with blank line to make concat logs readable
-        log.info("REQUEST:", request.path, request.method)
+        log.info("REQUEST:", request.path, request.method, "ajax="+str(request.is_ajax()))
 #        log.info("META:", repr(request.META), stdout=None)
         if request.GET:
             log.info("GET:",   repr(request.GET))
