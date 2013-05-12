@@ -118,6 +118,12 @@ label, .label, .label2 {
 .blue {
   color: blue;
 }
+.darkblue {
+  color: darkblue;
+}
+.darkgreen {
+  color: darkgreen;
+}
 .red {
   color: red;
 }

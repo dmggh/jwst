@@ -26,8 +26,14 @@ $(function () {
             var seconds_only = time.split(".")[0];
             var combined_text = "[" +  seconds_only + "] " + message;
             console.log("JPOLL: " + combined_text);
-            // var combined_html = $("<span class='darkgreen'>").html(seconds_only) + $("<span class='darkblue'>").html("  " + message)
-            $("#jpoll_log").append("<p style='font-size: 1.25em;'>" + combined_text + "</p>");
+            message = message.replace(/('[^']*')/g, "<span class='darkblue'>$1</span>")
+            $("#jpoll_log").append(
+                $("<p style='font-size: 1.25em;'>").append(
+                    $("<span class='darkgreen'>").html("[" + seconds_only + "]")                               
+                ).append(
+                    $("<span>").html("  " + message)
+                )
+            );
             $("#jpoll_log").scrollTop($("#column2")[0].scrollHeight);
         };
         $("#column2").text("");
