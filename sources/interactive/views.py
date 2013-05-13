@@ -74,20 +74,7 @@ def check_value(value, pattern, msg):
         raise FieldError(msg)
     return value
 
-def validate_post(request, variable, pattern):
-    """Check a POST `variable` from `request`,  ensuring that it meets the
-    check_value() conditions specified by `pattern`.
-    """
-    value = str(request.POST[variable]).strip()
-    return check_value(value, pattern, "Invalid value " + srepr(value) + 
-                                        " for " + srepr(variable))
-def validate_get(request, variable, pattern):
-    """Check a GET `variable` from `request`,  ensuring that it meets the
-    check_value() conditions specified by `pattern`.
-    """
-    value = str(request.GET[variable]).strip()
-    return check_value(value, pattern, "Invalid value " + srepr(value) + 
-                                        " for " + srepr(variable))
+
 def validate(request, variable, pattern):
     """Check a `variable` from `request`,  ensuring that it meets the
     check_value() conditions specified by `pattern`.  Use GET or POST
@@ -220,7 +207,7 @@ DESCRIPTION_RE = "[^<>]+"
 
 def get_observatory(request):
     """Validate and return the observatory parameter from request.POST"""
-    return validate_post(request, "observatory", models.OBSERVATORIES)
+    return validate(request, "observatory", models.OBSERVATORIES)
 
 def usernames():
     """Return a list of all the usernames defined in the database."""
@@ -363,7 +350,7 @@ def handle_known_or_uploaded_file(request, modevar, knownvar, uploadvar):
     """
     if request.POST[modevar] == knownvar:
         # certified_file is a basename,  but CRDS figures out where it is.
-        original_name = validate_post(request, knownvar, is_known_file)
+        original_name = validate(request, knownvar, is_known_file)
         filepath = get_known_filepath(original_name)
     else:
         ufile = get_uploaded_file(request, uploadvar)
@@ -421,14 +408,14 @@ def is_available_pmap(context):
 
 def get_recent_or_user_context(request):
     """Process standard request parameters for specifying context."""
-    pmap_mode = validate_post(
+    pmap_mode = validate(
             request, "pmap_mode", "pmap_menu|pmap_text|pmap_edit|pmap_operational")
     if pmap_mode == "pmap_edit":
         context = models.get_default_context()
     elif pmap_mode == "pmap_operational":
         context = models.get_default_context(state="operational")
     else:
-        context = validate_post(request, pmap_mode, is_pmap)
+        context = validate(request, pmap_mode, is_pmap)
     return str(context)
 
 # ===========================================================================
@@ -559,7 +546,7 @@ def lock_login_receiver(sender, **keys):
     del_locked_instrument(request)
 
     if "instrument" in request.POST:
-        instrument = validate_post(request, "instrument", models.INSTRUMENTS + ["none"])
+        instrument = validate(request, "instrument", models.INSTRUMENTS + ["none"])
         if instrument != "none":
             # log.info("Login receiver acquiring '%s' instrument lock for user '%s' session '%s'." % (instrument, user, request.session.session_key))
             try:
@@ -582,6 +569,15 @@ def lock_logout_receiver(sender, **keys):
     del_locked_instrument(request)
 
 user_logged_out.connect(lock_logout_receiver, dispatch_uid="lock_logout_receiver")
+
+@login_required
+def lock_status(request):
+    """AJAX view to return state of user lock."""
+    status = locks.get_lock_status(name=get_locked_instrument(request),
+                                   type="instrument",
+                                   user=str(request.user))
+    return HttpResponse(json.dumps(status), mimetype='application/json')
+        
 
 def instrument_lock_required(func):
     """Decorator to ensure a user still owns an un-expired lock defined by their session data."""
@@ -778,7 +774,7 @@ def bestrefs_post(request):
     """View to get best reference dataset parameters."""
     context = get_recent_or_user_context(request)
     pmap = rmap.get_cached_mapping(context)
-    dataset_mode = validate_post(
+    dataset_mode = validate(
         request, "dataset_mode", "dataset_archive|dataset_uploaded|dataset_local")
     if dataset_mode == "dataset_uploaded":
         uploaded_file = get_uploaded_file(request, "dataset_uploaded")
@@ -789,9 +785,9 @@ def bestrefs_post(request):
     elif dataset_mode == "dataset_local":
         header = header_string_to_header(request.POST["dataset_local"])
         header = pmap.minimize_header(header)
-        dataset_name = validate_post(request, "dataset_name", FILE_RE)
+        dataset_name = validate(request, "dataset_name", FILE_RE)
     elif dataset_mode == "dataset_archive":
-        dataset_name = validate_post(request, "dataset_archive", DATASET_ID_RE)
+        dataset_name = validate(request, "dataset_archive", DATASET_ID_RE)
         try:
             header = database.get_dataset_header(dataset_name, pmap.observatory)
         except Exception, exc:
@@ -887,7 +883,7 @@ def bestrefs_explore_post(request):
     """View to get best reference dataset parameters."""
     context = get_recent_or_user_context(request)
     pmap = rmap.get_cached_mapping(context)
-    instrument = validate_post(request, "instrument", models.INSTRUMENTS)
+    instrument = validate(request, "instrument", models.INSTRUMENTS)
     valid_values = dict(pmap.get_imap(instrument).get_parkey_map())
     for key, values in valid_values.items():
         if values == ["N/A"]:
@@ -913,17 +909,17 @@ def bestrefs_explore_compute(request):
     """Validate parameter inputs from the best refs explorer drop-down
     menus and render best reference recommendations.
     """
-    context = validate_post(request, "context", is_pmap)
-    instrument = validate_post(request, "instrument", models.INSTRUMENTS)
+    context = validate(request, "context", is_pmap)
+    instrument = validate(request, "instrument", models.INSTRUMENTS)
     pmap = rmap.get_cached_mapping(context)
     imap = pmap.get_imap(instrument)
     header = { pmap.instrument_key : instrument.upper() }
     pars = imap.get_parkey_map().keys()
     for par in pars:
         header[par] = utils.condition_value(
-            validate_post(request, par, r"[A-Za-z0-9\+\-.,*/;|{}\[\]:]*"))
-    header["DATE-OBS"] = validate_post(request, "DATE-OBS", DATE_RE_STR)
-    header["TIME-OBS"] = validate_post(request, "TIME-OBS", TIME_RE_STR)
+            validate(request, par, r"[A-Za-z0-9\+\-.,*/;|{}\[\]:]*"))
+    header["DATE-OBS"] = validate(request, "DATE-OBS", DATE_RE_STR)
+    header["TIME-OBS"] = validate(request, "TIME-OBS", TIME_RE_STR)
     return bestrefs_results(request, pmap, header, instrument)
 
 # ===========================================================================
@@ -943,10 +939,10 @@ def set_file_enable(request):
 def set_file_enable_post(request):
     """View fragment to process the blacklist POST."""
     observatory = get_observatory(request)
-    blacklist_root = validate_post(request, "file_known", is_known_file)
-    reject_type = validate_post(request, "reject_type", "reject|blacklist|both")
-    badflag = validate_post(request, "badflag", "bad|ok")
-    why = validate_post(request, "why", DESCRIPTION_RE)
+    blacklist_root = validate(request, "file_known", is_known_file)
+    reject_type = validate(request, "reject_type", "reject|blacklist|both")
+    badflag = validate(request, "badflag", "bad|ok")
+    why = validate(request, "why", DESCRIPTION_RE)
     
     if reject_type in ["blacklist","both"]:
         affected_files = models.transitive_blacklist(blacklist_root, badflag, observatory)
@@ -1018,9 +1014,9 @@ def batch_submit_references(request):
 def batch_submit_references_post(request):
     """View fragment to process file batch reference submnission POSTs."""
     pmap_name = get_recent_or_user_context(request)
-    description = validate_post(request, "description", DESCRIPTION_RE)
-    creator = validate_post(request, "creator", PERSON_RE)
-    change_level = validate_post(request, "change_level", models.CHANGE_LEVELS)
+    description = validate(request, "description", DESCRIPTION_RE)
+    creator = validate(request, "creator", PERSON_RE)
+    change_level = validate(request, "change_level", models.CHANGE_LEVELS)
     auto_rename = "auto_rename" in request.POST
     compare_old_reference = "compare_old_reference" in request.POST 
     remove_dir, uploaded_files = get_files(request)
@@ -1168,8 +1164,8 @@ def create_contexts(request):
 def create_contexts_post(request):
     """View fragment handling create_contexts POST case."""
     pmap_name = get_recent_or_user_context(request)
-    updated_rmaps = validate_post(request, "rmaps", is_list_of_rmaps)
-    description = validate_post(request, "description", DESCRIPTION_RE)
+    updated_rmaps = validate(request, "rmaps", is_list_of_rmaps)
+    description = validate(request, "description", DESCRIPTION_RE)
     return render_repeatable_result(request, "create_contexts_results.html", {
                 "pmap": pmap_name,
                 "new_file_map" : [],
@@ -1204,10 +1200,10 @@ def submit_files_post(request, crds_filetype):
     compare_old_reference = "compare_old_reference" in request.POST
     generate_contexts = "generate_contexts" in request.POST
     pmap_name = get_recent_or_user_context(request)
-    description = validate_post(request, "description", DESCRIPTION_RE)
-    creator = validate_post(request, "creator", PERSON_RE)
+    description = validate(request, "description", DESCRIPTION_RE)
+    creator = validate(request, "creator", PERSON_RE)
     auto_rename = "auto_rename" in request.POST    
-    change_level = validate_post(request, "change_level", models.CHANGE_LEVELS)            
+    change_level = validate(request, "change_level", models.CHANGE_LEVELS)            
     remove_dir, uploaded_files = get_files(request)
     locked_instrument = get_locked_instrument(request)
     
@@ -1263,8 +1259,8 @@ def difference_files(request):
         if file1 is None and file2 is None:
             return crds_render(request, "difference_input.html")
         else:
-            file1_orig = validate_get(request, "file1", is_known_file)
-            file2_orig = validate_get(request, "file2", is_known_file)
+            file1_orig = validate(request, "file1", is_known_file)
+            file2_orig = validate(request, "file2", is_known_file)
             file1_path = models.FileBlob.load(file1_orig).pathname
             file2_path = models.FileBlob.load(file2_orig).pathname
             uploaded1 = uploaded2 = None
@@ -1478,19 +1474,19 @@ def recent_activity(request):
 
 def recent_activity_post(request):
     """View fragment handling recent_activity POST case."""
-    action = validate_post(
+    action = validate(
         request, "action", models.AUDITED_ACTIONS+[r"\*"])
-    observatory = validate_post(
+    observatory = validate(
         request, "observatory", models.OBSERVATORIES+[r"\*"])
-    instrument = validate_post(
+    instrument = validate(
         request, "instrument", models.INSTRUMENTS+[r"\*"])
-    filekind = validate_post(
+    filekind = validate(
         request, "filekind", models.FILEKINDS+[r"\*"])
-    extension = validate_post(
+    extension = validate(
         request, "extension", models.EXTENSIONS+[r"\*"])
-    filename = validate_post(
+    filename = validate(
         request, "filename", r"[A-Za-z0-9_.\*]+")
-    deliverer_user = validate_post(
+    deliverer_user = validate(
         request, "deliverer_user", r"[A-Za-z0-9_.\*]+")
     filters = {}
     for var in ["action", "instrument", "filekind", "extension",
@@ -1519,19 +1515,19 @@ def browse_db(request):
 
 def browse_db_post(request):
     """View fragment handling browse_db POST case."""
-    observatory = validate_post(
+    observatory = validate(
         request, "observatory", models.OBSERVATORIES+[r"\*"])
-    instrument = validate_post(
+    instrument = validate(
         request, "instrument", models.INSTRUMENTS+[r"\*"])
-    filekind = validate_post(
+    filekind = validate(
         request, "filekind", models.FILEKINDS+[r"\*"])
-    extension = validate_post(
+    extension = validate(
         request, "extension", models.EXTENSIONS+[r"\*"])
-    filename = validate_post(
+    filename = validate(
         request, "filename", FILE_RE + r"|\*")
-    deliverer_user = validate_post(
+    deliverer_user = validate(
         request, "deliverer_user", [r"\*"] + usernames())
-    status = validate_post(
+    status = validate(
         request, "status",  r"[A-Za-z0-9_.\*]+")
     filters = {}
     for var in ["instrument", "filekind", "extension",
@@ -1663,7 +1659,7 @@ def create_archive(request, arch_extension):
         total_size = 0
         for var in request.GET:
             if var.startswith("file"):
-                blob = validate_get(request, var, is_available_file_blob)
+                blob = validate(request, var, is_available_file_blob)
                 total_size += blob.size
                 if total_size >= sconfig.MAX_ARCHIVE_SIZE:
                     raise CrdsError("Archive request is too large.   Request bundled mappings only.")
@@ -1685,7 +1681,7 @@ def cached_bundle_path(request, arch_extension):
     names = arch_extension # archive format is important,  download filename isn't
     for var in request.GET:
         if var.startswith("file"):
-            name = validate_get(request, var, FILE_RE)
+            name = validate(request, var, FILE_RE)
             names += name
     xsum = utils.str_checksum(names)
     path = sconfig.CRDS_ARCHIVE_CACHE_DIR + "/" + xsum + "."+ arch_extension
@@ -1734,8 +1730,8 @@ def set_default_context(request):
             }, requires_pmaps=True)
     else:
         new_default = get_recent_or_user_context(request)
-        context_type = validate_post(request, "context_type", models.CONTEXT_TYPES)
-        description = validate_post(request, "description", DESCRIPTION_RE)
+        context_type = validate(request, "context_type", models.CONTEXT_TYPES)
+        description = validate(request, "description", DESCRIPTION_RE)
         old_default = update_default_context(new_default, description, context_type, str(request.user))
         return crds_render(request, "set_default_context_results.html", {
                     "new_default" :  new_default,
