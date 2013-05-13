@@ -80,6 +80,11 @@ class CrdsLock(object):
         return self._resource_lock.created_on + datetime.timedelta(seconds=self._resource_lock.max_age)
     
     @property
+    def is_expired(self):
+        self._get_locks()
+        return self._resource_lock.is_expired
+    
+    @property
     def time_remaining(self):
         self._get_locks()
         return self.expires_on - datetime.datetime.now()
@@ -280,6 +285,30 @@ def owner_of(name, type=None):
     for lock in filter_locks(name=name, type=type):
         return lock.user
     return "unknown"
+
+def get_lock_status(user, name=None, type=None):
+    """Return a status dictionary about this lock."""
+    locks = filter_locks(user=user, type=type, name=name)
+    if locks:
+        try:
+            assert len(locks) == 1, "More than one lock owned by user."
+            lock = locks[0]
+            return { "name" : lock.name, "user": user, "type":type, "status" : "ok",
+                    "created_on" : str(lock.created_on).split(".")[0],
+                    "is_expired": lock.is_expired, 
+                    "time_remaining": str(lock.time_remaining).split(".")[0],                
+                    }
+        except Exception as exc:
+            try:
+                name = lock.name
+            except:
+                name = "unknown"
+            return { "name" : name, "user": user, "type":type, "status" : "error",
+                    "exception": str(exc)
+                    }
+    else:
+        return { "name": "", "user": user, "type": type, "status" : "error", 
+                "exception": "no lock found."}
 
 # -----------------------------------------------------------------------------
 

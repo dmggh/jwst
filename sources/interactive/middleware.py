@@ -10,9 +10,10 @@ class ResetLockExpirationMiddleware(object):
         """For every request,  if there is an authenticated user,  reset the expiration
         dates on all the locks they own.
         """
-        user = getattr(request, "user", None)
-        if user and user.is_authenticated():
-            instrument = views.get_locked_instrument(request)
-            if instrument and instrument != "none":
-                with log.info_on_exception("failed resetting lock expiration"):
-                    locks.reset_expiry(type="instrument", name=instrument, user=str(user))
+        if "lock_status" not in request.path and "jpoll" not in request.path:
+            user = getattr(request, "user", None)
+            if user and user.is_authenticated():
+                instrument = views.get_locked_instrument(request)
+                if instrument and instrument != "none":
+                    with log.info_on_exception("failed resetting lock expiration"):
+                        locks.reset_expiry(type="instrument", name=instrument, user=str(user))

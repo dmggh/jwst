@@ -38,6 +38,56 @@ crds.clear_info_box = function () {
     crds.set_info_box({text:""}); 
 };
 
+crds.log = function (args) {
+    var text = "";
+    for (var arg in arguments) {
+        text = text + " " + arg;
+    }
+    console.log(text);
+}
+
+crds.format_time = function(seconds) {
+    var days = Math.floor(seconds / 3600 / 24);
+    var seconds = seconds % (3600 * 24);
+    var hours = Math.floor(seconds / 3600);
+    seconds = seconds % 3600;
+    var minutes = Math.floor(seconds / 60);
+    seconds = seconds % 60;
+    return days + ":" + crds.f02d(hours) + ":" + crds.f02d(minutes) + ":" + crds.f02d(seconds);
+};
+
+crds.f02d = function(n) {
+    if (n > 9) {
+        return "" + n;
+    } else {
+        return "0" + n;
+    }
+};
+
+crds.poll_lock_status = function () {
+    $.getJSON("/lock_status/", function (json) {
+        console.log("lock status: " + json)
+        if (json.status == "ok" && !json.is_expired) {
+            $(".lock_timer").html(json.time_remaining);
+            $(".locked_instrument").html(json.name);
+        } else {
+            var fail_message;
+            if (json.status != "ok") {
+                fail_message = "LOCK FAILED: " + json.exception;
+            } else {
+                fail_message = "LOCK TIMEOUT: " + json.instrument;
+            };
+            $('#contents').html("<br/><br/><br/><h3 class='red' style='font-size: 1.5em;' align='center' >" + fail_message + "</h3>");
+            $('.locked_instrument').html("");
+            $('.lock_timer').html("");
+            clearInterval(crds.lock_timer_interval);
+            if (crds.lock_timeout_action) {
+                crds.lock_timeout_action();
+            };
+        };
+    });
+};
+
 $(function() {
     // tune jquery-ui accordions to be closed at start.
     $( ".accordion" ).accordion({

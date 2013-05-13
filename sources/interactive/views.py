@@ -10,6 +10,7 @@ import cStringIO
 import traceback
 import tarfile
 import glob
+import json
 
 # from django.http import HttpResponse
 from django.template import loader, RequestContext
@@ -265,7 +266,6 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
         "current_path" : request.get_full_path(),
         
         "locked_instrument" : locked,
-        "lock_timeout_seconds" : settings.CRDS_MAX_LOCK_AGE if locked else "",
 
         "auto_rename" : False,
     }
@@ -570,11 +570,9 @@ def lock_logout_receiver(sender, **keys):
 
 user_logged_out.connect(lock_logout_receiver, dispatch_uid="lock_logout_receiver")
 
-@login_required
 def lock_status(request):
     """AJAX view to return state of user lock."""
-    status = locks.get_lock_status(name=get_locked_instrument(request),
-                                   type="instrument",
+    status = locks.get_lock_status(type="instrument",
                                    user=str(request.user))
     return HttpResponse(json.dumps(status), mimetype='application/json')
         

@@ -14,7 +14,8 @@ urlpatterns = patterns('',
   url(r'^$', 'crds.server.interactive.views.index'),          
 
   url(r'^login/$', 'crds.server.interactive.views.login'),          
-  url(r'^logout/$', 'crds.server.interactive.views.logout'),          
+  url(r'^logout/$', 'crds.server.interactive.views.logout'),
+  url(r'^lock_status/$', 'crds.server.interactive.views.lock_status'),         
 
   url(r'^bestrefs/$', 'crds.server.interactive.views.bestrefs'),          
   url(r'^bestrefs_explore/$', 'crds.server.interactive.views.bestrefs_explore'),          

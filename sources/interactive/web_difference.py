@@ -7,7 +7,7 @@ from crds import rmap, pysh, CrdsError, log
 
 GEIS_HEADER_RE = r"\w+(\.r\dh)"
 
-def mass_differences(pair_or_quad_tuples, connector=" --> "):
+def mass_differences(pair_or_quad_tuples, connector=" --> ", push_status=lambda x: None):
     """Get the differences info for each tuple in `pair_or_quad_tuples`,  where
     a pair is a tuple of two known file basenames,  and a quad adds full paths
     corresponding to the basenames,  which are probably file temporaries not in
@@ -15,16 +15,18 @@ def mass_differences(pair_or_quad_tuples, connector=" --> "):
     """
     # key must be a string to json encode as a repeatable result.
     diffs = { tup[0] +  connector + "<span class='blue'>" + tup[1] + "</span>" : 
-                difference_core(*tup) for tup in pair_or_quad_tuples }
+                difference_core(*tup, push_status=push_status) for tup in pair_or_quad_tuples }
     return sorted(diffs.items())
 
-def difference_core(file1_orig, file2_orig, file1_path=None, file2_path=None):
+def difference_core(file1_orig, file2_orig, file1_path=None, file2_path=None, push_status=lambda x: None):
     """Compute the rendering dictionary for the differences include file."""
 
     if file1_path is None:
         file1_path = rmap.locate_mapping(file1_orig)
     if file2_path is None:
         file2_path = rmap.locate_mapping(file2_orig)
+
+    push_status("Differencing '{}' vs. '{}'".format(file1_orig, file2_orig))
     
     def extension(filename): 
         """Return the file extension of `filename`."""

@@ -274,7 +274,7 @@ class FileSubmission(object):
     def mass_differences(self, new_file_map):
         """Compute differences html for `new_file_map` and push a status message."""
         self.push_status("Computing file differences.")
-        return web_difference.mass_differences(sorted(new_file_map.items()))   
+        return web_difference.mass_differences(sorted(new_file_map.items()), push_status=self.push_status)   
 
 
 def get_collision_list(newfiles):
