@@ -539,15 +539,15 @@ def lock_login_receiver(sender, **keys):
     request = keys["request"]
     user = str(keys["user"])
     
-    # log.info("Login receiver releasing all instrument locks for user '%s' session '%s'." % (user, request.session.session_key))
-    with log.info_on_exception("login releasing locks failed"):
-        locks.release_locks(user=user)
-    
-    del_locked_instrument(request)
-
     if "instrument" in request.POST:
         instrument = validate(request, "instrument", models.INSTRUMENTS + ["none"])
         if instrument != "none":
+            # log.info("Login receiver releasing all instrument locks for user '%s' session '%s'." % (user, request.session.session_key))
+            with log.info_on_exception("login releasing locks failed"):
+                locks.release_locks(user=user)
+            
+            del_locked_instrument(request)
+
             # log.info("Login receiver acquiring '%s' instrument lock for user '%s' session '%s'." % (instrument, user, request.session.session_key))
             try:
                 locks.acquire(user=user, type="instrument", name=instrument, 

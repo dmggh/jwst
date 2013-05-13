@@ -5,7 +5,7 @@
 
 <h2>Login</h2>
 
-<form method="post" action="/login/"  onsubmit="crds.login_submit_action();" >
+<form method="post" action="/login/"  onsubmit="crds.validate_login();" >
 {% csrf_token %}
 <table>
 <tr>
@@ -13,7 +13,7 @@
     <td>{{ form.username }}</td>
 </tr>
 <tr>
-    <td class="label">Work on Instrument</td> 
+    <td class="label">Lock Instrument</td> 
     <td> {% include "select_instrument.html" %} </td>
 </tr>
 <tr>
@@ -23,12 +23,19 @@
 </table>
 
 <br/>
-<input type="submit" value="login" />
+<p>
+<span class='warning'>WARNING: </span> 
+<span class='gray'>Any pending submissions in other sessions will be automatically cancelled.</span>
+</p>
+<br/>
+
+<input type="submit" value="login" style='font-size: 1.1em; font-weight: bold;' />  
+
 <input type="hidden" name="next" value="{{ next }}" />
 </form>
 
-<script>
-    crds.login_submit_action = function () {
+<script type="application/javascript">
+    crds.validate_login = function () {
         crds.set_info_box({text: "Acquiring instrument lock.  This may take a few seconds...",  css: {color: "green"} });
         return true;
     }

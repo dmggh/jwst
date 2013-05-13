@@ -895,6 +895,8 @@ class RepeatableResultBlob(BlobModel):
     """
     class Meta:
         db_table = TABLE_PREFIX + "_results" # rename SQL table
+        
+    repr_list = unicode_list = ["id","page_template"]
 
     blob_fields = dict(
         # User supplied fields
