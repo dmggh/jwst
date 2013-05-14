@@ -76,13 +76,13 @@ class InteractiveBase(object):
         self.ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, str(self.user))
         models.set_default_context(self.pmap)
         models.set_default_context(self.pmap, state="operational")
-        utils.ensure_dir_exists(lconfig.get_crds_refpath())
-        utils.ensure_dir_exists(lconfig.get_crds_mappath())
+        utils.ensure_dir_exists(lconfig.locate_file("test.fits", self.observatory))
+        utils.ensure_dir_exists(lconfig.locate_file(self.pmap, self.observatory))
         self.ingested = False
         
     def tearDown(self):
         self.remove_files(self.delete_list)
-        pysh.sh("/bin/rm -rf " + lconfig.get_crds_refpath(), raise_on_error=True)  # , trace_commands=True)
+        pysh.sh("/bin/rm -rf " + lconfig.locate_file("test.fits", self.observatory), raise_on_error=True)  # , trace_commands=True)
         if self.ingested:
             pysh.sh("/bin/rm -rf " + self.ingest_path, raise_on_error=True) # , trace_commands=True)
         locks.release_all()

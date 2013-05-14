@@ -203,8 +203,6 @@ class ServiceApiBase(object):
     def getreferences_fallup(self, mode, ignore_cache=False):
         # First compute best refs normally, to ensure file caching
         log.set_verbose(True)
-        crds_mappath = crds.config.get_crds_mappath()
-        crds_refpath = crds.config.get_crds_refpath()
         try:
             oldver = crds.__version__
             crds.__version__ = "0.0"
