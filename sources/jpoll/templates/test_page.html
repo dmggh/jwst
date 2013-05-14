@@ -9,7 +9,7 @@
       <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
       <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/jquery-ui.min.js"></script>
 
-      {% include "jpoll/jpoll_head_additions.html" %}
+      {% include "jpoll/jpoll_head_overrides.html" %}
       
   </head>
 
@@ -59,6 +59,12 @@
     <br/>
  
     </div>
+    
+    <script type="application/javascript">
+        jpoll.response_success = function (form, result) {
+            jpoll.log("JPOLL RESPONSE (built-in): " + result);
+        };    
+    </script>
     
   </body>
 </html>

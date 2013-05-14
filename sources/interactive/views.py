@@ -1020,7 +1020,7 @@ def batch_submit_references_post(request):
     remove_dir, uploaded_files = get_files(request)
     locked_instrument = get_locked_instrument(request)
     
-    jpoll_handler = jpoll_views.get_jpoll_log_handler(request)
+    jpoll_handler = jpoll_views.get_jpoll_handler(request)
     
     bsr = submit.BatchReferenceSubmission(pmap_name, uploaded_files, description, 
         user=request.user, creator=creator, change_level=change_level, 
@@ -1205,7 +1205,7 @@ def submit_files_post(request, crds_filetype):
     remove_dir, uploaded_files = get_files(request)
     locked_instrument = get_locked_instrument(request)
     
-    jpoll_handler = jpoll_views.get_jpoll_log_handler(request)
+    jpoll_handler = jpoll_views.get_jpoll_handler(request)
     
     simple = submit.SimpleFileSubmission(pmap_name, uploaded_files, description, user=request.user,  
         creator=creator, change_level=change_level, auto_rename=auto_rename, 

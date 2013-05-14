@@ -47,6 +47,10 @@ class ChannelModel(models.Model):
         """Send a log message to the client."""
         self.push("log_message", text)
         
+    def done(self, status, result):
+        """Send a log message to the client."""
+        self.push("done", {"status":status, "result":result})
+        
 #     def eval_js(self, js):
 #         """Execute the specified javascript on the client."""
 #         self.push(["eval_js", js])
@@ -106,5 +110,6 @@ class MessageModel(models.Model):
     
     @property
     def message(self):
-        return { "type":self.type, "time":str(self.timestamp), "data": json.loads(self.json) }
+        return { "type":self.type, "time":str(self.timestamp), "data": json.loads(self.json), 
+                 "channel":self.channel.key }
     

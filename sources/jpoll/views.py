@@ -49,11 +49,18 @@ def pull_messages(request):
 
 #---------------------------------------------------------------------------------------------
 
-def get_jpoll_log_handler(request):
-    return JpollStream(get_key(request))
+def get_jpoll_handler(request):
+    """Return the jpoll handler associated with this request,  suitable as a Stream for logging
+    and supporting a done(status, result) method for reporting request results via jpoll.
+    """
+    return JpollHandler(get_key(request))
 
-class JpollStream(object):
-    """A stream handler for the Python logger which routes to the jpoll log_message stream."""
+class JpollHandler(object):
+    """A JpollHandler is a stream handler for the Python logger which routes to the jpoll log_message stream.
+
+    A JpollHandler also supports other messages of the jpoll protocol,  including done() for reporting
+    "asynchronous" results.
+    """
     def __init__(self,  key):
         try:
             self.channel = jmodels.ChannelModel.open(key)
@@ -67,6 +74,9 @@ class JpollStream(object):
     def flush(self):
         pass
     
+    def done(self, status, result):
+        self.channel.done(status, result)
+
 #---------------------------------------------------------------------------------------------
 
 def log_message(request, message):
@@ -79,8 +89,11 @@ def test_page(request):
     return django_render(request, "test_page.html")
 
 def test_worker(request):
-    for i in range(5):
-        log_message(request, "Doing #" + str(i))
-        time.sleep(2)
+    handler = get_jpoll_handler(request)
+    for i in range(60):
+        handler.write("Doing #" + str(i))
+        time.sleep(60)
+    handler.done(0, "yippee!  it worked!")
+    time.sleep(10);
     return HttpResponse("OK")   # json.dumps("OK"), mimetype='application/json')
 
