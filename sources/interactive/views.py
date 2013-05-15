@@ -626,12 +626,16 @@ def display_result(request, results_id):
     pars["results_id"] = results_id  # needed to implement "disposition", confirmed or cancelled.
     return crds_render(request, result.page_template, pars)
 
-def render_repeatable_result(request, template, rdict):
+def render_repeatable_result(request, template, rdict, jpoll_handler=None):
     """Create a repeatable results model instance and redirect to it."""
     rdict["user"] = str(request.user)
     rdict["uploaded_file_names"] = get_uploaded_filepaths(request)
-    result = models.RepeatableResultBlob.new(template, rdict)    
-    return HttpResponseRedirect("/display_result/" + str(result.id))
+    result = models.RepeatableResultBlob.new(template, rdict)
+    if jpoll_handler:
+        jpoll_handler.done(0, result.repeatable_url)
+        import time
+        time.sleep(600.0)
+    return HttpResponseRedirect(result.repeatable_url)
 
 # ===========================================================================
 from django.contrib.auth.views import login as django_login
@@ -1056,7 +1060,8 @@ def batch_submit_references_post(request):
                 "disposition": disposition,                
             }
     
-    return render_repeatable_result(request, "batch_submit_reference_results.html", bsr_results)
+    return render_repeatable_result(request, "batch_submit_reference_results.html", bsr_results,
+                                    jpoll_handler=jpoll_handler)
 
 # ============================================================================
 
@@ -1214,7 +1219,7 @@ def submit_files_post(request, crds_filetype):
     
     disposition, certify_results, new_file_map, collision_list, context_rmaps = simple.submit(crds_filetype, generate_contexts)    
 
-    return render_repeatable_result(request, 'submit_results.html', {
+    rdict = {
                 "crds_filetype": crds_filetype,
                 "collision_list" : collision_list,
 
@@ -1232,7 +1237,9 @@ def submit_files_post(request, crds_filetype):
                 "lock_datestr" : locks.get_lock_datestr(locked_instrument, type="instrument", user=str(request.user)),
                 
                 "disposition" : disposition,
-                })
+    }
+    
+    return render_repeatable_result(request, 'submit_results.html', rdict, jpoll_handler=jpoll_handler)
 
 # ===========================================================================
 

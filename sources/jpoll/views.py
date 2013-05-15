@@ -75,7 +75,8 @@ class JpollHandler(object):
         pass
     
     def done(self, status, result):
-        self.channel.done(status, result)
+        if self.channel is not None:
+            self.channel.done(status, result)
 
 #---------------------------------------------------------------------------------------------
 

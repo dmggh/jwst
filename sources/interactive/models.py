@@ -315,7 +315,7 @@ class BlobModel(CrdsModel):
             
     def _repr(self, displayed=None):
         self.thaw()
-        return super(BlobModel, self)._repr()
+        return super(BlobModel, self)._repr(displayed)
     
     @property
     def fields(self):
@@ -484,7 +484,7 @@ class FileBlob(BlobModel):
         ["state", "blacklisted", "rejected", "observatory", "instrument", "filekind", 
          "type", "derived_from", "sha1sum"]
         
-    unicode_list = ["id", "name", "type", "instrument", "filekind", "state", "blacklisted"]
+    repr_list = unicode_list = ["id", "name", "type", "instrument", "filekind", "state", "blacklisted"]
         
     exclude_from_info = BlobModel.exclude_from_info + \
         ["pathname","creator","deliverer", "deliverer_email","catalog_link"]
@@ -931,6 +931,11 @@ class RepeatableResultBlob(BlobModel):
         result.parameters[name] = value
         result.parameters_enc = json_ext.dumps(result.parameters)
         result.save()
+        
+    @property
+    def repeatable_url(self):
+        "Return the URL which can be used to display this persistent result."
+        return "/display_result/" + str(self.id)
 
 # =============================================================================
 

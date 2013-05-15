@@ -1,27 +1,30 @@
 <script type="text/javascript">
-$(function () {               
-    crds.validate_and_confirm = function(form) {
-        console.log("Validating batch reference form submission.");
-        if (!crds.validate_select_pmap()) {
-            return false;
-        };
-        console.log("Validating description.");
-        if (!$("#description").val()) {
-            alert("Did you add a Description?");
-            return false;
-        };
-        console.log("Validating creator.");
-        if (!$("#creator").val()) {
-            alert("Did you add a Creator?");
-            return false;
-        };
-        crds.set_info_box({text: "Processing references on the server now."});
-        crds.append_info_box({
-            text: "This may take several minutes depending on how many files you submitted and how.",
-            css: {color: "darkblue"},
-        });
-    
+    $(function () {
+                                  
         jpoll.log = function (text) { };  // Turn off jpoll console output.
+    
+        // Add a log panel for polled status in place of the window help.               
+        crds.setup_submission_status_display = function () {
+            $("#column2").text("");
+            $("#column2").append(
+                "<br/><br/>"
+            ).append(
+                $("<h3>").html("Submission Status")
+            ).append(
+                $("<div>").attr({id:"jpoll_log"})
+            );
+            $("#jpoll_log").css({
+                    "overflow": "auto", 
+                    "height": "40em", 
+                    "max-height": "40em", 
+                    "border": "2px solid", 
+                    "border-color":"gray",
+                    "border-radius" : "6px",
+                    "padding" : "3px",
+            });
+        };
+                                          
+        // handler for polled messages
         jpoll.log_message = function(time, message) {
             var seconds_only = time.split(".")[0];
             var combined_text = "[" +  seconds_only + "] " + message;
@@ -36,27 +39,43 @@ $(function () {
             );
             $("#jpoll_log").scrollTop($("#jpoll_log")[0].scrollHeight);
         };
-        $("#column2").text("");
-        $("#column2").append(
-            "<br/><br/>"
-        ).append(
-            $("<h3>").html("Submission Status")
-        ).append(
-            $("<div>").attr({id:"jpoll_log"})
-        );
-        $("#jpoll_log").css({
-                "overflow": "auto", 
-                "height": "40em", 
-                "max-height": "40em", 
-                "border": "2px solid", 
-                "border-color":"gray",
-                "border-radius" : "6px",
-                "padding" : "3px",
-        });
-        jpoll.start();                   
+                                          
+        // handler for polled "done" message,  async response independent of get response.
+        // this result is durable across protocol timeouts.
+        jpoll.done = function(time, result) {
+            jpoll.log("JPOLL DONE (crds): " + result);
+            jpoll.stop();
+            window.location = result.result;
+        };
+                           
+        crds.validate_and_confirm = function(form) {
+            crds.log("Validating batch reference form submission.");
+            if (!crds.validate_select_pmap()) {
+                return false;
+            };
+            crds.log("Validating creator.");
+            if (!$("#creator").val()) {
+                alert("Did you add a Creator?");
+                return false;
+            };
+            crds.log("Validating description.");
+            if (!$("#description").val()) {
+                alert("Did you add a Description?");
+                return false;
+            };
+            crds.set_info_box({text: "Processing references on the server now."});
+            crds.append_info_box({
+                text: "This may take several minutes depending on how many files you submitted and how.",
+                css: {color: "darkblue"},
+            });
+        
+            crds.setup_submission_status_display();
+            // Initiate status/done polling to update log.
+            jpoll.start();                   
+            
+            return true;
+        };
+    });
     
-        return true;
-    };
-});
 </script>
 

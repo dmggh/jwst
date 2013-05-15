@@ -39,12 +39,8 @@ crds.clear_info_box = function () {
 };
 
 crds.log = function (args) {
-    var text = "";
-    for (var arg in arguments) {
-        text = text + " " + arg;
-    }
-    console.log(text);
-}
+    console.log(args);
+};
 
 crds.format_time = function(seconds) {
     var days = Math.floor(seconds / 3600 / 24);
