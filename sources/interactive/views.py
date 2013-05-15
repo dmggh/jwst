@@ -11,6 +11,7 @@ import traceback
 import tarfile
 import glob
 import json
+import time
 
 # from django.http import HttpResponse
 from django.template import loader, RequestContext
@@ -633,8 +634,7 @@ def render_repeatable_result(request, template, rdict, jpoll_handler=None):
     result = models.RepeatableResultBlob.new(template, rdict)
     if jpoll_handler:
         jpoll_handler.done(0, result.repeatable_url)
-        import time
-        time.sleep(600.0)
+        time.sleep(10.0)  # wait 10 seconds to give jpoll done processing consistent behavior
     return HttpResponseRedirect(result.repeatable_url)
 
 # ===========================================================================
