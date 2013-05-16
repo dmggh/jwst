@@ -38,9 +38,7 @@ crds.clear_info_box = function () {
     crds.set_info_box({text:""}); 
 };
 
-crds.log = function (args) {
-    console.log(args);
-};
+crds.log = console.log;
 
 crds.format_time = function(seconds) {
     var days = Math.floor(seconds / 3600 / 24);
@@ -85,6 +83,53 @@ crds.poll_lock_status = function () {
         };
     });
 };
+
+// Tailor the CRDS base template to dynamically add a JPOLL log and
+// hide the original column1 and column2 contents.
+crds.setup_status_display = function (title) {
+    $("#contents").hide();
+    $("<div id='after-contents'>").insertAfter("#contents");
+    $("#after-contents").css({"margin":"4px"});
+    $("#after-contents").append(
+        "<br/><br/>"
+    ).append(
+        $("<h3>" + title + "</h3>").css({"text-align":"center"})
+    ).append(
+        $("<div id='jpoll_log'>")
+    );
+    
+    // Initiate status/done polling to update log.
+    jpoll.start();                   
+};
+
+crds.validate_and_confirm_file_submit = function(form) {
+    crds.log("Validating file submission.");
+    if (!crds.validate_select_pmap()) {
+        return false;
+    };
+    crds.log("Validating creator.");
+    if (!$("#creator").val()) {
+        alert("Did you add a Creator?");
+        return false;
+    };
+    crds.log("Validating description.");
+    if (!$("#description").val()) {
+        alert("Did you add a Description?");
+        return false;
+    };
+    crds.set_info_box({text: "Processing files on the server now."});
+    crds.append_info_box({
+        text: "This may take several minutes depending on how many files you submitted and how.",
+        css: {color: "darkblue"},
+    });
+    
+    $("input[type='submit']").hide();
+    
+    crds.setup_status_display("Submission Status");
+    
+    return true;
+};
+
 
 $(function() {
     // tune jquery-ui accordions to be closed at start.

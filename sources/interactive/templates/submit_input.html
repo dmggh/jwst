@@ -17,7 +17,7 @@
 
     <form method="post" action="/submit/{{crds_filetype}}/" enctype="multipart/form-data"
         id="batch_submit_form" class="jpoll_ajax_html_form"
-        onsubmit="return crds.validate_and_confirm(this);" > {% csrf_token %}
+        onsubmit="return crds.validate_and_confirm_file_submit(this);" > {% csrf_token %}
 
         <input type='hidden' name='observatory' value='{{observatory}}' />
         
@@ -81,8 +81,6 @@
       <p></p>
       <input type="submit" value="Submit Files">
     </form>
-    
-    {% include "validate_and_confirm.html" %}
     
 {% endblock column1 %}
 

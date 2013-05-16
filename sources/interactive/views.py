@@ -220,19 +220,24 @@ def usernames():
 
 # ===========================================================================
 
-def crds_render(request, template, dict_=None, requires_pmaps=False):
+def crds_render_html(request, template, dict_=None, requires_pmaps=False):
     """Render a template,  making same-named inputs from request available
-    for echoing.
+    for echoing,  scrubbing file paths.   Return HTML.
     """
     rdict = get_rendering_dict(request, dict_=dict_, requires_pmaps=requires_pmaps)
     # Generate a first pass of the response HTML.
     loaded_template = loader.get_template(template)
     context = RequestContext(request, rdict)
-    response = loaded_template.render(context)
+    html = loaded_template.render(context)
     # Remove file paths and fix temporary names with client side names
     uploaded_pairs = rdict.get("uploaded_file_names", get_uploaded_filepaths(request))
-    response = scrub_file_paths(response, uploaded_pairs)
-    return HttpResponse(response)
+    html = scrub_file_paths(html, uploaded_pairs)
+    return html
+
+def crds_render(request, template, dict_=None, requires_pmaps=False):
+    """Render and HttpReponse object.    Return HttpResponse."""
+    html = crds_render_html(request=request, template=template, dict_=dict_, requires_pmaps=False)
+    return HttpResponse(html)
 
 def get_rendering_dict(request, dict_=None, requires_pmaps=False):
     """Render a template,  making same-named inputs from request available
@@ -1078,6 +1083,8 @@ def submit_confirm(request):
     results_id = validate(request, "results_id", "\d+")
     locked_instrument = get_locked_instrument(request)
 
+    jpoll_handler = jpoll_views.get_jpoll_handler(request)
+    
     try:
         result = models.RepeatableResultBlob.get(int(results_id)).parameters
     except Exception, exc:
@@ -1148,7 +1155,7 @@ def submit_confirm(request):
     confirm_results["disposition"] = disposition
     confirm_results["confirmed"] = confirmed
 
-    return render_repeatable_result(request, "confirmed.html", confirm_results)
+    return render_repeatable_result(request, "confirmed.html", confirm_results, jpoll_handler=jpoll_handler)
     
 # ===========================================================================
 

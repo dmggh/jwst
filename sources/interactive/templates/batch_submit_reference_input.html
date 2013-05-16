@@ -17,7 +17,7 @@
 
     <form method="post" action="/batch_submit_references/" enctype="multipart/form-data"
           id="batch_submit_form" class="jpoll_ajax_html_form"
-    	  onsubmit="return crds.validate_and_confirm(this);">  {% csrf_token %}
+    	  onsubmit="return crds.validate_and_confirm_file_submit(this);">  {% csrf_token %}
 
       <h3>Derive From Context</h3>
       {% include "select_pmap.html" %}
@@ -45,8 +45,6 @@
       <br/>
       <input type="submit" value="Submit References" >
     </form>
-
-    {% include "validate_and_confirm.html" %}
 
 {% endblock column1 %}
 

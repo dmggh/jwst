@@ -91,10 +91,14 @@ def test_page(request):
 
 def test_worker(request):
     handler = get_jpoll_handler(request)
-    for i in range(60):
+    for i in range(5):
         handler.write("Doing #" + str(i))
-        time.sleep(60)
-    handler.done(0, "yippee!  it worked!")
+        time.sleep(5)
+    handler.done(0, "/jpoll/test_response/")
     time.sleep(10);
     return HttpResponse("OK")   # json.dumps("OK"), mimetype='application/json')
+
+def test_response(request):
+    return HttpResponse("yippee!  it worked!")
+
 
