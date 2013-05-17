@@ -38,8 +38,6 @@ crds.clear_info_box = function () {
     crds.set_info_box({text:""}); 
 };
 
-crds.log = console.log;
-
 crds.format_time = function(seconds) {
     var days = Math.floor(seconds / 3600 / 24);
     var seconds = seconds % (3600 * 24);
@@ -103,16 +101,16 @@ crds.setup_status_display = function (title) {
 };
 
 crds.validate_and_confirm_file_submit = function(form) {
-    crds.log("Validating file submission.");
+    console.log("Validating file submission.");
     if (!crds.validate_select_pmap()) {
         return false;
     };
-    crds.log("Validating creator.");
+    console.log("Validating creator.");
     if (!$("#creator").val()) {
         alert("Did you add a Creator?");
         return false;
     };
-    crds.log("Validating description.");
+    console.log("Validating description.");
     if (!$("#description").val()) {
         alert("Did you add a Description?");
         return false;
