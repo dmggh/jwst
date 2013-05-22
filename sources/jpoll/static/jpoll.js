@@ -18,7 +18,9 @@ jpoll.log_message = function(time, message) {
             $("<span>").html("  " + message)
         )
     );
-    $("#jpoll_log").scrollTop($("#jpoll_log")[0].scrollHeight);
+    if ($("#jpoll_log")) {
+        $("#jpoll_log").scrollTop($("#jpoll_log")[0].scrollHeight);
+    };
 };
 
 // Initialize the page for jpoll.                                  

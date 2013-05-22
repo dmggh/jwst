@@ -243,10 +243,9 @@ def set_default_context(context, observatory=OBSERVATORY, state="edit", descript
             files = get_fileblob_map()
             for fname, blob in files.items():
                 if fname in supported_files:
-                    blob.thaw()
-                    if blob.activation_date == "none":
+                    if not blob.activation_date:
                         log.verbose("Setting activation date of '{}' to '{}'".format(fname, datestr))
-                        blob.activation_date = datestr
+                        blob.activation_date = new_hist.start_date
                         blob.save()
 
 def get_default_context(observatory=OBSERVATORY, state="edit"):
@@ -482,9 +481,9 @@ class FileBlob(BlobModel):
     
     model_fields = BlobModel.model_fields + \
         ["state", "blacklisted", "rejected", "observatory", "instrument", "filekind", 
-         "type", "derived_from", "sha1sum"]
+         "type", "derived_from", "sha1sum", "delivery_date", "activation_date", "change_level",]
         
-    repr_list = unicode_list = ["id", "name", "type", "instrument", "filekind", "state", "blacklisted"]
+    repr_list = unicode_list = ["id", "name", "type", "instrument", "filekind", "state", "blacklisted", "change_level"]
         
     exclude_from_info = BlobModel.exclude_from_info + \
         ["pathname","creator","deliverer", "deliverer_email","catalog_link"]
@@ -517,6 +516,15 @@ class FileBlob(BlobModel):
 
     sha1sum = models.CharField(max_length=40,
         help_text = "hex sha1sum of file contents as delivered", default="none")
+    
+    delivery_date = models.DateTimeField(
+        auto_now_add=True, help_text="date file was received by CRDS.")
+
+    activation_date = models.DateTimeField(
+        auto_now_add=False, null=True, help_text="date file first listed in an operational context.")
+    
+    change_level = SimpleCharField(CHANGE_LEVELS,
+        "Do the changes to this file force recalibration of science data?", "SEVERE")
 
     # ===============================
     
@@ -529,14 +537,11 @@ class FileBlob(BlobModel):
         catalog_link = BlobField(FILEPATH_RE, 
             "Path to catalog file listing this file for delivery to OPUS. " \
             "File transitions from 'delivered' to 'operational' when deleted.", ""),
-        delivery_date = BlobField(str, "date file was delivered to CRDS", "none"),
-        activation_date = BlobField(str, "i.e. opus load date", "none"),
         # Automatically generated fields
         pathname = BlobField("^[A-Za-z0-9_./]+$", "path/filename to CRDS master copy of file", "none"),
         blacklisted_by = BlobField(list,"List of blacklisted files this file refers to directly or indirectly.", []),
         reject_by_file_name = BlobField(FILENAME_RE, "", ""),
         size = BlobField(long, "size of file in bytes.", -1),
-        change_level = BlobField(CHANGE_LEVELS, "Do the changes to this file force recalibration of science data?", ""), 
 
         pedigree = FitsBlobField("PEDIGREE", str, "source of reference file", "none"),
         reference_file_type = FitsBlobField("REFTYPE", str, "From the REFTYPE keyword", "none"),
@@ -564,18 +569,21 @@ class FileBlob(BlobModel):
                 except Exception:
                     name = self.uploaded_as or self.name
                     log.warning("required keyword '%s' is missing in '%s'" % (field.fitskey, name))
-    
+        try:
+            self.useafter_date = timestamp.reformat_date(self.useafter_date)
+        except Exception, exc:
+            log.warning("Badly formatted USEAFTER, keeping verbatim: ", str(exc))
     def add_slow_fields(self):
         self.thaw()
         log.info("Adding slow fields for", repr(self.name))
         if self.type == "reference":
             self.init_FITS_fields()
-        self.sha1sum = self.compute_checksum()
+        # self.sha1sum = self.compute_checksum()
         self.save()
             
     def check_unique_sha1sum(self):
-        sum = self.compute_checksum()
-        matches = self.__class__.filter(sha1sum=sum)
+        self.sha1sum = self.compute_checksum()
+        matches = self.__class__.filter(sha1sum=self.sha1sum)
         if len(matches) >= 1:
             others = ", ".join([repr(str(x.name)) for x in matches if str(x.name) != str(self.name)])
             raise CrdsError("Submitted file '%s' is identical to existing files: %s" % (self.uploaded_as, others))
@@ -611,7 +619,7 @@ class FileBlob(BlobModel):
         blob.deliverer_user = deliverer_user
         blob.deliverer_email = deliverer_email
         blob.description = description
-        blob.delivery_date = timestamp.now()
+        # blob.delivery_date = timestamp.now()
         try:
             instrument, filekind = utils.get_file_properties(observatory, permanent_location)
             blob.instrument = instrument

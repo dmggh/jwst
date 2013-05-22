@@ -6,6 +6,7 @@ import sys
 import time
 import json
 import logging
+import datetime
 
 from django.shortcuts import render as django_render
 from django.http import HttpResponse, HttpResponseRedirect
@@ -15,13 +16,15 @@ from . import models as jmodels
 #---------------------------------------------------------------------------------------------
 
 def jdebug(*args):
-    """print(*args, file=sys.stderr)"""
+    print(*args, file=sys.stderr)
 
 def new_key(request):
-    return request.session.session_key
+    key = "JPOLL-KEY-" + str(datetime.datetime.now()).replace(" ","-")
+    request.session["jpoll_key"] = key
+    return key
 
 def get_key(request):
-     return request.session.session_key
+     return request.session["jpoll_key"]
      
 def get_channel(request):
     key = get_key(request)
