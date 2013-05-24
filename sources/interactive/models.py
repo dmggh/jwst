@@ -481,7 +481,8 @@ class FileBlob(BlobModel):
     
     model_fields = BlobModel.model_fields + \
         ["state", "blacklisted", "rejected", "observatory", "instrument", "filekind", 
-         "type", "derived_from", "sha1sum", "delivery_date", "activation_date", "change_level",]
+         "type", "derived_from", "sha1sum", "delivery_date", "activation_date", "useafter_date",
+         "change_level", "pedigree", "reference_file_type", "size"]
         
     repr_list = unicode_list = ["id", "name", "type", "instrument", "filekind", "state", "blacklisted", "change_level"]
         
@@ -515,16 +516,27 @@ class FileBlob(BlobModel):
         help_text = "Previous version of this file this one was based on.")
 
     sha1sum = models.CharField(max_length=40,
-        help_text = "hex sha1sum of file contents as delivered", default="none")
+        help_text = "Hex sha1sum of file contents as delivered", default="none")
     
     delivery_date = models.DateTimeField(
-        auto_now_add=True, help_text="date file was received by CRDS.")
-
-    activation_date = models.DateTimeField(
-        auto_now_add=False, null=True, help_text="date file first listed in an operational context.")
+        auto_now_add=True, help_text="Date file was received by CRDS.")
     
-    change_level = SimpleCharField(CHANGE_LEVELS,
-        "Do the changes to this file force recalibration of science data?", "SEVERE")
+    activation_date = models.DateTimeField(
+        auto_now_add=False, null=True, help_text="Date file first listed in an operational context.")
+    
+    useafter_date = models.DateTimeField(
+        auto_now_add=True, help_text="Dataset date after which this file is a valid reference.")
+
+    change_level = SimpleCharField(
+        CHANGE_LEVELS,  "Affect of changes in this file relative to preceding version on science results", "SEVERE")
+    
+    pedigree = models.CharField(
+        max_length=80, blank=True, default="", help_text="From PEDIGREE, reference characterization, e.g. GROUND 16/07/2008 16/07/2010")
+    
+    reference_file_type = models.CharField(
+        max_length=80, blank=True, default="", help_text="From REFTYPE,  description of file type.")
+    
+    size = models.BigIntegerField(default=-1, help_text="size of file in bytes.")
 
     # ===============================
     
@@ -537,17 +549,13 @@ class FileBlob(BlobModel):
         catalog_link = BlobField(FILEPATH_RE, 
             "Path to catalog file listing this file for delivery to OPUS. " \
             "File transitions from 'delivered' to 'operational' when deleted.", ""),
+
         # Automatically generated fields
         pathname = BlobField("^[A-Za-z0-9_./]+$", "path/filename to CRDS master copy of file", "none"),
         blacklisted_by = BlobField(list,"List of blacklisted files this file refers to directly or indirectly.", []),
         reject_by_file_name = BlobField(FILENAME_RE, "", ""),
-        size = BlobField(long, "size of file in bytes.", -1),
-
-        pedigree = FitsBlobField("PEDIGREE", str, "source of reference file", "none"),
-        reference_file_type = FitsBlobField("REFTYPE", str, "From the REFTYPE keyword", "none"),
-        useafter_date = FitsBlobField("USEAFTER", str, "date after which file should be used", "none"),
-        comment = FitsBlobField("DESCRIP", str, "from DESCRIP keyword of reference file.", "none"),
-)
+        comment = BlobField(str, "from DESCRIP keyword of reference file.", "none"),
+        )
 
     @property
     def is_bad_file(self):
@@ -561,18 +569,22 @@ class FileBlob(BlobModel):
         return self.state in config.CRDS_DISTRIBUTION_STATES and not self.is_bad_file
     
     def init_FITS_fields(self):
-        for name, field in self.blob_fields.items():
-            if isinstance(field, FitsBlobField):
-                try:
-                    value = data_file.getval(self.pathname, field.fitskey)
-                    setattr(self, name, value)
-                except Exception:
-                    name = self.uploaded_as or self.name
-                    log.warning("required keyword '%s' is missing in '%s'" % (field.fitskey, name))
+        self.set_fits_field("pedigree", "PEDIGREE")
+        self.set_fits_field("reference_file_type", "REFTYPE")
+        self.set_fits_field("useafter_date", "USEAFTER", timestamp.parse_date)
+        self.set_fits_field("comment", "COMMENT")
+ 
+    def set_fits_field(self, model_field, fitskey, sanitizer=lambda x: x):
+        filename = self.uploaded_as or self.name
         try:
-            self.useafter_date = timestamp.reformat_date(self.useafter_date)
-        except Exception, exc:
-            log.warning("Badly formatted USEAFTER, keeping verbatim: ", str(exc))
+            value = data_file.getval(self.pathname, fitskey)
+        except Exception as exc:
+            log.error("Fetching keyword '%s' from '%s' failed: '%s'" % (fitskey, filename, exc))
+        try:
+            setattr(self, model_field, sanitizer(value))
+        except Exception as exc:
+            log.error("Setting field '%s' for '%s' failed: '%s'" % (model_field, filename, exc))
+
     def add_slow_fields(self):
         self.thaw()
         log.info("Adding slow fields for", repr(self.name))

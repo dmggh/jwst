@@ -97,6 +97,7 @@ class InteractiveBase(object):
                 "instrument" : instrument,
             })
         self.assertEqual(response.status_code, status)
+        repsponse = self.client.post("/jpoll/open_channel/")
         return response
         
     def logout(self):
