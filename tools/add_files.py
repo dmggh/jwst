@@ -58,6 +58,9 @@ Does not move, rename, or deliver files.
         self.add_argument('-E', '--deliverer-email', default="support@stsci.edu")
         self.add_argument('-R', '--deliver', action='store_true',
                           help="Generate file delivery lists and links for OPUS pickup of the added files.")
+        self.add_argument('-P', '--replace', action='store_true',
+                          help="Destroy and re-create existing FileBlobs for added files.")
+                          
 
     # ------------------------------------------------------------------------------------------
     
@@ -86,11 +89,16 @@ Does not move, rename, or deliver files.
             
             file = os.path.basename(path)
             if file in file_map:
-                if self.args.add_slow_fields:
-                    with log.error_on_exception("Failed adding slow fields for", repr(file)):
-                        file_map[file].add_slow_fields()
-                log.info("Skipping existing file", repr(file))
-                continue
+                if self.args.replace:
+                    log.info("Replacing", repr(file))
+                    file_map[file].delete()
+                    del file_map[file]
+                else:
+                    log.info("Skipping existing file", repr(file))
+                    if self.args.add_slow_fields:
+                        with log.error_on_exception("Failed adding slow fields for", repr(file)):
+                            file_map[file].add_slow_fields()
+                    continue
     
             log.info("Adding", repr(file), "from", repr(path))
             try:
@@ -106,12 +114,15 @@ Does not move, rename, or deliver files.
                 models.mirror_filename_counters(self.observatory, path)
                 details = ""
                 added.append(path)
+                file_map[file] = blob
             except Exception, exc:
                 log.error("Add FAILED for", repr(path), ":", str(exc))
                 traceback.print_exc()
                 details = "add_files FAILED for %s: " %  path + repr(str(exc))
+                continue
             models.AuditBlob.new(user=self.args.deliverer, action="mass import", affected_file=file, why=self.args.description, 
                 details=details, observatory=self.observatory, instrument=blob.instrument, filekind=blob.filekind)
+
         return added
 
     def deliver_files(self, paths):
