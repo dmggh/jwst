@@ -1607,6 +1607,7 @@ def get_file_data(request, filename):
         
     response = HttpResponse( stream_response_generator(blob.pathname), content_type=content_type)
     response["Content-Disposition"] = 'attachment; filename=%s' % filename
+
     return response
 
 def stream_response_generator(filename):
@@ -1630,6 +1631,7 @@ def stream_response_generator(filename):
             chunk += 1
             total += len(data)
             yield data
+
     log.info("Finished", srepr(filename), "total bytes", repr(total))
 
 # @profile("get_archive.stats")
@@ -1649,7 +1651,7 @@ def get_archive(request, filename):
         
     bundle_path = create_archive(request, arch_extension)
 
-    response = HttpResponse(mimetype="application/octet-stream")
+    response = HttpResponse(content_type="application/octet-stream")
     response.write(open(bundle_path).read())
     
     return response
@@ -1678,12 +1680,10 @@ def create_archive(request, arch_extension):
                 files[blob.name] = blob.pathname
         with log.error_on_exception("failed creating bundle", repr(bundle_path)):
             utils.ensure_dir_exists(bundle_path)    
-            cache_file = open(bundle_path, "wb")
-            tar = tarfile.open(mode=ARCH_MODES[arch_extension], fileobj=cache_file, dereference=True)
+            tar = tarfile.open(bundle_path, mode=ARCH_MODES[arch_extension], dereference=True)
             for filename, path in files.items():
                 tar.add(path, arcname=filename)
             tar.close()
-            cache_file.close()
     return bundle_path
     
 def cached_bundle_path(request, arch_extension):

@@ -280,7 +280,7 @@ if server_config.observatory == "hst":
              'CCDTAB': 'IREF$T291659MI_CCD.FITS',
              'CRREJTAB': 'IREF$N9I1435LI_CRR.FITS',
              'DARKFILE': 'IREF$T3420177I_DRK.FITS',
-             'IDCTAB': 'IREF$w2r1956ri_idc.fits',
+             'IDCTAB': 'IREF$x5h1320ei_idc.fits',
              'MDRIZTAB': 'IREF$UBI1853QI_MDZ.FITS',
              'OSCNTAB': 'IREF$Q911321OI_OSC.FITS',
              'PFLTFILE': 'IREF$v8816168i_pfl.fits',

@@ -632,6 +632,7 @@ class FileBlob(BlobModel):
         blob.deliverer_email = deliverer_email
         blob.description = description
         # blob.delivery_date = timestamp.now()
+        blob.activation_date = datetime.datetime(2050, 1, 1, 0, 0)
         try:
             instrument, filekind = utils.get_file_properties(observatory, permanent_location)
             blob.instrument = instrument
@@ -727,13 +728,6 @@ def add_crds_file(observatory, upload_name, permanent_location,
         creator_name, deliverer, deliverer_email, description,
         change_level=change_level, state=state, derived_from="none")
 
-    try:
-        if add_slow_fields:
-            blob.check_unique_sha1sum()
-    except CrdsError:
-        blob.destroy()
-        raise
-    
     if rmap.is_mapping(upload_name):
         if update_derivation:
             derived_from = refactor.update_derivation(permanent_location)
@@ -745,11 +739,17 @@ def add_crds_file(observatory, upload_name, permanent_location,
     # note that modifying derivation fields changes the sha1sum of mappings.
     if add_slow_fields:
         blob.add_slow_fields()
+        try:
+            blob.check_unique_sha1sum()
+        except CrdsError:
+            blob.destroy()
+            raise
 
     # Set file permissions to read only.
-    with log.error_on_exception("failed chmod'ing ", repr(permanent_location), "to 0444"):
+    try:
         os.chmod(permanent_location, 0444)
-
+    except:
+        pass
     return blob
 
 def file_exists(filename, observatory=OBSERVATORY):
