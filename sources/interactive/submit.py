@@ -43,6 +43,7 @@ of errors and/or warnings.
 import os
 import tempfile
 import getpass
+import shutil
 
 from crds import cmdline, log, rmap, utils, refactor, newcontext, checksum, CrdsError
 
@@ -203,9 +204,14 @@ class FileSubmission(object):
         if blacklisted_by:
             raise CrdsError("File " + srepr(original_name) + " is blacklisted by " + srepr(blacklisted_by))
         
-        # Move or copy the temporary file to its permanent location.
         utils.ensure_dir_exists(permanent_location)
-        os.link(upload_location, permanent_location)
+        # Move or copy the temporary file to its permanent location,  assert ownership of CRDS copy now
+        owner = os.stat(upload_location).st_uid
+        if owner == os.getuid():
+            os.link(upload_location, permanent_location)
+        else:
+            self.push_status("Copying non-CRDS-owned file '{}'".format(original_name))
+            shutil.copyfile(upload_location, permanent_location)
         
 #        data_file.setval("COMMENT", "Header parameters of this file only reflect the original CRDS assignment rules.")
 #        data_file.setval("COMMENT", "The CRDS rules,  which can change independently, define how this file is assigned now.")
