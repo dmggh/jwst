@@ -1,18 +1,16 @@
-import os
+debug = DEBUG = True
+DEBUG_EXTRAS = True
 
-DEBUG=True
-DEBUG_EXTRAS=False
-
+HOST = "tlhstcrdsv1"
 observatory = 'hst'
-install_root='/Users/jmiller/work/workspace_crds/CRDS_server/' + observatory 
-port = 8000
-CRDS_URL = "http://localhost:" + str(port) + "/"
+install_root = '/crds/data1/' + HOST
+port = 8001
+CRDS_URL = "http://" + HOST + ".stsci.edu:" + str(port) + "/"
+CRDS_SERVER_IP = "130.167.252.67"
 
 servertype = 'mod_wsgi'
 apachemod = install_root + "/webserver/lib"
-
-debug = True
-dbtype='sqlite'
+dbtype = 'mysql'
 
 PYSYN_CDBS = ""
 
@@ -21,10 +19,10 @@ CRDS_REFERENCE_URL = CRDS_URL + "get/"
 CRDS_MAPPING_URL   = CRDS_URL + "get/"
 
 # These may get redirected to the archive or a static file server
-CRDS_UNCHECKED_REFERENCE_URL = CRDS_URL + "unchecked_get/"
-CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/"
+CRDS_UNCHECKED_REFERENCE_URL = CRDS_URL + "unchecked_get"
+CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get"
 
 # These are the file states which are available for download or rpc.
 # XXX TODO restrict to archived or operational
-CRDS_DISTRIBUTION_STATES = ["delivered","archived","operational"]
+CRDS_DISTRIBUTION_STATES = ["delivered", "archived", "operational"]
 
