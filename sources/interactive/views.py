@@ -613,6 +613,7 @@ def del_locked_instrument(request):
 
 # ===========================================================================
 
+# @profile("index.stats")
 def index(request):
     """Return the top level page for all of interactive CRDS."""
     return crds_render(request, "index.html")
@@ -645,6 +646,7 @@ def render_repeatable_result(request, template, rdict, jpoll_handler=None):
 # ===========================================================================
 from django.contrib.auth.views import login as django_login
 
+# @profile("login.stats")
 @error_trap("base.html")
 def login(request):
     if request.method == 'POST':

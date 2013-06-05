@@ -4,8 +4,10 @@ import sys
 import cStringIO
 import cProfile
 import re
+import os.path
 
 from crds import log
+from crds.server.config import crds_server_log_dir
 
 # ===================================================================
 
@@ -36,6 +38,8 @@ def capture_output(func):
 def profile(filename=None):
     """Decorate a view with @profile to run cProfile when the function is called.
     """
+    if not os.path.dirname(filename):
+        filename = os.path.join(crds_server_log_dir, filename)
     def decomaker(func):
         """Decorator function maker
         """
