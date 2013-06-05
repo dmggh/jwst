@@ -758,6 +758,8 @@ def _upload_delete(request, filename):
         ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir)
         ingest_filepath = os.path.join(ingest_path, filename)
         log.info("upload_delete", srepr(ingest_filepath))
+        with log.error_on_exception("Can't chmod 0777", repr(ingest_filepath)):
+            os.chmod(ingest_filepath, 0777)  # note octal mode=0777
         os.remove(ingest_filepath)
     except Exception, exc:
         log.error("upload_delete failed:", str(exc))
