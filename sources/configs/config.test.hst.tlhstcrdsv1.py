@@ -1,5 +1,5 @@
 debug = DEBUG = True
-DEBUG_EXTRAS = True
+DEBUG_EXTRAS = False
 
 HOST = "tlhstcrdsv1"
 observatory = 'hst'
