@@ -1,6 +1,6 @@
 # Django settings for crds project.
 
-from crds.server.config import install_dir, DEBUG, DEBUG_EXTRAS, FILE_UPLOAD_TEMP_DIR, crds_server_dir, CRDS_SERVER_IP
+from crds.server.config import install_dir, DEBUG, DEBUG_EXTRAS, FILE_UPLOAD_TEMP_DIR, crds_server_dir
 from crds.server.crds_database import DATABASES
 
 TEMPLATE_DEBUG = DEBUG
@@ -158,6 +158,8 @@ if DEBUG_EXTRAS:
         "debug_toolbar",   # requires django-debug-toolbar
     )
 
+    # XXX Deferred import
+    from crds.server.config import CRDS_SERVER_IP
     INTERNAL_IPS = (CRDS_SERVER_IP,)  # for django-debug-toolbar
     
     DEBUG_TOOLBAR_PANELS = (
