@@ -36,6 +36,7 @@ table_prefix = 'crds_' + observatory
 #
 data_dir = install_dir+"/data"
 
+crds_server_log_dir = install_dir + "/server/logs"
 crds_server_dir = install_dir + "/python/lib/python/crds/server"
 
 # Max size in bytes of interactive tar-balls,  intended for mapping bundles.
