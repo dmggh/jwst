@@ -52,11 +52,17 @@ def pull_messages(request):
 
 #---------------------------------------------------------------------------------------------
 
+def get_jpoll_handler_from_key(key):
+    """Return the jpoll handler associated with this key,  suitable as a Stream for logging
+    and supporting a done(status, result) method for reporting request results via jpoll.
+    """
+    return JpollHandler(key)
+
 def get_jpoll_handler(request):
     """Return the jpoll handler associated with this request,  suitable as a Stream for logging
     and supporting a done(status, result) method for reporting request results via jpoll.
     """
-    return JpollHandler(get_key(request))
+    return get_jpoll_handler_from_key(get_key(request))
 
 class JpollHandler(object):
     """A JpollHandler is a stream handler for the Python logger which routes to the jpoll log_message stream.
