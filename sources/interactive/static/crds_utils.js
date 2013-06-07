@@ -85,16 +85,17 @@ crds.poll_lock_status = function () {
 // Tailor the CRDS base template to dynamically add a JPOLL log and
 // hide the original column1 and column2 contents.
 crds.setup_status_display = function (title) {
-    $("#contents").hide();
-    $("<div id='after-contents'>").insertAfter("#contents");
-    $("#after-contents").css({"margin":"4px"});
-    $("#after-contents").append(
+    $("#column1").hide();
+    $("<div id='after-column1' class='column1'>").insertAfter("#column1");
+    $("#after-column1").css({"margin":"4px"});
+    $("#after-column1").append(
         "<br/><br/>"
     ).append(
         $("<h3>" + title + "</h3>").css({"text-align":"center"})
     ).append(
         $("<div id='jpoll_log'>")
     );
+    $(".error").empty();
     
     // Initiate status/done polling to update log.
     jpoll.start();                   

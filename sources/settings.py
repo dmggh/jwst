@@ -105,7 +105,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     
-    'crds.server.stats.middleware.LogMiddleware',
+    # 'crds.server.stats.middleware.LogMiddleware',
     'crds.server.interactive.middleware.ResetLockExpirationMiddleware',
 )
 
@@ -140,7 +140,7 @@ INSTALLED_APPS = (
     "crds.server.interactive",
     "crds.server.jpoll",
     "crds.server.jsonapi",
-    "crds.server.stats",
+    # "crds.server.stats",    # CRDS Django request logging
     
     "crds.server.fileupload",
     "crds.server.locking",     # from git-hub django-locking

@@ -6,11 +6,17 @@
     {% include "fileupload/picture_form_head_additions.html" %}
 {% endblock %}
 
+{% block head_overrides %}
+    {% include "jpoll/jpoll_head_overrides.html" %}
+{% endblock %}
+
 {% block column1 %}
     <h2>Certify Files</h2>
     {% include "select_files.html" %}
 
-    <form method="post" action="/certify/" enctype="multipart/form-data"> 
+    <form method="post" action="/certify/" enctype="multipart/form-data"
+        id="certify_form" class="jpoll_ajax_html_form"
+        onsubmit="crds.setup_status_display('Certification Status'); return true;"> 
       {% csrf_token %}
 
       {% include "comparison_context.html" %}
