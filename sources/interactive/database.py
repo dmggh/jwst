@@ -20,7 +20,7 @@ log.set_verbose(False)
 
 HERE = os.path.dirname(__file__) or "."
 HEADER_TABLES = HERE + "/db_header_tables.dat"
-PASSWORD_FILE = HERE + "/db_password.dat"
+PASSWORD_FILE = "/crds/data1/database/crds.dat"  # HERE + "/db_password.dat"
 
 """  
 IPPPSSOOT   ---   dataset naming breakdown
@@ -117,19 +117,19 @@ class DB(object):
 
 def get_password():
     if not hasattr(get_password, "_password"):
-        try:
-            get_password._password = open(PASSWORD_FILE).read().strip()
+        try: # crazy scheme works with "password" or "blah password" in password file.
+            get_password._password = open(PASSWORD_FILE).read().split()[-1:][0]
         except:
             get_password._password = getpass.getpass("password: ")
     return get_password._password
 
-def get_dadsops(user="jmiller"):
+def get_dadsops(user="crds"):
     """Cache and return a database connection to DADSOPS."""
     if not hasattr(get_dadsops, "_dadsops"):
         get_dadsops._dadsops = DB("HarpoDadsopsRepDsn", user, get_password())
     return get_dadsops._dadsops
 
-def get_reffile_ops(user="jmiller"):
+def get_reffile_ops(user="crds"):
     """Cache and return a database connection to REFFILE_OPS."""
     if not hasattr(get_reffile_ops, "_reffile_ops"):
         get_reffile_ops._reffile_ops = DB("HarpoReffileOpsRepDsn", user, get_password())

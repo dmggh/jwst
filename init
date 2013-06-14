@@ -30,11 +30,11 @@ echo "Adding test user"
 python adduser.py test jmiller@stsci.edu "$password"
 
 if ($observatory == "hst") then
-    echo -n "Database password for DADSOPS? "
-    set password=$<
-    set password_file=${CRDS_INSTALL_DIR}/python/lib/python/crds/server/interactive/db_password.dat
-    echo $password >$password_file
-    chmod 600 $password_file
+    #    echo -n "Database password for DADSOPS? "
+    #    set password=$<
+    #    set password_file=${CRDS_INSTALL_DIR}/python/lib/python/crds/server/interactive/db_password.dat
+    #    echo $password >$password_file
+    #    chmod 600 $password_file
     python make_cdbs_links.py
     python -m crds.list --hst --cached-mappings --full-path >hst_mappings
     python -m crds.list --hst --cached-references --full-path >hst_references
