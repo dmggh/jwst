@@ -388,10 +388,26 @@ def get_server_info(request):
         "operational_context" : imodels.get_default_context(
             config.observatory, state="operational"),
         "observatory" : config.observatory,
-        "crds_version" : versions.get_version("crds")
+        "crds_version" : versions.get_version("crds"),
+        "reference_url": {
+            "checked" : {
+                config.observatory : config.CRDS_REFERENCE_URL,
+                },
+            "unchecked" : {
+                config.observatory : config.CRDS_UNCHECKED_REFERENCE_URL,
+                },
+            },
+        "mapping_url": {
+            "checked" : {
+                config.observatory : config.CRDS_MAPPING_URL,
+                },
+            "unchecked" : {
+                config.observatory : config.CRDS_UNCHECKED_MAPPING_URL,
+                },
+            },
         }
     return info
-    
+
 #@jsonrpc_method('jsonapi.sayHello')
 #def whats_the_time(request, name='Lester'):
 #  return "Hello %s" % name
