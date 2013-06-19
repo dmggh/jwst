@@ -137,7 +137,8 @@ class InteractiveBase(object):
         for path in files:
             cached = rmap.locate_file(os.path.basename(path), observatory=self.observatory)
             pysh.sh("cp -f ${path} ${cached}", trace_commands=True)
-            pysh.sh("chmod +r -w -x ${cached}", trace_commands=True)
+            pysh.sh("chmod +r ${cached}", trace_commands=True)
+            pysh.sh("chmod -wx ${cached}", trace_commands=True)
 
     def assert_no_errors(self, response, msg=None, status=200):
         try:            

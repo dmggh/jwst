@@ -4,10 +4,13 @@
 
 <h3>Starting Context</h3>
 <p>{{pmap|browse}}</p>
-{% if pmap_mode == "pmap_edit" and pmap != old_pmap_edit %}
-<p class="warning">WARNING: predicted context changed from {{old_pmap_edit|gray}} to {{pmap|gray}}.</p>
-{% endif %}
-{% if pmap_mode == "pmap_operational" and pmap != old_pmap_operational %}
-<p class="warning">WARNING: predicted context changed from {{old_pmap_operational|gray}} to {{pmap|gray}}.</p>
+
+{% if pmap != original_pmap %}
+    <p class="warning">WARNING: predicted starting context changed from {{original_pmap|gray}} to {{pmap|gray}}.</p>
+    <p> <a id="diff_link" href="/difference/?file1={{original_pmap}}&file2={{pmap}}">
+                <span style="font-size: 1em;">Diff </span>
+        </a>
+        to see the affect of the preceding submission.  If it's for a different instrument, it shouldn't be a problem.
+    </p>
 {% endif %}
 

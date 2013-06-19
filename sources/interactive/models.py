@@ -945,12 +945,15 @@ class RepeatableResultBlob(BlobModel):
             self._parameters = common.Struct(json_ext.loads(self.parameters_enc))
         return self._parameters
 
-    @classmethod
+    @classmethod   # kludgy,  not confident about Django __setattr__, __setitem__
     def set_parameter(cls, result_id, name, value):
         result = cls.get(id=int(result_id))
-        result.parameters[name] = value
-        result.parameters_enc = json_ext.dumps(result.parameters)
+        result.set_par(name, value)
         result.save()
+        
+    def set_par(self, name, value):   # Avoid multiple saves
+        self.parameters[name] = value
+        self.parameters_enc = json_ext.dumps(self.parameters)
         
     @property
     def repeatable_url(self):

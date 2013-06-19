@@ -235,8 +235,8 @@ def crds_render_html(request, template, dict_=None, requires_pmaps=False):
     return html
 
 def crds_render(request, template, dict_=None, requires_pmaps=False):
-    """Render and HttpReponse object.    Return HttpResponse."""
-    html = crds_render_html(request=request, template=template, dict_=dict_, requires_pmaps=False)
+    """Render an HttpReponse object.    Return HttpResponse."""
+    html = crds_render_html(request=request, template=template, dict_=dict_, requires_pmaps=requires_pmaps)
     return HttpResponse(html)
 
 def get_rendering_dict(request, dict_=None, requires_pmaps=False):
@@ -284,9 +284,6 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
     for key, value in request.FILES.items():
         rdict[key] = safestring.mark_for_escaping(value)
 
-    rdict["old_pmap_edit"] = rdict.get("pmap_edit", "none")  # from request.
-    rdict["old_pmap_operational"] = rdict.get("pmap_operational", "none")
-    
     if requires_pmaps:
         pmap_edit = models.get_default_context()
         pmap_operational = models.get_default_context(state="operational")
@@ -412,8 +409,11 @@ def is_available_pmap(context):
     is_available_file(context)
     return context
 
-def get_recent_or_user_context(request):
-    """Process standard request parameters for specifying context."""
+def get_recent_or_user_mode_and_context(request):
+    """Process standard request parameters for specifying context,  returning both the
+    specification mode and the context itself.  edit and operational contexts may need
+    to use quasi-lazy evaluation and be reevaluated later in case someone else submitted.
+    """
     pmap_mode = validate(
             request, "pmap_mode", "pmap_menu|pmap_text|pmap_edit|pmap_operational")
     if pmap_mode == "pmap_edit":
@@ -422,7 +422,11 @@ def get_recent_or_user_context(request):
         context = models.get_default_context(state="operational")
     else:
         context = validate(request, pmap_mode, is_pmap)
-    return str(context)
+    return pmap_mode, str(context)
+
+def get_recent_or_user_context(request):
+    """Process standard request parameters for specifying context."""
+    return get_recent_or_user_mode_and_context(request)[1]
 
 # ===========================================================================
 
@@ -1026,7 +1030,10 @@ def batch_submit_references(request):
     
 def batch_submit_references_post(request):
     """View fragment to process file batch reference submnission POSTs."""
-    pmap_name = get_recent_or_user_context(request)
+    # For the initial submission, pmap_name is predictive,  not definitive
+    # It can change after confirmation if other subnmissions occured which
+    # also generate it.
+    pmap_mode, pmap_name = get_recent_or_user_mode_and_context(request)
     description = validate(request, "description", DESCRIPTION_RE)
     creator = validate(request, "creator", PERSON_RE)
     change_level = validate(request, "change_level", models.CHANGE_LEVELS)
@@ -1050,6 +1057,7 @@ def batch_submit_references_post(request):
     
     bsr_results = {
                 "pmap" : pmap_name,
+                "pmap_mode" : pmap_mode,
 
                 "new_file_map" : new_file_map,
                 "uploaded_basenames" : uploaded_files.keys(),
@@ -1092,7 +1100,8 @@ def submit_confirm(request):
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
     
     try:
-        result = models.RepeatableResultBlob.get(int(results_id)).parameters
+        rmodel = models.RepeatableResultBlob.get(int(results_id))
+        result = rmodel.parameters
     except Exception, exc:
         raise CrdsError("Error fetching result: " + results_id + " : " + str(exc))
     
@@ -1131,6 +1140,13 @@ def submit_confirm(request):
         confirmed = False
 
     if confirmed:
+        rmodel.set_par("original_pmap", result.pmap)
+        if result.pmap_mode == "pmap_edit":
+            rmodel.set_par("pmap", models.get_default_context(models.OBSERVATORY, state="edit"))
+        elif result.pmap_mode == "pmap_operational":
+            rmodel.set_par("pmap", models.get_default_context(models.OBSERVATORY, state="operational"))
+        rmodel.save()
+            
         context_map, collision_list = submit.submit_confirm_core( confirmed, result.submission_kind, result.description, 
                                             new_files, result.context_rmaps, result.user,  result.pmap, locked_instrument)
         new_file_map = sorted(new_file_map.items() + context_map.items())
@@ -1141,6 +1157,9 @@ def submit_confirm(request):
         context_rmaps = [filename for filename in result.context_rmaps if filename not in dict(generated_files).values() + result.uploaded_basenames]
         
         confirm_results = dict(
+            pmap_mode = result.pmap_mode,
+            pmap = result.pmap,
+            original_pmap = result.original_pmap,
             uploaded_files=uploaded_files,
             context_rmaps=context_rmaps,
             generated_files=generated_files,
@@ -1215,7 +1234,7 @@ def submit_files_post(request, crds_filetype):
     observatory = get_observatory(request)
     compare_old_reference = "compare_old_reference" in request.POST
     generate_contexts = "generate_contexts" in request.POST
-    pmap_name = get_recent_or_user_context(request)
+    pmap_mode, pmap_name = get_recent_or_user_mode_and_context(request)
     description = validate(request, "description", DESCRIPTION_RE)
     creator = validate(request, "creator", PERSON_RE)
     auto_rename = "auto_rename" in request.POST    
@@ -1243,6 +1262,7 @@ def submit_files_post(request, crds_filetype):
                 "title" : "Submit File",
                 "description" : description,
                 "pmap" : pmap_name,
+                "pmap_mode" : pmap_mode,
                 
                 "certify_results" : certify_results,
                 "more_submits" : "/submit/" + crds_filetype + "/",
