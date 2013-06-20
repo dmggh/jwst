@@ -892,7 +892,7 @@ def pmap_label(blob):
     available = "" if blob.available else "*unavailable*" 
     blacklisted = "*blacklisted*" if blob.blacklisted else ""
     rejected = "*rejected*" if blob.rejected else ""
-    return " ".join([blob.name, str(blob.delivery_date)[:16], available, blacklisted, rejected])
+    return " ".join([blob.name, str(blob.delivery_date)[:16], available)  #, blacklisted, rejected])
 
 def bestrefs_explore_post(request):
     """View to get best reference dataset parameters."""
