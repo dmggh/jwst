@@ -16,7 +16,7 @@ from . import models as jmodels
 #---------------------------------------------------------------------------------------------
 
 def jdebug(*args):
-    print(*args, file=sys.stderr)
+    '''print(*args, file=sys.stderr)'''
 
 def new_key(request):
     key = "JPOLL-KEY-" + str(datetime.datetime.now()).replace(" ","-")
