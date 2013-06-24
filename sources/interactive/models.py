@@ -668,13 +668,14 @@ class FileBlob(BlobModel):
     
     @property
     def status(self):
-        if self.blacklisted:
+        if self.is_bad_file:
             return "blacklisted"
         elif self.state == "delivered":
             if os.path.exists(self.catalog_link) or os.path.exists(self.catalog_link + "_proc"):
                 return "delivered"
             else:
                 self.state = "operational"
+                self.save()
                 return "operational"
         else:
             return self.state
