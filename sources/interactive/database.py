@@ -143,7 +143,10 @@ def get_instrument_db_parkeys(instrument):
     for filekind in parkeys.get_filekinds(instrument):
         dbkeys = dbkeys.union(set(parkeys.get_db_parkeys(instrument, filekind)))
         dbkeys = dbkeys.union(set(parkeys.get_extra_keys(instrument, filekind)))
-    return list(dbkeys)
+        switch = parkeys.get_reffile_switch(instrument, filekind)
+        if switch.lower() != "none":
+            dbkeys.add(switch)
+    return sorted(dbkeys)
 
 def required_keys(instr):
     """Get both the input parkeys and expected results keywords for
@@ -229,7 +232,7 @@ def scan_tables(instr):
                 if par in col:
                     if par not in columns:
                         columns[par] = []
-                    columns[par].append(table + "." + col)
+                    columns[par].append(str(table + "." + col))
     return columns, set(pars) - set(columns.keys())
 
 """
