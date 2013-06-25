@@ -11,6 +11,7 @@ import pyodbc
 
 from crds import rmap, log, utils, timestamp
 from crds.server.interactive import models
+from crds.server import config as sconfig
 
 if models.OBSERVATORY == "hst":
     import crds.hst
@@ -20,7 +21,6 @@ log.set_verbose(False)
 
 HERE = os.path.dirname(__file__) or "."
 HEADER_TABLES = HERE + "/db_header_tables.dat"
-PASSWORD_FILE = "/crds/data1/database/crds.dat"  # HERE + "/db_password.dat"
 
 """  
 IPPPSSOOT   ---   dataset naming breakdown
@@ -118,21 +118,21 @@ class DB(object):
 def get_password():
     if not hasattr(get_password, "_password"):
         try: # crazy scheme works with "password" or "blah password" in password file.
-            get_password._password = open(PASSWORD_FILE).read().split()[-1:][0]
+            get_password._password = open(sconfig.CATALOG_DB_PFILE).read().split()[-1:][0]
         except:
             get_password._password = getpass.getpass("password: ")
     return get_password._password
 
-def get_dadsops(user="crds"):
-    """Cache and return a database connection to DADSOPS."""
-    if not hasattr(get_dadsops, "_dadsops"):
-        get_dadsops._dadsops = DB("HarpoDadsopsRepDsn", user, get_password())
-    return get_dadsops._dadsops
+def get_catalog(user=sconfig.CATALOG_DB_USER):
+    """Cache and return a database connection to CATALOG."""
+    if not hasattr(get_catalog, "_catalog"):
+        get_catalog._catalog = DB(sconfig.CATALOG_DB_DSN, user, get_password())
+    return get_catalog._catalog
 
-def get_reffile_ops(user="crds"):
+def get_reffile_ops(user=sconfig.CATALOG_DB_USER):
     """Cache and return a database connection to REFFILE_OPS."""
     if not hasattr(get_reffile_ops, "_reffile_ops"):
-        get_reffile_ops._reffile_ops = DB("HarpoReffileOpsRepDsn", user, get_password())
+        get_reffile_ops._reffile_ops = DB(sconfig.REFFILE_DB_DSN, user, get_password())
     return get_reffile_ops._reffile_ops
 
 def get_instrument_db_parkeys(instrument):
@@ -217,18 +217,18 @@ def clean_scan(instr):
 
 def scan_tables(instr):
     """scan_tables() automatically matches the required parameters for each
-    instrument against the available instrument tables and columns in DADSOPS,
+    instrument against the available instrument tables and columns in CATALOG,
     returning a map  { parameter : [ "table.column", ...] } finding plausible
     locations for each CRDS best refs parameter in the dataset catalog.
     """
-    dadsops = get_dadsops()
+    catalog = get_catalog()
     pars = required_keys(instr)
     columns = {}
-    for table in dadsops.get_tables():
+    for table in catalog.get_tables():
         if instr not in table:
             continue
         for par in pars:
-            for col in dadsops.get_columns(table):
+            for col in catalog.get_columns(table):
                 if par in col:
                     if par not in columns:
                         columns[par] = []
@@ -341,7 +341,7 @@ def init_db():
         with log.error_on_exception("Failed loading", repr(HEADER_TABLES)):
             HEADER_MAP = eval(open(HEADER_TABLES).read())
             with log.error_on_exception("Failed getting catalog connection"):
-                connection = get_dadsops()
+                connection = get_catalog()
                 with log.error_on_exception("Failed setting up header generators"):
                     HEADER_GENERATORS = {}
                     for instr in HEADER_MAP:
