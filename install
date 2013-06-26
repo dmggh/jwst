@@ -10,8 +10,8 @@ fi
 
 observatory=$1; shift
 
-if [ "$1" != "dev" ] && [ "$1" != "hdev" ] && [ "$1" != "test" ]; then
-	echo 'usage: ./install [jwst|hst] [dev|hdev|test]'
+if [ "$1" != "dev" ] && [ "$1" != "prod" ] && [ "$1" != "test" ]; then
+	echo 'usage: ./install [jwst|hst] [dev|prod|test]'
 	exit -1;
 fi
 
