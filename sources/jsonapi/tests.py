@@ -11,17 +11,16 @@ from unittest import TestCase
 import crds
 import crds.config
 
-from crds import pysh, rmap, selectors, log, pysh
+from crds import pysh, rmap, selectors, log, pysh, heavy_client
 import crds.client as client
 import crds.server.config as server_config
-import crds.heavy_client as heavy_client
 
 class ServiceApiBase(object):
 
     @classmethod
     def setUpClass(self, *args, **keys):
         
-        self.CRDS_PATH = CRDS_PATH = os.environ["CRDS_PATH"] = server_config.install_root + "/test"
+        self.CRDS_PATH = CRDS_PATH = os.environ["CRDS_PATH"] = server_config.storage_path + "/test"
 
         pysh.sh("rm -rf ${CRDS_PATH}", raise_on_error=True, trace_commands=True)
         pysh.sh("mkdir -p ${CRDS_PATH}", raise_on_error=True)

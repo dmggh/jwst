@@ -48,10 +48,10 @@ if ($observatory == "hst") then
 else if ($observatory == "jwst") then
 	if (($mode == "dev") || ($mode == "hdev")) then
 		echo "Linking files from Central Store /grp/crds/jwst/..."
-		mkdir -p ../jwst/mappings/jwst
-		ln -s /grp/crds/jwst/mappings/jwst/* ../jwst/mappings/jwst
-		mkdir -p ../jwst/references/jwst
-		ln -s /grp/crds/jwst/references/jwst/* ../jwst/references/jwst
+		mkdir -p ${CRDS_PATH}/mappings/jwst
+		ln -s /grp/crds/jwst/mappings/jwst/* ${CRDS_PATH}/mappings/jwst
+		mkdir -p ${CRDS_PATH}/references/jwst
+		ln -s /grp/crds/jwst/references/jwst/* ${CRDS_PATH}/references/jwst
 	endif
     python -m crds.list --jwst --cached-mappings --full-path >jwst_mappings
     python -m crds.list --jwst --cached-references --full-path >jwst_references

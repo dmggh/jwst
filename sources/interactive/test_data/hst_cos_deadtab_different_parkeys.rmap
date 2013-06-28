@@ -1,0 +1,20 @@
+header = {
+    'derived_from' : 'generated from CDBS database 2013-01-11 13:59:35.753226',
+    'filekind' : 'DEADTAB',
+    'instrument' : 'COS',
+    'mapping' : 'REFERENCE',
+    'name' : 'hst_cos_deadtab.rmap',
+    'observatory' : 'HST',
+    'parkey' : (('MODE',), ('DATE-OBS', 'TIME-OBS')),
+    'rmap_relevance' : 'ALWAYS',
+    'sha1sum' : '21ca83eaea0b074ace3fe2e048d20162532414b4',
+}
+
+selector = Match({
+    ('FUV',) : UseAfter({
+        '1996-10-01 00:00:00' : 's7g1700gl_dead.fits',
+    }),
+    ('NUV',) : UseAfter({
+        '1996-10-01 00:00:00' : 's7g1700ql_dead.fits',
+    }),
+})

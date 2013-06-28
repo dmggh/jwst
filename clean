@@ -1,0 +1,11 @@
+#! /bin/csh
+
+rm -f run stop env.csh
+foreach obj (build svn_version.py crds_database.py site_config.py)
+        rm -rf sources/$obj
+end
+
+foreach obj (_files _references _mappings)
+    rm -f tools/hst$obj
+    rm -f tools/jwst$obj
+end

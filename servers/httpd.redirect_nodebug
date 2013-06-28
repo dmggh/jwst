@@ -1,4 +1,0 @@
-<Directory SUB_DIR/htdocs>
-RewriteEngine on
-RewriteRule ^$ /etc [L]
-</Directory>

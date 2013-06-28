@@ -34,99 +34,24 @@ else
 	rc=0
 fi
 
-if [ "$rc" = 0 ]
-then
-	echo YOU ARE A DEVELOPER
-
-	add_library_path=''
-
-	# find where the third-party software should be on this host, even
-	# though we might not use it.
-	case `hostname`
-	in
-	chicha.stsci.edu)
-		third_party=/Users/sosey/dev/ssb/PyETC/pyetc_third_party
-		;;
-	etc-dev1.stsci.edu)
-		third_party=/eng/ssb/pyetc/pyetc_third_party_rhe4
-		add_library_path=/eng/ssb/pyetc/pyetc_third_party_rhe4/lib
-		;;
-	*)
-		third_party=./this_does_not_exist
-		;;
-	esac
-
-
-	# see if we already have django.  If so, use it.  If not, try
-	# to find it in the $third_party directory.
-
-	if python -c 'import django'
-	then
-		:
-	else
-		if [ -d $third_party ]
-		then
-			echo ''
-			echo using default django in $third_party
-			echo ''
-			PYTHONPATH=$third_party/lib/python:$PYTHONPATH
-			export PYTHONPATH
-		else
-			echo ''
-			echo no django on PYTHONPATH - please fix and try again
-			echo ''
-			exit 1
-		fi
-	fi
-
-	#
-
-	if echo $LD_LIBRARY_PATH  | grep -q -s "$add_library_path"
-	then
-		:
-	else
-		LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$add_library_path
-		export LD_LIBRARY_PATH
-	fi
-fi # rc
-
-
-if python -c 'import django'
-then
-        :
-else
-        echo still no django
-        exit 1
-fi
-
-###
-### make sure there is an install dir set
-###
-if grep -q -s ^install_dir= ${SERVER_SOURCES}/config.py
-then
-        :
-else
-	if [ "$rc" = 0 ]
-	then
-		echo "install_dir='`pwd`/webserver'" > ${SERVER_SOURCES}/tmp
-		cat ${SERVER_SOURCES}/config.py >> ${SERVER_SOURCES}/tmp
-		mv ${SERVER_SOURCES}/tmp ${SERVER_SOURCES}/config.py
-	else 
-		echo no install_dir in config file
-		exit 1
-	fi
-fi
-
-
 ###
 ### gather config values that we need in this script
 ###
 
-python ${SERVER_SOURCES}/sh_config.py install_root install_dir port PYSYN_CDBS\
- servertype dbtype debug data_dir debug_javascript noreload map_path ref_path\
+python ${SERVER_SOURCES}/sh_config.py install_root install_dir CRDS_PATH port PYSYN_CDBS\
+ servertype dbtype debug data_dir debug_javascript noreload map_path map_path_full ref_path ref_path_full \
  CRDS_URL CRDS_CATALOG_DIR CRDS_DELIVERY_DIR FILE_UPLOAD_TEMP_DIR CRDS_INGEST_DIR apachemod > tmp
 . ./tmp
 rm -f tmp
+
+PYTHONPATH=$install_dir/python/lib/python/crds/server:$install_dir/python/lib/python:$PYTHONPATH
+export PYTHONPATH
+
+PATH=$install_dir/python/bin:$install_dir/bin:$PATH
+export PATH
+
+LD_LIBRARY_PATH=$install_dir/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH
 
 case "$noreload"
 in
@@ -144,45 +69,8 @@ pyquiet=-q
 ### create the install directory
 ###
 
-mkdir -p $install_dir $data_dir
+mkdir -p $install_dir 
 
-
-if echo $PYTHONPATH | grep -q -s $install_dir'/python/lib/python'
-then
-        :
-else
-        PYTHONPATH=$install_dir'/python/lib/python:'$PYTHONPATH
-        export PYTHONPATH
-fi
-
-if [ "$rc" = 0 ]
-then
-	# if debug is true AND there is a debug_python directory
-	if [ "$debug" = "True" ]
-	then
-		if [ -d $third_party/debug_python ]
-		then
-			echo ''
-			echo 'USING DEBUG PYTHON MODULES in ' $third_party/debug_python
-			echo ''
-			PYTHONPATH=$third_party/debug_python:$PYTHONPATH
-			export PYTHONPATH
-		fi
-	else
-		echo NO DEBUG
-		PYTHONPATH=`echo $PYTHONPATH | tr ':' '\n' | sed "\?$third_party/debug_python?d" | tr '\n' ':' `
-		export PYTHONPATH
-	fi
-fi
-
-PYTHONPATH=$install_dir/python/lib/python/crds/server:$install_dir/python/lib/python:$PYTHONPATH
-export PYTHONPATH
-
-PATH=$install_dir/python/bin:$install_dir/bin:$PATH
-export PATH
-
-LD_LIBRARY_PATH=$install_dir/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH
 
 mkdir -p $install_dir/python/bin
 
@@ -195,12 +83,10 @@ mkdir -p $install_dir/python/bin
         fi
         echo 'unsetenv DJANGO_SETTINGS_MODULE PYSYN_CDBS CRDS_DJANGO_SERVER'
 	echo 'setenv SERVER_PORT '$port
-
 	echo 'setenv PATH '$PATH
 	echo 'setenv CRDS_INSTALL_DIR ' $install_dir
-
 	echo 'setenv CRDS_SERVER_URL ' $CRDS_URL
-	echo 'setenv CRDS_PATH ' $install_root
+	echo 'setenv CRDS_PATH ' $CRDS_PATH
 ) > env.csh
 
 # This is a place for matplotlib to store cache files.  We don't actually
@@ -223,8 +109,8 @@ mkdir -p -m 755 $CRDS_INGEST_DIR
 
 # These are the directories where newly submitted references and mappings 
 # will be kept by the server.
-mkdir -p -m 755 $map_path/$observatory
-mkdir -p -m 755 $ref_path/$observatory
+mkdir -p -m 755 $map_path_full
+mkdir -p -m 755 $ref_path_full
 
 
 ###
@@ -236,10 +122,13 @@ in
 # apache with mod_python
 mod_wsgi)
 
-        mkdir -p $install_dir/server/logs $install_dir/server/run $install_dir/server/conf  $install_dir/server/wsgi-scripts
+        mkdir -p $install_dir/server/logs 
+        mkdir -p $install_dir/server/run 
+        mkdir -p $install_dir/server/conf  
+        mkdir -p $install_dir/server/wsgi-scripts
 
         cp servers/httpd.mod_wsgi.conf $install_dir/server/conf/httpd.conf
-	cp servers/*.wsgi $install_dir/server/wsgi-scripts
+	    cp servers/*.wsgi $install_dir/server/wsgi-scripts
    
 	apache_version=`/usr/sbin/httpd -v | sed -n 's?Server version: Apache/??p'`
 	case "$apache_version"
@@ -366,13 +255,6 @@ mod_python)
 		fi
                 cat servers/httpd.add_ldap >> $install_dir/server/conf/httpd.conf
         fi
-
-#        if [ "$debug" = "True" ]
-#        then
-#                cat servers/httpd.redirect_debug >> $install_dir/server/conf/httpd.conf
-#        else
-#                cat servers/httpd.redirect_nodebug >> $install_dir/server/conf/httpd.conf
-#        fi
 
         sed -e "s?SUB_APACHEMOD?$apachemod?g" -e "s?SUB_DIR?$install_dir?g" -e "s?SUB_PORT?$port?g" -e "s?SUB_CDBS?$PYSYN_CDBS?g"  < $install_dir/server/conf/httpd.conf > tmp
         mv tmp $install_dir/server/conf/httpd.conf
@@ -503,36 +385,6 @@ do
 	fi
 done
 
-# ===========================================================================================
-
-# cp test_utilities/*.py $install_dir/python/lib/python
-# ???? python -m py_compile $install_dir/python/lib/python/*.py
-# cp test_utilities/bin/*  $install_dir/python/bin
-
-###
-### install the special data files that are not in cdbs and not in sources
-###
-#
-#if [ ! -d rundata ]
-#then
-#	echo NO rundata directory - you need to svn update
-#	exit 1
-#fi
-#
-#( 
-	# preserve compatibility with old method of getting these files, in case we need it.
-	# the old system does not have directories in rundata, so it is ok not to copy them.
-#	cd rundata
-#	for x in *
-#	do
-#		if [ ! -d $x ] 
-#		then
-#			cp $x $install_dir/python/lib/python/crds/data/
-#		fi
-#	done
-#)
-
-
 ###
 ### maybe, initialize the database
 ###
@@ -569,14 +421,13 @@ mysql)
 esac
 
 mapping_source_dir=`python tools/get_mapping_dir.py ${observatory}`
-map_dest="${map_path}/${observatory}"
 echo
-echo "Copying mappings from ${mapping_source_dir} to ${map_dest}"
+echo "Copying mappings from ${mapping_source_dir} to ${map_path_full}"
 echo
-mkdir -p ${map_dest}
+mkdir -p ${map_path_full}
 for mapping in ${mapping_source_dir}/*.*map;
 do
-  cp -v ${mapping} ${map_dest} 2>/dev/null 1>/dev/null
+  cp -v ${mapping} ${map_path_full} 2>/dev/null 1>/dev/null
 done
 
 # chmod 444 ${map_dest}/*.*map
@@ -617,11 +468,16 @@ case ${server_mode}
 	# chown crds.crdsoper ${install_root}
 	# chown crds.crdsoper ${install_root}/*
 	chmod 6755 ${install_root}
-	chmod 6755 ${ref_path}
-	chmod -f 444 ${ref_path}/${observatory}/*
-	chmod 6755 ${map_path}
-	chmod -f 444 ${map_path}/${observatory}/*
 	chmod 700 ${install_dir}
+
+	chmod 6755 ${ref_path}
+	chmod 6755 ${ref_path_full}
+	chmod -f 444 ${ref_path_full}/*
+
+	chmod 6755 ${map_path}
+	chmod 6755 ${map_path_full}
+	chmod -f 444 ${map_path_full}/*
+
 	chmod 6755 ${CRDS_CATALOG_DIR}
 	chmod 6755 ${FILE_UPLOAD_TEMP_DIR}
 	chmod 6770 ${CRDS_DELIVERY_DIR}    # OPUS client removes delivered files.
