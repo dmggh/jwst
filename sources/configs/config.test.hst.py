@@ -3,10 +3,19 @@ DEBUG_EXTRAS = False
 
 HOST = "tlhstcrdsv1"
 observatory = 'hst'
-install_root = '/crds/data1/' + HOST
-port = 8001
-CRDS_URL = "http://" + HOST + ".stsci.edu:" + str(port) + "/"
+server_usecase = 'test'
 CRDS_SERVER_IP = "130.167.252.67"
+port = 8001
+
+install_root = '/crds/data1/' + HOST
+storage_path = '/crds/' + observatory + '/' + server_usecase
+
+CATALOG_DB_USER = "crds"
+CATALOG_DB_PFILE = "/crds/data1/database/crds.dat"
+CATALOG_DB_DSN = "HarpoDadsopsRepDsn"
+REFFILE_DB_DSN = "HarpoReffileOpsRepDsn"
+
+CRDS_URL = "http://" + HOST + ".stsci.edu:" + str(port) + "/"
 
 servertype = 'mod_wsgi'
 apachemod = install_root + "/webserver/lib"
@@ -26,7 +35,3 @@ CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/mappings/hst/"
 # XXX TODO restrict to archived or operational
 CRDS_DISTRIBUTION_STATES = ["delivered", "archived", "operational"]
 
-CATALOG_DB_USER = "crds"
-CATALOG_DB_PFILE = "/crds/data1/database/crds.dat"
-CATALOG_DB_DSN = "HarpoDadsopsRepDsn"
-REFFILE_DB_DSN = "HarpoReffileOpsRepDsn"

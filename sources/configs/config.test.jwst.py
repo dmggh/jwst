@@ -1,12 +1,23 @@
 debug = DEBUG = True
 DEBUG_EXTRAS = False
 
-HOST = "tlhstcrdsv1"
+HOST = "tljwstcrdsv1"
 observatory = 'jwst'
-install_root = '/crds/data1/' + HOST
+server_usecase = 'test'
+CRDS_SERVER_IP = "130.167.252.40"
 port = 8001
+
+install_root = '/crds/data1/' + HOST
+storage_path = '/crds/' + observatory + '/' + server_usecase
+
+# XXX PLACEHOLDERS, not valid for JWST
+CATALOG_DB_USER = "crds"
+CATALOG_DB_PFILE = "/crds/data1/database/crds.dat"
+CATALOG_DB_DSN = "HarpoDadsopsRepDsn"
+REFFILE_DB_DSN = "HarpoReffileOpsRepDsn"
+# XXX PLACEHOLDERS, not valid for JWST
+
 CRDS_URL = "http://" + HOST + ".stsci.edu:" + str(port) + "/"
-CRDS_SERVER_IP = "130.167.252.67"
 
 servertype = 'mod_wsgi'
 apachemod = install_root + "/webserver/lib"
