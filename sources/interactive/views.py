@@ -1813,3 +1813,14 @@ def display_context_history(request):
     return crds_render(request, "display_context_history.html", {
             "history" : history,
         }, requires_pmaps=False)
+
+# ============================================================================
+
+@error_trap("base.html")
+@log_view
+def context_table(request, pmap):
+    is_pmap(pmap)
+    p = rmap.get_cached_mapping(pmap)
+    return crds_render(request, "context_table.html", {
+        "pmap" : p.todict(),
+    }, requires_pmaps=False)

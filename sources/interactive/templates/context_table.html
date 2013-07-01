@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% load stdtags %}
+
+{% block contents %}
+
+<h2>
+    Browse {{pmap.header.name|gray}}     
+</h2> 
+
+{% accordion pmap.header.name %}
+    {% for pitem in pmap.selections.items %}
+        {% accordion pitem.0 %}
+            {% for iitem in pitem.1.selections.items %}
+                {% accordion iitem.0 %}
+                    <table>
+                        <tr>
+                            {% for par in iitem.1.parameters %}
+                                <th>{{par}}</th>
+                            {% endfor %}
+                        </tr>
+                        {% for row in iitem.1.selections %}
+                            <tr>
+                                {% for col in row %}
+                                    <td>{{col}}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </table>
+                {% endaccordion %}
+            {% endfor %}
+        {% endaccordion %}
+    {% endfor %}
+{% endaccordion %}
+
+<br/><br/>
+
+{% endblock contents %}
