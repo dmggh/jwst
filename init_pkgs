@@ -3,7 +3,6 @@
 # =======================================================================
 # Init server environment
 
-cd `dirname $0`
 source env.csh
 
 setenv META_PREFIX "$CRDS_INSTALL_DIR"

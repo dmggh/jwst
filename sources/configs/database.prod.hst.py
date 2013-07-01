@@ -1,4 +1,4 @@
-DB_WORD = open(os.environ["HOME"] + "/.hst_production_django").read().strip()
+DB_WORD = open("/crds/data1/database/production_django_hst.dat").read().strip()
 
 DATABASES = {
     'default': {

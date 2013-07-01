@@ -1,4 +1,6 @@
-DB_WORD = open(os.environ["HOME"] + "/.jwst_production_django").read().strip()
+import os
+
+DB_WORD = open("/crds/data1/database/production_django_jwst.dat").read().strip()
 
 DATABASES = {
     'default': {

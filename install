@@ -3,29 +3,14 @@
 # This install script is heavily based on the PyETC install script
 # CRDS is intended to use the same LAMP stack as pyetc, with emphasis on Python
 
-if [ "$1" != "hst" ] && [ "$1" != "jwst" ]; then
-	echo 'usage: ./install [jwst|hst] [dev|hdev|test]'
-	exit -1
-fi
+source ./make_env # $1 $2 $3 $4 $5
 
-observatory=$1; shift
+# This is required in production environments which don't include Django in
+# the main Python stack.
+# ./init_pkgs $1 $2 $3 $4 $5
 
-if [ "$1" != "dev" ] && [ "$1" != "prod" ] && [ "$1" != "test" ]; then
-	echo 'usage: ./install [jwst|hst] [dev|prod|test]'
-	exit -1;
-fi
-
-server_mode=$1; shift
-
-export SERVER_SOURCES=sources   # CRDS_server/sources
-
-config="sources/configs/config.${server_mode}.${observatory}.py"
-echo "Using configuration " ${config}
-cp ${config} sources/site_config.py
-
-crds_database="sources/configs/database.${server_mode}.${observatory}.py"
-echo "Using crds_database" ${crds_database}
-cp ${crds_database} sources/crds_database.py
+. ./make_env.tmp
+# rm make_env.tmp
 
 if [ X$1 = X-r ]
 then
@@ -33,25 +18,6 @@ then
 else
 	rc=0
 fi
-
-###
-### gather config values that we need in this script
-###
-
-python ${SERVER_SOURCES}/sh_config.py install_root install_dir CRDS_PATH port PYSYN_CDBS\
- servertype dbtype debug data_dir debug_javascript noreload map_path map_path_full ref_path ref_path_full \
- CRDS_URL CRDS_CATALOG_DIR CRDS_DELIVERY_DIR FILE_UPLOAD_TEMP_DIR CRDS_INGEST_DIR apachemod > tmp
-. ./tmp
-rm -f tmp
-
-PYTHONPATH=$install_dir/python/lib/python/crds/server:$install_dir/python/lib/python:$PYTHONPATH
-export PYTHONPATH
-
-PATH=$install_dir/python/bin:$install_dir/bin:$PATH
-export PATH
-
-LD_LIBRARY_PATH=$install_dir/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH
 
 case "$noreload"
 in
@@ -71,23 +37,7 @@ pyquiet=-q
 
 mkdir -p $install_dir 
 
-
 mkdir -p $install_dir/python/bin
-
-(
-        echo '#!/bin/csh'
-        echo 'setenv PYTHONPATH '$PYTHONPATH
-        if [ "$LD_LIBRARY_PATH" != "" ]
-        then
-                echo 'setenv LD_LIBRARY_PATH '${LD_LIBRARY_PATH}
-        fi
-        echo 'unsetenv DJANGO_SETTINGS_MODULE PYSYN_CDBS CRDS_DJANGO_SERVER'
-	echo 'setenv SERVER_PORT '$port
-	echo 'setenv PATH '$PATH
-	echo 'setenv CRDS_INSTALL_DIR ' $install_dir
-	echo 'setenv CRDS_SERVER_URL ' $CRDS_URL
-	echo 'setenv CRDS_PATH ' $CRDS_PATH
-) > env.csh
 
 # This is a place for matplotlib to store cache files.  We don't actually
 # try to put any config there, and only the apache server knows to use it.
@@ -151,6 +101,7 @@ mod_wsgi)
 	then
 		apachemod=$third/lib/apache
 		export apachemod
+		cp ${install_dir}/lib/mod_wsgo.so ${apachemod}
 	fi	
 	if [ ! -f $apachemod/mod_wsgi.so ]
 	    then
@@ -363,27 +314,9 @@ esac
 ### install the python packages that we use
 ###
 
-# prevent the user from having .pydistutilsrc that hurts us
-here=`pwd`
-
-for x in sources ../CRDS/lib ../CRDS/$observatory ../CRDS/client ../CRDS/third_party/Parsley-1.1
-do
-	if [ ! -d $x ]
-	then
-		echo WARNING: NO SOURCE DIRECTORY FOR $x
-	else
-	    echo "Installing $x"
-		(
-			HOME=$here
-			export HOME
-			cd $x
-			rm -rf build
-			# --no-deps
-			${here}/save_version >svn_version.py
-			python setup.py $pyquiet install --home $install_dir/python
-		)
-	fi
-done
+#  INSTALL CORE CRDS CLIENT LIBRARY
+(cp save_version ../CRDS;  cd ../CRDS; ./install --home $install_dir/python)
+(cd sources; python setup.py install --home $install_dir/python)
 
 ###
 ### maybe, initialize the database

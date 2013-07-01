@@ -7,7 +7,10 @@ server_usecase ="production"
 CRDS_SERVER_IP = "130.167.252.25"
 port = 8001
 
+# This is a VM-related storage partition used as server space
 install_root = '/crds/data1/' + HOST
+
+# This is a Isilon storage /crds/hst/production used as file space
 storage_path = '/crds/' + observatory + '/' + server_usecase
 
 CATALOG_DB_USER = "crds"
@@ -35,7 +38,3 @@ CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/mappings/hst/"
 # XXX TODO restrict to archived or operational
 CRDS_DISTRIBUTION_STATES = ["delivered", "archived", "operational"]
 
-CATALOG_DB_USER = "crds"
-CATALOG_DB_PFILE = "/crds/data1/database/crds.dat"
-CATALOG_DB_DSN = "HarpoDadsopsRepDsn"
-REFFILE_DB_DSN = "HarpoReffileOpsRepDsn"
