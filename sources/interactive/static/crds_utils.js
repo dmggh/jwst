@@ -143,17 +143,13 @@ crds.format_table = function (header_cols, body_rows) {
 }
 
 crds.tag = function (tag, items, attrs) {
-    var attr_str = " ";
-    if (attrs) {
-        for each (var attr in attrs) {
-            if (attrs.hasOwnProperty(attr)) {
-                attr_str += attr + "='" + attrs[attr] +"' ";
-            };  
-        };
-    } else {
-        attr_str = "";
+    var attr_str = "";
+    for (var attr in attrs) {
+    	if (attrs.hasOwnProperty(attr)) {
+	        attr_str += " " + attr + "='" + attrs[attr] +"'";
+	    }
     };
-    if (typeof items === 'string') {
+    if (typeof(items) === 'string') {
         var html = "<" + tag + attr_str + ">" + items + "</"+ tag + ">";
     } else {
         var html = "";

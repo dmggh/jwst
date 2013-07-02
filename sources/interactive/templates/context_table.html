@@ -19,6 +19,7 @@
         {% accordion  pitem.1.header.name %}
             {% for iitem in pitem.1.selections %}
                 {% accordion iitem.1.header.name %}
+                    <p><a href="/browse/{{iitem.1.header.name}}">rmap</a></p><br/><br/>
                     <div class="rmap_tag" url="/context_table/{{iitem.1.header.name}}">{{iitem.1.header.name}}</div>        
                 {% endaccordion %}
             {% endfor %}
@@ -30,6 +31,7 @@
 
 <script type="text/javascript">
 $(function () {
+    $("#contents").hide();
     $(".accordion").accordion({
         change: function( event, ui ) {
             console.log(event);
@@ -55,6 +57,7 @@ $(function () {
             });
         }
     });
+    $("#contents").show();
 });
 </script>
 
