@@ -40,6 +40,10 @@ $(function () {
                 url : url,
                 context: document.body
             }).done(function (json) {
+                    for each (row in json["selections"]) {
+                        var  refname = row[row.length-1];
+                        row[row.length-1] = crds.tag("a", refname, {"href": "/browse/" + refname})
+                    };
                     var table = $(crds.format_table(json["parameters"], json["selections"]));
                     table.hide();
                     div.html(table);

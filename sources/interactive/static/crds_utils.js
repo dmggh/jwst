@@ -134,7 +134,7 @@ crds.format_table = function (header_cols, body_rows) {
                           crds.tag("tr",
                                    crds.tag("th", header_cols)));
     var rows = "";
-    for each (row in body_rows) {
+    for each (var row in body_rows) {
         rows += crds.tag("tr", 
                          crds.tag("td", row));
     };
@@ -142,14 +142,24 @@ crds.format_table = function (header_cols, body_rows) {
     return crds.tag("table", header + body);
 }
 
-crds.tag = function (tag, items) {
+crds.tag = function (tag, items, attrs) {
+    var attr_str = " ";
+    if (attrs) {
+        for each (var attr in attrs) {
+            if (attrs.hasOwnProperty(attr)) {
+                attr_str += attr + "='" + attrs[attr] +"' ";
+            };  
+        };
+    } else {
+        attr_str = "";
+    };
     if (typeof items === 'string') {
-        var html = "<" + tag + ">" + items + "</"+ tag + ">";
+        var html = "<" + tag + attr_str + ">" + items + "</"+ tag + ">";
     } else {
         var html = "";
-        var t1 = "<" + tag + ">";
+        var t1 = "<" + tag + attr_str + ">";
         var t2 =  "</"+ tag + ">";
-        for each (item in items) {
+        for each (var item in items) {
             html += t1 + item + t2;
         };
     };
