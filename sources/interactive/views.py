@@ -1818,10 +1818,18 @@ def display_context_history(request):
 
 @error_trap("base.html")
 @log_view
-def context_table(request, mapping):
+def context_table(request, mapping, recursive="10"):
     is_mapping(mapping)
+    recursive = int(recursive)
     m = rmap.get_cached_mapping(mapping)
-    return crds_render(request, "context_table.html", {
-        "mapping" : m.todict(),
-        "mapping_type" : m.header["mapping"],
-    }, requires_pmaps=False)
+    if request.is_ajax():
+        return HttpResponse(m.tojson(), mimetype='application/json')
+    else:
+        is_pmap(mapping)
+        return crds_render(request, "context_table.html", {
+            "pmap" : m.todict(),
+            "mapping_type" : m.header["mapping"],
+        }, requires_pmaps=False)
+    
+    
+

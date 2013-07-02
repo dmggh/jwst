@@ -129,6 +129,32 @@ crds.validate_and_confirm_file_submit = function(form) {
     return true;
 };
 
+crds.format_table = function (header_cols, body_rows) {
+    var header = crds.tag("thead",
+                          crds.tag("tr",
+                                   crds.tag("th", header_cols)));
+    var rows = "";
+    for each (row in body_rows) {
+        rows += crds.tag("tr", 
+                         crds.tag("td", row));
+    };
+    var body = crds.tag("tbody", rows);
+    return crds.tag("table", header + body);
+}
+
+crds.tag = function (tag, items) {
+    if (typeof items === 'string') {
+        var html = "<" + tag + ">" + items + "</"+ tag + ">";
+    } else {
+        var html = "";
+        var t1 = "<" + tag + ">";
+        var t2 =  "</"+ tag + ">";
+        for each (item in items) {
+            html += t1 + item + t2;
+        };
+    };
+    return html;
+};
 
 $(function() {
     // tune jquery-ui accordions to be closed at start.

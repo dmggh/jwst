@@ -5,28 +5,15 @@
 {% block contents %}
 
 <h2>
-    Browse {{mapping.header.name|gray}}     
+    Browse {{pmap.header.name|gray}}     
 </h2> 
 
-{% accordion mapping.header.name %}
-    {% for pitem in mapping.selections %}
-        {% accordion pitem.0 %}
+{% accordion pmap.header.name %}
+    {% for pitem in pmap.selections %}
+        {% accordion  pitem.0 %}
             {% for iitem in pitem.1.selections %}
-                {% accordion iitem.0 %}
-                    <table>
-                        <tr>
-                            {% for par in iitem.1.parameters %}
-                                <th>{{par}}</th>
-                            {% endfor %}
-                        </tr>
-                        {% for row in iitem.1.selections %}
-                            <tr>
-                                {% for col in row %}
-                                    <td>{{col}}</td>
-                                {% endfor %}
-                            </tr>
-                        {% endfor %}
-                    </table>
+                {% accordion iitem.0 iitem.1.header.name %}
+                    <div class="rmap_tag" url="/context_table/{{iitem.1.header.name}}">{{iitem.1.header.name}}</div>        
                 {% endaccordion %}
             {% endfor %}
         {% endaccordion %}
@@ -36,8 +23,22 @@
 <br/><br/>
 
 <script type="text/javascript">
-$({
-    
+$(function () {
+    $(".accordion").accordion({
+        change: function( event, ui ) {
+            console.log(event);
+            var div = $(ui.newContent).find(".rmap_tag");
+            var url = div.attr("url");
+            console.log("Fetching " + url);
+            $.ajax({
+                url : url,
+                context: document.body
+            }).done(function (json) {
+                    var table = crds.format_table(json["parameters"], json["selections"]);
+                    div.html(table);
+            });
+        }
+    });
 });
 </script>
 
