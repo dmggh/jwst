@@ -1,5 +1,11 @@
 {% extends "base.html" %}
 
+{% block head_overrides %}
+    <link type="text/css" rel="stylesheet" href="/static/crds_tables.css" />
+    <link type="text/css" rel="stylesheet" href="/static/jquery.dataTables.css" />
+    <script type="text/javascript" language="javascript" src="/static/jquery.dataTables.min.js"></script>
+{% endblock head_overrides %}
+
 {% load stdtags %}
 
 {% block contents %}
@@ -10,9 +16,9 @@
 
 {% accordion pmap.header.name %}
     {% for pitem in pmap.selections %}
-        {% accordion  pitem.0 %}
+        {% accordion  pitem.1.header.name %}
             {% for iitem in pitem.1.selections %}
-                {% accordion iitem.0 iitem.1.header.name %}
+                {% accordion iitem.1.header.name %}
                     <div class="rmap_tag" url="/context_table/{{iitem.1.header.name}}">{{iitem.1.header.name}}</div>        
                 {% endaccordion %}
             {% endfor %}
@@ -34,8 +40,14 @@ $(function () {
                 url : url,
                 context: document.body
             }).done(function (json) {
-                    var table = crds.format_table(json["parameters"], json["selections"]);
+                    var table = $(crds.format_table(json["parameters"], json["selections"]));
+                    table.hide();
                     div.html(table);
+                    table.dataTable({
+                        "aLengthMenu": [[100, 200, 500, -1], [100, 200, 500, "All"]],
+                        "iDisplayLength" : 500                  
+                    });
+                    table.show();
             });
         }
     });
