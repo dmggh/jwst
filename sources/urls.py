@@ -42,7 +42,7 @@ urlpatterns = patterns('',
     url(r'^browse/(?P<filename>[A-Za-z0-9_.]+(fits|imap|rmap|pmap|r\dh))$', 
         'crds.server.interactive.views.browse_known_file'),
     url(r'^browse_db/$', 'crds.server.interactive.views.browse_db'),        
-    url(r'^context_table/(?P<pmap>[a-zA-Z0-9_.]+)$', 'crds.server.interactive.views.context_table'),
+    url(r'^context_table/(?P<mapping>[a-zA-Z0-9_.]+)$', 'crds.server.interactive.views.context_table'),
     
     # Simple get is screened against the database and redirected
     url(r'^get/(?P<filename>[A-Za-z0-9_.]+(fits|imap|rmap|pmap|r\dh))$', 

@@ -5,13 +5,13 @@
 {% block contents %}
 
 <h2>
-    Browse {{pmap.header.name|gray}}     
+    Browse {{mapping.header.name|gray}}     
 </h2> 
 
-{% accordion pmap.header.name %}
-    {% for pitem in pmap.selections.items %}
+{% accordion mapping.header.name %}
+    {% for pitem in mapping.selections %}
         {% accordion pitem.0 %}
-            {% for iitem in pitem.1.selections.items %}
+            {% for iitem in pitem.1.selections %}
                 {% accordion iitem.0 %}
                     <table>
                         <tr>
@@ -34,5 +34,11 @@
 {% endaccordion %}
 
 <br/><br/>
+
+<script type="text/javascript">
+$({
+    
+});
+</script>
 
 {% endblock contents %}

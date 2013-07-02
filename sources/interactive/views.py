@@ -1818,9 +1818,10 @@ def display_context_history(request):
 
 @error_trap("base.html")
 @log_view
-def context_table(request, pmap):
-    is_pmap(pmap)
-    p = rmap.get_cached_mapping(pmap)
+def context_table(request, mapping):
+    is_mapping(mapping)
+    m = rmap.get_cached_mapping(mapping)
     return crds_render(request, "context_table.html", {
-        "pmap" : p.todict(),
+        "mapping" : m.todict(),
+        "mapping_type" : m.header["mapping"],
     }, requires_pmaps=False)
