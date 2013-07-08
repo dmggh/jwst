@@ -15,8 +15,10 @@
 </h2> 
 
 {% accordion pmap.header.name %}
+    <p><a href="/browse/{{pmap.header.name}}">pmap</a></p><br/><br/>
     {% for pitem in pmap.selections %}
         {% accordion  pitem.1.header.name %}
+        <p><a href="/browse/{{pitem.1.header.name}}">imap</a></p><br/><br/>
             {% for iitem in pitem.1.selections %}
                 {% accordion iitem.1.header.name %}
                     <p><a href="/browse/{{iitem.1.header.name}}">rmap</a></p><br/><br/>
