@@ -1,5 +1,7 @@
 from django.db import models
 
+"""
+
 class Picture(models.Model):
 
     # This is a small demo using just two fields. The slug field is really not
@@ -25,3 +27,5 @@ class Picture(models.Model):
     def delete(self, *args, **kwargs):
         self.file.delete(False)
         super(Picture, self).delete(*args, **kwargs)
+
+"""
