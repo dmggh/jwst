@@ -134,10 +134,10 @@ crds.format_table = function (header_cols, body_rows) {
                           crds.tag("tr",
                                    crds.tag("th", header_cols)));
     var rows = "";
-    for (var row in body_rows) {
+    $.each(body_rows, function (index, row) {
         rows += crds.tag("tr", 
                          crds.tag("td", row));
-    };
+    });
     var body = crds.tag("tbody", rows);
     return crds.tag("table", header + body);
 };
@@ -155,9 +155,9 @@ crds.tag = function (tag, items, attrs) {
         var html = "";
         var t1 = "<" + tag + attr_str + ">";
         var t2 =  "</"+ tag + ">";
-        for (var item in items) {
+        $.each(items, function (index, item) {
             html += t1 + item + t2;
-        };
+        });
     };
     return html;
 };

@@ -583,7 +583,7 @@ class FileBlob(BlobModel):
         try:
             value = data_file.getval(read_from, fitskey)
         except Exception as exc:
-            log.error("Fetching keyword '%s' from '%s' failed: '%s'" % (fitskey, read_from, exc)
+            log.error("Fetching keyword '%s' from '%s' failed: '%s'" % (fitskey, read_from, exc))
             return
         try:
             setattr(self, model_field, sanitizer(value))
@@ -595,15 +595,20 @@ class FileBlob(BlobModel):
         log.info("Adding slow fields for", repr(self.name))
         if self.type == "reference":
             self.init_FITS_fields()
-        # self.sha1sum = self.compute_checksum()
+        self.sha1sum = self.compute_checksum()
         self.save()
+        try:
+            self.check_unique_sha1sum()
+        except CrdsError:
+            self.destroy()
+            raise
             
     def check_unique_sha1sum(self):
-        self.sha1sum = self.compute_checksum()
         matches = self.__class__.filter(sha1sum=self.sha1sum)
-        if len(matches) >= 1:
-            others = ", ".join([repr(str(x.name)) for x in matches if str(x.name) != str(self.name)])
-            raise CrdsError("Submitted file '%s' is identical to existing files: %s" % (self.uploaded_as, others))
+        for m in matches:
+            if m.name != self.name:
+                others = ", ".join([repr(str(x.name)) for x in matches if str(x.name) != str(self.name)])
+                raise CrdsError("Submitted file '%s' is identical to existing files: %s" % (self.uploaded_as, others))
 
     def compute_checksum(self):
         try:
@@ -745,11 +750,6 @@ def add_crds_file(observatory, upload_name, permanent_location,
     # note that modifying derivation fields changes the sha1sum of mappings.
     if add_slow_fields:
         blob.add_slow_fields()
-        try:
-            blob.check_unique_sha1sum()
-        except CrdsError:
-            blob.destroy()
-            raise
 
     # Set file permissions to read only.
     try:
