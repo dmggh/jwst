@@ -282,6 +282,16 @@ def get_context_history(observatory=OBSERVATORY, state="operational"):
     """Return the history of the specified context,  in reverse order of start date."""
     return [o for o in ContextHistoryModel.objects.filter(state=state).reverse() if o.observatory == observatory]
     # return [o for o in ContextHistoryModel.objects.all().reverse()]
+
+def get_context_by_date(date, observatory=OBSERVATORY):
+    """Return the history of the specified context,  in reverse order of start date."""
+    dt = timestamp.parse_date(date)
+    history = get_context_history(observatory)
+    i = 0
+    while  i < len(history) and dt < history[i].start_date:
+        i += 1
+    return str(history[i].context)
+
 # ============================================================================
 
 class BlobModel(CrdsModel):

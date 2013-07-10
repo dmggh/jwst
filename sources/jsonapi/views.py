@@ -11,7 +11,7 @@ from jsonrpc.exceptions import Error
 
 from crds.server.interactive import models as imodels, versions, database
 import crds.server.config as config
-from crds import rmap, utils, log
+from crds import rmap, utils, log, timestamp
 
 # =============================================================================
 
@@ -94,6 +94,9 @@ class BadListGlobError(Error):
 
 class InvalidDatasetIds(Error):
     """Expected a list of dataset id strings but got something else."""
+
+class InvalidDateFormat(Error):
+    """Received a date with an invalid format."""
 
 def check_known_file(file):
     """Check that `file` is known to CRDS, available, and/or not blacklisted."""
@@ -194,6 +197,14 @@ def check_string_list(strings):
         for name in strings:
             if not isinstance(name, basestring):
                 raise InvalidFileList("Expected list of strings or None.")
+            
+def check_date(date):
+    try:
+        if not re.match("\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d(\.\d+)?", date):
+            raise Exception("Forced date error")
+        return timestamp.parse_date(date)
+    except Exception:
+        raise InvalidDateFormat("Invalid date format '%s' should be YYYY-MM-DD HH:MM:SS" % date)
 
 # ===========================================================================
 
@@ -328,6 +339,59 @@ def get_dataset_ids(request, context, instrument):
     return database.get_dataset_ids(instrument, observatory=pmap.observatory)
 
 # ===============================================================
+# ===============================================================
+
+@jsonrpc_method('file_exists(filename=String)')
+def file_exists(request, filename):
+    return bool(imodels.file_exists(filename))
+
+@jsonrpc_method('get_default_context(observatory=String)')
+def get_default_context(request, observatory):
+    if observatory is None:
+        observatory = config.observatory
+    observatory = observatory.lower()
+    check_observatory(observatory)
+    return imodels.get_default_context(observatory, state="operational")
+
+@jsonrpc_method('get_context_by_date(date=String, observatory=String)')
+def get_context_by_date(request, date, observatory):
+    if observatory is None:
+        observatory = config.observatory
+    observatory = observatory.lower()
+    check_observatory(observatory)
+    dt = check_date(date)
+    try:
+        return imodels.get_context_by_date(date=dt, observatory=observatory)
+    except Exception, exc:
+        raise UnknownContextError("No CRDS context found corresponding to (prior to) date '%s'" % date)
+
+@jsonrpc_method('get_server_info()')
+def get_server_info(request):
+    info = {
+        "edit_context" : imodels.get_default_context(config.observatory),
+        "operational_context" : imodels.get_default_context(
+            config.observatory, state="operational"),
+        "observatory" : config.observatory,
+        "crds_version" : versions.get_version("crds"),
+        "reference_url": {
+            "checked" : {
+                config.observatory : config.CRDS_REFERENCE_URL,
+                },
+            "unchecked" : {
+                config.observatory : config.CRDS_UNCHECKED_REFERENCE_URL,
+                },
+            },
+        "mapping_url": {
+            "checked" : {
+                config.observatory : config.CRDS_MAPPING_URL,
+                },
+            "unchecked" : {
+                config.observatory : config.CRDS_UNCHECKED_MAPPING_URL,
+                },
+            },
+        }
+    return info
+
 
 #  XXXX Deprecated XXXXXXX <---------------------------------
 
@@ -366,47 +430,6 @@ def get_reference_url(request, context, reference):
     check_reference(reference)
     ctx = rmap.get_cached_mapping(context)
     return create_url(ctx.observatory, reference)
-
-# ===============================================================
-
-@jsonrpc_method('file_exists(filename=String)')
-def file_exists(request, filename):
-    return bool(imodels.file_exists(filename))
-
-@jsonrpc_method('get_default_context(observatory=String)')
-def get_default_context(request, observatory):
-    if observatory is None:
-        observatory = config.observatory
-    observatory = observatory.lower()
-    check_observatory(observatory)
-    return imodels.get_default_context(observatory, state="operational")
-    
-@jsonrpc_method('get_server_info()')
-def get_server_info(request):
-    info = {
-        "edit_context" : imodels.get_default_context(config.observatory),
-        "operational_context" : imodels.get_default_context(
-            config.observatory, state="operational"),
-        "observatory" : config.observatory,
-        "crds_version" : versions.get_version("crds"),
-        "reference_url": {
-            "checked" : {
-                config.observatory : config.CRDS_REFERENCE_URL,
-                },
-            "unchecked" : {
-                config.observatory : config.CRDS_UNCHECKED_REFERENCE_URL,
-                },
-            },
-        "mapping_url": {
-            "checked" : {
-                config.observatory : config.CRDS_MAPPING_URL,
-                },
-            "unchecked" : {
-                config.observatory : config.CRDS_UNCHECKED_MAPPING_URL,
-                },
-            },
-        }
-    return info
 
 #@jsonrpc_method('jsonapi.sayHello')
 #def whats_the_time(request, name='Lester'):
