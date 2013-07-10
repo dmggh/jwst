@@ -572,7 +572,7 @@ class FileBlob(BlobModel):
         self.set_fits_field("pedigree", "PEDIGREE")
         self.set_fits_field("reference_file_type", "REFTYPE")
         self.set_fits_field("useafter_date", "USEAFTER", timestamp.parse_date)
-        self.set_fits_field("comment", "COMMENT")
+        self.set_fits_field("comment", "DESCRIP")
  
     def set_fits_field(self, model_field, fitskey, sanitizer=lambda x: x):
         filename = self.uploaded_as or self.name
