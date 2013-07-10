@@ -235,18 +235,17 @@ def set_default_context(context, observatory=OBSERVATORY, state="edit", descript
         new_hist.state = state
         new_hist.save()
     
-        # Update activation dates of the new files in this context.
-        if state == "operational":
-            datestr = timestamp.format_date(new_hist.start_date)
-            context = rmap.load_mapping(context)
-            supported_files = set(context.reference_names() + context.mapping_names())
-            files = get_fileblob_map()
-            for fname, blob in files.items():
-                if fname in supported_files:
-                    if not blob.activation_date:
-                        log.verbose("Setting activation date of '{}' to '{}'".format(fname, datestr))
-                        blob.activation_date = new_hist.start_date
-                        blob.save()
+        datestr = timestamp.format_date(new_hist.start_date)
+        context = rmap.load_mapping(context)
+        supported_files = set(context.reference_names() + context.mapping_names())
+        files = get_fileblob_map()
+        for fname, blob in files.items():
+            if fname in supported_files:
+                if blob.activation_date == DEFAULT_ACTIVATION_DATE:
+                    log.info("Setting activation date of '{}' to '{}'".format(fname, datestr))
+                    blob.thaw()
+                    blob.activation_date = new_hist.start_date
+                    blob.save()
 
 def get_default_context(observatory=OBSERVATORY, state="edit"):
     """Return the latest context which is in `state`."""
@@ -459,6 +458,8 @@ FILE_STATUS_MAP = OrderedDict([
     ("cancelled", "red"),
 ])
 
+DEFAULT_ACTIVATION_DATE =  datetime.datetime(2050, 1, 1, 0, 0)
+
 class SimpleCharField(models.CharField):
     def __init__(self, choice_list, help_text, default):
         models.CharField.__init__(self, 
@@ -642,7 +643,7 @@ class FileBlob(BlobModel):
         blob.deliverer_email = deliverer_email
         blob.description = description
         # blob.delivery_date = timestamp.now()
-        blob.activation_date = datetime.datetime(2050, 1, 1, 0, 0)
+        blob.activation_date = DEFAULT_ACTIVATION_DATE
         try:
             instrument, filekind = utils.get_file_properties(observatory, permanent_location)
             blob.instrument = instrument
