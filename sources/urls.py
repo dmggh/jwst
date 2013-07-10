@@ -39,7 +39,7 @@ urlpatterns = patterns('',
     url(r'^batch_submit_references/$', 'crds.server.interactive.views.batch_submit_references'),
     url(r'^submit_confirm/$', 'crds.server.interactive.views.submit_confirm'),
             
-    url(r'^browse/(?P<filename>[A-Za-z0-9_.]+(fits|imap|rmap|pmap|r\dh))$', 
+    url(r'^browse/(?P<filename>[A-Za-z0-9_.]+(fits|imap|rmap|pmap|r\d[hd]))$', 
         'crds.server.interactive.views.browse_known_file'),
     url(r'^browse_db/$', 'crds.server.interactive.views.browse_db'),        
     url(r'^context_table/(?P<mapping>[a-zA-Z0-9_.]+)$', 'crds.server.interactive.views.context_table'),

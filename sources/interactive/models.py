@@ -576,10 +576,15 @@ class FileBlob(BlobModel):
  
     def set_fits_field(self, model_field, fitskey, sanitizer=lambda x: x):
         filename = self.uploaded_as or self.name
+        if data_file.is_geis_data(self.pathname):
+            read_from = self.pathname[:-1] + "h"
+        else:
+            read_from = self.pathname
         try:
-            value = data_file.getval(self.pathname, fitskey)
+            value = data_file.getval(read_from, fitskey)
         except Exception as exc:
-            log.error("Fetching keyword '%s' from '%s' failed: '%s'" % (fitskey, filename, exc))
+            log.error("Fetching keyword '%s' from '%s' failed: '%s'" % (fitskey, read_from, exc)
+            return
         try:
             setattr(self, model_field, sanitizer(value))
         except Exception as exc:
