@@ -128,7 +128,7 @@ mod_wsgi)
 #                cat servers/httpd.redirect_nodebug >> $install_dir/server/conf/httpd.conf
 #        fi
 
-        sed -e "s?SUB_APACHEMOD?$apachemod?g" -e "s?SUB_DIR?$install_dir?g" -e "s?SUB_PORT?$port?g" -e "s?SUB_CDBS?$PYSYN_CDBS?g"  < $install_dir/server/conf/httpd.conf > tmp
+        sed -e "s?SUB_APACHEMOD?$apachemod?g" -e "s?SUB_DIR?$install_dir?g" -e "s?SUB_PORT?$port?g" -e "s?SUB_CDBS?$PYSYN_CDBS?g"  -e "s?SUB_CRDS_PATH?$CRDS_PATH?g" < $install_dir/server/conf/httpd.conf > tmp
         mv tmp $install_dir/server/conf/httpd.conf
 
 
