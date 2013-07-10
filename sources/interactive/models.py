@@ -234,18 +234,18 @@ def set_default_context(context, observatory=OBSERVATORY, state="edit", descript
         new_hist.context = context
         new_hist.state = state
         new_hist.save()
-    
-        datestr = timestamp.format_date(new_hist.start_date)
-        context = rmap.load_mapping(context)
-        supported_files = set(context.reference_names() + context.mapping_names())
-        files = get_fileblob_map()
-        for fname, blob in files.items():
-            if fname in supported_files:
-                if blob.activation_date == DEFAULT_ACTIVATION_DATE:
-                    log.info("Setting activation date of '{}' to '{}'".format(fname, datestr))
-                    blob.thaw()
-                    blob.activation_date = new_hist.start_date
-                    blob.save()
+        if state == "operational":
+            datestr = timestamp.format_date(new_hist.start_date)
+            context = rmap.load_mapping(context)
+            supported_files = set(context.reference_names() + context.mapping_names())
+            files = get_fileblob_map()
+            for fname, blob in files.items():
+                if fname in supported_files:
+                    if blob.activation_date == DEFAULT_ACTIVATION_DATE:
+                        log.info("Setting activation date of '{}' to '{}'".format(fname, datestr))
+                        blob.thaw()
+                        blob.activation_date = new_hist.start_date
+                        blob.save()
 
 def get_default_context(observatory=OBSERVATORY, state="edit"):
     """Return the latest context which is in `state`."""
