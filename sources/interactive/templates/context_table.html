@@ -11,23 +11,20 @@
 {% block contents %}
 
 <h2>
-    Browse {{pmap.header.name|gray}}     
+    Browse {{pmap.header.name|browse}}     
 </h2> 
 
-{% accordion pmap.header.name %}
-    <p><a href="/browse/{{pmap.header.name}}">pmap</a></p><br/><br/>
-    {% for pitem in pmap.selections %}
-        {% accordion  pitem.1.header.name %}
-        <p><a href="/browse/{{pitem.1.header.name}}">imap</a></p><br/><br/>
-            {% for iitem in pitem.1.selections %}
-                {% accordion iitem.1.header.name %}
-                    <p><a href="/browse/{{iitem.1.header.name}}">rmap</a></p><br/><br/>
-                    <div class="rmap_tag" url="/context_table/{{iitem.1.header.name}}">{{iitem.1.header.name}}</div>        
-                {% endaccordion %}
-            {% endfor %}
-        {% endaccordion %}
-    {% endfor %}
-{% endaccordion %}
+{% for pitem in pmap.selections %}
+    {% accordion  "<span class='blue'>" pitem.0 "</span>" %}
+        <p><a href="/browse/{{pitem.1.header.name}}">{{pitem.1.header.name}}</a></p><br/>
+        {% for iitem in pitem.1.selections %}
+            {% accordion "<span class='blue'>" iitem.1.header.filekind "</span> ---- <span class='green'>"  iitem.1.text_descr "</span>" %}
+                <p><a href="/browse/{{iitem.1.header.name}}">{{iitem.1.header.name}}</a></p><br/>
+                <div class="rmap_tag" url="/context_table/{{iitem.1.header.name}}">{{iitem.1.header.name}}</div>        
+            {% endaccordion %}
+        {% endfor %}
+    {% endaccordion %}
+{% endfor %}
 
 <br/><br/>
 
@@ -40,6 +37,7 @@ $(function () {
             var div = $(ui.newContent).find(".rmap_tag");
             var url = div.attr("url");
             console.log("Fetching " + url);
+            div.html($("<p class='green'>").html("Formatting table..."));
             $.ajax({
                 url : url,
                 context: document.body
