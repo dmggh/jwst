@@ -5,7 +5,7 @@ config.locate_reference().   locate_server_reference() knows about CDBS file pat
 point of this script is to make standard CRDS paths work on the server without copying all
 of CDBS.
 """
-import os
+import sys, os, shutil, re
 
 from crds import config, log, rmap, utils
 import crds.hst.locate as locate
@@ -20,16 +20,25 @@ def main():
         except:
             log.warning("CDBS path",repr(cdbs_path),"does not exist.")
             continue
+        copy_or_link(filename, cdbs_path, crds_path)
+        if re.match(".*\.r[0-9]h$", filename): # also handle GEIS data
+            copy_or_link(filename[:-1]+"d", cdbs_path[:-1]+"d", crds_path[:-1]+"d")
+    log.standard_status()
+
+def copy_or_link(filename, cdbs_path, crds_path):
         if os.path.exists(crds_path):
-            log.info("Skipping existing link for", repr(filename))
-            continue
+            log.info("Skipping existing", repr(filename))
+            return
         try:
             utils.ensure_dir_exists(crds_path, mode=0755)
-            os.symlink(cdbs_path, crds_path)
-            log.info("Linking", repr(crds_path), "-->", repr(cdbs_path))
+            if "--copy" in sys.argv:
+                log.info("Copying", repr(cdbs_path), "-->", repr(crds_path))
+                shutil.copyfile(cdbs_path, crds_path)
+            else:
+                log.info("Linking", repr(cdbs_path), "-->", repr(crds_path))
+                os.symlink(cdbs_path, crds_path)
         except Exception, exc:
-            log.error("Error linking",repr(crds_path),"-->",repr(cdbs_path),":",str(exc))
-    log.standard_status()
+            log.error("Error for",repr(crds_path),"-->",repr(cdbs_path),":",str(exc))
 
 if __name__ == "__main__":
     main()

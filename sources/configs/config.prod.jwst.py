@@ -19,7 +19,7 @@ CATALOG_DB_DSN = "HarpoDadsopsRepDsn"
 REFFILE_DB_DSN = "HarpoReffileOpsRepDsn"
 
 servertype = 'mod_wsgi'
-apachemod = install_root + "/webserver/lib"
+apachemod = install_root + "/lib"
 dbtype = 'mysql'
 
 PYSYN_CDBS = ""

@@ -21,7 +21,7 @@ REFFILE_DB_DSN = "HarpoReffileOpsRepDsn"
 CRDS_URL = "http://" + HOST + ".stsci.edu:" + str(port) + "/"
 
 servertype = 'mod_wsgi'
-apachemod = install_root + "/webserver/lib"
+apachemod = install_root + "/lib"
 dbtype = 'mysql'
 
 PYSYN_CDBS = ""
