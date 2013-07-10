@@ -11,7 +11,7 @@ from unittest import TestCase
 import crds
 import crds.config
 
-from crds import pysh, rmap, selectors, log, pysh, heavy_client
+from crds import pysh, rmap, selectors, log, pysh, heavy_client, timestamp
 import crds.client as client
 import crds.server.config as server_config
 
@@ -303,6 +303,14 @@ if server_config.observatory == "hst":
         def test_client_get_reference_names(self):
             references = client.get_reference_names(self.pmap)
             self.failUnless(11775 < len(references) < 20000)
+            
+        def test_get_context_by_date(self):
+            context = client.get_context_by_date(timestamp.now())
+            assert context.endswith(".pmap")
+            
+        def test_get_context_by_date_fail(self):
+            with self.assertRaisesRegexp(crds.CrdsError, "InvalidDateFormat"):
+                context = client.get_context_by_date("bad time format")
 
 
 # ===========================================================================
