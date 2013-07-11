@@ -48,6 +48,7 @@ $(function () {
                     });
                     var table = $(crds.format_table(json["parameters"], json["selections"]));
                     table.hide();
+                    table.css({"font-size":"0.7em"});
                     div.html(table);
                     table.dataTable({
                         "aLengthMenu": [[100, 200, 500, -1], [100, 200, 500, "All"]],
