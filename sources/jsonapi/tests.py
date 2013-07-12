@@ -15,6 +15,8 @@ from crds import pysh, rmap, selectors, log, pysh, heavy_client, timestamp
 import crds.client as client
 import crds.server.config as server_config
 
+from crds.server.jsonapi import views
+
 class ServiceApiBase(object):
 
     @classmethod
@@ -230,7 +232,29 @@ class ServiceApiBase(object):
     def test_getreferences_fallup_remote_ignore(self):
         self.getreferences_fallup("remote", ignore_cache=True)
 
+    def test_get_context_by_date(self):
+        context = client.get_context_by_date(self.context_date)
+        assert context.endswith(".pmap")
+            
+    def test_get_context_by_date_obs(self):
+        context = client.get_context_by_date(self.context_date_obs)
+        assert context.endswith(".pmap")
+
+    def test_get_context_by_date_instr(self):
+        context = client.get_context_by_date(self.context_date_instr)
+        assert context.endswith(".imap")
+            
+    def test_get_context_by_date_filekind(self):
+        context = client.get_context_by_date(self.context_date_filekind)
+        assert context.endswith(".rmap")
+            
+    def test_get_context_by_date_fail(self):
+        with self.assertRaisesRegexp(crds.CrdsError, "UnknownContextError"):
+            context = client.get_context_by_date("bad time format")
+
 # ===========================================================================
+# ===========================================================================
+
 if server_config.observatory == "hst":
     print "testing hst"
     class HstServiceApiTest(ServiceApiBase, TestCase):
@@ -247,6 +271,11 @@ if server_config.observatory == "hst":
         
         requested_types = ["biasfile","darkfile"]
         
+        context_date = "2050-01-01T12:00:00"
+        context_date_obs = "hst-2050-01-01T12:00:00"        
+        context_date_instr = "hst-acs-2050-01-01T12:00:00"
+        context_date_filekind = "hst-acs-darkfile-2050-01-01T12:00:00"
+
         header = {
          'APERTURE': 'UVIS',
          'BINAXIS1': '1.0',
@@ -298,21 +327,12 @@ if server_config.observatory == "hst":
         # take note and update.
         def test_client_get_mapping_names(self):
             mappings = client.get_mapping_names(self.pmap)
-            self.failUnless(100 < len(mappings) < 120)
+            self.failUnless(100 < len(mappings) < 200)
     
         def test_client_get_reference_names(self):
             references = client.get_reference_names(self.pmap)
-            self.failUnless(11775 < len(references) < 20000)
+            self.failUnless(11775 < len(references) < 30000)
             
-        def test_get_context_by_date(self):
-            context = client.get_context_by_date(timestamp.now())
-            assert context.endswith(".pmap")
-            
-        def test_get_context_by_date_fail(self):
-            with self.assertRaisesRegexp(crds.CrdsError, "InvalidDateFormat"):
-                context = client.get_context_by_date("bad time format")
-
-
 # ===========================================================================
 
 if server_config.observatory == "jwst":
@@ -337,7 +357,12 @@ if server_config.observatory == "jwst":
         
         test_reference = 'jwst_miri_flat_0001.fits'        
         test_dataset = "interactive/test_data/jw00001001001_01101_00001_MIRIMAGE_uncal.fits"
-        
+         
+        context_date = "2050-01-01T12:00:00"
+        context_date_obs = "jwst-2050-01-01T12:00:00"        
+        context_date_instr = "jwst-miri-2050-01-01T12:00:00"
+        context_date_filekind = "jwst-miri-flat-2050-01-01T12:00:00"
+
         def expected_references(self):
             return {
                     "flat" : "jwst_miri_flat_0001.fits",

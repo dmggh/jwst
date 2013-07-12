@@ -37,7 +37,7 @@ $(function () {
             var div = $(ui.newContent).find(".rmap_tag");
             var url = div.attr("url");
             console.log("Fetching " + url);
-            div.html($("<p class='green'>").html("Formatting table..."));
+            div.html($("<p class='green'>").html("Working..."));
             $.ajax({
                 url : url,
                 context: document.body
