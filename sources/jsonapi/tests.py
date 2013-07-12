@@ -115,10 +115,10 @@ class ServiceApiBase(object):
         keys["observatory"] = self.observatory
         os.environ["CRDS_DOWNLOAD_MODE"] = "http"
         log.debug("Skipping getrecommendations download mode RPC")
-        return crds.getreferences(*args, **keys)
+        return crds.getrecommendations(*args, **keys)
 #        os.environ["CRDS_DOWNLOAD_MODE"] = "rpc"
 #        heavy_client.get_processing_mode.cache.clear()
-#        return crds.getreferences(*args, **keys)
+#        return crds.getrecommendations(*args, **keys)
 
     def test_getreferences_defaults(self, ignore_cache=False):
         bestrefs = self.getreferences(self.get_header(), ignore_cache=ignore_cache, context=self.pmap)
