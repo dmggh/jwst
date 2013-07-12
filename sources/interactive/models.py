@@ -241,7 +241,7 @@ def set_default_context(context, observatory=OBSERVATORY, state="edit", descript
             files = get_fileblob_map()
             for fname, blob in files.items():
                 if fname in supported_files:
-                    if blob.activation_date == DEFAULT_ACTIVATION_DATE:
+                    if blob.activation_date.year == DEFAULT_ACTIVATION_DATE.year:
                         log.info("Setting activation date of '{}' to '{}'".format(fname, datestr))
                         blob.thaw()
                         blob.activation_date = new_hist.start_date
