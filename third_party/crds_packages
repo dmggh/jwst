@@ -4,7 +4,7 @@ pyfits_svn
 stpipe
 
 Django
-django-json-rpc-git
+django-json-rpc
 # django-locking-master  built-in
 
 # debug tools
