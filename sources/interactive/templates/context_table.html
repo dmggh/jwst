@@ -34,9 +34,13 @@ $(function () {
     $(".accordion").accordion({
         change: function( event, ui ) {
             console.log(event);
-            var div = $(ui.newContent).find(".rmap_tag");
+            var div = $(ui.newContent).children("div.rmap_tag");
             var url = div.attr("url");
-            console.log("Fetching " + url);
+            if (!url) {
+               // console.log("no url,  skipping fetch.");
+               return;
+            };
+            // console.log("Fetching " + url);
             div.html($("<p class='green'>").html("Working..."));
             $.ajax({
                 url : url,
@@ -51,8 +55,8 @@ $(function () {
                     table.css({"font-size":"0.7em"});
                     div.html(table);
                     table.dataTable({
-                        "aLengthMenu": [[100, 200, 500, -1], [100, 200, 500, "All"]],
-                        "iDisplayLength" : 500                  
+                        "aLengthMenu": [[100, 200, 500, 1000, 2000, -1], [100, 200, 500, 1000, 2000, "All"]],
+                        "iDisplayLength" : -1                  
                     });
                     table.show();
             });

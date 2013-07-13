@@ -133,31 +133,34 @@ crds.format_table = function (header_cols, body_rows) {
     var header = crds.tag("thead",
                           crds.tag("tr",
                                    crds.tag("th", header_cols)));
-    var rows = "";
+    var rows = new Array(), j = -1;
     $.each(body_rows, function (index, row) {
-        rows += crds.tag("tr", 
+        rows[++j]= crds.tag("tr", 
                          crds.tag("td", row));
     });
-    var body = crds.tag("tbody", rows);
+    var body = crds.tag("tbody", rows.join(''));
     return crds.tag("table", header + body);
 };
 
 crds.tag = function (tag, items, attrs) {
-    var attr_str = "";
+    var attr_str = new Array(), j = -1;
     for (var attr in attrs) {
     	if (attrs.hasOwnProperty(attr)) {
-	        attr_str += " " + attr + "='" + attrs[attr] +"'";
+	        attr_str[++j] = " " + attr + "='" + attrs[attr] +"'";
 	    }
     };
+    // items can be a simple string producing one element.
     if (typeof(items) === 'string') {
-        var html = "<" + tag + attr_str + ">" + items + "</"+ tag + ">";
+        var html = "<" + tag + attr_str.join('') + ">" + items + "</"+ tag + ">";
     } else {
-        var html = "";
-        var t1 = "<" + tag + attr_str + ">";
+    // items can be an array producing a concatenation of elements.
+        var html_arr = new Array(), j = -1;
+        var t1 = "<" + tag + attr_str.join('') + ">";
         var t2 =  "</"+ tag + ">";
         $.each(items, function (index, item) {
-            html += t1 + item + t2;
+            html_arr[++j] = t1 + item + t2;
         });
+        var html = html_arr.join('');
     };
     return html;
 };
