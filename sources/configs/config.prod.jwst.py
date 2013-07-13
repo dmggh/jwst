@@ -18,6 +18,8 @@ CATALOG_DB_PFILE = "/crds/data1/database/crds.dat"
 CATALOG_DB_DSN = "HarpoDadsopsRepDsn"
 REFFILE_DB_DSN = "HarpoReffileOpsRepDsn"
 
+CRDS_URL = "http://" + HOST + ".stsci.edu:" + str(port) + "/"
+
 servertype = 'mod_wsgi'
 apachemod = install_root + "/lib"
 dbtype = 'mysql'
