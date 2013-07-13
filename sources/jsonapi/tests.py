@@ -128,12 +128,20 @@ class ServiceApiBase(object):
         bestrefs = self.getreferences(self.get_header(), ignore_cache=ignore_cache, context=self.imap)
         self._check_bestrefs(bestrefs, self.expected_references().keys())
 
+    def test_getreferences_defaults_by_date(self, ignore_cache=False):
+        bestrefs = self.getreferences(self.get_header(), ignore_cache=ignore_cache, context=self.pmap_date)
+        self._check_bestrefs(bestrefs, self.expected_references().keys())
+
     def test_getrecommendations_defaults(self, ignore_cache=False):
         bestrefs = self.getrecommendations(self.get_header(), ignore_cache=ignore_cache, context=self.pmap)
         self._check_bestrefs(bestrefs, self.expected_references().keys())
 
     def test_getrecommendations_defaults_imap(self, ignore_cache=False):
         bestrefs = self.getrecommendations(self.get_header(), ignore_cache=ignore_cache, context=self.imap)
+        self._check_bestrefs(bestrefs, self.expected_references().keys())
+
+    def test_getrecommendations_defaults_by_date(self, ignore_cache=False):
+        bestrefs = self.getrecommendations(self.get_header(), ignore_cache=ignore_cache, context=self.pmap_date)
         self._check_bestrefs(bestrefs, self.expected_references().keys())
 
     def test_getreferences_specific_reftypes(self):
@@ -259,6 +267,7 @@ if server_config.observatory == "hst":
     print "testing hst"
     class HstServiceApiTest(ServiceApiBase, TestCase):
         pmap = "hst.pmap"
+        pmap_date = "hst-2040-01-25T00:05:45"
         imap = "hst_wfc3.imap"
         
         observatory = server_config.observatory
@@ -339,6 +348,7 @@ if server_config.observatory == "jwst":
     print "testing jwst"
     class JwstServiceApiTest(ServiceApiBase, TestCase):
         pmap = "jwst.pmap"
+        pmap_date = "jwst-2040-01-25T00:05:45"
         imap = "jwst_miri.imap"
 
         observatory = server_config.observatory
