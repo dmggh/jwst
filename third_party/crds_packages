@@ -1,7 +1,7 @@
 readline
 stsci_tools
 pyfits_svn
-stpipe
+models
 
 Django
 django-json-rpc
