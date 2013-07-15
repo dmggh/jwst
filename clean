@@ -1,6 +1,8 @@
 #! /bin/csh
 
-rm -f run stop env.csh
+# Script to remove temporary install files which show up as ? in svn status
+
+# rm -f run stop env.csh
 foreach obj (build svn_version.py crds_database.py site_config.py)
         rm -rf sources/$obj
 end
@@ -9,3 +11,6 @@ foreach obj (_files _references _mappings)
     rm -f tools/hst$obj
     rm -f tools/jwst$obj
 end
+
+rm -f servers/httpd.conf*
+rm -f make_env.tmp

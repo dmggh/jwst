@@ -13,12 +13,10 @@ install_root = '/crds/data1/' + HOST
 # This is a Isilon storage /crds/hst/production used as file space
 storage_path = '/crds/' + observatory + '/' + server_usecase
 
-# XXX PLACEHOLDERS, not valid for JWST
 CATALOG_DB_USER = "crds"
 CATALOG_DB_PFILE = "/crds/data1/database/crds.dat"
 CATALOG_DB_DSN = "HarpoDadsopsRepDsn"
 REFFILE_DB_DSN = "HarpoReffileOpsRepDsn"
-# XXX PLACEHOLDERS, not valid for JWST
 
 CRDS_URL = "http://" + HOST + ".stsci.edu:" + str(port) + "/"
 
