@@ -396,7 +396,7 @@ echo ''
 
 case ${server_mode}
     in
-    test) 
+    "test" | "prod") 
 	echo "Setting permissions"
 	# chown crds.crdsoper ${install_root}
 	# chown crds.crdsoper ${install_root}/*
@@ -420,7 +420,7 @@ case ${server_mode}
 	# chown crds.ssb ${install_root}/ingest_ssb
 	chmod 6775 ${install_root}/ingest_ssb
 	;;
-    dev)
+    "dev" )
 	;;
 esac
 
