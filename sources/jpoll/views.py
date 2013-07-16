@@ -77,15 +77,21 @@ class JpollHandler(object):
             self.channel = None
 
     def write(self, message):
-        if self.channel is not None:
-            self.channel.log(message)
-        
+        try:
+            if self.channel is not None:
+                self.channel.log(message)
+        except Exception as exc:
+            sys.stderr.write("ERROR in JPOLL write() of '%s': exception '%s'" % (message, str(exc)))
+            
     def flush(self):
         pass
     
     def done(self, status, result):
-        if self.channel is not None:
-            self.channel.done(status, result)
+        try:
+            if self.channel is not None:
+                self.channel.done(status, result)
+        except Exception as exc:
+            sys.stderr.write("ERROR in JPOLL done() of %s: exception '%s'" % ((status, result), str(exc)))
 
 #---------------------------------------------------------------------------------------------
 
