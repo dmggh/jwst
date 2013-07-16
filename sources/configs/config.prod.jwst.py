@@ -1,4 +1,4 @@
-debug = DEBUG = True
+debug = DEBUG = False
 DEBUG_EXTRAS = False
 
 HOST = "pljwstcrdsv1"
