@@ -332,13 +332,8 @@ class BatchReferenceSubmission(FileSubmission):
         
         rmap_disposition, rmap_certs = self.bsr_certify_new_mapping_list(new_mappings_map, context=comparison_context)
         
-#        # Generate a new context referring to the new rmap
-#        higher_level_mapping_map = self.do_create_contexts(new_mappings_map.values())
-#        
-#        new_mappings_map.update(higher_level_mapping_map)
         collision_list = self.get_collision_list(new_mappings_map.values())
         
-        # Just display the .pmap,  which recursively captures the others and sorts first.
         diff_results = self.mass_differences(new_mappings_map)
         
         disposition = rmap_disposition or reference_disposition
