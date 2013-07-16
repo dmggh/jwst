@@ -39,7 +39,7 @@ presents any errors as well as provenance information for review.
 <p><p>NOTE: If you have installed CRDS,  you can certify files locally like 
 this:
 <pre>% python -m crds.certify ./hst_acs_biasfile_0001.rmap</pre> 
-<pre>% python -m crds.certify --context=hst.pmap  --dump-provenance ./myfile.fits</pre>
+<pre>% python -m crds.certify --comparison-context=hst.pmap  --dump-provenance ./myfile.fits</pre>
 
 <p><p>WARNING: certification of context files,  pmaps and imaps, is a transitive 
 check so it may certify many mappings and can be slow.
