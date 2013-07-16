@@ -17,7 +17,26 @@ class CounterModelAdmin(admin.ModelAdmin):
 admin.site.register(CounterModel, CounterModelAdmin)
 
 class FileBlobAdmin(admin.ModelAdmin):
-    search_fields = ["name"]
+    search_fields = ["name", "state"]
+    
+    actions = ["destroy_uploaded_file"]
+
+    def destroy_uploaded_file(self, request, queryset):
+        """Support cleaning up error conditions from failed file submissions;  
+        It will destroy both the database record and server cache copy of a file.
+        """
+        result = []
+        for fileblob in queryset:
+            fileblob.thaw()
+            if fileblob.state == "uploaded":
+                result.append("Destroyed '%s'." % fileblob.name)
+                fileblob.destroy()
+            else:
+                result.append("Skipped '%s' non-upload state file with state '%s'." % (fileblob.name, fileblob.state))
+        self.message_user(request, "\n".join(result))
+            
+    destroy_uploaded_file.short_description = "Destroy uploaded file:  cleanup database and cache copy (DANGER! no confirmation)"
+
 admin.site.register(FileBlob, FileBlobAdmin)
 
 class AuditBlobAdmin(admin.ModelAdmin):
@@ -27,3 +46,4 @@ admin.site.register(AuditBlob, AuditBlobAdmin)
 class RepeatableResultBlobAdmin(admin.ModelAdmin):
     search_fields = ["id"]
 admin.site.register(RepeatableResultBlob, RepeatableResultBlobAdmin)
+
