@@ -25,15 +25,14 @@ class FileBlobAdmin(admin.ModelAdmin):
         """Support cleaning up error conditions from failed file submissions;  
         It will destroy both the database record and server cache copy of a file.
         """
-        result = []
         for fileblob in queryset:
             fileblob.thaw()
             if fileblob.state == "uploaded":
-                result.append("Destroyed '%s'." % fileblob.name)
                 fileblob.destroy()
+                self.message_user(request, "Destroyed %s." % fileblob.moniker)
             else:
-                result.append("Skipped '%s' non-upload state file with state '%s'." % (fileblob.name, fileblob.state))
-        self.message_user(request, "\n".join(result))
+                self.message_user(request, "Skipped %s non-upload state file with state '%s'." % 
+                                  (fileblob.moniker, fileblob.state))
             
     destroy_uploaded_file.short_description = "Destroy uploaded file:  cleanup database and cache copy (DANGER! no confirmation)"
 

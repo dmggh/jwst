@@ -136,21 +136,58 @@ class FileSubmission(object):
     def __init__(self, pmap_name, uploaded_files, description, user, creator="UNKNOWN",
                  change_level="SEVERE", auto_rename=True, compare_old_reference=False,
                  locked_instrument=None, status_channel=None):
-        self.pmap = rmap.get_cached_mapping(pmap_name)
+        self.pmap_name = pmap_name
         self.observatory = self.pmap.observatory
         self.uploaded_files = uploaded_files
         self.description = description
-        self.user = user if isinstance(user, User) else User.objects.get(username=user)
+        self.user_name = str(user) if isinstance(user, User) else user
+        self.user = User.objects.get(username=self.user_name)
+        self._user = None
         self.creator = creator
         self.change_level = change_level
         self.auto_rename = auto_rename
         self.compare_old_reference = compare_old_reference
         self.locked_instrument = locked_instrument
         self.status_channel = status_channel
-
-    def submit(self):
-        """Validate the submitted files and add them to the database."""
+        self.added_files = []
         
+    @property
+    def pmap(self):
+        return rmap.get_cached_mapping(self.pmap_name)
+        
+    @property
+    def upload_names(self):
+        return self.uploaded_files.keys()
+
+    def __repr__(self):
+        fields = [a+"="+repr(getattr(self, a)) for a in ["pmap_name","user_name","upload_names","description"]]
+        return self.__class__.__name__ + "(" + ", ".join(fields) + ")"
+
+    def submit(self, *args, **keys):
+        """Validate the submitted files and add them to the database."""
+        try:
+            result = self._submit(*args, **keys)
+            # raise RuntimeError("Unforseen event!!!")
+            return result
+        except Exception as exc:
+            self.cleanup_failed_submission()
+            raise
+        
+    def cleanup_failed_submission(self):
+        """Cleanup loose ends from a failed file submission,  particularly those files which have been
+        added already when something fails.
+        """
+        log.info("Cleanup failed submission", repr(self))
+        with log.error_on_exception("cleanup_failed_submission() failed removing added files"):
+            for uploaded_name, path in self.added_files:
+                blobs = models.FileBlob.filter(uploaded_as=uploaded_name, include_uploaded=True)
+                for blob in blobs:      
+                    with log.error_on_exception("File cleanup for '%s' failed." % uploaded_name):
+                        if blob.state == "uploaded":
+                            blob.destroy()
+                        else:
+                            log.info("Skipping blob", blob.moniker, "with state", blob.state)
+
     def ensure_unique_uploaded_names(self):
         """Make sure there are no duplicate names in the submitted file list."""
         # This is a sensible check for files originating on the command line.
@@ -264,9 +301,10 @@ class FileSubmission(object):
 
     def add_crds_file(self, original_name, filepath, state="uploaded"):
         """Create a FileBlob model instance using properties of this FileSubmission."""
+        self.added_files.append((original_name, filepath))
         return models.add_crds_file(self.observatory, original_name, filepath,  str(self.user), self.user.email, 
             self.description, change_level=self.change_level, creator_name=self.creator, state=state)
-        
+    
     def verify_instrument_lock(self):
         """Ensure that all the submitted files correspond to the locked instrument."""
         paths = dict(self.uploaded_files).values()
@@ -308,7 +346,7 @@ class BatchReferenceSubmission(FileSubmission):
     """Submit the uploaded files as references,  and automatically generate new rmaps and contexts relative to
     the specified derivation context (pmap_name).
     """
-    def submit(self):
+    def _submit(self):
         """Certify and submit the files,  returning information to confirm/cancel."""
         # Verify that ALL references certify,  raise CrdsError on first error.
         comparison_context = self.pmap.name if self.compare_old_reference else None
@@ -449,7 +487,7 @@ class BatchReferenceSubmission(FileSubmission):
 class SimpleFileSubmission(FileSubmission):
     """Submit primitive files.   For pure-rmap submissions,  optionally generate contexts."""
 
-    def submit(self, crds_filetype, generate_contexts):
+    def _submit(self, crds_filetype, generate_contexts):
         """Submit simple files to CRDS, literally, without making automatic rules adjustments.
         
         crds_filetype:       str  -- "reference" or "mapping"

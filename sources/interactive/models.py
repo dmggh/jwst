@@ -404,6 +404,7 @@ class BlobModel(CrdsModel):
         blob = json_ext.loads(self.blob)
         for name, value in blob.items():
             setattr(self, name, value)
+        return self
 
     @staticmethod    
     def _filter(cls, **matches):
@@ -579,6 +580,13 @@ class FileBlob(BlobModel):
         # TODO add general_availabilty_date....
         return self.state in config.CRDS_DISTRIBUTION_STATES and not self.is_bad_file
     
+    @property
+    def moniker(self):
+        try:
+            return repr(self.uploaded_as) + " --> " + repr(self.name)
+        except:
+            return "FileBlob-" + str(self.id)
+
     def init_FITS_fields(self):
         self.set_fits_field("pedigree", "PEDIGREE")
         self.set_fits_field("reference_file_type", "REFTYPE")
@@ -603,7 +611,7 @@ class FileBlob(BlobModel):
 
     def add_slow_fields(self):
         self.thaw()
-        log.info("Adding slow fields for", repr(self.name))
+        log.info("Adding slow fields for",  self.moniker)
         if self.type == "reference":
             self.init_FITS_fields()
         self.sha1sum = self.compute_checksum()
@@ -624,10 +632,10 @@ class FileBlob(BlobModel):
     def compute_checksum(self):
         try:
             checksum = utils.checksum(self.pathname)
-            log.verbose("Computed checksum for", repr(self.name), "as", repr(checksum))
+            log.verbose("Computed checksum for", repr(self.moniker), "as", repr(checksum))
             return checksum
         except Exception, exc:
-            log.error("Computing sha1sum of", repr(self.pathname), "failed:", str(exc))
+            log.error("Computing sha1sum of", repr(self.moniker), "failed:", str(exc))
             return "checksum failed: " + str(exc)
 
     @property
@@ -683,7 +691,7 @@ class FileBlob(BlobModel):
     
     def compute_size(self):
         """Determine the size of this file."""
-        with log.error_on_exception("Computing size of", repr(self.name)):
+        with log.error_on_exception("Computing size of", self.moniker):
             return os.stat(self.pathname).st_size
         return -1
     
@@ -715,14 +723,11 @@ class FileBlob(BlobModel):
         cannot be revoked and should *ONLY* be called as part of cleanup for
         a failed multi-part file submission.
         """
-        try:
-            log.info("DESTROYING", repr(self.pathname))
-            assert "/grp/hst/cdbs" not in self.pathname,   \
-                "Can't delete borrowed CDBS file."
-            os.remove(self.pathname)
+        with log.error_on_exception("Problem destroying", repr(self.moniker), ":", self.pathname):
+            log.info("DESTROYING", self.moniker, ":", repr(self.pathname))
+            assert "/grp/hst/cdbs" not in self.pathname,  "Can't delete borrowed CDBS file."
             self.delete()
-        except Exception, exc:
-            log.error("Problem destroying", repr(self.pathname))
+            os.remove(self.pathname)
 
     @property
     def collisions(self):
@@ -734,8 +739,11 @@ class FileBlob(BlobModel):
     # Hokeyness because BlobModel doesn't actually have .objects because it
     # it is abstract... so normal class method inheritance techniques fail.
     @classmethod
-    def filter(cls, **matches):  # omit "uploaded" files from filter result
-        return [file_ for file_ in BlobModel._filter(FileBlob, **matches) if file_.state != "uploaded"]
+    def filter(cls, include_uploaded=False, **matches):  # omit "uploaded" files from filter result
+        if include_uploaded:
+            return BlobModel._filter(FileBlob, **matches)
+        else:
+            return [file_ for file_ in BlobModel._filter(FileBlob, **matches) if file_.state != "uploaded"]
 
 # ============================================================================
 

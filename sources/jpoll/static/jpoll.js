@@ -53,13 +53,27 @@ jpoll.done = function(time, result) {
 jpoll.response_success = function (form, result) {
     jpoll.log("RESPONSE_SUCCESS (built-in): " + result.length + " bytes");
     jpoll.stop();
-    document.open();
-    document.write(result);
-    document.close();
+    doc = document.open();
+    doc.write(result);
+    doc.close();
 };
 
-jpoll.response_error = function (form) {
-    jpoll.log("RESPONSE_ERROR (built-in): " + form);
+jpoll.response_error = function (form, response) {
+    console.log("RESPONSE_ERROR (built-in): ", form, " : ", response);
+    if (response.status == 0) {
+        return;
+    }
+    jpoll.stop();
+    doc = document.open();
+    doc.write("<p>REQUEST FAILED:</p><pre>" + response.responseText + "<pre>");
+    doc.close();
+};
+
+jpoll.ajax_error = function (event, request, settings) {
+    console.log("AJAX ERROR (built-in): ",  event, request, settings);
+    if (request.status == 0) {
+        return;
+    }
 };
 
 // Establish the polling channel.
@@ -128,14 +142,17 @@ jpoll.make_form_ajax = function(junk, form) {
         // context: document,
         success: function (html) {
             jpoll.log("AJAX submit " + form + " succeeded: " + html.length + " bytes");
-            jpoll.response_success(form, html);
+            return jpoll.response_success(form, html);
             // document.body.innerHtml = html;
         },
         error: function(html) {
-            jpoll.log("AJAX submit " + form + " failed");
-            jpoll.response_error(form);
+            console.log("AJAX submit ", form, " failed", html);
+            return jpoll.response_error(form, html);
         },
     });
+    $(document).ajaxError(function(event, request, settings) {
+        jpoll.ajax_error(event, request, settings)
+    });    
     jpoll.open_channel();   //  potentially this could be done later,  just before submit.
 };    
 
