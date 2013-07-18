@@ -1,4 +1,4 @@
-#! /bin/sh 
+#! /bin/sh -x
 
 # This install script is heavily based on the PyETC install script
 # CRDS is intended to use the same LAMP stack as pyetc, with emphasis on Python
@@ -353,12 +353,15 @@ mysql)
 
 esac
 
+# Install prototype mappings (no serial number) in server cache automatically
+# Deliver "real" or cloned mappings and references using submit references followed by submit
+# mappings.
 mapping_source_dir=`python tools/get_mapping_dir.py ${observatory}`
 echo
-echo "Copying mappings from ${mapping_source_dir} to ${map_path_full}"
+echo "Copying prototype mappings from ${mapping_source_dir} to ${map_path_full}"
 echo
 mkdir -p ${map_path_full}
-for mapping in ${mapping_source_dir}/*.*map;
+for mapping in `ls -1 ${mapping_source_dir}/*.*map | grep -v 0`;
 do
   cp -v ${mapping} ${map_path_full} 2>/dev/null 1>/dev/null
 done
@@ -427,15 +430,9 @@ esac
 case ${observatory}
     in
     jwst)
-	echo "Installing jwst references"
-	case ${server_mode}
-	    in
-	    dev)
-		mkdir -p -m 755 ${ref_path}/jwst
-		cp -v ../jwst_references/*.fits ${ref_path}/jwst
-		;;
-	esac
-	;;
+	echo "Installing jwst prototype references"
+	mkdir -p -m 755 ${ref_path_full}
+	cp -v ../jwst_references/*.fits ${ref_path_full}
 esac
 
 echo "Silently installing static files."

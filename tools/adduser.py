@@ -18,6 +18,7 @@ def adduser(user, email, password, super_user=False):
     user.is_staff = True
     if super_user:
         user.is_superuser = True
+    user.password = password
     user.save()
 
 if __name__ == "__main__":
