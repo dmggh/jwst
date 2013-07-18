@@ -4,6 +4,7 @@ DEBUG=True
 DEBUG_EXTRAS=False
 
 observatory= 'jwst'
+server_usecase = 'dev'
 install_root='/Users/jmiller/work/workspace_crds/dev_servers/' + observatory + "/server"
 storage_path='/Users/jmiller/work/workspace_crds/dev_servers/' + observatory + "/storage"
 

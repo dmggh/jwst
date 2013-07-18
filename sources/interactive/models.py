@@ -469,6 +469,8 @@ FILE_STATUS_MAP = OrderedDict([
     ("cancelled", "red"),
 ])
 
+FILE_STATES = FILE_STATUS_MAP.keys()
+
 DEFAULT_ACTIVATION_DATE =  datetime.datetime(2050, 1, 1, 0, 0)
 
 class SimpleCharField(models.CharField):
@@ -537,7 +539,7 @@ class FileBlob(BlobModel):
         auto_now_add=False, null=True, help_text="Date file first listed in an operational context.")
     
     useafter_date = models.DateTimeField(
-        auto_now_add=True, help_text="Dataset date after which this file is a valid reference.")
+        auto_now_add=False, help_text="Dataset date after which this file is a valid reference.")
 
     change_level = SimpleCharField(
         CHANGE_LEVELS,  "Affect of changes in this file relative to preceding version on science results", "SEVERE")
