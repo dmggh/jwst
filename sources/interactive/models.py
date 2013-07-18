@@ -305,7 +305,6 @@ class BlobModel(CrdsModel):
     model_fields = CrdsModel.model_fields + ["blob"]  # field directly in database
     
     blob_fields = {}  # field in database as part of blob
-    blob_properties = []  # computed field
     exclude_from_info = ["blob"]    # not included in self.info()
     repr_list = None    # fields shown in __repr__ or ALL if None
     unicode_list = None  # fields shown in __unicode__ or ALL if None
@@ -315,12 +314,34 @@ class BlobModel(CrdsModel):
             default = "{}")
     
     def __init__(self, *args, **keys):
-        models.Model.__init__(self, *args)
+        models.Model.__init__(self, *args, **keys)
+        """
         for fieldname in self.blob_fields:
             setattr(self, fieldname, self.blob_fields[fieldname].default)
         for fieldname in keys:
             setattr(self, fieldname, keys[fieldname])
-            
+        """
+ 
+    def save(self):
+        try:
+            old_blob = json_ext.loads(self.blob)
+        except:
+            old_blob = {}
+        blob = {}
+        for name in self.blob_fields:
+            blob[name] = self.enforce_type(name, getattr(self, name, old_blob.get(name, self.blob_fields[name].default)))
+        self.blob = json_ext.dumps(blob)
+        super(BlobModel, self).save()
+        
+    def thaw(self):
+        if hasattr(self, "_thawed"):
+            return
+        self._thawed = True
+        blob = json_ext.loads(self.blob)
+        for name in self.blob_fields:
+            setattr(self, name, blob.get(name, self.blob_fields[name].default))
+        return self
+
     def _repr(self, displayed=None):
         self.thaw()
         return super(BlobModel, self)._repr(displayed)
@@ -328,8 +349,7 @@ class BlobModel(CrdsModel):
     @property
     def fields(self):
         return sorted(list(self.model_fields) + 
-                      list(self.blob_fields) + 
-                      list(self.blob_properties))
+                      list(self.blob_fields))
 
     def enforce_type(self, attr, value):
         """Ensure `value` meets the constraints for field `attr`.  Return
@@ -360,14 +380,6 @@ class BlobModel(CrdsModel):
                 raise FieldError("Value for " + repr(attr) + " of " + 
                                  repr(value) + " not convertible to " + repr(type_))
 
-    def save(self):
-        blob = {}
-        for name in self.blob_fields:
-            if name not in self.blob_properties:
-                blob[name] = self.enforce_type(name, getattr(self, name))
-        self.blob = json_ext.dumps(blob)
-        super(BlobModel, self).save()
-        
     @classmethod
     def load(cls, name):
         """Load the blob named `name`.   Note that "anonymous" blobs cannot
@@ -397,15 +409,6 @@ class BlobModel(CrdsModel):
         model.thaw()
         return model
     
-    def thaw(self):
-        if hasattr(self, "_thawed"):
-            return
-        self._thawed = True
-        blob = json_ext.loads(self.blob)
-        for name, value in blob.items():
-            setattr(self, name, value)
-        return self
-
     @staticmethod    
     def _filter(cls, **matches):
         """Return list of Blobs of this `cls` which match filter `matches`."""
@@ -498,7 +501,7 @@ class FileBlob(BlobModel):
          "type", "derived_from", "sha1sum", "delivery_date", "activation_date", "useafter_date",
          "change_level", "pedigree", "reference_file_type", "size"]
         
-    repr_list = unicode_list = ["id", "name", "type", "instrument", "filekind", "state", "blacklisted", "change_level"]
+    repr_list = unicode_list = ["id", "name", "type", "instrument", "filekind", "state", "blacklisted", "change_level", "available"]
         
     exclude_from_info = BlobModel.exclude_from_info + \
         ["pathname","creator","deliverer", "deliverer_email","catalog_link"]

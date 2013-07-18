@@ -375,6 +375,9 @@ class BatchReferenceSubmission(FileSubmission):
         diff_results = self.mass_differences(new_mappings_map)
         
         disposition = rmap_disposition or reference_disposition
+
+        if disposition == "bad files":
+            self.cleanup_failed_submission()
         
         return (disposition, new_references_map, new_mappings_map, reference_certs, rmap_certs, 
                 diff_results, collision_list)
@@ -505,13 +508,13 @@ class SimpleFileSubmission(FileSubmission):
         if generate_contexts:
             self.verify_instrument_lock()
         
+        # Add the files to the CRDS database as "uploaded",  pending certification and confirmation.
+        new_file_map = self.submit_file_list("submit_files")
+        
         # Verify that ALL files certify.
         disposition, certify_results = web_certify.certify_file_list(
             self.uploaded_files.items(), context=self.pmap.name, compare_old_reference=self.compare_old_reference,
             push_status=self.push_status)
-        
-        # Add the files to the CRDS database as "uploaded",  pending confirmation.
-        new_file_map = self.submit_file_list("submit_files")
         
         collision_list = self.get_collision_list(new_file_map.values())
         
@@ -520,6 +523,9 @@ class SimpleFileSubmission(FileSubmission):
             context_rmaps = [filename for filename in new_file_map.values() if filename.endswith(".rmap")]
         else:
             context_rmaps = []
+
+        if disposition == "bad files":
+            self.cleanup_failed_submission()
         
         return disposition, certify_results, new_file_map, collision_list, context_rmaps
 

@@ -41,7 +41,11 @@
         
         {% if crds_filetype == "mapping" %}
             <h3>Generate Contexts:
-                <input name='generate_contexts' type='checkbox' value='on' checked >
+                <input name='generate_contexts' type='checkbox' value='on' 
+		       {% if generate_contexts %}
+		       checked
+		       {% endif %}
+		       >
             </h3>
             <div id="derivation-context-hide">
                 <h3>Derive From Context</h3>

@@ -37,7 +37,7 @@
         {% for db in filtered_db %}
             <tr>
                 <td align="center">{{db.delivery_date|minutes}}</td>
-                <td align="center">{{db.filename|browse}}</a></td>
+                <td align="center">{{db.name|browse}}</a></td>
                 <td align="center"><span class="{{db.status_class}}">{{db.status}}</span></td>
                 {% if is_authenticated %}
                     <td align="center">{{db.deliverer_user}}</td>
