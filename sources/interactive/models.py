@@ -536,10 +536,10 @@ class FileBlob(BlobModel):
         auto_now_add=True, help_text="Date file was received by CRDS.")
     
     activation_date = models.DateTimeField(
-        auto_now_add=False, null=True, help_text="Date file first listed in an operational context.")
+        auto_now_add=False, default=DEFAULT_ACTIVATION_DATE, help_text="Date file first listed in an operational context.")
     
     useafter_date = models.DateTimeField(
-        auto_now_add=False, help_text="Dataset date after which this file is a valid reference.")
+        auto_now_add=False, default=DEFAULT_ACTIVATION_DATE, help_text="Dataset date after which this file is a valid reference.")
 
     change_level = SimpleCharField(
         CHANGE_LEVELS,  "Affect of changes in this file relative to preceding version on science results", "SEVERE")
@@ -663,7 +663,7 @@ class FileBlob(BlobModel):
         blob.deliverer_email = deliverer_email
         blob.description = description
         # blob.delivery_date = timestamp.now()
-        blob.activation_date = DEFAULT_ACTIVATION_DATE
+        # blob.activation_date = blob.useafter_date = DEFAULT_ACTIVATION_DATE
         try:
             instrument, filekind = utils.get_file_properties(observatory, permanent_location)
             blob.instrument = instrument

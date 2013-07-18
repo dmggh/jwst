@@ -5,6 +5,7 @@ from crds.server.interactive.models import (ContextModel, ContextHistoryModel, C
                                             FileBlob, AuditBlob, RepeatableResultBlob)
 from crds.server import config
 from crds.server.interactive import models
+from crds import log
 
 class ContextModelAdmin(admin.ModelAdmin):
     search_fields = ["name"]
@@ -36,11 +37,15 @@ class FileBlobAdmin(admin.ModelAdmin):
             fileblob.thaw()
             if fileblob.state in self.destroyable_states:
                 fileblob.destroy()
-                self.message_user(request, "DESTROYED %s with state '%s'." % (fileblob.moniker, fileblob.state))
+                self.announce(request, "DESTROYED %s with state '%s'." % (fileblob.moniker, fileblob.state))
             else:
-                self.message_user(request, "SKIPPED %s non-destroyable file with state '%s' not one of '%s'." % 
+                self.announce(request, "SKIPPED %s non-destroyable file with state '%s' not one of '%s'." % 
                                   (fileblob.moniker, fileblob.state, self.destroyable_states))
     destroy_file.short_description = "DESTROY FILE:  permanently eliminate database and cache copy (DANGER! no confirmation)"
+    
+    def announce(self, request, message):
+        self.message_user(request, message)
+        log.info("User", repr(str(request.user)), message)
 
 admin.site.register(FileBlob, FileBlobAdmin)
 
