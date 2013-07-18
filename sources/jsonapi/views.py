@@ -362,6 +362,7 @@ def get_url(request, context, file):
 def get_file_info(request, context, file):
     context = check_context(context)
     blob = check_known_file(file)
+    blob.thaw()
     return blob.info
 
 @jsonrpc_method('get_file_info_map(observatory=String, files=Array, fields=Array)')
