@@ -381,6 +381,7 @@ def get_file_info_map(request, observatory, files, fields):
         except KeyError:
             result[name] = "NOT FOUND"
             continue
+        blob.thaw()
         result[name] = { field:value for (field, value) in blob.info.items() if field in fields }
     return result
 
