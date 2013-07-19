@@ -70,6 +70,9 @@ class InvalidHeaderError(Error):
 class InvalidObservatoryError(Error):
     """The specified observatory is not supported."""
     
+class InvalidInstrumentError(Error):
+    """The specified instrument is not supported."""
+    
 class InvalidReftypesError(Error):
     """The specified reftypes is not a list of strings."""
 
