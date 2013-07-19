@@ -57,6 +57,9 @@ mkdir -p -m 755 $FILE_UPLOAD_TEMP_DIR
 # The temporary directory where CRDS/CDBS team deliverers can scp files.
 mkdir -p -m 755 $CRDS_INGEST_DIR
 
+# The directory where dynamic mapping bundles are kept
+mkdir -p -m 755 $CRDS_ARCHIVE_CACHE_DIR
+
 # These are the directories where newly submitted references and mappings 
 # will be kept by the server.
 mkdir -p -m 755 $map_path_full
@@ -418,6 +421,7 @@ case ${server_mode}
 	chmod 6755 ${FILE_UPLOAD_TEMP_DIR}
 	chmod 6770 ${CRDS_DELIVERY_DIR}    # OPUS client removes delivered files.
 	chmod 6775 ${CRDS_INGEST_DIR}   # Submitters scp files in.
+	chmod 6755 ${CRDS_ARCHIVE_CACHE_DIR}   # Where mapping bundles go
 
 	mkdir -p -m 6775 ${install_root}/ingest_ssb
 	# chown crds.ssb ${install_root}/ingest_ssb
