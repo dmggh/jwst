@@ -1577,15 +1577,15 @@ def browse_db_post(request):
         if value not in ["*",""]:
             filters[var] = value
             
-    filtered_db = set(models.FileBlob.filter(**filters))
+    filtered_db = models.FileBlob.filter(**filters)
     
     if select_bad_files:
+        selected = []
         for blob in filtered_db:
-            if not blob.get_defects():
-                filtered_db.remove(blob)
-        filtered_db = sorted(filtered_db)
-    
-            
+            if blob.get_defects():
+                selected.append(blob)
+        filtered_db = selected
+
     return crds_render(request, "browse_db_results.html", {
                 "filters": filters,
                 "filtered_db" : filtered_db,
