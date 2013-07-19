@@ -1013,7 +1013,7 @@ def certify_post(request):
              "certify_results":certify_results,
              "blacklist_results":blacklist_results,
     })
-
+    
 # ===========================================================================
 
 @error_trap("batch_submit_reference_input.html")
@@ -1541,6 +1541,7 @@ def recent_activity_post(request):
 
 # ===========================================================================
 
+@profile("browse_db.stats")
 @error_trap("browse_db_input.html")
 @log_view
 # @login_required
@@ -1567,13 +1568,24 @@ def browse_db_post(request):
         request, "deliverer_user", [r"\*"] + usernames())
     status = validate(
         request, "status",  r"[A-Za-z0-9_.\*]+")
+    select_bad_files = "select_bad_files" in request.POST
+    
     filters = {}
     for var in ["instrument", "filekind", "extension",
                 "filename", "deliverer_user", "status"]:
         value = locals()[var].strip()
         if value not in ["*",""]:
             filters[var] = value
-    filtered_db = models.FileBlob.filter(**filters)
+            
+    filtered_db = set(models.FileBlob.filter(**filters))
+    
+    if select_bad_files:
+        for blob in filtered_db:
+            if not blob.get_defects():
+                filtered_db.remove(blob)
+        filtered_db = sorted(filtered_db)
+    
+            
     return crds_render(request, "browse_db_results.html", {
                 "filters": filters,
                 "filtered_db" : filtered_db,

@@ -579,6 +579,33 @@ class FileBlob(BlobModel):
         """Return the 'reject state' of this file,  either True or False."""
         return self.blacklisted or self.rejected
     
+    def get_defects(self, verify_checksum=False):
+        """Check `self` and return a list of problems.   See therapist."""
+        defects = []
+        if not self.uploaded_as:
+            defects.append("missing uploaded_as")
+        if self.catalog_link and not os.path.exists(self.catalog_link):
+            defects.append("defunct catalog link")
+        if not os.path.exists(self.pathname):
+            defects.append("defunct pathname '%s'" % self.pathname)
+        elif self.size == -1 or self.size != self.compute_size():
+            defects.append("bad file size %d" % self.size)
+        if self.sha1sum == "none":
+            defects.append("no sha1sum")
+        elif verify_checksum and not self.checksum_ok:
+            defects.append("sha1sum mismatch")
+        if self.state in ["archived", "operational"] and self.activation_date == DEFAULT_ACTIVATION_DATE:
+                defects.append("bad activation date")
+        if self.useafter_date == DEFAULT_ACTIVATION_DATE:
+            defects.append("bad useafter date")
+        if not self.type:
+            defects.append("bad type: not mapping or reference")
+        if self.instrument == "unknown":
+            defects.append("uknown instrment")
+        if self.filekind == "unknown":
+            defects.append("unknown filekind")
+        return defects
+
     @property
     def available(self):
         """Return True if this file is allowed to be distributed now."""

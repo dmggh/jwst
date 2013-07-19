@@ -6,7 +6,7 @@ import cProfile
 import re
 import os.path
 
-from crds import log
+from crds import log, utils
 from crds.server.config import crds_server_log_dir
 
 # ===================================================================
@@ -50,6 +50,7 @@ def profile(filename=None):
             def runit():
                 """executes a function and stores the result globally."""
                 profile_core.result = func(*args, **keys)
+            utils.ensure_dir_exists(filename)
             cProfile.runctx("runit()", locals(), locals(), filename=filename)
             return profile_core.result
         return profile_core

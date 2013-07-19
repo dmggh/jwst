@@ -33,6 +33,9 @@
             <th width="30%" align="center">description</th>
             <th width="10%" align="center">instrument</th>
             <th width="10%" align="center">filekind</th>
+            {% if is_superuser and select_bad_files %}
+                <th width='20%' align="center">defects</th>
+            {% endif %}
         </tr>
         {% for db in filtered_db %}
             <tr>
@@ -45,6 +48,9 @@
                 <td align="center">{{db.description}}</td>
                 <td align="center">{{db.instrument}}</td>
                 <td align="center">{{db.filekind}}</td>
+                {% if is_superuser and select_bad_files %}
+                    <td align="center">{{db.get_defects}}</td>
+                {% endif %}
             </tr>
         {% endfor %}
     </table>

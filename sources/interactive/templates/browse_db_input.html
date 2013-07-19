@@ -9,6 +9,14 @@
         {% include "browse_options.html" %}
         {% include "status_options.html" %}
         {% include "extension_options.html" %}
+        {% if is_superuser %}
+          <tr>
+            <td class="label" width="50%">Bad Files Only:</td>
+            <td align="right">
+                <input type='checkbox' name='select_bad_files' value="selected" {{select_bad_files}}></input>
+            </td>
+          </tr>
+        {% endif %}
     </table>
     <br/>
     <input type="submit" value="Submit" />
