@@ -554,7 +554,7 @@ class FileBlob(BlobModel):
         max_length=80, blank=True, default="", help_text="From REFTYPE,  description of file type.")
     
     size = models.BigIntegerField(default=-1, help_text="size of file in bytes.")
-
+    
     # ===============================
     
     blob_fields = dict(
@@ -572,6 +572,7 @@ class FileBlob(BlobModel):
         blacklisted_by = BlobField(list,"List of blacklisted files this file refers to directly or indirectly.", []),
         reject_by_file_name = BlobField(FILENAME_RE, "", ""),
         comment = BlobField(str, "from DESCRIP keyword of reference file.", "none"),
+        aperture = BlobField(str, "from APERTURE keyword of reference file.", "none")
         )
 
     @property
@@ -597,13 +598,15 @@ class FileBlob(BlobModel):
         if self.state in ["archived", "operational"] and self.activation_date == DEFAULT_ACTIVATION_DATE:
                 defects.append("bad activation date")
         if self.useafter_date == DEFAULT_ACTIVATION_DATE:
-            defects.append("bad useafter date")
+            defects.append("bad USEAFTER")
         if not self.type:
             defects.append("bad type: not mapping or reference")
         if self.instrument == "unknown":
             defects.append("uknown instrment")
         if self.filekind == "unknown":
             defects.append("unknown filekind")
+        if not self.aperture and self.type != "mapping":
+            defects.append("undefined APERTURE")
         return defects
 
     @property
@@ -624,6 +627,7 @@ class FileBlob(BlobModel):
         self.set_fits_field("reference_file_type", "REFTYPE")
         self.set_fits_field("useafter_date", "USEAFTER", timestamp.parse_date)
         self.set_fits_field("comment", "DESCRIP")
+        self.set_fits_field("aperture", "APERTURE")
  
     def set_fits_field(self, model_field, fitskey, sanitizer=lambda x: x):
         filename = self.uploaded_as or self.name

@@ -33,7 +33,8 @@ from crds import CrdsError
 
 from crds.timestamp import (DATE_RE_STR, TIME_RE_STR)
 
-from . import (models, database, web_certify, web_difference, submit, versions, locks)
+from . import (models, database, web_certify, web_difference, submit, versions, locks, html)
+from .templatetags import stdtags
 from .models import FieldError, MissingInputError
 from .common import capture_output, srepr, profile
 
@@ -1580,18 +1581,54 @@ def browse_db_post(request):
     filtered_db = models.FileBlob.filter(**filters)
     
     if select_bad_files:
-        selected = []
-        for blob in filtered_db:
-            if blob.get_defects():
-                selected.append(blob)
-        filtered_db = selected
+        filtered_db = [ blob for blob in filtered_db if blob.get_defects() ]
+    
+    table = render_browse_table(request, filtered_db)
 
     return crds_render(request, "browse_db_results.html", {
                 "filters": filters,
                 "filtered_db" : filtered_db,
+                "table" : table,
                 "observatory" : observatory,
             })
-
+    
+def render_browse_table(request, filtered_db):
+    """Generate the HTML for the search results table."""
+    super = request.user.is_superuser
+    authenticated = request.user.is_authenticated()
+    thead = html.thead(
+        html.tr(
+            html.th("delivery date") +
+            html.th("name") +
+            html.th("aperture") +
+            html.th("useafter date") +
+            html.th("status") +
+            html.th("description") +
+            html.th("instrument") + 
+            html.th("reference type") +
+            (html.th("deliverer") if authenticated else "") +
+            (html.th("defects") if super else "")
+        )
+    )
+    rows = []
+    for db in filtered_db:
+        tr = html.tr(
+            html.td(stdtags.minutes(db.delivery_date)) +
+            html.td(stdtags.browse(db.name)) +
+            html.td(db.aperture) +
+            html.td(stdtags.minutes(db.useafter_date)) +
+            html.td(db.status, status_class=db.status_class) +
+            html.td(db.description) +
+            html.td(db.instrument) + 
+            html.td(db.filekind) +
+            (html.td(db.deliverer_user) if authenticated else "") +
+            (html.td(repr(db.get_defects())) if super else "")
+        )
+        rows.append(tr)
+    tbody = html.tbody("\n".join(rows))
+    table = html.table("\n".join([thead, tbody]), id="crds_files_table")
+    return table
+    
 # ============================================================================
 
 @error_trap("base.html")
