@@ -22,7 +22,7 @@ admin.site.register(CounterModel, CounterModelAdmin)
 class FileBlobAdmin(admin.ModelAdmin):
     search_fields = ["name", "state"]
     
-    actions = ["destroy_file"]
+    actions = ["destroy_file", "repair_catalog"]
 
     if config.server_usecase in ["dev", "test"]:
         destroyable_states = models.FILE_STATES  # anything
@@ -30,9 +30,7 @@ class FileBlobAdmin(admin.ModelAdmin):
         destroyable_states = ["uploaded"]
     
     def destroy_file(self, request, queryset):
-        """Support cleaning up error conditions from failed file submissions;  
-        It will destroy both the database record and server cache copy of a file.
-        """
+        "DESTROY FILE:  permanently eliminate database and cache copy (DANGER! no confirmation)"
         for fileblob in queryset:
             fileblob.thaw()
             if fileblob.state in self.destroyable_states:
@@ -41,8 +39,19 @@ class FileBlobAdmin(admin.ModelAdmin):
             else:
                 self.announce(request, "SKIPPED %s non-destroyable file with state '%s' not one of '%s'." % 
                                   (fileblob.moniker, fileblob.state, self.destroyable_states))
-    destroy_file.short_description = "DESTROY FILE:  permanently eliminate database and cache copy (DANGER! no confirmation)"
+
+    destroy_file.short_description = destroy_file.__doc__
     
+    def repair_catalog(self, request, queryset):
+        """Repair catalog entries by restoring information from cached references. """
+        for fileblob in queryset:
+            fileblob.thaw()
+            defects = fileblob.get_defects()
+            repairs, failed = fileblob.repair_defects(defects)
+            for msg in repairs.values() + failed.values():
+                self.announce(request, "File '{}' ".format(fileblob.name) + " " + msg)
+    repair_catalog.short_description = repair_catalog.__doc__
+        
     def announce(self, request, message):
         self.message_user(request, message)
         log.info("User", repr(str(request.user)), message)

@@ -612,8 +612,10 @@ class FileBlob(BlobModel):
             defects.append("BAD sha1sum = '%s'".format(self.sha1sum))
         return defects
     
-    def repair_defects(self, defects):
+    def repair_defects(self, defects=None):
         """Attempt to automatically fix list of `defects` in `self`."""
+        if defects is None:
+            defects = self.get_defects()
         repairs = {}
         failed = {}
         for defect in defects:
@@ -665,7 +667,10 @@ class FileBlob(BlobModel):
         self.observatory = utils.file_to_observatory(self.pathname)
         
     def repair_instrument(self):
-        self.instrument = utils.get_file_properties(utils.file_to_observatory(self.pathname), self.pathname)
+        self.instrument = utils.get_file_properties(utils.file_to_observatory(self.pathname), self.pathname)[0]
+        
+    def repair_filekind(self):
+        self.filekind = utils.get_file_properties(utils.file_to_observatory(self.pathname), self.pathname)[1]
         
     def repair_aperture(self):
         self.set_fits_field("aperture", "APERTURE")

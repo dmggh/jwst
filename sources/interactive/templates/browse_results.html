@@ -12,6 +12,13 @@
         <span style="font-size: 0.75em;">download</span>
     </a>
 
+    {% if is_superuser %}
+    &nbsp;&nbsp;
+    <a href='/admin/interactive/fileblob/{{fileblob.id}}'>
+        <span style="font-size: 0.75em;">admin</span>
+    </a>
+    {% endif %}
+
     {% include "browse_results_diff_link.html" %}
 
 </h2> 
