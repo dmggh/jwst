@@ -640,7 +640,7 @@ class FileBlob(BlobModel):
             topath = os.path.basename(self.pathname)
         else:
             try:
-                path = crds.locate_file(self.observatory, self.name)
+                path = rmap.locate_file(self.observatory, self.name)
                 if os.path.exists(path):
                     topath = self.name
             except:
@@ -650,7 +650,12 @@ class FileBlob(BlobModel):
             return 
         else:
             return "FAILED REPAIRING uploaded_as='{}'".format(frompath)
-        
+
+    def repair_pathname(self):
+        cached = rmap.locate_file(self.name, OBSERVATORY)
+        if os.path.exists(cached):
+            self.pathname = cached
+
     def repair_catalog_link(self):
         self.catalog_link = ""
     
