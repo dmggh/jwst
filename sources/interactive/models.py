@@ -580,35 +580,108 @@ class FileBlob(BlobModel):
         """Return the 'reject state' of this file,  either True or False."""
         return self.blacklisted or self.rejected
     
+    bad_field_checks = {
+        "uploaded_as" : lambda self: not self.uploaded_as,
+        "catalog_link" : lambda self: self.catalog_link and not os.path.exists(self.catalog_link),
+        "pathname" : lambda self: not os.path.exists(self.pathname),
+        "size" : lambda self: self.size == -1 or self.size != self.compute_size(),
+        "sha1sum" : lambda self: self.sha1sum == "none",
+        "activation_date": lambda self: self.state in ["archived", "operational"] and \
+                                    self.activation_date == DEFAULT_ACTIVATION_DATE,
+        "useafter_date": lambda self: self.useafter_date == DEFAULT_ACTIVATION_DATE and self.type != "mapping",
+        "type" : lambda self: not self.type,
+        "observatory": lambda self: self.observatory not in OBSERVATORIES,
+        "instrument": lambda self:  (not self.name.endswith(".pmap")) and self.instrument not in INSTRUMENTS,
+        "filekind": lambda self:  (not self.name.endswith((".pmap",".imap"))) and self.filekind not in FILEKINDS,
+        "aperture" : lambda self: not self.aperture and self.type != "mapping",
+        "comment" : lambda self: not self.comment,
+        "description" : lambda self: not self.description,
+        "pedigree" : lambda self: self.type == "reference" and not self.pedigree,
+        "deliverer_user" : lambda self: not self.deliverer_user,
+        "deliverer_email" : lambda self: not self.deliverer_email,
+        "creator_name" : lambda self: not self.creator_name,
+    }
+    
     def get_defects(self, verify_checksum=False):
         """Check `self` and return a list of problems.   See therapist."""
         defects = []
-        if not self.uploaded_as:
-            defects.append("missing uploaded_as")
-        if self.catalog_link and not os.path.exists(self.catalog_link):
-            defects.append("defunct catalog link")
-        if not os.path.exists(self.pathname):
-            defects.append("defunct pathname '%s'" % self.pathname)
-        elif self.size == -1 or self.size != self.compute_size():
-            defects.append("bad file size %d" % self.size)
-        if self.sha1sum == "none":
-            defects.append("no sha1sum")
-        elif verify_checksum and not self.checksum_ok:
-            defects.append("sha1sum mismatch")
-        if self.state in ["archived", "operational"] and self.activation_date == DEFAULT_ACTIVATION_DATE:
-                defects.append("bad activation date")
-        if self.useafter_date == DEFAULT_ACTIVATION_DATE:
-            defects.append("bad USEAFTER")
-        if not self.type:
-            defects.append("bad type: not mapping or reference")
-        if self.instrument == "unknown":
-            defects.append("uknown instrment")
-        if self.filekind == "unknown":
-            defects.append("unknown filekind")
-        if not self.aperture and self.type != "mapping":
-            defects.append("undefined APERTURE")
+        for field in self.bad_field_checks:
+            if self.bad_field_checks[field](self):
+                defects.append("BAD {} = '{}'".format(field, getattr(self, field)))
+        if verify_checksum and not self.checksum_ok:  # slow
+            defects.append("BAD sha1sum = '%s'".format(self.sha1sum))
         return defects
+    
+    def repair_defects(self, defects):
+        """Attempt to automatically fix list of `defects` in `self`."""
+        repairs = {}
+        failed = {}
+        for defect in defects:
+            field = defect.split()[1]  # skip BAD
+            fixer = getattr(self, "repair_" + field, None)
+            if fixer:
+                old = getattr(self, field)
+                try:
+                    fixer()
+                    repairs[field] = "REPAIRED '{}' from '{}' to '{}'".format(field, old, getattr(self, field))
+                except Exception, exc:
+                    failed[field] = "FAILED repairing '{}' from '{}' exception: '{}'".format(field, old, str(exc))
+            else:
+                failed[field] = "NO FIXER for '{}'.".format(field)
+        if repairs:
+            self.save()
+        return repairs, failed
+    
+    def repair_uploaded_as(self):
+        frompath, topath = self.uploaded_as, None
+        if os.path.exists(self.pathname):
+            topath = os.path.basename(self.pathname)
+        else:
+            try:
+                path = crds.locate_file(self.observatory, self.name)
+                if os.path.exists(path):
+                    topath = self.name
+            except:
+                pass
+        if topath:
+            self.uploaded_as = topath
+            return 
+        else:
+            return "FAILED REPAIRING uploaded_as='{}'".format(frompath)
+        
+    def repair_catalog_link(self):
+        self.catalog_link = ""
+    
+    def repair_type(self):
+        self.type = "mapping" if rmap.is_mapping(self.name) else "reference"
+        
+    def repair_size(self):
+        self.size = self.compute_size()
+            
+    def repair_sha1sum(self):
+        self.sha1sum = self.compute_checksum()
+        
+    def repair_observatory(self):
+        self.observatory = utils.file_to_observatory(self.pathname)
+        
+    def repair_instrument(self):
+        self.instrument = utils.get_file_properties(utils.file_to_observatory(self.pathname), self.pathname)
+        
+    def repair_aperture(self):
+        self.set_fits_field("aperture", "APERTURE")
+        
+    def repair_aperture(self):
+        self.set_fits_field("useafter_date", "USEAFTER")
 
+    def repair_reference_file_type(self):
+        self.set_fits_field("reference_file_type", "REFTYPE")
+
+    def repair_pedigree(self):
+        self.set_fits_field("pedigree", "PEDIGREE")
+        
+    def repair_comment(self):
+        self.set_fits_field("comment", "DESCRIP")
+        
     @property
     def available(self):
         """Return True if this file is allowed to be distributed now."""
