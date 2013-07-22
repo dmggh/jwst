@@ -36,8 +36,8 @@ pyquiet=-q
 ###
 
 secret=6700
-privileged_ro=6750
-privileged_rw=6770
+private_ro=6750
+private_rw=6770
 public=6755
 immutable=444
 
@@ -48,22 +48,22 @@ function create_dir {
 
 # Where CRDS writes out delivery catalog files when delivering files
 # to downstream systems like the archive.  Catalog files persist.
-create_dir $public $CRDS_CATALOG_DIR
+create_dir $private_ro $CRDS_CATALOG_DIR
 
 # The primary working copy for deliveries, nominally owned by CRDS.
 # Delivery files are links which last until received by OPUS.
-create_dir $public $CRDS_DELIVERY_DIR
+create_dir $private_rw $CRDS_DELIVERY_DIR
 
 # The temporary directory where uploaded files are initially stored.
 create_dir $public $FILE_UPLOAD_TEMP_DIR
 
 # The temporary directory where CRDS/CDBS team deliverers can scp files.
-create_dir $public $CRDS_INGEST_DIR
+create_dir $private_rw $CRDS_INGEST_DIR
 # This is a drop-off dir for hand crafted SSB-made references and mappings.
-create_dir $public ${CRDS_INGEST_DIR}_ssb
+create_dir $private_rw ${CRDS_INGEST_DIR}_ssb
 
 # The directory where dynamic mapping bundles are kept
-create_dir $public $CRDS_ARCHIVE_CACHE_DIR
+create_dir $private_ro $CRDS_ARCHIVE_CACHE_DIR
 
 # This is the server cache and reference staging area.
 create_dir $public $map_path_full
@@ -92,6 +92,7 @@ mod_wsgi)
         create_dir $secret $install_dir/server/wsgi-scripts
 
         cp servers/httpd.mod_wsgi.conf $install_dir/server/conf/httpd.conf
+	cp servers/ssl.conf $install_dir/server/conf/ssl.conf
 	cp servers/*.wsgi $install_dir/server/wsgi-scripts
    
 	apache_version=`/usr/sbin/httpd -v | sed -n 's?Server version: Apache/??p'`
@@ -421,12 +422,12 @@ case ${server_mode}
 	do
 	    chmod $secret $dir  # default to secret
 	done
-	chmod $privileged_rw ${CRDS_INGEST_DIR}_ssb
-	chmod $privileged_ro ${CRDS_CATALOG_DIR}
-	chmod $privileged_ro ${FILE_UPLOAD_TEMP_DIR}
-	chmod $privileged_ro ${CRDS_DELIVERY_DIR}    # OPUS client removes delivered files.
-	chmod $privileged_ro ${CRDS_ARCHIVE_CACHE_DIR}   # Where mapping bundles go
-	chmod $privileged_rw ${CRDS_INGEST_DIR}   # Submitters scp files in.
+	chmod $private_rw ${CRDS_INGEST_DIR}_ssb
+	chmod $private_ro ${CRDS_CATALOG_DIR}
+	chmod $private_ro ${FILE_UPLOAD_TEMP_DIR}
+	chmod $private_ro ${CRDS_DELIVERY_DIR}    # OPUS client removes delivered files.
+	chmod $private_ro ${CRDS_ARCHIVE_CACHE_DIR}   # Where mapping bundles go
+	chmod $private_rw ${CRDS_INGEST_DIR}   # Submitters scp files in.
 	;;
     "dev" )
 	;;
