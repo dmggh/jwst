@@ -35,35 +35,45 @@ pyquiet=-q
 ### create the install directory
 ###
 
-mkdir -p $install_dir 
+secret=6700
+privileged_ro=6750
+privileged_rw=6770
+public=6755
+immutable=444
 
-mkdir -p $install_dir/python/bin
-
-# This is a place for matplotlib to store cache files.  We don't actually
-# try to put any config there, and only the apache server knows to use it.
-mkdir -p $install_dir/mplconfigdir
+function create_dir {
+    mkdir -p $2 $3 $4 $5 $6 $7 $8 $9
+    chmod $1 $2
+}
 
 # Where CRDS writes out delivery catalog files when delivering files
 # to downstream systems like the archive.  Catalog files persist.
-mkdir -p -m 755 $CRDS_CATALOG_DIR
+create_dir $public $CRDS_CATALOG_DIR
 
 # The primary working copy for deliveries, nominally owned by CRDS.
 # Delivery files are links which last until received by OPUS.
-mkdir -p -m 755 $CRDS_DELIVERY_DIR
+create_dir $public $CRDS_DELIVERY_DIR
 
 # The temporary directory where uploaded files are initially stored.
-mkdir -p -m 755 $FILE_UPLOAD_TEMP_DIR
+create_dir $public $FILE_UPLOAD_TEMP_DIR
 
 # The temporary directory where CRDS/CDBS team deliverers can scp files.
-mkdir -p -m 755 $CRDS_INGEST_DIR
+create_dir $public $CRDS_INGEST_DIR
+# This is a drop-off dir for hand crafted SSB-made references and mappings.
+create_dir $public ${CRDS_INGEST_DIR}_ssb
 
 # The directory where dynamic mapping bundles are kept
-mkdir -p -m 755 $CRDS_ARCHIVE_CACHE_DIR
+create_dir $public $CRDS_ARCHIVE_CACHE_DIR
 
-# These are the directories where newly submitted references and mappings 
-# will be kept by the server.
-mkdir -p -m 755 $map_path_full
-mkdir -p -m 755 $ref_path_full
+# This is the server cache and reference staging area.
+create_dir $public $map_path_full
+create_dir $public $ref_path_full
+
+create_dir $secret $install_dir
+create_dir $secret $install_dir/python/bin
+# This is a place for matplotlib to store cache files.  We don't actually
+# try to put any config there, and only the apache server knows to use it.
+create_dir $secret $install_dir/mplconfigdir
 
 
 ###
@@ -75,13 +85,14 @@ in
 # apache with mod_python
 mod_wsgi)
 
-        mkdir -p $install_dir/server/logs 
-        mkdir -p $install_dir/server/run 
-        mkdir -p $install_dir/server/conf  
-        mkdir -p $install_dir/server/wsgi-scripts
+	create_dir $secret $install_dir/server
+        create_dir $secret $install_dir/server/logs 
+        create_dir $secret $install_dir/server/run 
+        create_dir $secret $install_dir/server/conf  
+        create_dir $secret $install_dir/server/wsgi-scripts
 
         cp servers/httpd.mod_wsgi.conf $install_dir/server/conf/httpd.conf
-	    cp servers/*.wsgi $install_dir/server/wsgi-scripts
+	cp servers/*.wsgi $install_dir/server/wsgi-scripts
    
 	apache_version=`/usr/sbin/httpd -v | sed -n 's?Server version: Apache/??p'`
 	case "$apache_version"
@@ -124,16 +135,8 @@ mod_wsgi)
                 cat servers/httpd.add_ldap >> $install_dir/server/conf/httpd.conf
         fi
 
-#        if [ "$debug" = "True" ]
-#        then
-#                cat servers/httpd.redirect_debug >> $install_dir/server/conf/httpd.conf
-#        else
-#                cat servers/httpd.redirect_nodebug >> $install_dir/server/conf/httpd.conf
-#        fi
-
         sed -e "s?SUB_APACHEMOD?$apachemod?g" -e "s?SUB_DIR?$install_dir?g" -e "s?SUB_PORT?$port?g" -e "s?SUB_CDBS?$PYSYN_CDBS?g"  -e "s?SUB_CRDS_PATH?$CRDS_PATH?g" < $install_dir/server/conf/httpd.conf > tmp
         mv tmp $install_dir/server/conf/httpd.conf
-
 
         # create the shell script that runs the server.  We want everything that
         # has gotten in to env.csh so far, but nothing that comes later.  (Everything
@@ -163,7 +166,7 @@ mod_wsgi)
 # apache with mod_python
 mod_python)
 
-        mkdir -p $install_dir/server/logs $install_dir/server/run $install_dir/server/conf
+	create_dir $secret $install_dir/server/logs $install_dir/server/run $install_dir/server/conf
 
         cp servers/httpd.mod_python.conf $install_dir/server/conf/httpd.conf
 
@@ -363,13 +366,13 @@ mapping_source_dir=`python tools/get_mapping_dir.py ${observatory}`
 echo
 echo "Copying prototype mappings from ${mapping_source_dir} to ${map_path_full}"
 echo
-mkdir -p ${map_path_full}
+create_dir $public ${map_path_full}
 for mapping in `ls -1 ${mapping_source_dir}/*.*map | grep -v 0`;
 do
   cp -v ${mapping} ${map_path_full} 2>/dev/null 1>/dev/null
 done
 
-# chmod 444 ${map_dest}/*.*map
+# chmod $immutable ${map_dest}/*.*map
 
 ###
 ### tell the user what we did
@@ -404,28 +407,26 @@ case ${server_mode}
     in
     "test" | "prod") 
 	echo "Setting permissions"
-	# chown crds.crdsoper ${install_root}
-	# chown crds.crdsoper ${install_root}/*
-	chmod 6755 ${install_root}
-	chmod 700 ${install_dir}
 
-	chmod 6755 ${ref_path}
-	chmod 6755 ${ref_path_full}
-	chmod -f 444 ${ref_path_full}/*
+	chmod $public ${ref_path}
+	chmod $public ${ref_path_full}
+	chmod -f $immutable ${ref_path_full}/*
 
-	chmod 6755 ${map_path}
-	chmod 6755 ${map_path_full}
-	chmod -f 444 ${map_path_full}/*
+	chmod $public ${map_path}
+	chmod $public ${map_path_full}
+	chmod -f $immutable ${map_path_full}/*
 
-	chmod 6755 ${CRDS_CATALOG_DIR}
-	chmod 6755 ${FILE_UPLOAD_TEMP_DIR}
-	chmod 6770 ${CRDS_DELIVERY_DIR}    # OPUS client removes delivered files.
-	chmod 6775 ${CRDS_INGEST_DIR}   # Submitters scp files in.
-	chmod 6755 ${CRDS_ARCHIVE_CACHE_DIR}   # Where mapping bundles go
-
-	mkdir -p -m 6775 ${install_root}/ingest_ssb
-	# chown crds.ssb ${install_root}/ingest_ssb
-	chmod 6775 ${install_root}/ingest_ssb
+	chmod $secret ${install_dir}
+	for dir in $install_dir/*
+	do
+	    chmod $secret $dir  # default to secret
+	done
+	chmod $privileged_rw ${CRDS_INGEST_DIR}_ssb
+	chmod $privileged_ro ${CRDS_CATALOG_DIR}
+	chmod $privileged_ro ${FILE_UPLOAD_TEMP_DIR}
+	chmod $privileged_ro ${CRDS_DELIVERY_DIR}    # OPUS client removes delivered files.
+	chmod $privileged_ro ${CRDS_ARCHIVE_CACHE_DIR}   # Where mapping bundles go
+	chmod $privileged_rw ${CRDS_INGEST_DIR}   # Submitters scp files in.
 	;;
     "dev" )
 	;;
@@ -435,7 +436,7 @@ case ${observatory}
     in
     jwst)
 	echo "Installing jwst prototype references"
-	mkdir -p -m 755 ${ref_path_full}
+	create_dir $public ${ref_path_full}
 	cp -v ../jwst_references/*.fits ${ref_path_full}
 esac
 

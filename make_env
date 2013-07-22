@@ -30,7 +30,7 @@ cp ${crds_database} sources/crds_database.py
 ### gather config values that we need in this script
 ###
 
-python ${SERVER_SOURCES}/sh_config.py install_root install_dir CRDS_PATH port PYSYN_CDBS\
+python ${SERVER_SOURCES}/sh_config.py install_dir CRDS_PATH port PYSYN_CDBS\
  servertype dbtype debug data_dir debug_javascript noreload map_path map_path_full ref_path ref_path_full \
  CRDS_URL CRDS_CATALOG_DIR CRDS_DELIVERY_DIR FILE_UPLOAD_TEMP_DIR CRDS_INGEST_DIR CRDS_ARCHIVE_CACHE_DIR apachemod > make_env.tmp
 . ./make_env.tmp
