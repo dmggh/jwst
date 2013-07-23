@@ -597,10 +597,12 @@ class FileBlob(BlobModel):
         "observatory": lambda self: self.observatory not in OBSERVATORIES,
         "instrument": lambda self:  (not self.name.endswith(".pmap")) and self.instrument not in INSTRUMENTS,
         "filekind": lambda self:  (not self.name.endswith((".pmap",".imap"))) and self.filekind not in FILEKINDS,
-        "aperture" : lambda self: not self.aperture and self.type != "mapping",
+        "aperture" : lambda self: self.aperture=="none" and self.type != "mapping" and \
+            self.instrument != "wfpc2",
         "comment" : lambda self: not self.comment,
         "description" : lambda self: not self.description,
-        "pedigree" : lambda self: self.type == "reference" and not self.pedigree,
+        "pedigree" : lambda self: self.type == "reference" and not self.pedigree and \
+            not re.match(r"\w+\.r[0-9][hd]", self.name),
         "deliverer_user" : lambda self: not self.deliverer_user,
         "deliverer_email" : lambda self: not self.deliverer_email,
         "creator_name" : lambda self: not self.creator_name,
@@ -694,7 +696,7 @@ class FileBlob(BlobModel):
     def repair_aperture(self):
         self.set_fits_field("aperture", "APERTURE")
         
-    def repair_aperture(self):
+    def repair_useafter_date(self):
         self.set_fits_field("useafter_date", "USEAFTER")
 
     def repair_reference_file_type(self):
