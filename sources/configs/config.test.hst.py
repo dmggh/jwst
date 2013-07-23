@@ -2,6 +2,7 @@ debug = DEBUG = True
 DEBUG_EXTRAS = False
 
 HOST = "tlhstcrdsv1"
+PROXY = "hst-crds-test"
 observatory = 'hst'
 server_usecase = 'test'
 CRDS_SERVER_IP = "130.167.252.67"
@@ -18,7 +19,8 @@ CATALOG_DB_PFILE = "/crds/data1/database/crds.dat"
 CATALOG_DB_DSN = "HarpoDadsopsRepDsn"
 REFFILE_DB_DSN = "HarpoReffileOpsRepDsn"
 
-CRDS_URL = "https://" + HOST + ".stsci.edu:" + str(port) + "/"
+CRDS_DIRECT_URL = "https://" + HOST + ".stsci.edu:" + str(port) + "/"
+CRDS_URL = "https://" + PROXY + ".stsci.edu/"
 
 servertype = 'mod_wsgi'
 apachemod = install_root + "/lib"

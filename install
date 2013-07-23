@@ -422,12 +422,13 @@ case ${server_mode}
 	do
 	    chmod $secret $dir  # default to secret
 	done
-	chmod $private_rw ${CRDS_INGEST_DIR}_ssb
 	chmod $private_ro ${CRDS_CATALOG_DIR}
-	chmod $private_ro ${FILE_UPLOAD_TEMP_DIR}
-	chmod $private_ro ${CRDS_DELIVERY_DIR}    # OPUS client removes delivered files.
 	chmod $private_ro ${CRDS_ARCHIVE_CACHE_DIR}   # Where mapping bundles go
-	chmod $private_rw ${CRDS_INGEST_DIR}   # Submitters scp files in.
+	for dir in ${CRDS_DELIVERY_DIR} ${CRDS_INGEST_DIR} ${CRDS_INGEST_DIR}_ssb ${FILE_UPLOAD_TEMP_DIR}
+	do
+	    chmod $private_rw $dir
+	    chmod g+s $dir
+	done
 	;;
     "dev" )
 	;;
