@@ -109,6 +109,8 @@ class DB(object):
         if col_list is None:
             col_list = self.get_columns(table)
         col_names = ", ".join(col_list)
+        if not col_names.strip():
+            col_names = "*"
 
         for row in self.execute("select %s from %s %s" % (col_names, table, where)):
             items = zip(col_list, [str(x).lower() for x in row] if lowercase else row)
@@ -406,3 +408,14 @@ def get_dataset_ids(instrument, observatory="hst"):
     init_db()
     igen = HEADER_GENERATORS[instrument]
     return igen.get_dataset_ids()
+
+def get_reference_info(instrument, reference):
+    """Return file info for a CDBS reference file `reference` belonging to `instrument`."""
+    if instrument == "nicmos": 
+        instrument = "nic"
+    elif instrument == "wfii":
+        instrument == "wfpc2"
+    refops = get_reffile_ops()
+    gen = refops.make_dicts(instrument.lower() + "_file", where="WHERE file_name='{}'".format(reference.lower()))
+    return gen.next()
+

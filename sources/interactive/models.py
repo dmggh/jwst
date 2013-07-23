@@ -422,8 +422,12 @@ class BlobModel(CrdsModel):
             candidate.thaw()
             for filter in matches:
                 fval = getattr(candidate, filter, None)
-                if not re.match(matches[filter], fval):
-                    break
+                if isinstance(fval, (bool, int, float, long)):
+                    if not matches[filter] == fval:
+                        break
+                else:
+                    if not re.match(matches[filter], fval):
+                        break
             else:
                 filtered.append(candidate)
         return filtered
@@ -604,6 +608,7 @@ class FileBlob(BlobModel):
     
     def get_defects(self, verify_checksum=False):
         """Check `self` and return a list of problems.   See therapist."""
+        self.thaw()
         defects = []
         for field in self.bad_field_checks:
             if self.bad_field_checks[field](self):
@@ -611,9 +616,14 @@ class FileBlob(BlobModel):
         if verify_checksum and not self.checksum_ok:  # slow
             defects.append("BAD sha1sum = '%s'".format(self.sha1sum))
         return defects
+
+    @property
+    def has_defects(self):
+        return bool(len(self.get_defects()))
     
     def repair_defects(self, defects=None):
         """Attempt to automatically fix list of `defects` in `self`."""
+        self.thaw()
         if defects is None:
             defects = self.get_defects()
         repairs = {}
@@ -625,7 +635,11 @@ class FileBlob(BlobModel):
                 old = getattr(self, field)
                 try:
                     fixer()
-                    repairs[field] = "REPAIRED '{}' from '{}' to '{}'".format(field, old, getattr(self, field))
+                    new = getattr(self, field)
+                    if old != new:
+                        repairs[field] = "REPAIRED '{}' from '{}' to '{}'".format(field, old, new)
+                    else:
+                        raise RuntimeError("no change from fixer")
                 except Exception, exc:
                     failed[field] = "FAILED repairing '{}' from '{}' exception: '{}'".format(field, old, str(exc))
             else:
@@ -691,6 +705,18 @@ class FileBlob(BlobModel):
         
     def repair_comment(self):
         self.set_fits_field("comment", "DESCRIP")
+
+    if OBSERVATORY == "hst":
+        def repair_activation_date(self):
+            if self.type == "mapping":
+                return
+            with log.error_on_exception("Failed repairing HST availability date for", repr(self.name)):
+                if self.name.endswith("d"):
+                    self.activation_date = FileBlob.load(self.name[:-1]+"h").activation_date
+                    return
+                from crds.server.interactive import database
+                info = database.get_reference_info(self.name)
+                self.availability_date = timestamp.parse_date(info["opus_load_date"])
         
     @property
     def available(self):

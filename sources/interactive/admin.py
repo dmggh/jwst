@@ -45,9 +45,7 @@ class FileBlobAdmin(admin.ModelAdmin):
     def repair_catalog(self, request, queryset):
         """Repair catalog entries by restoring information from cached references. """
         for fileblob in queryset:
-            fileblob.thaw()
-            defects = fileblob.get_defects()
-            repairs, failed = fileblob.repair_defects(defects)
+            repairs, failed = fileblob.repair_defects()
             for msg in repairs.values() + failed.values():
                 self.announce(request, "File '{}' ".format(fileblob.name) + " " + msg)
     repair_catalog.short_description = repair_catalog.__doc__
