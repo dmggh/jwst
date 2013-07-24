@@ -462,7 +462,7 @@ def log_view(func):
         """trap() is bound to the func parameter of decorator()."""        
         log.info() # start with blank line to make concat logs readable
         log.info("REQUEST:", request.path, request.method, "ajax="+str(request.is_ajax()))
-#        log.info("META:", repr(request.META), stdout=None)
+        # log.info("META:", log.PP(request.META))
         if request.GET:
             log.info("GET:",   repr(request.GET))
         if request.POST:
@@ -1141,15 +1141,15 @@ def submit_confirm(request):
         confirmed = False
 
     if confirmed:
-        rmodel.set_par("original_pmap", result.pmap)
-        if result.pmap_mode == "pmap_edit":
-            rmodel.set_par("pmap", models.get_default_context(models.OBSERVATORY, state="edit"))
-        elif result.pmap_mode == "pmap_operational":
-            rmodel.set_par("pmap", models.get_default_context(models.OBSERVATORY, state="operational"))
-        rmodel.save()
+        final_pmap, context_map, collision_list = submit.submit_confirm_core( 
+                confirmed, result.submission_kind, result.description, 
+                new_files, result.context_rmaps, result.user,  result.pmap, result.pmap_mode, locked_instrument)
+
+        if final_pmap:        
+            rmodel.set_par("original_pmap", result.pmap)
+            rmodel.set_par("pmap", final_pmap)
+            rmodel.save()
             
-        context_map, collision_list = submit.submit_confirm_core( confirmed, result.submission_kind, result.description, 
-                                            new_files, result.context_rmaps, result.user,  result.pmap, locked_instrument)
         new_file_map = sorted(new_file_map.items() + context_map.items())
         generated_files = sorted([(old, new) for (old, new) in new_file_map if old not in result.uploaded_basenames])
         uploaded_files = [(old, new) for (old, new) in new_file_map if (old, new) not in generated_files]

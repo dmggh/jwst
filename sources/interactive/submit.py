@@ -135,8 +135,10 @@ class FileSubmission(object):
     
     def __init__(self, pmap_name, uploaded_files, description, user, creator="UNKNOWN",
                  change_level="SEVERE", auto_rename=True, compare_old_reference=False,
-                 locked_instrument=None, status_channel=None):
+                 locked_instrument=None, status_channel=None, pmap_mode=None):
         self.pmap_name = pmap_name
+        self.pmap_mode = pmap_mode
+        self.final_pmap = None   # pmap_mode/pmap_name evaluated at confirmation time.
         self.observatory = self.pmap.observatory
         self.uploaded_files = uploaded_files
         self.description = description
@@ -272,9 +274,18 @@ class FileSubmission(object):
 
     def _do_create_context(self, updated_rmaps):
         """Create new contexts from `updated_rmaps` with no concern for locking."""
+        
+        # Evaluate implicit pmap names *now*,  while locked!
+        if self.pmap_mode == "pmap_edit":
+            self.final_pmap = models.get_default_context(models.OBSERVATORY, state="edit")
+        elif self.pmap_mode == "pmap_operational":
+            self.final_pmap = models.get_default_context(models.OBSERVATORY, state="operational")
+        else:
+            self.final_pmap = self.pmap_name
+            
         # Get the mapping from old imap to new rmap, basically the imaps that
         # must be updated onto the list of rmap updates to do.
-        updates_by_instrument = newcontext.get_update_map(self.pmap.name, updated_rmaps)
+        updates_by_instrument = newcontext.get_update_map(self.final_pmap, updated_rmaps)
         
         # For each imap being edited,  and the pipeline context,  reserve new
         # official names and return the dictionary { old_mapping : new_mapping }.
@@ -282,16 +293,20 @@ class FileSubmission(object):
         
         # Actually generate the new mappings,  by first copying the old mappings 
         # and then substituting old names with their updated equivalents.
-        new_contexts = newcontext.generate_new_contexts(self.pmap.name, updates_by_instrument, new_name_map)
+        new_contexts = newcontext.generate_new_contexts(self.final_pmap, updates_by_instrument, new_name_map)
      
         for new_loc in new_contexts:
-            web_certify.do_certify_file(new_loc, new_loc, context=self.pmap.name)
+            web_certify.do_certify_file(new_loc, new_loc, context=self.final_pmap)
     
         # Create delivery records for each of the new files
         for old_ctx, new_ctx in new_name_map.items():
             self.add_crds_file(old_ctx, rmap.locate_mapping(new_ctx))
         
-        return new_name_map
+        # Update the edit context for the next person so they won't miss these changes,  while locked!
+        new_pmap = [ mapping for mapping in new_name_map.values() if mapping.endswith(".pmap")][0]
+        models.set_default_context(os.path.basename(new_pmap))
+        
+        return self.final_pmap, new_name_map
     
     def generate_new_names(self, updates):
         """Generate a map from old pipeline and instrument context names to the
@@ -332,13 +347,6 @@ def get_collision_list(newfiles):
         if collisions:
             collision_list.append((newfile, blob.derived_from, collisions))
     return collision_list
-
-# ------------------------------------------------------------------------------------------------
-
-def do_create_contexts(pmap_name, updated_rmaps, description, user):
-    """Support the create contexts view with a function call."""
-    submission = FileSubmission(pmap_name, uploaded_files=None, description=description, user=user, creator="crds")
-    return submission.do_create_contexts(updated_rmaps)
 
 # ------------------------------------------------------------------------------------------------
 
@@ -603,7 +611,7 @@ def new_name(old_map):
         
 # ------------------------------------------------------------------------------------------------
         
-def submit_confirm_core(confirmed, submission_kind, description, new_files, context_rmaps, user, pmap_name, 
+def submit_confirm_core(confirmed, submission_kind, description, new_files, context_rmaps, user, pmap_name, pmap_mode,
                         locked_instrument):
     """Handle the confirm/cancel decision of a file submission.  If context_rmaps is not [],  then it's a list
     of .rmaps from which to generate new contexts.   
@@ -629,30 +637,28 @@ def submit_confirm_core(confirmed, submission_kind, description, new_files, cont
         raise CrdsError("No files submitted.")
     
     context_name_map = {}
-    collisions = None
+    final_pmap = collisions = None
     if confirmed:
         if context_rmaps:
             # Instrument lock required since we're generating a new .imap from context_rmaps.
             locks.verify_instrument_locked_files(user, locked_instrument, paths, blob.observatory)
             # context_rmaps aren't necessarily in new_file_map and may be existing files.  So they only
             # specify changes to `pmap_name`,  not file deliveries.
-            context_name_map = do_create_contexts(pmap_name, context_rmaps, description, user)
+            submission = FileSubmission(pmap_name, uploaded_files=None, description=description, user=user, creator="crds", 
+                                        pmap_mode=pmap_mode)
+            final_pmap, context_name_map = submission.do_create_contexts(context_rmaps)
             delivered_files = sorted(new_files + context_name_map.values())
         else:
             delivered_files = new_files
       
         delivery = Delivery(user, delivered_files, description, submission_kind)
         delivery.deliver()
-
-        for mapping in context_name_map.values():
-            if mapping.endswith(".pmap"):
-                models.set_default_context(mapping)
-                break
+        
         collisions = get_collision_list(context_name_map.values())
     else:
         destroy_file_list(new_files)
 
-    return  context_name_map, collisions
+    return  final_pmap or pmap_name, context_name_map, collisions
     
 def fix_unicode(items):
     return [(str(old), str(new)) for (old, new) in items]
