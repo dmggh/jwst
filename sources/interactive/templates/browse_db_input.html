@@ -11,9 +11,15 @@
         {% include "extension_options.html" %}
         {% if is_superuser %}
           <tr>
-            <td class="label" width="50%">Bad Files Only:</td>
+            <td class="label" width="50%">Bad Files Only (slow):</td>
             <td align="right">
                 <input type='checkbox' name='select_bad_files' value="selected" {{select_bad_files}}></input>
+            </td>
+          </tr>
+          <tr>
+            <td class="label" width="50%">Show Defects (slow):</td>
+            <td align="right">
+                <input type='checkbox' name='show_defects' value="selected" {{show_defects}}></input>
             </td>
           </tr>
         {% endif %}

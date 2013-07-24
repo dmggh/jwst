@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% load stdtags %}
+
+{% block contents %}
+
+<h2>
+    Delivery Status
+</h2> 
+
+{% for deliv in deliveries %}
+    {% accordion deliv.catalog "   " deliv.status|status_color %}
+        <table>
+            <thead>
+                <tr>
+                    <th>file</th>
+                    <th>status</th>
+                    <th>state</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for blob in deliv.files %}
+                <tr>
+                    <td>blob.name|exists_color</td>
+                    <td>blob.status</td>
+                    <td>blob.state</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endfor %}
+
+{% endblock contents %}

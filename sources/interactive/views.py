@@ -1570,6 +1570,7 @@ def browse_db_post(request):
     status = validate(
         request, "status",  r"[A-Za-z0-9_.\*]+")
     select_bad_files = "select_bad_files" in request.POST
+    show_defects = "show_defects" in request.POST
     
     filters = {}
     for var in ["instrument", "filekind", "extension",
@@ -1583,7 +1584,7 @@ def browse_db_post(request):
     if select_bad_files:
         filtered_db = [ blob for blob in filtered_db if blob.get_defects() ]
     
-    table = render_browse_table(request, filtered_db)
+    table = render_browse_table(request, filtered_db, show_defects)
 
     return crds_render(request, "browse_db_results.html", {
                 "filters": filters,
@@ -1592,7 +1593,7 @@ def browse_db_post(request):
                 "observatory" : observatory,
             })
     
-def render_browse_table(request, filtered_db):
+def render_browse_table(request, filtered_db, show_defects):
     """Generate the HTML for the search results table."""
     super = request.user.is_superuser
     authenticated = request.user.is_authenticated()
@@ -1607,7 +1608,7 @@ def render_browse_table(request, filtered_db):
             html.th("instrument") + 
             html.th("reference type") +
             (html.th("deliverer") if authenticated else "") +
-            (html.th("defects") if super else "")
+            (html.th("defects") if show_defects else "")
         )
     )
     rows = []
@@ -1622,7 +1623,7 @@ def render_browse_table(request, filtered_db):
             html.td(db.instrument) + 
             html.td(db.filekind) +
             (html.td(db.deliverer_user) if authenticated else "") +
-            (html.td(repr(db.get_defects())) if super else "")
+            (html.td(repr(db.get_defects())) if show_defects else "")
         )
         rows.append(tr)
     tbody = html.tbody("\n".join(rows))
