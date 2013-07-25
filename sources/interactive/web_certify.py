@@ -11,7 +11,7 @@ from crds import CrdsError
 from . import models
 from .common import capture_output, srepr, html_colorize_log
 
-def certify_file_list(upload_tuples, check_references=True, context=None, compare_old_reference=False.bit_length,
+def certify_file_list(upload_tuples, check_references=True, context=None, compare_old_reference=False,
                       push_status=lambda x: None):
     """Certify the list of `upload_tuples` specifying uploaded files.
     
