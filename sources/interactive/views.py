@@ -29,6 +29,7 @@ from django.contrib.auth.decorators import login_required as login_required
 import pyfits
 
 from crds import (rmap, utils, timestamp, uses, matches, checksum, compat, log, config)
+from crds import (data_file,)
 from crds import CrdsError
 
 from crds.timestamp import (DATE_RE_STR, TIME_RE_STR)
@@ -1460,11 +1461,14 @@ def browsify_reference(browsed_file):
     default_context = models.get_default_context(ref_blob.observatory)
     mapping = rmap.get_cached_mapping(default_context)
     
-    try:
+    header = {}
+    with log.error_on_exception("Failed getting minimum header for", repr(browsed_file)):
         header = mapping.get_minimum_header(browsed_file)
-    except Exception, exc:
-        output = "<p class='error'>File header unavailable: '%s'</p>" % str(exc)
-    else:
+    header2 = {}
+    with log.error_on_exception("Failed getting extra keys for", repr(browsed_file)):
+        header2 = data_file.get_unconditioned_header(browsed_file, needed_keys=["APERTURE","USEAFTER"])
+    if header:
+        header.update(header2)
         output  = "<b>Header Parameters</b>\n"
         output += "<br/>\n"
         output += "<br/>\n"
@@ -1473,6 +1477,9 @@ def browsify_reference(browsed_file):
             if value != "UNDEFINED":
                 output += "<tr><td class='label'>%s</td><td>%s</td></tr>\n" % (key, value)
         output += "</table>\n"
+    else:
+        output = "<p class='error'>File header unavailable: '%s'</p>" % str(exc)
+
     output += "<br/>\n"
     
     if browsed_file.endswith(".fits"):
