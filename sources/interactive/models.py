@@ -900,19 +900,19 @@ def add_crds_file(observatory, upload_name, permanent_location,
             creator_name="unknown", state="submitted", update_derivation=True):
     "Make a database record for this file.  Track the action of creating it."""
 
+    if rmap.is_mapping(upload_name):
+        if update_derivation:
+            derived_from = refactor.update_derivation(permanent_location)   # XXX mutate mapping file!
+        else:
+            derived_from = rmap.fetch_mapping(permanent_location).derived_from
+    else:
+        derived_from = "none"
+    
     blob = FileBlob.new(
         observatory, upload_name, permanent_location, 
         creator_name, deliverer, deliverer_email, description,
-        change_level=change_level, state=state, derived_from="none")
+        change_level=change_level, state=state, derived_from=derived_from)
 
-    if rmap.is_mapping(upload_name):
-        if update_derivation:
-            derived_from = refactor.update_derivation(permanent_location)
-        else:
-            derived_from = rmap.fetch_mapping(permanent_location).derived_from
-        blob.derived_from = derived_from
-        blob.save()
-    
     # note that modifying derivation fields changes the sha1sum of mappings.
     if add_slow_fields:
         blob.add_slow_fields()
