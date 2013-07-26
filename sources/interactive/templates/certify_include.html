@@ -6,8 +6,10 @@
     {% for cert in certify_results %}
         {% if new_file_map %}
             {% accordion "uploaded" {{cert.0|blue}} "-->" "renamed" {{new_file_map|lookup:cert.0|blue}}  {{cert.1.0|color_status}} %}
-                <a href='/browse/{{new_file_map|lookup:cert.0}}'>{{new_file_map|lookup:cert.0}}</a>
-                <br/><br/>
+                {% if cert.1.0 != "Failed." %}
+                    <a href='/browse/{{new_file_map|lookup:cert.0}}'>{{new_file_map|lookup:cert.0}}</a>
+                    <br/><br/>
+                {% endif %}
                 <div class='log'>
                     {{cert.1.1|safe}}
                 </div>
