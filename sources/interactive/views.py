@@ -1888,5 +1888,31 @@ def context_table(request, mapping, recursive="10"):
             "mapping_type" : m.header["mapping"],
         }, requires_pmaps=False)
     
-    
 
+if sconfig.DEBUG:
+    
+    @capture_output
+    def runit(mode, command):
+        # log.info("DEBUG COMMAND:", repr(command))
+        try:
+            if mode == "eval":
+                result = eval(command, locals(), globals())
+            else:
+                exec command in locals(), globals()
+                result = None
+        except Exception as exc:
+            result = "EXCEPTION: " + str(exc)
+        # log.info("DEBUG RESULT:", result)
+        return result
+
+    @error_trap("base.html")
+    @log_view
+    def debug_command(request):
+        if request.method == "GET":
+            return crds_render(request, "command_result.html")
+        else:
+            command = str(request.POST["command"].strip())
+            mode = validate(request, "mode", "exec|eval")
+            result, output = runit(mode, command)
+            return crds_render(request, "command_result.html", dict(command_result=result, command_output=output))
+    

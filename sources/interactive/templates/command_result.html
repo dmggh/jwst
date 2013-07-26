@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% load stdtags %}
+
+{% block contents %}
+
+    <h2>Debug Command</h2> 
+
+    <form method="post" action="/debug_command/" enctype="multipart/form-data" id="debug_command_form">  {% csrf_token %}
+
+      <textarea name="command">{{command|safe}}</textarea>
+
+      <input type="submit" name="mode" value="exec">
+      <input type="submit" name="mode" value="eval">      
+    </form>
+
+    <h3>Last Command</h3>
+    <pre class="program">{{command|safe}}</pre>
+   
+    <h3>Command Result</h3>
+    <pre class="program">{{command_result|safe}}</pre>
+    
+    <h3>Command Output</h3>
+    <pre class="program">{{command_output|safe}}</pre>
+{% endblock contents %}

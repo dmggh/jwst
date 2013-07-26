@@ -102,3 +102,8 @@ urlpatterns += patterns('',
 urlpatterns += patterns('',
     # url(r'^upload/', include('fileupload.urls')),
 )
+
+if config.DEBUG:
+    urlpatterns += patterns('', 
+        ('debug_command', crds.server.interactive.views.debug_command)
+    )
