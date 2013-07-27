@@ -42,10 +42,9 @@ of errors and/or warnings.
 """
 import os
 import tempfile
-import getpass
 import shutil
 
-from crds import cmdline, log, rmap, utils, refactor, newcontext, checksum, CrdsError
+from crds import log, rmap, utils, refactor, newcontext, checksum, CrdsError
 
 from . import models, web_certify, web_difference, locks
 from .common import srepr
@@ -65,6 +64,8 @@ def file_exists_somehow(filename):
 # ----------------------------------------------------------------------------------------------------
 
 '''
+from crds import cmdline
+
 class SubmitFilesScript(cmdline.Script):
     """Command line version of CRDS file submissions."""
     
@@ -162,7 +163,7 @@ class FileSubmission(object):
         return self.uploaded_files.keys()
 
     def __repr__(self):
-        fields = [a+"="+repr(getattr(self, a)) for a in ["pmap_name","user_name","upload_names","description"]]
+        fields = [a + "=" + repr(getattr(self, a)) for a in ["pmap_name", "user_name", "upload_names", "description"]]
         return self.__class__.__name__ + "(" + ", ".join(fields) + ")"
 
     def submit(self, *args, **keys):
@@ -175,13 +176,17 @@ class FileSubmission(object):
             self.cleanup_failed_submission()
             raise
         
+    def _submit(self, *args, **keys):
+        """FileSubmission is abstract,  _submit must be overridden."""
+        raise NotImplementedError("abstract class")
+        
     def cleanup_failed_submission(self):
         """Cleanup loose ends from a failed file submission,  particularly those files which have been
         added already when something fails.
         """
         log.info("Cleanup failed submission", repr(self))
         with log.error_on_exception("cleanup_failed_submission() failed removing added files"):
-            for uploaded_name, path in self.added_files:
+            for uploaded_name, _path in self.added_files:
                 blobs = models.FileBlob.filter(uploaded_as=uploaded_name, include_uploaded=True)
                 for blob in blobs:      
                     with log.error_on_exception("File cleanup for '%s' failed." % uploaded_name):
@@ -227,7 +232,7 @@ class FileSubmission(object):
         
         # Automatically 
         if self.auto_rename:
-            permanent_name = auto_rename_file(self.observatory, original_name, upload_location)
+            permanent_name = self.auto_rename_file(original_name, upload_location)
         else:
             if file_exists_somehow(original_name):
                 raise CrdsError("File " + srepr(original_name) + " already exists.") 
@@ -312,7 +317,7 @@ class FileSubmission(object):
         """Generate a map from old pipeline and instrument context names to the
         names for their replacements.
         """
-        return { old:new_name(old) for old in [self.pmap.name] + updates.keys() }
+        return { old:self.new_name(old) for old in [self.pmap.name] + updates.keys() }
 
     def add_crds_file(self, original_name, filepath, state="uploaded"):
         """Create a FileBlob model instance using properties of this FileSubmission."""
@@ -335,7 +340,67 @@ class FileSubmission(object):
         self.push_status("Computing file differences.")
         return web_difference.mass_differences(sorted(new_file_map.items()), push_status=self.push_status)   
 
+    # ---------------------------------------------------------------------------------------------------
 
+    def auto_rename_file(self, upload_name, upload_path):
+        """Generate a CRDS name for an uploaded file."""
+        extension = os.path.splitext(upload_name)[-1]
+        instrument, filekind = utils.get_file_properties(self.observatory, upload_path)
+        return self.get_new_name(instrument, filekind, extension)
+    
+    def new_name(self, old_map):
+        """Given an old mapping name, `old_map`, adjust the serial number to 
+        create a new mapping name of the same series.
+        """
+        instrument, filekind = utils.get_file_properties(self.observatory, old_map)
+        extension = os.path.splitext(old_map)[-1]
+        new_map = self.get_new_name(instrument, filekind, extension)
+        assert not (rmap.mapping_exists(new_map) or models.FileBlob.exists(new_map)), \
+            "Program error.  New mapping " + srepr(new_map) + " already exists."
+        return new_map
+    
+    def get_new_name(self, instrument, filekind, extension):
+        """get_new_name() iterates over candidate serial numbers until it finds
+        one which does not already exist and composes a new filename based on its
+        parameters.   For a rigid naming scheme,  the first try should work.   For 
+        more free-form names,   multiple tries may be required to get an unused 
+        serial number.
+        
+        get_new_name() works by guaranteeing that:
+        1) Any generated name is not already "reserved" using the CounterModel.
+        2) No generated name has already been submitted by using FileBlobs.
+        
+        The intent of CRDS naming is to be able to infer time order from serial number.
+        """
+        name = self._get_new_name(instrument, filekind, extension)
+        while True:
+            try:
+                _already_in_use = models.FileBlob.load(name)
+            except LookupError:
+                break
+            name = self._get_new_name(instrument, filekind, extension)
+        return name
+    
+    def _get_new_name(self, instrument, filekind, extension):
+        """Generate a candidate new name,  possibly with an existing serial number if un-renamed
+        files are submitted out of order.
+        """
+        num = self.get_new_serial(instrument, filekind, extension)
+        parts = [x for x in [self.observatory, instrument, filekind, "%04d" % num] if x]
+        return "_".join(parts) + extension
+    
+    def get_new_serial(self, instrument, filekind, extension):
+        """Return the next reference or mapping serial number associated with the
+        given parameters and update the database.   There's no guarantee the
+        number isn't already taken by an ad hoc filename.
+        
+        An alternate and in some ways superior approach to using DB counters is to
+        reflect on the file system and return a count of +1 the last file seen.
+        """
+        return models.CounterModel.next(self.observatory, instrument, filekind, extension)
+    
+# ------------------------------------------------------------------------------------------------
+      
 def get_collision_list(newfiles):
     """Given a list of `newfiles`,  newly created files, check the database for other children 
     of the same parent.   Return a list of triplets:  [ (newfile, parent, other_children_of_parent), ... ]
@@ -482,7 +547,7 @@ class BatchReferenceSubmission(FileSubmission):
             (instrument, filekind) = utils.get_file_properties(self.observatory, old_rmap)
             these_ref_paths = [ refpath for refpath in reference_paths 
                 if (instrument, filekind) == utils.get_file_properties(self.observatory, refpath) ]
-            new_rmap = get_new_name(self.observatory, instrument, filekind, ".rmap")
+            new_rmap = self.get_new_name(instrument, filekind, ".rmap")
             rmap_replacement_map[old_rmap] = new_rmap
             new_rmap_path = rmap.locate_mapping(new_rmap)
             old_rmap_path = rmap.locate_mapping(old_rmap)
@@ -550,62 +615,6 @@ class SimpleFileSubmission(FileSubmission):
             else:
                 if rmap.is_mapping(uploaded):
                     raise CrdsError("Can't submit mapping file: '%s' using this page." % uploaded)
-
-# ------------------------------------------------------------------------------------------------
-        
-def get_new_serial(observatory, instrument, filekind, extension):
-    """Return the next reference or mapping serial number associated with the
-    given parameters and update the database.   There's no guarantee the
-    number isn't already taken by an ad hoc filename.
-    """
-    return models.CounterModel.next(observatory, instrument, filekind, extension)
-
-def _get_new_name(observatory, instrument, filekind, extension):
-    """Generate a candidate new name,  possibly with an existing serial number.
-    """
-    num = get_new_serial(observatory, instrument, filekind, extension)
-    parts = [x for x in [observatory, instrument, filekind, "%04d" % num] if x]
-    return "_".join(parts) + extension
-
-def get_new_name(observatory, instrument, filekind, extension):
-    """get_new_name() iterates over candidate serial numbers until it finds
-    one which does not already exist and composes a new filename based on its
-    parameters.   For a rigid naming scheme,  the first try should work.   For 
-    more free-form names,   multiple tries may be required to get an unused 
-    serial number.
-    
-    get_new_name() works by guaranteeing that:
-    1) Any generated name is not already "reserved" using the CounterModel.
-    2) No generated name has already been submitted by using FileBlobs.
-    """
-    name = _get_new_name(observatory, instrument, filekind, extension)
-    while True:
-        try:
-            _already_in_use = models.FileBlob.load(name)
-        except LookupError:
-            break
-        name = _get_new_name(observatory, instrument, filekind, extension)
-    return name
-
-def auto_rename_file(observatory, upload_name, upload_path):
-    """Generate a CRDS name for an uploaded file."""
-    extension = os.path.splitext(upload_name)[-1]
-    instrument, filekind = utils.get_file_properties(
-        observatory, upload_path)
-    return get_new_name(observatory, instrument, filekind, extension)
-
-def new_name(old_map):
-    """Given an old mapping name, `old_map`, adjust the serial number to 
-    create a new mapping name of the same series.
-    """
-    observatory = rmap.get_cached_mapping(old_map).observatory
-    instrument, filekind = utils.get_file_properties(
-        observatory, old_map)
-    extension = os.path.splitext(old_map)[-1]
-    new_map = get_new_name(observatory, instrument, filekind, extension)
-    assert not (rmap.mapping_exists(new_map) or models.FileBlob.exists(new_map)), \
-        "Program error.  New mapping " + srepr(new_map) + " already exists."
-    return new_map
 
 # ------------------------------------------------------------------------------------------------
         
@@ -802,5 +811,5 @@ class Delivery(object):
     
 # ------------------------------------------------------------------------------------------------
         
-if __name__ == "__main__":
-    SubmitFilesScript()()
+#if __name__ == "__main__":
+#    SubmitFilesScript()()
