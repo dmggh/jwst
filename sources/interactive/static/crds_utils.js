@@ -63,7 +63,7 @@ crds.poll_lock_status = function () {
         crds.lock_status_json = json;
         if (json.status == "ok" && !json.is_expired) {
             $(".lock_timer").html(json.time_remaining);
-            $(".locked_instrument").html(json.name);
+            $(".locked_instrument").html(json.user + " " + json.name);
         } else {
             var fail_message;
             if (json.status != "ok") {
