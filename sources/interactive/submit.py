@@ -428,6 +428,7 @@ class BatchReferenceSubmission(FileSubmission):
         
         self.bsr_ensure_references()
         
+        #   XXX Certification and submit_file_list order is critical:  certify then submit
         reference_disposition, reference_certs = web_certify.certify_file_list(self.uploaded_files.items(), 
             context=comparison_context, compare_old_reference=self.compare_old_reference, push_status=self.push_status)
     
@@ -581,7 +582,7 @@ class SimpleFileSubmission(FileSubmission):
         if generate_contexts:
             self.verify_instrument_lock()
         
-        # Verify that ALL files certify.
+        # XXX Certification and submit_file_list order is critical:  certify then submit
         disposition, certify_results = web_certify.certify_file_list(
             self.uploaded_files.items(), context=self.pmap.name, compare_old_reference=self.compare_old_reference,
             push_status=self.push_status)
