@@ -22,9 +22,9 @@
         <input type='hidden' name='observatory' value='{{observatory}}' />
         
         {% if crds_filetype == "reference" %}
-            <h3>Compare Old Reference:  <input type="checkbox" name="compare_old_reference" checked /></h3>
+            <h3>Compare Old Reference:  <input type="checkbox" name="compare_old_reference" value='checked' {{compare_old_reference}} /></h3>
             <div id="comparison-context-hide">
-                <h3>Comparison Context</h3>
+                <h3>Comparison Context:</h3>
                 {% include "select_pmap.html" %}
             </div>        
             <script type="text/javascript" language="javascript">
@@ -41,14 +41,10 @@
         
         {% if crds_filetype == "mapping" %}
             <h3>Generate Contexts:
-                <input name='generate_contexts' type='checkbox' value='on' 
-		       {% if generate_contexts %}
-		       checked
-		       {% endif %}
-		       >
+                <input name='generate_contexts' type='checkbox' value='checked' {{generate_contexts}}> 
             </h3>
             <div id="derivation-context-hide">
-                <h3>Derive From Context</h3>
+                <h3>Derive From Context:</h3>
                 {% include "select_pmap.html" %}  
             </div>      
             <script type="text/javascript" language="javascript">

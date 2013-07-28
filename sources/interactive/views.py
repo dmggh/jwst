@@ -89,6 +89,15 @@ def validate(request, variable, pattern):
     return check_value(value, pattern, "Invalid value " + srepr(value) + 
                                         " for " + srepr(variable))
 
+def get_or_post(request, variable):
+    """Return `variable` wherever it is defined in request, GET or POST."""    
+    return (variable in request.POST and request.POST[variable]) or \
+           (variable in request.GET  and request.GET[variable])
+
+def checkbox(request, variable):
+    """Return the boolean value of checkbox `variable` with <input> in standard idiom."""
+    return bool(get_or_post(request, variable))
+
 # ===========================================================================
 
 # "pattern" functions for validate_post/get
@@ -99,7 +108,7 @@ PERSON_RE = r"[A-Za-z_0-9\.@]*"
 DATASET_ID_RE = r"[A-Za-z0-9_]+"
 URL_RE = r"(/[A-Za-z0-9_]?)+"
 FITS_KEY_RE = r"[A-Z0-9_\-]+"
-FITS_VAL_RE = r"[A-Za-z0-9_\- :\.]*"   
+FITS_VAL_RE = r"[A-Za-z0-9_\- :\.]*"
 
 def is_pmap(filename):
     """Verify that `filename` names a known CRDS pipeline mapping.
@@ -998,7 +1007,7 @@ def certify_post(request):
     """View fragment to process file certification POSTs."""
 
     context = get_recent_or_user_context(request)
-    compare_old_reference = "compare_old_reference" in request.POST
+    compare_old_reference = checkbox(request, "compare_old_reference")
     comparison_context = context if compare_old_reference else None
     remove_dir, uploaded_files = get_files(request)
     
@@ -1026,7 +1035,10 @@ def certify_post(request):
 def batch_submit_references(request):
     """View to return batch submit reference form or process POST."""
     if request.method == "GET":
-        return crds_render(request, "batch_submit_reference_input.html", requires_pmaps=True)
+        return crds_render(request, "batch_submit_reference_input.html", {
+                           "compare_old_reference" : "checked",
+                           "auto_rename":""
+                          }, requires_pmaps=True)
     else:
         return batch_submit_references_post(request)
     
@@ -1039,8 +1051,8 @@ def batch_submit_references_post(request):
     description = validate(request, "description", DESCRIPTION_RE)
     creator = validate(request, "creator", PERSON_RE)
     change_level = validate(request, "change_level", models.CHANGE_LEVELS)
-    auto_rename = "auto_rename" in request.POST
-    compare_old_reference = "compare_old_reference" in request.POST 
+    auto_rename = checkbox(request, "auto_rename")
+    compare_old_reference = checkbox(request, "compare_old_reference")
     remove_dir, uploaded_files = get_files(request)
     locked_instrument = get_locked_instrument(request)
     
@@ -1226,6 +1238,8 @@ def submit_files(request, crds_filetype):
     if request.method == "GET":
         return crds_render(request, "submit_input.html", {
                     "crds_filetype" :  crds_filetype,
+                    "compare_old_reference" : "checked",
+                    "auto_rename":""
                 }, requires_pmaps=True)
     else:
         return submit_files_post(request, crds_filetype)
@@ -1234,12 +1248,12 @@ def submit_files_post(request, crds_filetype):
     """Handle the POST case of submit_files, returning dict of template vars."""
     # crds_filetype constrained by RE in URL to 'mapping' or 'reference'.
     observatory = get_observatory(request)
-    compare_old_reference = "compare_old_reference" in request.POST
-    generate_contexts = "generate_contexts" in request.POST
+    compare_old_reference = checkbox(request, "compare_old_reference")
+    generate_contexts = checkbox(request, "generate_contexts")
+    auto_rename = checkbox(request, "auto_rename")
     pmap_mode, pmap_name = get_recent_or_user_mode_and_context(request)
     description = validate(request, "description", DESCRIPTION_RE)
     creator = validate(request, "creator", PERSON_RE)
-    auto_rename = "auto_rename" in request.POST    
     change_level = validate(request, "change_level", models.CHANGE_LEVELS)            
     remove_dir, uploaded_files = get_files(request)
     locked_instrument = get_locked_instrument(request)
@@ -1576,8 +1590,8 @@ def browse_db_post(request):
         request, "deliverer_user", [r"\*"] + usernames())
     status = validate(
         request, "status",  r"[A-Za-z0-9_.\*]+")
-    select_bad_files = "select_bad_files" in request.POST
-    show_defects = "show_defects" in request.POST
+    select_bad_files = checkbox(request, "select_bad_files")
+    show_defects = checkbox(request, "show_defects")
     
     filters = {}
     for var in ["instrument", "filekind", "extension",
