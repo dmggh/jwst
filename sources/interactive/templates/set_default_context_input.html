@@ -4,10 +4,10 @@
     <h2>Set Context</h2>
     <form method="post" action="/set_default_context/" enctype="multipart/form-data" onsubmit="return crds.warn_delay();" >  {% csrf_token %}
 
-      <h3>Select</h3>
+      <h3>Select:</h3>
       <table border='1'>
             <tr>
-                <th>Context Type</th>
+                <th>Context Type:</th>
                 <th>Value</th>
             </tr>
             <tr>
@@ -29,7 +29,7 @@
       <h3>Set To</h3>
       {% include "select_pmap.html" %}
       
-      <h3>Reason for Change</h3>
+      <h3>Reason for Change:</h3>
       <p>
             <textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea>   
       </p>
