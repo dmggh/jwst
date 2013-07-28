@@ -4,15 +4,24 @@
             {% autoescape off %}
                 {% if diffs.logical_diffs %}
                     <h3>Logical Differences</h3>
-                    {% accordion "Logical Diff" diffs.logical_diffs.0.0 %}
-                        <table border='1' pad='1'>
-                            {% for ldiff in diffs.logical_diffs %}
-                            <tr>
+                    {% accordion "Logical Diff" diffs.logical_diffs.0.0.1 %}
+                        <table class="crds_data_table">
+                            <thead>
+                                <tr>
+                                    {% for tup in diffs.logical_diffs.0|slice:"1:" %}
+                                        <th> {{tup.0}} </th>
+                                    {% endfor %}                                
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ldiff in diffs.logical_diffs %}
+                                <tr>
                                     {% for tup in ldiff|slice:"1:" %}
-                                        <td> {{tup}} </td>
+                                        <td> {{tup.1}} </td>
                                     {% endfor %}
-                            </tr>
-                            {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
                         </table>
                     {% endaccordion %}
                 {% endif %}

@@ -41,7 +41,10 @@ def difference_core(file1_orig, file2_orig, file1_path=None, file2_path=None, pu
         difference = textual_diff(file1_orig, file2_orig, file1_path, file2_path)
         map_text_diffs[str((file1_orig, file2_orig))] = difference
         map_text_diff_items = sorted(map_text_diffs.items())
-        logical_diffs = [[ str(tup) for tup in diff] for diff in logical_diffs]
+        # logical diffs get stored as json
+        logical_diffs = [[(str(tup[0]), str(tup[1])) 
+                          for tup in zip(diff.parameter_names, diff)] 
+                          for diff in logical_diffs]
     elif file1_orig.endswith(".fits") and file2_orig.endswith(".fits"):
         diff_lines = pysh.lines("fitsdiff ${file1_path} ${file2_path}")
         diff_lines = format_fitsdiffs(diff_lines, file1_path, file2_path,

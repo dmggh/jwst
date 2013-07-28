@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block head_overrides %}
+    <link type="text/css" rel="stylesheet" href="/static/crds_tables.css" />
+    <link type="text/css" rel="stylesheet" href="/static/jquery.dataTables.css" />
+    <script type="text/javascript" language="javascript" src="/static/jquery.dataTables.min.js"></script>
+{% endblock head_overrides %}
+
+
+{% block body_trailer %}
+<script type="text/javascript">
+    console.log("running.")
+    $(function() {
+        var tables = $(".crds_data_table");
+        tables.each(function (index, table) {
+            $(table).hide();
+            $(table).css({"font-size":"0.7em"});
+            $(table).dataTable({
+                "aLengthMenu": [[50, 500, 5000, -1], [50, 500, 5000, "All"]],
+                "iDisplayLength" : -1,                  
+            });
+            $(table).show();
+        });
+    }); 
+</script>
+{% endblock body_trailer %}
