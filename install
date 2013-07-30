@@ -1,4 +1,4 @@
-#! /bin/sh -x
+#! /bin/sh -xe
 
 # This install script is heavily based on the PyETC install script
 # CRDS is intended to use the same LAMP stack as pyetc, with emphasis on Python

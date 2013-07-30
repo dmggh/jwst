@@ -1,4 +1,4 @@
-#! /bin/tcsh 
+#! /bin/tcsh -e
 
 # =======================================================================
 # Init server environment
@@ -40,7 +40,7 @@ if ($observatory == "hst") then
     python -m crds.list --hst --cached-mappings --full-path >hst_mappings
     python -m crds.list --hst --cached-references --full-path >hst_references
     # see command line options
-    python add_files.py --hst --add-slow-fields --deliver @hst_mappings
+    python add_files.py --hst --add-slow-fields --reinit-slow-fields --deliver @hst_mappings
     if ($mode == "prod") then
 	python add_files.py --hst --add-slow-fields @hst_references
     else
