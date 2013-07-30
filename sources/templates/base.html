@@ -43,11 +43,13 @@
     
     <div>
         <div id="page_header">
-            <h1>{{observatory|upper}} Calibration and Reference Data System (CRDS)</h1>
+            <h1>{{observatory|upper}} Calibration Reference Data System (CRDS)</h1>
         </div>
     
         <div id="header_menu">
            <a href="/static/users_guide/index.html" class="tiny"><image src='/static/help_blue.ico' alt='help' height='24' width='24' /></a>
+           <a href="./" class="tiny" onClick="javascript:history.back(1);"><image src="/static/back-icon.png" alt='reset' height='24' width='24' /></a>
+           <a href="./" class="tiny" onClick= "javascript:history.forward(1);"><image src="/static/forward-icon.png" alt='reset' height='24' width='24' /></a>
            <a href="/" class="tiny"><image src="/static/home.ico" alt='home' height='24' width='24' /></a>
            <a href="./" class="tiny"><image src="/static/undo.ico" alt='reset' height='24' width='24' /></a>
            {% if is_authenticated %}
@@ -106,15 +108,15 @@
  
     </div>
     
-{% if locked_instrument %}
-    <script type="text/javascript">
-        crds.poll_lock_status();
-        crds.lock_timer_interval = setInterval(crds.poll_lock_status, 5000);
-    </script>
-{% endif %}
+    {% if locked_instrument %}
+        <script type="text/javascript">
+            crds.poll_lock_status();
+            crds.lock_timer_interval = setInterval(crds.poll_lock_status, 5000);
+        </script>
+    {% endif %}
 
     {% block body_trailer %}
     {% endblock body_trailer %}
-    
+
   </body>
 </html>

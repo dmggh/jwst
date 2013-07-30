@@ -251,10 +251,12 @@ class FileSubmission(object):
         utils.ensure_dir_exists(permanent_location)
         # Move or copy the temporary file to its permanent location,  assert ownership of CRDS copy now
         owner = os.stat(upload_location).st_uid
-        if owner == os.getuid():
+        if owner == os.getuid() and not rmap.is_mapping(permanent_location):
+            log.info("Linking", upload_location, "-->", permanent_location)
             os.link(upload_location, permanent_location)
         else:
-            self.push_status("Copying non-CRDS-owned file '{}'".format(original_name))
+            log.info("Copying", upload_location, "-->", permanent_location)
+            self.push_status("Copying '{}'".format(original_name))
             shutil.copyfile(upload_location, permanent_location)
         
 #        data_file.setval("COMMENT", "Header parameters of this file only reflect the original CRDS assignment rules.")

@@ -1909,6 +1909,8 @@ def display_context_history(request):
 @error_trap("base.html")
 @log_view
 def context_table(request, mapping, recursive="10"):
+    if re.match("operational|edit", mapping):
+        mapping = models.get_default_context(state=mapping)
     is_mapping(mapping)
     recursive = int(recursive)
     m = rmap.get_cached_mapping(mapping)
