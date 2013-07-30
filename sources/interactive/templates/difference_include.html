@@ -1,6 +1,8 @@
 {% load stdtags %}
-        {% if diffs.map_text_diff_items %}
 
+{% for diff_name,diffs in diff_results %}
+    {% accordion diff_name  %}
+        {% if diffs.map_text_diff_items %}
             {% autoescape off %}
                 {% if diffs.logical_diffs %}
                     <h3>Logical Differences</h3>
@@ -35,8 +37,8 @@
             {% endautoescape %}
     
         {% else %}
-        
             <pre class="program">{{diffs.difference|safe}}</pre>        
-        
         {% endif %}
+    {% endaccordion %}
+{% endfor %}
 

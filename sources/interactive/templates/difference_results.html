@@ -6,9 +6,7 @@
 
     <h2>Difference {{file1|gray}} against {{file2|gray}}</h2> 
     
-    {% for diff_name,diffs in diff_results %}
-        {% include "difference_include.html" %}
-    {% endfor %}
+    {% include "difference_include.html" %}
     
     {% include "home_button_trailer.html" %}
     

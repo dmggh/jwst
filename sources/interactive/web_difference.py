@@ -35,9 +35,11 @@ def difference_core(file1_orig, file2_orig, file1_path=None, file2_path=None, pu
     logical_diffs = map_text_diff_items = None
     if rmap.is_mapping(file1_orig) and rmap.is_mapping(file2_orig) and \
         extension(file1_orig) == extension(file2_orig):
-        logical_diffs = mapping_logical_diffs(file1_orig, file2_orig, file1_path, file2_path)
-        map_text_diffs = mapping_text_diffs(logical_diffs)
+        unfiltered = mapping_logical_diffs(file1_orig, file2_orig, file1_path, file2_path)
+        logical_diffs = filter_same_type(file1_path, unfiltered)
+        # map_text_diffs = mapping_text_diffs(logical_diffs)
         # Compute root files separately since they may have upload paths.
+        map_text_diffs = {}
         difference = textual_diff(file1_orig, file2_orig, file1_path, file2_path)
         map_text_diffs[str((file1_orig, file2_orig))] = difference
         map_text_diff_items = sorted(map_text_diffs.items())
@@ -113,6 +115,19 @@ def mapping_text_diffs(logical_diffs):
                         diffs = "diffs failed: " + str(exc)
                     diff_map[key] = diffs
     return diff_map
+
+def filter_same_type(file1_path, logical_diffs):
+    """Filter `logical_diffs` down to only those with the same type as `file_path`"""
+    filtered = set()
+    ext = os.path.splitext(file1_path)[1]
+    for diff in logical_diffs:
+        for tup in diff:
+            if tup and len(tup) == 2 and tup[0].endswith("map") and \
+                os.path.splitext(tup[0])[1] != ext:
+                break
+        else:
+            filtered.add(diff)
+    return sorted(list(filtered))
 
 def format_fitsdiffs(lines, file1, file2, file1_orig, file2_orig):
     """Add some colorization to output `lines` from fitsdiff, replacing
