@@ -228,7 +228,7 @@ def set_default_context(context, observatory=OBSERVATORY, state="edit", descript
     # Create a context history record for this context switch.
     history = get_context_history(observatory=observatory, state=state)
     old_context = history[0].context if history else "none"
-    if old_context != context:
+    if old_context != context or (rmap.is_mapping(context) and history == "none:"):
         new_hist = ContextHistoryModel()
         new_hist.description = description
         new_hist.context = context
@@ -314,7 +314,7 @@ class BlobModel(CrdsModel):
             default = "{}")
     
     def __init__(self, *args, **keys):
-        models.Model.__init__(self, *args, **keys)
+        CrdsModel.__init__(self, *args, **keys)
         """
         for fieldname in self.blob_fields:
             setattr(self, fieldname, self.blob_fields[fieldname].default)
@@ -711,14 +711,19 @@ class FileBlob(BlobModel):
     if OBSERVATORY == "hst":
         def repair_activation_date(self):
             if self.type == "mapping":
+                for hist in reversed(get_context_history()):  # find earliest pmap which uses mapping
+                    pmap = rmap.get_cached_mapping(hist.context)
+                    if self.name in pmap.mapping_names():
+                        self.activation_date = hist.start_date
+                        break
                 return
             with log.error_on_exception("Failed repairing HST availability date for", repr(self.name)):
                 if self.name.endswith("d"):
                     self.activation_date = FileBlob.load(self.name[:-1]+"h").activation_date
                     return
                 from crds.server.interactive import database
-                info = database.get_reference_info(self.name)
-                self.availability_date = timestamp.parse_date(info["opus_load_date"])
+                info = database.get_reference_info(self.instrument, self.name)
+                self.activation_date = timestamp.parse_date(info["opus_load_date"])
         
     @property
     def available(self):
@@ -900,7 +905,7 @@ def add_crds_file(observatory, upload_name, permanent_location,
             creator_name="unknown", state="submitted", update_derivation=True):
     "Make a database record for this file.  Track the action of creating it."""
 
-    if rmap.is_mapping(upload_name):
+    if rmap.is_mapping(permanent_location):
         if update_derivation:
             derived_from = refactor.update_derivation(permanent_location)   # XXX mutate mapping file!
         else:
