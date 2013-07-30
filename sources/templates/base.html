@@ -51,7 +51,7 @@
            <a href="./" class="tiny" onClick="javascript:history.back(1);"><image src="/static/back-icon.png" alt='reset' height='24' width='24' /></a>
            <a href="./" class="tiny" onClick= "javascript:history.forward(1);"><image src="/static/forward-icon.png" alt='reset' height='24' width='24' /></a>
            <a href="/" class="tiny"><image src="/static/home.ico" alt='home' height='24' width='24' /></a>
-           <a href="./" class="tiny"><image src="/static/undo.ico" alt='reset' height='24' width='24' /></a>
+           {# <a href="./" class="tiny"><image src="/static/undo.ico" alt='reset' height='24' width='24' /></a> #}
            {% if is_authenticated %}
                 <a href="/logout/" class="tiny"><image src="/static/exit.ico" alt='logout' height='24' width='24'
                     onclick='return confirm("Really logout?  Any unconfirmed file submissions will be cancelled.");' /></a>
