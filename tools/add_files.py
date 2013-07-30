@@ -51,6 +51,8 @@ Does not move, rename, or deliver files.
                    help='List of files and/or @-files to add to CRDS database.')
         self.add_argument('-S', '--add-slow-fields', action='store_true', dest="add_slow_fields",
                           help='Initialize DB fields which require significant time,  like sha1sums.')
+        self.add_argument('--reinit-slow-fields', action='store_true', dest="reinit_slow_fields",
+                          help='Initialize DB fields which require significant time,  like sha1sums.')
         self.add_argument('-T', '--state', default='operational',  help="CRDS server file state.", 
                           choices=models.FILE_STATUS_MAP.keys()) 
         self.add_argument('-D', '--description', default="Initial mass file import")
@@ -95,7 +97,7 @@ Does not move, rename, or deliver files.
                     del file_map[file]
                 else:
                     log.info("Skipping existing file", repr(file))
-                    if self.args.add_slow_fields:
+                    if self.args.reinit_slow_fields:
                         with log.error_on_exception("Failed adding slow fields for", repr(file)):
                             file_map[file].add_slow_fields()
                     continue
