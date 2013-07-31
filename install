@@ -1,4 +1,4 @@
-#! /bin/sh -xe
+#! /bin/sh -x
 
 # This install script is heavily based on the PyETC install script
 # CRDS is intended to use the same LAMP stack as pyetc, with emphasis on Python
@@ -359,6 +359,8 @@ mysql)
         ;;
 
 esac
+
+echo "Done syncing db"
 
 # Install prototype mappings (no serial number) in server cache automatically
 # Deliver "real" or cloned mappings and references using submit references followed by submit
