@@ -1511,7 +1511,7 @@ def browsify_reference(browsed_file):
                 output += "<tr><td class='label'>%s</td><td>%s</td></tr>\n" % (key, value)
         output += "</table>\n"
     else:
-        output = "<p class='error'>File header unavailable: '%s'</p>" % str(exc)
+        output = "<p class='error'>File header unavailable for '%s'</p>" % str(browsed_file)
 
     output += "<br/>\n"
     
