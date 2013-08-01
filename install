@@ -325,41 +325,9 @@ esac
 (cp save_version ../CRDS;  cd ../CRDS; ./install --home $install_dir/python)
 (cd sources; python setup.py install --home $install_dir/python)
 
-###
-### maybe, initialize the database
-###
 
-echo "Syncing database"
-case "$dbtype"
-in
-sqlite)
-        ( cd $install_dir/python/lib/python/crds/server ; python manage.py syncdb )
-        if [ "$servertype" = 'mod_python' ]
-        then
-                echo ''
-                echo ERROR: the sqlite database driver hangs when run in a mod_python server
-                echo ''
-        fi
-        ;;
-
-mssql)
-        ( cd $install_dir/python/lib/python/crds/server ; python manage.py syncdb )
-	;;
-mysql)
-        ( cd $install_dir/python/lib/python/crds/server ; python manage.py syncdb )
-	;;
-*)
-        echo ""
-        echo "install does not recognize dbtype $dbtype"
-        echo "you may need to:"
-        echo " source env.csh"
-        echo " cd $install_dir/python/lib/python/crds/server ; python manage.py syncdb "
-        echo "but probably you just have an error in config.py"
-        echo ""
-        ;;
-
-esac
-
+# SYNC the Django database for the CRDS server & catalog
+(cd $install_dir/python/lib/python/crds/server ; python manage.py syncdb)
 echo "Done syncing db"
 
 # Install prototype mappings (no serial number) in server cache automatically

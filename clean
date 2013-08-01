@@ -14,3 +14,12 @@ end
 
 rm -f servers/httpd.conf*
 rm -f make_env.tmp
+
+if ("$#argv" == "3" && "$3" == "wipe") then
+    ../CRDS/clean
+    rm -rf sources/build
+    rm -f ./run ./stop ./env.csh
+    find ../dev_servers/hst $1 -name '*.db' | xargs rm -fv
+    rm -rf $1
+    rm -rf ../dev_servers/$1
+endif
