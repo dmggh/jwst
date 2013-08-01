@@ -3,43 +3,21 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
-       <title>Calibration Reference Data System (CRDS)</title>
+    <title>Calibration Reference Data System (CRDS)</title>
 
-      {% block head_additions %} 
-      {% endblock %}
-
-      <link type="text/css" rel="stylesheet" href="/static/style.css" />
-
-      {% comment %}      
-       Original CRDS hosted jQuery links,  prior to switching to Google and jQuery CDN's
-      <script src="/static/jquery-ui/js/jquery-1.7.1.min.js" type="text/javascript" language="javascript"></script>
-      <link type="text/css" href="/static/jquery-ui/css/smoothness/jquery-ui-1.8.14.custom.css" rel="stylesheet" />
-      <script src="/static/jquery-ui/js/jquery-ui-1.8.14.custom.min.js" type="text/javascript" language="javascript"></script>
-
-      Superceded by django-file-upload functionality
-      <script src="/static/jquery.MultiFile.js" type="text/javascript" language="javascript"></script>
-      <script src="/static/jquery.cookie.js" type="text/javascript" language="javascript"></script>
-
-      Latest options,  incompatible.
-      <script src="http://code.jquery.com/jquery-migrate-1.1.0.min.js"></script>
-      <link src="http://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css"></script>      
-
-      Old Google jquery distributions,  broken in Chrome by switch to https
-      <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
-      <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
-      <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/jquery-ui.min.js"></script>
-
-      {% endcomment %}
+    {% block head_additions %} 
+    {% endblock %}
+    
+    <link type="text/css" rel="stylesheet" href="/static/style.css" />
+    
+    <link href="/static/jquery-ui-1.10.3.custom.css" rel="stylesheet" />
+    <script src="/static/jquery-1.9.1.js"></script>
+    <script src="/static/jquery-ui-1.10.3.custom.js"></script>
+    
+    <script src="/static/crds_utils.js" type="text/javascript" language="javascript"></script> 
       
-	  <link href="/static/jquery-ui-1.10.3.custom.css" rel="stylesheet">
-	  <script src="/static/jquery-1.9.1.js"></script>
-	  <script src="/static/jquery-ui-1.10.3.custom.js"></script>
-
-      <script src="/static/crds_utils.js" type="text/javascript" language="javascript"></script> 
-      
-      {% block head_overrides %}
-      {% endblock %}     
-
+    {% block head_overrides %}
+    {% endblock %}     
   </head>
 
   <body>
