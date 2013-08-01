@@ -1,7 +1,7 @@
 # /bin/tcsh 
 
 # <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script> -->
-cat jquery.ui.widget.js >combined.js
+# cat jquery.ui.widget.js >combined.js
 cat tmpl.min.js >>combined.js
 cat load-image.min.js >>combined.js
 cat canvas-to-blob.min.js >>combined.js
