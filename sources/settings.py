@@ -1,4 +1,5 @@
 # Django settings for crds project.
+import os.path
 
 from crds.server.config import install_dir, DEBUG, DEBUG_EXTRAS, FILE_UPLOAD_TEMP_DIR, crds_server_dir
 from crds.server.crds_database import DATABASES
@@ -51,18 +52,19 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = install_dir + "/static"
 
-#STATICFILE_DIRS = ['/Users/jmiller/work/workspace_crds/CRDS_server/static/',
-#                   '/Users/jmiller/work/workspace_crds/CRDS_server/interactive/static/',
-#                   '/home/jmiller/work/workspace_crds/CRDS_server/static/',
-#                   '/home/jmiller/work/workspace_crds/CRDS_server/interactive/static/',
-#                   ]
+HERE = os.path.dirname(__file__) or "."
+
+# Used by STATICFILES_FINDERS
+# STATICFILES_DIRS = open(HERE + "/" + "static_dirs.txt").read().splitlines()
+# STATICFILES_DIRS = [ os.path.abspath(sdir) for sdir in STATICFILES_DIRS]
+STATICFILES_DIRS = [os.path.abspath("static")]
 
 # List of finder classes that know how to find static files in
 # various locations.
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
@@ -78,7 +80,7 @@ LOGIN_URL = "/login/"
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
+    # 'django.template.loaders.app_directories.Loader',
 #     'django.template.loaders.eggs.Loader',
 )
 

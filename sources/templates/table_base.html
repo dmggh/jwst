@@ -2,14 +2,13 @@
 
 {% block head_overrides %}
     <link type="text/css" rel="stylesheet" href="/static/crds_tables.css" />
-    <link type="text/css" rel="stylesheet" href="/static/jquery.dataTables.css" />
-    <script type="text/javascript" language="javascript" src="/static/jquery.dataTables.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="/static/datatables/jquery.dataTables.css" />
+    <script type="text/javascript" language="javascript" src="/static/datatables/jquery.dataTables.min.js"></script>
 {% endblock head_overrides %}
 
 
 {% block body_trailer %}
 <script type="text/javascript">
-    console.log("running.")
     $(function() {
         var tables = $(".crds_data_table");
         tables.each(function (index, table) {

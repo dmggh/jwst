@@ -1,10 +1,4 @@
-{% extends "base.html" %}
-
-{% block head_overrides %}
-    <link type="text/css" rel="stylesheet" href="/static/crds_tables.css" />
-    <link type="text/css" rel="stylesheet" href="/static/jquery.dataTables.css" />
-    <script type="text/javascript" language="javascript" src="/static/jquery.dataTables.min.js"></script>
-{% endblock head_overrides %}
+{% extends "table_base.html" %}
 
 {% load stdtags %}
 
@@ -27,7 +21,9 @@
 {% endfor %}
 
 <br/><br/>
+{% endblock contents %}
 
+{% block body_trailer %}
 <script type="text/javascript">
 $(function () {
     $("#contents").hide();
@@ -65,5 +61,5 @@ $(function () {
     $("#contents").show();
 });
 </script>
+{% endblock body_trailer %}
 
-{% endblock contents %}
