@@ -1,0 +1,293 @@
+body {
+    min-width: 640px;
+    /* background-image: url(OrionBelt2.jpg); */
+    /* background: #282840; */
+    background: white;
+    background-repeat: repeat;
+    font-family: sans-serif;
+}
+
+div {
+    background-color: transparent;
+}
+
+hr {
+    color: gray;
+}
+
+#page_header, #header_menu {
+    overflow: hidden;
+    display: inline-block;
+    background-color: #282848;
+    background: transparent;
+}
+
+#page_header {
+    font-size: 14pt;
+    font-weight: normal;
+    color: darkblue;
+    text-align: center;
+    float: left;
+    width: 80%;
+    margin-top: 0.1in;
+    margin-left: 0.1in;
+    margin-bottom: 0.1in;
+    margin-right: 0.0in;
+}
+
+.table_header {
+    font-size: 14pt;
+    font-weight: bold;
+    color: darkblue;
+    text-align: center;
+}
+
+#header_menu {
+    float: left;
+    width: 15%;
+    margin-top: 0.1in;
+    margin-left: 0.0in;
+    margin-bottom: 0.1in;
+    margin-right: 0.1in;
+}
+
+#contents {
+    float: left;
+    width: 99%;
+    background-color: transparent;
+    border: none;
+    }
+    
+.full_width {
+    float: left;
+    width: 100%;
+}
+
+#column1, .column1 {
+    float: left;
+    width: 55%;
+    margin: 0px 10px 10px 10px;
+}
+
+#column2, .column2 {
+    float: left;
+    width: 35%;
+    margin: 0px 10px 10px 10px;
+}
+
+h1, h2, h3, h4 {
+    font-family: sans-serif;
+    color: darkblue;
+}
+
+h3,  .h3 {
+    font-family: sans-serif;
+    font-size: 18px;
+    color: darkblue;
+    padding-top: 0.2em;
+}
+
+.h2 {
+    font-family: sans-serif;
+    font-size: 24px;
+    color: darkblue;
+}
+
+textarea {
+    width: 100%;
+    color: black;
+}
+
+label, .label, .label2 {
+    font-weight: normal;
+    color:  darkblue;
+}
+
+.gray {
+  color: gray;
+}
+.green {
+  color: green;
+}
+.yellow {
+  color: yellow;
+}
+.orange {
+  color: orange;
+}
+.blue {
+  color: blue;
+}
+.darkblue {
+  color: darkblue;
+}
+.darkgreen {
+  color: darkgreen;
+}
+.red {
+  color: red;
+}
+
+.value {
+    font-size: 0.9em;
+    font-weight: normal;
+    color: gray;
+}
+
+.hint {
+    font-size: 0.8em;
+    font-weight: normal;
+    color: gray;
+}
+
+.error {
+    font-size: 1.1em;
+    font-weight: normal;
+    color: red;
+}
+
+.warning {
+    font-size: 1.1em;
+    font-weight: normal;
+    color: orange;
+}
+
+.success {
+    font-size: 1.1em;
+    font-weight: normal;
+    color: green;
+}
+
+.tiny {
+  font-size: 0.75em;
+  font-weight: normal;
+}
+
+.checkbox {
+    font-size: 1em;
+    font-weight: normal;
+    color: darkblue;
+}
+
+.field_error, .errorlist {
+    font-size: 14pt;
+    color: red;
+    padding-top: 10px
+}
+
+.datafile {
+    text-decoration: underline;
+    font-size: 14pt;
+    font-weight: normal;
+    color: blue;
+    background-color: white;
+    padding: 4px 4px 4px 4px;
+    border: gray solid 2px;
+    border-radius: 6px;
+    margin: 2px 2px 2px 2px;
+}
+
+.filter, .tagname {
+    font-size: 14pt;
+    font-weight: normal;
+    color: gray;
+    background: white;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    border: gray solid 2px;
+}
+
+.tab_info, .inline_directions {
+    color: darkblue;
+    font-size: 1em;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    background-color: transparent;
+}
+
+#tooltip {
+    position:absolute;
+    border:1px solid #333;
+    background:#f7f5d1;
+    padding:2px 5px;
+    color:#333;
+    display:none;
+    font-family: Helvetica, Arial, FreeSans, sans-serif;
+    font-size: 10pt;
+    font-weight: bold;
+    }
+
+input {
+    border: gray solid 2px;
+    border-radius: 6px;
+    margin: 2px 2px 2px 2px;
+    background-color: white;
+    color: black;
+}
+
+select {
+    color: black;
+}
+
+.data_tab { color: #282840; }
+
+.program, .match, .useafter {
+    font-family: monospace; 
+    font-size:1.0em; 
+    background-color:lightyellow;
+}
+
+.log {
+    font-family: monospace; 
+    font-size:1.0em; 
+    background-color:lightyellow;
+    line-height: 1.0;
+    margin-top: 0.25em;
+    margin-bottom: 0em;
+}
+
+select, textarea {
+    border: gray solid 2px;
+    border-radius: 6px;
+}
+
+img.plot {
+    border: gray solid 2px;
+}
+
+.help, .datetime, .filename {
+  color: gray;
+}
+
+p.useafter {
+    margin-left: 8em;
+}
+
+p.header, p.match {
+    margin-left: 4em;
+}
+
+p { 
+    margin-top: 0.5em;
+    margin-bottom: 0.0em; 
+} 
+
+.hidden_text {
+    visibility: hidden;
+    position: absolute;
+}
+
+td {
+    padding: 5px;
+}
+
+.locked_instrument {
+    font-size: 0.8em;
+    font-weight: bold;
+    color: green;
+}
+
+.ui-accordion-content{ 
+    zoom: 1; 
+} 
+
