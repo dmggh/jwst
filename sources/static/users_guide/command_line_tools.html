@@ -1,0 +1,496 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Command Line Tools &mdash; crds 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="crds 0.1 documentation" href="index.html" />
+    <link rel="next" title="Using the CRDS Web Site" href="web_site_use.html" />
+    <link rel="prev" title="About Mappings" href="rmap_syntax.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="web_site_use.html" title="Using the CRDS Web Site"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="rmap_syntax.html" title="About Mappings"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">crds 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/stsci_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Command Line Tools</a><ul>
+<li><a class="reference internal" href="#specifying-files">Specifying Files</a></li>
+<li><a class="reference internal" href="#crds-certify">crds.certify</a></li>
+<li><a class="reference internal" href="#crds-diff">crds.diff</a></li>
+<li><a class="reference internal" href="#crds-uses">crds.uses</a></li>
+<li><a class="reference internal" href="#crds-matches">crds.matches</a></li>
+<li><a class="reference internal" href="#crds-sync">crds.sync</a></li>
+<li><a class="reference internal" href="#crds-bestrefs">crds.bestrefs</a><ul>
+<li><a class="reference internal" href="#new-context">New Context</a></li>
+<li><a class="reference internal" href="#lookup-parameter-sources">Lookup Parameter Sources</a></li>
+<li><a class="reference internal" href="#comparison-modes">Comparison Modes</a><ul>
+<li><a class="reference internal" href="#context-to-context">Context-to-Context</a></li>
+<li><a class="reference internal" href="#prior-source-recommendations">Prior Source Recommendations</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#output-modes">Output Modes</a></li>
+<li><a class="reference internal" href="#update-modes">Update Modes</a></li>
+<li><a class="reference internal" href="#verbosity">Verbosity</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="rmap_syntax.html"
+                        title="previous chapter">About Mappings</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="web_site_use.html"
+                        title="next chapter">Using the CRDS Web Site</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/command_line_tools.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="command-line-tools">
+<h1>Command Line Tools<a class="headerlink" href="#command-line-tools" title="Permalink to this headline">¶</a></h1>
+<p>Using the command line tools requires a local installation of the CRDS library.
+Some of the command line tools also interact with the CRDS server in order to
+implement their functionality.</p>
+<div class="section" id="specifying-files">
+<h2>Specifying Files<a class="headerlink" href="#specifying-files" title="Permalink to this headline">¶</a></h2>
+<p>The command line tools operate on CRDS reference and mapping files in various
+ways.  To specify a file in your local CRDS file cache,  as defined by CRDS_PATH,
+use no path on the file:</p>
+<div class="highlight-python"><pre>% python -m crds.diff hst.pmap  hst_0001.pmap  # assumes paths in CRDS cache</pre>
+</div>
+<p>To specify a particular file which is not located in your cache,  give at least
+a relative path to the file, ./ will do:</p>
+<div class="highlight-python"><pre>% python -m crds.diff /some/path/hst.pmap ./hst_0002.pmap   # uses given paths</pre>
+</div>
+</div>
+<div class="section" id="crds-certify">
+<h2>crds.certify<a class="headerlink" href="#crds-certify" title="Permalink to this headline">¶</a></h2>
+<p>crds.certify checks a reference or mapping file against constraints on legal
+matching parameter values.   For reference files,  crds.certify also performs checks
+of the FITS format and when given a context,  and will compare the given file against
+the file it replaces looking for new or missing table rows.</p>
+<p>crds.certify &#8211;help yields:</p>
+<div class="highlight-python"><pre>usage: certify.py [-d] [-e] [-m] [-p] [-t TRAP_EXCEPTIONS] [-x CONTEXT] [-J] [-H]
+                  files [files ...]
+
+Checks a CRDS reference or mapping file.
+
+positional arguments:
+  files
+
+optional arguments:
+  -d, --deep            Certify reference files referred to by mappings have valid contents.
+  -e, --exist           Certify reference files referred to by mappings exist.
+  -m, --mapping         Ignore extensions, the files being certified are mappings.
+  -p, --dump-provenance
+                        Dump provenance keywords.
+  -t TRAP_EXCEPTIONS, --trap-exceptions TRAP_EXCEPTIONS
+                        Capture exceptions at level: pmap, imap, rmap, selector, debug, none
+  -x CONTEXT, --context CONTEXT
+                        Pipeline context defining comparison files.
+  -J, --jwst            Force observatory to JWST for determining header conventions.
+  -H, --hst             Force observatory to HST for determining heder conventions.</pre>
+</div>
+<p>crds.certify is invoked as, e.g.:</p>
+<div class="highlight-python"><pre>% python -m crds.certify --context=hst_0027.pmap   some_reference.fits
+
+% python -m crds.certify hst.pmap</pre>
+</div>
+<p>Invoking crds.certify on a context mapping recursively certifies all sub-mappings.</p>
+</div>
+<div class="section" id="crds-diff">
+<h2>crds.diff<a class="headerlink" href="#crds-diff" title="Permalink to this headline">¶</a></h2>
+<p>crds.diff compares two reference or mapping files and reports differences.  For
+references crds.diff is currently a thin wrapper around fitsdiff but may expand.</p>
+<p>For CRDS mappings crds.diff performs a recursive logical difference which shows
+the full match path to each bottom level change.   crds.diff &#8211;help yields:</p>
+<div class="highlight-python"><pre>usage: diff.py [-P] [-K] [-J] [-H]  old_file new_file
+
+Difference CRDS mapping or reference files.
+
+positional arguments:
+  old_file              Prior file of difference.
+  new_file              New file of difference.
+
+optional arguments:
+  -P, --primitive-diffs
+                        Include primitive differences on replaced files.
+  -K, --check-diffs     Issue warnings about new rules, deletions, or reversions.
+  -J, --jwst            Force observatory to JWST for determining header conventions.
+  -H, --hst             Force observatory to HST for determining heder conventions.</pre>
+</div>
+<p>For standard CRDS filenames,  crds.diff can guess the observatory.   For
+non-standard names,  the observatory needs to be specified.  crds.diff can be
+invoked like:</p>
+<div class="highlight-python"><pre>% python -m crds.diff   jwst_nircam_dark_0010.fits  jwst_nircam_dark_0011.fits
+
+% python -m crds.diff  jwst_0001.pmap   jwst_0002.pmap
+(('hst.pmap', 'hst_0004.pmap'), ('hst_acs.imap', 'hst_acs_0004.imap'), ('hst_acs_darkfile.rmap', 'hst_acs_darkfile_0003.rmap'), ('WFC', 'A|ABCD|AD|B|BC|C|D', '0.5|1.0|1.4|2.0'), '2011-03-16 23:34:35', "replaced 'v441434ej_drk.fits' with 'hst_acs_darkfile_0003.fits'")</pre>
+</div>
+</div>
+<div class="section" id="crds-uses">
+<h2>crds.uses<a class="headerlink" href="#crds-uses" title="Permalink to this headline">¶</a></h2>
+<p>crds.uses searches the files in the local cache for mappings which refer to the
+specified files.  Since the <strong>local cache</strong> is used only mappings present in the
+local cache will be included in the results given.  crds.uses is invoked as:</p>
+<div class="highlight-python"><pre>% python -m crds.uses &lt;observatory=hst|jwst&gt; &lt;mapping or reference&gt;...</pre>
+</div>
+<p>e.g.:</p>
+<div class="highlight-python"><pre>% python -m crds.uses hst s7g1700gl_dead.fits
+hst.pmap
+hst_cos.imap
+hst_cos_deadtab.rmap</pre>
+</div>
+</div>
+<div class="section" id="crds-matches">
+<h2>crds.matches<a class="headerlink" href="#crds-matches" title="Permalink to this headline">¶</a></h2>
+<p>crds.matches reports the match patterns which are associated with the given
+reference files:</p>
+<div class="highlight-python"><pre>usage: matches.py
+       [-h] [--contexts [CONTEXT [CONTEXT ...]]]
+       [--files FILES [FILES ...]] [-b] [-o] [-t]
+
+Prints out the selection criteria by which the specified references are matched
+with respect to a particular context.
+
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --contexts [CONTEXT [CONTEXT ...]]
+                        Specify a list of CRDS mappings to operate on: .pmap, .imap, or .rmap
+  --files FILES [FILES ...]
+                        References for which to dump selection criteria.
+  -b, --brief-paths     Don't the instrument and filekind.
+  -o, --omit-parameter-names
+                        Hide the parameter names of the selection criteria,  just show the values.
+  -t, --tuple-format    Print the match info as Python tuples.</pre>
+</div>
+<p><em>crds.matches</em> can be invoked in various ways with different output formatting:</p>
+<div class="highlight-python"><pre>% python -m crds.matches  --contexts hst_0001.pmap --files lc41311jj_pfl.fits
+lc41311jj_pfl.fits : ACS PFLTFILE DETECTOR='WFC' CCDAMP='A|ABCD|AC|AD|B|BC|BD|C|D' FILTER1='F625W' FILTER2='POL0V' DATE-OBS='1997-01-01' TIME-OBS='00:00:00'
+
+% python -m crds.matches --contexts hst.pmap --files lc41311jj_pfl.fits --omit-parameter-names --brief-paths
+lc41311jj_pfl.fits :  'WFC' 'A|ABCD|AC|AD|B|BC|BD|C|D' 'F625W' 'POL0V' '1997-01-01' '00:00:00'
+
+% python -m crds.matches --contexts hst.pmap --files lc41311jj_pfl.fits --tuple-format
+lc41311jj_pfl.fits : (('OBSERVATORY', 'HST'), ('INSTRUMENT', 'ACS'), ('FILEKIND', 'PFLTFILE'), ('DETECTOR', 'WFC'), ('CCDAMP', 'A|ABCD|AC|AD|B|BC|BD|C|D'), ('FILTER1', 'F625W'), ('FILTER2', 'POL0V'), ('DATE-OBS', '1997-01-01'), ('TIME-OBS', '00:00:00'))</pre>
+</div>
+</div>
+<div class="section" id="crds-sync">
+<h2>crds.sync<a class="headerlink" href="#crds-sync" title="Permalink to this headline">¶</a></h2>
+<p>The CRDS sync tool is used to download CRDS rules and references from the CRDS server:</p>
+<div class="highlight-python"><pre>usage: python -m crds.sync
+
+       [-h] [--contexts [CONTEXT [CONTEXT ...]]] [--range MIN:MAX] [--all]
+       [--files [FILES [FILES ...]]] [--datasets [DATASET [DATASET ...]]]
+       [--fetch-references] [--purge-references] [--purge-mappings] [-i]
+       [--dry-run] [-v] [--verbosity VERBOSITY] [-V] [-J] [-H]
+       [--profile PROFILE] [--pdb]
+
+    Synchronize local mapping and reference caches for the given contexts by
+    downloading missing files from the CRDS server and/or archive.
+
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --contexts [CONTEXT [CONTEXT ...]]
+                        Specify a list of CRDS mappings to operate on: .pmap, .imap, or .rmap
+  --range MIN:MAX       Operate for pipeline context ids (.pmaps) between &lt;MIN&gt; and &lt;MAX&gt;.
+  --all                 Operate with respect to all known CRDS contexts.
+  --files [FILES [FILES ...]]
+                        Explicitly list files to be synced.
+  --datasets [DATASET [DATASET ...]]
+                        Cache references for the specified datasets.
+  --fetch-references    Cache all the references for the specified contexts.
+  --purge-references    Remove reference files not referred to by contexts from the cache.
+  --purge-mappings      Remove mapping files not referred to by contexts from the cache.
+  -i, --ignore-cache    Download sync'ed files even if they're already in the cache.
+  --dry-run             Don't remove purged files,  just print out their names.
+  -v, --verbose         Set log verbosity to True,  nominal debug level.
+  --verbosity VERBOSITY
+                        Set log verbosity to a specific level: 0..100.
+  -V, --version         Print the software version and exit.
+  -J, --jwst            Force observatory to JWST for determining header conventions.
+  -H, --hst             Force observatory to HST for determining header conventions.
+  --profile PROFILE     Output profile stats to the specified file.
+  --pdb                 Run under pdb.</pre>
+</div>
+<ul>
+<li><p class="first">Primitive syncing can be done by explicitly listing the files you wish to cache:</p>
+<div class="highlight-python"><pre>   % python -m crds.sync  --files hst_0001.pmap hst_acs_darkfile_0037.fits
+
+this will download only those two files.</pre>
+</div>
+</li>
+<li><p class="first">Typically syncing CRDS files is done with respect to particular CRDS contexts:</p>
+<blockquote>
+<div><p>Synced contexts can be explicitly listed:</p>
+<div class="highlight-python"><pre>% python -m crds.sync  --contexts hst_0001.pmap hst_0002.pmap</pre>
+</div>
+<p>this will recursively download all the mappings referred to by .pmaps 0001 and 0002.</p>
+<p>Synced contexts can be specified as a numerical range:</p>
+<div class="highlight-python"><pre>% python -m crds.sync --range 1:3</pre>
+</div>
+<p>this will also recursively download all the mappings referred to by .pmaps 0001, 002, 0003.</p>
+<p>Synced contexts can be specified as &#8211;all contexts:</p>
+<div class="highlight-python"><pre>% python -m crds.sync --all</pre>
+</div>
+<p>this will recursively download all CRDS mappings for all time.</p>
+<p><em>NOTE</em>:  Fetching references required to support contexts has to be done explicitly:</p>
+<div class="highlight-python"><pre>% python -m crds.sync  --contexts hst_0001.pmap hst_0002.pmap  --fetch-references</pre>
+</div>
+<p>will download all the references mentioned by contexts 0001 and 0002.
+this can be a huge undertaking and should be done with care.</p>
+</div></blockquote>
+</li>
+<li><p class="first">Removing files:</p>
+<blockquote>
+<div><p>Rules/mappings from specified contexts can be removed like this:</p>
+<div class="highlight-python"><pre>% python -m crds.sync  --contexts hst_0004.pmap hst_0005.pmap --purge-mappings</pre>
+</div>
+<p>this would remove mapping files which are <em>not</em> in 4 or 5.</p>
+<p>References from specified contexts can be removed like this:</p>
+<div class="highlight-python"><pre>% python -m crds.sync  --contexts hst_0004.pmap hst_0005.pmap --purge-references</pre>
+</div>
+<p>this would remove reference files which are <em>not</em> in 4 or 5.</p>
+</div></blockquote>
+</li>
+<li><p class="first">References for particular datasets can be cached like this:</p>
+<div class="highlight-python"><pre>      % python -m crds.sync  --contexts hst_0001.pmap hst_0002.pmap --datasets  &lt;dataset_files...&gt;
+
+this will fetch all the references required to support the listed datasets for contexts 0001 and 0002.
+this mode does not update dataset file headers.  See also crds.bestrefs for header updates.</pre>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="crds-bestrefs">
+<h2>crds.bestrefs<a class="headerlink" href="#crds-bestrefs" title="Permalink to this headline">¶</a></h2>
+<p>crds.bestrefs computes the best references with respect to a particular context or contexts
+for a set of FITS files, dataset ids,  or instruments:</p>
+<div class="highlight-python"><pre>usage: python -m crds.bestfefs ...
+       [-h] [-n NEW_CONTEXT] [-o OLD_CONTEXT] [-c] [-f FILES [FILES ...]]
+       [-d IDs [IDs ...]] [-i INSTRUMENTS [INSTRUMENTS ...]]
+       [--all-instruments] [-t REFERENCE_TYPES [REFERENCE_TYPES ...]] [-u]
+       [--print-affected] [--print-new-references] [-r] [-s] [-v]
+       [--verbosity VERBOSITY] [-V] [-J] [-H] [--profile PROFILE] [--pdb]</pre>
+</div>
+<ul class="simple">
+<li>Determines best references with respect to a context or contexts.</li>
+<li>Optionally compares new results to prior results.</li>
+<li>Optionally prints source data names affected by the new context.</li>
+<li>Optionally updates the headers of file-based data with new recommendations.</li>
+</ul>
+<p>Bestrefs has a number of command line parameters which make it operate in different modes:</p>
+<div class="highlight-python"><pre>optional arguments:
+  -h, --help            show this help message and exit
+  -n NEW_CONTEXT, --new-context NEW_CONTEXT
+                        Compute the updated best references using this context. Uses current operational context by default.
+  -o OLD_CONTEXT, --old-context OLD_CONTEXT
+                        Compare bestrefs recommendations from two contexts.
+  -c, --compare-source-bestrefs
+                        Compare new bestrefs recommendations to recommendations from data source,  files or database.
+  -f FILES [FILES ...], --files FILES [FILES ...]
+                        Dataset files to compute best references for.
+  -d IDs [IDs ...], --datasets IDs [IDs ...]
+                        Dataset ids to compute best references for.
+  -i INSTRUMENTS [INSTRUMENTS ...], --instruments INSTRUMENTS [INSTRUMENTS ...]
+                        Instruments to compute best references for, all historical datasets.
+  --all-instruments     Compute best references for cataloged datasets for all supported instruments.
+  -t REFERENCE_TYPES [REFERENCE_TYPES ...], --types REFERENCE_TYPES [REFERENCE_TYPES ...]
+                        A list of reference types to process,  defaulting to all types.
+  -u, --update-bestrefs
+                        Update dataset headers with new best reference recommendations.
+  --print-affected      Print names of data sets for which the new context would assign new references.
+  --print-new-references
+                        Prints messages detailing each reference file change.   If no comparison was requested,  prints all best references.
+  -r, --remote-bestrefs
+                        Compute best references from CRDS server
+  -s, --sync-references
+                        Fetch the refefences recommended by new context to the local cache.
+  -v, --verbose         Set log verbosity to True,  nominal debug level.
+  --verbosity VERBOSITY
+                        Set log verbosity to a specific level: 0..100.
+  -V, --version         Print the software version and exit.
+  -J, --jwst            Force observatory to JWST for determining header conventions.
+  -H, --hst             Force observatory to HST for determining header conventions.
+  --profile PROFILE     Output profile stats to the specified file.
+  --pdb                 Run under pdb.</pre>
+</div>
+<div class="section" id="new-context">
+<h3>New Context<a class="headerlink" href="#new-context" title="Permalink to this headline">¶</a></h3>
+<p>crds.bestrefs always computes best references with respect to a context which can be explicitly specified with the
+<tt class="docutils literal"><span class="pre">--new-context</span> <span class="pre">parameter</span></tt>.    If <tt class="docutils literal"><span class="pre">--new-context</span></tt> is not specified,  the default operational context is determined by
+consulting the CRDS server or looking in the local cache.</p>
+</div>
+<div class="section" id="lookup-parameter-sources">
+<h3>Lookup Parameter Sources<a class="headerlink" href="#lookup-parameter-sources" title="Permalink to this headline">¶</a></h3>
+<p>The two primary modes for bestrefs involve the source of reference file matching parameters.   Conceptually
+lookup parameters are always associated with particular datasets and used to identify the references
+required to process those datasets.</p>
+<p>The options <tt class="docutils literal"><span class="pre">--files</span></tt>, <tt class="docutils literal"><span class="pre">--datasets</span></tt>, <tt class="docutils literal"><span class="pre">--instruments</span></tt>, and <tt class="docutils literal"><span class="pre">--all</span></tt> determine the source of lookup parameters:</p>
+<ol class="arabic">
+<li><p class="first">To find best references for a list of files do something like this:</p>
+<div class="highlight-python"><pre>% python -m crds.bestrefs --new-context hst.pmap --files j8bt05njq_raw.fits j8bt06o6q_raw.fits j8bt09jcq_raw.fits</pre>
+</div>
+</li>
+</ol>
+<p>the first parameter, hst.pmap,  is the context with respect to which best references are determined.</p>
+<ol class="arabic" start="2">
+<li><p class="first">To find best references for a list of catalog dataset ids do something like this:</p>
+<div class="highlight-python"><pre>% python -m crds.bestrefs --new-context hst.pmap --datasets j8bt05njq j8bt06o6q j8bt09jcq</pre>
+</div>
+</li>
+<li><p class="first">To do mass scale testing for all cataloged datasets for a particular instrument(s) do:</p>
+<div class="highlight-python"><pre>% python -m crds.bestrefs --new-context hst.pmap --instruments acs</pre>
+</div>
+</li>
+<li><p class="first">To do mass scale testing for all supported instruments for all cataloged datasets do:</p>
+<div class="highlight-python"><pre>% python -m crds.bestrefs --new-context hst.pmap --all</pre>
+</div>
+</li>
+</ol>
+<p>or to test for differences between two contexts do:</p>
+<div class="highlight-python"><pre>% python -m crds.bestrefs --new-context hst_0002.pmap --old-context hst_0001.pmap --all</pre>
+</div>
+</div>
+<div class="section" id="comparison-modes">
+<h3>Comparison Modes<a class="headerlink" href="#comparison-modes" title="Permalink to this headline">¶</a></h3>
+<p>The <tt class="docutils literal"><span class="pre">--old-context</span></tt> and <tt class="docutils literal"><span class="pre">--compare-source-bestrefs</span></tt> parameters define the best references comparison mode.  Each names
+the origin of a set of prior recommendations and implicitly requests a comparison to the recommendations from
+the newly computed bestrefs determined by <tt class="docutils literal"><span class="pre">--new-context</span></tt>.</p>
+<div class="section" id="context-to-context">
+<h4>Context-to-Context<a class="headerlink" href="#context-to-context" title="Permalink to this headline">¶</a></h4>
+<p><tt class="docutils literal"><span class="pre">--old-context</span></tt> can be used to specify a second context for which bestrefs are dynamically computed; <tt class="docutils literal"><span class="pre">--old-context</span></tt>
+implies that a bestrefs comparison will be made with <tt class="docutils literal"><span class="pre">--new-context</span></tt>.   If <tt class="docutils literal"><span class="pre">--old-context</span></tt> is not specified,  it
+defaults to None.:</p>
+<div class="highlight-python"><pre>% python -m crds.bestrefs --new-context hst_0042.pmap  --old-context hst_0040.pmap \
+--instruments acs</pre>
+</div>
+</div>
+<div class="section" id="prior-source-recommendations">
+<h4>Prior Source Recommendations<a class="headerlink" href="#prior-source-recommendations" title="Permalink to this headline">¶</a></h4>
+<p><tt class="docutils literal"><span class="pre">--compare-source-bestrefs</span></tt> requests that the bestrefs from <tt class="docutils literal"><span class="pre">--new-context</span></tt> be compared to the bestrefs which are
+recorded with the lookup parameter data,  either in the file headers of data files,  or in the catalog.   In both
+cases the prior best references are recorded static values,  not dynamically computed bestrefs.:</p>
+<div class="highlight-python"><pre> % python -m crds.bestrefs --new-context hst_0042.pmap  --compare-source-bestrefs \
+--datasets j8bt05njq j8bt06o6q</pre>
+</div>
+</div>
+</div>
+<div class="section" id="output-modes">
+<h3>Output Modes<a class="headerlink" href="#output-modes" title="Permalink to this headline">¶</a></h3>
+<p>crds.bestrefs supports several output modes for bestrefs and comparison results to standard out.</p>
+<p>If <tt class="docutils literal"><span class="pre">--print-affected</span></tt> is specified,  crds.bestrefs will print out the name of any file for which at least one update for
+one reference type was recommended.   This is essentially a list of files to be reprocessed with new references.:</p>
+<div class="highlight-python"><pre>% python -m crds.bestrefs --new-context hst.pmap --files j8bt05njq_raw.fits j8bt06o6q_raw.fits \
+ --compare-source-bestrefs --print-affected
+j8bt05njq_raw.fits
+j8bt06o6q_raw.fits
+j8bt09jcq_raw.fits</pre>
+</div>
+</div>
+<div class="section" id="update-modes">
+<h3>Update Modes<a class="headerlink" href="#update-modes" title="Permalink to this headline">¶</a></h3>
+<p>crds.bestrefs initially supports one mode for updating the best reference recommendations recorded in data files:</p>
+<div class="highlight-python"><pre>% python -m crds.bestrefs --new-context hst.pmap --files j8bt05njq_raw.fits j8bt06o6q_raw.fits \
+ --compare-source-bestrefs --update-bestrefs</pre>
+</div>
+</div>
+<div class="section" id="verbosity">
+<h3>Verbosity<a class="headerlink" href="#verbosity" title="Permalink to this headline">¶</a></h3>
+<p>crds.bestrefs has <tt class="docutils literal"><span class="pre">--verbose</span></tt> and <tt class="docutils literal"><span class="pre">--verbosity=N</span></tt> parameters which can increase the amount of informational and debug output.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="web_site_use.html" title="Using the CRDS Web Site"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="rmap_syntax.html" title="About Mappings"
+             >previous</a> |</li>
+        <li><a href="index.html">crds 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, STScI.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

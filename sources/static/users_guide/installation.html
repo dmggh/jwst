@@ -1,0 +1,343 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Installation &mdash; crds 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="crds 0.1 documentation" href="index.html" />
+    <link rel="next" title="Top Level Use" href="top_level_use.html" />
+    <link rel="prev" title="CRDS User Manual" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="top_level_use.html" title="Top Level Use"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="CRDS User Manual"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">crds 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/stsci_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Installation</a><ul>
+<li><a class="reference internal" href="#getting-the-source-code">Getting the Source Code</a></li>
+<li><a class="reference internal" href="#setting-up-your-environment">Setting up your Environment</a><ul>
+<li><a class="reference internal" href="#basic-environment">Basic Environment</a></li>
+<li><a class="reference internal" href="#typical-build-1-environments">Typical Build-1 Environments</a><ul>
+<li><a class="reference internal" href="#hst-settings">HST Settings</a></li>
+<li><a class="reference internal" href="#jwst-settings">JWST Settings</a></li>
+<li><a class="reference internal" href="#remote-settings">Remote Settings</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#advanced-environment">Advanced Environment</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#run-the-install-script">Run the Install Script</a></li>
+<li><a class="reference internal" href="#test-the-installation">Test the installation</a></li>
+<li><a class="reference internal" href="#package-overview">Package Overview</a></li>
+<li><a class="reference internal" href="#dependencies">Dependencies</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">CRDS User Manual</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="top_level_use.html"
+                        title="next chapter">Top Level Use</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/installation.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="getting-the-source-code">
+<h2>Getting the Source Code<a class="headerlink" href="#getting-the-source-code" title="Permalink to this headline">¶</a></h2>
+<p>At this stage of development,  installing CRDS is accomplished by checking
+CRDS source code out from subversion:</p>
+<div class="highlight-python"><pre>% svn co https://subversion.assembla.com/svn/crds/trunk  crds
+% cd crds</pre>
+</div>
+</div>
+<div class="section" id="setting-up-your-environment">
+<h2>Setting up your Environment<a class="headerlink" href="#setting-up-your-environment" title="Permalink to this headline">¶</a></h2>
+<p>The CRDS checkout has a template file for the C-shell which defines
+environment variables, env.csh.   For JWST development,  there are
+reasonable defaults for everything so you may not need to set these
+at all.</p>
+<div class="section" id="basic-environment">
+<h3>Basic Environment<a class="headerlink" href="#basic-environment" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>CRDS_PATH</strong> defines a common directory tree where CRDS reference files
+and mappings are stored.   CRDS_PATH defaults to &#8220;/grp/crds/jwst&#8221;.   Mappings
+are stored in ${CRDS_PATH}/mappings/[hst|jwst].   Reference files are
+stored in ${CRDS_PATH}/references/[hst|jwst].</li>
+<li><strong>CRDS_SERVER_URL</strong> defines the base URL for accessing CRDS network
+services.  CRDS_SERVER_URL defaults to <a class="reference external" href="http://not-a-crds-server.stsci.edu">http://not-a-crds-server.stsci.edu</a>.
+Other fallbacks result in operational defaults for JWST only.</li>
+<li><strong>CRDS_VERBOSITY</strong> enables output of CRDS debug messages.   Set to an
+integer,  nominally 50.   Higher values output more information,  lower
+values less information.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="typical-build-1-environments">
+<h3>Typical Build-1 Environments<a class="headerlink" href="#typical-build-1-environments" title="Permalink to this headline">¶</a></h3>
+<p>A typical build-1 environment for CRDS <em>within STScI</em> works by aligning the CRDS
+file cache with the CRDS server&#8217;s master copy of reference and mapping files.
+This makes the master copy of CRDS files on the server appear to be the user&#8217;s
+personal file cache... with the exception that the files are readonly.   This
+approach avoids creating additional copies of the reference files.</p>
+<div class="section" id="hst-settings">
+<h4>HST Settings<a class="headerlink" href="#hst-settings" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-python"><pre>% setenv CRDS_PATH    /grp/crds/hst
+% setenv CRDS_SERVER_URL http://hst-crds.stsci.edu</pre>
+</div>
+</div>
+<div class="section" id="jwst-settings">
+<h4>JWST Settings<a class="headerlink" href="#jwst-settings" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-python"><pre>% setenv CRDS_PATH /grp/crds/jwst
+% setenv CRDS_SERVER_URL http://not-a-crds-server.stsci.edu</pre>
+</div>
+</div>
+<div class="section" id="remote-settings">
+<h4>Remote Settings<a class="headerlink" href="#remote-settings" title="Permalink to this headline">¶</a></h4>
+<p>Even for build-1 it&#8217;s possible to operate CRDS over the network.  These settings
+would create a cache named &#8220;crds&#8221; in the current working directory when CRDS
+tools or functions are run:</p>
+<div class="highlight-python"><pre>% setenv CRDS_PATH ./crds
+% setenv CRDS_SERVER_URL http://jwst-crds.stsci.edu</pre>
+</div>
+<p>The main caveat is that the CRDS servers are only visible within STScI so outside
+users must port-forward in order to reach the CRDS server.  As an alternative to
+port forwarding,  an on-site user can create a local cache which should continue
+to work when they are off-site and don&#8217;t have access to the server or central store.</p>
+</div>
+</div>
+<div class="section" id="advanced-environment">
+<h3>Advanced Environment<a class="headerlink" href="#advanced-environment" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>CRDS_MAPPATH</strong> can be used to override CRDS_PATH and define where
+only mapping files are stored.   If mappings are pre-installed, the
+directory pointed to by CRDS_MAPPATH can be readonly.
+CRDS_MAPPATH defaults to ${CRDS_PATH}/mappings.</li>
+<li><strong>CRDS_REFPATH</strong> can be used to override CRDS_PATH and define where
+only reference files are stored.  If references are pre-installed, the
+directory pointed to by CRDS_REFPATH can be readonly.
+CRDS_REFPATH defaults to ${CRDS_PATH}/references.</li>
+<li><strong>CRDS_CFGPATH</strong> can be used to override CRDS_PATH and define where
+only server configuration information is cached.   The directory
+pointed to by CRDS_CFGPATH should be writable.   If CRDS is running in
+server-less mode,  this path is irrelevant.
+CRDS_CFGPATH defaults to ${CRDS_PATH}/config.</li>
+<li><strong>CRDS_MODE</strong> defines whether CRDS should compute best references using
+client software (local),  server software (remote),  or intelligently
+&#8220;fall up&#8221; to the server only when the client is deemed obsolete or
+the server cannot be reached (auto).   The default is auto.</li>
+<li><strong>CRDS_CONTEXT</strong> is an override naming the CRDS pipeline mapping (.pmap)
+used for computing best references.   Ordinarily,  CRDS will contact the
+server to determine the operational pipeline mapping.
+If the server cannot be reached,  CRDS will look in CRDS_CFGPATH
+to determine the last pipeline context the server recommended.   If there
+is no prior server info available in the cache,  CRDS will fall-back to
+using the default pre-installed mappings, e.g. jwst.pmap.
+When CRDS_CONTEXT is set, CRDS will ignore server recommendations and
+availability and use the specified pipeline mapping.   However, CRDS_CONTEXT
+will only be used when <tt class="xref py py-obj docutils literal"><span class="pre">context</span></tt> was specified to getreferences() as None.
+If <tt class="xref py py-obj docutils literal"><span class="pre">context</span></tt> was explicitly specified in a call to getreferences() and
+was not None,  the specified context will override CRDS_CONTEXT.   This
+enables the implementation of command line switches which supercede
+CRDS_CONTEXT.</li>
+</ul>
+</div></blockquote>
+<p>Edit env.csh according to your preferences for where to put CRDS files.
+Then source env.csh to define the variables in your environment:</p>
+<div class="highlight-python"><pre>% source env.csh</pre>
+</div>
+</div>
+</div>
+<div class="section" id="run-the-install-script">
+<h2>Run the Install Script<a class="headerlink" href="#run-the-install-script" title="Permalink to this headline">¶</a></h2>
+<p>CRDS is partitioned into 3-4 Python packages each of which has it&#8217;s own
+setup.py script.   To make things easier,  the top level directory has a
+single &#8220;install&#8221; script which runs all the individual setup.py scripts
+for you:</p>
+<div class="highlight-python"><pre> % ./install
+Installing lib
+Installing client
+Installing hst
+Installing jwst
+Installing tobs
+final status 000000</pre>
+</div>
+</div>
+<div class="section" id="test-the-installation">
+<h2>Test the installation<a class="headerlink" href="#test-the-installation" title="Permalink to this headline">¶</a></h2>
+<p>CRDS client testing operates locally and does not require access to the
+server.   Basic CRDS client testing can be done as follows:</p>
+<div class="highlight-python"><pre> % ./runtests
+ ... copious test output...
+----------------------------------------------------------------------
+Ran 59 tests in 13.749s
+
+OK</pre>
+</div>
+</div>
+<div class="section" id="package-overview">
+<h2>Package Overview<a class="headerlink" href="#package-overview" title="Permalink to this headline">¶</a></h2>
+<p>From the perspective of an end user,  CRDS consists of 3 or more Python
+packages which implement different capabilities:</p>
+<blockquote>
+<div><ul>
+<li><dl class="first docutils">
+<dt>crds</dt>
+<dd><ul class="first last simple">
+<li>core package enabling local use and development of mappings
+and reference files.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>crds.client</dt>
+<dd><ul class="first last simple">
+<li>network client library for interacting with the central CRDS server.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>crds.hst</dt>
+<dd><ul class="first last simple">
+<li>observatory personality package for HST,  with initial mappings for
+bootstrapping CRDS and defining how HST files are named, located, and
+certified.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>crds.jwst</dt>
+<dd><ul class="first last simple">
+<li>analogous to crds.hst,  for JWST.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<p>CRDS was developed in and for an STSCI Python environment suitable for pipeline
+processing.   CRDS requires these additional packages to be installed in your
+Python environment:</p>
+<blockquote>
+<div><ul class="simple">
+<li>numpy</li>
+<li>pyfits</li>
+</ul>
+</div></blockquote>
+<p>For executing the unit tests (runtests) add:</p>
+<blockquote>
+<div><ul class="simple">
+<li>nose</li>
+<li>BeautifulSoup</li>
+<li>stsci.tools</li>
+</ul>
+</div></blockquote>
+<p>For building documentation add:</p>
+<blockquote>
+<div><ul class="simple">
+<li>stsci.sphinxext</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="top_level_use.html" title="Top Level Use"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="CRDS User Manual"
+             >previous</a> |</li>
+        <li><a href="index.html">crds 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, STScI.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
