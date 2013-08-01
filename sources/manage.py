@@ -1,4 +1,13 @@
 #!/usr/bin/env python
+import sys
+import pdb
+
+if "--pdb" in sys.argv:
+    PDB = True
+    sys.argv.remove("--pdb")
+else:
+    PDB = False
+
 from django.core.management import execute_manager
 try:
     import settings # Assumed to be in the same directory.
@@ -8,4 +17,8 @@ except ImportError:
     sys.exit(1)
 
 if __name__ == "__main__":
-    execute_manager(settings)
+    if PDB:
+        pdb.runctx("execute_manager(settings)", locals(), globals())
+    else:
+        execute_manager(settings)
+
