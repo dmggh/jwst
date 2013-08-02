@@ -1629,12 +1629,14 @@ def browse_db_post(request):
         response = JSONResponse(table, {}, response_mimetype(request))
         response['Content-Disposition'] = 'inline; filename=files.json'
     else:
-        table = render_browse_table(request, filtered_db, show_defects)
-    
+        # table = render_browse_table(request, filtered_db, show_defects)
+        table_data = render_browse_table_data(request, filtered_db, show_defects)
+        table_data = to_datatables(table_data)
+        table_json = json.dumps(table_data)
         return crds_render(request, "browse_db_results.html", {
                     "filters": filters,
                     "filtered_db" : filtered_db,
-                    "table" : table,
+                    "table_json" : table_json,
                     "observatory" : observatory,
                 })
     
@@ -1675,7 +1677,7 @@ def render_browse_table(request, filtered_db, show_defects):
     table = html.table("\n".join([thead, tbody]), id="crds_files_table")
     return table
     
-def render_browse_table_json(request, filtered_db, show_defects):
+def render_browse_table_data(request, filtered_db, show_defects):
     """Generate the HTML for the search results table."""
     super = request.user.is_superuser
     authenticated = request.user.is_authenticated()
@@ -1704,7 +1706,14 @@ def render_browse_table_json(request, filtered_db, show_defects):
             db.deliverer_user if authenticated else "",
             repr(db.get_defects()) if show_defects else "",
         ])
-    return json.dumps( {"header":header, "rows": rows} )
+    return {"header":header, "data": rows}
+
+def to_datatables(json_table):
+    """Filter a header/data object into a jQuery datatables representation."""
+    return dict(
+            aoColumns = [ { "sTitle" : col } for col in json_table["header"] ],
+            aaData = json_table["data"],
+            )
     
 # ============================================================================
 
