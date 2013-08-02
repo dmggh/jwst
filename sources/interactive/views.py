@@ -1624,14 +1624,19 @@ def browse_db_post(request):
     if select_bad_files:
         filtered_db = [ blob for blob in filtered_db if blob.get_defects() ]
     
-    table = render_browse_table(request, filtered_db, show_defects)
-
-    return crds_render(request, "browse_db_results.html", {
-                "filters": filters,
-                "filtered_db" : filtered_db,
-                "table" : table,
-                "observatory" : observatory,
-            })
+    if request.is_ajax():
+        table = render_browse_table_json(request, filtered_db, show_defects)
+        response = JSONResponse(table, {}, response_mimetype(request))
+        response['Content-Disposition'] = 'inline; filename=files.json'
+    else:
+        table = render_browse_table(request, filtered_db, show_defects)
+    
+        return crds_render(request, "browse_db_results.html", {
+                    "filters": filters,
+                    "filtered_db" : filtered_db,
+                    "table" : table,
+                    "observatory" : observatory,
+                })
     
 def render_browse_table(request, filtered_db, show_defects):
     """Generate the HTML for the search results table."""
@@ -1669,6 +1674,37 @@ def render_browse_table(request, filtered_db, show_defects):
     tbody = html.tbody("\n".join(rows))
     table = html.table("\n".join([thead, tbody]), id="crds_files_table")
     return table
+    
+def render_browse_table_json(request, filtered_db, show_defects):
+    """Generate the HTML for the search results table."""
+    super = request.user.is_superuser
+    authenticated = request.user.is_authenticated()
+    header = ["delivery date",
+            "name",
+            "aperture",
+            "useafter date",
+            "status",
+            "description",
+            "instrument", 
+            "reference type",
+            "deliverer" if authenticated else "",
+            "defects" if show_defects else "",
+        ]
+    rows = []
+    for db in filtered_db:
+        rows.append([
+            stdtags.minutes(db.delivery_date),
+            stdtags.browse(db.name),
+            db.aperture,
+            stdtags.minutes(db.useafter_date),
+            db.status,
+            db.description,
+            db.instrument, 
+            db.filekind,
+            db.deliverer_user if authenticated else "",
+            repr(db.get_defects()) if show_defects else "",
+        ])
+    return json.dumps( {"header":header, "rows": rows} )
     
 # ============================================================================
 
