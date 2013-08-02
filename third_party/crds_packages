@@ -5,6 +5,7 @@ models
 
 Django
 django-json-rpc
+django-dbbackup
 # django-locking-master  built-in
 
 # debug tools

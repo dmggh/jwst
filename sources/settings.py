@@ -39,6 +39,10 @@ USE_I18N = True
 # calendars according to the current locale
 USE_L10N = True
 
+# Django dbbackup settings
+DBBACKUP_STORAGE = 'dbbackup.storage.filesystem_storage'
+DBBACKUP_FILESYSTEM_DIRECTORY = install_dir + "/server/db_backups"
+    
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/"
 MEDIA_ROOT = install_dir + '/media'
@@ -154,7 +158,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-    
+    'dbbackup',
 )
 
 if DEBUG_EXTRAS:

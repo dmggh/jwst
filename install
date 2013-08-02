@@ -75,6 +75,12 @@ create_dir $secret $install_dir/python/bin
 # try to put any config there, and only the apache server knows to use it.
 create_dir $secret $install_dir/mplconfigdir
 
+create_dir $secret $install_dir/server
+create_dir $secret $install_dir/server/logs 
+create_dir $secret $install_dir/server/db_backups
+create_dir $secret $install_dir/server/run 
+create_dir $secret $install_dir/server/conf  
+create_dir $secret $install_dir/server/wsgi-scripts
 
 ###
 ### special cases for each type of web server we might be using
@@ -84,14 +90,7 @@ in
 
 # apache with mod_python
 mod_wsgi)
-
-	create_dir $secret $install_dir/server
-        create_dir $secret $install_dir/server/logs 
-        create_dir $secret $install_dir/server/run 
-        create_dir $secret $install_dir/server/conf  
-        create_dir $secret $install_dir/server/wsgi-scripts
-
-        cp servers/httpd.mod_wsgi.conf $install_dir/server/conf/httpd.conf
+    cp servers/httpd.mod_wsgi.conf $install_dir/server/conf/httpd.conf
 	cp servers/ssl.conf $install_dir/server/conf/ssl.conf
 	cp servers/*.wsgi $install_dir/server/wsgi-scripts
    
@@ -167,9 +166,7 @@ mod_wsgi)
 # apache with mod_python
 mod_python)
 
-	create_dir $secret $install_dir/server/logs $install_dir/server/run $install_dir/server/conf
-
-        cp servers/httpd.mod_python.conf $install_dir/server/conf/httpd.conf
+    cp servers/httpd.mod_python.conf $install_dir/server/conf/httpd.conf
 
 	apache_version=`/usr/sbin/httpd -v | sed -n 's?Server version: Apache/??p'`
 	case "$apache_version"
