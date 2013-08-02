@@ -1,0 +1,59 @@
+# .alias : User alias and (t)csh-shell settings file.
+#          This file is source'd by .cshrc
+#
+#######################################################################
+#
+# create new files with  read-only    permission for group/world
+#        new directories read-execute permission for group/world
+umask 022
+#
+# Here you can insert your aliases and shell settings (see man csh, man tcsh):
+#
+set history=100		# How many commands in the commandline buffer
+set savehist=50		# How many commands to save at logout (~/.history)
+set filec		# Filename completion
+set notify		# Be told when background jobs change status
+set prompt=`uname -n | awk -F. '{print $1}'`\>\  # Awk-ward but decent prompt
+#
+#set cdpath=(~/somedir ~/anotherdir)	# Look here for subdirectories 
+#set noclobber		# do not overwrite files with output redirect
+#
+#
+# Only for tcsh:
+if ( "$shell:t" == "tcsh" ) then
+	set autolist		# <TAB> lists alternatives
+	set matchbeep=nomatch	# only beep on error
+endif
+#
+# IRAF users who do not want ^Z to mean "suspend", uncomment these lines:
+#
+#tty -s
+#if ( $status == 0 ) then
+#   stty susp ^X eof ^Z
+#endif
+#
+#-----------------------------------------------------------------
+# Here you can insert your own aliases:
+# 
+alias copy cp -i
+# alias cp cp -i
+# alias mv mv -i
+alias del rm 
+alias dir ls -F
+alias l ls -F
+alias ls '\ls -F'
+alias ll ls -l
+alias la ls -aF
+alias ldot ls -aFd .\*
+alias lldot ls -ald .\*
+alias bye logout
+alias BYE logout
+#
+# These two go together.  They give you the command "back" to
+# return to the previous directory.  Keep both or none:
+# alias cd 'set old=$cwd; chdir \!*; dirs'
+# alias back 'set back=$old; set old=$cwd; chdir $back; unset back; dirs'
+#
+
+alias crds "cd ${CRDS}/CRDS"
+alias server "cd ${CRDS}/CRDS_server"

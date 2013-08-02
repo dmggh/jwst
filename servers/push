@@ -1,0 +1,8 @@
+#! /bin/csh
+
+cd ${CRDS}/CRDS
+svn update
+cd ${CRDS}/CRDS_server
+svn update
+./rerun ${CRDS_PROJECT} ${CRDS_USECASE} |& tee install.${CRDS_PROJECT}.${CRDS_USECASE}
+

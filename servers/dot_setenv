@@ -1,0 +1,45 @@
+setenv  CRDS_SERVER `uname -n | cut -d'.' -f1`
+
+switch ($CRDS_SERVER)
+       case tljwstcrdsv1:
+       	    setenv CRDS_PROJECT jwst
+	    setenv CRDS_USECASE test
+	    setenv CRDS ${HOME}/${CRDS_SERVER}
+	    setenv CRDS_STACK ${CRDS}/crds_stacks/crds_10
+       breaksw
+       case pljwstcrdsv1:
+       	    setenv CRDS_PROJECT jwst
+	    setenv CRDS_USECASE prod
+	    setenv CRDS ${HOME}/${CRDS_SERVER}
+	    setenv CRDS_STACK ${CRDS}/crds_stacks/crds_10
+       breaksw
+       case tlhstcrdsv1:
+       	    setenv CRDS_PROJECT hst
+	    setenv CRDS_USECASE test
+	    setenv CRDS ${HOME}/${CRDS_SERVER}
+	    setenv CRDS_STACK ${CRDS}/crds_stacks/crds_10
+       breaksw
+       case plhstcrdsv1:
+       	    setenv CRDS_PROJECT hst
+	    setenv CRDS_USECASE prod
+	    setenv CRDS ${HOME}/${CRDS_SERVER}
+	    setenv CRDS_STACK ${CRDS}/crds_stacks/crds_10
+       breaksw
+endsw
+
+setenv PATH /home/crds/bin:${CRDS_STACK}/bin:/usr/stsci/Python-2.7.4/bin:/usr/kerberos/bin:/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin
+
+setenv LD_LIBRARY_PATH ${CRDS_STACK}/lib:/usr/stsci/Python-2.7.4/lib
+
+if ! $?PYTHONPATH then
+    setenv PYTHONPATH ${CRDS_STACK}/lib/python
+else
+    setenv PYTHONPATH ${PYTHONPATH}:${CRDS_STACK}/lib/python    
+endif
+
+setenv apachemod ${CRDS_STACK}/lib/apache/
+
+setenv EDITOR emacs
+
+printenv | grep CRDS
+
