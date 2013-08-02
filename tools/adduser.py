@@ -8,8 +8,10 @@ from crds import log
 def adduser(user, email, password, super_user=False, use_existing=False):
     try:
         if use_existing:
+            log.info("Fetching existing user", user)
             user = User.objects.get(username=user)
         else:
+            log.info("Creating new user", user)
             user = User.objects.create_user(user, email, password)
     except IntegrityError:
         log.warning("User", repr(user), "already exists or other problem...")
@@ -20,8 +22,9 @@ def adduser(user, email, password, super_user=False, use_existing=False):
     # if you want to change other fields.
     user.is_staff = True
     if super_user:
+        log.info("Setting superuser.")
         user.is_superuser = True
-    user.password = password
+    user.set_password(password)
     user.save()
 
 if __name__ == "__main__":
