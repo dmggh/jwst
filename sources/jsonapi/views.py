@@ -377,7 +377,9 @@ def get_file_info_map(request, observatory, files, fields):
     if not files:
         files = filemap.keys()
     if fields is None:
-        fields = filemap.values()[0].info.keys()
+        blob0 = filemap.values()[0]
+        blob0.thaw()
+        fields = blob0.info.keys()
     result = {}
     for name in files:
         try:
