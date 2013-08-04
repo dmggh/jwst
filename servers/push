@@ -4,5 +4,10 @@ cd ${CRDS}/CRDS
 svn update
 cd ${CRDS}/CRDS_server
 svn update
+
+if ($1 == "pkgs") then
+    ./init_pkgs ${CRDS_PROJECT} ${CRDS_USECASE} |& tee init_pkgs.${CRDS_PROJECT}.${CRDS_USECASE}
+endif
+
 ./rerun ${CRDS_PROJECT} ${CRDS_USECASE} |& tee install.${CRDS_PROJECT}.${CRDS_USECASE}
 
