@@ -4,62 +4,14 @@
 
 {% block contents %}
 
-<h2>
-    Browse {{pmap.header.name|browse}}     
-</h2> 
+<h2>Historical References</h2> 
 
-{% for pitem in pmap.selections %}
-    {% accordion  "<span class='blue'>" pitem.0 "</span>" %}
-        <p><a href="/browse/{{pitem.1.header.name}}">{{pitem.1.header.name}}</a></p><br/>
-        {% for iitem in pitem.1.selections %}
-            {% accordion "<span class='blue'>" iitem.1.header.filekind "</span> ---- <span class='green'>"  iitem.1.text_descr "</span>" %}
-                <p><a href="/browse/{{iitem.1.header.name}}">{{iitem.1.header.name}}</a></p><br/>
-                <div class="rmap_tag" url="/context_table/{{iitem.1.header.name}}">{{iitem.1.header.name}}</div>        
-            {% endaccordion %}
-        {% endfor %}
-    {% endaccordion %}
-{% endfor %}
+{% include "context_table_body_include.html" %}
 
 <br/><br/>
 {% endblock contents %}
 
 {% block body_trailer %}
-<script type="text/javascript">
-$(function () {
-    $("#contents").hide();
-    $(".accordion").accordion({
-        change: function( event, ui ) {
-            console.log(event);
-            var div = $(ui.newContent).children("div.rmap_tag");
-            var url = div.attr("url");
-            if (!url) {
-               // console.log("no url,  skipping fetch.");
-               return;
-            };
-            // console.log("Fetching " + url);
-            div.html($("<p class='green'>").html("Loading..."));
-            $.ajax({
-                url : url,
-                context: document.body
-            }).done(function (json) {
-                    $.each(json["selections"], function (index, row) {
-                        var  refname = row[row.length-1];
-                        row[row.length-1] = crds.tag("a", refname, {"href": "/browse/" + refname})
-                    });
-                    var table = $(crds.format_table(json["parameters"], json["selections"]));
-                    table.hide();
-                    table.css({"font-size":"0.7em"});
-                    div.html(table);
-                    table.dataTable({
-                        "aLengthMenu": [[100, 200, 500, 1000, 2000, -1], [100, 200, 500, 1000, 2000, "All"]],
-                        "iDisplayLength" : -1                  
-                    });
-                    table.show();
-            });
-        }
-    });
-    $("#contents").show();
-});
-</script>
+    {% include "context_table_trailer_include.html" %}
 {% endblock body_trailer %}
 

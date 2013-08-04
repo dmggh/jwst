@@ -1,24 +1,30 @@
-{% extends "base.html" %}
+{% extends "table_base.html" %}
 
 {% load stdtags %}
 
 {% block contents %}
 
+    <h3>Operational References</h3>
+    {% include "context_table_body_include.html" %}
+ 
 {% if is_authenticated %}
     <h3>Open Services</h3>
 {% else %}
     <h3>Services</h3>
 {% endif %}
     <ol>
-        <li><a href="/bestrefs/">Dataset Best References</a> {% alpha %}</li>
-        <li><a href="/bestrefs_explore/">Explore Best References</a> {% alpha %} <br/> </li>
+        <li><a href="/display_context_history/">Context History</a></li>
+        <br/>
         
-        <li><a href="/difference/">Difference Files</a><br/></li>
+        <li><a href="/bestrefs/">Dataset Best References</a> {% alpha %}</li>
+        <li><a href="/bestrefs_explore/">Explore Best References</a> {% alpha %} </li>
+        <br/>
+         
+        <li><a href="/difference/">Difference Files</a></li>
+        <br/>
         
         <li><a href="/browse_db/">Browse Database</a></li>
         <li><a href="/recent_activity/">Recent Activity</a></li>
-        <li><a href="/context_table/operational/">Operational References</a></li>
-        <li><a href="/display_context_history/">Context History</a></li>
     </ol>
     
 {% if is_authenticated %}
@@ -26,12 +32,14 @@
     <ol>
         <li><a href="/certify/">Certify Files</a></li>
         <li><a href="/set_file_enable/">Enable/Disable File</a></li>
-        <li><a href="/set_default_context/">Set Context</a><br/></li>
+        <li><a href="/set_default_context/">Set Context</a></li>
+        <br/>
         
         {% if locked_instrument %}
             <li><a href="/batch_submit_references/">Batch Submit References</a></li>
             <li><a href="/submit/reference/">Submit References</a></li>
-            <li><a href="/submit/mapping/">Submit Mappings</a><br/></li>
+            <li><a href="/submit/mapping/">Submit Mappings</a></li>
+            <br/>
         {% endif %}
         
         {% if is_superuser %}
@@ -43,3 +51,9 @@
 {% endif %}
 
 {% endblock contents %}
+
+
+{% block body_trailer %}
+    {% include "context_table_trailer_include.html" %}
+{% endblock body_trailer %}
+ 

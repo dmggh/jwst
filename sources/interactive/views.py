@@ -631,7 +631,8 @@ def del_locked_instrument(request):
 # @profile("index.stats")
 def index(request):
     """Return the top level page for all of interactive CRDS."""
-    return crds_render(request, "index.html")
+    pars = get_context_table_parameters(request, "operational")
+    return crds_render(request, "index.html", pars)
 
 # ===========================================================================
 
@@ -1958,16 +1959,23 @@ def context_table(request, mapping, recursive="10"):
         mapping = models.get_default_context(state=mapping)
     is_mapping(mapping)
     recursive = int(recursive)
-    m = rmap.get_cached_mapping(mapping)
     if request.is_ajax():
+        m = rmap.get_cached_mapping(mapping)
         return HttpResponse(m.tojson(), mimetype='application/json')
     else:
-        is_pmap(mapping)
-        return crds_render(request, "context_table.html", {
-            "pmap" : m.todict(),
-            "mapping_type" : m.header["mapping"],
-        }, requires_pmaps=False)
-    
+        pars = get_context_table_parameters(request, mapping)
+        return crds_render(request, "context_table.html", pars, requires_pmaps=False)
+        
+def get_context_table_parameters(request, pmap):
+    """Return the parameters required to display a context table for `mapping`."""
+    if re.match("operational|edit", pmap):
+        pmap = models.get_default_context(state=pmap)
+    is_pmap(pmap)
+    p = rmap.get_cached_mapping(pmap)
+    return {
+        "pmap" : p.todict(),
+        "mapping_type" : p.header["mapping"],
+    }    
 
 if sconfig.DEBUG:
     
