@@ -1,13 +1,55 @@
 #! /bin/csh
 
-cd ${CRDS}/CRDS
-svn update
-cd ${CRDS}/CRDS_server
-svn update
-
-if ($1 == "pkgs") then
-    ./init_pkgs ${CRDS_PROJECT} ${CRDS_USECASE} |& tee init_pkgs.${CRDS_PROJECT}.${CRDS_USECASE}.err
+if ($#argv == 0) then
+    echo "usage: push [basic] [all] [CRDS] [CRDS_server] [pkgs] [scripts] [crontab] [rerun]"
+    exit -1
 endif
 
-./rerun ${CRDS_PROJECT} ${CRDS_USECASE} |& tee install.${CRDS_PROJECT}.${CRDS_USECASE}.err
+set parameters = ($*)
 
+if ($#argv == 1 && $1 == "basic") then
+    set parameters = (CRDS CRDS_server rerun)
+endif
+
+if ($#argv == 1 && $1 == "all") then
+    set parameters = (CRDS CRDS_server pkgs scripts crontab rerun)
+endif
+
+foreach par ($parameters)
+    switch ($par)
+	case "CRDS":
+	    echo "Updating CRDS subversion"
+	    cd ${CRDS}/CRDS
+	    svn update
+	    breaksw
+	case "CRDS_server":
+	    echo "Updating CRDS_server subversion"
+	    cd ${CRDS}/CRDS_server
+	    svn update
+	    breaksw
+	case "pkgs":
+	    echo "Updating CRDS server third_party packages"
+	    cd ${CRDS}/CRDS_server
+	    ./init_pkgs ${CRDS_PROJECT} ${CRDS_USECASE} |& tee init_pkgs.${CRDS_PROJECT}.${CRDS_USECASE}.err
+	    breaksw
+	case "scripts":
+	    echo "Updating .alias and .setenv"
+	    cd ${CRDS}/CRDS_server/host
+	    cp dot_alias ~/.alias
+	    cp dot_setenv ~/.setenv
+	    breaksw
+	case "crontab":
+	    echo "Updating crontab"
+	    cd ${CRDS}/CRDS_server/host
+	    crontab crontab
+	    breaksw
+	case "rerun":
+	    echo "Re-installing server code and restarting."
+	    cd ${CRDS}/CRDS_server
+	    ./rerun ${CRDS_PROJECT} ${CRDS_USECASE} |& tee install.${CRDS_PROJECT}.${CRDS_USECASE}.err
+	    breaksw
+	case *:
+	    echo "Unrecognized switch: " $par
+	    exit -1
+    endsw
+end

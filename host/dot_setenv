@@ -27,7 +27,7 @@ switch ($CRDS_SERVER)
        breaksw
 endsw
 
-setenv PATH /home/crds/bin:${CRDS_STACK}/bin:/usr/stsci/Python-2.7.4/bin:/usr/kerberos/bin:/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin
+setenv PATH ${CRDS}/CRDS_server/host:${CRDS_STACK}/bin:/usr/stsci/Python-2.7.4/bin:/usr/kerberos/bin:/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin
 
 setenv LD_LIBRARY_PATH ${CRDS_STACK}/lib:/usr/stsci/Python-2.7.4/lib
 
