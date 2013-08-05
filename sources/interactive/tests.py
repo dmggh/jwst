@@ -379,7 +379,7 @@ class InteractiveBase(object):
         # print response
         self.assert_no_errors(response)
         self.assertTrue(self.pmap in response.content)
-        self.assertEqual(response.content.count("<tr>"), 4)
+        self.assertEqual(response.content.count("<tr>"), 2)
 
     def test_batch_submit_replace(self):
         self.login()

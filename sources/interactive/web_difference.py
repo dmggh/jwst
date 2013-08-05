@@ -32,19 +32,20 @@ def difference_core(file1_orig, file2_orig, file1_path=None, file2_path=None, pu
         """Return the file extension of `filename`."""
         return os.path.splitext(filename)[1]
     
-    logical_diffs = map_text_diff_items = None
+    logical_errors = logical_diffs = map_text_diff_items = None
     if rmap.is_mapping(file1_orig) and rmap.is_mapping(file2_orig) and \
-        extension(file1_orig) == extension(file2_orig):
-        unfiltered = mapping_logical_diffs(file1_orig, file2_orig, file1_path, file2_path)
+          extension(file1_orig) == extension(file2_orig):
+        unfiltered, logical_errors = mapping_logical_diffs(file1_orig, file2_orig, file1_path, file2_path)
+        # filter to same type because table display requires homogeneous columns
         logical_diffs = filter_same_type(file1_path, unfiltered)
+        # logical diffs are stored as json,  make json-ify-able items
+        logical_diffs = [ diff.flat.items() for diff in logical_diffs ]  
         # map_text_diffs = mapping_text_diffs(logical_diffs)
         # Compute root files separately since they may have upload paths.
         map_text_diffs = {}
         difference = textual_diff(file1_orig, file2_orig, file1_path, file2_path)
         map_text_diffs[str((file1_orig, file2_orig))] = difference
         map_text_diff_items = sorted(map_text_diffs.items())
-        # logical diffs are stored as json
-        logical_diffs = [ diff.flat.items() for diff in logical_diffs ]
     elif file1_orig.endswith(".fits") and file2_orig.endswith(".fits"):
         diff_lines = pysh.lines("fitsdiff ${file1_path} ${file2_path}")
         diff_lines = format_fitsdiffs(diff_lines, file1_path, file2_path,
@@ -54,11 +55,11 @@ def difference_core(file1_orig, file2_orig, file1_path=None, file2_path=None, pu
         extension(file1_orig) == extension(file2_orig):
         difference = textual_diff(file1_orig, file2_orig, file1_path, file2_path)
     else:
-        raise CrdsError("Files should be either CRDS mappings "
-                        "of the same type or .fits files")        
+        raise CrdsError("Files should be of the same type and extension.")        
     if not difference.strip():
         difference = "no differences"
     return {
+       "logical_errors" : logical_errors,
        "logical_diffs" : logical_diffs,
        "map_text_diff_items" : map_text_diff_items,
        "difference" : difference,
@@ -87,11 +88,13 @@ def mapping_logical_diffs(file1_orig, file2_orig, file1, file2):
         map2 = rmap.fetch_mapping(file2, ignore_checksum=True)
         # Get logical difference tuples
         ldiffs = map1.difference(map2)
-        return ldiffs
+        result = ldiffs, []
     except Exception, exc:
         file1, file2 = map(os.path.basename, [file1, file2])
         exc = str(exc).replace(file1, file1_orig).replace(file2, file2_orig)
-        return [("ERROR: " + exc,)]
+        result = [], ["ERROR: " + exc ]
+    # log.info("mapping_logical_diffs:", log.PP(result))
+    return result
 
 def mapping_text_diffs(logical_diffs):
     """Return a mapping of file pairs to the textual differences between them
@@ -117,7 +120,9 @@ def mapping_text_diffs(logical_diffs):
     return diff_map
 
 def filter_same_type(file1_path, logical_diffs):
-    """Filter `logical_diffs` down to only those with the same type as `file_path`"""
+    """Filter `logical_diffs` down to only those with the same type as `file_path`.  This
+    bolts on the behavior of a non-recursive or less-recursive difference.
+    """
     filtered = set()
     ext = os.path.splitext(file1_path)[1]
     for diff in logical_diffs:

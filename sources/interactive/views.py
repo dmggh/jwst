@@ -1318,39 +1318,48 @@ def difference_files(request):
             file2_orig = validate(request, "file2", is_known_file)
             file1_path = models.FileBlob.load(file1_orig).pathname
             file2_path = models.FileBlob.load(file2_orig).pathname
-            uploaded1 = uploaded2 = None  # dead code???
     else:
         file1_orig, file1_path = handle_known_or_uploaded_file(
             request, "filemode1", "file_known1", "file_uploaded1")
         file2_orig, file2_path = handle_known_or_uploaded_file(
             request, "filemode2", "file_known2", "file_uploaded2")
     
-    if rmap.is_mapping(file1_orig):
-        upload_tuples = mapping_upload_tuples(file1_orig, file2_orig, file1_path, file2_path)
-    else:
+    if rmap.is_mapping(file1_orig):  # compute files for nested rmap differences
+        upload_tuples, logical_errors = mapping_upload_tuples(file1_orig, file2_orig, file1_path, file2_path)
+    else:   # references
         upload_tuples = [(file1_orig, file2_orig, file1_path, file2_path)]
+        logical_errors = []
+        
+    # log.info("upload_tuples:", upload_tuples)
                 
     diff_results = web_difference.mass_differences(upload_tuples)
+    
+    # log.info("diff_results:", log.PP(diff_results))
 
     return crds_render(request, "difference_results.html", { 
             "file1" : file1_orig,
             "file2" : file2_orig,
-            "diff_results" : diff_results 
+            "diff_results" : diff_results,
+            "top_level_logical_errors": logical_errors,
         })
 
 def mapping_upload_tuples(file1_orig, file2_orig, file1_path, file2_path):
-    ldiffs = web_difference.mapping_logical_diffs(file1_orig, file2_orig, file1_path, file2_path)
+    """From the exhaustive list of logical differences,  determine the set of top level files to difference.
+    """
+    ldiffs, lerrs = web_difference.mapping_logical_diffs(file1_orig, file2_orig, file1_path, file2_path)
     uploads = set()
     for diff in ldiffs:
         last_map = None
         for tup in diff:
-            if tup and len(tup) == 2 and rmap.is_mapping(tup[0]):
+            if tup == (file1_path, file2_path):
+                tup = (file1_orig, file2_orig, file1_path, file2_path)
+            if isinstance(tup, tuple) and len(tup) >= 2 and rmap.is_mapping(tup[0]) and rmap.is_mapping(tup[1]):
                 last_map = tup
             else:
                 break
         assert last_map is not None, "Unexpected mapping difference " + repr(diff)
         uploads.add(last_map)
-    return sorted(list(uploads))
+    return sorted(list(uploads)), lerrs
 
 # ===========================================================================
 

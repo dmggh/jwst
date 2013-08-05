@@ -3,9 +3,10 @@
 {% for diff_name,diffs in diff_results %}
     {% accordion diff_name  %}
         {% if diffs.map_text_diff_items %}
+            
             {% autoescape off %}
+            
                 {% if diffs.logical_diffs %}
-                    <h3>Logical Differences</h3>
                     {% accordion "Logical Diff" diffs.logical_diffs.0.0.1 %}
                         <table class="crds_data_table">
                             <thead>
@@ -28,12 +29,18 @@
                     {% endaccordion %}
                 {% endif %}
                 
-                <h3>Text Differences</h3>
+                {% if diffs.logical_errors %}
+                    {% for err in diffs.logical_errors %}
+                        <p class="error">{{err}}</p>
+                    {% endfor %}
+                {% endif %}
+                
                 {% for tdiff in diffs.map_text_diff_items %}
                     {% accordion "Text Diff" tdiff.0 %}
                         <pre class="program">{{tdiff.1}}</pre>
                     {% endaccordion %}
                 {% endfor %}
+                
             {% endautoescape %}
     
         {% else %}

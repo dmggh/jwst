@@ -6,6 +6,10 @@
 
     <h2>Difference {{file1|gray}} against {{file2|gray}}</h2> 
     
+    {% for err in top_level_logical_errors %}
+        <p class="error">{{err}}</p>
+    {% endfor %}
+    
     {% include "difference_include.html" %}
     
     {% include "home_button_trailer.html" %}
