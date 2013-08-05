@@ -1,0 +1,7 @@
+#! /bin/tcsh
+
+# Run the django-dbbackup based CRDS server database backup
+cd ${CRDS}/CRDS_server
+source env.csh
+./manage dbbackup
+

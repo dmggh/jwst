@@ -1,0 +1,9 @@
+#! /bin/tcsh
+
+echo `pwd`
+rm -f *~ \#*\# *.pyc *.pyo .*~ >& /dev/null
+foreach f (`ls -1`)
+   if (-d $f) then
+      (cd $f; tidy)
+   endif
+end

@@ -1,0 +1,6 @@
+#! /usr/bin/env python
+
+import pyfits, sys
+
+pyfits.info(sys.argv[1])
+
