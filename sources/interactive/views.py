@@ -703,8 +703,8 @@ class JSONResponse(HttpResponse):
         content = simplejson.dumps(obj, **json_opts)
         super(JSONResponse, self).__init__(content, mimetype, *args, **kwargs)
 
-@log_view
 @error_trap("base.html")
+@log_view
 @login_required
 def upload_new(request, template="upload_new_input.html"):
     """Support adding new files to the upload area."""
@@ -738,8 +738,8 @@ def json_file_details(filename, filepath):
             'delete_url': reverse('upload-delete', args=[filename]),
             'delete_type': "DELETE"}
 
-@log_view
 @error_trap("base.html")
+@log_view
 @login_required
 def upload_list(request, template="upload_new_input.html"):
     file_local_dir = str(request.user)
@@ -757,6 +757,7 @@ def upload_list(request, template="upload_new_input.html"):
     response['Content-Disposition'] = 'inline; filename=files.json'
     return response
 
+@error_trap("base.html")
 @log_view
 @login_required
 def upload_delete(request, filename):
