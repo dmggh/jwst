@@ -2,16 +2,20 @@
 
 {% load stdtags %}
 
-{% block contents %}
-
+{% block contents_top %}
     <h3>Operational References</h3>
-    {% include "context_table_body_include.html" %}
- 
-{% if is_authenticated %}
-    <h3>Open Services</h3>
-{% else %}
-    <h3>Services</h3>
-{% endif %}
+    <script type="text/javascript">
+        $("#contents").hide();
+    </script>
+    {% include "context_table_body_include.html" %} 
+{% endblock contents_top %}
+
+{% block column1 %}
+    {% if is_authenticated %}
+        <h3>Open Services</h3>
+    {% else %}
+        <h3>Services</h3>
+    {% endif %}
     <ol>
         <li><a href="/display_context_history/">Context History</a></li>
         <br/>
@@ -26,34 +30,42 @@
         <li><a href="/browse_db/">Browse Database</a></li>
         <li><a href="/recent_activity/">Recent Activity</a></li>
     </ol>
-    
-{% if is_authenticated %}
-    <h3>Restricted Services  <span class='locked_instrument'>{{locked_instrument}}</span>  </h3>
-    <ol>
-        <li><a href="/certify/">Certify Files</a></li>
-        <li><a href="/set_file_enable/">Enable/Disable File</a></li>
-        <li><a href="/set_default_context/">Set Context</a></li>
-        <br/>
-        
-        {% if locked_instrument %}
-            <li><a href="/batch_submit_references/">Batch Submit References</a></li>
-            <li><a href="/submit/reference/">Submit References</a></li>
-            <li><a href="/submit/mapping/">Submit Mappings</a></li>
-            <br/>
-        {% endif %}
-        
-        {% if is_superuser %}
-            <li><a href="/version_info/">Server Version Info</a></li>
-            <li><a href="/create_contexts/">Create Contexts</a></li>
-            <li><a href="/admin/">Admin</a></li>
-        {% endif %}
-    </ol>
-{% endif %}
+{% endblock column1 %}
 
-{% endblock contents %}
+{% block column2 %}
+    {% if is_authenticated %}
+        <h3>Restricted Services  <span class='locked_instrument'>{{locked_instrument}}</span>  </h3>
+        <ol>
+            <li><a href="/certify/">Certify Files</a></li>
+            <li><a href="/set_file_enable/">Enable/Disable File</a></li>
+            <li><a href="/set_default_context/">Set Context</a></li>
+            <br/>
+            
+            {% if locked_instrument %}
+                <li><a href="/batch_submit_references/">Batch Submit References</a></li>
+                <li><a href="/submit/reference/">Submit References</a></li>
+                <li><a href="/submit/mapping/">Submit Mappings</a></li>
+                <br/>
+            {% endif %}
+            
+            {% if is_superuser %}
+                <li><a href="/version_info/">Server Version Info</a></li>
+                <li><a href="/create_contexts/">Create Contexts</a></li>
+                <li><a href="/admin/">Admin</a></li>
+            {% endif %}
+        </ol>
+    {% endif %}
+{% endblock column2 %}
 
 
 {% block body_trailer %}
     {% include "context_table_trailer_include.html" %}
+    <script type="text/javascript">
+        $(function () {
+            $("#column1").css("width", "35%");
+            $("#column2").css("width", "35%");
+            $("#contents").show();
+        });
+    </script>
 {% endblock body_trailer %}
  
