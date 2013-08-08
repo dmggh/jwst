@@ -370,11 +370,17 @@ def get_file_info(request, context, file):
 
 @jsonrpc_method('get_file_info_map(observatory=String, files=Array, fields=Array)')
 def get_file_info_map(request, observatory, files, fields):
+    """Return { filename : { field_info, ...} } for filenames in `files` with field_info defined by 
+    listed FileBlob `fields`.
+    
+    If `files` is None return for all files.
+    If `fields` is None return for all fields.
+    """
     check_observatory(observatory)
     check_file_list(files)
     check_string_list(fields)
     filemap = imodels.get_fileblob_map(observatory=observatory)
-    if not files:
+    if files is None:
         files = filemap.keys()
     if fields is None:
         blob0 = filemap.values()[0]
