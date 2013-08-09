@@ -1,7 +1,30 @@
 #! /bin/tcsh
 
-# Run the django-dbbackup based CRDS server database backup
 cd ${CRDS}/CRDS_server
 source env.csh
+
+echo "==========================================================="
+echo "CRDS subversion status"
+echo "==========================================================="
+cd ${CRDS}/CRDS
+svn status
+svn info
+
+echo "==========================================================="
+echo "CRDS subversion status"
+echo "==========================================================="
+cd ${CRDS}/CRDS_server
+svn status
+svn info
+
+echo "==========================================================="
+echo "Server self-test"
+echo "==========================================================="
+cd ${CRDS}/CRDS_server
+./runtests ${CRDS_PROJECT} ${CRDS_USECASE}
+
+# Run the django-dbbackup based CRDS server database backup
+echo "============================================================"
+echo "Database backup"
 ./manage dbbackup
 
