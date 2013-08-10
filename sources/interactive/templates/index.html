@@ -46,11 +46,12 @@
                 <li><a href="/submit/reference/">Submit References</a></li>
                 <li><a href="/submit/mapping/">Submit Mappings</a></li>
                 <br/>
-            {% endif %}
-            
-            {% if is_superuser %}
+            {% elif is_superuser %}
+                <li><a href="/submit/reference/">Submit References (UNLOCKED)</a></li>
+                <li><a href="/submit/mapping/">Submit Mappings (UNLOCKED)</a></li>
+                <li><a href="/create_contexts/">Create Contexts (UNLOCKED)</a></li>
+                <br/>
                 <li><a href="/version_info/">Server Version Info</a></li>
-                <li><a href="/create_contexts/">Create Contexts</a></li>
                 <li><a href="/admin/">Admin</a></li>
             {% endif %}
         </ol>

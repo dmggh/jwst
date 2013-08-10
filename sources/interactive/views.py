@@ -607,7 +607,8 @@ def instrument_lock_required(func):
         if instrument is not None:
             locks.verify_locked(type="instrument", name=instrument, user=user)
         else:
-            raise CrdsError("You can't access this function without logging in for a particular instrument.")
+            if not request.user.is_superuser:
+                raise CrdsError("You can't access this function without logging in for a particular instrument.")
         return func(request, *args, **keys)
     _wrapped.func_name = func.func_name
     return _wrapped
@@ -716,8 +717,6 @@ def upload_new(request, template="upload_new_input.html"):
         assert re.match("[A-Za-z0-9_]+", file_local_dir), \
             "Invalid file_local_dir " + srepr(file_local_dir)
         ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir, f.name)
-        # locked_instrument = get_locked_instrument(request)
-        # submit.verify_instrument_locked_files(request.user, locked_instrument, [ingest_path], models.OBSERVATORY)
         with log.verbose_on_exception("Failed removing", repr(ingest_path)):
             os.chmod(ingest_path, 0666)
             os.remove(ingest_path)
@@ -1124,43 +1123,34 @@ def submit_confirm(request):
     if result.get("disposition", None):
         raise CrdsError("This submission was already confirmed or cancelled.")
 
-    assert locked_instrument == result.should_still_be_locked, \
-        "CRSD locking failure.  Currently locked '%s' but submitted for '%s'." % \
-        (locked_instrument, result.should_still_be_locked)
-
     usr = str(request.user)
     assert usr == result.user, "User mismatch: file Submitter='%s' and Confirmer='%s' don't match." % (usr, result.user)
     
     new_file_map = dict(result.new_file_map)
     new_files = new_file_map.values()
     
-    if button == "confirm":
-        try:
-            locks.verify_locked(type="instrument", name=locked_instrument, user=str(request.user), datestr=result["lock_datestr"])
-        except locks.LockingError, exc:
-            button = "timeout"
-            disposition = "cancelled due to: " + str(exc)
-            log.info("Locking exception:", str(exc))
-        else:
-            confirmed = True
-            disposition = "confirmed"
+    if button == "confirm":   # assume confirmed unless lock fails
+        disposition = "confirmed"
+        if context_rmaps:  # only verify locks if contexts are being generated.
+            try:
+                locks.verify_locked(type="instrument", name=locked_instrument, user=str(request.user), datestr=result["lock_datestr"])
+            except locks.LockingError, exc:
+                disposition = "cancelled due to: " + str(exc)
+                log.info("Locking exception:", str(exc))
     elif button == "cancel":
-        confirmed = False
         disposition = "cancelled by submitter"
     elif button == "timeout":
         disposition = "cancelled due to '%s' session lock timeout" % locked_instrument
-
-    if button == "timeout":
         locks.release_locks(user=request.user)
         del_locked_instrument(request)
-        confirmed = False
 
+    confirmed = (disposition == "confirmed")
     if confirmed:
         final_pmap, context_map, collision_list = submit.submit_confirm_core( 
                 confirmed, result.submission_kind, result.description, 
                 new_files, result.context_rmaps, result.user,  result.pmap, result.pmap_mode, locked_instrument)
 
-        if final_pmap:        
+        if final_pmap: # track outcome of edit or operational context mode pmap selection
             rmodel.set_par("original_pmap", result.pmap)
             rmodel.set_par("pmap", final_pmap)
             rmodel.save()
