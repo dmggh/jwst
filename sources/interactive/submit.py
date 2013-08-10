@@ -275,11 +275,11 @@ class FileSubmission(object):
         self.push_status("Creating contexts '{}' for '{}'.".format(repr(updated_rmaps), str(self.user)))
         context_lock = locks.acquire(user=str(self.user), type="context", name="all")
         try:
-            return self._do_create_context(updated_rmaps)
+            return self.do_create_contexts_unlocked(updated_rmaps)
         finally:
             context_lock.release()
 
-    def _do_create_context(self, updated_rmaps):
+    def do_create_contexts_unlocked(self, updated_rmaps):
         """Create new contexts from `updated_rmaps` with no concern for locking."""
         
         # Evaluate implicit pmap names *now*,  while locked!
@@ -672,6 +672,34 @@ def submit_confirm_core(confirmed, submission_kind, description, new_files, cont
 
     return  final_pmap or pmap_name, context_name_map, collisions
     
+# ------------------------------------------------------------------------------------------------
+        
+def create_contexts(description, context_rmaps, user, pmap_name):
+    """Quick-and-dirty create contexts,  unconfirmed,  intended for super-users."""
+    for filename in context_rmaps:
+        try:
+            blob = models.FileBlob.load(filename)
+        except LookupError:
+            raise CrdsError("Unknown CRDS file " + srepr(filename))
+        assert blob.state in sconfig.CRDS_DISTRIBUTION_STATES, "File " + srepr(filename) + " is only in state " + srepr(blob.state)
+        
+    # context_rmaps aren't necessarily in new_file_map and may be existing files.  So they only
+    # specify changes to `pmap_name`,  not file deliveries.
+    submission = FileSubmission(pmap_name, uploaded_files=None, description=description, user=user, creator="crds")
+    
+    # UNLOCKED context creation
+    _final_pmap, context_name_map = submission.do_create_contexts_unlocked(context_rmaps)
+
+    delivered_files = sorted(context_name_map.values())
+    delivery = Delivery(user, delivered_files, description, "new context")
+    delivery.deliver()
+        
+    collisions = get_collision_list(context_name_map.values())
+
+    return  context_name_map, collisions
+    
+# ------------------------------------------------------------------------------------------------
+
 def fix_unicode(items):
     return [(str(old), str(new)) for (old, new) in items]
  

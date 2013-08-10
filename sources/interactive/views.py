@@ -1087,7 +1087,9 @@ def batch_submit_references_post(request):
                 "collision_list" : collision_list,
                 
                 "diff_results" : mapping_diffs,
+                
                 "should_still_be_locked" : locked_instrument,
+                "requires_locking" : True,
                 "lock_datestr" : locks.get_lock_datestr(locked_instrument, type="instrument", user=str(request.user)),
 
                 "more_submits" : "/batch_submit_references/",
@@ -1131,7 +1133,7 @@ def submit_confirm(request):
     
     if button == "confirm":   # assume confirmed unless lock fails
         disposition = "confirmed"
-        if context_rmaps:  # only verify locks if contexts are being generated.
+        if result.requires_locking:  # only verify locks if contexts are being generated.
             try:
                 locks.verify_locked(type="instrument", name=locked_instrument, user=str(request.user), datestr=result["lock_datestr"])
             except locks.LockingError, exc:
@@ -1205,18 +1207,23 @@ def create_contexts(request):
 def create_contexts_post(request):
     """View fragment handling create_contexts POST case."""
     pmap_name = get_recent_or_user_context(request)
-    updated_rmaps = validate(request, "rmaps", is_list_of_rmaps)
+    context_rmaps = validate(request, "rmaps", is_list_of_rmaps)
     description = validate(request, "description", DESCRIPTION_RE)
+    context_name_map, collisions = submit.create_contexts(description, context_rmaps, str(request.user), pmap_name)
     return render_repeatable_result(request, "create_contexts_results.html", {
                 "pmap": pmap_name,
+                "original_pmap": pmap_name,
+                "pmap_mode" : "pmap_text",
+                "requires_locking": False,
                 "new_file_map" : [],
                 "uploaded_basenames": [],
-                "context_rmaps" : updated_rmaps, 
+                "context_rmaps" : context_rmaps,
+                "context_name_map" : context_name_map,
                 "submission_kind" : "new context",
                 "title" : "Create Contexts",
                 "description" : description,
                 "more_submits" : "/create_contexts/",
-                "collision_list" : [],
+                "collision_list" : collisions,
             })
     
 # ============================================================================
@@ -1274,6 +1281,7 @@ def submit_files_post(request, crds_filetype):
                 
                 "certify_results" : certify_results,
                 "more_submits" : "/submit/" + crds_filetype + "/",
+                "requires_locking" : generate_contexts,
                 "should_still_be_locked": locked_instrument,
                 "lock_datestr" : locks.get_lock_datestr(locked_instrument, type="instrument", user=str(request.user)),
                 

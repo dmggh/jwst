@@ -3,8 +3,8 @@
 {% load stdtags %}
 
 {% block contents %}
-    <h2>Create New Contexts</h2>
-    
+
+    <h2>Create New Contexts</h2>    
     {% include "select_pmap_results.html" %}
     
     <h3>For Rmaps</h3>
@@ -12,11 +12,14 @@
         <p>{{rmap|browse}}</p>
     {% endfor %}
 
+    <h3>Generated Contexts</h3>
+    {% for item in context_name_map.items %}
+        <p>{{item.0|browse}} --> {{item.1|browse}}</p>
+    {% endfor %}
+
     <br/>
     
     {% include "collision_explain.html" %}
-    
-    {% include "confirm.html" %}
     
     <br/>
     <br/>
