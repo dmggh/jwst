@@ -1133,7 +1133,7 @@ def submit_confirm(request):
     
     if button == "confirm":   # assume confirmed unless lock fails
         disposition = "confirmed"
-        if result.requires_locking:  # only verify locks if contexts are being generated.
+        if result.get("requires_locking", True):  # only verify locks if contexts are being generated.
             try:
                 locks.verify_locked(type="instrument", name=locked_instrument, user=str(request.user), datestr=result["lock_datestr"])
             except locks.LockingError, exc:

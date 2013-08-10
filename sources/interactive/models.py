@@ -875,6 +875,7 @@ class FileBlob(BlobModel):
         cannot be revoked and should *ONLY* be called as part of cleanup for
         a failed multi-part file submission.
         """
+        self.thaw()
         with log.error_on_exception("Problem destroying", repr(self.moniker), ":", self.pathname):
             log.info("DESTROYING", self.moniker, ":", repr(self.pathname))
             assert "/grp/hst/cdbs" not in self.pathname,  "Can't delete borrowed CDBS file."

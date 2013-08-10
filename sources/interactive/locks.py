@@ -233,7 +233,7 @@ def verify_locked(name, type="", user="", datestr=None):
 
 def get_lock_datestr(name, type="", user=""):
     """Get the creation date string of the specified lock."""
-    if name is None:
+    if name is None or name == "none":
         return ""
     lock = verify_locked(name, type=type, user=user)
     return str(lock.created_on)
