@@ -7,6 +7,8 @@ echo "==========================================================="
 echo "CRDS subversion status"
 echo "==========================================================="
 cd ${CRDS}/CRDS
+echo "UPDATING SUBVERSION for CRDS"
+svn update
 svn status
 svn info
 
@@ -14,8 +16,15 @@ echo "==========================================================="
 echo "CRDS subversion status"
 echo "==========================================================="
 cd ${CRDS}/CRDS_server
+echo "UPDATING SUBVERSION for CRDS_server"
+svn update
 svn status
 svn info
+
+echo "==========================================================="
+echo "Server re-install and re-start"
+echo "==========================================================="
+./rerun ${CRDS_PROJECT} ${CRDS_USECASE} |& tee rerun.${CRDS_PROJECT}.${CRDS_USECASE}.err
 
 echo "==========================================================="
 echo "Server self-test"
