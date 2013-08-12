@@ -51,6 +51,12 @@
                 <li><a href="/submit/mapping/">Submit Mappings (UNLOCKED)</a></li>
                 <li><a href="/create_contexts/">Create Contexts (UNLOCKED)</a></li>
                 <br/>
+             {% endif %}
+        </ol>
+        
+	{% if is_superuser %}
+	<h3>Super User Services</h3>
+	<ol>
                 <li><a href="/version_info/">Server Version Info</a></li>
                 <li><a href="/admin/">Admin</a></li>
             {% endif %}
