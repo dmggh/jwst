@@ -1,43 +1,8 @@
 #! /bin/tcsh
 
 # =======================================================================
-# Init server environment
+# Init server environment by installing third_party package list.
 
-source env.csh
-
-setenv META_PREFIX "$CRDS_INSTALL_DIR"
-setenv PACKAGE_PATH "."
-setenv CFLAGS "-I$CRDS_INSTALL_DIR/include -L$CRDS_INSTALL_DIR/lib"
-setenv LDFLAGS "-L$CRDS_INSTALL_DIR/lib"
-
-# =======================================================================
-#            pyodbc setup for access to external databases
-#          .e.g. DADSOP == HST catalog of dataset parameters
-# =======================================================================
-
-# The "database" software is an independent SQL interface used to
-# access external databases such as the HST catalog used for finding
-# dataset parameters.  Although it is technically just an
-# installation, it only needs to be done once per CRDS server tree,
-# not for every minor install.
-
-# "meta" is a generic Python installer script which installs different
-# kinds of packages.
-
-# a .meta file is a .tar which includes source as well as "build" and
-# "install" scripts of some kind.
-
-# a .tar.gz is a standard UNIX compressed tarball which is essentiall
-# built using: ./configure; make install
-
-# a .pygz file is a standard Python package .tar.gz, built using
-# python setup.py install
-
-# META_PREFIX is roughly equivalent to a custom /usr/local for meta.  
-# It typically has lib, bin, etc. subdirectories,  just like /usr/local would.
-
-cd third_party;
-
-./meta install @crds_packages --python=python --home=${CRDS_INSTALL_DIR}/python
-./meta clean
+./metaw install @crds_packages
+./metaw clean
 

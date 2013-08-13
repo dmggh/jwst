@@ -2,17 +2,26 @@
 
 # Install the code as indicated by the appropriate config file from
 # sources/configs/config.<observatory>.<server_kind>
-./install [hst|jwst]  [dev|test]
+./install [hst|jwst]  [dev|test|prod]
 
-# Install third party database components, pyodbc and unixODBC/FreeTDS stack
-./init_pkgs [hst|jwst] [dev|test]
+NOTE:  this will likely fail due to missing Python packages installed 
+by init_pkgs.  If so,  it should fail *after* env.csh is created.  At
+that point,  init_pkgs can be run.   After running init_pkgs,  re-run
+install to complete without errors.
+
+# Install third party database components, pyodbc and unixODBC/FreeTDS stack,
+# as well as additional django applications.
+
+./init_pkgs [hst|jwst] [dev|test|prod]
+
+# Possibly re-run install if the first run failed due to missing packages
+./install [hst|jwst]  [dev|test|prod]
 
 # Initilize the CRDS catalog with existing reference files, deliver initial
 # set of mappings.
 # Enter system passwords.
-./init [hst|jwst] [dev|test]
+./init [hst|jwst] [dev|test|prod]
 <enter password for test user>
-<enter database password for dataset catalog>
 
 2. Procedure for starting the sever:
 
@@ -20,8 +29,7 @@
 
 3. Procedure for update not affecting the database:
 
-% ./stop
-% ./rerun [hst|jwst] [dev|test]
+% ./rerun [hst|jwst] [dev|test|prod]
 
 4. Procedure for running a command line / ipython environment for debug
 
@@ -34,7 +42,18 @@
 
 or 
 
-# interactive tests aren't complete yet for jwst.
-% ./run jwst dev
-% ./runtests jwst dev jsonapi (2nd terminal)
+6. Procedure for running Django management commands
+
+% ./manage <additional parameters to django-admin.py>
+
+e.g.
+
+
+7. Database commands
+
+% ./manage dbshell  # to open a SQL prompt to the CRDS server database
+
+% ./manage dbbackup  # to create a django-dbbackup server database backup
+% ./manage dbrestore <backup file>   # to revert to an older version of the database
+
 
