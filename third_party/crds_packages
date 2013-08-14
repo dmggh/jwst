@@ -7,6 +7,12 @@ Django
 django-json-rpc
 django-dbbackup
 # django-locking-master  built-in
+
+# For WebTest
+BeautifulSoup
+WebOb
+six
+waitress
 WebTest
 
 # debug tools
