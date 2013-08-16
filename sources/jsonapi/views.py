@@ -154,7 +154,10 @@ def _check_date_based_context(context, observatory):
             instrument = parts[1] if len(parts) > 1 else None
             filekind = parts[2] if len(parts) > 2 else None
             datestr = m.group("date")
-            context = _pmap_from_date(datestr, observatory)
+            if datestr in ["edit", "operational"]:  # server defaults are "pseudo dates" :-)
+                context = imodels.get_default_context(observatory=observatory, state=datestr)
+            else:
+                context = _pmap_from_date(datestr, observatory)
     if instrument:
         pmap = rmap.get_cached_mapping(context)
         try:
@@ -182,11 +185,12 @@ def _pmap_from_date(date, observatory):
 def check_date(date):
     """Verify the format of simple context datetime string `date` and return a datetime.datetime object."""
     try:
-        if not crds.config.CONTEXT_DATETIME_RE.match(date):
+        d = crds.config.CONTEXT_DATETIME_RE.match(date)
+        if not d:
             raise Exception("Forced date error")
         return timestamp.parse_date(date)
     except Exception:
-        raise InvalidDateBasedContext("Invalid context date/time format '%s' should be YYYY-MM-DDTHH:MM:SS" % date)
+        raise InvalidDateBasedContext("Invalid context date/time format '%s' should be YYYY-MM-DDTHH:MM:SS | edit | operational" % date)
 
 def check_mapping(mapping):
     blob = check_known_file(mapping)

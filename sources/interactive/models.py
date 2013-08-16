@@ -220,6 +220,7 @@ def set_default_context(context, observatory=OBSERVATORY, state="edit", descript
     """Remember `context` as the default for `observatory` and `state`.  Update context history."""
     
     assert context.endswith(".pmap"), "context must be a .pmap"
+    assert state in ["edit", "operational"],  "Invalid context state: " + repr(state) + " should be 'edit' or 'operational'"
     log.info("Setting '{}' default '{}' context to '{}'".format(observatory, state, context))
     model = ContextModel.get_or_create(observatory, state, "context")
     model.context = context
@@ -249,6 +250,7 @@ def set_default_context(context, observatory=OBSERVATORY, state="edit", descript
 
 def get_default_context(observatory=OBSERVATORY, state="edit"):
     """Return the latest context which is in `state`."""
+    assert state in ["edit", "operational"],  "Invalid context state: " + repr(state) + " should be 'edit' or 'operational'"
     return ContextModel.get_or_create(observatory, state, "context").context
 
 class ContextHistoryModel(CrdsModel):

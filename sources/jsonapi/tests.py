@@ -260,6 +260,14 @@ class ServiceApiBase(object):
         with self.assertRaisesRegexp(crds.CrdsError, "UnknownContextError"):
             context = client.get_context_by_date("bad time format")
 
+    def test_get_context_by_date_edit(self):
+        context = client.get_context_by_date(self.observatory + "-edit")
+        assert context.endswith(".pmap")
+        
+    def test_get_context_by_date_operational(self):
+        context = client.get_context_by_date(self.observatory + "-operational")
+        assert context.endswith(".pmap")
+
 # ===========================================================================
 # ===========================================================================
 
