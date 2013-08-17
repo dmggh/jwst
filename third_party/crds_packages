@@ -14,6 +14,7 @@ WebOb
 six
 waitress
 WebTest
+django-webtest
 
 # debug tools
 django-debug-toolbar

@@ -22,6 +22,11 @@ svn status
 svn info
 
 echo "==========================================================="
+echo "Third party package re-install"
+echo "==========================================================="
+./init_pkgs ${CRDS_PROJECT} ${CRDS_USECASE} |& tee init_pkgs.${CRDS_PROJECT}.${CRDS_USECASE}.err
+
+echo "==========================================================="
 echo "Server re-install and re-start"
 echo "==========================================================="
 ./rerun ${CRDS_PROJECT} ${CRDS_USECASE} |& tee rerun.${CRDS_PROJECT}.${CRDS_USECASE}.err
