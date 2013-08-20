@@ -1,7 +1,9 @@
-#! /bin/tcsh
+#! /bin/sh
 
 # =======================================================================
 # Init server environment by installing third_party package list.
+
+source ./make_env
 
 ./metaw install @crds_packages
 ./metaw clean

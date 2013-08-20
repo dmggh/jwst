@@ -1,18 +1,13 @@
 1. General server setup flow is:
 
+# Install third party database components, pyodbc and unixODBC/FreeTDS stack,
+# as well as additional django applications.   This is a long (minutes) slow
+# compile of third_party code. 
+./init_pkgs [hst|jwst] [dev|test|prod]
+
 # Install the code as indicated by the appropriate config file from
 # sources/configs/config.<observatory>.<server_kind>
 ./install [hst|jwst]  [dev|test|prod]
-
-NOTE:  this will likely fail due to missing Python packages installed 
-by init_pkgs.  If so,  it should fail *after* env.csh is created.  At
-that point,  init_pkgs can be run.   After running init_pkgs,  re-run
-install to complete without errors.
-
-# Install third party database components, pyodbc and unixODBC/FreeTDS stack,
-# as well as additional django applications.
-
-./init_pkgs [hst|jwst] [dev|test|prod]
 
 # Possibly re-run install if the first run failed due to missing packages
 ./install [hst|jwst]  [dev|test|prod]
