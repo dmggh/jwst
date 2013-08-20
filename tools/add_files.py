@@ -80,7 +80,8 @@ Does not move, rename, or deliver files.
         if self.args.deliver and added:
             self.deliver_files(added)
         self.set_default_contexts()
-        
+        log.standard_status()
+
     def add_files(self, paths):
         """Add the files specified in list `paths` to the CRDS database.
         Return list of files added, omitting any already in the db.

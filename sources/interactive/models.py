@@ -471,11 +471,13 @@ FILE_STATUS_MAP = OrderedDict([
     ("uploaded", "orange"),   # On the server,  still temporary
     ("submitted", "orange"),  # In CRDS, pending delivery
     ("delivered", "blue"),    # Delivered to downstream systems, pending archive
+    ("archiving", "blue"),
     ("archived", "green"),    # Archived and in use.
     ("operational", "darkgreen"), # In operational use in the pipeline.
     ("blacklisted", "red"),
     ("rejected", "red"),
     ("cancelled", "red"),
+    ("archiving-failed", "red"),
 ])
 
 FILE_STATES = FILE_STATUS_MAP.keys()
@@ -574,13 +576,17 @@ class FileBlob(BlobModel):
             "File transitions from 'delivered' to 'operational' when deleted.", ""),
 
         # Automatically generated fields
-        pathname = BlobField("^[A-Za-z0-9_./]+$", "path/filename to CRDS master copy of file", "none"),
+        # pathname = BlobField("^[A-Za-z0-9_./]+$", "path/filename to CRDS master copy of file", "none"),
         blacklisted_by = BlobField(list,"List of blacklisted files this file refers to directly or indirectly.", []),
         reject_by_file_name = BlobField(FILENAME_RE, "", ""),
         comment = BlobField(str, "from DESCRIP keyword of reference file.", "none"),
         aperture = BlobField(str, "from APERTURE keyword of reference file.", "none")
         )
 
+    @property
+    def pathname(self):   # assume server has standard cache layout
+        return str(rmap.locate_file(self.name, observatory=self.observatory))
+    
     @property
     def is_bad_file(self):
         """Return the 'reject state' of this file,  either True or False."""
@@ -589,7 +595,6 @@ class FileBlob(BlobModel):
     bad_field_checks = {
         "uploaded_as" : lambda self: not self.uploaded_as,
         "catalog_link" : lambda self: self.catalog_link and not os.path.exists(self.catalog_link),
-        "pathname" : lambda self: not os.path.exists(self.pathname),
         "size" : lambda self: self.size == -1 or self.size != self.compute_size(),
         "sha1sum" : lambda self: self.sha1sum == "none",
         "activation_date": lambda self: self.state in ["archived", "operational"] and \
@@ -655,24 +660,10 @@ class FileBlob(BlobModel):
     def repair_uploaded_as(self):
         frompath, topath = self.uploaded_as, None
         if os.path.exists(self.pathname):
-            topath = os.path.basename(self.pathname)
-        else:
-            try:
-                path = rmap.locate_file(self.observatory, self.name)
-                if os.path.exists(path):
-                    topath = self.name
-            except:
-                pass
-        if topath:
-            self.uploaded_as = topath
+            self.uploaded_as = os.path.basename(self.pathname)
             return 
         else:
             return "FAILED REPAIRING uploaded_as='{}'".format(frompath)
-
-    def repair_pathname(self):
-        cached = rmap.locate_file(self.name, OBSERVATORY)
-        if os.path.exists(cached):
-            self.pathname = cached
 
     def repair_catalog_link(self):
         self.catalog_link = ""
@@ -808,8 +799,7 @@ class FileBlob(BlobModel):
             blob.type = "mapping"
         else:
             blob.type = "reference"
-        blob.pathname = permanent_location
-        blob.name = blob.filename
+        blob.name = os.path.basename(permanent_location)
         blob.creator_name = creator_name
         blob.deliverer_user = deliverer_user
         blob.deliverer_email = deliverer_email
@@ -851,17 +841,30 @@ class FileBlob(BlobModel):
     
     @property
     def status(self):
+        """status is a kind of summary of state and other variables,  particularly archiving."""
         if self.is_bad_file:
-            return "blacklisted"
+            return "blacklisted"    # rejected *or* blacklisted
         elif self.state == "delivered":
-            if os.path.exists(self.catalog_link) or os.path.exists(self.catalog_link + "_proc"):
-                return "delivered"
-            else:
-                self.state = "operational"
-                self.save()
-                return "operational"
+            return self.interpret_catalog_link()
         else:
             return self.state
+    
+    def interpret_catalog_link(self):
+        """Based on the current name of the catalog link that delivered this file,  determine the
+        status of the archiving process.
+        """
+        if os.path.exists(self.catalog_link):    # CRDS has made catalog and files available for archiving
+            return "delivered"
+        elif os.path.exists(self.catalog_link + "_submit"): # found by the DMS CRDS pipeline poller
+            return "submitted"
+        elif os.path.exists(self.catalog_link + "_proc"): # being processed by the DMS CRDS pipeline
+            return "archiving"
+        elif os.path.exists(self.catalog_link + "_ERROR"):   # delivery failed and CRDS needs to take action
+            return  "archiving-failed"
+        else:
+            self.state = "archived"
+            self.save()
+            return "archived"
 
     @property
     def status_class(self):
