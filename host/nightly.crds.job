@@ -13,7 +13,7 @@ svn status
 svn info
 
 echo "==========================================================="
-echo "CRDS subversion status"
+echo "CRDS_server subversion status"
 echo "==========================================================="
 cd ${CRDS}/CRDS_server
 echo "UPDATING SUBVERSION for CRDS_server"
@@ -24,21 +24,23 @@ svn info
 echo "==========================================================="
 echo "Third party package re-install"
 echo "==========================================================="
-./init_pkgs ${CRDS_PROJECT} ${CRDS_USECASE} |& tee init_pkgs.${CRDS_PROJECT}.${CRDS_USECASE}.err
+./init_pkgs ${CRDS_PROJECT} ${CRDS_USECASE} >& tee init_pkgs.${CRDS_PROJECT}.${CRDS_USECASE}.err
+tail -100 tee init_pkgs.${CRDS_PROJECT}.${CRDS_USECASE}.err
 
 echo "==========================================================="
 echo "Server re-install and re-start"
 echo "==========================================================="
-./rerun ${CRDS_PROJECT} ${CRDS_USECASE} |& tee rerun.${CRDS_PROJECT}.${CRDS_USECASE}.err
+./rerun ${CRDS_PROJECT} ${CRDS_USECASE} >& rerun.${CRDS_PROJECT}.${CRDS_USECASE}.err
+tail -100 rerun.${CRDS_PROJECT}.${CRDS_USECASE}.err
 
 echo "==========================================================="
 echo "Server self-test"
 echo "==========================================================="
 cd ${CRDS}/CRDS_server
-./runtests ${CRDS_PROJECT} ${CRDS_USECASE}
+./runtests ${CRDS_PROJECT} ${CRDS_USECASE}  >& runtests.${CRDS_PROJECT}.${CRDS_USECASE}.err
+tail -100 runtests.${CRDS_PROJECT}.${CRDS_USECASE}.err
 
 # Run the django-dbbackup based CRDS server database backup
 echo "============================================================"
 echo "Database backup"
 ./manage dbbackup
-
