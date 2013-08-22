@@ -64,6 +64,7 @@ create_dir $private_rw ${CRDS_INGEST_DIR}_ssb
 
 # The directory where dynamic mapping bundles are kept
 create_dir $private_ro $CRDS_ARCHIVE_CACHE_DIR
+rm $CRDS_ARCHIVE_CACHE_DIR/*
 
 # This is the server cache and reference staging area.
 create_dir $public $map_path_full
