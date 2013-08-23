@@ -25,7 +25,7 @@ echo "==========================================================="
 echo "Third party package re-install"
 echo "==========================================================="
 ./init_pkgs ${CRDS_PROJECT} ${CRDS_USECASE} >& init_pkgs.${CRDS_PROJECT}.${CRDS_USECASE}.err
-tail -100 tee init_pkgs.${CRDS_PROJECT}.${CRDS_USECASE}.err
+tail -100 init_pkgs.${CRDS_PROJECT}.${CRDS_USECASE}.err
 
 echo "==========================================================="
 echo "Server re-install and re-start"
