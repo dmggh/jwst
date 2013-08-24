@@ -3,19 +3,23 @@
 {% load stdtags %}
 
 {% block contents_top %}
-    <h3>Operational References</h3>
-    <script type="text/javascript">
-        $("#contents").hide();
-    </script>
-    {% include "context_table_body_include.html" %} 
+    <div class="body_panel">
+        <h3 style="margin-top: 0px;">Operational References</h3>
+        <script type="text/javascript">
+            $("#contents").hide();
+        </script>
+        {% include "context_table_body_include.html" %} 
+    </div>
 {% endblock contents_top %}
 
 {% block column1 %}
-    {% if is_authenticated %}
-        <h3>Open Services</h3>
-    {% else %}
-        <h3>Services</h3>
-    {% endif %}
+    <div class="title_bar">
+        {% if is_authenticated %}
+            <h3>Open Services</h3>
+        {% else %}
+            <h3>Services</h3>
+        {% endif %}
+    </div>
     <ol>
         <li><a href="/display_context_history/">Context History</a></li>
         <br/>
@@ -34,7 +38,9 @@
 
 {% block column2 %}
     {% if is_authenticated %}
-        <h3>Restricted Services  <span class='locked_instrument'>{{locked_instrument}}</span>  </h3>
+        <div class="title_bar">
+            <h3>Restricted Services  <span class='locked_instrument'>{{locked_instrument}}</span>  </h3>
+        </div>
         <ol>
             <li><a href="/certify/">Certify Files</a></li>
             <li><a href="/set_file_enable/">Enable/Disable File</a></li>
@@ -54,13 +60,15 @@
              {% endif %}
         </ol>
         
-	{% if is_superuser %}
-	<h3>Super User Services</h3>
-	<ol>
-                <li><a href="/version_info/">Server Version Info</a></li>
-                <li><a href="/admin/">Admin</a></li>
-            {% endif %}
-        </ol>
+    	{% if is_superuser %}
+           <div class="title_bar">
+	          <h3>Super User Services</h3>
+           </div>
+          <ol>
+            <li><a href="/version_info/">Server Version Info</a></li>
+            <li><a href="/admin/">Admin</a></li>
+          </ol>
+        {% endif %}
     {% endif %}
 {% endblock column2 %}
 

@@ -24,8 +24,8 @@
     <noscript>
       <h2>This page requires JavaScript to be enabled.</h2>
     </noscript>
-    
-    <div>
+
+    <div id="title" class="body_panel">
         <div id="page_header">
         <h1>{{observatory|upper}} Calibration Reference Data System (CRDS) <span class='green tiny'>{{server_usecase}}</span> </h1>
         </div>
@@ -46,38 +46,45 @@
                <p><span class='locked_instrument'>{{locked_instrument}}</span>  <span class='lock_timer'> </span></p>
            {% endif %}
         </div>
-        <div style="clear:both;" />
+        <div style="clear:both;">
+        </div>
     </div>
     
     <div id="contents">
         {% block contents %}
  
-            <div id="contents_top" class="full_width">
+            <div id="contents_top" class="full_width" class="body_panel">
                 {% block contents_top %}
                 {% endblock %}
             </div>
  
-            <div id="column1">
-                {% block column1 %}
-                {% endblock %}
-            </div>
+            <div id="both_columns" class="body_panel">
             
-            <div id="column2">
-                {% block column2 %}
-                    <br/><br/>
-                    {% if error_message %}
-                        <div class="error">
-                            {{error_message}}
+                <div id="column1">
+                    {% block column1 %}
+                    {% endblock %}
+                </div>
+                
+                <div id="column2">
+                    {% block column2 %}
+                        <br/><br/>
+                        {% if error_message %}
+                            <div class="error">
+                                {{error_message}}
+                            </div>
+                            <br/>
+                        {% endif %}
+                        <div class="help">
+                            <p>
+                            {% block help %}
+                            {% endblock help %}
+                            </p>
                         </div>
-                        <br/>
-                    {% endif %}
-                    <div class="help">
-                        <p>
-                        {% block help %}
-                        {% endblock help %}
-                        </p>
-                    </div>
-                {% endblock %}
+                    {% endblock %}
+                </div>
+            
+                <div style="clear: both;"></div>
+
             </div>
             
         {% endblock %}
@@ -101,6 +108,5 @@
 
     {% block body_trailer %}
     {% endblock body_trailer %}
-
   </body>
 </html>

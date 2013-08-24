@@ -2,24 +2,31 @@ body {
     min-width: 640px;
     /* background-image: url(OrionBelt2.jpg); */
     /* background: #282840; */
-    background: white;
+    background-color: white;
     background-repeat: repeat;
     font-family: sans-serif;
 }
 
 div {
-    background-color: transparent;
+    /* background-color: transparent; */
 }
 
 hr {
     color: gray;
 }
 
+.body_panel {
+    background-color: #DDDDDD;
+    margin-top: 4px;
+    margin-bottom: 0px;
+    margin-left: 0px;
+    margin-right: 0px;
+    padding: 0px 3px 3px 3px;
+}
+
 #page_header, #header_menu {
     overflow: hidden;
     display: inline-block;
-    background-color: #282848;
-    background: transparent;
 }
 
 #page_header {
@@ -31,7 +38,7 @@ hr {
     width: 80%;
     margin-top: 0.1in;
     margin-left: 0.1in;
-    margin-bottom: 0.1in;
+    margin-bottom: 0.0in;
     margin-right: 0.0in;
 }
 
@@ -49,53 +56,49 @@ hr {
     margin-left: 0.0in;
     margin-bottom: 0.1in;
     margin-right: 0.1in;
+    padding: 3px 3px 3px 3px;
+    background-color: #EEEEEE;
+    /* border: gray solid 1px; */
 }
 
 #contents {
-    float: left;
-    width: 99%;
-    background-color: transparent;
+    width: 100%;
+    /* background: transparent; */
     border: none;
     }
     
 .full_width {
-    float: left;
     width: 100%;
 }
 
+#both_columns {
+    background: opaque;
+}
+    
 #column1, .column1 {
     float: left;
     width: 55%;
-    margin: 0px 10px 10px 10px;
+    margin: 0px 5px 5px 5px;
 }
 
 #column2, .column2 {
     float: left;
     width: 35%;
-    margin: 0px 10px 10px 10px;
+    margin: 0px 5px 5px 5px;
 }
 
-h1, h2, h3, h4 {
+h1, h2, h3, h4, .h1, .h2, .h3, .h4 {
     font-family: sans-serif;
     color: darkblue;
 }
 
 h3,  .h3 {
-    font-family: sans-serif;
     font-size: 18px;
-    color: darkblue;
     padding-top: 0.2em;
 }
 
-.h2 {
-    font-family: sans-serif;
+h2, .h2 {
     font-size: 24px;
-    color: darkblue;
-}
-
-textarea {
-    width: 100%;
-    color: black;
 }
 
 label, .label, .label2 {
@@ -217,19 +220,19 @@ label, .label, .label2 {
     font-weight: bold;
     }
 
-input {
-    border: gray solid 2px;
+input, select, textarea {
+    color: black;
+    background-color: white;
+    border: gray solid 1px;
     border-radius: 6px;
     margin: 2px 2px 2px 2px;
-    background-color: white;
-    color: black;
+    padding: 4px;
 }
 
-select {
-    color: black;
+textarea {
+    width: 100%;
 }
 
-.data_tab { color: #282840; }
 
 .program, .match, .useafter {
     font-family: monospace; 
@@ -246,17 +249,14 @@ select {
     margin-bottom: 0em;
 }
 
-select, textarea {
-    border: gray solid 2px;
-    border-radius: 6px;
-}
-
 img.plot {
     border: gray solid 2px;
 }
 
 .help, .datetime, .filename {
-  color: gray;
+  color:#666666;
+  background-color: #EEEEEE;
+  padding: 5px;
 }
 
 p.useafter {
@@ -284,10 +284,15 @@ td {
 .locked_instrument {
     font-size: 0.8em;
     font-weight: bold;
-    color: green;
+    color:#008000;
 }
 
 .ui-accordion-content{ 
     zoom: 1; 
 } 
 
+table {
+    border-spacing: 0px;
+    border-color: #CCCCCC;
+}
+}
