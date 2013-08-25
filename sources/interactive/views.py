@@ -285,7 +285,7 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
         "locked_instrument" : locked,
 
         "auto_rename" : False,
-        "server_usecase" : "(" + sconfig.server_usecase.lower() + ")" if sconfig.server_usecase != "prod" else "",
+        "server_usecase" : "(" + sconfig.server_usecase.lower() + ")" if not sconfig.server_usecase.startswith("prod") else "",
     }
     
     # echo escaped inputs.
