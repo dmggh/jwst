@@ -1,11 +1,11 @@
 #! /bin/tcsh
 
-# <observatory=hst|jwst> <server_mode=dev|vmdvlp|test|prod>
+# <observatory=hst|jwst> <server_mode=django|dev|test|prod>
 
 set observatory = "$1"
 set server_mode = "$2"
 
-if ($server_mode == dev) then
+if ($server_mode == django) then
 echo "installing $1 $2..."
 ./install $1 $2 <<EOF
 yes

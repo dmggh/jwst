@@ -1,79 +1,42 @@
-import os
+debug = DEBUG = True
+DEBUG_EXTRAS = False
 
-DEBUG=True
-DEBUG_EXTRAS=False
-
-observatory= 'jwst'
+HOST = "dljwstcrdsv1"
+PROXY = "jwst-crds-dev"
+observatory = 'jwst'
 server_usecase = 'dev'
-install_root='/Users/jmiller/work/workspace_crds/dev_servers/' + observatory + "/server"
-storage_path='/Users/jmiller/work/workspace_crds/dev_servers/' + observatory + "/storage"
+CRDS_SERVER_IP = "130.167.252.89"
+port = 8001
 
+# This is a VM-related storage partition used as server space
+install_root = '/crds/data1/' + HOST
 
-#
-# servertype is what type of web server the install script should
-# set up for you.  options are:
-#
-#   django
-#       configure to use the django development server - works anywhere
-#
-#   mod_python
-#       configure to use apache with mod_python - works on etc-dev1 or
-#       anywhere that we have the *correct* mod_python available
-#
-#   wsgi
-#       configure to use apache with wsgi - not implemented yet
-#
-servertype = 'django'
+# This is a Isilon storage /crds/hst/production used as file space
+storage_path = '/crds/' + observatory + '/' + server_usecase
 
-#
-# http_port is the port number that the web server should listen on. 
-# This uses your UID so you don't conflict with other developers.  If you
-# personally want to run two servers, put a number here.
-port = 8000
+CATALOG_DB_USER = "crds"
+CATALOG_DB_PFILE = "/crds/data1/database/crds.dat"
+CATALOG_DB_DSN = "HarpoDadsopsRepDsn"
+REFFILE_DB_DSN = "HarpoReffileOpsRepDsn"
 
-#
-# turn on debugging 
-#
-# This is copied into django debug settings.
-# This is available to other parts of the system.
-# 
-debug = True
+CRDS_DIRECT_URL = "https://" + HOST + ".stsci.edu:" + str(port) + "/"
+CRDS_URL = "https://" + PROXY + ".stsci.edu/"
 
-#
-# what kind of database to use.  choices are:
-#
-#   sqlite
-#       a local sqlite database in your install directory
-#   pyetc1
-#       the pyetc1 development database on mysql server on goldink
-#   pyetc2
-#       the pyetc2 development database on mysql server on goldink
-#       This one is mostly reserved for the demo server.
-#
-# The mysql client library is currently hacked together and run off the central store.
-#
-dbtype='sqlite'
+servertype = 'mod_wsgi'
+apachemod = install_root + "/lib"
+dbtype = 'mysql'
 
-import pwd
-version_prefix=pwd.getpwuid(os.getuid())[0]
-
-CRDS_URL = "http://localhost:" + str(port) + "/"
+PYSYN_CDBS = ""
 
 # These should be relatively static and go through Django
 CRDS_REFERENCE_URL = CRDS_URL + "get/"
 CRDS_MAPPING_URL   = CRDS_URL + "get/"
 
 # These may get redirected to the archive or a static file server
-CRDS_UNCHECKED_REFERENCE_URL = CRDS_URL + "unchecked_get/references/jwst/"
-CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/mappings/jwst/"
+CRDS_UNCHECKED_REFERENCE_URL = CRDS_URL + "unchecked_get/references/" + observatory + "/"
+CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/mappings/" + observatory + "/"
 
 # These are the file states which are available for download or rpc.
 # XXX TODO restrict to archived or operational
-CRDS_DISTRIBUTION_STATES = ["delivered","archived","operational"]
-
- # XXX placeholders from HST
-CATALOG_DB_USER = "jmiller"
-CATALOG_DB_PFILE = "/home/jmiller/.crds_db"
-CATALOG_DB_DSN = "HarpoDadsopsRepDsn"
-REFFILE_DB_DSN = "HarpoReffileOpsRepDsn"
+CRDS_DISTRIBUTION_STATES = ["delivered", "archived", "operational"]
 

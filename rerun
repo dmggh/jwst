@@ -3,12 +3,12 @@
 cd `dirname $0`
 
 if [ "$1" != "hst" ] && [ "$1" != "jwst" ]; then
-	echo 'usage: ./install [jwst|hst] [dev|test]'
+	echo 'usage: ./install [jwst|hst] [django|test]'
 	exit -1
 fi
 
-if [ "$2" != "dev" ] && [ "$2" != "vmdvlp" ] && [ "$2" != "test" ] && [ "$2" != "prod" ]; then
-	echo 'usage: ./install [jwst|hst] [dev|vmdvlp|test|prod]'
+if [ "$2" != "django" ] && [ "$2" != "dev" ] && [ "$2" != "test" ] && [ "$2" != "prod" ]; then
+	echo 'usage: ./install [jwst|hst] [django|dev|test|prod]'
 	exit -1
 fi
 

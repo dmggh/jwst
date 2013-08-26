@@ -1,9 +1,14 @@
-import config
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'crds_jwst_dev',
+        'USER': 'jwstcrds',                      # Not used with sqlite3.
+        'PASSWORD': 'uj297rWzaNyk',                  # Not used with sqlite3.
+        'HOST': 'goldtst.stsci.edu',                      # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '23306',                      # Set to empty string for default. Not used with sqlite3.
 
-        'NAME': config.install_dir + '/python/lib/python/crds/server/sqlite3.db',
+        "OPTIONS": {
+           'init_command': 'SET storage_engine=INNODB;',
+        },
     }
 }

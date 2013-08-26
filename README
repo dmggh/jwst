@@ -3,24 +3,24 @@
 # Install third party database components, pyodbc and unixODBC/FreeTDS stack,
 # as well as additional django applications.   This is a long (minutes) slow
 # compile of third_party code. 
-./init_pkgs [hst|jwst] [dev|vmdvlp|test|prod]
+./init_pkgs [hst|jwst] [django|dev|test|prod]
 
-# dev    Django/SQLite dev server
-# vmdvlp  Apache/VM/Isilon/MySQL/Proxy/mod_wsgi vmdvlpopment server
+# django    Django/SQLite django server
+# dev  Apache/VM/Isilon/MySQL/Proxy/mod_wsgi development server
 # test   Apache/VM/Isilon/MySQL/Proxy/mod_wsgi pipeline test server
 # prod   Apache/VM/Isilon/MySQL/Proxy/mod_wsgi pipeline production server
 
 # Install the code as indicated by the appropriate config file from
 # sources/configs/config.<observatory>.<server_kind>
-./install [hst|jwst]  [dev|vmdvlptest|prod]
+./install [hst|jwst]  [django|devtest|prod]
 
 # Possibly re-run install if the first run failed due to missing packages
-./install [hst|jwst]  [dev|vmdvlp|test|prod]
+./install [hst|jwst]  [django|dev|test|prod]
 
 # Initilize the CRDS catalog with existing reference files, deliver initial
 # set of mappings.
 # Enter system passwords.
-./init [hst|jwst] [dev|vmdvlp|test|prod]
+./init [hst|jwst] [django|dev|test|prod]
 <enter password for test user>
 
 2. Procedure for starting the sever:
@@ -29,7 +29,7 @@
 
 3. Procedure for update not affecting the database:
 
-% ./rerun [hst|jwst] [dev|vmdvlp|test|prod]
+% ./rerun [hst|jwst] [django|dev|test|prod]
 
 4. Procedure for running a command line / ipython environment for debug
 
@@ -37,8 +37,8 @@
 
 5. Procedure for running HST server self-tests.
 
-% ./run hst dev
-% ./runtest hst dev   (2nd terminal)
+% ./run hst django
+% ./runtest hst django   (2nd terminal)
 
 or 
 
