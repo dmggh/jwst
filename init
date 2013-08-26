@@ -1,9 +1,9 @@
-#! /bin/tcsh 
+#! /bin/tcsh -x
 
 # =======================================================================
 # Init server environment
 
-if (( "$1" != "hst") && ("$1" != "jwst")) then
+if (($1 != "hst") && ($1 != "jwst")) then
 	echo 'usage: ./init [jwst|hst]'
 	exit -1;
 endif
@@ -11,7 +11,7 @@ endif
 set observatory=$1
 shift
 
-if (( "$1" != "django") && ( "$1" != "dev") && "$1" != "prod") && ("$1" != "test")) then
+if (($1 != "django") && ($1 != "dev") && ($1 != "prod") && ($1 != "test")) then
 	echo 'usage: ./init [jwst|hst] [django|dev|prod|test]'
 	exit -1;
 endif
@@ -24,7 +24,7 @@ source env.csh
 
 cd `dirname $0`/tools
 
-if ($mode == "test" || $mode == "django" || $mode =="dev") then
+if (($mode == "test") || ($mode == "django") || ($mode == "dev")) then
     echo -n "Test account password? "
     set password=$<
     echo "Adding test user"
