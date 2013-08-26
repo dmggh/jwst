@@ -1,6 +1,6 @@
 #! /bin/tcsh
 
-# <observatory=hst|jwst> <server_mode=dev|test|ops>
+# <observatory=hst|jwst> <server_mode=dev|vmdvlp|test|prod>
 
 set observatory = "$1"
 set server_mode = "$2"

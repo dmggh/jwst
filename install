@@ -241,7 +241,7 @@ mod_python)
 
         ;;
 
-# django development server
+# django vmdvlpopment server
 django)
 	if [ "$rc" = 1 ]
 	then
@@ -374,7 +374,7 @@ echo ''
 
 case ${server_mode}
     in
-    "test" | "prod") 
+    "vmdvlp" | "test" | "prod") 
 	echo "Setting permissions"
 
 	chmod $public ${ref_path}

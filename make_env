@@ -3,14 +3,14 @@
 # This script creates env.csh and installs site specific database and config files.
 
 if [ "$1" != "hst" ] && [ "$1" != "jwst" ]; then
-	echo 'usage: ./install [jwst|hst] [dev|hdev|test]'
+	echo 'usage: ./install [jwst|hst] [dev|vmdvlp|test|prod]'
 	exit -1
 fi
 
 observatory=$1; shift
 
-if [ "$1" != "dev" ] && [ "$1" != "prod" ] && [ "$1" != "test" ]; then
-	echo 'usage: ./install [jwst|hst] [dev|prod|test]'
+if [ "$1" != "dev" ] && [ "$1" != "vmdvlp" ] && ["$1" != "prod" ] && [ "$1" != "test" ]; then
+	echo 'usage: ./install [jwst|hst] [dev|vmdvlp|prod|test]'
 	exit -1;
 fi
 

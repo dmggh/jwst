@@ -3,19 +3,24 @@
 # Install third party database components, pyodbc and unixODBC/FreeTDS stack,
 # as well as additional django applications.   This is a long (minutes) slow
 # compile of third_party code. 
-./init_pkgs [hst|jwst] [dev|test|prod]
+./init_pkgs [hst|jwst] [dev|vmdvlp|test|prod]
+
+# dev    Django/SQLite dev server
+# vmdvlp  Apache/VM/Isilon/MySQL/Proxy/mod_wsgi vmdvlpopment server
+# test   Apache/VM/Isilon/MySQL/Proxy/mod_wsgi pipeline test server
+# prod   Apache/VM/Isilon/MySQL/Proxy/mod_wsgi pipeline production server
 
 # Install the code as indicated by the appropriate config file from
 # sources/configs/config.<observatory>.<server_kind>
-./install [hst|jwst]  [dev|test|prod]
+./install [hst|jwst]  [dev|vmdvlptest|prod]
 
 # Possibly re-run install if the first run failed due to missing packages
-./install [hst|jwst]  [dev|test|prod]
+./install [hst|jwst]  [dev|vmdvlp|test|prod]
 
 # Initilize the CRDS catalog with existing reference files, deliver initial
 # set of mappings.
 # Enter system passwords.
-./init [hst|jwst] [dev|test|prod]
+./init [hst|jwst] [dev|vmdvlp|test|prod]
 <enter password for test user>
 
 2. Procedure for starting the sever:
@@ -24,7 +29,7 @@
 
 3. Procedure for update not affecting the database:
 
-% ./rerun [hst|jwst] [dev|test|prod]
+% ./rerun [hst|jwst] [dev|vmdvlp|test|prod]
 
 4. Procedure for running a command line / ipython environment for debug
 

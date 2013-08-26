@@ -9,7 +9,7 @@ django-dbbackup
 # django-locking-master  built-in
 
 # For WebTest
-BeautifulSoup
+beautifulsoup4
 WebOb
 six
 waitress

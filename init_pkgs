@@ -3,8 +3,12 @@
 # =======================================================================
 # Init server environment by installing third_party package list.
 
+echo "================================== Setting Env Vars ========================"
 source ./make_env
-
+echo "================================== Start Installing Packages ========================"
 ./metaw install @crds_packages
+echo "================================== Done Installing Packages ========================="
+echo "================================== Start Cleaning Build Dirs ========================"
 ./metaw clean
+echo "================================== Done Cleaning Build Dirs ========================="
 

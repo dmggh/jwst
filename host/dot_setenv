@@ -1,29 +1,33 @@
 setenv  CRDS_SERVER `uname -n | cut -d'.' -f1`
 
+# CRDS and CRDS_STACK,  same pattern,  different dirs,  override below as needed
+setenv CRDS ${HOME}/${CRDS_SERVER}
+setenv CRDS_STACK ${CRDS}/crds_stacks/crds_10
+
 switch ($CRDS_SERVER)
+       case dljwstcrdsv1:
+            setenv CRDS_PROJECT jwst
+            setenv CRDS_USECASE dev
+       breaksw
        case tljwstcrdsv1:
-       	    setenv CRDS_PROJECT jwst
+            setenv CRDS_PROJECT jwst
 	    setenv CRDS_USECASE test
-	    setenv CRDS ${HOME}/${CRDS_SERVER}
-	    setenv CRDS_STACK ${CRDS}/crds_stacks/crds_10
        breaksw
        case pljwstcrdsv1:
-       	    setenv CRDS_PROJECT jwst
+            setenv CRDS_PROJECT jwst
 	    setenv CRDS_USECASE prod
-	    setenv CRDS ${HOME}/${CRDS_SERVER}
-	    setenv CRDS_STACK ${CRDS}/crds_stacks/crds_10
+       breaksw
+       case dlhstcrdsv1:
+            setenv CRDS_PROJECT hst
+	    setenv CRDS_USECASE dev
        breaksw
        case tlhstcrdsv1:
-       	    setenv CRDS_PROJECT hst
+            setenv CRDS_PROJECT hst
 	    setenv CRDS_USECASE test
-	    setenv CRDS ${HOME}/${CRDS_SERVER}
-	    setenv CRDS_STACK ${CRDS}/crds_stacks/crds_10
        breaksw
        case plhstcrdsv1:
-       	    setenv CRDS_PROJECT hst
+            setenv CRDS_PROJECT hst
 	    setenv CRDS_USECASE prod
-	    setenv CRDS ${HOME}/${CRDS_SERVER}
-	    setenv CRDS_STACK ${CRDS}/crds_stacks/crds_10
        breaksw
 endsw
 
