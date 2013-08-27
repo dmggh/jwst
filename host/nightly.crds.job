@@ -4,6 +4,13 @@ cd ${CRDS}/CRDS_server
 source env.csh
 
 echo "==========================================================="
+echo "Disk Quotas"
+echo "==========================================================="
+du -c -h --max-depth=1 /crds/${CRDS_PROJECT}/${CRDS_USECASE}*
+du -c -h --max-depth=1 /crds/data1/${CRDS_SERVER}
+du -c -h --max-depth=1 /home/crds
+
+echo "==========================================================="
 echo "CRDS subversion status"
 echo "==========================================================="
 cd ${CRDS}/CRDS
@@ -25,7 +32,7 @@ echo "==========================================================="
 echo "Third party package re-install"
 echo "==========================================================="
 ./init_pkgs ${CRDS_PROJECT} ${CRDS_USECASE} >& init_pkgs.${CRDS_PROJECT}.${CRDS_USECASE}.err
-tail -100 init_pkgs.${CRDS_PROJECT}.${CRDS_USECASE}.err
+tail -200 init_pkgs.${CRDS_PROJECT}.${CRDS_USECASE}.err
 
 echo "==========================================================="
 echo "Server re-install and re-start"
