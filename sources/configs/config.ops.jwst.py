@@ -4,7 +4,7 @@ DEBUG_EXTRAS = False
 HOST = "pljwstcrdsv1"
 PROXY = "jwst-crds"
 observatory = 'jwst'
-server_usecase ="production"
+server_usecase ="ops"
 CRDS_SERVER_IP = "130.167.252.81"
 port = 8001
 
@@ -12,7 +12,7 @@ port = 8001
 install_root = '/crds/data1/' + HOST
 
 # This is a Isilon storage /crds/jwst/production used as file space
-storage_path = '/crds/' + observatory + '/' + server_usecase
+storage_path = '/ifs/crds/' + observatory + '/' + server_usecase
 
 CATALOG_DB_USER = "crds"
 CATALOG_DB_PFILE = "/crds/data1/database/crds.dat"
