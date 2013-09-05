@@ -15,6 +15,7 @@ urlpatterns = patterns('',
     
     url(r'^login/$', 'crds.server.interactive.views.login'),          
     url(r'^logout/$', 'crds.server.interactive.views.logout'),
+    url(r'^set_password/$', 'crds.server.interactive.views.set_password'),          
     url(r'^lock_status/$', 'crds.server.interactive.views.lock_status'),         
     
     url(r'^bestrefs/$', 'crds.server.interactive.views.bestrefs'),          

@@ -284,6 +284,8 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
         
         "locked_instrument" : locked,
 
+        "username" : str(request.user),
+
         "auto_rename" : False,
         "server_usecase" : "(" + sconfig.server_usecase.lower() + ")" if not sconfig.server_usecase.startswith("prod") else "",
     }
@@ -685,7 +687,25 @@ def logout(request):
     """View to get rid of authentication state and become nobody again."""
     django.contrib.auth.logout(request)
     return redirect("/")
-        
+
+@error_trap("set_password.html")
+@login_required
+def set_password(request):
+    """Support changing a user's own password."""
+    if request.method == "POST":
+        new_password1 = validate(request, "new_password1", ".+")
+        new_password2 = validate(request, "new_password2", ".+")
+        assert new_password1 == new_password2, "New passwords are not the same."
+        assert len(new_password1) >= 6, "At least 6 characters please."
+        if not request.user.is_superuser:
+            assert re.match("\w*\d\w*", new_password1),  "At least one digit please."
+            assert re.match("\w*[a-zA-Z]\w*", new_password1),  "At least one letter please."
+        request.user.set_password(new_password1)
+        request.user.save()
+        return crds_render(request, "set_password_results.html")
+    else:
+        return crds_render(request, "set_password.html")
+    
 # ===========================================================================
 
 # The following code is derived from django-jquery-file-upload
