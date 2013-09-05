@@ -1048,7 +1048,8 @@ def batch_submit_references_post(request):
     """View fragment to process file batch reference submnission POSTs."""
     # For the initial submission, pmap_name is predictive,  not definitive
     # It can change after confirmation if other subnmissions occured which
-    # also generate it.
+    # also generate it.   Batch submissions ALWAYS define this even if
+    # they're not comparing to a prior context.
     pmap_mode, pmap_name = get_recent_or_user_mode_and_context(request)
     description = validate(request, "description", DESCRIPTION_RE)
     creator = validate(request, "creator", PERSON_RE)
@@ -1153,11 +1154,10 @@ def submit_confirm(request):
                 confirmed, result.submission_kind, result.description, 
                 new_files, result.context_rmaps, result.user,  result.pmap, result.pmap_mode, locked_instrument)
 
-        if final_pmap: # track outcome of edit or operational context mode pmap selection
-            rmodel.set_par("original_pmap", result.pmap)
-            rmodel.set_par("pmap", final_pmap)
-            rmodel.save()
-            
+        rmodel.set_par("original_pmap", result.pmap)
+        rmodel.set_par("pmap", final_pmap)
+        rmodel.save()
+
         new_file_map = sorted(new_file_map.items() + context_map.items())
         generated_files = sorted([(old, new) for (old, new) in new_file_map if old not in result.uploaded_basenames])
         uploaded_files = [(old, new) for (old, new) in new_file_map if (old, new) not in generated_files]
@@ -1251,7 +1251,10 @@ def submit_files_post(request, crds_filetype):
     compare_old_reference = checkbox(request, "compare_old_reference")
     generate_contexts = checkbox(request, "generate_contexts")
     auto_rename = checkbox(request, "auto_rename")
-    pmap_mode, pmap_name = get_recent_or_user_mode_and_context(request)
+    if generate_contexts or compare_old_reference:
+        pmap_mode, pmap_name = get_recent_or_user_mode_and_context(request)
+    else:
+        pmap_mode, pmap_name = None, None
     description = validate(request, "description", DESCRIPTION_RE)
     creator = validate(request, "creator", PERSON_RE)
     change_level = validate(request, "change_level", models.CHANGE_LEVELS)            
@@ -1977,15 +1980,19 @@ def context_table(request, mapping, recursive="10"):
         
 def get_context_table_parameters(request, pmap):
     """Return the parameters required to display a context table for `mapping`."""
-    if re.match("operational|edit", pmap):
-        pmap = models.get_default_context(state=pmap)
-    is_pmap(pmap)
-    p = rmap.get_cached_mapping(pmap)
-    return {
-        "pmap" : p.todict(),
-        "mapping_type" : p.header["mapping"],
-    }    
-
+    try:
+        if re.match("operational|edit", pmap):
+            pmap = models.get_default_context(state=pmap)
+        is_pmap(pmap)
+        p = rmap.get_cached_mapping(pmap)
+        return {
+            "pmap" : p.todict(),
+            "mapping_type" : p.header["mapping"],
+        }    
+    except Exception, exc:
+        log.error("Failure in get_context_table_parameters:", str(exc))
+        return {}
+        
 if sconfig.DEBUG:
     
     @capture_output

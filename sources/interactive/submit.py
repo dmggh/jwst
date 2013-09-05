@@ -140,7 +140,10 @@ class FileSubmission(object):
         self.pmap_name = pmap_name
         self.pmap_mode = pmap_mode
         self.final_pmap = None   # pmap_mode/pmap_name evaluated at confirmation time.
-        self.observatory = self.pmap.observatory
+        try:
+            self.observatory = self.pmap.observatory
+        except:
+            self.observatory = models.OBSERVATORY
         self.uploaded_files = uploaded_files
         self.description = description
         self.user_name = str(user) if isinstance(user, User) else user
@@ -213,11 +216,25 @@ class FileSubmission(object):
             log.info("push_status: " + repr(message))
             self.status_channel.write(message)
             self.status_channel.flush()
-    
+            
+    def ordered_files(self):
+        """Organize uploaded file tuples in dependency order,  starting with references and ending with .pmaps."""
+        rmaps, imaps, pmaps, other = [], [], [], []
+        for original_name, uploaded_path in self.uploaded_files.items():
+            if original_name.endswith(".rmap"):
+                rmaps.append((original_name, uploaded_path))
+            elif original_name.endswith(".imap"):
+                imaps.append((original_name, uploaded_path))
+            elif original_name.endswith(".pmap"):
+                pmaps.append((original_name, uploaded_path))
+            else:
+                other.append((original_name, uploaded_path))
+        return sorted(other) + sorted(rmaps) + sorted(imaps) + sorted(pmaps)
+
     def submit_file_list(self, creation_method):
         """Ingest a list of `uploaded_files` tuples into CRDS."""
         return { original_name: self.do_submit_file(original_name, uploaded_path, creation_method=creation_method)
-                for (original_name, uploaded_path) in self.uploaded_files.items() }
+                for (original_name, uploaded_path) in self.ordered_files() }
 
     def do_submit_file(self, original_name, upload_location, creation_method):
         """Do the core processing of a file submission,  including file certification 
@@ -319,13 +336,14 @@ class FileSubmission(object):
         """Generate a map from old pipeline and instrument context names to the
         names for their replacements.
         """
-        return { old:self.new_name(old) for old in [self.pmap.name] + updates.keys() }
+        return { old:self.new_name(old) for old in [self.pmap_name] + updates.keys() }
 
     def add_crds_file(self, original_name, filepath, state="uploaded"):
         """Create a FileBlob model instance using properties of this FileSubmission."""
         self.added_files.append((original_name, filepath))
         return models.add_crds_file(self.observatory, original_name, filepath,  str(self.user), self.user.email, 
-            self.description, change_level=self.change_level, creator_name=self.creator, state=state)
+            self.description, change_level=self.change_level, creator_name=self.creator, state=state,
+            update_derivation=self.auto_rename)
     
     def verify_instrument_lock(self):
         """Ensure that all the submitted files correspond to the locked instrument."""
@@ -424,7 +442,7 @@ class BatchReferenceSubmission(FileSubmission):
     def _submit(self):
         """Certify and submit the files,  returning information to confirm/cancel."""
         # Verify that ALL references certify,  raise CrdsError on first error.
-        comparison_context = self.pmap.name if self.compare_old_reference else None
+        comparison_context = self.pmap_name if self.compare_old_reference else None
         
         self.verify_instrument_lock()
         
@@ -586,7 +604,7 @@ class SimpleFileSubmission(FileSubmission):
         
         # XXX Certification and submit_file_list order is critical:  certify then submit
         disposition, certify_results = web_certify.certify_file_list(
-            self.uploaded_files.items(), context=self.pmap.name, compare_old_reference=self.compare_old_reference,
+            self.uploaded_files.items(), context=self.pmap_name, compare_old_reference=self.compare_old_reference,
             push_status=self.push_status)
         
         # Add the files to the CRDS database as "uploaded",  pending certification and confirmation.
