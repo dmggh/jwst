@@ -374,7 +374,7 @@ echo ''
 
 case ${server_mode}
     in
-    "dev" | "test" | "prod") 
+    "dev" | "test" | "ops") 
 	echo "Setting permissions"
 
 	chmod $public ${ref_path}

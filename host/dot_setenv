@@ -15,7 +15,7 @@ switch ($CRDS_SERVER)
        breaksw
        case pljwstcrdsv1:
             setenv CRDS_PROJECT jwst
-	    setenv CRDS_USECASE prod
+	    setenv CRDS_USECASE ops
        breaksw
        case dlhstcrdsv1:
             setenv CRDS_PROJECT hst
@@ -27,7 +27,7 @@ switch ($CRDS_SERVER)
        breaksw
        case plhstcrdsv1:
             setenv CRDS_PROJECT hst
-	    setenv CRDS_USECASE prod
+	    setenv CRDS_USECASE ops
        breaksw
 endsw
 

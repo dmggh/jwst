@@ -7,8 +7,8 @@ if [ "$1" != "hst" ] && [ "$1" != "jwst" ]; then
 	exit -1
 fi
 
-if [ "$2" != "django" ] && [ "$2" != "dev" ] && [ "$2" != "test" ] && [ "$2" != "prod" ]; then
-	echo 'usage: ./install [jwst|hst] [django|dev|test|prod]'
+if [ "$2" != "django" ] && [ "$2" != "dev" ] && [ "$2" != "test" ] && [ "$2" != "ops" ]; then
+	echo 'usage: ./install [jwst|hst] [django|dev|test|ops]'
 	exit -1
 fi
 
