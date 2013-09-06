@@ -6,9 +6,12 @@ source env.csh
 echo "==========================================================="
 echo "Disk Quotas"
 echo "==========================================================="
-du -c -h --max-depth=1 /crds/${CRDS_PROJECT}/${CRDS_USECASE}*
+mount
+df
+du -c -h --max-depth=1 /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}*
 du -c -h --max-depth=1 /crds/data1/${CRDS_SERVER}
 du -c -h --max-depth=1 /home/crds
+
 
 echo "==========================================================="
 echo "CRDS subversion status"
