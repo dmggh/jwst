@@ -8,6 +8,9 @@ django-json-rpc
 django-dbbackup
 # django-locking-master  built-in
 
+# Parser tool for CRDS rmap error checking
+Parsley
+
 # For WebTest
 beautifulsoup4
 WebOb
