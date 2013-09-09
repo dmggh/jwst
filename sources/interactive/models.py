@@ -947,7 +947,7 @@ def get_fileblob_map(observatory=OBSERVATORY, **keys):
     vastly faster to check for existence against this map than using file_exists(),
     probably because it's fewer SQL queries.
     """
-    return { blob.name : blob for blob in FileBlob.objects.filter(observatory=observatory, **keys) }
+    return { str(blob.name) : blob for blob in FileBlob.objects.filter(observatory=observatory, **keys) }
 
 def set_state(filename, state):
     blob = FileBlob.load(filename)
