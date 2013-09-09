@@ -321,8 +321,9 @@ esac
 
 #  INSTALL CORE CRDS CLIENT LIBRARY
 (cp save_version ../CRDS;  cd ../CRDS; ./install --home $install_dir/python)
-(cd sources; python setup.py install --home $install_dir/python)
 
+# INSTALL crds.server 
+(./save_version >sources/svn_version.py; cd sources; python setup.py install --home $install_dir/python)
 
 # SYNC the Django database for the CRDS server & catalog
 (cd $install_dir/python/lib/python/crds/server ; python manage.py syncdb)
@@ -369,8 +370,6 @@ echo 'to get an environment like the web server will see:'
 echo '  source env.csh'
 
 echo ''
-
-./save_version >sources/svn_version.py
 
 case ${server_mode}
     in
