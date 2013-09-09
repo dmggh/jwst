@@ -1280,6 +1280,8 @@ def submit_files_post(request, crds_filetype):
     change_level = validate(request, "change_level", models.CHANGE_LEVELS)            
     remove_dir, uploaded_files = get_files(request)
     locked_instrument = get_locked_instrument(request)
+
+    assert not generate_contexts or locked_instrument,  "Can't generate contexts in unlocked mode."
     
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
     

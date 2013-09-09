@@ -244,7 +244,7 @@ class FileSubmission(object):
         if rmap.is_mapping(original_name):
             try:
                 checksum.update_checksum(upload_location)
-            except rmap.MappingError, exc:
+            except Exception, exc:
                 raise CrdsError("Error updating checksum: " + srepr(exc))
         
         # Automatically 
