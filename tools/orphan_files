@@ -1,0 +1,48 @@
+#! /usr/bin/env python
+"""This script looks for inconsitencies between the server database and file cache
+"""
+import sys
+import os.path
+import glob
+
+from crds import rmap, log
+from crds.server import config
+from crds.server.interactive import models as imodels
+
+def check_db_files():
+    db_files = imodels.get_fileblob_map()
+    cached_files = rmap.list_mappings("*", imodels.OBSERVATORY) + rmap.list_references("*", imodels.OBSERVATORY)
+    for file in cached_files:
+        log.verbose("Checking cached file", repr(file), "against database.")
+        if file not in db_files:
+            log.error("Orphaned file", repr(file), "is not known to CRDS.")
+    for file in db_files:
+        log.verbose("Checking database file", repr(file), "against server cache.")
+        if file not in cached_files:
+            log.error("Known file", repr(file), "is not in CRDS server file cache.")
+
+def check_catalog_files():
+    db_files = imodels.get_fileblob_map()
+    pending_catalogs = glob.glob(config.CRDS_CATALOG_DIR + "/*.*cat")
+    for catalog in pending_catalogs:
+        log.verbose("Scanning catalog", repr(catalog))
+        manifested_files = open(catalog).read().splitlines()
+        for manifested_file in manifested_files:
+            log.verbose("Scanning manifested file", repr(manifested_file))
+            if not os.path.exists(config.CRDS_CATALOG_DIR + "/" +  manifested_file):
+                log.error("Manifested file", repr(manifested_file), "from catalog", 
+                          repr(catalog), "does not exist.")
+            if manifested_file not in db_files:
+                log.error("Manifested file", repr(manifested_file), "from catalog", 
+                          repr(catalog), "is not known to CRDS.")
+
+def main():
+    if "--verbose" in sys.argv:
+        log.set_verbose()
+    check_db_files()
+    check_catalog_files()
+    log.standard_status()
+
+if __name__ == "__main__":
+    main()
+
