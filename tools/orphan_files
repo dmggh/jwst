@@ -4,37 +4,87 @@
 import sys
 import os.path
 import glob
+import re
 
 from crds import rmap, log
 from crds.server import config
 from crds.server.interactive import models as imodels
 
+def file_conjugate(path):
+    """Nominally the opposing half of a GEIS file,  data for header or header for data.
+    Easily expandable to any binary filetype, less so to multi-part non-binary types.
+    """
+    if re.match(".*\.r\dd", path):
+        conjugate = path[:-1] + "h"
+    elif re.match(".*\.r\dh", path):
+        conjugate = path[:-1] + "d"
+    else:
+        conjugate = None
+    return conjugate
+
+def check_exists(path):
+    if not os.path.exists(path):
+        return False
+    conjugate = file_conjugate(path)
+    if conjugate:
+        if not os.path.exists(cojugate):
+            log.error("Missing file conjugate", repr(conjugate), "corresponding to", repr(path))
+            return False
+        else:
+            log.verbose("Checking file congjugate", repr(conjugate), "corrsponding to", repr(path), "exists.")
+    return True
+
 def check_db_files():
+    """Check consistency between CRDS server database and server file cache."""
     db_files = imodels.get_fileblob_map()
     cached_files = rmap.list_mappings("*", imodels.OBSERVATORY) + rmap.list_references("*", imodels.OBSERVATORY)
+
     for file in cached_files:
         log.verbose("Checking cached file", repr(file), "against database.")
         if file not in db_files:
             log.error("Orphaned file", repr(file), "is not known to CRDS.")
+        conjugate = file_conjugate(file)
+        if conjugate:
+            log.verbose("Checking cached conjugate", repr(conjugate), "corresponding to", repr(file))
+            if conjugate not in db_files:
+                log.error("Missing file conjugate", repr(conjugate), "in database corresponding to cached file", repr(file))
+            if conjugate not in cached_files:
+                log.error("Missing file conjugate", repr(conjugate), "in cache corresponding to cached file", repr(file))
+
     for file in db_files:
         log.verbose("Checking database file", repr(file), "against server cache.")
         if file not in cached_files:
             log.error("Known file", repr(file), "is not in CRDS server file cache.")
+        conjugate = file_conjugate(file)
+        if conjugate:
+            log.verbose("Checking database conjugate", repr(conjugate), "corresponding to", repr(file))
+            if conjugate not in db_files:
+                log.error("Missing file conjugate", repr(conjugate), "in database corresponding to database file", repr(file))
+            if conjugate not in cached_files:
+                log.error("Missing file conjugate", repr(conjugate), "in cache corresponding to database file", repr(file))
 
 def check_catalog_files():
+    """Check consistency between CRDS catalogs in delivery area and delivered files."""
     db_files = imodels.get_fileblob_map()
     pending_catalogs = glob.glob(config.CRDS_DELIVERY_DIR + "/*.*cat")
+    all_catalogued_files = []
     for catalog in pending_catalogs:
         log.verbose("Scanning catalog", repr(catalog))
         manifested_files = open(catalog).read().splitlines()
         for manifested_file in manifested_files:
             log.verbose("Scanning manifested file", repr(manifested_file))
-            if not os.path.exists(config.CRDS_DELIVERY_DIR + "/" +  manifested_file):
-                log.error("Manifested file", repr(manifested_file), "from catalog", 
+            manifest_path = config.CRDS_DELIVERY_DIR + "/" +  manifested_file
+            if not check_exists(manifest_path):
+                log.error("Manifested file", repr(manifested_path), "from catalog", 
                           repr(catalog), "does not exist.")
             if manifested_file not in db_files:
                 log.error("Manifested file", repr(manifested_file), "from catalog", 
                           repr(catalog), "is not known to CRDS.")
+        all_catalogued_files += manifested_files
+    delivered_files = glob.glob(config.CRDS_DELIVERY_DIR + "/*")
+    for file in delivered_files:
+        if ".cat" not in file and os.path.basename(file) not in all_catalogued_files:
+            log.error("Delivered file", repr(file), "has no corresponding catalog.")
 
 def main():
     if "--verbose" in sys.argv:
