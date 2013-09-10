@@ -34,15 +34,30 @@ def check_exists(path):
             log.verbose("Checking file congjugate", repr(conjugate), "corrsponding to", repr(path), "exists.")
     return True
 
+def all_rules_files(mapping_glob="*.*map"):
+    """Return (mapping_names, reference_names) for all mappings which match `mapping_glob`"""
+    all, mappings, references = [], [], []
+    for fname in rmap.list_mappings(mapping_glob, observatory=imodels.OBSERVATORY):
+        pmap = rmap.get_cached_mapping(fname)
+        references += pmap.reference_names()
+        mappings += pmap.mapping_names()
+        all = references + mappings
+    return set(all)
+
 def check_db_files():
     """Check consistency between CRDS server database and server file cache."""
     db_files = imodels.get_fileblob_map()
     cached_files = rmap.list_mappings("*", imodels.OBSERVATORY) + rmap.list_references("*", imodels.OBSERVATORY)
-
+    all_mentioned_files = all_rules_files()
     for file in cached_files:
         log.verbose("Checking cached file", repr(file), "against database.")
         if file not in db_files:
-            log.error("Orphaned file", repr(file), "is not known to CRDS.")
+            log.error("Orphaned cached file", repr(file), "is not known to CRDS.")
+
+        # This may be OK,  a reference submitted in advance of ad hoc mappings,   but still unusual.
+        if file not in all_mentioned_files and file_conjugate(file) not in all_mentioned_files:
+            log.error("Cached file", repr(file), "is not mentioned in any CRDS mapping.")
+
         conjugate = file_conjugate(file)
         if conjugate:
             log.verbose("Checking cached conjugate", repr(conjugate), "corresponding to", repr(file))
@@ -54,7 +69,10 @@ def check_db_files():
     for file in db_files:
         log.verbose("Checking database file", repr(file), "against server cache.")
         if file not in cached_files:
-            log.error("Known file", repr(file), "is not in CRDS server file cache.")
+            log.error("DB file", repr(file), "is not in CRDS server file cache.")
+        # This may be OK,  a reference submitted in advance of ad hoc mappings,   but still unusual.
+        if file not in all_mentioned_files and file_conjugate(file) not in all_mentioned_files:
+            log.error("DB file", repr(file), "is not mentioned in any CRDS mapping.")
         conjugate = file_conjugate(file)
         if conjugate:
             log.verbose("Checking database conjugate", repr(conjugate), "corresponding to", repr(file))
@@ -85,6 +103,7 @@ def check_catalog_files():
     for file in delivered_files:
         if ".cat" not in file and os.path.basename(file) not in all_catalogued_files:
             log.error("Delivered file", repr(file), "has no corresponding catalog.")
+
 
 def main():
     if "--verbose" in sys.argv:
