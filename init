@@ -32,7 +32,7 @@ if (($mode == "test") || ($mode == "django") || ($mode == "dev")) then
 endif
 
 if ($observatory == "hst") then
-    if ($mode == "ops") then
+    if ($mode == "ops" || $mode == "test") then
 	python make_cdbs_links.py --copy
     else
 	python make_cdbs_links.py
@@ -41,7 +41,7 @@ if ($observatory == "hst") then
     python -m crds.list --hst --cached-references --full-path >hst_references
     # see command line options
     python add_files.py --hst --add-slow-fields --reinit-slow-fields --deliver @hst_mappings
-    if ($mode == "ops") then
+    if ($mode == "ops" || $mode == "test") then
 	python add_files.py --hst --add-slow-fields @hst_references
     else
 	python add_files.py --hst @hst_references
