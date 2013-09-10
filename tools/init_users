@@ -8,8 +8,13 @@ for arg in sys.argv:
        sys.argv.remove(arg)
 
 for user in open("servers/users").readlines():
+
+    if user.strip().startswith("#"):
+        continue
     username, first_last = user.strip().split(",")
     first_name, last_name = first_last.split(" ")
     
     % python tools/adduser.py ${username} ${username}@stsci.edu ${username}$sauce ${first_name} ${last_name} $*
+    % mkdir ${CRDS_PATH}/../server_files/ingest/${username}
+    % chmod 6770 ${CRDS_PATH}/../server_files/ingest/${username}
 
