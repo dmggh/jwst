@@ -62,6 +62,8 @@ Does not move, rename, or deliver files.
                           help="Generate file delivery lists and links for OPUS pickup of the added files.")
         self.add_argument('-P', '--replace', action='store_true',
                           help="Destroy and re-create existing FileBlobs for added files.")
+        self.add_argument('-A', '--allow-duplicates', action='store_true',
+                          help="Don't abort file submission when sha1sum indicates a duplicate file.")
                           
 
     # ------------------------------------------------------------------------------------------
@@ -100,7 +102,7 @@ Does not move, rename, or deliver files.
                     log.info("Skipping existing file", repr(file))
                     if self.args.reinit_slow_fields:
                         with log.error_on_exception("Failed adding slow fields for", repr(file)):
-                            file_map[file].add_slow_fields()
+                            file_map[file].add_slow_fields(allow_duplicates=self.args.allow_duplicates)
                     continue
     
             log.info("Adding", repr(file), "from", repr(path))
@@ -113,6 +115,7 @@ Does not move, rename, or deliver files.
                     deliverer_email=self.args.deliverer_email, 
                     description=self.args.description,
                     add_slow_fields=self.args.add_slow_fields,
+                    allow_duplicates=self.args.allow_duplicates,
                     state=self.args.state, update_derivation=False)
                 models.mirror_filename_counters(self.observatory, path)
                 details = ""

@@ -5,7 +5,7 @@ from django.db.utils import IntegrityError
 
 from crds import log
 
-def adduser(user, email, password, super_user=False, use_existing=False):
+def adduser(user, email, password, first_name="", last_name="", super_user=False, use_existing=False):
     try:
         if use_existing:
             log.info("Fetching existing user", user)
@@ -25,6 +25,8 @@ def adduser(user, email, password, super_user=False, use_existing=False):
         log.info("Setting superuser.")
         user.is_superuser = True
     user.set_password(password)
+    user.first_name = first_name
+    user.last_name = last_name
     user.save()
 
 if __name__ == "__main__":
@@ -41,9 +43,9 @@ if __name__ == "__main__":
     else:
         use_existing = False
         
-    if len(sys.argv) != 4:
-        print >>sys.stderr, "usage: adduser.py <username> <email> <password>"
-        sys.exit(-1)
-    else:
+    if 4 <= len(sys.argv) <= 6:
         adduser(*sys.argv[1:], super_user=super_user, use_existing=use_existing)
+    else:
+        print >>sys.stderr, "usage: adduser.py <username> <email> <password> [<first name> [<last name>]]"
+        sys.exit(-1)
 
