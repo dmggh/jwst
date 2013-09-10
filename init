@@ -38,12 +38,12 @@ endif
 # Deliver "real" or cloned mappings and references using submit references followed by submit
 # mappings.
 set mapping_source_dir=`python tools/get_mapping_dir.py ${observatory}`
+set map_path_full=${CRDS_PATH}/mappings/${observatory}
+set ref_path_full=${CRDS_PATH}/references/${observatory}
+
 echo
 echo "Copying prototype mappings from ${mapping_source_dir} to ${map_path_full}"
 echo
-
-set map_path_full=${CRDS_PATH}/mappings/${observatory}
-set ref_path_full=${CRDS_PATH}/references/${observatory}
 
 mkdir -p ${map_path_full}
 chmod -R g-w ${CRDS_PATH}
