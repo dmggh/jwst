@@ -24,6 +24,8 @@ source env.csh
 
 cd `dirname $0`/tools
 
+# =======================================================================
+
 if (($mode == "test") || ($mode == "django") || ($mode == "dev")) then
     echo -n "Test account password? "
     set password=$<
@@ -31,6 +33,30 @@ if (($mode == "test") || ($mode == "django") || ($mode == "dev")) then
     python adduser.py test jmiller@stsci.edu "$password"
 endif
 
+# =======================================================================
+# Install prototype mappings (no serial number) in server cache automatically
+# Deliver "real" or cloned mappings and references using submit references followed by submit
+# mappings.
+set mapping_source_dir=`python tools/get_mapping_dir.py ${observatory}`
+echo
+echo "Copying prototype mappings from ${mapping_source_dir} to ${map_path_full}"
+echo
+
+set map_path_full=${CRDS_PATH}/mappings/${observatory}
+set ref_path_full=${CRDS_PATH}/references/${observatory}
+
+mkdir -p ${map_path_full}
+chmod -R g-w ${CRDS_PATH}
+chmod -R o-a ${CRDS_PATH}
+
+foreach mapping (`ls -1 ${mapping_source_dir}/*.*map | grep -v 0`)
+  cp -v ${mapping} ${map_path_full}
+end
+
+chmod 444 ${map_path_full}/*
+chmod 444 ${ref_path_full}/*
+
+# =======================================================================
 if ($observatory == "hst") then
     if ($mode == "ops" || $mode == "test") then
 	python make_cdbs_links.py --copy
@@ -48,6 +74,7 @@ if ($observatory == "hst") then
 	# Add just enough slow fields to pass unit tests
 	python add_slow_fields.py u1r1346ri_bia.fits n9i1435li_crr.fits t3420177i_drk.fits w2r1956ri_idc.fits n9n16196i_a2d.fits t291659mi_ccd.fits u5d2012li_bpx.fits q911321oi_osc.fits wbj1825si_imp.fits v8816168i_pfl.fits w7j1705di_fls.fits ubi1853qi_mdz.fits
     endif
+# =======================================================================
 else if ($observatory == "jwst") then
 	if (($mode == "django") || ($mode == "dev")) then
 		echo "Linking files from Central Store /grp/crds/jwst/..."

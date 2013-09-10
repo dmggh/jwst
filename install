@@ -331,21 +331,6 @@ esac
 (cd $install_dir/python/lib/python/crds/server ; python manage.py syncdb)
 echo "Done syncing db"
 
-# Install prototype mappings (no serial number) in server cache automatically
-# Deliver "real" or cloned mappings and references using submit references followed by submit
-# mappings.
-mapping_source_dir=`python tools/get_mapping_dir.py ${observatory}`
-echo
-echo "Copying prototype mappings from ${mapping_source_dir} to ${map_path_full}"
-echo
-create_dir $public ${map_path_full}
-for mapping in `ls -1 ${mapping_source_dir}/*.*map | grep -v 0`;
-do
-  cp -v ${mapping} ${map_path_full} 2>/dev/null 1>/dev/null
-done
-
-# chmod $immutable ${map_dest}/*.*map
-
 ###
 ### tell the user what we did
 ###
@@ -380,11 +365,11 @@ case ${server_mode}
 
 	chmod $public ${ref_path}
 	chmod $public ${ref_path_full}
-	chmod -f $immutable ${ref_path_full}/*
+	# chmod -f $immutable ${ref_path_full}/*
 
 	chmod $public ${map_path}
 	chmod $public ${map_path_full}
-	chmod -f $immutable ${map_path_full}/*
+	# chmod -f $immutable ${map_path_full}/*
 
 	chmod $secret ${install_dir}
 	for dir in $install_dir/*
