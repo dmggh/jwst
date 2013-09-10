@@ -754,7 +754,7 @@ class FileBlob(BlobModel):
         except Exception as exc:
             log.error("Setting field '%s' for '%s' failed: '%s'" % (model_field, filename, exc))
 
-    def add_slow_fields(self):
+    def add_slow_fields(self, allow_duplicates=False):
         self.thaw()
         log.info("Adding slow fields for",  self.moniker)
         if self.type == "reference":
@@ -762,11 +762,13 @@ class FileBlob(BlobModel):
         self.sha1sum = self.compute_checksum()
         self.save()
         try:
-            self.check_unique_sha1sum()
+            # Give GEIS data a "pass" because evidently many diffs are header portion only.
+            if not allow_duplicates or not data_file.is_geis_data(self.name):
+                self.check_unique_sha1sum()
         except CrdsError:
             self.destroy()
             raise
-            
+
     def check_unique_sha1sum(self):
         matches = self.__class__.filter(sha1sum=self.sha1sum)
         for m in matches:
@@ -908,7 +910,8 @@ class FileBlob(BlobModel):
 def add_crds_file(observatory, upload_name, permanent_location, 
             deliverer, deliverer_email, description,
             change_level="SEVERE", add_slow_fields=True,
-            creator_name="unknown", state="submitted", update_derivation=True):
+            creator_name="unknown", state="submitted", update_derivation=True,
+            allow_duplicates=False):
     "Make a database record for this file.  Track the action of creating it."""
 
     if rmap.is_mapping(permanent_location):
@@ -926,7 +929,7 @@ def add_crds_file(observatory, upload_name, permanent_location,
 
     # note that modifying derivation fields changes the sha1sum of mappings.
     if add_slow_fields:
-        blob.add_slow_fields()
+        blob.add_slow_fields(allow_duplicates=allow_duplicates)
 
     # Set file permissions to read only.
     try:
