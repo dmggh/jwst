@@ -1,0 +1,9 @@
+#! /bin/tcsh
+crds
+./clean
+pygrep . "$*"
+pygrep ../CRDS_server/sources "$*"
+pygrep ../CRDS_server/tools "$*"
+pygrep ../hst_gentools "$*"
+pygrep ../jwst_gentools "$*"
+

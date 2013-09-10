@@ -1,0 +1,6 @@
+#! /bin/sh
+
+exec find $1  -name '*.py' | xargs grep "$2"
+exec find $1  -name '*.html' | xargs grep "$2"
+exec find $1  -name '*.js' | xargs grep "$2"
+
