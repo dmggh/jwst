@@ -690,7 +690,7 @@ class FileBlob(BlobModel):
         self.set_fits_field("aperture", "APERTURE")
         
     def repair_useafter_date(self):
-        self.set_fits_field("useafter_date", "USEAFTER")
+        self.set_fits_field("useafter_date", "USEAFTER", timestamp.parse_date)
 
     def repair_reference_file_type(self):
         self.set_fits_field("reference_file_type", "REFTYPE")
@@ -710,8 +710,8 @@ class FileBlob(BlobModel):
                         self.activation_date = hist.start_date
                         break
                 return
-            with log.error_on_exception("Failed repairing HST availability date for", repr(self.name)):
-                if self.name.endswith("d"):
+            with log.error_on_exception("Failed repairing HST activation date for", repr(self.name)):
+                if data_file.is_geis_data(self.name):
                     self.activation_date = FileBlob.load(self.name[:-1]+"h").activation_date
                     return
                 from crds.server.interactive import database
