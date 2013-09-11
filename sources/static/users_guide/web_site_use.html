@@ -54,7 +54,12 @@
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Using the CRDS Web Site</a><ul>
-<li><a class="reference internal" href="#public-functions">Public Functions</a><ul>
+<li><a class="reference internal" href="#operational-references">Operational References</a></li>
+<li><a class="reference internal" href="#open-services">Open Services</a><ul>
+<li><a class="reference internal" href="#context-history">Context History</a><ul>
+<li><a class="reference internal" href="#differencing-contexts">Differencing contexts</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#dataset-best-references-alpha">Dataset Best References (alpha)</a><ul>
 <li><a class="reference internal" href="#context">Context</a></li>
 <li><a class="reference internal" href="#dataset">Dataset</a><ul>
@@ -77,11 +82,14 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#private-functions">Private Functions</a><ul>
+<li><a class="reference internal" href="#login-and-instrument-locking">Login and Instrument Locking</a></li>
+<li><a class="reference internal" href="#certify-files">Certify Files</a></li>
+<li><a class="reference internal" href="#enable-disable-file">Enable/Disable File</a></li>
+<li><a class="reference internal" href="#set-context">Set Context</a></li>
 <li><a class="reference internal" href="#batch-submit-references">Batch Submit References</a><ul>
 <li><a class="reference internal" href="#upload-files">Upload Files</a><ul>
 <li><a class="reference internal" href="#web-approach">Web Approach</a></li>
 <li><a class="reference internal" href="#shell-approach">Shell Approach</a></li>
-<li><a class="reference internal" href="#cleaning-up">Cleaning Up</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#derive-from-context">Derive From Context</a><ul>
@@ -98,11 +106,8 @@
 <li><a class="reference internal" href="#confirm-or-discard">Confirm or Discard</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#certify-file">Certify File</a></li>
 <li><a class="reference internal" href="#submit-references">Submit References</a></li>
 <li><a class="reference internal" href="#submit-mappings">Submit Mappings</a></li>
-<li><a class="reference internal" href="#create-contexts">Create Contexts</a></li>
-<li><a class="reference internal" href="#set-file-enable">Set File Enable</a></li>
 </ul>
 </li>
 </ul>
@@ -148,15 +153,58 @@ and distribution of CRDS reference and mappings files.   Functions on the CRDS
 website are either public functions which do not require authentication or private
 functions which require a CRDS login account.</p>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_index.png"><img alt="home page of CRDS website" src="_images/web_index.png" style="width: 572.0px; height: 287.5px;" /></a>
+<a class="reference internal image-reference" href="_images/web_index.png"><img alt="home page of CRDS website" src="_images/web_index.png" style="width: 620.0px; height: 374.5px;" /></a>
 </div>
 <p>Functions annotated with the word (alpha) are partially completed components of
 a future build which may prove useful now.</p>
-<div class="section" id="public-functions">
-<h2>Public Functions<a class="headerlink" href="#public-functions" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="operational-references">
+<h2>Operational References<a class="headerlink" href="#operational-references" title="Permalink to this headline">¶</a></h2>
+<p>The <em>Operational References</em> table displays the references which are currently in use
+by the pipeline associated with this web site.   The operational context is displayed
+as a link &#8216;(under context &lt;link&gt;)&#8217; immediately below Operational References.  Clicking
+the link opens a details browser for that CRDS .pmap reference assignment rules file.
+The operational context is the latest context in the Context History,  the one in
+active use for pipeline processing by default.</p>
+<p>Each instrument accordion opens into reference type accordions for that instrument.</p>
+<p>Each type accordion opens into a table of reference files and the dataset parameters
+they apply to.   Each reference file link opens into a details browser for that reference
+file.</p>
+</div>
+<div class="section" id="open-services">
+<h2>Open Services<a class="headerlink" href="#open-services" title="Permalink to this headline">¶</a></h2>
 <p>The following functions are available for anyone with access to the CRDS web
 server and basically serve to distribute information about CRDS files and
 recommendations.   Initially,  the CRDS sites are only visible within the Institute.</p>
+<div class="section" id="context-history">
+<h3>Context History<a class="headerlink" href="#context-history" title="Permalink to this headline">¶</a></h3>
+<p>The <em>Context History</em> displays the record of CRDS contexts which were in operational use by
+the pipeline associated with a CRDS server.</p>
+<div class="figure">
+<a class="reference internal image-reference" href="_images/web_context_history.png"><img alt="History of CRDS operational contexts" src="_images/web_context_history.png" style="width: 694.5px; height: 141.0px;" /></a>
+</div>
+<p>Clicking on a <em>context</em> link opens a a table of the historical references which were in use under
+that context:</p>
+<div class="figure">
+<a class="reference internal image-reference" href="_images/web_context_table.png"><img alt="CRDS historical references display" src="_images/web_context_table.png" style="width: 674.5px; height: 558.5px;" /></a>
+</div>
+<p>References are displayed in accordion panels for each instrument.   Opening the panel for
+an instrument displays the reference types of that instrument.  Opening the panel for a type
+displays particular reference files and matching parameters for that type.   Clicking on a particular
+reference file brings up the CRDS browser page with the known details for that reference.</p>
+<div class="section" id="differencing-contexts">
+<h4>Differencing contexts<a class="headerlink" href="#differencing-contexts" title="Permalink to this headline">¶</a></h4>
+<p>Click the <em>diff</em> checkbox for any two contexts in the history and then click the diff button
+at the top of the diff column.   This will display a difference page with an accorion panel
+for each file which differed between the two contexts:</p>
+<div class="figure">
+<a class="reference internal image-reference" href="_images/web_context_difference.png"><img alt="CRDS context differences" src="_images/web_context_difference.png" style="width: 696.0px; height: 489.0px;" /></a>
+</div>
+<p>Each file accordion opens into two accordions which display different views of the differences,
+logical or textual.  The logical differences display a table of matching parameters and files
+which were added, deleted, or replaced.   The textual differences show raw UNIX diffs of the
+two rules files.</p>
+</div>
+</div>
 <div class="section" id="dataset-best-references-alpha">
 <h3>Dataset Best References (alpha)<a class="headerlink" href="#dataset-best-references-alpha" title="Permalink to this headline">¶</a></h3>
 <p>The <em>Dataset Best References</em> page supports determining the best references for
@@ -238,21 +286,21 @@ uploaded via the web (uploaded).</p>
 <h4>Mapping Differences<a class="headerlink" href="#mapping-differences" title="Permalink to this headline">¶</a></h4>
 <p>For mappings,  <em>Difference Files</em> displays two kinds of information:</p>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_difference_summary.png"><img alt="file difference summary" src="_images/web_difference_summary.png" style="width: 559.5px; height: 325.0px;" /></a>
+<a class="reference internal image-reference" href="_images/web_difference_summary.png"><img alt="file difference summary" src="_images/web_difference_summary.png" style="width: 694.0px; height: 322.5px;" /></a>
 </div>
 <ul class="simple">
 <li>logical differences where CRDS analyzes the mappings and reports the
 parameter trail and effect of the difference (add, delete, replace).</li>
 </ul>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_difference_logical.png"><img alt="file difference logical" src="_images/web_difference_logical.png" style="width: 778.0px; height: 427.0px;" /></a>
+<a class="reference internal image-reference" href="_images/web_difference_logical.png"><img alt="file difference logical" src="_images/web_difference_logical.png" style="width: 695.5px; height: 415.5px;" /></a>
 </div>
 <ul class="simple">
 <li>textual differences which show the context difference (diff -c) of the
 two mapping files.</li>
 </ul>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_difference_text.png"><img alt="file difference textual" src="_images/web_difference_text.png" style="width: 565.5px; height: 427.0px;" /></a>
+<a class="reference internal image-reference" href="_images/web_difference_text.png"><img alt="file difference textual" src="_images/web_difference_text.png" style="width: 689.0px; height: 399.5px;" /></a>
 </div>
 </div>
 <div class="section" id="reference-differences">
@@ -319,7 +367,81 @@ of a file prior to submission to CRDS and the assignment of its official name.</
 <h2>Private Functions<a class="headerlink" href="#private-functions" title="Permalink to this headline">¶</a></h2>
 <p>The following functions are restricted to users with accounts on the CRDS website
 and support the submission of new reference and mapping files and maintenance
-of the overall site.</p>
+of the overall site.   Private functions are only visible to users who have
+successfully logged in.</p>
+<div class="section" id="login-and-instrument-locking">
+<h3>Login and Instrument Locking<a class="headerlink" href="#login-and-instrument-locking" title="Permalink to this headline">¶</a></h3>
+<p>Typical batch file submissions automatically generate instrument and pipeline context
+files,  as well as .rmaps.   To preclude the possibility of multiple users submitting
+files from the same instrument at the same time,  and possibly creating conflicting
+rules,  users lock instruments when they log in.</p>
+<div class="figure">
+<a class="reference internal image-reference" href="_images/web_login.png"><img alt="login page with instrument locking" src="_images/web_login.png" style="width: 668.5px; height: 204.5px;" /></a>
+</div>
+<p>When a user logs in,  the instrument they&#8217;ve locked and the time remaining on the
+lock are displayed below the login (now logout) button:</p>
+<div class="figure">
+<a class="reference internal image-reference" href="_images/web_logged_in.png"><img alt="logged in page with count down timer" src="_images/web_logged_in.png" style="width: 674.5px; height: 191.0px;" /></a>
+</div>
+<p>The time displayed is the relative time remaining on the lock reservation,  nominally
+around 4 hours with the current server configuration.</p>
+<p>When the user performs an action on the website,  their lock timer is reset to its maximum value.
+As time passes without action,  the lock timer counts down.  When the lock timer reaches zero,
+the lock is automatically released and any on-going file submission is cancelled.   Files which
+have been uploaded for a cancelled submission are left in the upload area.</p>
+<p>Other users who attempt to login while an instrument is locked will be denied.</p>
+<p>When a file submission is being performed,  it must be <em>confirmed</em> within the timeout period
+or the file submission will be cancelled.</p>
+<p>Care should be taken with the locking mechanism and file submissions.  <strong>DO NOT</strong>:</p>
+<ul class="simple">
+<li>Don&#8217;t login from multiple browsers or sites.   The last browser/site you log in from will steal the
+lock from the original login, cancel any original file submission,  and force a logout in the original browser.</li>
+<li>Don&#8217;t leave the page during an ongoing file submission,  wait for it to finish.   Opening other browser
+tabs should be fine.</li>
+<li>Don&#8217;t attempt to login for more than one instrument at a time.  One user is assigned one and only one lock.</li>
+<li>Don&#8217;t attempt to perform multiple file submissions for the same instrument at the same time.  Finish
+and confirm or cancel each file submission before proceeding with the next.</li>
+</ul>
+</div>
+<div class="section" id="certify-files">
+<h3>Certify Files<a class="headerlink" href="#certify-files" title="Permalink to this headline">¶</a></h3>
+<p><em>Certify File</em> runs crds.certify on the files in the ingest directory.</p>
+<div class="figure">
+<a class="reference internal image-reference" href="_images/web_certify_file.png"><img alt="certify file inputs" src="_images/web_certify_file.png" style="width: 455.0px; height: 250.0px;" /></a>
+</div>
+<p>If the certified file is a reference table,  the specified context is used to
+locate a comparison file.</p>
+</div>
+<div class="section" id="enable-disable-file">
+<h3>Enable/Disable File<a class="headerlink" href="#enable-disable-file" title="Permalink to this headline">¶</a></h3>
+<p><em>Enable/Disable File</em> provides control over the Blacklist and Reject
+attributes of a file.</p>
+<div class="figure">
+<a class="reference internal image-reference" href="_images/web_set_file_enable.png"><img alt="set file enable inputs" src="_images/web_set_file_enable.png" style="width: 545.0px; height: 228.0px;" /></a>
+</div>
+<p>Rejecting a file is used to signal that the file should no longer be
+used.   Rejecting a file affects only that file.   Blacklisting a file marks
+the file as unusable,  but it also blacklists all files which directly or
+indirectly refer to the original blacklisted file.   So,  blacklisting is
+transitive, rejection is intransitive.   Either blacklisting or rejection
+can be undone by marking the file as OK again using <em>Enable/Disable File</em>.
+Only files which are already known to CRDS can be rejected or blacklisted.</p>
+</div>
+<div class="section" id="set-context">
+<h3>Set Context<a class="headerlink" href="#set-context" title="Permalink to this headline">¶</a></h3>
+<p><em>Set Context</em> enables setting the operational and edit contexts.</p>
+<div class="figure">
+<a class="reference internal image-reference" href="_images/web_set_context.png"><img alt="set context inputs" src="_images/web_set_context.png" style="width: 582.5px; height: 295.0px;" /></a>
+</div>
+<p>CRDS enables contexts to be pre-positioned before their adoption as the default
+for processing by the pipeline.  Only by using Set Context will an available
+context become the default for processing.</p>
+<p>Setting the operational context makes the specified context the default for
+processing coordinated by this server.  Setting the operational context creates
+a new entry at the top of the Context History.</p>
+<p>Setting the edit context makes the specified context the default starting point
+for future contexts created during file submission.</p>
+</div>
 <div class="section" id="batch-submit-references">
 <h3>Batch Submit References<a class="headerlink" href="#batch-submit-references" title="Permalink to this headline">¶</a></h3>
 <p><em>Batch Submit References</em> is intended to handle the majority of CRDS reference
@@ -370,29 +492,25 @@ check <em>select all</em> and click <em>Start upload</em>.</p>
 files into their CRDS ingest directory manually.   The nominal approach
 for doing this is to use the cp or scp commands.   For instance,  from my home,
 having already set up ssh and scp access, I might say:</p>
-<div class="highlight-python"><pre>% scp /this_delivery/*.fits   thor.stsci.edu:/grp/crds/hst/ingest/test</pre>
+<div class="highlight-python"><pre>% scp /this_delivery/*.fits   dmsinsvm.stsci.edu:/ifs/crds/hst/test/server_files/ingest/mcmaster</pre>
 </div>
+<p>to copy references into my ingest directory <em>as-if</em> I had uploaded them through
+the uploads panel.</p>
 <p>Abstractly this is:</p>
-<div class="highlight-python"><pre>% scp &lt;submitted reference files...&gt;   &lt;host&gt;:/grp/crds/&lt;observatory&gt;/ingest/&lt;crds_username&gt;</pre>
+<div class="highlight-python"><pre>% scp &lt;submitted reference files...&gt;   &lt;host&gt;:/ifs/crds/hst/&lt;pipeline&gt;/server_files/ingest&lt;crds_username&gt;</pre>
 </div>
-<p>The submitted reference files should now be in the ingest directory for <em>HST</em>
-user <em>test</em>.   Once the files are in the ingest directory,  the CRDS web server
+<p>where pipeline is &#8216;test&#8217; or &#8216;ops&#8217;.</p>
+<p>The submitted reference files should now be in the ingest directory for <em>HST</em> test server
+user <em>mcmaster</em>.   Once the files are in the ingest directory,  the CRDS web server
 will behave as if they had been uploaded through web interface.  Refreshing the
 file submission web page should make manually copied files show up in the
 <em>Upload Files</em> accordion.</p>
 <p>The purpose of using cp or scp is to improve the efficiency and reliability of
-the file transfers.  Files transferred to the ingest directory via shell should
+the file transfers should those become an issue.  Telecommuters working offsite by VPN
+would face a situation where submitted files are downloaded to their home computer via
+VPN and then uploaded to the CRDS server via their browser.</p>
+<p>Files transferred to the ingest directory via shell should
 still be removeable using the <em>Upload Files</em> delete buttons.</p>
-</div>
-<div class="section" id="cleaning-up">
-<h5>Cleaning Up<a class="headerlink" href="#cleaning-up" title="Permalink to this headline">¶</a></h5>
-<p>No matter which file transfer approach you use,  transferring many large
-references to the CRDS ingest directories can take a long time.   As long as the
-files remain in the ingest directory,  it is possible to submit them more than
-once (if things go wrong) without uploading again.   Consequently,  for build-2,
-file removal from the ingest directory is left as a user directed activity.   To
-remove files from your ingest directory,  either use &#8220;rm&#8221; in the shell,  or use
-the delete buttons in <em>Upload Files</em>.</p>
 </div>
 </div>
 <div class="section" id="derive-from-context">
@@ -496,21 +614,11 @@ is updated to that pipeline mapping making it the default starting point for
 future submissions.</p>
 </div>
 </div>
-<div class="section" id="certify-file">
-<h3>Certify File<a class="headerlink" href="#certify-file" title="Permalink to this headline">¶</a></h3>
-<p><em>Certify File</em> runs crds.certify on the files in the ingest directory.</p>
-<div class="figure">
-<a class="reference internal image-reference" href="_images/web_certify_file.png"><img alt="certify file inputs" src="_images/web_certify_file.png" style="width: 455.0px; height: 250.0px;" /></a>
-</div>
-<p>If the certified file is a reference table,  the specified context is used to
-locate a comparison file.</p>
-</div>
 <div class="section" id="submit-references">
 <h3>Submit References<a class="headerlink" href="#submit-references" title="Permalink to this headline">¶</a></h3>
 <p><em>Submit References</em> provides a lower level interface for submitting a list of
-references which don&#8217;t have to be of the same instrument and filetype.   No
-context mappings are generated to refer to the submitted files.   Submitted
-references must still pass through crds.certify.</p>
+references.   No mappings are generated to refer to the submitted files.
+Submitted references must still pass through crds.certify.</p>
 <div class="figure">
 <a class="reference internal image-reference" href="_images/web_submit_references.png"><img alt="create contexts inputs" src="_images/web_submit_references.png" style="width: 349.5px; height: 248.5px;" /></a>
 </div>
@@ -525,33 +633,6 @@ submitted this way must also pass through crds.certify.</p>
 <div class="figure">
 <a class="reference internal image-reference" href="_images/web_submit_mappings.png"><img alt="create contexts inputs" src="_images/web_submit_mappings.png" style="width: 351.5px; height: 203.0px;" /></a>
 </div>
-</div>
-<div class="section" id="create-contexts">
-<h3>Create Contexts<a class="headerlink" href="#create-contexts" title="Permalink to this headline">¶</a></h3>
-<p><em>Create Contexts</em> provides a basic interface for automatically generating pipeline
-and instrument context mappings which refer to the specified reference mapping
-files.</p>
-<div class="figure">
-<a class="reference internal image-reference" href="_images/web_create_contexts.png"><img alt="create contexts inputs" src="_images/web_create_contexts.png" style="width: 345.0px; height: 315.5px;" /></a>
-</div>
-<p>Using <em>Create Contexts</em> the upper level mappings can be modified to refer to a
-number of (most likely hand-edited) reference mappings.   Rmaps referred to by
-create contexts must already be known to CRDS.   <em>Create Contexts</em></p>
-</div>
-<div class="section" id="set-file-enable">
-<h3>Set File Enable<a class="headerlink" href="#set-file-enable" title="Permalink to this headline">¶</a></h3>
-<p><em>Set File Enable</em> provides control over the Blacklist and Reject attributes of
-a file.</p>
-<div class="figure">
-<a class="reference internal image-reference" href="_images/web_set_file_enable.png"><img alt="set file enable inputs" src="_images/web_set_file_enable.png" style="width: 545.0px; height: 228.0px;" /></a>
-</div>
-<p>Rejecting a file is used to signal that the file should no longer be
-used.   Rejecting a file affects only that file.   Blacklisting a file marks
-the file as unusable,  but it also blacklists all files which directly or
-indirectly refer to the original blacklisted file.   So,  blacklisting is
-transitive,  but rejection is intransitive.   Either blacklisting or rejection
-can be undone by marking the file as OK again using <em>Set File Enable</em>.  Only
-files which are already known to CRDS can be rejected or blacklisted.</p>
 </div>
 </div>
 </div>
