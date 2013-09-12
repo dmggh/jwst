@@ -2033,6 +2033,7 @@ if sconfig.DEBUG:
 
     @error_trap("base.html")
     @log_view
+    @superuser_login_required
     def debug_command(request):
         if request.method == "GET":
             return crds_render(request, "command_result.html")
