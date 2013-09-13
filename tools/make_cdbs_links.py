@@ -10,9 +10,11 @@ import sys, os, shutil, re
 from crds import config, log, rmap, utils
 import crds.hst.locate as locate
 
-def main():
-    pmap = rmap.get_cached_mapping("hst.pmap")
-    used_references = set(pmap.reference_names())
+def main(used_references):
+    if not used_references:
+        pmap = rmap.get_cached_mapping("hst.pmap")
+        used_references = set(pmap.reference_names())
+
     for filename in used_references:
         crds_path = config.locate_file(filename, observatory="hst")
         try:
@@ -23,6 +25,7 @@ def main():
         copy_or_link(filename, cdbs_path, crds_path)
         if re.match(".*\.r[0-9]h$", filename): # also handle GEIS data
             copy_or_link(filename[:-1]+"d", cdbs_path[:-1]+"d", crds_path[:-1]+"d")
+
     log.standard_status()
 
 def copy_or_link(filename, cdbs_path, crds_path):
@@ -41,5 +44,8 @@ def copy_or_link(filename, cdbs_path, crds_path):
             log.error("Error for",repr(crds_path),"-->",repr(cdbs_path),":",str(exc))
 
 if __name__ == "__main__":
-    main()
+    files = sys.argv[1:]
+    if "--copy" in files:
+        files.remove("--copy")
+    main(files)
 
