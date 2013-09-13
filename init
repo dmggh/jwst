@@ -37,7 +37,7 @@ endif
 # Install prototype mappings (no serial number) in server cache automatically
 # Deliver "real" or cloned mappings and references using submit references followed by submit
 # mappings.
-set mapping_source_dir=`python tools/get_mapping_dir.py ${observatory}`
+set mapping_source_dir=`python get_mapping_dir.py ${observatory}`
 set map_path_full=${CRDS_PATH}/mappings/${observatory}
 set ref_path_full=${CRDS_PATH}/references/${observatory}
 
@@ -47,7 +47,7 @@ echo
 
 mkdir -p ${map_path_full}
 chmod -R g-w ${CRDS_PATH}
-chmod -R o-a ${CRDS_PATH}
+chmod -R o-rwx ${CRDS_PATH}
 
 foreach mapping (`ls -1 ${mapping_source_dir}/*.*map | grep -v 0`)
   cp -v ${mapping} ${map_path_full}
