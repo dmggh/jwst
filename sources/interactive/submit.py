@@ -306,6 +306,8 @@ class FileSubmission(object):
             self.final_pmap = models.get_default_context(models.OBSERVATORY, state="operational")
         else:
             self.final_pmap = self.pmap_name
+        
+        log.info("Resolved final derivation pmap from pmap_mode = ", repr(self.pmap_mode), "as", repr(self.final_pmap))
             
         # Get the mapping from old imap to new rmap, basically the imaps that
         # must be updated onto the list of rmap updates to do.
@@ -324,7 +326,7 @@ class FileSubmission(object):
     
         # Create delivery records for each of the new files
         for old_ctx, new_ctx in new_name_map.items():
-            self.add_crds_file(old_ctx, rmap.locate_mapping(new_ctx))
+            self.add_crds_file(old_ctx, rmap.locate_mapping(new_ctx), update_derivation=True)
         
         # Update the edit context for the next person so they won't miss these changes,  while locked!
         new_pmap = [ mapping for mapping in new_name_map.values() if mapping.endswith(".pmap")][0]
@@ -338,12 +340,14 @@ class FileSubmission(object):
         """
         return { old:self.new_name(old) for old in [self.pmap_name] + updates.keys() }
 
-    def add_crds_file(self, original_name, filepath, state="uploaded"):
+    def add_crds_file(self, original_name, filepath, state="uploaded", update_derivation=None):
         """Create a FileBlob model instance using properties of this FileSubmission."""
+        if update_derivation is None:   # undefined
+            update_derivation = self.auto_rename
         self.added_files.append((original_name, filepath))
         return models.add_crds_file(self.observatory, original_name, filepath,  str(self.user), self.user.email, 
             self.description, change_level=self.change_level, creator_name=self.creator, state=state,
-            update_derivation=self.auto_rename)
+            update_derivation=update_derivation)
     
     def verify_instrument_lock(self):
         """Ensure that all the submitted files correspond to the locked instrument."""
@@ -544,7 +548,7 @@ class BatchReferenceSubmission(FileSubmission):
         """
         files = [(mapping, rmap.locate_mapping(mapping)) for mapping in rmap_replacement_map.values()]
         new_to_old = utils.invert_dict(rmap_replacement_map)
-        disposition, certify_results = web_certify.certify_file_list(files, context=context, check_references=False,
+        disposition, certify_results = web_certify.certify_file_list(files, context=context, check_references=False, # check_references=True,
                 push_status=self.push_status)
         certify_results = { new_to_old[mapping]: results for (mapping, results) in certify_results }
         return disposition, sorted(certify_results.items())
@@ -576,7 +580,7 @@ class BatchReferenceSubmission(FileSubmission):
             # refactor inserting references.
             refactor.rmap_insert_references(old_rmap_path, new_rmap_path, these_ref_paths)
             # Submit the new rmap with added references
-            self.add_crds_file(new_rmap, new_rmap_path)
+            self.add_crds_file(new_rmap, new_rmap_path, update_derivation=True)
         return rmap_replacement_map
     
 # ------------------------------------------------------------------------------------------------

@@ -118,7 +118,7 @@ class InteractiveBase(object):
             self.remove(sconfig.CRDS_DELIVERY_DIR + "/" + file)
 
     @classmethod
-    def fake_database_files(self, files):
+    def fake_database_files(self, files, link=False):
         for filename in files:
             name = os.path.basename(filename)
             filepath = filename if os.path.dirname(filename) else rmap.locate_file(filename, self.observatory)
@@ -132,6 +132,13 @@ class InteractiveBase(object):
             models.mirror_filename_counters(self.observatory, filepath)
             models.AuditBlob.new("homer", "mass import", name, "becuz", "some details",
                                  observatory=self.observatory)
+            if link:
+                try:
+                    where = rmap.locate_file(filename, self.observatory)
+                    log.info("Symlinking fake file", repr(filename), "to", repr(where))
+                    os.symlink(filename, where)
+                except Exception, exc:
+                    pass
 
     def install_files(self, files):
         for path in files:
@@ -384,11 +391,13 @@ class InteractiveBase(object):
     def test_batch_submit_replace(self):
         self.login()
         self.add_files_to_ingest_dir(self.batch_submit_replace_references)
+        self.fake_database_files(self.certify_rmap_fits, link=True)
         response = self.client.post("/batch_submit_references/", {
                 "pmap_mode" : "pmap_edit",
                 "creator" : "bozo",
                 "change_level" : "SEVERE",
-                "description":"this is only a test.",
+                "description":" this is only a test.",
+                "compare_old_reference": True,
                 }, follow=True)
         # print response
         self.assert_no_errors(response)
@@ -401,6 +410,7 @@ class InteractiveBase(object):
         if references is None:
             references = self.batch_submit_insert_references
         self.add_files_to_ingest_dir(references)
+        self.fake_database_files(self.certify_rmap_fits)
         response = self.client.post("/batch_submit_references/", {
                 "pmap_mode" : "pmap_edit",
                 "creator" : "bozo",
@@ -647,7 +657,12 @@ if sconfig.observatory == "hst":
                                      "interactive/test_data/hst_cos.imap"]
 
         certify_rmap = "interactive/test_data/hst_cos_deadtab.rmap"
-        certify_rmap_fits = ["s7g1700ql_dead.fits", "s7g1700gl_dead.fits"]
+        certify_rmap_fits = ["s7g1700ql_dead.fits", "interactive/test_data/s7g1700gl_dead.fits", 
+                             "t9e1307kl_disp.fits", "u1t1616pl_disp.fits",
+                             "s7g17013l_disp.fits", "v3g18194l_disp.fits",
+                             "x6q17584l_disp.fits", "x1v17415l_disp.fits",
+                             "s7g17013l_disp.fits", "t9e1307ll_disp.fits",
+                             "u6s1320ql_disp.fits", "interactive/test_data/t2k1224el_disp.fits"]
 
         certify_post_fits = "interactive/test_data/s7g1700gl_dead.fits"
         
@@ -660,6 +675,8 @@ if sconfig.observatory == "hst":
 
         batch_submit_replace_references = ["interactive/test_data/s7g1700gj_dead.fits",
                                            "interactive/test_data/aaaa.fits"]
+#        batch_submit_comparison_references = ["interactive/test_data/s7g1700gl_dead.fits",
+#                                              "interactive/test_data/t2k1224el_disp.fits"]
         batch_submit_insert_references = ["interactive/test_data/s7g1700gm_dead.fits"]
         
         create_contexts_rmaps = ["hst_acs_biasfile.rmap", "hst_cos_deadtab.rmap"]
