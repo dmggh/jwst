@@ -913,7 +913,7 @@ def add_crds_file(observatory, upload_name, permanent_location,
             creator_name="unknown", state="submitted", update_derivation=True,
             allow_duplicates=False):
     "Make a database record for this file.  Track the action of creating it."""
-        if rmap.is_mapping(permanent_location):
+    if rmap.is_mapping(permanent_location):
         log.verbose("Adding", repr(upload_name), "as", repr(permanent_location))
         if update_derivation:
             log.verbose("Updating derivation", repr(permanent_location))
