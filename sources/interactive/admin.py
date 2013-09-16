@@ -24,7 +24,7 @@ class FileBlobAdmin(admin.ModelAdmin):
     
     actions = ["destroy_file", "repair_catalog"]
 
-    if config.server_usecase in ["dev", "test"]:
+    if config.server_usecase in ["django", "dev"]:
         destroyable_states = models.FILE_STATES  # anything
     else:
         destroyable_states = ["uploaded"]
