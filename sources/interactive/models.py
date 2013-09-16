@@ -613,6 +613,7 @@ class FileBlob(BlobModel):
         "deliverer_user" : lambda self: not self.deliverer_user,
         "deliverer_email" : lambda self: not self.deliverer_email,
         "creator_name" : lambda self: not self.creator_name,
+        "mapping_name_field": lambda self: rmap.is_mapping(self.name) and not self.name == rmap.fetch_mapping(self.name).name,
     }
     
     def get_defects(self, verify_checksum=False):
@@ -621,7 +622,10 @@ class FileBlob(BlobModel):
         defects = []
         for field in self.bad_field_checks:
             if self.bad_field_checks[field](self):
-                defects.append("BAD {} = '{}'".format(field, getattr(self, field)))
+                try:
+                    defects.append("BAD {} = '{}'".format(field, getattr(self, field)))
+                except:
+                    defects.append("BAD {}".format(field))
         if verify_checksum and not self.checksum_ok:  # slow
             defects.append("BAD sha1sum = '%s'".format(self.sha1sum))
         return defects
@@ -641,10 +645,16 @@ class FileBlob(BlobModel):
             field = defect.split()[1]  # skip BAD
             fixer = getattr(self, "repair_" + field, None)
             if fixer:
-                old = getattr(self, field)
                 try:
-                    fixer()
-                    new = getattr(self, field)
+                    old = getattr(self, field)
+                except:
+                    old = "undefined for this fixer"
+                try:
+                    rval = fixer()
+                    try:
+                        new = getattr(self, field)
+                    except:
+                        new = rval
                     if old != new:
                         repairs[field] = "REPAIRED '{}' from '{}' to '{}'".format(field, old, new)
                     else:
@@ -656,7 +666,16 @@ class FileBlob(BlobModel):
         if repairs:
             self.save()
         return repairs, failed
-    
+
+    def repair_mapping_name_field(self):
+        """Fix the mapping header name field to be consistent with the blob name name and path."""
+        mapping = rmap.fetch_mapping(self.name)
+        mapping.header["name"] = str(self.name)
+        mapping.write(self.pathname)
+        self.repair_size()
+        self.repair_sha1sum()
+        return self.name
+
     def repair_uploaded_as(self):
         frompath, topath = self.uploaded_as, None
         if os.path.exists(self.pathname):

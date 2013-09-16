@@ -502,6 +502,7 @@ class BatchReferenceSubmission(FileSubmission):
         any of the submitted files are duds.
         """
         old_rmap = self.pmap.get_imap(instrument).get_rmap(filekind).name
+        log.info("Resolved old rmap as", repr(old_rmap), "based on context", repr(self.pmap.name))
         old_rmap_path = rmap.locate_mapping(old_rmap, self.observatory)
         tmp_rmap = tempfile.NamedTemporaryFile()
         refactor.rmap_insert_references(old_rmap_path, tmp_rmap.name, uploaded_group.values())
