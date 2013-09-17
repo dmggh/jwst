@@ -6,6 +6,29 @@
             
             {% autoescape off %}
             
+                {% if diffs.header_diffs %}
+                    {% accordion "Header Diffs" diffs.header_diffs.0.0.1 %}
+                        <table class="crds_data_table">
+                            <thead>
+                                <tr>
+                                    {% for tup in diffs.header_diffs.0|slice:"1:" %}
+                                        <th> {{tup.0}} </th>
+                                    {% endfor %}                                
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for hdiff in diffs.header_diffs %}
+                                <tr>
+                                    {% for tup in hdiff|slice:"1:" %}
+                                        <td> {{tup.1}} </td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endaccordion %}
+                {% endif %}
+                
                 {% if diffs.logical_diffs %}
                     {% accordion "Logical Diff" diffs.logical_diffs.0.0.1 %}
                         <table class="crds_data_table">

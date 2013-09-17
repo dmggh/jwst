@@ -32,14 +32,16 @@ def difference_core(file1_orig, file2_orig, file1_path=None, file2_path=None, pu
         """Return the file extension of `filename`."""
         return os.path.splitext(filename)[1]
     
-    logical_errors = logical_diffs = map_text_diff_items = None
+    logical_errors = logical_diffs = header_diffs = map_text_diff_items = None
     if rmap.is_mapping(file1_orig) and rmap.is_mapping(file2_orig) and \
           extension(file1_orig) == extension(file2_orig):
         unfiltered, logical_errors = mapping_logical_diffs(file1_orig, file2_orig, file1_path, file2_path)
         # filter to same type because table display requires homogeneous columns
-        logical_diffs = filter_same_type(file1_path, unfiltered)
+        filtered = filter_same_type(file1_path, unfiltered)
         # logical diffs are stored as json,  make json-ify-able items
-        logical_diffs = [ diff.flat.items() for diff in logical_diffs ]  
+        logical_diffs = [ diff.flat.items() for diff in filtered if "header" not in diff[-1] and "different" not in diff[-1] ]
+        header_diffs = [ diff for diff in filtered if "header" in diff[-1] or "different" in diff[-1] ]
+        header_diffs = [ diff.flat.items() for diff in header_diffs if not boring_diff(diff) ]
         # map_text_diffs = mapping_text_diffs(logical_diffs)
         # Compute root files separately since they may have upload paths.
         map_text_diffs = {}
@@ -61,11 +63,15 @@ def difference_core(file1_orig, file2_orig, file1_path=None, file2_path=None, pu
     return {
        "logical_errors" : logical_errors,
        "logical_diffs" : logical_diffs,
+       "header_diffs" : header_diffs,
        "map_text_diff_items" : map_text_diff_items,
        "difference" : difference,
        "file1" : file1_orig,
        "file2" : file2_orig,
     }
+    
+def boring_diff(diff):
+    return ("replaced 'derived_from'" in diff[-1]) or ("replaced 'name'" in diff[-1]) or ("replaced 'sha1sum'" in diff[-1]) 
 
 def textual_diff(file1_orig, file2_orig, file1_path=None, file2_path=None):
     """Return the output of the context diff of two files."""
@@ -87,7 +93,7 @@ def mapping_logical_diffs(file1_orig, file2_orig, file1, file2):
         map1 = rmap.fetch_mapping(file1, ignore_checksum=True)
         map2 = rmap.fetch_mapping(file2, ignore_checksum=True)
         # Get logical difference tuples
-        ldiffs = map1.difference(map2)
+        ldiffs = map1.difference(map2, include_header_diffs=True)
         result = ldiffs, []
     except Exception, exc:
         file1, file2 = map(os.path.basename, [file1, file2])
