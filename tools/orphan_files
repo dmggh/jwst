@@ -38,10 +38,11 @@ def all_rules_files(mapping_glob="*.*map"):
     """Return (mapping_names, reference_names) for all mappings which match `mapping_glob`"""
     all, mappings, references = [], [], []
     for fname in rmap.list_mappings(mapping_glob, observatory=imodels.OBSERVATORY):
-        pmap = rmap.get_cached_mapping(fname)
-        references += pmap.reference_names()
-        mappings += pmap.mapping_names()
-        all = references + mappings
+        with log.error_on_exception("FAILED loading mapping", repr(fname)):
+            pmap = rmap.get_cached_mapping(fname)
+            references += pmap.reference_names()
+            mappings += pmap.mapping_names()
+            all = references + mappings
     return set(all)
 
 def check_files():
@@ -67,6 +68,9 @@ def _check_consistency(name1, name2, files1, files2):
             if conjugate not in files2:
                 log.error("Missing", name1, "conjugate", repr(conjugate), "is not in", name2)
 
+def delivered_path(name):
+    return os.path.join(config.CRDS_DELIVERY_DIR, name)
+
 def check_catalog_files():
     """Check consistency between CRDS catalogs in delivery area and delivered files."""
     db_files = imodels.get_fileblob_map()
@@ -77,7 +81,7 @@ def check_catalog_files():
         manifested_files = open(catalog).read().splitlines()
         for manifested_file in manifested_files:
             log.verbose("Scanning manifested file", repr(manifested_file))
-            manifest_path = config.CRDS_DELIVERY_DIR + "/" +  manifested_file
+            manifest_path = delivered_path(manifested_file)
             if not check_exists(manifest_path):
                 log.error("Manifested file", repr(manifested_path), "from catalog", 
                           repr(catalog), "does not exist.")
@@ -89,6 +93,13 @@ def check_catalog_files():
     for file in delivered_files:
         if ".cat" not in file and os.path.basename(file) not in all_catalogued_files:
             log.error("Delivered file", repr(file), "has no corresponding catalog.")
+    for file in [ f for f in db_files.values() if f.state == "delivered" ]:
+        if f.name not in all_catalogued_files:
+            log.error("File", repr(file.name), "with state 'delivered' has no catalog entry.")
+        if not os.path.exists(delivered_path(f.name)):
+            log.error("File", repr(file.name), "with state 'delivered' has no delivered file link.")
+    for file in [ f for f in db_files.values() if f.state == "uploaded" ]:
+        log.warning("File", repr(file.name), "delivered on", file.delivery_date, "has state 'uploaded'.")
 
 
 def main():
