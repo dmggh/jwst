@@ -287,7 +287,7 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
         "username" : str(request.user),
 
         "auto_rename" : False,
-        "server_usecase" : "(" + sconfig.server_usecase.lower() + ")" if not sconfig.server_usecase.startswith("prod") else "",
+        "server_usecase" :  sconfig.server_usecase.lower(),
     }
     
     # echo escaped inputs.
@@ -1259,6 +1259,7 @@ def submit_files(request, crds_filetype):
         return crds_render(request, "submit_input.html", {
                     "crds_filetype" :  crds_filetype,
                     "compare_old_reference" : "checked",
+                    "generate_contexts" : "checked",
                     "auto_rename":""
                 }, requires_pmaps=True)
     else:
