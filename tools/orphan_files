@@ -94,9 +94,9 @@ def check_catalog_files():
         if ".cat" not in file and os.path.basename(file) not in all_catalogued_files:
             log.error("Delivered file", repr(file), "has no corresponding catalog.")
     for file in [ f for f in db_files.values() if f.state == "delivered" ]:
-        if f.name not in all_catalogued_files:
+        if file.name not in all_catalogued_files:
             log.error("File", repr(file.name), "with state 'delivered' has no catalog entry.")
-        if not os.path.exists(delivered_path(f.name)):
+        if not os.path.exists(delivered_path(file.name)):
             log.error("File", repr(file.name), "with state 'delivered' has no delivered file link.")
     for file in [ f for f in db_files.values() if f.state == "uploaded" ]:
         log.warning("File", repr(file.name), "delivered on", file.delivery_date, "has state 'uploaded'.")
