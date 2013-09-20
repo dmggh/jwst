@@ -935,17 +935,15 @@ def add_crds_file(observatory, upload_name, permanent_location,
     if rmap.is_mapping(permanent_location):
         log.verbose("Adding", repr(upload_name), "as", repr(permanent_location))
         if update_derivation:
-            log.verbose("Updating derivation", repr(permanent_location))
             derived_from = refactor.update_derivation(permanent_location)   # XXX mutate mapping file!
         else:  # ensure the name inside the mapping is consistent with permanent location.
-            log.verbose("Setting consistent name", repr(permanent_location))
             mapping = rmap.fetch_mapping(permanent_location)
-            name = os.path.basename(permanent_location)
-            mapping.header["name"] = name
-            mapping.write(permanent_location)   # XXX mutate mapping file!
             derived_from = mapping.derived_from
+            with log.warn_on_exception("FAILED setting mapping header name of", repr(permanent_location)):
+                name = os.path.basename(permanent_location)
+                mapping.header["name"] = name
+                mapping.write(permanent_location)   # XXX mutate mapping file!
     else:
-        log.info("No derived_from")
         derived_from = "none"
     
     blob = FileBlob.new(
