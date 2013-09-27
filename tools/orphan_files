@@ -83,16 +83,17 @@ def check_catalog_files():
             log.verbose("Scanning manifested file", repr(manifested_file))
             manifest_path = delivered_path(manifested_file)
             if not check_exists(manifest_path):
-                log.error("Manifested file", repr(manifest_path), "from catalog", 
-                          repr(catalog), "does not exist.")
+                purge_delivered_file(catalog, "Manifested file", repr(manifest_path), "from catalog", 
+                                    repr(catalog), "does not exist.")
+                
             if manifested_file not in db_files:
-                log.error("Manifested file", repr(manifested_file), "from catalog", 
-                          repr(catalog), "is not known to CRDS.")
+                purge_delivered_file(manifest_path, "Manifested file", repr(manifest_path), "from catalog", 
+                                    repr(catalog), "is not known to CRDS.")
         all_catalogued_files += manifested_files
     delivered_files = glob.glob(config.CRDS_DELIVERY_DIR + "/*")
     for file in delivered_files:
         if ".cat" not in file and os.path.basename(file) not in all_catalogued_files:
-            log.error("Delivered file", repr(file), "has no corresponding catalog.")
+            purge_delivered_file(file, "Delivered file", repr(file), "has no corresponding catalog.")
     for file in [ f for f in db_files.values() if f.state == "delivered" ]:
         if file.name not in all_catalogued_files:
             log.error("File", repr(file.name), "with state 'delivered' has no catalog entry.")
@@ -101,6 +102,16 @@ def check_catalog_files():
     for file in [ f for f in db_files.values() if f.state == "uploaded" ]:
         log.warning("File", repr(file.name), "delivered on", file.delivery_date, "has state 'uploaded'.")
 
+def purge_delivered_file(filepath, *args, **keys):
+    """Remove `filepath` and issue an error message defined by `args` and `keys`."""
+    log.error(*args, **keys)
+    try:
+        if "--purge-delivery-errors" in sys.argv:
+            os.chmod(filepath, int('0666', 8))
+            os.remove(filepath)
+            log.info("Removed", repr(filepath))
+    except Exception:
+        pass
 
 def main():
     if "--verbose" in sys.argv:

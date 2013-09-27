@@ -1,0 +1,25 @@
+#! /bin/sh
+
+database_backup_file=$1; 
+catalog_file=$2;
+mirrored_server_url=$3; 
+
+cd ${CRDS}/CRDS_server
+source env.csh
+
+# This replaces the local database with the specified backup, presumably from the master server
+./manage dbrestore $database_backup_file
+
+# This synchronizes the local cache to the master server
+setenv CRDS_SERVER_URL $mirrored_server_url
+python -m crds.sync --hst --all --repair-files --check-sha1sum --purge-mappings --verbose |& tee sync.mappings.err
+python -m crds.sync --hst --all --repair-files --fetch-references --purge-references --purge-mappings --verbose |& tee sync.references.err
+
+# This checks the consistency of the database and server cache and delivery areas
+tools/orphan_files --purge-delivery-errors
+
+# XXXX This needs to recreate the file links and catalogs associated with incomplete deliveries
+# tools/redeliver_undelivered_files
+cd ${CRDS_PATH}/../server_files
+tar zxf $catalog_file
+
