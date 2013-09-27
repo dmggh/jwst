@@ -1,0 +1,74 @@
+#! /bin/tcsh
+
+cd ${CRDS}/CRDS_server
+source env.csh
+
+setenv TAIL ${CRDS_PROJECT}.${CRDS_USECASE}
+setenv ETAIL ${TAIL}.err
+
+echo "==========================================================="
+echo "Disk Quotas"
+echo "==========================================================="
+du -c -h --max-depth=1 /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}*
+du -c -h --max-depth=1 /crds/data1/${CRDS_SERVER}
+du -c -h --max-depth=1 /home/crds
+echo ---------------------------- free space --------------------
+df -h
+echo ---------------------------- mounts ------------------------
+mount
+
+echo "==========================================================="
+echo "Third party package re-install"
+echo "==========================================================="
+./init_pkgs ${CRDS_PROJECT} ${CRDS_USECASE} >& init_pkgs.${ETAIL}
+tail -100 init_pkgs.${ETAIL}
+
+echo "==========================================================="
+echo "Server re-install and re-start"
+echo "==========================================================="
+./rerun ${CRDS_PROJECT} ${CRDS_USECASE} >& rerun.${ETAIL}
+tail -100 rerun.${ETAIL}
+
+echo "==========================================================="
+echo "Server self-test"
+echo "==========================================================="
+cd ${CRDS}/CRDS_server
+./runtests ${CRDS_PROJECT} ${CRDS_USECASE}  >& runtests.${ETAIL}
+tail -100 runtests.${ETAIL}
+
+# Run the django-dbbackup based CRDS server database backup
+# This generates a unique dated backup on /crds/data1/..., but only
+# copies to a generic single night's backup to ${HOME}/backups
+echo "============================================================"
+echo "Database backup"
+echo "============================================================"
+./manage dbbackup
+set backup_file=`ls -1 /crds/data1/${CRDS_SERVER}/server/db_backups/* | tail -1`
+chmod 600 $backup_file
+set backup_copy=$HOME/backups/backup.${TAIL}.mysql
+cp $backup_file $backup_copy
+chmod 600 $backup_copy
+
+echo "============================================================"
+echo "Tarring catalog directory."
+echo "============================================================"
+cd ${CRDS_SERVER_STORAGE}
+tar zcf ${HOME}/backups/catalogs.${TAIL}.tar.gz catalogs
+
+echo "==========================================================="
+echo "Server cache check"
+echo "==========================================================="
+cd ${CRDS}/CRDS_server
+python -m crds.certify  `python -m crds.list --all --mappings | grep pmap` --exist >& certify.${ETAIL}
+tail -100 certify.${ETAIL}
+
+python -m crds.sync --all --fetch-references --check-files >& sync.${ETAIL}
+tail -100 sync.${ETAIL}
+
+echo "==========================================================="
+echo "Server orphan files check"
+echo "==========================================================="
+cd ${CRDS}/CRDS_server
+tools/orphan_files --verbose >& orphan_files.${ETAIL}
+tail -100 orphan_files.${ETAIL}
+

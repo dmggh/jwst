@@ -4,8 +4,8 @@ SHELL=/bin/tcsh
 # mail any output to jmiller
 MAILTO=jmiller@stsci.edu
 
-# run five minutes after midnight, every day
-5 0 * * *      source $HOME/.setenv;  nightly.crds.job 
+# run five minutes after 3 am, every day
+5 3 * * *      source $HOME/.setenv;  nightly.crds.job 
 
 # run at 2:15pm on the first of every month
 #   15 14 1 * *     $HOME/bin/monthly
