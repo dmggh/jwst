@@ -1,7 +1,9 @@
+#-*-sh-*-
+
 setenv  CRDS_SERVER `uname -n | cut -d'.' -f1`
 
 # CRDS and CRDS_STACK,  same pattern,  different dirs,  override below as needed
-setenv CRDS ${HOME}/${CRDS_SERVER}
+setenv CRDS /crds/data1/${CRDS_SERVER}
 setenv CRDS_STACK ${CRDS}/crds_stacks/crds_10
 
 switch ($CRDS_SERVER)
