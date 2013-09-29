@@ -27,7 +27,8 @@ svn info
 echo "==========================================================="
 echo "Re-installing server"
 echo "==========================================================="
-./install ${CRDS_PROJECT} ${CRDS_USECASE} |& tee install.${ETAIL}
+./install ${CRDS_PROJECT} ${CRDS_USECASE} >& install.${ETAIL}
+tail -200 install.${ETAIL}
 
 echo "==========================================================="
 echo "Updating crontab"
