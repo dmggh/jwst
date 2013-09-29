@@ -1,5 +1,12 @@
 #! /usr/bin/env python
-"""This script looks for inconsitencies between the server database and file cache
+"""This script looks for inconsitencies between the server database, 
+server file cache at CRDS_PATH, and the server catalogs and deliveries directories.
+
+When used to maintain a single server,  the switch --purge-delivery-errors can
+clean up files in the catalog and delivery directories.
+
+When used in the context of mirroring,  --purge-delivery-errors is moot because
+the catalogs and deliveries directories are recreated.
 """
 import sys
 import os.path

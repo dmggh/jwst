@@ -1,0 +1,60 @@
+#! /usr/bin/env python
+#-*-python-*-
+import os, os.path, sys
+
+from crds import rmap, log, pysh
+from crds.server import config
+from crds.server.interactive import submit, models
+
+def find_undelivered_catalogs():
+    """Look through the file database for files in state 'delivered'.
+
+    Return sorted(set([catalog_basenames, ...]))
+    """
+    log.info("Searching for 'delivered' files.")
+    catalogs = set()
+    for name, blob in models.get_fileblob_map().items():
+        if blob.state == "delivered":
+            blob.thaw()
+            catalogs.add(os.path.basename(blob.catalog_link))
+    catalogs = sorted(list(catalogs))
+    log.info("Found undelivered catalogs:", catalogs)
+    return catalogs
+
+def wipe_delivered_files(files):
+    """Remove any existing links for `files` from the delivery directory
+    """
+    filepaths = [os.path.join(config.CRDS_DELIVERY_DIR, file) for file in files]
+    for path in filepaths:
+        with log.verbose_on_exception("Failed removing", repr(path)):
+            os.chmod(path, int('0666', 8))
+            os.remove(path)
+            log.info("Removed existing file", repr(path))
+
+def redeliver_catalogs(catalogs):
+    """Make the delivery link for all the files in catalogs.  This does not
+    update the database or create and AuditBlob since it's intended for restoring
+    file system consistency re-making the hard links used in deliveries.
+    """
+    for cat in catalogs:
+        log.info("Redelivering", repr(cat))
+        catalog_path = os.path.join(config.CRDS_CATALOG_DIR, cat)
+        files = open(catalog_path).read().splitlines()
+        filepaths = [rmap.locate_file(file, models.OBSERVATORY) for file in files]
+        wipe_delivered_files(files + [cat])
+        with log.error_on_exception("Failed redelivering", repr(cat)):
+            delivery =  submit.Delivery("fake user", models.OBSERVATORY, filepaths, "fake description", "fake action")
+            delivery.deliver_make_links(catalog_path, filepaths)
+
+def main():
+    pysh.usage("[--find-undelivered-catalogs] | [<catalogs_to_redeliver...>]", 1)
+    if "--find-undelivered-catalogs" in sys.argv:
+        sys.argv.remove("--find-undelivered-catalogs")
+        catalogs = find_undelivered_catalogs()
+    else:
+        catalogs = sys.argv[1:]
+    redeliver_catalogs(catalogs)
+
+if __name__ == "__main__":
+    main()
+

@@ -1,25 +1,63 @@
-#! /bin/sh
+#! /bin/csh
 
-database_backup_file=$1; 
-catalog_file=$2;
-mirrored_server_url=$3; 
+set database_backup_file=$1; 
+set catalog_file=$2;
+set mirrored_server_url=$3; 
 
 cd ${CRDS}/CRDS_server
 source env.csh
 
 # This replaces the local database with the specified backup, presumably from the master server
-./manage dbrestore $database_backup_file
+echo "-----------------------------------------------------"
+echo "Restoring database from $database_backup_file"
+echo "-----------------------------------------------------"
+cd ${CRDS}/CRDS_server
+./manage dbrestore -f $database_backup_file
 
 # This synchronizes the local cache to the master server
 setenv CRDS_SERVER_URL $mirrored_server_url
-python -m crds.sync --hst --all --repair-files --check-sha1sum --purge-mappings --verbose |& tee sync.mappings.err
-python -m crds.sync --hst --all --repair-files --fetch-references --purge-references --purge-mappings --verbose |& tee sync.references.err
+echo "-----------------------------------------------------"
+echo "Syncing mappings from $mirrored_server_url"
+echo "-----------------------------------------------------"
+cd ${CRDS}/CRDS_server
+python -m crds.sync --hst --all --repair-files --check-sha1sum --purge-mappings --verbose 
+
+echo "-----------------------------------------------------"
+echo "Fast-Syncing references from $mirrored_server_url"
+echo "-----------------------------------------------------"
+# setenv CRDS_DOWNLOAD_CHECKSUMS 0    # Omit sha1sum verification on initial download
+cd ${CRDS}/CRDS_server
+python -m crds.sync --hst --all --repair-files --fetch-references --purge-references --purge-mappings --verbose 
 
 # This checks the consistency of the database and server cache and delivery areas
-tools/orphan_files --purge-delivery-errors
+echo "-----------------------------------------------------"
+echo "Checking and purging orphan files."
+echo "-----------------------------------------------------"
+cd ${CRDS}/CRDS_server
+tools/orphan_files #  --purge-delivery-errors
 
-# XXXX This needs to recreate the file links and catalogs associated with incomplete deliveries
-# tools/redeliver_undelivered_files
+# This recreates the catalogs directory from a backup tarball.
+echo "-----------------------------------------------------"
+echo "Copying catalog files from backup"
+echo "-----------------------------------------------------"
 cd ${CRDS_PATH}/../server_files
-tar zxf $catalog_file
+rm -rf catalogs
+tar zxvf $catalog_file
+
+# This recreates the delivery directory with files from the database which are
+# recorded as not-yet-delivered.
+echo "-----------------------------------------------------"
+echo "Recreating delivery directory and delivering files in state 'delivered'."
+echo "-----------------------------------------------------"
+cd ${CRDS_PATH}/../server_files
+rm -rf deliveries
+mkdir deliveries
+cd ${CRDS}/CRDS_server
+tools/redeliver_catalogs --find-undelivered-catalogs
+
+echo "-----------------------------------------------------"
+echo "Rechecking orphan files."
+echo "-----------------------------------------------------"
+cd ${CRDS}/CRDS_server
+tools/orphan_files
 
