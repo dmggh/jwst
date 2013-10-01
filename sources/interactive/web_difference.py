@@ -18,6 +18,8 @@ def mass_differences(pair_or_quad_tuples, connector=" --> ", push_status=lambda 
                 difference_core(*tup, push_status=push_status) for tup in pair_or_quad_tuples }
     return sorted(diffs.items())
 
+# Although not spelled that way in the code,  AFAIK,  file1 == old_file and file2 == new_file.
+# Each diff describes some change in the evolution from old --> new.
 def difference_core(file1_orig, file2_orig, file1_path=None, file2_path=None, push_status=lambda x: None):
     """Compute the rendering dictionary for the differences include file."""
 
@@ -71,6 +73,7 @@ def difference_core(file1_orig, file2_orig, file1_path=None, file2_path=None, pu
     }
     
 def boring_diff(diff):
+    """Return True IFF a logical diff is more boring than normal,  i.e. routine formal header changes."""
     return ("replaced 'derived_from'" in diff[-1]) or ("replaced 'name'" in diff[-1]) or ("replaced 'sha1sum'" in diff[-1]) 
 
 def textual_diff(file1_orig, file2_orig, file1_path=None, file2_path=None):
