@@ -12,6 +12,7 @@ import tarfile
 import glob
 import json
 import time
+import fnmatch
 
 # from django.http import HttpResponse
 from django.template import loader, RequestContext
@@ -1604,18 +1605,20 @@ def recent_activity_post(request):
         request, "extension", models.EXTENSIONS+[r"\*"])
     filename = validate(
         request, "filename", r"[A-Za-z0-9_.\*]+")
-    deliverer_user = validate(
+    user = validate(
         request, "deliverer_user", r"[A-Za-z0-9_.\*]+")
     filters = {}
-    for var in ["action", "instrument", "filekind", "extension",
-                "filename", "deliverer_user"]:
+    for var in ["action", "instrument", "filekind", "extension", "user"]:
         value = locals()[var].strip()
         if value not in ["*",""]:
             filters[var] = value
     filtered_activities = models.AuditBlob.filter(**filters)[::-1]
     
-    # Skip .cat files by default,  since they're not deliverable files.
+    # Skip .cat files since they're not deliverable files and don't currently browse.
     filtered_activities = [blob for blob in filtered_activities if not blob.filename.endswith((".cat",))]
+    
+    # Filter filenames with UNIX style name globbing
+    filtered_activities = [blob for blob in filtered_activities if fnmatch.fnmatch(blob.filename, filename)]
     
     # Skip mass import actions by default since for HST there are 14k+ of them
     if action == "*":
@@ -1625,6 +1628,45 @@ def recent_activity_post(request):
                 "filters": filters,
                 "filtered_activities" : filtered_activities,
             })
+
+# ===========================================================================
+
+@profile('delivery_status.stats')
+@error_trap("base.html")
+@log_view
+@login_required
+def delivery_status(request):
+    """Show a table of the catlog files reflecting file deliveries and their status."""
+    
+    auditblobs = [ blob for blob in models.AuditBlob.objects.all() if blob.thaw().filename.endswith(".cat") ]
+    fileblobs = models.get_fileblob_map()
+    
+    catalog_info = []
+    for audit in auditblobs:
+        audit.thaw()
+        files = []
+        status = "delivery corrupt"
+        status_class="error"
+        with log.error_on_exception("Failed interpreting catalog", repr(audit.filename)):
+            files = sorted(open(os.path.join(sconfig.CRDS_CATALOG_DIR, audit.filename)).read().splitlines())
+            status = fileblobs[files[0]].interpret_catalog_link()
+            status_class = fileblobs[files[0]].status_class
+        catalog_info.append(
+                dict(date=audit.date,
+                     action=audit.action,
+                     user=audit.user,
+                     description=audit.why,
+                     files=files,
+                     catalog=audit.filename,
+                     status=status,
+                     status_class=status_class)
+            )
+    delivery_status = list(reversed(sorted(catalog_info, key=lambda k: k["date"])))
+    log.info("delivery_status catalog info:", delivery_status)
+        
+    return crds_render(request, "delivery_status.html", {
+            "delivery_status": delivery_status,
+    })
 
 # ===========================================================================
 

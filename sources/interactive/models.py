@@ -874,13 +874,18 @@ class FileBlob(BlobModel):
         """Based on the current name of the catalog link that delivered this file,  determine the
         status of the archiving process.
         """
-        if os.path.exists(self.catalog_link):    # CRDS has made catalog and files available for archiving
+        self.thaw()
+        if os.path.exists(self.catalog_link):    
+            # CRDS has made catalog and files available for archiving
             return "delivered"
-        elif os.path.exists(self.catalog_link + "_submit"): # found by the DMS CRDS pipeline poller
+        elif os.path.exists(self.catalog_link + "_SUBMIT") or os.path.exists(self.catalog_link + "_submit"): 
+            # found by the DMS CRDS pipeline poller
             return "submitted"
-        elif os.path.exists(self.catalog_link + "_proc"): # being processed by the DMS CRDS pipeline
+        elif os.path.exists(self.catalog_link + "_PROC") or os.path.exists(self.catalog_link + "_proc"): 
+            # being processed by the DMS CRDS pipeline
             return "archiving"
-        elif os.path.exists(self.catalog_link + "_ERROR"):   # delivery failed and CRDS needs to take action
+        elif os.path.exists(self.catalog_link + "_ERROR") or os.path.exists(self.catalog_link + "_error"):
+            # delivery failed and CRDS needs to take action
             return  "archiving-failed"
         else:
             self.state = "archived"
@@ -1047,8 +1052,7 @@ def set_reject(rejected_filename, rejected_bool):
 # ============================================================================
 
 AUDITED_ACTIONS = [
-    "mass import", "submit file", "blacklist", "new context", "batch submit", 
-    "deliver", "set default context"
+    "mass import", "submit file", "blacklist", "new context", "batch submit", "set default context"
     ]
 
 class AuditBlob(BlobModel):
