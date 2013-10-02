@@ -1407,10 +1407,10 @@ def browse_known_file(request, filename):
     else:
         file_contents = browsify_reference(browsed_file)
         
-    context = models.get_default_context(blob.observatory)
     used_by_files = list(uses.uses([filename], blob.observatory))
     
     if blob and blob.type == "reference":
+        context = models.get_default_context(blob.observatory)
         match_paths = matches.find_full_match_paths(context, filename)
         match_paths = [flatten(path) for path in match_paths]
         try:
@@ -1420,7 +1420,10 @@ def browse_known_file(request, filename):
             certify_results = None
     else:
         match_paths = []
-        certify_results = web_certify.captured_certify(filename, blob.pathname, check_references=False, context=context)
+        # Not certified against a context because the default context will generally be from the "future"
+        # and will therefore typically show a number of regressions.   Another option here which I'm skipping
+        # for now is certifying against the mapping that `filename` was derived_from.
+        certify_results = web_certify.captured_certify(filename, blob.pathname, check_references=False)
 
     return crds_render(request, "browse_results.html", { 
              "fileblob" : blob,
