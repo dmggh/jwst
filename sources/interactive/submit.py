@@ -830,6 +830,7 @@ class Delivery(object):
         for filename in self.delivered_files:
             cat.write(filename + "\n")
         cat.close()
+        os.chmod(catpath, 0444)
         return catpath
 
     def deliver_make_links(self, catalog, paths):
