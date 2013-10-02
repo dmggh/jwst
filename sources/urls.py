@@ -28,6 +28,7 @@ urlpatterns = patterns('',
     url(r'^difference/$',   'crds.server.interactive.views.difference_files'),
     url(r'^difference/(\w+)/(\w+)/$', 'crds.server.interactive.views.difference_files'),
     url(r'^recent_activity/$', 'crds.server.interactive.views.recent_activity'),        
+    url(r'^delivery_status/$', 'crds.server.interactive.views.delivery_status'),        
     
     url(r'^create_contexts/$', 'crds.server.interactive.views.create_contexts'),        
     
