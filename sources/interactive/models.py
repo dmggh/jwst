@@ -875,16 +875,21 @@ class FileBlob(BlobModel):
         status of the archiving process.
         """
         self.thaw()
-        if os.path.exists(self.catalog_link):    
+        
+        # links from mirrored servers reflect paths on the original file system.  
+        # correct the abspath to where delivered catalogs live on this system.
+        catalog_link = os.path.join(config.CRDS_DELIVERY_DIR, os.path.basename(self.catalog_link))
+        
+        if os.path.exists(catalog_link):    
             # CRDS has made catalog and files available for archiving
             return "delivered"
-        elif os.path.exists(self.catalog_link + "_SUBMIT") or os.path.exists(self.catalog_link + "_submit"): 
+        elif os.path.exists(catalog_link + "_SUBMIT") or os.path.exists(catalog_link + "_submit"): 
             # found by the DMS CRDS pipeline poller
             return "submitted"
-        elif os.path.exists(self.catalog_link + "_PROC") or os.path.exists(self.catalog_link + "_proc"): 
+        elif os.path.exists(catalog_link + "_PROC") or os.path.exists(catalog_link + "_proc"): 
             # being processed by the DMS CRDS pipeline
             return "archiving"
-        elif os.path.exists(self.catalog_link + "_ERROR") or os.path.exists(self.catalog_link + "_error"):
+        elif os.path.exists(catalog_link + "_ERROR") or os.path.exists(catalog_link + "_error"):
             # delivery failed and CRDS needs to take action
             return  "archiving-failed"
         else:
