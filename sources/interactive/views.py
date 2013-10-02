@@ -1613,7 +1613,14 @@ def recent_activity_post(request):
         if value not in ["*",""]:
             filters[var] = value
     filtered_activities = models.AuditBlob.filter(**filters)[::-1]
+    
+    # Skip .cat files by default,  since they're not deliverable files.
     filtered_activities = [blob for blob in filtered_activities if not blob.filename.endswith((".cat",))]
+    
+    # Skip mass import actions by default since for HST there are 14k+ of them
+    if action == "*":
+        filtered_activities = [blob for blob in filtered_activities if blob.action != "mass import"]
+    
     return crds_render(request, "recent_activity_results.html", {
                 "filters": filters,
                 "filtered_activities" : filtered_activities,
