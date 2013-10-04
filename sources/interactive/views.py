@@ -1631,7 +1631,7 @@ def recent_activity_post(request):
 
 # ===========================================================================
 
-@profile('delivery_status.stats')
+# @profile('delivery_status.stats')
 @error_trap("base.html")
 @log_view
 @login_required
@@ -1670,7 +1670,7 @@ def delivery_status(request):
 
 # ===========================================================================
 
-@profile("browse_db.stats")
+# @profile("browse_db.stats")
 @error_trap("browse_db_input.html")
 @log_view
 # @login_required
