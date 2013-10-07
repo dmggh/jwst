@@ -30,7 +30,7 @@ from django.contrib.auth.decorators import login_required as login_required
 import pyfits
 
 from crds import (rmap, utils, timestamp, uses, matches, checksum, compat, log, config)
-from crds import (data_file,)
+from crds import (data_file, pysh)
 from crds import CrdsError
 
 from crds.timestamp import (DATE_RE_STR, TIME_RE_STR)
@@ -736,14 +736,13 @@ def upload_new(request, template="upload_new_input.html"):
     else:
         f = get_uploaded_file(request, 'file')
         file_local_dir = str(request.user)
-        assert re.match("[A-Za-z0-9_]+", file_local_dir), \
-            "Invalid file_local_dir " + srepr(file_local_dir)
+        assert re.match(FILE_RE, f.name), "Invalid upload_new filename: " + srepr(f.name)
+        assert re.match("[A-Za-z0-9_]+", file_local_dir), "Invalid file_local_dir " + srepr(file_local_dir)
         ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir, f.name)
         with log.verbose_on_exception("Failed removing", repr(ingest_path)):
-            os.chmod(ingest_path, 0666)
-            os.remove(ingest_path)
+            pysh.sh("rm -f ${ingest_path}")
             log.info("Removed existing", repr(ingest_path))
-        utils.ensure_dir_exists(ingest_path)
+        utils.ensure_dir_exists(ingest_path, mode=0770)
         log.info("Linking", f.temporary_file_path(), "to", ingest_path)
         os.link(f.temporary_file_path(), ingest_path)
         data = [json_file_details(f.name, f.temporary_file_path())]
@@ -791,18 +790,13 @@ def upload_delete(request, filename):
         return HttpResponseRedirect('/upload/new')
 
 def _upload_delete(request, filename):
-    try:
+    with log.error_on_exception("Failed upload_delete for:", srepr(filename)):
+        assert re.match(FILE_RE, filename), "Invalid upload_delete filename " + srepr(filename)
         file_local_dir = str(request.user)
-        assert re.match("[A-Za-z0-9_]+", file_local_dir), \
-            "Invalid file_local_dir " + srepr(file_local_dir)
-        ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir)
-        ingest_filepath = os.path.join(ingest_path, filename)
-        log.info("upload_delete", srepr(ingest_filepath))
-        with log.error_on_exception("Can't chmod 0777", repr(ingest_filepath)):
-            os.chmod(ingest_filepath, 0777)  # note octal mode=0777
-        os.remove(ingest_filepath)
-    except Exception, exc:
-        log.error("upload_delete failed:", str(exc))
+        assert re.match("[A-Za-z0-9_]+", file_local_dir), "Invalid file_local_dir " + srepr(file_local_dir)
+        ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir, filename)
+        log.info("upload_delete", srepr(ingest_path))
+        pysh.sh("rm -f ${ingest_path}")
    
 def clear_uploads(request, uploads):
     """Remove the basenames listed in `uploads` from the upload directory."""
