@@ -11,7 +11,7 @@ echo "CRDS subversion status"
 echo "==========================================================="
 cd ${CRDS}/CRDS
 echo "UPDATING SUBVERSION for CRDS"
-svn update
+svn update --accept theirs-full
 svn status
 svn info
 
@@ -20,7 +20,7 @@ echo "CRDS_server subversion status"
 echo "==========================================================="
 cd ${CRDS}/CRDS_server
 echo "UPDATING SUBVERSION for CRDS_server"
-svn update
+svn update --accept theirs-full
 svn status
 svn info
 
