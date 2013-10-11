@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/tcsh
 #
 # System startup script for pyetc - use this in /etc/rc.d
 #
@@ -16,25 +16,26 @@
 # handed off to scripts that run as the iraf user.
 #
 
-rc_dir=/data1/boot
+rc_dir=/home/crds
 
-case "$1" in
-  start)
-        echo "Starting  pyetc: "
-	su iraf -c "$rc_dir/rc_script $1"
+switch ($1)
+  case start:
+    echo "Starting crds: "
+	su crds -c "$rc_dir/rc_script $1"
 	echo ''
-        ;;
-  stop)
-        echo "Shutting down pyetc: "
-	su iraf -c "$rc_dir/rc_script $1"
+    breaksw
+  case stop:
+    echo "Shutting down crds: "
+	su crds -c "$rc_dir/rc_script $1"
 	echo ''
-        ;;
-  status)
-	su iraf -c "$rc_dir/rc_script $1"
-        ;;
-  *)
-        echo "Usage: $0 {start|stop|status}"
-        exit 1
-esac
+    breaksw
+  case status:
+	su crds -c "$rc_dir/rc_script $1"
+    breaksw
+  default:
+    echo "Usage: $0 {start|stop|status}"
+    exit 1
+    breaksw
+endsw
 
 exit 0

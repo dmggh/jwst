@@ -5,23 +5,27 @@
 # Standard environment variables are set by the rc scripts of user crds,  most notably .setenv.
 # The environment variables are driven by the uname of the VM where the server runs, e.g. tlhstcrdsv1
 #
+source /home/crds/.setenv   # or skip this and just use a standard login environment for /bin/tcsh
 
 cd ${CRDS}/CRDS_server
+
 source env.csh
 
-case "$1" in
-  start)
-	./run
-        ;;
-  stop)
-	./stop
-        ;;
-  status)
+switch ($1)
+  case start:
+    ./run
+    breaksw
+  case stop:
+    ./stop
+    breaksw
+  case status:
     sed 's/^/PID=/' < ${CRDS_INSTALL_DIR}/server/run/httpd.pid
-        ;;
-  *)
-        echo "Usage: $0 {start|stop|status}"
-        exit 1
-esac
+    breaksw
+  default:
+    echo "Usage: $0 {start|stop|status}"
+    exit 1
+    breaksw  
+endsw
 
 exit 0
+
