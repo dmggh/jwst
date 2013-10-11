@@ -47,7 +47,7 @@ echo "============================================================"
 ./manage dbbackup
 set backup_file=`ls -1 ${BACKUP_DIR}/*.mysql | tail -1`
 chmod 600 $backup_file
-cp $backup_file ${BACKUP_DIR}/backup.${TAIL}.mysql
+cp ${BACKUP_DIR}/backup.${TAIL}.mysql ${HOME}/backups
 chmod 600 ${BACKUP_DIR}/backup.${TAIL}.mysql
 
 echo "============================================================"
