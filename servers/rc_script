@@ -1,44 +1,23 @@
-#!/bin/sh
+#! /bin/tcsh
 #
-# This is the rc script that starts pyetc instances at system boot time.
-# The file init_rc is meant to be installed by root, but it just runs
-# this script as the user "iraf".
-#
-# The file "active" contains a list of directory names where the system
-# should start pyetc as user "iraf".  The directory name is the directory
-# of pyetc/ where you find the ./run and ./stop scripts
+# This is the rc script that starts the CRDS web server at system boot time.
+# This script is intended to be run by user "crds" in a login shell using su.
+# Standard environment variables are set by the rc scripts of user crds,  most notably .setenv.
+# The environment variables are driven by the uname of the VM where the server runs, e.g. tlhstcrdsv1
 #
 
-cd `dirname $0`
-
-looping() {
-	for dir in `cat active`
-	do
-		echo 'XXXXX'
-		echo $dir
-		( 
-		set -x
-		set -e
-		cd $dir
-		$1
-		echo OK
-		)
-	done
-}
-	
-stat_fn() {
-	sed 's/^/PID=/' < webserver/server/run/httpd.pid
-}
+cd ${CRDS}/CRDS_server
+source env.csh
 
 case "$1" in
   start)
-	looping ./run
+	./run
         ;;
   stop)
-	looping ./stop
+	./stop
         ;;
   status)
-	looping stat_fn
+    sed 's/^/PID=/' < ${CRDS_INSTALL_DIR}/server/run/httpd.pid
         ;;
   *)
         echo "Usage: $0 {start|stop|status}"
