@@ -1,10 +1,10 @@
 #!/bin/tcsh
 #
-# System startup script for pyetc - use this in /etc/rc.d
+# System startup script for crds - use this in /etc/rc.d
 #
 # chkconfig: 345 99 00
-# description: start/stop all activated pyetc servers
-# processname: pyetc_servers
+# description: start/stop all activated crds servers
+# processname: crds_server
 #
 # The chkconfig line shows 3 parameters:
 #	list of run levels to enable by default
@@ -13,7 +13,7 @@
 # So, I think the 99 and 00 mean "start this last" and "stop it first".
 #
 # This script is intended for root to install, but the real work is
-# handed off to scripts that run as the iraf user.
+# handed off to scripts that run as the crds user.
 #
 
 rc_dir=/home/crds
