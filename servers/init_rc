@@ -16,7 +16,7 @@
 # handed off to scripts that run as the crds user.
 #
 
-rc_dir=/home/crds
+set rc_dir=/home/crds
 
 switch ($1)
   case start:
