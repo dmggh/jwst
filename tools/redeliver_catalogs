@@ -27,8 +27,7 @@ def wipe_delivered_files(files):
     filepaths = [os.path.join(config.CRDS_DELIVERY_DIR, file) for file in files]
     for path in filepaths:
         with log.verbose_on_exception("Failed removing", repr(path)):
-            os.chmod(path, int('0666', 8))
-            os.remove(path)
+            pysh.sh("rm -f $path", raise_on_error=True)
             log.info("Removed existing file", repr(path))
 
 def redeliver_catalogs(catalogs):
