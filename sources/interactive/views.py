@@ -1764,9 +1764,10 @@ def render_browse_table_data(request, filtered_db, show_defects):
     super = request.user.is_superuser
     authenticated = request.user.is_authenticated()
     header = ["delivery date",
+            "activation date",
+            "useafter date",
             "name",
             "aperture",
-            "useafter date",
             "status",
             "description",
             "instrument", 
@@ -1778,9 +1779,10 @@ def render_browse_table_data(request, filtered_db, show_defects):
     for db in filtered_db:
         rows.append([
             stdtags.minutes(db.delivery_date),
+            stdtags.minutes(db.activation_date),
+            stdtags.minutes(db.useafter_date),
             stdtags.browse(db.name),
             db.aperture,
-            stdtags.minutes(db.useafter_date),
             db.status,
             db.description,
             db.instrument, 
