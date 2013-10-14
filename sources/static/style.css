@@ -45,6 +45,13 @@ hr {
     /* border: gray solid 1px; */
 }
 
+img.header_menu {
+   width:24px;
+   height:24px;
+   border:0;
+   -ms-interpolation-mode:bicubic;
+}
+
 #contents {
     width: 100%;
     /* background: transparent; */

@@ -34,16 +34,16 @@
         </div>
     
         <div id="header_menu">
-           <a href="/static/users_guide/index.html" class="tiny"><img src='/static/images/help_blue.ico' alt='help' height='24' width='24' /></a>
-           <a href="./" class="tiny" onClick="javascript:history.back(1);"><img src="/static/images/back-icon.png" alt='reset' height='24' width='24' /></a>
-           <a href="./" class="tiny" onClick= "javascript:history.forward(1);"><img src="/static/images/forward-icon.png" alt='reset' height='24' width='24' /></a>
-           <a href="/" class="tiny"><img src="/static/images/home.ico" alt='home' height='24' width='24' /></a>
+           <a href="/static/users_guide/index.html" class="tiny"><img src='/static/images/help_blue.png' alt='help' class="header_menu" /></a>
+           <a href="./" class="tiny" onClick="javascript:history.back(1);"><img src="/static/images/back-icon.png" alt='reset' class="header_menu" /></a>
+           <a href="./" class="tiny" onClick= "javascript:history.forward(1);"><img src="/static/images/forward-icon.png" alt='reset' class="header_menu" /></a>
+           <a href="/" class="tiny"><img src="/static/images/home.png" alt='home' class="header_menu" /></a>
            {# <a href="./" class="tiny"><img src="/static/images/undo.ico" alt='reset' height='24' width='24' /></a> #}
            {% if is_authenticated %}
-                <a href="/logout/" class="tiny"><img src="/static/images/exit.ico" alt='logout' height='24' width='24'
+                <a href="/logout/" class="tiny"><img src="/static/images/exit.png" alt='logout' class="header_menu"
                     onclick='return confirm("Really logout?  Any unconfirmed file submissions will be cancelled.");' /></a>
            {% else %}
-                <a href="/login/?next={{current_path}}" class="tiny"><img src="/static/images/log_in.ico" alt='login' height='24' width='24' /></a>          
+                <a href="/login/?next={{current_path}}" class="tiny"><img src="/static/images/log_in.png" alt='login' class="header_menu" /></a>          
            {% endif %}
            {% if locked_instrument %}
                <p><span class='locked_instrument'>{{locked_instrument}}</span>  <span class='lock_timer'> </span></p>
