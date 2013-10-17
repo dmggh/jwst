@@ -599,7 +599,7 @@ class FileBlob(BlobModel):
         "sha1sum" : lambda self: self.sha1sum == "none",
         "activation_date": lambda self: self.state in ["archived", "operational"] and \
                                     self.activation_date == DEFAULT_ACTIVATION_DATE,
-        "useafter_date": lambda self: self.useafter_date == DEFAULT_ACTIVATION_DATE and self.type != "mapping",
+        "useafter_date": lambda self: (self.useafter_date in [self.delivery_date, DEFAULT_ACTIVATION_DATE] and self.type != "mapping"),
         "type" : lambda self: not self.type,
         "observatory": lambda self: self.observatory not in OBSERVATORIES,
         "instrument": lambda self:  (not self.name.endswith(".pmap")) and self.instrument not in INSTRUMENTS,
@@ -729,13 +729,24 @@ class FileBlob(BlobModel):
                         self.activation_date = hist.start_date
                         break
                 return
-            with log.error_on_exception("Failed repairing HST activation date for", repr(self.name)):
-                if data_file.is_geis_data(self.name):
-                    self.activation_date = FileBlob.load(self.name[:-1]+"h").activation_date
-                    return
+            name = self.name
+            with log.error_on_exception("Failed repairing HST activation date for", repr(name)):
+                if data_file.is_geis_data(name):
+                    name = data_file.get_conjugate(name)
                 from crds.server.interactive import database
-                info = database.get_reference_info(self.instrument, self.name)
-                self.activation_date = timestamp.parse_date(info["opus_load_date"])
+                info = database.get_reference_info(self.instrument, name)
+                self.useafter_date = timestamp.parse_date(info["opus_load_date"])
+
+        def repair_useafter_date(self):
+            if self.type == "mapping":
+                return
+            name = self.name
+            with log.error_on_exception("Failed repairing HST useafter date for", repr(name)):
+                if data_file.is_geis_data(name):
+                    name = data_file.get_conjugate(name)
+                from crds.server.interactive import database
+                info = database.get_reference_info(self.instrument, name)
+                self.useafter_date = timestamp.parse_date(info["useafter_date"])
         
     @property
     def available(self):
