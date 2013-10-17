@@ -31,6 +31,21 @@ echo "==========================================================="
 tail -200 install.${ETAIL}
 
 echo "==========================================================="
+echo "Post-reinstall CRDS subversion status"
+echo "==========================================================="
+cd ${CRDS}/CRDS
+svn status
+svn info
+
+echo "==========================================================="
+echo "Post-reinstall CRDS_server subversion status"
+echo "==========================================================="
+cd ${CRDS}/CRDS_server
+echo "UPDATING SUBVERSION for CRDS_server"
+svn status
+svn info
+
+echo "==========================================================="
 echo "Updating crontab"
 echo "==========================================================="
 crontab host/crontab
