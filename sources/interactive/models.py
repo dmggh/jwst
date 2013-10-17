@@ -229,24 +229,56 @@ def set_default_context(context, observatory=OBSERVATORY, state="edit", descript
     # Create a context history record for this context switch.
     history = get_context_history(observatory=observatory, state=state)
     old_context = history[0].context if history else "none"
-    if old_context != context or (rmap.is_mapping(context) and history == "none:"):
+    if old_context != context or (rmap.is_mapping(context) and not history):
         new_hist = ContextHistoryModel()
         new_hist.description = description
         new_hist.context = context
         new_hist.state = state
         new_hist.save()
         if state == "operational":
-            datestr = timestamp.format_date(new_hist.start_date)
-            context = rmap.load_mapping(context)
-            supported_files = set(context.reference_names() + context.mapping_names())
-            files = get_fileblob_map()
-            for fname, blob in files.items():
-                if fname in supported_files:
-                    if blob.activation_date.year == DEFAULT_ACTIVATION_DATE.year:
-                        log.info("Setting activation date of '{}' to '{}'".format(fname, datestr))
-                        blob.thaw()
-                        blob.activation_date = new_hist.start_date
-                        blob.save()
+            fileblob_map = get_fileblob_map()
+            update_activation_dates(fileblob_map, context, new_hist.start_date)
+            update_file_states(fileblob_map, old_context, context)
+
+def update_activation_dates(fileblob_map, context, activation_date):
+    """Set the activation dates of files which are new in `context` to `activation_date`."""
+    datestr = timestamp.format_date(activation_date)
+    supported_files = _active_files(context)
+    for fname, blob in fileblob_map.items():
+        if fname in supported_files:
+            if blob.activation_date.year == DEFAULT_ACTIVATION_DATE.year:
+                log.info("Setting activation date of '{}' to '{}'".format(fname, datestr))
+                blob.thaw()
+                blob.activation_date = timestamp.parse_date(activation_date)
+                blob.save()
+
+def update_file_states(fileblob_map, old_context, new_context):
+    """Toggle file states between "archived" and "operational" for files in `old_context` and `new_context`."""
+    old_files = _active_files(old_context) if old_context != "none" else set([])
+    new_files = _active_files(new_context)
+    added_files = new_files - old_files
+    removed_files = old_files - new_files
+    for fname, blob in fileblob_map.items():
+        if blob.state in TRANSITORY_STATES + ACTIVE_STATES:
+            if fname in new_files:
+                _update_file_state(blob, "operational")
+            else:
+                _update_file_state(blob, "archived")
+        else:
+            pass # file is inactive: uploaded, not yet archived, failed, cancelled, rejected, etc.
+                
+def _update_file_state(blob, state):
+    """Change the `blob` to `state`, thawing it first,  saving it.  Issue an info."""
+    if blob.state != state:
+        log.info("Changing state of '{}' to '{}'".format(blob.name, state))
+        blob.thaw()
+        blob.state = state
+        blob.save()
+                
+def _active_files(context):
+    """Return the set of all filenames referred to by `context`."""
+    pmap = rmap.load_mapping(context)
+    return set(pmap.mapping_names() + pmap.reference_names())
 
 def get_default_context(observatory=OBSERVATORY, state="edit"):
     """Return the latest context which is in `state`."""
@@ -469,9 +501,9 @@ FILEPATH_RE = "^[A-Za-z0-9_./]+$"
 
 FILE_STATUS_MAP = OrderedDict([
     ("uploaded", "orange"),   # On the server,  still temporary
-    ("submitted", "orange"),  # In CRDS, pending delivery
     ("delivered", "blue"),    # Delivered to downstream systems, pending archive
-    ("archiving", "blue"),
+    ("submitted", "orange"),  # In found by pipeline poller
+    ("archiving", "blue"),    # Being processed by pipeline poller
     ("archived", "green"),    # Archived and in use.
     ("operational", "darkgreen"), # In operational use in the pipeline.
     ("blacklisted", "red"),
@@ -480,7 +512,16 @@ FILE_STATUS_MAP = OrderedDict([
     ("archiving-failed", "red"),
 ])
 
+TRANSITORY_STATES = ["delivered","submitted","archiving"]
+ACTIVE_STATES = ["archived", "operational"]
+INACTIVE_STATES = ["uploaded", "blacklisted", "rejected", "cancelled", "archiving-failed"]
+ALL_STATES = TRANSITORY_STATES + ACTIVE_STATES + INACTIVE_STATES
 FILE_STATES = FILE_STATUS_MAP.keys()
+
+assert len(ALL_STATES) == len(set(ALL_STATES)), "Doubly-assigned or duplicate state in FileBlob state declarations."
+assert len(FILE_STATES) >= len(ALL_STATES),  "Uncategorized state in FileBlob state declarations."
+assert len(FILE_STATES) <= len(ALL_STATES),  "Categorization of undefined-state in FileBlob state declarations."
+
 
 DEFAULT_ACTIVATION_DATE =  datetime.datetime(2050, 1, 1, 0, 0)
 
@@ -515,7 +556,7 @@ class FileBlob(BlobModel):
         ["pathname","creator","deliverer", "deliverer_email","catalog_link"]
 
     state = SimpleCharField( FILE_STATUS_MAP.keys(),
-        "operational status of this file.", "submitted" )
+        "operational status of this file.", "delivered" )
 
     blacklisted = models.BooleanField(
         default=False, 
@@ -876,7 +917,7 @@ class FileBlob(BlobModel):
         """status is a kind of summary of state and other variables,  particularly archiving."""
         if self.is_bad_file:
             return "blacklisted"    # rejected *or* blacklisted
-        elif self.state == "delivered":
+        elif self.state in TRANSITORY_STATES:
             return self.interpret_catalog_link()
         else:
             return self.state
@@ -906,7 +947,7 @@ class FileBlob(BlobModel):
         else:
             self.state = "archived"
             self.save()
-            return "archived"
+            return self.state
 
     @property
     def status_class(self):
