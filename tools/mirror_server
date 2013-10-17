@@ -1,8 +1,13 @@
 #! /bin/csh
 
-set database_backup_file=$1; 
-set catalog_file=$2;
-set mirrored_server_url=$3; 
+set BACKUP_DIR=$HOME/backups
+
+set observatory=$1
+set server_mode=$2
+set mirrored_server_url=$3
+
+set database_backup_file=${BACKUP_DIR}/backup.${observatory}.${server_mode}.mysql 
+set catalog_file=${BACKUP_DIR}/catalogs.${observatory}.${server_mode}.tar.gz
 
 cd ${CRDS}/CRDS_server
 source env.csh

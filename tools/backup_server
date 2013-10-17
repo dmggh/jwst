@@ -1,0 +1,39 @@
+#! /bin/tcsh
+
+source env.csh
+
+setenv TAIL ${CRDS_PROJECT}.${CRDS_USECASE}
+setenv ETAIL ${TAIL}.err
+
+setenv BACKUP_DIR /crds/data1/${CRDS_SERVER}/server/db_backups/
+setenv DATETAG `date "+%Y-%m-%d-%H%M%S"`
+
+# Run the django-dbbackup based CRDS server database backup
+# This generates a unique dated backup on /crds/data1/..., but only
+# copies to a generic single night's backup to ${HOME}/backups
+echo "============================================================"
+echo "Database backup"
+echo "============================================================"
+./manage dbbackup
+set backup_file=`ls -1 ${BACKUP_DIR}/*.mysql | tail -1`
+chmod 600 $backup_file
+cp $backup_file ${HOME}/backups/backup.${TAIL}.mysql
+chmod 600 ${HOME}/backups/backup.${TAIL}.mysql
+
+echo "============================================================"
+echo "Tarring server directories."
+echo "============================================================"
+# Created dated backup copies in ${BACKUP_DIR}
+# Create a single generic copy in ${HOME}/backups for mirroring "yesterday".
+cd ${CRDS_SERVER_STORAGE}
+tar zcf ${HOME}/backups/catalogs.${TAIL}.tar.gz catalogs
+tar zcf ${BACKUP_DIR}/catalogs.${TAIL}.${DATETAG}.tar.gz catalogs
+
+cd ${CRDS_PATH}
+tar zcf ${HOME}/backups/mappings.${TAIL}.tar.gz mappings
+tar zcf ${BACKUP_DIR}/mappings.${TAIL}.${DATETAG}.tar.gz mappings
+
+cd ${CRDS_PATH}
+tar zcf ${HOME}/backups/config.${TAIL}.tar.gz config
+tar zcf ${BACKUP_DIR}/config.${TAIL}.${DATETAG}.tar.gz config
+
