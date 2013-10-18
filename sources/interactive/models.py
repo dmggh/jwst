@@ -635,7 +635,6 @@ class FileBlob(BlobModel):
     
     bad_field_checks = {
         "uploaded_as" : lambda self: not self.uploaded_as,
-        "catalog_link" : lambda self: self.catalog_link and not os.path.exists(self.catalog_link),
         "size" : lambda self: self.size == -1 or self.size != self.compute_size(),
         "sha1sum" : lambda self: self.sha1sum == "none",
         "activation_date": lambda self: self.state in ["archived", "operational"] and \
@@ -725,9 +724,6 @@ class FileBlob(BlobModel):
         else:
             return "FAILED REPAIRING uploaded_as='{}'".format(frompath)
 
-    def repair_catalog_link(self):
-        self.catalog_link = ""
-    
     def repair_type(self):
         self.type = "mapping" if rmap.is_mapping(self.name) else "reference"
         
