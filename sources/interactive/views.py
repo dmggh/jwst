@@ -694,6 +694,9 @@ def logout(request):
 def set_password(request):
     """Support changing a user's own password."""
     if request.method == "POST":
+        old_password =  validate(request, "old_password", ".+")
+        user = django.contrib.auth.authenticate(username=str(request.user), password=old_password)
+        assert user is not None, "Old password is not valid."
         new_password1 = validate(request, "new_password1", ".+")
         new_password2 = validate(request, "new_password2", ".+")
         assert new_password1 == new_password2, "New passwords are not the same."
