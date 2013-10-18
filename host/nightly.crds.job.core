@@ -39,7 +39,7 @@ tail -100 runtests.${ETAIL}
 echo "============================================================"
 echo "Backing up server"
 echo "============================================================"
-cd ${CRDS}/CRDS_Server
+cd ${CRDS}/CRDS_server
 tools/backup_server >& backup.${ETAIL}
 
 echo "==========================================================="
