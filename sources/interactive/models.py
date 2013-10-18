@@ -260,7 +260,7 @@ def update_file_states(fileblob_map, old_context, new_context):
     removed_files = old_files - new_files
     for fname, blob in fileblob_map.items():
         if blob.state in TRANSITORY_STATES + ACTIVE_STATES:
-            if fname in new_files:
+            if fname in new_files or data_file.get_conjugate(fname) in new_files:
                 _update_file_state(blob, "operational")
             else:
                 _update_file_state(blob, "archived")
