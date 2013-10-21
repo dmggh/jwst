@@ -83,6 +83,8 @@ class InteractiveBase(object):
     def tearDown(self):
         self.remove_files(self.delete_list)
         pysh.sh("/bin/rm -rf " + lconfig.locate_file("test.fits", self.observatory), raise_on_error=True)  # , trace_commands=True)
+        pysh.sh("/bin/rm -f " + sconfig.CRDS_DELIVERY_DIR + "/*")
+        pysh.sh("/bin/rm -f " + sconfig.CRDS_CATALOG_DIR + "/*")
         if self.ingested:
             pysh.sh("/bin/rm -rf " + self.ingest_path, raise_on_error=True) # , trace_commands=True)
         locks.release_all()

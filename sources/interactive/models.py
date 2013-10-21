@@ -1128,7 +1128,7 @@ class AuditBlob(BlobModel):
         filekind = BlobField(FILEKINDS + ["unknown"], "associated filekind", ""),
     )
     
-    unicode_list = ["action", "user", "date", "filename", "why"]
+    unicode_list = ["date", "action", "user", "filename", "why"]
     
     @classmethod
     def new(cls, user, action, affected_file, why, details, 
@@ -1144,10 +1144,31 @@ class AuditBlob(BlobModel):
             date = timestamp.now()
         blob.date = date
         blob.observatory = observatory or OBSERVATORY
-        blob.instrument = instrument
-        blob.filekind = filekind
+        if instrument == "unknown" or filekind == "unknown":
+            blob.set_file_properties()
         blob.save()
         return blob
+    
+    def set_file_properties(self):
+        """Base on self.filename,  set self.instrument and self.filekind."""
+        try:
+            instrument, filekind = utils.get_file_properties(self.observatory, self.filename)
+            self.instrument = instrument
+            self.filekind = filekind
+            return True
+        except Exception:
+            return False
+    
+    def repair(self):
+        """Repair invalid fields of `self` if possible."""
+        repaired = False
+        self.thaw()
+        if "unknown" in [self.instrument, self.filekind]:
+            repaired = repaired or self.set_file_properties()
+        if repaired:
+            log.info("Repairing AuditBlob", repr(self.id), "for file", repr(self.filename))
+            self.save()
+        return repaired
 
     @property
     def fileblob(self):
