@@ -6,8 +6,8 @@ DATABASES = {
         'NAME': 'crds_hst',
         'USER': 'hstcrds',                      # Not used with sqlite3.
         'PASSWORD': DB_WORD,                  # Not used with sqlite3.
-        'HOST': 'blueops.stsci.edu',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '3306',                      # Set to empty string for default. Not used with sqlite3.
+        'HOST': 'tanops.stsci.edu',                      # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '33306',                      # Set to empty string for default. Not used with sqlite3.
 
         "OPTIONS": {
            'init_command': 'SET storage_engine=INNODB;',
