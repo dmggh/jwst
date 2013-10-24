@@ -263,10 +263,10 @@ def update_file_states(fileblob_map, old_context, new_context):
             if fname in new_files or data_file.get_conjugate(fname) in new_files:
                 _update_file_state(blob, "operational")
             else:
-                _update_file_state(blob, "archived")
+                _update_file_state(blob, blob.interpret_catalog_link())
         else:
             pass # file is inactive: uploaded, not yet archived, failed, cancelled, rejected, etc.
-                
+
 def _update_file_state(blob, state):
     """Change the `blob` to `state`, thawing it first,  saving it.  Issue an info."""
     if blob.state != state:

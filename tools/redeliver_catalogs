@@ -38,21 +38,52 @@ def redeliver_catalogs(catalogs):
     for cat in catalogs:
         log.info("Redelivering", repr(cat))
         catalog_path = os.path.join(config.CRDS_CATALOG_DIR, cat)
+        delivered_catalog = os.path.join(config.CRDS_DELIVERY_DIR, cat)
         files = open(catalog_path).read().splitlines()
         filepaths = [rmap.locate_file(file, models.OBSERVATORY) for file in files]
-        wipe_delivered_files(files + [cat])
+        wipe_delivered_files(files + [delivered_catalog])
         with log.error_on_exception("Failed redelivering", repr(cat)):
             delivery =  submit.Delivery("fake user", models.OBSERVATORY, filepaths, "fake description", "fake action")
             delivery.deliver_make_links(catalog_path, filepaths)
 
+def basecatalog(filename):
+    """Given a catalog filename,  return the filename after removing any delivery processing suffix
+    to restore it to the root catalog name.  Ignore paths.
+    """
+    return filename.lower().replace("_proc","").replace("_submit","").replace("_error","")
+
+def relink_filelist(files):
+    """Relink an arbitrary list of files which don't necessarily have a single catalog listing them
+    and may in fact include multiple catalogs,  e.g. all existing delivered files from a backup list.
+    """
+    wipe_delivered_files(files)
+    for filename in files:
+        if rmap.is_mapping(filename):
+            source_path = rmap.locate_mapping(filename)
+        elif basecatalog(filename).endswith(".cat"):
+            source_path = os.path.join(config.CRDS_CATALOG_DIR, basecatalog(filename))
+        else:
+            source_path = rmap.locate_file(filename, models.OBSERVATORY)
+        dest_path = os.path.join(config.CRDS_DELIVERY_DIR, filename)
+        log.info("Relinking", repr(dest_path), "-->", repr(source_path))
+        pysh.sh("rm -f $dest_path")
+        os.link(source_path, dest_path)
+
 def main():
-    pysh.usage("[--find-undelivered-catalogs] | [<catalogs_to_redeliver...>]", 1)
+    pysh.usage("[--find-undelivered-catalogs] | --catalogs [<catalogs_to_redeliver...>] | --filelist <deliver_dir_filelist>", 1)
     if "--find-undelivered-catalogs" in sys.argv:
         sys.argv.remove("--find-undelivered-catalogs")
         catalogs = find_undelivered_catalogs()
-    else:
+        redeliver_catalogs(catalogs)
+    elif "--catalogs" in sys.argv:
+        sys.argv.remove("--catalogs")
         catalogs = sys.argv[1:]
-    redeliver_catalogs(catalogs)
+        redeliver_catalogs(catalogs)
+    elif "--files" in sys.argv:
+        sys.argv.remove("--files")
+        relink_filelist(sys.argv[1:])
+    else:
+        raise RuntimeError("Invalid command line options.")
 
 if __name__ == "__main__":
     main()
