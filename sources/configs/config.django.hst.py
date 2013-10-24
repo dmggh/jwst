@@ -75,7 +75,7 @@ CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/mappings/hst/"
 
 # These are the file states which are available for download or rpc.
 # XXX TODO restrict to archived or operational
-CRDS_DISTRIBUTION_STATES = ["delivered","archived","operational"]
+CRDS_DISTRIBUTION_STATES = ["delivered", "submitted", "archiving", "archived", "operational"]
 
 CATALOG_DB_USER = "jmiller"
 CATALOG_DB_PFILE = "/home/jmiller/.crds_db"
