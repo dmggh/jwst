@@ -29,6 +29,10 @@ cd ${CRDS_SERVER_STORAGE}
 tar zcf ${HOME}/backups/catalogs.${TAIL}.tar.gz catalogs
 tar zcf ${BACKUP_DIR}/catalogs.${TAIL}.${DATETAG}.tar.gz catalogs
 
+cd ${CRDS_SERVER_STORAGE}/deliveries
+ls -1 >${HOME}/backups/deliveries.${TAIL}.txt
+ls -1 >${BACKUP_DIR}/deliveries.${TAIL}.${DATETAG}.txt
+
 cd ${CRDS_PATH}
 tar zcf ${HOME}/backups/mappings.${TAIL}.tar.gz mappings
 tar zcf ${BACKUP_DIR}/mappings.${TAIL}.${DATETAG}.tar.gz mappings
