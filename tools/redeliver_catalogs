@@ -58,6 +58,8 @@ def relink_filelist(files):
     """
     wipe_delivered_files(files)
     for filename in files:
+        if filename.endswith("*"):
+            filename = filename[:-1]
         if rmap.is_mapping(filename):
             source_path = rmap.locate_mapping(filename)
         elif basecatalog(filename).endswith(".cat"):
@@ -66,8 +68,9 @@ def relink_filelist(files):
             source_path = rmap.locate_file(filename, models.OBSERVATORY)
         dest_path = os.path.join(config.CRDS_DELIVERY_DIR, filename)
         log.info("Relinking", repr(dest_path), "-->", repr(source_path))
-        pysh.sh("rm -f $dest_path")
-        os.link(source_path, dest_path)
+        with log.error_on_exception("Failed relinking",repr(dest_path), "-->", repr(source_path)):
+            pysh.sh("rm -f $dest_path")
+            os.link(source_path, dest_path)
 
 def main():
     pysh.usage("[--find-undelivered-catalogs] | --catalogs [<catalogs_to_redeliver...>] | --filelist <deliver_dir_filelist>", 1)
