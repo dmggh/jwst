@@ -1,0 +1,27 @@
+{% extends "table_base.html" %}
+
+{% load stdtags %}
+
+{% block contents %}
+
+    <h2>Deleted References</h2>
+        
+    {% include "select_pmap_results.html" %}
+    
+    <h3>Deleted Files</h3>
+    {% for reference in deleted_files %}
+        <p>{{reference|browse}}</p>
+    {% endfor %}
+
+    <h3>Generated Mappings</h3>
+    {% for item in context_map %}
+        <p>{{item.0|browse}} --> {{item.1|browse}}</p>
+    {% endfor %}
+
+    <br/>
+    
+    {% include "collision_explain.html" %}
+    
+    <br/>
+    <br/>
+{% endblock contents %}

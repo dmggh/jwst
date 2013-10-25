@@ -40,6 +40,8 @@ urlpatterns = patterns('',
               
     url(r'^batch_submit_references/$', 'crds.server.interactive.views.batch_submit_references'),
     url(r'^submit_confirm/$', 'crds.server.interactive.views.submit_confirm'),
+
+    url(r'^delete/reference/$', 'crds.server.interactive.views.delete_references'),
             
     url(r'^browse/(?P<filename>[A-Za-z0-9_.]+(fits|imap|rmap|pmap|r\d[hd]))$', 
         'crds.server.interactive.views.browse_known_file'),

@@ -1047,7 +1047,7 @@ def known_files():
 
 # ============================================================================
 
-def transitive_blacklist(blacklist_root, badflag, observatory):
+def transitive_blacklist(blacklist_root, badflag, observatory=OBSERVATORY):
     """Blacklist `blacklist_root` and all the files referring to it according
     to `badflag` as "ok" or "bad".
     """
@@ -1105,7 +1105,8 @@ def set_reject(rejected_filename, rejected_bool):
 # ============================================================================
 
 AUDITED_ACTIONS = [
-    "mass import", "submit file", "blacklist", "new context", "batch submit", "set default context"
+    "mass import", "submit file", "blacklist", "new context", "batch submit", "set default context",
+    "delete references",
     ]
 
 class AuditBlob(BlobModel):

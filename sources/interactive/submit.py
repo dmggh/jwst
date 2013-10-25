@@ -369,14 +369,14 @@ class FileSubmission(object):
     def auto_rename_file(self, upload_name, upload_path):
         """Generate a CRDS name for an uploaded file."""
         extension = os.path.splitext(upload_name)[-1]
-        instrument, filekind = utils.get_file_properties(self.observatory, upload_path)
+        instrument, filekind = self.get_file_properties(upload_path)
         return self.get_new_name(instrument, filekind, extension)
     
     def new_name(self, old_map):
         """Given an old mapping name, `old_map`, adjust the serial number to 
         create a new mapping name of the same series.
         """
-        instrument, filekind = utils.get_file_properties(self.observatory, old_map)
+        instrument, filekind = self.get_file_properties(old_map)
         extension = os.path.splitext(old_map)[-1]
         new_map = self.get_new_name(instrument, filekind, extension)
         assert not (rmap.mapping_exists(new_map) or models.FileBlob.exists(new_map)), \
@@ -422,6 +422,10 @@ class FileSubmission(object):
         reflect on the file system and return a count of +1 the last file seen.
         """
         return models.CounterModel.next(self.observatory, instrument, filekind, extension)
+    
+    def get_file_properties(self, path):
+        """Return (instrument, filekind) related to `path`."""
+        return utils.get_file_properties(self.observatory, path)
     
 # ------------------------------------------------------------------------------------------------
       
@@ -516,9 +520,10 @@ class BatchReferenceSubmission(FileSubmission):
         seen_instrument = None
         for (original_name, uploaded_path) in self.uploaded_files.items():
             try:
-                instrument, filekind = utils.get_file_properties(self.observatory, uploaded_path)
+                instrument, filekind = self.get_file_properties(uploaded_path)
             except Exception:
-                raise CrdsError("Can't determine instrument or file type for " + srepr(original_name))
+                raise CrdsError("Can't determine instrument or file type for " + srepr(original_name) + " at " + 
+                                repr(uploaded_path))
             if seen_instrument is None:
                 seen_instrument = instrument
             else:
@@ -570,9 +575,9 @@ class BatchReferenceSubmission(FileSubmission):
                             for new_reference in new_references_map.values() ]
         rmap_replacement_map = {}
         for old_rmap in old_rmaps:
-            (instrument, filekind) = utils.get_file_properties(self.observatory, old_rmap)
+            (instrument, filekind) = self.get_file_properties(old_rmap)
             these_ref_paths = [ refpath for refpath in reference_paths 
-                if (instrument, filekind) == utils.get_file_properties(self.observatory, refpath) ]
+                if (instrument, filekind) == self.get_file_properties(refpath) ]
             new_rmap = self.get_new_name(instrument, filekind, ".rmap")
             rmap_replacement_map[old_rmap] = new_rmap
             new_rmap_path = rmap.locate_mapping(new_rmap)
@@ -580,6 +585,75 @@ class BatchReferenceSubmission(FileSubmission):
             self.push_status("Generating new rmap '{}' from '{}' with added files.".format(new_rmap, old_rmap))
             # refactor inserting references.
             refactor.rmap_insert_references(old_rmap_path, new_rmap_path, these_ref_paths)
+            # Submit the new rmap with added references
+            self.add_crds_file(new_rmap, new_rmap_path, update_derivation=True)
+        return rmap_replacement_map
+    
+# .............................................................................
+
+class DeleteReferenceSubmission(BatchReferenceSubmission):
+    """Given a list of existing references in uploaded_files,  and a derivation context,
+    generate a new context which deletes all the listed references. 
+    and automatically generate new rmaps and contexts relative to
+    the specified derivation context (pmap_name).
+    """
+    def _submit(self):
+        """Certify and submit the files,  returning information to confirm/cancel."""
+        # Verify that ALL references certify,  raise CrdsError on first error.
+        self.verify_instrument_lock()
+        
+        self.bsr_ensure_references()
+        
+        # Refactor with temporary rmap files and references to support detecting 
+        # problems with refactoring prior to generating official names.
+        old_rmaps = self.del_updated_rmaps()
+        
+        # Generate modified rmaps using real reference names and
+        new_mappings_map = self.del_generate_real_rmaps(old_rmaps, self.uploaded_files)
+        
+        disposition, rmap_certs = self.bsr_certify_new_mapping_list(new_mappings_map, context=self.pmap_name)
+        
+        collision_list = self.get_collision_list(new_mappings_map.values())
+        
+        diff_results = self.mass_differences(new_mappings_map)
+        
+        if disposition == "bad files":
+            self.cleanup_failed_submission()
+        
+        return (disposition, new_mappings_map, rmap_certs, diff_results, collision_list)
+
+    def del_updated_rmaps(self):
+        """Try out refactoring,  filekind-by-filekind,  and return a list of the affected rmaps.
+        Returns [ replaced_rmaps... ]
+        """
+        groups = self.bsr_group_references()
+        return [ self.pmap.get_imap(instrument).get_rmap(filekind).name
+                for ((instrument, filekind), uploaded_group) in groups ]
+    
+    def del_generate_real_rmaps(self, old_rmaps, del_references_map):
+        """Generate and submit official rmaps correspending to `old_rmaps` in 
+        derivation context `pmap`,  inserting references from `new_references_map`.
+        
+        Now that we know that refactoring works and what the new references will be
+        named,  allocate new supporting rmap names and refactor again for real.
+        
+        Return { old_rmap : new_rmap, ...}
+        """
+        # Dig these out of the database rather than passing them around.
+        
+        reference_blobs = [ models.FileBlob.load(name) for name in del_references_map.keys() ]
+        rmap_replacement_map = {}
+        for old_rmap in old_rmaps:
+            (instrument, filekind) = self.get_file_properties(old_rmap)
+            these_ref_names = [ blob.name for blob in reference_blobs 
+                               if (instrument, filekind) == (blob.instrument, blob.filekind) ] 
+            new_rmap = self.get_new_name(instrument, filekind, ".rmap")
+            rmap_replacement_map[old_rmap] = new_rmap
+            new_rmap_path = rmap.locate_mapping(new_rmap)
+            old_rmap_path = rmap.locate_mapping(old_rmap)
+            self.push_status("Generating new rmap '{}' from '{}' with added files.".format(new_rmap, old_rmap))
+            # refactor inserting references.
+            refactor.rmap_delete_references(old_rmap_path, new_rmap_path, these_ref_names)
             # Submit the new rmap with added references
             self.add_crds_file(new_rmap, new_rmap_path, update_derivation=True)
         return rmap_replacement_map
@@ -647,7 +721,7 @@ class SimpleFileSubmission(FileSubmission):
 # ------------------------------------------------------------------------------------------------
         
 def submit_confirm_core(confirmed, submission_kind, description, new_files, context_rmaps, user, pmap_name, pmap_mode,
-                        locked_instrument):
+                        locked_instrument, related_files=None):
     """Handle the confirm/cancel decision of a file submission.  If context_rmaps is not [],  then it's a list
     of .rmaps from which to generate new contexts.   
     """
@@ -686,7 +760,7 @@ def submit_confirm_core(confirmed, submission_kind, description, new_files, cont
         else:
             delivered_files = new_files
       
-        delivery = Delivery(user, delivered_files, description, submission_kind)
+        delivery = Delivery(user, delivered_files, description, submission_kind, related_files=related_files)
         delivery.deliver()
         
         collisions = get_collision_list(context_name_map.values())
@@ -748,7 +822,7 @@ class Delivery(object):
     file is renamed to .cat_proc.   When the archive has accepted the delivery,  the .cat_proc file
     is removed.   CRDS updates the state of "delivered" files
     """
-    def __init__(self, user, delivered_files, description, action, observatory=sconfig.observatory):
+    def __init__(self, user, delivered_files, description, action, observatory=sconfig.observatory, related_files=None):
         self.user = str(user)
         self.description = description
         self.action = action
@@ -756,6 +830,7 @@ class Delivery(object):
             raise CrdsError("No files were selected for delivery.")
         self.delivered_files = [str(x) for x in sorted(delivered_files)]
         self.observatory = observatory
+        self.related_files = related_files or []
             
     def deliver(self):
         """Perform delivery actions for `delivered_files` by setting up the
@@ -769,7 +844,7 @@ class Delivery(object):
             self.deliver_remove_fail(catalog, paths)
             raise CrdsError("Delivery failed: " + str(exc))
         self.update_file_blobs(catalog_link)
-        details = repr([os.path.basename(catalog)] + self.delivered_files)
+        details = repr([os.path.basename(catalog)] + self.delivered_files + self.related_files)
         models.AuditBlob.new( 
             self.user, self.action, os.path.basename(catalog), self.description, details, self.observatory)        
         for filename in self.delivered_files:

@@ -170,6 +170,15 @@ def is_known_file(filename):
 #        "File " + srepr(filename) + " has not yet been submitted."
     return filename
 
+def is_known_file_list(text):
+    """Break up a string of whitespace or comma seperated filenames into a list of files,
+    verifying that the files exist in CRDS.
+    """
+    files = text.replace(","," ").split()
+    for file in files:
+        is_known_file(file)
+    return files
+
 def is_available_file_blob(filename):
     """Verify that `filename` identifies a file already known to CRDS and
     meets any requirements for distribution.   Return its blob.
@@ -990,24 +999,31 @@ def set_file_enable_post(request):
     badflag = validate(request, "badflag", "bad|ok")
     why = validate(request, "why", DESCRIPTION_RE)
     
+    affected_files = set_file_enable_core(str(request.user), blacklist_root, reject_type, badflag, why)
+    
+    return crds_render(request, "blacklist_results.html", 
+                  { "affected_files": affected_files })
+    
+def set_file_enable_core(user, blacklist_root, reject_type, badflag, why):
+    """Set's file reject state of `blacklist_root` based on `reject_type` and `badflag`
+    and creates an AuditBlob listing `why`.
+    """
     if reject_type in ["blacklist","both"]:
-        affected_files = models.transitive_blacklist(blacklist_root, badflag, observatory)
+        affected_files = models.transitive_blacklist(blacklist_root, badflag)
     else:
         affected_files = [blacklist_root]
 
     if reject_type in ["reject", "both"]:
         models.set_reject(blacklist_root, badflag=="bad")
 
-    instrument, filekind = utils.get_file_properties(
-        observatory, blacklist_root)
+    instrument, filekind = utils.get_file_properties(models.OBSERVATORY, blacklist_root)
 
     models.AuditBlob.new(
-        request.user, "blacklist", blacklist_root, why, 
+        user, "blacklist", blacklist_root, why, 
         "marked as " + srepr(badflag.upper()) + " reject_type=" + srepr(reject_type),
-        observatory=observatory, instrument=instrument, filekind=filekind)
+        instrument=instrument, filekind=filekind)
 
-    return crds_render(request, "blacklist_results.html", 
-                  { "affected_files": affected_files })
+    return affected_files
 
 # ===========================================================================
 
@@ -1210,6 +1226,76 @@ def submit_confirm(request):
     return render_repeatable_result(request, "confirmed.html", confirm_results, jpoll_handler=jpoll_handler)
     
 # ===========================================================================
+
+@error_trap("delete_references_input.html")
+@log_view
+@login_required
+@instrument_lock_required
+def delete_references(request):
+    """View to return batch submit reference form or process POST."""
+    if request.method == "GET":
+        return crds_render(request, "delete_references_input.html", {
+        }, requires_pmaps=True)
+    else:
+        return delete_references_post(request)
+    
+def delete_references_post(request):
+    """View fragment to process file delete references POSTs."""
+
+    pmap_mode, pmap_name = get_recent_or_user_mode_and_context(request)
+    description = validate(request, "description", DESCRIPTION_RE)
+    reject_type = validate(request, "reject_type", "reject|blacklist|both")
+
+    deleted_files = validate(request, "deleted_files", is_known_file_list)
+    uploaded_files = { fname:rmap.locate_file(fname, models.OBSERVATORY) for fname in deleted_files }
+
+    pmap = rmap.get_cached_mapping(pmap_name)
+    pmap_references = pmap.reference_names()
+    for deleted in deleted_files:
+        assert deleted in pmap_references, "File " + repr(deleted) + " does not appear in context " + repr(pmap.name)
+    
+    locked_instrument = get_locked_instrument(request)
+    
+    drs = submit.DeleteReferenceSubmission(pmap_name, uploaded_files, description, 
+        user=request.user, locked_instrument=locked_instrument)
+    disposition, new_mappings_map, mapping_certs, mapping_diffs, collision_list = drs.submit()
+    
+    new_files = new_mappings_map.values()   # the new rmaps map
+    final_pmap, context_map, collision_list = submit.submit_confirm_core( 
+           True, "delete references", description, new_files, new_files, 
+           str(request.user),  pmap_name, pmap_mode, locked_instrument, related_files=deleted_files)
+
+    context_map.update(new_mappings_map)
+    
+    for file in deleted_files:
+        models.AuditBlob.new(str(request.user), "delete references", file, description, 
+                             details = repr(deleted_files + [final_pmap]))
+    
+    if reject_type != "no_reject":
+        for file in deleted_files:
+            set_file_enable_core(str(request.user), file, reject_type, "bad", description)
+    
+    del_results = {
+                "pmap" : final_pmap,
+                "original_pmap" : pmap_name,
+                "pmap_mode" : pmap_mode,
+                
+                "deleted_files" : deleted_files,
+
+                "context_map" : sorted(context_map.items()),
+                "submission_kind" : "delete references",
+                "description" : description,
+                "context_rmaps" : sorted(new_mappings_map.values()),                 
+                "collision_list" : collision_list,
+                "disposition": disposition,                
+            }
+    
+    return render_repeatable_result(request, "delete_references_results.html", del_results)
+
+# ===========================================================================
+
+
+# XXXX This is light-weight super-user functionality with minimal testing.
 
 @error_trap("create_contexts_input.html")
 @log_view
