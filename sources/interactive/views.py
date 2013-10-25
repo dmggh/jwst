@@ -1497,17 +1497,17 @@ def browse_known_file(request, filename):
         context = models.get_default_context(blob.observatory)
         match_paths = matches.find_full_match_paths(context, filename)
         match_paths = [flatten(path) for path in match_paths]
-        try:
-            certify_results = web_certify.captured_certify(filename, blob.pathname, check_references=True, context=context)
-        except Exception, exc:
-            log.warning("certify failed for", blob.pathname)
-            certify_results = None
+#        try:
+#            certify_results = web_certify.captured_certify(filename, blob.pathname, check_references=True, context=context)
+#        except Exception, exc:
+#            log.warning("certify failed for", blob.pathname)
+#            certify_results = None
     else:
         match_paths = []
         # Not certified against a context because the default context will generally be from the "future"
         # and will therefore typically show a number of regressions.   Another option here which I'm skipping
         # for now is certifying against the mapping that `filename` was derived_from.
-        certify_results = web_certify.captured_certify(filename, blob.pathname, check_references=False)
+#        certify_results = web_certify.captured_certify(filename, blob.pathname, check_references=False)
 
     return crds_render(request, "browse_results.html", { 
              "fileblob" : blob,
@@ -1516,7 +1516,6 @@ def browse_known_file(request, filename):
              "used_by_files" : used_by_files,
              "match_paths" : match_paths,
              "file_contents": file_contents,
-             "certify_results" : certify_results,
              "browsed_file": filename,
              'prior_file_versions' : get_prior_file_versions(blob)
     })
