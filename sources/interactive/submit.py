@@ -550,7 +550,7 @@ class BatchReferenceSubmission(FileSubmission):
         new_references_map = self.bsr_submit_references()
         
         # Generate modified rmaps using real reference names and
-        new_mappings_map = self.modify_and_add_rmaps(old_rmaps, new_references_maps)
+        new_mappings_map = self.modify_and_add_rmaps(old_rmaps, new_references_map)
         
         rmap_disposition, rmap_certs = self.certify_new_mapping_list(new_mappings_map, context=comparison_context)
         
