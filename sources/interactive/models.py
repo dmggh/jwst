@@ -1106,7 +1106,7 @@ def set_reject(rejected_filename, rejected_bool):
 
 AUDITED_ACTIONS = [
     "mass import", "submit file", "blacklist", "new context", "batch submit", "set default context",
-    "delete references",
+    "delete references", "add references"
     ]
 
 class AuditBlob(BlobModel):

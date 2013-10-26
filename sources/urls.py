@@ -42,6 +42,7 @@ urlpatterns = patterns('',
     url(r'^submit_confirm/$', 'crds.server.interactive.views.submit_confirm'),
 
     url(r'^delete/reference/$', 'crds.server.interactive.views.delete_references'),
+    url(r'^add_existing/reference/$', 'crds.server.interactive.views.add_existing_references'),
             
     url(r'^browse/(?P<filename>[A-Za-z0-9_.]+(fits|imap|rmap|pmap|r\d[hd]))$', 
         'crds.server.interactive.views.browse_known_file'),
@@ -70,7 +71,6 @@ urlpatterns = patterns('',
     url(r'^display_context_history/$', 
         'crds.server.interactive.views.display_context_history'),
                          
-    
     url(r'^display_result/(?P<results_id>\d+)$', 
         'crds.server.interactive.views.display_result'),
                          

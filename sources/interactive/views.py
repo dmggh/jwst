@@ -1244,7 +1244,7 @@ def delete_references_post(request):
 
     pmap_mode, pmap_name = get_recent_or_user_mode_and_context(request)
     description = validate(request, "description", DESCRIPTION_RE)
-    reject_type = validate(request, "reject_type", "reject|blacklist|both")
+    reject_type = validate(request, "reject_type", "reject|blacklist|both|no_reject")
 
     deleted_files = validate(request, "deleted_files", is_known_file_list)
     uploaded_files = { fname:rmap.locate_file(fname, models.OBSERVATORY) for fname in deleted_files }
@@ -1291,6 +1291,70 @@ def delete_references_post(request):
             }
     
     return render_repeatable_result(request, "delete_references_results.html", del_results)
+
+# ===========================================================================
+
+@error_trap("add_existing_references_input.html")
+@log_view
+@login_required
+@instrument_lock_required
+def add_existing_references(request):
+    """This view supports adding references which are already in CRDS to a context
+    which doesn't contain them yet.
+    """
+    if request.method == "GET":
+        return crds_render(request, "add_existing_references_input.html", {
+        }, requires_pmaps=True)
+    else:
+        return add_existing_references_post(request)
+    
+def add_existing_references_post(request):
+    """View fragment to process add existing references form POSTs."""
+
+    pmap_mode, pmap_name = get_recent_or_user_mode_and_context(request)
+    description = validate(request, "description", DESCRIPTION_RE)
+
+    added_files = validate(request, "added_files", is_known_file_list)
+    uploaded_files = { fname:rmap.locate_file(fname, models.OBSERVATORY) for fname in added_files }
+
+    pmap = rmap.get_cached_mapping(pmap_name)
+    pmap_references = pmap.reference_names()
+    for added in added_files:
+        assert added not in pmap_references, "File " + repr(added) + " is already in context " + repr(pmap.name)
+    
+    locked_instrument = get_locked_instrument(request)
+    
+    ars = submit.AddExistingReferenceSubmission(pmap_name, uploaded_files, description, 
+                                                user=request.user, locked_instrument=locked_instrument)
+    disposition, new_mappings_map, mapping_certs, mapping_diffs, collision_list = ars.submit()
+    
+    new_files = new_mappings_map.values()   # the new rmaps map
+    final_pmap, context_map, collision_list = submit.submit_confirm_core( 
+           True, "add references", description, new_files, new_files, 
+           str(request.user),  pmap_name, pmap_mode, locked_instrument, related_files=added_files)
+
+    context_map.update(new_mappings_map)
+    
+    for file in added_files:
+        models.AuditBlob.new(str(request.user), "add references", file, description, 
+                             details = repr(added_files + [final_pmap]))
+    
+    add_results = {
+                "pmap" : final_pmap,
+                "original_pmap" : pmap_name,
+                "pmap_mode" : pmap_mode,
+                
+                "added_files" : added_files,
+
+                "context_map" : sorted(context_map.items()),
+                "submission_kind" : "add existing references",
+                "description" : description,
+                "context_rmaps" : sorted(new_mappings_map.values()),                 
+                "collision_list" : collision_list,
+                "disposition": disposition,                
+            }
+    
+    return render_repeatable_result(request, "add_existing_references_results.html", add_results)
 
 # ===========================================================================
 

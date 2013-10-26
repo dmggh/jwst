@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block head_overrides %}
+    {% include "jpoll/jpoll_head_overrides.html" %}
+{% endblock %}
+
+{% block contents_top %}
+{% endblock %}
+
+{% block column1 %}
+    <h2>Add Existing References  <span class='locked_instrument'>{{locked_instrument}}</span></h2>
+    
+    <form method="post" action="/add_existing/reference/" enctype="multipart/form-data"
+          id="add_existing_references_form" class="jpoll_ajax_html_form"
+    	  {# onsubmit="return crds.validate_and_confirm_file_delete(this);"  #}
+          >  {% csrf_token %}
+
+      <h3>Added Files</h3>
+      <textarea name="added_files" cols="50" rows="4" >{{added_files}}</textarea>
+
+      <h3>Derive From Context:</h3>
+      {% include "select_pmap.html" %}
+       <br/>
+        
+      <h3>Description: <textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea>   
+      </h3>
+
+      <br/>
+      <br/>
+      <input type="submit" value="Add References" >
+    </form>
+
+{% endblock column1 %}
+
+{% block help %}
+
+<p><b>Add Existing References</b> generates a new context from the derivation context which adds the listed 
+references which must already exist in CRDS.   Enter file names separated by spaces or newlines.   NOTE: this 
+does not add references to CRDS,  they must already be in CRDS. It creates a new context which includes
+the specified references.
+
+<p><p><b>Derive From Context</b> The name of the pipeline context which 
+will be recursively updated to delete the reference files.
+
+<p><p><b>Description</b> information about why these files were deleted.
+
+{% endblock help %}

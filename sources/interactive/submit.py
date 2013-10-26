@@ -341,7 +341,11 @@ class FileSubmission(object):
         return { old:self.new_name(old) for old in [self.pmap_name] + updates.keys() }
 
     def add_crds_file(self, original_name, filepath, state="uploaded", update_derivation=None):
-        """Create a FileBlob model instance using properties of this FileSubmission."""
+        """Create a FileBlob model instance using properties of this FileSubmission.
+        
+        These files will be deleted/destroyed if the submission fails or is cancelled when
+        cleanup_failed_submission() is called.
+        """
         if update_derivation is None:   # undefined
             update_derivation = self.auto_rename
         self.added_files.append((original_name, filepath))
@@ -427,92 +431,17 @@ class FileSubmission(object):
         """Return (instrument, filekind) related to `path`."""
         return utils.get_file_properties(self.observatory, path)
     
-# ------------------------------------------------------------------------------------------------
-      
-def get_collision_list(newfiles):
-    """Given a list of `newfiles`,  newly created files, check the database for other children 
-    of the same parent.   Return a list of triplets:  [ (newfile, parent, other_children_of_parent), ... ]
-    """
-    collision_list = []
-    for newfile in newfiles:
-        blob = models.FileBlob.load(newfile)
-        collisions = blob.collisions  # collisions is a db property so cache
-        if collisions:
-            collision_list.append((newfile, blob.derived_from, collisions))
-    return collision_list
-
-# ------------------------------------------------------------------------------------------------
-
-class BatchReferenceSubmission(FileSubmission):
-    """Submit the uploaded files as references,  and automatically generate new rmaps and contexts relative to
-    the specified derivation context (pmap_name).
-    """
-    def _submit(self):
-        """Certify and submit the files,  returning information to confirm/cancel."""
-        # Verify that ALL references certify,  raise CrdsError on first error.
-        comparison_context = self.pmap_name if self.compare_old_reference else None
-        
-        self.verify_instrument_lock()
-        
-        self.bsr_ensure_references()
-        
-        #   XXX Certification and submit_file_list order is critical:  certify then submit
-        reference_disposition, reference_certs = web_certify.certify_file_list(self.uploaded_files.items(), 
-            context=comparison_context, compare_old_reference=self.compare_old_reference, push_status=self.push_status)
+    def locate_file(self, path):
+        """Return the absolute `path`,  or the file's path in the CRDS server cache if none is given."""
+        return rmap.locate_file(path, self.observatory)
     
-        # Refactor with temporary rmap files and references to support detecting 
-        # problems with refactoring prior to generating official names.
-        old_rmaps = self.bsr_temporary_refactor()
-        
-        # name the references and get them into CRDS.
-        new_references_map = self.bsr_submit_references()
-        
-        # Generate modified rmaps using real reference names and
-        new_mappings_map = self.bsr_generate_real_rmaps(old_rmaps, new_references_map)
-        
-        rmap_disposition, rmap_certs = self.bsr_certify_new_mapping_list(new_mappings_map, context=comparison_context)
-        
-        collision_list = self.get_collision_list(new_mappings_map.values())
-        
-        diff_results = self.mass_differences(new_mappings_map)
-        
-        disposition = rmap_disposition or reference_disposition
-
-        if disposition == "bad files":
-            self.cleanup_failed_submission()
-        
-        return (disposition, new_references_map, new_mappings_map, reference_certs, rmap_certs, 
-                diff_results, collision_list)
-
-# .............................................................................
-
-    def bsr_ensure_references(self):
-        """Check for references only.   If this fails, certification will fail."""
-        for uploaded in self.uploaded_files:
-            assert not rmap.is_mapping(uploaded), \
-                "Non-reference-file's cannot be submitted in a batch submission: " + srepr(uploaded)
-
-    def bsr_temporary_refactor(self):
-        """Try out refactoring,  filekind-by-filekind,  and return a list of the affected rmaps.
-        Returns [ replaced_rmaps... ]
-        """
-        groups = self.bsr_group_references()
-        return [ self.bsr_temp_refactor_filekind(uploaded_group, instrument, filekind)
+    def updated_rmaps(self):
+        """Returns [ replaced_rmaps... ]"""
+        groups = self.group_references()
+        return [ self.pmap.get_imap(instrument).get_rmap(filekind).name
                 for ((instrument, filekind), uploaded_group) in groups ]
     
-    def bsr_temp_refactor_filekind(self, uploaded_group, instrument, filekind):
-        """Refactor the original rmap inserting temporary references, creating a 
-        temporary rmap to see what actions will occur.   Raise an exception if 
-        any of the submitted files are duds.
-        """
-        old_rmap = self.pmap.get_imap(instrument).get_rmap(filekind).name
-        log.info("Resolved old rmap as", repr(old_rmap), "based on context", repr(self.pmap.name))
-        old_rmap_path = rmap.locate_mapping(old_rmap, self.observatory)
-        tmp_rmap = tempfile.NamedTemporaryFile()
-        refactor.rmap_insert_references(old_rmap_path, tmp_rmap.name, uploaded_group.values())
-        return old_rmap
-    
-    def bsr_group_references(self):
+    def group_references(self):
         """Groups uploaded files by instrument and type.
         Returns {(instrument,filekind) : [part_of_uploaded_files...]}
         """
@@ -534,6 +463,130 @@ class BatchReferenceSubmission(FileSubmission):
                 groups[(instrument, filekind)] = {}
             groups[(instrument, filekind)][original_name] = uploaded_path 
         return groups.items()
+
+    def ensure_references(self):
+        """Check for references only.   If this fails, certification will fail."""
+        for uploaded in self.uploaded_files:
+            assert not rmap.is_mapping(uploaded), \
+                "Non-reference-file's cannot be submitted in a batch submission: " + srepr(uploaded)
+    
+    def modify_and_add_rmaps(self, old_rmaps, new_references_map):
+        """Generate and submit official rmaps correspending to `old_rmaps` in 
+        derivation context `pmap`,  inserting references from `new_references_map`.
+        
+        Now that we know that refactoring works and what the new references will be
+        named,  allocate new supporting rmap names and refactor again for real.
+        
+        Return { old_rmap : new_rmap, ...}
+        """
+        reference_paths = [ self.locate_file(new_reference) for new_reference in new_references_map.values() ]
+        rmap_replacement_map = {}
+        for old_rmap in old_rmaps:
+            (instrument, filekind) = self.get_file_properties(old_rmap)
+            these_ref_paths = [ refpath for refpath in reference_paths 
+                if (instrument, filekind) == self.get_file_properties(refpath) ]
+            new_rmap = self.get_new_name(instrument, filekind, ".rmap")
+            rmap_replacement_map[old_rmap] = new_rmap
+            new_rmap_path = rmap.locate_mapping(new_rmap)
+            old_rmap_path = rmap.locate_mapping(old_rmap)
+            self.push_status("Generating new rmap '{}' from '{}' with added files.".format(new_rmap, old_rmap))
+            # refactor inserting references.
+            self.__class__.modify_rmaps_function(old_rmap_path, new_rmap_path, these_ref_paths)
+            # Submit the new rmap with added references
+            self.add_crds_file(new_rmap, new_rmap_path, update_derivation=True)
+        return rmap_replacement_map
+    
+    def certify_new_mapping_list(self, rmap_replacement_map, context):
+        """Certify the new rmaps from `rmap_replacement_map` relative to .pmap `context`.
+        Return { old_rmap : certify_output_for_new_rmap,  ... }
+        """
+        files = [(mapping, rmap.locate_mapping(mapping)) for mapping in rmap_replacement_map.values()]
+        new_to_old = utils.invert_dict(rmap_replacement_map)
+        disposition, certify_results = web_certify.certify_file_list(files, context=context, check_references=False, # check_references=True,
+                push_status=self.push_status)
+        certify_results = { new_to_old[mapping]: results for (mapping, results) in certify_results }
+        return disposition, sorted(certify_results.items())
+
+# ------------------------------------------------------------------------------------------------
+      
+def get_collision_list(newfiles):
+    """Given a list of `newfiles`,  newly created files, check the database for other children 
+    of the same parent.   Return a list of triplets:  [ (newfile, parent, other_children_of_parent), ... ]
+    """
+    collision_list = []
+    for newfile in newfiles:
+        blob = models.FileBlob.load(newfile)
+        collisions = blob.collisions  # collisions is a db property so cache
+        if collisions:
+            collision_list.append((newfile, blob.derived_from, collisions))
+    return collision_list
+
+# ------------------------------------------------------------------------------------------------
+
+class BatchReferenceSubmission(FileSubmission):
+    """Submit the uploaded files as references,  and automatically generate new rmaps and contexts relative to
+    the specified derivation context (pmap_name).
+    """
+    modify_rmaps_function = staticmethod(refactor.rmap_insert_references)
+    
+    def _submit(self):
+        """Certify and submit the files,  returning information to confirm/cancel."""
+        # Verify that ALL references certify,  raise CrdsError on first error.
+        comparison_context = self.pmap_name if self.compare_old_reference else None
+        
+        self.verify_instrument_lock()
+        
+        self.ensure_references()
+        
+        #   XXX Certification and submit_file_list order is critical:  certify then submit
+        reference_disposition, reference_certs = web_certify.certify_file_list(self.uploaded_files.items(), 
+            context=comparison_context, compare_old_reference=self.compare_old_reference, push_status=self.push_status)
+    
+        # Refactor with temporary rmap files and references to support detecting 
+        # problems with refactoring prior to generating official names.
+        old_rmaps = self.bsr_temporary_refactor()
+        
+        # name the references and get them into CRDS.
+        new_references_map = self.bsr_submit_references()
+        
+        # Generate modified rmaps using real reference names and
+        new_mappings_map = self.modify_and_add_rmaps(old_rmaps, new_references_maps)
+        
+        rmap_disposition, rmap_certs = self.certify_new_mapping_list(new_mappings_map, context=comparison_context)
+        
+        collision_list = self.get_collision_list(new_mappings_map.values())
+        
+        diff_results = self.mass_differences(new_mappings_map)
+        
+        disposition = rmap_disposition or reference_disposition
+
+        if disposition == "bad files":
+            self.cleanup_failed_submission()
+        
+        return (disposition, new_references_map, new_mappings_map, reference_certs, rmap_certs, 
+                diff_results, collision_list)
+
+# .............................................................................
+
+    def bsr_temporary_refactor(self):
+        """Try out refactoring,  filekind-by-filekind,  and return a list of the affected rmaps.
+        Returns [ replaced_rmaps... ]
+        """
+        groups = self.group_references()
+        return [ self.bsr_temp_refactor_filekind(uploaded_group, instrument, filekind)
+                for ((instrument, filekind), uploaded_group) in groups ]
+    
+    def bsr_temp_refactor_filekind(self, uploaded_group, instrument, filekind):
+        """Refactor the original rmap inserting temporary references, creating a 
+        temporary rmap to see what actions will occur.   Raise an exception if 
+        any of the submitted files are duds.
+        """
+        old_rmap = self.pmap.get_imap(instrument).get_rmap(filekind).name
+        log.info("Resolved old rmap as", repr(old_rmap), "based on context", repr(self.pmap.name))
+        old_rmap_path = rmap.locate_mapping(old_rmap, self.observatory)
+        tmp_rmap = tempfile.NamedTemporaryFile()
+        refactor.rmap_insert_references(old_rmap_path, tmp_rmap.name, uploaded_group.values())
+        return old_rmap
     
 # .............................................................................
 
@@ -548,70 +601,35 @@ class BatchReferenceSubmission(FileSubmission):
             for (original_name, uploaded_path) in sorted(self.uploaded_files.items())
         }
     
-    def bsr_certify_new_mapping_list(self, rmap_replacement_map, context):
-        """Certify the new rmaps from `rmap_replacement_map` relative to .pmap `context`.
-        Return { old_rmap : certify_output_for_new_rmap,  ... }
-        """
-        files = [(mapping, rmap.locate_mapping(mapping)) for mapping in rmap_replacement_map.values()]
-        new_to_old = utils.invert_dict(rmap_replacement_map)
-        disposition, certify_results = web_certify.certify_file_list(files, context=context, check_references=False, # check_references=True,
-                push_status=self.push_status)
-        certify_results = { new_to_old[mapping]: results for (mapping, results) in certify_results }
-        return disposition, sorted(certify_results.items())
-
 # .............................................................................
 
-    def bsr_generate_real_rmaps(self, old_rmaps, new_references_map):
-        """Generate and submit official rmaps correspending to `old_rmaps` in 
-        derivation context `pmap`,  inserting references from `new_references_map`.
-        
-        Now that we know that refactoring works and what the new references will be
-        named,  allocate new supporting rmap names and refactor again for real.
-        
-        Return { old_rmap : new_rmap, ...}
-        """
-        # Dig these out of the database rather than passing them around.
-        reference_paths = [ models.FileBlob.load(new_reference).pathname
-                            for new_reference in new_references_map.values() ]
-        rmap_replacement_map = {}
-        for old_rmap in old_rmaps:
-            (instrument, filekind) = self.get_file_properties(old_rmap)
-            these_ref_paths = [ refpath for refpath in reference_paths 
-                if (instrument, filekind) == self.get_file_properties(refpath) ]
-            new_rmap = self.get_new_name(instrument, filekind, ".rmap")
-            rmap_replacement_map[old_rmap] = new_rmap
-            new_rmap_path = rmap.locate_mapping(new_rmap)
-            old_rmap_path = rmap.locate_mapping(old_rmap)
-            self.push_status("Generating new rmap '{}' from '{}' with added files.".format(new_rmap, old_rmap))
-            # refactor inserting references.
-            refactor.rmap_insert_references(old_rmap_path, new_rmap_path, these_ref_paths)
-            # Submit the new rmap with added references
-            self.add_crds_file(new_rmap, new_rmap_path, update_derivation=True)
-        return rmap_replacement_map
+class ExistingReferenceSubmission(FileSubmission):
+    """ExistingReferenceSubmission is an abstract class for generating new rmaps based on the list
+    of uploaded_files, a derivation context, and a class defined rmap modification function.
     
-# .............................................................................
-
-class DeleteReferenceSubmission(BatchReferenceSubmission):
-    """Given a list of existing references in uploaded_files,  and a derivation context,
-    generate a new context which deletes all the listed references. 
-    and automatically generate new rmaps and contexts relative to
-    the specified derivation context (pmap_name).
+    NOTE: uploaded_files is a misnomer,  for this class it specifies files assumed to already be
+    in CRDS.
     """
+    modify_rmaps_function = None
+
     def _submit(self):
         """Certify and submit the files,  returning information to confirm/cancel."""
+        
+        assert self.modify_rmaps_function is not None, "ExistingReferenceSubmission is an abstract class."
+        
         # Verify that ALL references certify,  raise CrdsError on first error.
         self.verify_instrument_lock()
         
-        self.bsr_ensure_references()
+        self.ensure_references()
         
         # Refactor with temporary rmap files and references to support detecting 
         # problems with refactoring prior to generating official names.
-        old_rmaps = self.del_updated_rmaps()
+        old_rmaps = self.updated_rmaps()
         
-        # Generate modified rmaps using real reference names and
-        new_mappings_map = self.del_generate_real_rmaps(old_rmaps, self.uploaded_files)
+        # Generate modified rmaps removing existing references named in uploaded_files
+        new_mappings_map = self.modify_and_add_rmaps(old_rmaps, self.uploaded_files)
         
-        disposition, rmap_certs = self.bsr_certify_new_mapping_list(new_mappings_map, context=self.pmap_name)
+        disposition, rmap_certs = self.certify_new_mapping_list(new_mappings_map, context=self.pmap_name)
         
         collision_list = self.get_collision_list(new_mappings_map.values())
         
@@ -622,41 +640,18 @@ class DeleteReferenceSubmission(BatchReferenceSubmission):
         
         return (disposition, new_mappings_map, rmap_certs, diff_results, collision_list)
 
-    def del_updated_rmaps(self):
-        """Try out refactoring,  filekind-by-filekind,  and return a list of the affected rmaps.
-        Returns [ replaced_rmaps... ]
-        """
-        groups = self.bsr_group_references()
-        return [ self.pmap.get_imap(instrument).get_rmap(filekind).name
-                for ((instrument, filekind), uploaded_group) in groups ]
+class DeleteReferenceSubmission(ExistingReferenceSubmission):
+    """Given a list of existing references in (misnamed) uploaded_files,  and a derivation context,
+    generate a new context which deletes all the listed references.
+    """
+    modify_rmaps_function = staticmethod(refactor.rmap_delete_references)
     
-    def del_generate_real_rmaps(self, old_rmaps, del_references_map):
-        """Generate and submit official rmaps correspending to `old_rmaps` in 
-        derivation context `pmap`,  inserting references from `new_references_map`.
-        
-        Now that we know that refactoring works and what the new references will be
-        named,  allocate new supporting rmap names and refactor again for real.
-        
-        Return { old_rmap : new_rmap, ...}
-        """
-        # Dig these out of the database rather than passing them around.
-        
-        reference_blobs = [ models.FileBlob.load(name) for name in del_references_map.keys() ]
-        rmap_replacement_map = {}
-        for old_rmap in old_rmaps:
-            (instrument, filekind) = self.get_file_properties(old_rmap)
-            these_ref_names = [ blob.name for blob in reference_blobs 
-                               if (instrument, filekind) == (blob.instrument, blob.filekind) ] 
-            new_rmap = self.get_new_name(instrument, filekind, ".rmap")
-            rmap_replacement_map[old_rmap] = new_rmap
-            new_rmap_path = rmap.locate_mapping(new_rmap)
-            old_rmap_path = rmap.locate_mapping(old_rmap)
-            self.push_status("Generating new rmap '{}' from '{}' with added files.".format(new_rmap, old_rmap))
-            # refactor inserting references.
-            refactor.rmap_delete_references(old_rmap_path, new_rmap_path, these_ref_names)
-            # Submit the new rmap with added references
-            self.add_crds_file(new_rmap, new_rmap_path, update_derivation=True)
-        return rmap_replacement_map
+class AddExistingReferenceSubmission(ExistingReferenceSubmission):
+    """Given a list of existing references in (misnamed) uploaded_files,  and a derivation context,
+    generate a new context which includes all the listed references without adding the references
+    to CRDS.
+    """
+    modify_rmaps_function = staticmethod(refactor.rmap_insert_references)
     
 # ------------------------------------------------------------------------------------------------
 
