@@ -4,6 +4,7 @@ and return HTTP response objects.
 
 # Create your views here.
 import sys
+import os
 import os.path
 import re
 import cStringIO
@@ -2081,6 +2082,7 @@ def create_archive(request, arch_extension):
             for filename, path in files.items():
                 tar.add(path, arcname=filename)
             tar.close()
+            os.chmod(bundle_path, 0640)
     return bundle_path
     
 def cached_bundle_path(request, arch_extension):
