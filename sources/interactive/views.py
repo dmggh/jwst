@@ -192,8 +192,8 @@ def is_available_file_blob(filename):
         raise CrdsError("No database entry for " + srepr(filename) + ".")
     assert blob.available, \
         "File " + srepr(filename) + " is not yet available."
-    assert not blob.blacklisted, \
-        "File " + srepr(filename) + " has been blacklisted and should no longer be used."
+    assert not blob.is_bad_file, \
+        "File " + srepr(filename) + " has been flagged as bad and should no longer be used."
     return blob
 
 def is_available_file(filename):
@@ -428,11 +428,6 @@ def get_known_filepath(filename):
     except LookupError:
         raise FieldError("CRDS doesn't know about file " + srepr(filename))
     return blob.pathname
-
-def is_available_pmap(context):
-    is_pmap(context)
-    is_available_file(context)
-    return context
 
 def get_recent_or_user_mode_and_context(request):
     """Process standard request parameters for specifying context,  returning both the
@@ -2143,7 +2138,10 @@ def set_default_context(request):
         new_default = get_recent_or_user_context(request)
         context_type = validate(request, "context_type", models.CONTEXT_TYPES)
         description = validate(request, "description", DESCRIPTION_RE)
+        is_available_file(new_default)
+
         old_default = update_default_context(new_default, description, context_type, str(request.user))
+        
         return crds_render(request, "set_default_context_results.html", {
                     "new_default" :  new_default,
                     "old_default" :  old_default,

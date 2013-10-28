@@ -282,6 +282,7 @@ def _active_files(context):
 
 def get_default_context(observatory=OBSERVATORY, state="edit"):
     """Return the latest context which is in `state`."""
+    assert observatory == OBSERVATORY, "Bad observatory for this server."
     assert state in ["edit", "operational"],  "Invalid context state: " + repr(state) + " should be 'edit' or 'operational'"
     return ContextModel.get_or_create(observatory, state, "context").context
 
@@ -631,7 +632,13 @@ class FileBlob(BlobModel):
     @property
     def is_bad_file(self):
         """Return the 'reject state' of this file,  either True or False."""
-        return self.blacklisted or self.rejected
+        return self.state in INACTIVE_STATES
+    
+    @property
+    def available(self):
+        """Return True if this file is allowed to be distributed now."""
+        # TODO add general_availabilty_date....
+        return self.state in config.CRDS_DISTRIBUTION_STATES # and not self.is_bad_file
     
     bad_field_checks = {
         "uploaded_as" : lambda self: not self.uploaded_as,
@@ -785,12 +792,6 @@ class FileBlob(BlobModel):
                 info = database.get_reference_info(self.instrument, name)
                 self.useafter_date = timestamp.parse_date(info["useafter_date"])
         
-    @property
-    def available(self):
-        """Return True if this file is allowed to be distributed now."""
-        # TODO add general_availabilty_date....
-        return self.state in config.CRDS_DISTRIBUTION_STATES # and not self.is_bad_file
-    
     @property
     def moniker(self):
         try:

@@ -7,8 +7,8 @@
       <h3>Select:</h3>
       <table border='1'>
             <tr>
-                <th>Context Type:</th>
-                <th>Value</th>
+                <th>Context Type</th>
+                <th>Current Value</th>
             </tr>
             <tr>
                 <td>
@@ -22,11 +22,11 @@
                         {% endfor %}
                     </select>
                 </td>
-                <td id='context_display'></td>
+                <td id='context_display' class="gray"></td>
             </tr>
       </table>
 
-      <h3>Set To</h3>
+      <h3>Set To:</h3>
       {% include "select_pmap.html" %}
       
       <h3>Reason for Change:</h3>
@@ -75,6 +75,14 @@ will be used as the basis of the next set of rules.
 <p><b>Operational Context</b> Default pipeline mapping which will be used operationally
 to determine best references.
 
-<p><b>Edit Context</b>  Default starting point for editing/deriving new mappings.  
+<p><b>Edit Context</b> Default starting point for editing/deriving new mappings.  Unless
+overridden,  new file submissions which generate rules will use this as the starting context
+and create a modified version of it.
+
+<p><b>Select:</b> Choose the type of default to modify,  operational or edit.   This also 
+shows the current default of the selected type.
+
+<p><b>Set To:</b> The default context of the chosen type will be set to this value.
+
 
 {% endblock help %}
