@@ -370,7 +370,7 @@ class BlobModel(CrdsModel):
         
     def thaw(self):
         if hasattr(self, "_thawed"):
-            return
+            return self
         self._thawed = True
         blob = json_ext.loads(self.blob)
         for name in self.blob_fields:
