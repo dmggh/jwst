@@ -100,12 +100,13 @@ def check_catalog_files():
     delivered_files = glob.glob(config.CRDS_DELIVERY_DIR + "/*")
     for file in delivered_files:
         if ".cat" not in file and os.path.basename(file) not in all_catalogued_files:
-            purge_delivered_file(file, "Delivered file", repr(file), "has no corresponding catalog.")
+            # log.verbose("All catalogued files:", all_catalogued_files)
+            purge_delivered_file(file, "Delivered file", repr(file), "has no corresponding catalog in delivery area.  Possibly catalog deleted without removing file link.")
     for file in [ f for f in db_files.values() if f.state == "delivered" ]:
         if file.name not in all_catalogued_files:
-            log.error("File", repr(file.name), "with state 'delivered' has no catalog entry.")
+            log.error("File", repr(file.name), "with state 'delivered' does not appear in an undelivered catalog.")
         if not os.path.exists(delivered_path(file.name)):
-            log.error("File", repr(file.name), "with state 'delivered' has no delivered file link.")
+            log.error("File", repr(file.name), "with state 'delivered' is not linked to the delivery directory.")
     for file in [ f for f in db_files.values() if f.state == "uploaded" ]:
         log.warning("File", repr(file.name), "delivered on", file.delivery_date, "has state 'uploaded'.")
 
