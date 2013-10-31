@@ -9,7 +9,7 @@ from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
 
 # Create your models here.
-from crds import (timestamp, rmap, utils, refactor, log, data_file, uses)
+from crds import (timestamp, rmap, utils, refactor, log, data_file, uses, diff)
 from crds import CrdsError
 from crds.compat import OrderedDict
 
@@ -239,6 +239,7 @@ def set_default_context(context, observatory=OBSERVATORY, state="edit", descript
             fileblob_map = get_fileblob_map()
             update_activation_dates(fileblob_map, context, new_hist.start_date)
             update_file_states(fileblob_map, old_context, context)
+            update_file_replacements(fileblob_map, old_context, context)
 
 def update_activation_dates(fileblob_map, context, activation_date):
     """Set the activation dates of files which are new in `context` to `activation_date`."""
@@ -279,6 +280,25 @@ def _active_files(context):
     """Return the set of all filenames referred to by `context`."""
     pmap = rmap.load_mapping(context)
     return set(pmap.mapping_names() + pmap.reference_names())
+
+def update_file_replacements(fileblob_map, old_pmap, new_pmap):
+    """Given root mappings `old_pmap` and `new_pmap`, difference them and update the CRDS catalog
+    for any files which are replaced by the transition from old to new.   This will set the reject 
+    flag of replaced files,  and set their reject_by_filename name to the file which replaces them.
+    """
+    if old_pmap == "none":
+        return
+    with log.error_on_exception("FAILED setting file rejects based on context transition", 
+                                repr(old_pmap), "-->", repr(new_pmap)):
+        old_map = rmap.asmapping(old_pmap, cached="readonly")
+        #  Recursively figure out all diffs between nested files in the pmaps
+        diffs = old_map.difference(new_pmap)
+        for d in diffs:
+            if diff.diff_action(d) == "replace":
+                old_rep, new_rep = diff.diff_replace_old_new(d)
+                log.info("Setting replaced_by_filename for", repr(old_rep), "with replacement file", repr(new_rep))
+                fileblob_map[old_rep].replaced_by_filename = new_rep
+                fileblob_map[old_rep].save()
 
 def get_default_context(observatory=OBSERVATORY, state="edit"):
     """Return the latest context which is in `state`."""
@@ -620,7 +640,7 @@ class FileBlob(BlobModel):
         # Automatically generated fields
         # pathname = BlobField("^[A-Za-z0-9_./]+$", "path/filename to CRDS master copy of file", "none"),
         blacklisted_by = BlobField(list,"List of blacklisted files this file refers to directly or indirectly.", []),
-        reject_by_file_name = BlobField(FILENAME_RE, "", ""),
+        replaced_by_filename = BlobField(FILENAME_RE, "", ""),
         comment = BlobField(str, "from DESCRIP keyword of reference file.", "none"),
         aperture = BlobField(str, "from APERTURE keyword of reference file.", "none")
         )

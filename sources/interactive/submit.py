@@ -470,16 +470,19 @@ class FileSubmission(object):
             assert not rmap.is_mapping(uploaded), \
                 "Non-reference-file's cannot be submitted in a batch submission: " + srepr(uploaded)
     
-    def modify_and_add_rmaps(self, old_rmaps, new_references_map):
+    def modify_and_add_rmaps(self, old_rmaps, cached_references):
         """Generate and submit official rmaps correspending to `old_rmaps` in 
-        derivation context `pmap`,  inserting references from `new_references_map`.
+        derivation context `pmap`,  applying class function `modify_rmaps_function` to
+        the (instrument, filekind) group taken from references in `cached_references`
+        for each rmap   Generate a name for a new rmap corresponding to each rmap in `old_rmaps`.
         
-        Now that we know that refactoring works and what the new references will be
-        named,  allocate new supporting rmap names and refactor again for real.
+        Each rmap in `old_rmaps` is presumed to exist in the CRDS database, archive, and local cache.
+        
+        `cached_references` is  [ cached_reference_name, ... ] which will be applied to  `old_rmaps`.
         
         Return { old_rmap : new_rmap, ...}
         """
-        reference_paths = [ self.locate_file(new_reference) for new_reference in new_references_map.values() ]
+        reference_paths = [ self.locate_file(new_reference) for new_reference in cached_references ]
         rmap_replacement_map = {}
         for old_rmap in old_rmaps:
             (instrument, filekind) = self.get_file_properties(old_rmap)
@@ -506,7 +509,6 @@ class FileSubmission(object):
                 push_status=self.push_status)
         certify_results = { new_to_old[mapping]: results for (mapping, results) in certify_results }
         return disposition, sorted(certify_results.items())
-
 # ------------------------------------------------------------------------------------------------
       
 def get_collision_list(newfiles):
@@ -550,7 +552,7 @@ class BatchReferenceSubmission(FileSubmission):
         new_references_map = self.bsr_submit_references()
         
         # Generate modified rmaps using real reference names and
-        new_mappings_map = self.modify_and_add_rmaps(old_rmaps, new_references_map)
+        new_mappings_map = self.modify_and_add_rmaps(old_rmaps, new_references_map.values())
         
         rmap_disposition, rmap_certs = self.certify_new_mapping_list(new_mappings_map, context=comparison_context)
         
@@ -627,7 +629,7 @@ class ExistingReferenceSubmission(FileSubmission):
         old_rmaps = self.updated_rmaps()
         
         # Generate modified rmaps removing existing references named in uploaded_files
-        new_mappings_map = self.modify_and_add_rmaps(old_rmaps, self.uploaded_files)
+        new_mappings_map = self.modify_and_add_rmaps(old_rmaps, self.uploaded_files.values())
         
         disposition, rmap_certs = self.certify_new_mapping_list(new_mappings_map, context=self.pmap_name)
         
