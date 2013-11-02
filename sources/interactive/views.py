@@ -2109,9 +2109,10 @@ def set_file_enable_post(request):
     for blacklist_root in blacklist_roots:
         affected_files = affected_files.union(
             set(set_file_enable_core(str(request.user), blacklist_root, reject_type, badflag, why)))
+        
+    models.update_bad_files(observatory)
     
-    return crds_render(request, "blacklist_results.html", 
-                  { "affected_files": sorted(list(affected_files)) })
+    return crds_render(request, "blacklist_results.html", { "affected_files": sorted(list(affected_files)) })
     
 def check_bad_file(blacklist_root):
     """Make sure `blacklist_root` does not appear in the operational context."""
@@ -2197,8 +2198,9 @@ def update_default_context(new_default, description, context_type, user):
     pmap_names = pmap.mapping_names() + pmap.reference_names()
     bad_files = [ name for name in pmap_names if blobs[name].rejected or blobs[name].blacklisted ]
     if bad_files and context_type == "operational":
+        bad_files.remove(new_default)
         raise CrdsError("Context " + srepr(new_default) + 
-                        " contains known bad files and cannot be made the default (first 3): " + repr(bad_files[:3]))
+                        " contains known bad files and cannot be made the default (last 4 bad files): " + ", ".join(bad_files[-4:]))
     models.set_default_context(new_default, observatory=models.OBSERVATORY, state=context_type, description=description)
     models.AuditBlob.new(user, "set default context", 
                          new_default, description, 

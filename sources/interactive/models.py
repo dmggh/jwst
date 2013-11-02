@@ -185,6 +185,32 @@ def mirror_filename_counters(observatory, official_path):
 
 # ============================================================================
 
+class BadFilesModel(CrdsModel):
+    """Keeps track of which files are bad in any context."""
+    class Meta:
+        db_table = TABLE_PREFIX + "_bad_files" 
+
+    model_fields = repr_list = unicode_list = CrdsModel.model_fields + ["observatory"]
+    
+    bad_files = models.TextField(help_text  = "Whitespace separated list of bad files", default = "")
+    
+def update_bad_files(observatory=OBSERVATORY):
+    """Set the global bad files list to `files`."""
+    log.info("Updating bad files list.")
+    fileblobs = get_fileblob_map(observatory)
+    bad_files = [ blob.name for blob in fileblobs.values() 
+                 if blob.observatory==observatory and (blob.rejected or blob.blacklisted) ]
+    bfs = BadFilesModel.get_or_create(observatory)
+    bfs.bad_files = " ".join(sorted(bad_files))
+    bfs.save()
+
+def get_bad_files(observatory=OBSERVATORY):
+    """Return a whitespace separated string listing all the current bad file names."""
+    bfs = BadFilesModel.get_or_create(observatory)
+    return bfs.bad_files
+
+# ============================================================================
+
 CONTEXT_TYPES = ["operational", "edit"]
 
 # "default" is synonymous with "edit", the suggested derivation point for edits.
