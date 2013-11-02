@@ -199,7 +199,7 @@ def update_bad_files(observatory=OBSERVATORY):
     log.info("Updating bad files list.")
     fileblobs = get_fileblob_map(observatory)
     bad_files = [ blob.name for blob in fileblobs.values() 
-                 if blob.observatory==observatory and (blob.rejected or blob.blacklisted) ]
+                 if blob.observatory==observatory and blob.rejected ]
     bfs = BadFilesModel.get_or_create(observatory)
     bfs.bad_files = " ".join(sorted(bad_files))
     bfs.save()
