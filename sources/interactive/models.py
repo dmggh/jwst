@@ -527,10 +527,11 @@ FILE_STATUS_MAP = OrderedDict([
     ("archiving", "blue"),    # Being processed by pipeline poller
     ("archived", "green"),    # Archived and in use.
     ("operational", "darkgreen"), # In operational use in the pipeline.
-    ("blacklisted", "red"),
-    ("rejected", "red"),
-    ("cancelled", "red"),
-    ("archiving-failed", "red"),
+    ("blacklisted", "red"),    # transitive mark that all referencing contexts are also bad.
+    ("rejected", "red"),        # intransitive mark that since file is bad
+    ("cancelled", "red"),      # submission cancelled by submitter
+    ("archiving-failed", "red"),   # delivery to archive failed in CRDS pipeline.
+    ("bad", "red")  # blacklisted or rejected
 ])
 
 TRANSITORY_STATES = ["delivered","submitted","archiving"]
@@ -541,8 +542,6 @@ FILE_STATES = FILE_STATUS_MAP.keys()
 
 assert len(ALL_STATES) == len(set(ALL_STATES)), "Doubly-assigned or duplicate state in FileBlob state declarations."
 assert len(FILE_STATES) >= len(ALL_STATES),  "Uncategorized state in FileBlob state declarations."
-assert len(FILE_STATES) <= len(ALL_STATES),  "Categorization of undefined-state in FileBlob state declarations."
-
 
 DEFAULT_ACTIVATION_DATE =  datetime.datetime(2050, 1, 1, 0, 0)
 
@@ -576,7 +575,7 @@ class FileBlob(BlobModel):
     exclude_from_info = BlobModel.exclude_from_info + \
         ["pathname","creator","deliverer", "deliverer_email","catalog_link"]
 
-    state = SimpleCharField( FILE_STATUS_MAP.keys(),
+    state = SimpleCharField( ALL_STATES,
         "operational status of this file.", "delivered" )
 
     blacklisted = models.BooleanField(
@@ -652,7 +651,7 @@ class FileBlob(BlobModel):
     @property
     def is_bad_file(self):
         """Return the 'reject state' of this file,  either True or False."""
-        return self.state in INACTIVE_STATES
+        return self.state in INACTIVE_STATES or self.blacklisted or self.rejected
     
     @property
     def available(self):
@@ -933,7 +932,7 @@ class FileBlob(BlobModel):
     def status(self):
         """status is a kind of summary of state and other variables,  particularly archiving."""
         if self.is_bad_file:
-            return "blacklisted"    # rejected *or* blacklisted
+            return "bad"    # rejected *or* blacklisted
         elif self.state in TRANSITORY_STATES:
             return self.interpret_catalog_link()
         else:

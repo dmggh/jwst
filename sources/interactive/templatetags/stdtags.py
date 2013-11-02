@@ -105,7 +105,7 @@ def color_status(status):
         return green(status)
     elif status.lower().startswith(("warnings",)):
         return orange(status)
-    elif status.lower().startswith(("failed","error","blacklisted","rejected")):
+    elif status.lower().startswith(("failed","error","blacklisted","rejected","bad")):
         return red(status)
     else:
         return status

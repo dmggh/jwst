@@ -192,8 +192,6 @@ def is_available_file_blob(filename):
         raise CrdsError("No database entry for " + srepr(filename) + ".")
     assert blob.available, \
         "File " + srepr(filename) + " is not yet available."
-    assert not blob.is_bad_file, \
-        "File " + srepr(filename) + " has been flagged as bad and should no longer be used."
     return blob
 
 def is_available_file(filename):
@@ -972,54 +970,6 @@ def bestrefs_explore_compute(request):
     header["DATE-OBS"] = validate(request, "DATE-OBS", DATE_RE_STR)
     header["TIME-OBS"] = validate(request, "TIME-OBS", TIME_RE_STR)
     return bestrefs_results(request, pmap, header, instrument)
-
-# ===========================================================================
-
-@error_trap("blacklist_input.html")
-@log_view
-@login_required
-def set_file_enable(request):
-    """Serve the blacklist input form or process the POST."""
-    if request.method == "GET":
-        return crds_render(request, "blacklist_input.html")
-    else:
-        return set_file_enable_post(request)
-
-# TODO Add "archive/catalog" action resulting from blacklisting
-
-def set_file_enable_post(request):
-    """View fragment to process the blacklist POST."""
-    observatory = get_observatory(request)
-    blacklist_root = validate(request, "file_known", is_known_file)
-    reject_type = validate(request, "reject_type", "reject|blacklist|both")
-    badflag = validate(request, "badflag", "bad|ok")
-    why = validate(request, "why", DESCRIPTION_RE)
-    
-    affected_files = set_file_enable_core(str(request.user), blacklist_root, reject_type, badflag, why)
-    
-    return crds_render(request, "blacklist_results.html", 
-                  { "affected_files": affected_files })
-    
-def set_file_enable_core(user, blacklist_root, reject_type, badflag, why):
-    """Set's file reject state of `blacklist_root` based on `reject_type` and `badflag`
-    and creates an AuditBlob listing `why`.
-    """
-    if reject_type in ["blacklist","both"]:
-        affected_files = models.transitive_blacklist(blacklist_root, badflag)
-    else:
-        affected_files = [blacklist_root]
-
-    if reject_type in ["reject", "both"]:
-        models.set_reject(blacklist_root, badflag=="bad")
-
-    instrument, filekind = utils.get_file_properties(models.OBSERVATORY, blacklist_root)
-
-    models.AuditBlob.new(
-        user, "blacklist", blacklist_root, why, 
-        "marked as " + srepr(badflag.upper()) + " reject_type=" + srepr(reject_type),
-        instrument=instrument, filekind=filekind)
-
-    return affected_files
 
 # ===========================================================================
 
@@ -2119,6 +2069,82 @@ def version_info(request):
 
 # ============================================================================
 
+"""File enable/disable has somewhat complicated semantics due to the operation of CRDS
+in a distributed fashion.   The core issue is that the reject and blacklist flags 
+which appear in the CRDS DB catalog are not automatically distributed,  so checking
+for bad files by remote clients takes extra work.   This is also complicatd by a 
+design ambivalence and two kinds of file rejects:  reject and blacklist,  intransitve
+and transitive respectively.
+
+As things have turned out,  the most useful notion is the transitive form,  blacklisting
+which taints the contexts which contain blacklisted files as blacklisted also.
+"""
+
+@error_trap("blacklist_input.html")
+@log_view
+@login_required
+def set_file_enable(request):
+    """Serve the blacklist input form or process the POST."""
+    if request.method == "GET":
+        return crds_render(request, "blacklist_input.html")
+    else:
+        return set_file_enable_post(request)
+
+# TODO Add "archive/catalog" action resulting from blacklisting
+
+def set_file_enable_post(request):
+    """View fragment to process the blacklist POST."""
+    observatory = get_observatory(request)
+    blacklist_roots = validate(request, "file_known", is_known_file_list)
+    # reject_type = validate(request, "reject_type", "reject|blacklist|both")
+    reject_type = "both"
+    badflag = validate(request, "badflag", "bad|ok")
+    why = validate(request, "why", DESCRIPTION_RE)
+
+    if badflag == "bad":
+        for blacklist_root in blacklist_roots:
+            check_bad_file(blacklist_root)
+    
+    affected_files = set()
+    for blacklist_root in blacklist_roots:
+        affected_files = affected_files.union(
+            set(set_file_enable_core(str(request.user), blacklist_root, reject_type, badflag, why)))
+    
+    return crds_render(request, "blacklist_results.html", 
+                  { "affected_files": sorted(list(affected_files)) })
+    
+def check_bad_file(blacklist_root):
+    """Make sure `blacklist_root` does not appear in the operational context."""
+    pmap_name = models.get_default_context(state="operational")
+    pmap = rmap.get_cached_mapping(pmap_name)
+    assert blacklist_root not in pmap.mapping_names() + pmap.reference_names(), \
+        "File '{}' is in the current operational context '{}'.  Create a new context which does not contain " \
+        "it and make that context operational.  Then mark '{}' as 'bad'." \
+        .format(blacklist_root, pmap_name, blacklist_root)
+
+def set_file_enable_core(user, blacklist_root, reject_type, badflag, why):
+    """Set's file reject state of `blacklist_root` based on `reject_type` and `badflag`
+    and creates an AuditBlob listing `why`.
+    """
+    if reject_type in ["blacklist","both"]:
+        affected_files = models.transitive_blacklist(blacklist_root, badflag)
+    else:
+        affected_files = [blacklist_root]
+
+    if reject_type in ["reject", "both"]:
+        models.set_reject(blacklist_root, badflag=="bad")
+
+    instrument, filekind = utils.get_file_properties(models.OBSERVATORY, blacklist_root)
+
+    models.AuditBlob.new(
+        user, "blacklist", blacklist_root, why, 
+        "marked as " + srepr(badflag.upper()),
+        instrument=instrument, filekind=filekind)
+
+    return affected_files
+
+# ===========================================================================
+
 @error_trap("base.html")
 @log_view
 @login_required
@@ -2138,7 +2164,6 @@ def set_default_context(request):
         new_default = get_recent_or_user_context(request)
         context_type = validate(request, "context_type", models.CONTEXT_TYPES)
         description = validate(request, "description", DESCRIPTION_RE)
-        is_available_file(new_default)
 
         old_default = update_default_context(new_default, description, context_type, str(request.user))
         
@@ -2163,10 +2188,17 @@ def get_context_pmaps(context_map):
 
 def update_default_context(new_default, description, context_type, user):
     """Do the work of choosing a new context."""
+    is_available_file(new_default)
     old_default = models.get_default_context(models.OBSERVATORY, state=context_type)
     if old_default == new_default:
-        raise CrdsError(srepr(old_default) + " is already in use for the " + 
-                        srepr(context_type) + " context.")
+        raise CrdsError(srepr(old_default) + " is already in use for the " + srepr(context_type) + " context.")
+    pmap = rmap.get_cached_mapping(new_default)
+    blobs = models.get_fileblob_map()
+    pmap_names = pmap.mapping_names() + pmap.reference_names()
+    bad_files = [ name for name in pmap_names if blobs[name].rejected or blobs[name].blacklisted ]
+    if bad_files and context_type == "operational":
+        raise CrdsError("Context " + srepr(new_default) + 
+                        " contains known bad files and cannot be made the default (first 3): " + repr(bad_files[:3]))
     models.set_default_context(new_default, observatory=models.OBSERVATORY, state=context_type, description=description)
     models.AuditBlob.new(user, "set default context", 
                          new_default, description, 

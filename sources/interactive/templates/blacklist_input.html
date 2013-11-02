@@ -9,35 +9,34 @@
        <input type='hidden' name='observatory' value='{{observatory}}' />
 
         <tr>
-          <td width="15%" class="label">File:</td>
+          <td width="5%" class="label">Files:</td>
           <td width="25%">
-            <input type='text' name='file_known' size="40" value="{{file_known}}"/>
+            <textarea name="file_known" cols="50" rows="4" >{{file_known}}</textarea>
           </td>
         </tr>
+        
         <tr>
-          <td width="15%" class="label">Reject Type:</td>
+          <td width="5%" class="label">Mark as:</td>
           <td width="25%">
-            <select name='reject_type'/>
-                <option value="reject">Reject (non-transitive)</option>
-                <option value="blacklist">Blacklist (transitive)</option>
-                <option value="both">Both (Reject and Blacklist)</option>
-            </select>
+            <input type="radio" name="badflag" value="bad" 
+                {% if badflag == 'bad' %}
+                    checked
+                {% endif %}
+            ><span class="label">Bad</span></input>
+            <input type="radio" name="badflag" value="ok" 
+                {% if badflag == 'bad' %}
+                    checked
+                {% endif %}
+            ><span class="label">OK</span></input>
           </td>
         </tr>
+        
         <tr>
-          <td width="15%" class="label">Mark as:</td>
-          <td width="25%">
-            <select name='badflag'/>
-                <option>bad</option>
-                <option>ok</option>
-            </select>
+          <td width="5%" class="label">Reason:</td>
+          <td width="25%"><textarea name="why" rows="4" cols="40">{{why}}</textarea>
           </td>
         </tr>
-        <tr>
-          <td width="15%" class="label">Reason:</td>
-          <td width="30%"><textarea name="why" rows="4" cols="40">{{why}}</textarea>
-          </td>
-        </tr>
+      
       </table>
       <p></p>
       <input type="submit" value="Submit">
@@ -46,14 +45,27 @@
 
 {% block help %}
 
-    <p><b>Blacklist File</b> Marks a file as "bad" or "ok".   Attempts to 
-    use a "bad" file for best reference determinations will generate an error.
+    <p><b>Set File Enable</b> Marks a file as "bad" or "ok".   Marking a file bad means that
+    it is scientifically invalid or likely to produce invalid results.
     
-    <p><p><b>File</b> a known CRDS mapping or reference filename to be blacklisted.
-
+    <p><p>Contexts marked bad or containing bad files cannot be set as the operational default.
+    
+    <p><p>Files which are in the operational context cannot be marked bad.
+    
+    <p><p>To mark a file bad,  first generate an alternate context which omits the bad file
+    and make it operational. The bad file will transition to a non-operational
+    state.   Non-operational files can be marked bad and used under historical contexts.
+    
+    <p><p>Marking any reference as bad will taint all contexts which contain it as also bad.
+    
+    <p><p>Attempts to use historical contexts which recommend bad files will generate warnings 
+    provided the client is connected to the server.
+    
+    <p><p><b>Files</b> a list of known CRDS mapping or reference filename to be marked as bad or ok.
+    Separate names with commas or whitespace.
+    
     <p><p><b>Mark as</b> Choose "bad" to disable a file.  Choose "ok" to reenable.
 
     <p><p><b>Reason</b> Why this file is no longer usable or is usable once again.
     
-
 {% endblock help %}

@@ -8,11 +8,12 @@
     <h3>Files marked: {{badflag|gray}}</h3>
     <h3>Reject type: {{reject_type|gray}}<h3>
     <h3>Affected Files</h3>
-    <table>
+    
+    <p>
     {% for set_file in affected_files %}
-        <tr><td>{{set_file|browse}}</td></tr>
+        {{set_file|browse}},
     {% endfor %}
-    </table>
+    </p>
     
     {% include "home_button_trailer.html" %}
     
