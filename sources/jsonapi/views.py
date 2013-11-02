@@ -445,8 +445,8 @@ def get_context_by_date(request, date, observatory):
 def get_server_info(request):
     info = {
         "edit_context" : imodels.get_default_context(config.observatory),
-        "operational_context" : imodels.get_default_context(
-            config.observatory, state="operational"),
+        "operational_context" : imodels.get_default_context(config.observatory, state="operational"),
+        "bad_files" : imodels.get_bad_files(config.observatory),
         "observatory" : config.observatory,
         "crds_version" : versions.get_version("crds"),
         "reference_url": {
