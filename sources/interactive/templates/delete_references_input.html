@@ -25,15 +25,9 @@
       <h3>Description: <textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea>   
       </h3>
 
-      <h3>Mark As Rejected:  <select name='reject_type'/>
-                <option value="reject">Reject (non-transitive)</option>
-                <option value="blacklist">Blacklist (transitive)</option>
-                <option value="both">Both (Reject and Blacklist)</option>
-                <option value="no_reject"> Neither (Don't Reject)</option>
-            </select>
       <br/>
       <br/>
-      <input type="submit" value="Submit References" >
+      <input type="submit" value="Submit References" > <b class="red">WARNING:</b> no confirmation step.  Double-check.
     </form>
 
 {% endblock column1 %}
@@ -48,7 +42,5 @@ a new context which does not contain the references.
 will be recursively updated to delete the reference files.
 
 <p><p><b>Description</b> information about why these files were deleted.
-
-<p><p><b>Mark as Rejected</b> optionally mark the deleted files as rejected, blacklisted, or both.
 
 {% endblock help %}

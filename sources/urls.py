@@ -22,7 +22,7 @@ urlpatterns = patterns('',
     url(r'^bestrefs_explore/$', 'crds.server.interactive.views.bestrefs_explore'),          
     url(r'^bestrefs_explore_compute/$', 'crds.server.interactive.views.bestrefs_explore_compute'), 
     
-    url(r'^set_file_enable/$',    'crds.server.interactive.views.set_file_enable'),          
+    url(r'^mark_bad/$',    'crds.server.interactive.views.mark_bad'),          
     
     url(r'^certify/$',      'crds.server.interactive.views.certify_file'),          
     url(r'^difference/$',   'crds.server.interactive.views.difference_files'),

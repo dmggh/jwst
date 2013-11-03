@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
 {% block column1 %}
-    <h2>Set File Enable</h2>
-    <form method="post" action="/set_file_enable/" enctype="multipart/form-data"> 
+    <h2>Mark Files Bad</h2>
+    <form method="post" action="/mark_bad/" enctype="multipart/form-data"> 
       {% csrf_token %}
       <table width="100%">
 
@@ -45,8 +45,9 @@
 
 {% block help %}
 
-    <p><b>Set File Enable</b> Marks files as "bad" or "ok".   Marking a file bad means that
-    it is scientifically invalid or likely to produce invalid results.
+    <p><b>Mark Files Bad</b> Marks files as "bad" or "ok".   
+    
+    <p><p>Marking a file bad means that it is scientifically invalid or likely to produce invalid results.
     
     <p><p>Contexts marked bad or containing bad files cannot be set as the operational default.
     

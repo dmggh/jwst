@@ -482,6 +482,23 @@ class FileSubmission(object):
         
         Return { old_rmap : new_rmap, ...}
         """
+        try:
+            return self._modify_and_add_rmaps(old_rmaps, cached_references)
+        except Exception, exc:
+            raise CrdsError("Generation of new rmaps failed: " + str(exc))
+
+    def _modify_and_add_rmaps(self, old_rmaps, cached_references):
+        """Generate and submit official rmaps correspending to `old_rmaps` in 
+        derivation context `pmap`,  applying class function `modify_rmaps_function` to
+        the (instrument, filekind) group taken from references in `cached_references`
+        for each rmap   Generate a name for a new rmap corresponding to each rmap in `old_rmaps`.
+        
+        Each rmap in `old_rmaps` is presumed to exist in the CRDS database, archive, and local cache.
+        
+        `cached_references` is  [ cached_reference_name, ... ] which will be applied to  `old_rmaps`.
+        
+        Return { old_rmap : new_rmap, ...}
+        """
         reference_paths = [ self.locate_file(new_reference) for new_reference in cached_references ]
         rmap_replacement_map = {}
         for old_rmap in old_rmaps:

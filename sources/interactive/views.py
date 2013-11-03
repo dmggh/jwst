@@ -1190,7 +1190,6 @@ def delete_references_post(request):
 
     pmap_mode, pmap_name = get_recent_or_user_mode_and_context(request)
     description = validate(request, "description", DESCRIPTION_RE)
-    reject_type = validate(request, "reject_type", "reject|blacklist|both|no_reject")
 
     deleted_files = validate(request, "deleted_files", is_known_file_list)
     uploaded_files = { fname:rmap.locate_file(fname, models.OBSERVATORY) for fname in deleted_files }
@@ -1216,10 +1215,6 @@ def delete_references_post(request):
     for file in deleted_files:
         models.AuditBlob.new(str(request.user), "delete references", file, description, 
                              details = repr(deleted_files + [final_pmap]))
-    
-    if reject_type != "no_reject":
-        for file in deleted_files:
-            set_file_enable_core(str(request.user), file, reject_type, "bad", description)
     
     del_results = {
                 "pmap" : final_pmap,
@@ -1267,6 +1262,8 @@ def add_existing_references_post(request):
     pmap_references = pmap.reference_names()
     for added in added_files:
         assert added not in pmap_references, "File " + repr(added) + " is already in context " + repr(pmap.name)
+        blob = models.FileBlob.load(added)
+        assert not blob.rejected and not blob.blacklisted,  "File " + repr(added) + " is bad or contains bad files."
     
     locked_instrument = get_locked_instrument(request)
     
@@ -2080,19 +2077,19 @@ As things have turned out,  the most useful notion is the transitive form,  blac
 which taints the contexts which contain blacklisted files as blacklisted also.
 """
 
-@error_trap("blacklist_input.html")
+@error_trap("mark_bad_input.html")
 @log_view
 @login_required
-def set_file_enable(request):
+def mark_bad(request):
     """Serve the blacklist input form or process the POST."""
     if request.method == "GET":
-        return crds_render(request, "blacklist_input.html")
+        return crds_render(request, "mark_bad_input.html")
     else:
-        return set_file_enable_post(request)
+        return mark_bad_post(request)
 
 # TODO Add "archive/catalog" action resulting from blacklisting
 
-def set_file_enable_post(request):
+def mark_bad_post(request):
     """View fragment to process the blacklist POST."""
     observatory = get_observatory(request)
     blacklist_roots = validate(request, "file_known", is_known_file_list)
@@ -2108,11 +2105,11 @@ def set_file_enable_post(request):
     affected_files = set()
     for blacklist_root in blacklist_roots:
         affected_files = affected_files.union(
-            set(set_file_enable_core(str(request.user), blacklist_root, reject_type, badflag, why)))
+            set(mark_bad_core(str(request.user), blacklist_root, reject_type, badflag, why)))
         
     models.update_bad_files(observatory)
     
-    return crds_render(request, "blacklist_results.html", { "affected_files": sorted(list(affected_files)) })
+    return crds_render(request, "mark_bad_results.html", { "affected_files": sorted(list(affected_files)) })
     
 def check_bad_file(blacklist_root):
     """Make sure `blacklist_root` does not appear in the operational context."""
@@ -2123,7 +2120,7 @@ def check_bad_file(blacklist_root):
         "it and make that context operational.  Then mark '{}' as 'bad'." \
         .format(blacklist_root, pmap_name, blacklist_root)
 
-def set_file_enable_core(user, blacklist_root, reject_type, badflag, why):
+def mark_bad_core(user, blacklist_root, reject_type, badflag, why):
     """Set's file reject state of `blacklist_root` based on `reject_type` and `badflag`
     and creates an AuditBlob listing `why`.
     """
