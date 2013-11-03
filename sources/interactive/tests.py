@@ -220,19 +220,18 @@ class InteractiveBase(object):
         except Exception, exc:
             log.info("failed to add file:", str(exc))
         
-    def test_set_file_enable_get(self):
+    def test_mark_bad_get(self):
         self.login()
-        response = self.client.get("/set_file_enable/")
+        response = self.client.get("/mark_bad/")
         self.assert_no_errors(response)
 
-    def test_set_file_enable_blacklist_post(self):
+    def test_mark_bad_post(self):
         self.login()
         # self.fake_database_files(self.blacklist_files)
-        response = self.client.post("/set_file_enable/", {
+        response = self.client.post("/mark_bad/", {
             "observatory" : self.observatory,
             "file_known" : self.blacklist_files[1],
             "badflag" : "bad",
-            "reject_type" : "blacklist",
             "why" : "just had a feeling.",
             })
         # print response.content
@@ -244,32 +243,9 @@ class InteractiveBase(object):
         rmapblob = models.FileBlob.load(rmap)
         imapblob = models.FileBlob.load(imap)
         self.assertTrue(rmapblob.blacklisted)
-        self.assertFalse(rmapblob.rejected)
+        self.assertTrye(rmapblob.rejected)
         self.assertTrue(imapblob.blacklisted)
-        self.assertFalse(imapblob.rejected)
-
-    def test_set_file_enable_reject_post(self):
-        self.login()
-        # self.fake_database_files(self.blacklist_files)
-        response = self.client.post("/set_file_enable/", {
-            "observatory" : self.observatory,
-            "file_known" : self.blacklist_files[1],
-            "badflag" : "bad",
-            "reject_type" : "reject",
-            "why" : "just had a feeling.",
-            })
-        # print response.content
-        imap, rmap = self.blacklist_files
-        self.assert_no_errors(response)
-        self.assertTrue(self.pmap not in response.content)
-        self.assertTrue(imap not in response.content)
-        self.assertTrue(rmap in response.content)
-        rmapblob = models.FileBlob.load(rmap)
-        imapblob = models.FileBlob.load(imap)
-        self.assertFalse(rmapblob.blacklisted)
-        self.assertTrue(rmapblob.rejected)
-        self.assertFalse(imapblob.blacklisted)
-        self.assertFalse(imapblob.rejected)
+        self.assertTrue(imapblob.rejected)
 
     def test_certify_get(self):
         self.login()
