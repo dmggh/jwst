@@ -2193,7 +2193,9 @@ def update_default_context(new_default, description, context_type, user):
     pmap = rmap.get_cached_mapping(new_default)
     blobs = models.get_fileblob_map()
     pmap_names = pmap.mapping_names() + pmap.reference_names()
-    bad_files = [ name for name in pmap_names if blobs[name].rejected or blobs[name].blacklisted ]
+    bad_files = []
+    with log.error_on_exception("Bad file check failed"):
+        bad_files = [ name for name in pmap_names if blobs[name].rejected or blobs[name].blacklisted ]
     if bad_files and context_type == "operational":
         bad_files.remove(new_default)
         raise CrdsError("Context " + srepr(new_default) + 
