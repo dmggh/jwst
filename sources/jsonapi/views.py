@@ -111,7 +111,7 @@ def check_known_file(file):
     blob = imodels.file_exists(file)
     if not blob:
         raise UnknownFile("File '%s' is not known to CRDS."  % file)
-    if not blob.available:
+    if not blob.available: 
         raise UnavailableFile("File '%s' is not yet available."  % file)
     return blob
 
