@@ -285,12 +285,17 @@ def list_mappings(request, observatory, glob_pattern):
     check_observatory(observatory)
     if not re.match(LIST_GLOB_RE, glob_pattern):
         raise BadListGlobError("Illegal glob pattern, / not permitted '%s'" % glob_pattern)
+    
+    # Check if files en route to archive already got there.
+    imodels.update_delivery_status()
+    
     # This just lists all the files in the cache,  some of which aren't achived or even confirmed.
     mappings = rmap.list_mappings(glob_pattern, observatory)
     # In order to sync obsolete bad mappings,  it's important *not* to check for bad files.
     # Weed out the files not in an available state.
     blobs = imodels.get_fileblob_map(name__in = mappings, # rejected = False, blacklisted = False, 
                                     state__in = config.CRDS_DISTRIBUTION_STATES)
+
     return sorted(blobs.keys())
 
 @jsonrpc_method('get_best_references(context=String, header=Object, reftypes=Array)')

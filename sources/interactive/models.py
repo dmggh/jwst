@@ -301,6 +301,14 @@ def _update_file_state(blob, state):
         blob.thaw()
         blob.state = state
         blob.save()
+
+def update_delivery_status():
+    """Check to see if the un-archived files have been delivered to the archive yet.
+    If so, update the archive state.
+    """
+    blobs = get_fileblob_map(state__in = TRANSITORY_STATES)
+    for blob in blobs.values():
+        blob.interpret_catalog_link()
                 
 def _active_files(context):
     """Return the set of all filenames referred to by `context`."""
