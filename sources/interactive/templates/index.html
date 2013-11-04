@@ -49,19 +49,24 @@
             
             {% if locked_instrument %}
                 <li><a href="/batch_submit_references/">Batch Submit References</a></li>
-                <li><a href="/submit/reference/">Submit References</a></li>
-                <li><a href="/submit/mapping/">Submit Mappings</a></li>
-                <li><a href="/delete/reference/">Delete References</a></li>
-                <li><a href="/add_existing/reference/">Add Existing References</a></li>
-                <br/>
-            {% elif is_superuser %}
-                <li><a href="/submit/reference/">Submit References (UNLOCKED)</a></li>
-                <li><a href="/submit/mapping/">Submit Mappings (UNLOCKED)</a></li>
-                <li><a href="/create_contexts/">Create Contexts (UNLOCKED, UNCONFIRMED)</a></li>
-                <li><a href="/delivery_status/">Delivery Status</a></li>
+
+		{% if is_superuser %}
+                    <li><a href="/submit/reference/">Submit References (UNLOCKED)</a></li>
+                    <li><a href="/submit/mapping/">Submit Mappings (UNLOCKED)</a></li>
+		    <br/>
+                    <li><a href="/delete/reference/">Delete References</a></li>
+                    <li><a href="/add_existing/reference/">Add References</a></li>
+                    <li><a href="/create_contexts/">Create Contexts (UNLOCKED, UNCONFIRMED)</a></li>
+                    <li><a href="/delivery_status/">Delivery Status</a></li>
+		{% else %}
+                    <li><a href="/submit/reference/">Submit References</a></li>
+                    <li><a href="/submit/mapping/">Submit Mappings</a></li>
+		{% endif %}
                 <br/>
              {% endif %}
+
             <li><a href="/set_password/">Change Password</a></li>
+
         </ol>
         
     	{% if is_superuser %}

@@ -705,8 +705,8 @@ def set_password(request):
         assert new_password1 == new_password2, "New passwords are not the same."
         assert len(new_password1) >= 6, "At least 6 characters please."
         if not request.user.is_superuser:
-            assert re.match("\w*\d\w*", new_password1),  "At least one digit please."
-            assert re.match("\w*[a-zA-Z]\w*", new_password1),  "At least one letter please."
+            assert re.match(".*\d.*", new_password1),  "At least one digit please."
+            assert re.match(".*[a-zA-Z].*", new_password1),  "At least one letter please."
         request.user.set_password(new_password1)
         request.user.save()
         return crds_render(request, "set_password_results.html")
