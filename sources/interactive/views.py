@@ -1738,7 +1738,7 @@ def delivery_status(request):
         status_class="error"
         with log.error_on_exception("Failed interpreting catalog", repr(audit.filename)):
             files = sorted(open(os.path.join(sconfig.CRDS_CATALOG_DIR, audit.filename)).read().splitlines())
-            status = fileblobs[files[0]].interpret_catalog_link()
+            status = fileblobs[files[0]].status
             status_class = fileblobs[files[0]].status_class
         catalog_info.append(
                 dict(date=audit.date,
