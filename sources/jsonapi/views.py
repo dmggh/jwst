@@ -113,8 +113,6 @@ def check_known_file(file):
         raise UnknownFile("File '%s' is not known to CRDS."  % file)
     if not blob.available:
         raise UnavailableFile("File '%s' is not yet available."  % file)
-    if blob.blacklisted:
-        raise BlacklistedFile("File '%s' has been blacklisted and should no longer be used." % file)
     return blob
 
 def check_context(context, observatory=None):
@@ -287,7 +285,13 @@ def list_mappings(request, observatory, glob_pattern):
     check_observatory(observatory)
     if not re.match(LIST_GLOB_RE, glob_pattern):
         raise BadListGlobError("Illegal glob pattern, / not permitted '%s'" % glob_pattern)
-    return rmap.list_mappings(glob_pattern, observatory)
+    # This just lists all the files in the cache,  some of which aren't achived or even confirmed.
+    mappings = rmap.list_mappings(glob_pattern, observatory)
+    # In order to sync obsolete bad mappings,  it's important *not* to check for bad files.
+    # Weed out the files not in an available state.
+    blobs = imodels.get_fileblob_map(name__in = mappings, # rejected = False, blacklisted = False, 
+                                    state__in = config.CRDS_DISTRIBUTION_STATES)
+    return sorted(blobs.keys())
 
 @jsonrpc_method('get_best_references(context=String, header=Object, reftypes=Array)')
 def get_best_references(request, context, header, reftypes):
@@ -444,6 +448,7 @@ def get_context_by_date(request, date, observatory):
 @jsonrpc_method('get_server_info()')
 def get_server_info(request):
     info = {
+        "last_synced" : timestamp.now(),
         "edit_context" : imodels.get_default_context(config.observatory),
         "operational_context" : imodels.get_default_context(config.observatory, state="operational"),
         "bad_files" : imodels.get_bad_files(config.observatory),

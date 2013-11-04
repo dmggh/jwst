@@ -683,6 +683,8 @@ class FileBlob(BlobModel):
     def available(self):
         """Return True if this file is allowed to be distributed now."""
         # TODO add general_availabilty_date....
+        if self.state in TRANSITORY_STATES:
+            self.interpret_catalog_link()
         return self.state in config.CRDS_DISTRIBUTION_STATES # and not self.is_bad_file
     
     bad_field_checks = {
