@@ -2093,8 +2093,6 @@ def mark_bad_post(request):
     """View fragment to process the blacklist POST."""
     observatory = get_observatory(request)
     blacklist_roots = validate(request, "file_known", is_known_file_list)
-    # reject_type = validate(request, "reject_type", "reject|blacklist|both")
-    reject_type = "both"
     badflag = validate(request, "badflag", "bad|ok")
     why = validate(request, "why", DESCRIPTION_RE)
 
@@ -2105,7 +2103,7 @@ def mark_bad_post(request):
     affected_files = set()
     for blacklist_root in blacklist_roots:
         affected_files = affected_files.union(
-            set(mark_bad_core(str(request.user), blacklist_root, reject_type, badflag, why)))
+            set(mark_bad_core(str(request.user), blacklist_root, badflag, why)))
         
     models.update_bad_files(observatory)
     
@@ -2120,17 +2118,18 @@ def check_bad_file(blacklist_root):
         "it and make that context operational.  Then mark '{}' as 'bad'." \
         .format(blacklist_root, pmap_name, blacklist_root)
 
-def mark_bad_core(user, blacklist_root, reject_type, badflag, why):
+def mark_bad_core(user, blacklist_root, badflag, why):
     """Set's file reject state of `blacklist_root` based on `reject_type` and `badflag`
     and creates an AuditBlob listing `why`.
     """
-    if reject_type in ["blacklist","both"]:
+    if rmap.is_mapping(blacklist_root):
+        reject_type = "blacklist"
         affected_files = models.transitive_blacklist(blacklist_root, badflag)
-    else:
-        affected_files = [blacklist_root]
-
-    if reject_type in ["reject", "both"]:
         models.set_reject(blacklist_root, badflag=="bad")
+    else:
+        reject_type = "reject"
+        models.set_reject(blacklist_root, badflag=="bad")
+        affected_files = [blacklist_root]
 
     instrument, filekind = utils.get_file_properties(models.OBSERVATORY, blacklist_root)
 
