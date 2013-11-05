@@ -149,10 +149,13 @@ mod_wsgi)
         echo '#!/bin/csh'
         cat env.csh
         echo "/usr/sbin/httpd -f $install_dir/server/conf/httpd.conf"
+	echo "memcached -s /tmp/memcached.sock &"
         ) > run
 
-        echo 'kill `cat '$install_dir'/server/run/httpd.pid` ' > stop
-
+	(
+        echo 'kill `cat '$install_dir'/server/run/httpd.pid` '
+	echo 'killall memcached'
+	)  > stop
 
         ln -fs /etc/httpd/modules $install_dir/server/
 
@@ -226,9 +229,13 @@ mod_python)
         echo '#!/bin/csh'
         cat env.csh
         echo "/usr/sbin/httpd -f $install_dir/server/conf/httpd.conf"
+	echo "memcached -s /tmp/memcached.sock &"
         ) > run
 
-        echo 'kill `cat '$install_dir'/server/run/httpd.pid` ' > stop
+	(
+        echo 'kill `cat '$install_dir'/server/run/httpd.pid` ' 
+	echo 'killall memcached'
+	) > stop
 
 
         ln -fs /etc/httpd/modules $install_dir/server/
@@ -264,18 +271,18 @@ django)
         echo '#!/bin/csh'
         echo 'source env.csh'
         echo "cd $install_dir/python/lib/python/crds/server"
-        echo "exec python manage.py runserver $noreload $hostname:$port"
+	echo "memcached -s /tmp/memcached.sock &"
+	echo "onintr control_c"
+        echo "python manage.py runserver $noreload $hostname:$port"
+	echo "control_c:"
+	echo "echo"
+	echo "echo 'Killing memcached...'"
+	echo "killall memcached"
+	echo "echo 'Quitting...'"
         ) > run
         (
-        # yes, it's ugly.
-
-        # It turns into python -c to load /shutdown from the server.  In the server,
-        # the process sends itself a signal to cause a shutdown.  This means that
-        # we never get an HTTP response, so the python script prints an exception,
-        # which is redirected to /dev/null
-
-        echo python -c '"'import urllib ';' urllib.urlopen'('"'"http://$hostname':'$port/shutdown"'"')"' '>& /dev/null'
-
+        echo '#!/bin/csh'
+	echo "killall memcached"
         ) > stop
 
         ;;
