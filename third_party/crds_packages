@@ -31,3 +31,8 @@ pyodbc
 # Apache mod_wsgi
 mod_wsgi
 
+# memcached memory caching
+libevent
+memcached
+python-memcached
+
