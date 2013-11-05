@@ -1,4 +1,6 @@
 from django.conf.urls import *
+from django.views.decorators.cache import cache_page
+
 from jsonrpc import jsonrpc_site
 
 import crds.server.jsonapi.views
@@ -6,12 +8,14 @@ import crds.server.interactive.views
 
 from crds.server import settings, config
 
+MAX_AGE = 5*60  # seconds
+
 urlpatterns = patterns('',
     url(r'^json/browse/', 'jsonrpc.views.browse', name="jsonrpc_browser"), # for the graphical browser/web console only, omissible
     url(r'^json/', jsonrpc_site.dispatch, name="jsonrpc_mountpoint"),
     url(r'^json/(?P<method>[a-zA-Z0-9_.]+)$', jsonrpc_site.dispatch), # for HTTP GET only, also omissible
     
-    url(r'^$', 'crds.server.interactive.views.index'),          
+    url(r'^$', cache_page(MAX_AGE)(crds.server.interactive.views.index)),          
     
     url(r'^login/$', 'crds.server.interactive.views.login'),          
     url(r'^logout/$', 'crds.server.interactive.views.logout'),
@@ -26,7 +30,7 @@ urlpatterns = patterns('',
     
     url(r'^certify/$',      'crds.server.interactive.views.certify_file'),          
     url(r'^difference/$',   'crds.server.interactive.views.difference_files'),
-    url(r'^difference/(\w+)/(\w+)/$', 'crds.server.interactive.views.difference_files'),
+    url(r'^difference/(\w+)/(\w+)/$', cache_page(MAX_AGE)(crds.server.interactive.views.difference_files)),
     url(r'^recent_activity/$', 'crds.server.interactive.views.recent_activity'),        
     url(r'^delivery_status/$', 'crds.server.interactive.views.delivery_status'),        
     
@@ -45,10 +49,12 @@ urlpatterns = patterns('',
     url(r'^add_existing/reference/$', 'crds.server.interactive.views.add_existing_references'),
             
     url(r'^browse/(?P<filename>[A-Za-z0-9_.]+(fits|imap|rmap|pmap|r\d[hd]))$', 
-        'crds.server.interactive.views.browse_known_file'),
+        cache_page(MAX_AGE)(crds.server.interactive.views.browse_known_file)),
     url(r'^browse_db/$', 'crds.server.interactive.views.browse_db'),        
-    url(r'^context_table/(?P<mapping>[a-zA-Z0-9_.]+)/?$', 'crds.server.interactive.views.context_table'),
-    url(r'^context_table/(?P<mapping>[a-zA-Z0-9_.]+)/(?P<recursive>\d+)$', 'crds.server.interactive.views.context_table'),
+    url(r'^context_table/(?P<mapping>[a-zA-Z0-9_.]+)/?$', 
+        cache_page(MAX_AGE)(crds.server.interactive.views.context_table)),
+    url(r'^context_table/(?P<mapping>[a-zA-Z0-9_.]+)/(?P<recursive>\d+)$', 
+        cache_page(MAX_AGE)(crds.server.interactive.views.context_table)),
     
     # Simple get is screened against the database and redirected
     url(r'^get/(?P<filename>[A-Za-z0-9_.]+(fits|imap|rmap|pmap|r\dh))$', 
@@ -69,13 +75,14 @@ urlpatterns = patterns('',
     url(r'^set_default_context/$', 
         'crds.server.interactive.views.set_default_context'),
     url(r'^display_context_history/$', 
-        'crds.server.interactive.views.display_context_history'),
+        cache_page(MAX_AGE)(crds.server.interactive.views.display_context_history)),
                          
     url(r'^display_result/(?P<results_id>\d+)$', 
         'crds.server.interactive.views.display_result'),
                          
     url(r'^jpoll/open_channel/$', 'crds.server.jpoll.views.open_channel'),
     url(r'^jpoll/pull_messages/$', 'crds.server.jpoll.views.pull_messages'),
+    
 #     url(r'^jpoll/test_page/$', 'crds.server.jpoll.views.test_page'),
 #     url(r'^jpoll/test_worker/$', 'crds.server.jpoll.views.test_worker'),
 #     url(r'^jpoll/test_response/$', 'crds.server.jpoll.views.test_response'),

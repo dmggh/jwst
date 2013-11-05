@@ -6,6 +6,8 @@ import base64
 import math
 import re
 
+from django.core.cache import cache
+
 from jsonrpc import jsonrpc_method
 from jsonrpc.exceptions import Error
 
@@ -452,30 +454,34 @@ def get_context_by_date(request, date, observatory):
 
 @jsonrpc_method('get_server_info()')
 def get_server_info(request):
-    info = {
-        "last_synced" : timestamp.now(),
-        "edit_context" : imodels.get_default_context(config.observatory),
-        "operational_context" : imodels.get_default_context(config.observatory, state="operational"),
-        "bad_files" : imodels.get_bad_files(config.observatory),
-        "observatory" : config.observatory,
-        "crds_version" : versions.get_version("crds"),
-        "reference_url": {
-            "checked" : {
-                config.observatory : config.CRDS_REFERENCE_URL,
+    info = cache.get("server_info")
+    if info is None:
+        log.info("Computing server_info.")
+        info = {
+            "last_synced" : timestamp.now(),
+            "edit_context" : imodels.get_default_context(config.observatory),
+            "operational_context" : imodels.get_default_context(config.observatory, state="operational"),
+            "bad_files" : " ".join(imodels.get_bad_files(config.observatory)),
+            "observatory" : config.observatory,
+            "crds_version" : versions.get_version("crds"),
+            "reference_url": {
+                "checked" : {
+                    config.observatory : config.CRDS_REFERENCE_URL,
+                    },
+                "unchecked" : {
+                    config.observatory : config.CRDS_UNCHECKED_REFERENCE_URL,
+                    },
                 },
-            "unchecked" : {
-                config.observatory : config.CRDS_UNCHECKED_REFERENCE_URL,
+            "mapping_url": {
+                "checked" : {
+                    config.observatory : config.CRDS_MAPPING_URL,
+                    },
+                "unchecked" : {
+                    config.observatory : config.CRDS_UNCHECKED_MAPPING_URL,
+                    },
                 },
-            },
-        "mapping_url": {
-            "checked" : {
-                config.observatory : config.CRDS_MAPPING_URL,
-                },
-            "unchecked" : {
-                config.observatory : config.CRDS_UNCHECKED_MAPPING_URL,
-                },
-            },
-        }
+            }
+        cache.set("server_info", info, 5*60)
     return info
 
 

@@ -1,7 +1,7 @@
 """This module supports the Django /admin/ site for CRDS."""
 
 from django.contrib import admin
-from crds.server.interactive.models import (ContextModel, ContextHistoryModel, CounterModel, BadFilesModel,
+from crds.server.interactive.models import (ContextModel, ContextHistoryModel, CounterModel,
                                             FileBlob, AuditBlob, RepeatableResultBlob)
 from crds.server import config
 from crds.server.interactive import models
@@ -18,10 +18,6 @@ admin.site.register(ContextHistoryModel, ContextModelAdmin)
 class CounterModelAdmin(admin.ModelAdmin):
     search_fields = ["name"]
 admin.site.register(CounterModel, CounterModelAdmin)
-
-class BadFilesModelAdmin(admin.ModelAdmin):
-    search_fields = ["observatory"]
-admin.site.register(BadFilesModel, BadFilesModelAdmin)
 
 class FileBlobAdmin(admin.ModelAdmin):
     search_fields = ["name", "state"]

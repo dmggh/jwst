@@ -8,6 +8,8 @@ import datetime
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
 
+from django.core.cache import cache
+
 # Create your models here.
 from crds import (timestamp, rmap, utils, refactor, log, data_file, uses, diff)
 from crds import CrdsError
@@ -21,6 +23,12 @@ from . import common
 from . import json_ext
 
 observatory_module = utils.get_object("crds." + OBSERVATORY)
+
+# ============================================================================
+
+def clear_cache():
+    """Clear the Django cache."""
+    cache.clear()
 
 # ============================================================================
 
@@ -185,29 +193,13 @@ def mirror_filename_counters(observatory, official_path):
 
 # ============================================================================
 
-class BadFilesModel(CrdsModel):
-    """Keeps track of which files are bad in any context."""
-    class Meta:
-        db_table = TABLE_PREFIX + "_bad_files" 
-
-    model_fields = repr_list = unicode_list = CrdsModel.model_fields + ["observatory"]
-    
-    bad_files = models.TextField(help_text  = "Whitespace separated list of bad files", default = "")
-    
-def update_bad_files(observatory=OBSERVATORY):
-    """Set the global bad files list to `files`."""
-    log.info("Updating bad files list.")
-    fileblobs = get_fileblob_map(observatory)
-    bad_files = [ blob.name for blob in fileblobs.values() 
-                 if blob.observatory==observatory and (blob.rejected or blob.blacklisted) ]
-    bfs = BadFilesModel.get_or_create(observatory)
-    bfs.bad_files = " ".join(sorted(bad_files))
-    bfs.save()
-
 def get_bad_files(observatory=OBSERVATORY):
-    """Return a whitespace separated string listing all the current bad file names."""
-    bfs = BadFilesModel.get_or_create(observatory)
-    return bfs.bad_files
+    """Return the current list of blacklisted or rejected files."""
+    log.info("Computing bad files list.")
+    fileblobs = get_fileblob_map(observatory)
+    bad_files = [ str(blob.name) for blob in fileblobs.values() 
+                 if blob.observatory==observatory and (blob.rejected or blob.blacklisted) ]
+    return sorted(bad_files)
 
 # ============================================================================
 
@@ -266,6 +258,7 @@ def set_default_context(context, observatory=OBSERVATORY, state="edit", descript
             update_activation_dates(fileblob_map, context, new_hist.start_date)
             update_file_states(fileblob_map, old_context, context)
             update_file_replacements(fileblob_map, old_context, context)
+    clear_cache()
 
 def update_activation_dates(fileblob_map, context, activation_date):
     """Set the activation dates of files which are new in `context` to `activation_date`."""

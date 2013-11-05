@@ -2105,7 +2105,7 @@ def mark_bad_post(request):
         affected_files = affected_files.union(
             set(mark_bad_core(str(request.user), blacklist_root, badflag, why)))
         
-    models.update_bad_files(observatory)
+    models.clear_cache()
     
     return crds_render(request, "mark_bad_results.html", { "affected_files": sorted(list(affected_files)) })
     

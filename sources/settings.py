@@ -98,6 +98,13 @@ FILE_UPLOAD_HANDLERS = (
      "django.core.files.uploadhandler.TemporaryFileUploadHandler",
 )
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': 'unix:/tmp/memcached.sock',
+    }
+}
+
 # Session management, logins and expiration
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
