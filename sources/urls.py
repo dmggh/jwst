@@ -1,5 +1,12 @@
 from django.conf.urls import *
-from django.views.decorators.cache import cache_page
+
+# from django.views.decorators.cache import cache_page
+
+def cache_page(max_age):
+    """Fake cache_page decorator."""
+    def pass_thru(func):
+        return func
+    return pass_thru
 
 from jsonrpc import jsonrpc_site
 
