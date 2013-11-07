@@ -146,10 +146,9 @@ mod_wsgi)
         # that comes later is for debug environments; we don't want to contaminate
         # our production environment with possible dependencies on that data.)
         (
-        echo '#!/bin/csh'
         cat env.csh
+	echo "nohup memcached -s /tmp/memcached.sock &"
         echo "/usr/sbin/httpd -f $install_dir/server/conf/httpd.conf"
-	echo "memcached -s /tmp/memcached.sock &"
         ) > run
 
 	(
@@ -226,10 +225,9 @@ mod_python)
         # that comes later is for debug environments; we don't want to contaminate
         # our production environment with possible dependencies on that data.)
         (
-        echo '#!/bin/csh'
         cat env.csh
+	echo "nohup memcached -s /tmp/memcached.sock &"
         echo "/usr/sbin/httpd -f $install_dir/server/conf/httpd.conf"
-	echo "memcached -s /tmp/memcached.sock &"
         ) > run
 
 	(

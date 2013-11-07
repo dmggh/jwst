@@ -45,7 +45,7 @@ LD_LIBRARY_PATH=$install_dir/lib:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH
 
 (
-        echo '#!/bin/csh'
+        echo '#!/bin/csh -q'
         echo 'setenv PYTHONPATH '$PYTHONPATH
         if [ "$LD_LIBRARY_PATH" != "" ]
         then
