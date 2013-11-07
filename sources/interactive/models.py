@@ -197,8 +197,13 @@ def get_bad_files(observatory=OBSERVATORY):
     """Return the current list of blacklisted or rejected files."""
     log.info("Computing bad files list.")
     fileblobs = get_fileblob_map(observatory)
-    bad_files = [ str(blob.name) for blob in fileblobs.values() 
-                 if blob.observatory==observatory and blob.rejected ]
+    # mappings are both blacklisted and rejected which will trigger a warning/error on use
+    # leaf mappings are blacklisted and rejected.
+    # ancestor mappings in blacklists are not rejected.
+    # references are only rejected
+    # to keep bad_files list small,  only include *rejected* files.
+    # client-side,  checker must inspect current context for contained bad mappings, i.e. rejected files.
+    bad_files = [ str(blob.name) for blob in fileblobs.values() if blob.observatory==observatory and blob.rejected ]
     return sorted(bad_files)
 
 # ============================================================================
