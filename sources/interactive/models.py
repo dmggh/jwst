@@ -198,7 +198,7 @@ def get_bad_files(observatory=OBSERVATORY):
     log.info("Computing bad files list.")
     fileblobs = get_fileblob_map(observatory)
     bad_files = [ str(blob.name) for blob in fileblobs.values() 
-                 if blob.observatory==observatory and (blob.rejected or blob.blacklisted) ]
+                 if blob.observatory==observatory and blob.rejected ]
     return sorted(bad_files)
 
 # ============================================================================
