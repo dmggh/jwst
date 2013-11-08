@@ -146,12 +146,14 @@ mod_wsgi)
         # that comes later is for debug environments; we don't want to contaminate
         # our production environment with possible dependencies on that data.)
         (
-        cat env.csh
-	echo "nohup memcached -s /tmp/memcached.sock &"
+        cat env.sh
+	echo "memcached -s /tmp/memcached.sock &"
+	echo "disown -h %1"
         echo "/usr/sbin/httpd -f $install_dir/server/conf/httpd.conf"
         ) > run
 
 	(
+	cat env.sh
         echo 'kill `cat '$install_dir'/server/run/httpd.pid` '
 	echo 'killall memcached'
 	)  > stop
@@ -159,12 +161,6 @@ mod_wsgi)
         ln -fs /etc/httpd/modules $install_dir/server/
 
         ln -fs /etc/httpd/conf/magic $install_dir/server/conf/
-
-        # add debug-only values to env.csh
-        (
-        echo 'setenv DJANGO_SETTINGS_MODULE crds.server.settings'
-        echo 'setenv PYSYN_CDBS '$PYSYN_CDBS
-        ) >> env.csh
 
         ;;
 
@@ -225,12 +221,14 @@ mod_python)
         # that comes later is for debug environments; we don't want to contaminate
         # our production environment with possible dependencies on that data.)
         (
-        cat env.csh
-	echo "nohup memcached -s /tmp/memcached.sock &"
+        cat env.sh
+	echo "memcached -s /tmp/memcached.sock &"
+	echo "disown -h %1"
         echo "/usr/sbin/httpd -f $install_dir/server/conf/httpd.conf"
         ) > run
 
 	(
+	cat env.sh
         echo 'kill `cat '$install_dir'/server/run/httpd.pid` ' 
 	echo 'killall memcached'
 	) > stop
@@ -239,12 +237,6 @@ mod_python)
         ln -fs /etc/httpd/modules $install_dir/server/
 
         ln -fs /etc/httpd/conf/magic $install_dir/server/conf/
-
-        # add debug-only values to env.csh
-        (
-        echo 'setenv DJANGO_SETTINGS_MODULE crds.server.settings'
-        echo 'setenv PYSYN_CDBS '$PYSYN_CDBS
-        ) >> env.csh
 
         ;;
 
@@ -259,15 +251,13 @@ django)
         # hostname=`hostname`
 	hostname=localhost
         (
-        echo 'setenv DJANGO_SETTINGS_MODULE crds.server.settings'
         echo '# we are runnning in the context of the django test server'
         echo 'setenv PYSYN_CDBS '$PYSYN_CDBS
         echo 'setenv CRDS_DJANGO_SERVER 1'
         ) >> env.csh
 
         (
-        echo '#!/bin/csh'
-        echo 'source env.csh'
+	cat env.sh
         echo "cd $install_dir/python/lib/python/crds/server"
 	echo "memcached -s /tmp/memcached.sock &"
 	echo "onintr control_c"
@@ -278,8 +268,9 @@ django)
 	echo "killall memcached"
 	echo "echo 'Quitting...'"
         ) > run
+
         (
-        echo '#!/bin/csh'
+        echo '#! /bin/csh'
 	echo "killall memcached"
         ) > stop
 

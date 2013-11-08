@@ -45,7 +45,7 @@ LD_LIBRARY_PATH=$install_dir/lib:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH
 
 (
-        echo '#!/bin/csh -q'
+        echo '#! /bin/csh'
         echo 'setenv PYTHONPATH '$PYTHONPATH
         if [ "$LD_LIBRARY_PATH" != "" ]
         then
@@ -58,5 +58,10 @@ export LD_LIBRARY_PATH
 	echo 'setenv CRDS_SERVER_URL ' $CRDS_URL
 	echo 'setenv CRDS_PATH ' $CRDS_PATH
 	echo 'setenv CRDS_SERVER_STORAGE ' ${server_storage}
+	echo 'setenv DJANGO_SETTINGS_MODULE crds.server.settings'
 ) > env.csh
+
+perl -p -e's/^setenv (\w+)\s+(.*)/export \1="\2"/g' env.csh >env.sh
+perl -pi -e 's./bin/csh./bin/sh.g' env.sh
+perl -pi -e 's/unsetenv/unset/g' env.sh
 
