@@ -250,14 +250,9 @@ django)
 
         # hostname=`hostname`
 	hostname=localhost
-        (
-        echo '# we are runnning in the context of the django test server'
-        echo 'setenv PYSYN_CDBS '$PYSYN_CDBS
-        echo 'setenv CRDS_DJANGO_SERVER 1'
-        ) >> env.csh
 
         (
-	cat env.sh
+	cat env.csh
         echo "cd $install_dir/python/lib/python/crds/server"
 	echo "memcached -s /tmp/memcached.sock &"
 	echo "onintr control_c"
