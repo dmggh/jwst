@@ -1801,21 +1801,16 @@ def browse_db_post(request):
     if select_bad_files:
         filtered_db = [ blob for blob in filtered_db if blob.get_defects() ]
     
-    if request.is_ajax():
-        table = render_browse_table_json(request, filtered_db, show_defects)
-        response = JSONResponse(table, {}, response_mimetype(request))
-        response['Content-Disposition'] = 'inline; filename=files.json'
-    else:
-        # table = render_browse_table(request, filtered_db, show_defects)
-        table_data = render_browse_table_data(request, filtered_db, show_defects)
-        table_data = to_datatables(table_data)
-        table_json = json.dumps(table_data)
-        return crds_render(request, "browse_db_results.html", {
-                    "filters": filters,
-                    "filtered_db" : filtered_db,
-                    "table_json" : table_json,
-                    "observatory" : observatory,
-                })
+    # table = render_browse_table(request, filtered_db, show_defects)
+    table_data = render_browse_table_data(request, filtered_db, show_defects)
+    table_data = to_datatables(table_data)
+    table_json = json.dumps(table_data)
+    return crds_render(request, "browse_db_results.html", {
+            "filters": filters,
+            "filtered_db" : filtered_db,
+            "table_json" : table_json,
+            "observatory" : observatory,
+            })
     
 def render_browse_table(request, filtered_db, show_defects):
     """Generate the HTML for the search results table."""
@@ -2194,9 +2189,8 @@ def update_default_context(new_default, description, context_type, user):
     pmap_names = pmap.mapping_names() + pmap.reference_names()
     bad_files = []
     with log.error_on_exception("Bad file check failed"):
-        bad_files = [ name for name in pmap_names if blobs[name].rejected or blobs[name].blacklisted ]
+        bad_files = [ name for name in pmap_names if blobs[name].rejected ]
     if bad_files and context_type == "operational":
-        bad_files.remove(new_default)
         raise CrdsError("Context " + srepr(new_default) + 
                         " contains known bad files and cannot be made the default (last 4 bad files): " + ", ".join(bad_files[-4:]))
     models.set_default_context(new_default, observatory=models.OBSERVATORY, state=context_type, description=description)

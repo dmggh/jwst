@@ -74,7 +74,7 @@ class InteractiveBase(object):
         except Exception, exc:
             print "failed user save:", str(exc)
         self.ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, str(self.user))
-        models.set_default_context(self.pmap)
+        models.set_default_context(self.pmap, skip_history=True)
         models.set_default_context(self.pmap, state="operational")
         utils.ensure_dir_exists(lconfig.locate_file("test.fits", self.observatory))
         utils.ensure_dir_exists(lconfig.locate_file(self.pmap, self.observatory))

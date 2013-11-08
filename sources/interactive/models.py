@@ -259,8 +259,12 @@ class ContextModel(CrdsModel):
         """Return the mapping { kind : context }"""
         return { blob.kind : blob.context for blob in cls.objects.all() }
 
-def set_default_context(context, observatory=OBSERVATORY, state="edit", description="set by system"):
-    """Remember `context` as the default for `observatory` and `state`.  Update context history."""
+def set_default_context(context, observatory=OBSERVATORY, state="edit", description="set by system",
+                        skip_history=False):
+    """Remember `context` as the default for `observatory` and `state`. 
+     
+    Update context history unless skip_history is True (for test setup speed).
+    """
     
     assert context.endswith(".pmap"), "context must be a .pmap"
     assert state in ["edit", "operational"],  "Invalid context state: " + repr(state) + " should be 'edit' or 'operational'"
@@ -268,6 +272,9 @@ def set_default_context(context, observatory=OBSERVATORY, state="edit", descript
     model = ContextModel.get_or_create(observatory, state, "context")
     model.context = context
     model.save()
+    
+    if skip_history:
+        return
 
     # Create a context history record for this context switch.
     history = get_context_history(observatory=observatory, state=state)
@@ -283,6 +290,7 @@ def set_default_context(context, observatory=OBSERVATORY, state="edit", descript
             update_activation_dates(fileblob_map, context, new_hist.start_date)
             update_file_states(fileblob_map, old_context, context)
             update_file_replacements(fileblob_map, old_context, context)
+            
     clear_cache()
     # get_default_context(observatory=observatory, state=state)
     # get_bad_files(observatory)
@@ -1128,7 +1136,7 @@ def transitive_blacklist(blacklist_root, badflag, observatory=OBSERVATORY):
     """Blacklist `blacklist_root` and all the files referring to it according
     to `badflag` as "ok" or "bad".
     """
-    assert badflag in ["bad","ok"], "Invalid blacklist badflag=" + srepr(badflag)
+    assert badflag in ["bad","ok"], "Invalid blacklist badflag=" + repr(str(badflag))
     # Determine files which indirectly or directly reference `blacklist_root`
     uses_files = uses.uses([blacklist_root], observatory)
 

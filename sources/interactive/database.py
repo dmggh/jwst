@@ -300,7 +300,8 @@ class HeaderGenerator(object):
                     clauses.append(joined[0] + "=" + more)
         return clauses
 
-    def constraint_clauses(extra_constraints):
+    def constraint_clauses(self, extra_constraints):
+        clauses = []
         for key in extra_constraints:
             for col in self.all_columns:
                 if key.lower() in col:
