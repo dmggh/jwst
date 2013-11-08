@@ -432,7 +432,6 @@ def get_dataset_ids(request, context, instrument):
     return database.get_dataset_ids(instrument, observatory=pmap.observatory)
 
 # ===============================================================
-# ===============================================================
 
 @jsonrpc_method('file_exists(filename=String)')
 def file_exists(request, filename):
@@ -477,6 +476,16 @@ def get_server_info(request):
             },
         }
     return info
+
+# ===============================================================
+
+@jsonrpc_method('get_required_parkeys(context=String)')
+def get_required_parkeys(request, context):
+    context = check_context(context)
+    pmap = rmap.get_cached_mapping(context)
+    return pmap.get_required_parkeys()
+
+# ===============================================================
 
 #  XXXX Deprecated XXXXXXX <---------------------------------
 

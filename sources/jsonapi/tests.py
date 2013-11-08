@@ -14,7 +14,7 @@ import crds.config
 from crds import pysh, rmap, selectors, log, pysh, heavy_client, timestamp
 import crds.client as client
 import crds.server.config as server_config
-
+from crds.server.interactive import models as imodels
 from crds.server.jsonapi import views
 
 class ServiceApiBase(object):
@@ -268,6 +268,14 @@ class ServiceApiBase(object):
         context = client.get_context_by_date(self.observatory + "-operational")
         assert context.endswith(".pmap")
 
+    def test_get_required_parkeys(self):
+        parkeys = client.get_required_parkeys(self.pmap)
+        assert isinstance(parkeys, dict)
+        for instr in parkeys:
+            assert instr in imodels.INSTRUMENTS
+            assert isinstance(parkeys[instr], (list,tuple))
+            for parkey in parkeys[instr]:
+                assert isinstance(parkey, str)
 # ===========================================================================
 # ===========================================================================
 
