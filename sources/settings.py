@@ -99,10 +99,14 @@ FILE_UPLOAD_HANDLERS = (
 )
 
 CACHES = {
-    'default': {
+    'default' : {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        },
+    'crds_cache': {  # non-standard cache for CRDS optimizations,  
+                     # "default" interacts with sessions so make a custom cache.
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
         'LOCATION': 'unix:/tmp/memcached.sock',
-    }
+        }
 }
 
 # Session management, logins and expiration

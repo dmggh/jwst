@@ -2067,14 +2067,16 @@ def version_info(request):
 # ============================================================================
 
 """File enable/disable has somewhat complicated semantics due to the operation of CRDS
-in a distributed fashion.   The core issue is that the reject and blacklist flags 
-which appear in the CRDS DB catalog are not automatically distributed,  so checking
-for bad files by remote clients takes extra work.   This is also complicatd by a 
-design ambivalence and two kinds of file rejects:  reject and blacklist,  intransitve
-and transitive respectively.
+in a distributed fashion and the nature of interrelated mappings files.  In all cases
+files marked bad are assumed to produce scientifically invalid results.
 
-As things have turned out,  the most useful notion is the transitive form,  blacklisting
-which taints the contexts which contain blacklisted files as blacklisted also.
+CRDS mappings are marked both "rejected" and "blacklisted".
+Blacklisting is a transitive reject which affects anscestor mappings, i.e. blacklisting
+and rmap blacklists all .pmap's which contain it.
+References are marked as "rejected" only.
+A list of "rejected" files is distributed to clients.  Clients reassess
+blacklisting on their own using the assumption that all mappings are blacklisted.
+Server knowledge of blacklisting mainly supports catalog displays of blacklist causes.
 """
 
 @error_trap("mark_bad_input.html")
@@ -2086,8 +2088,6 @@ def mark_bad(request):
         return crds_render(request, "mark_bad_input.html")
     else:
         return mark_bad_post(request)
-
-# TODO Add "archive/catalog" action resulting from blacklisting
 
 def mark_bad_post(request):
     """View fragment to process the blacklist POST."""

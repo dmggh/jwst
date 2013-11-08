@@ -8,7 +8,7 @@ import datetime
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
 
-from django.core.cache import cache
+from django.core import cache
 
 # Create your models here.
 from crds import (timestamp, rmap, utils, refactor, log, data_file, uses, diff)
@@ -26,9 +26,28 @@ observatory_module = utils.get_object("crds." + OBSERVATORY)
 
 # ============================================================================
 
+CRDS_CACHE = cache.get_cache("crds_cache")
+
+def crds_cached(f):
+    """Decorator to cache a function in the 'crds_cache'.
+    This is distinct from 'default' because 'default' interacts with sessions
+    and Django's own unit tests fail.
+    """
+    def wrapper(*args, **keys):
+        key = __name__ + "_" + f.func_name + "_" + str(args + tuple(sorted(keys.items())))
+        key = key.replace("(","_").replace(")","_").replace("'","").replace(",","_").replace(" ","")
+        val = CRDS_CACHE.get(key)
+        if val is None:
+            val = f(*args, **keys)
+            CRDS_CACHE.set(key, val)
+        return val
+    wrapper.__doc__ = f.__doc__
+    wrapper.func_name = f.func_name
+    return wrapper
+
 def clear_cache():
-    """Clear the Django cache."""
-    cache.clear()
+    """Clear the crds core cache used for storing."""
+    CRDS_CACHE.clear()
 
 # ============================================================================
 
@@ -193,6 +212,7 @@ def mirror_filename_counters(observatory, official_path):
 
 # ============================================================================
 
+@crds_cached
 def get_bad_files(observatory=OBSERVATORY):
     """Return the current list of blacklisted or rejected files."""
     log.info("Computing bad files list.")
@@ -264,6 +284,8 @@ def set_default_context(context, observatory=OBSERVATORY, state="edit", descript
             update_file_states(fileblob_map, old_context, context)
             update_file_replacements(fileblob_map, old_context, context)
     clear_cache()
+    # get_default_context(observatory=observatory, state=state)
+    # get_bad_files(observatory)
 
 def update_activation_dates(fileblob_map, context, activation_date):
     """Set the activation dates of files which are new in `context` to `activation_date`."""
@@ -272,7 +294,7 @@ def update_activation_dates(fileblob_map, context, activation_date):
     for fname, blob in fileblob_map.items():
         if fname in supported_files:
             if blob.activation_date.year == DEFAULT_ACTIVATION_DATE.year:
-                log.info("Setting activation date of '{}' to '{}'".format(fname, datestr))
+                log.verbose("Setting activation date of '{}' to '{}'".format(fname, datestr))
                 blob.thaw()
                 blob.activation_date = timestamp.parse_date(activation_date)
                 blob.save()
@@ -295,7 +317,7 @@ def update_file_states(fileblob_map, old_context, new_context):
 def _update_file_state(blob, state):
     """Change the `blob` to `state`, thawing it first,  saving it.  Issue an info."""
     if blob.state != state:
-        log.info("Changing state of '{}' to '{}'".format(blob.name, state))
+        log.verbose("Changing state of '{}' to '{}'".format(blob.name, state))
         blob.thaw()
         blob.state = state
         blob.save()
@@ -332,11 +354,12 @@ def update_file_replacements(fileblob_map, old_pmap, new_pmap):
                 fileblob_map[old_rep].replaced_by_filename = new_rep
                 fileblob_map[old_rep].save()
 
+@crds_cached
 def get_default_context(observatory=OBSERVATORY, state="edit"):
     """Return the latest context which is in `state`."""
     assert observatory == OBSERVATORY, "Bad observatory for this server."
     assert state in ["edit", "operational"],  "Invalid context state: " + repr(state) + " should be 'edit' or 'operational'"
-    return ContextModel.get_or_create(observatory, state, "context").context
+    return str(ContextModel.get_or_create(observatory, state, "context").context)
 
 class ContextHistoryModel(CrdsModel):
     """Keeps track of interval at which the specified context was active and the reason for the switch."""
