@@ -227,7 +227,7 @@ class InteractiveBase(object):
 
     def test_mark_bad_post(self):
         self.login()
-        # self.fake_database_files(self.blacklist_files)
+        self.fake_database_files(self.blacklist_files)
         response = self.client.post("/mark_bad/", {
             "observatory" : self.observatory,
             "file_known" : self.blacklist_files[1],
@@ -659,7 +659,7 @@ if sconfig.observatory == "hst":
         
         create_contexts_rmaps = ["hst_acs_biasfile.rmap", "hst_cos_deadtab.rmap"]
 
-        blacklist_files = ["hst_acs.imap", "hst_acs_biasfile.rmap"]           
+        blacklist_files = ["hst_acs_9999.imap", "hst_acs_biasfile_9999.rmap"]           
 
 else:  # JWST
     
