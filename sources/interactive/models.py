@@ -578,7 +578,7 @@ class BlobModel(CrdsModel):
 # ============================================================================
 
 PEDIGREES = ["INFLIGHT", "GROUND", "DUMMY", "MODEL"]   # note: INFLIGHT include date
-CHANGE_LEVELS = ["SEVERE", "MEDIUM", "TRIVIAL"]
+CHANGE_LEVELS = ["SEVERE", "MODERATE", "TRIVIAL"]
 
 FILENAME_RE = "^[A-Za-z0-9_.]+$"
 FILEPATH_RE = "^[A-Za-z0-9_./]+$"
