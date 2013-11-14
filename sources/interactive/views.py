@@ -2117,13 +2117,10 @@ def mark_bad_core(user, blacklist_root, badflag, why):
     """Set's file reject state of `blacklist_root` based on `reject_type` and `badflag`
     and creates an AuditBlob listing `why`.
     """
+    models.set_reject(blacklist_root, badflag=="bad")
     if rmap.is_mapping(blacklist_root):
-        reject_type = "blacklist"
         affected_files = models.transitive_blacklist(blacklist_root, badflag)
-        models.set_reject(blacklist_root, badflag=="bad")
     else:
-        reject_type = "reject"
-        models.set_reject(blacklist_root, badflag=="bad")
         affected_files = [blacklist_root]
 
     instrument, filekind = utils.get_file_properties(models.OBSERVATORY, blacklist_root)
