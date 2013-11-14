@@ -5,7 +5,7 @@ header = {
     'name' : 'hst.pmap',
     'observatory' : 'HST',
     'parkey' : ('INSTRUME',),
-    'sha1sum' : '5ee0368e48d373da377d20fb8d65b1f833483697',
+    'sha1sum' : 'b035d71950adc8c041ef91c0f48fe970835ddcdf',
 }
 
 selector = {

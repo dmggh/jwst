@@ -3,7 +3,7 @@ header = {
     'filekind' : 'DARKFILE',
     'instrument' : 'ACS',
     'mapping' : 'REFERENCE',
-    'name' : 'hst_acs_darkfile.rmap',
+    'name' : 'hst_acs_darkfile2.rmap',
     'observatory' : 'HST',
     'parkey' : (('DETECTOR', 'CCDAMP', 'CCDGAIN'), ('DATE-OBS', 'TIME-OBS')),
     'parkey_relevance' : {
@@ -14,7 +14,7 @@ header = {
     'reffile_required' : 'YES',
     'reffile_switch' : 'DARKCORR',
     'rmap_relevance' : '(DARKCORR != "OMIT")',
-    'sha1sum' : 'fff08f4b20c64f840461e375d3eecbd887972b44',
+    'sha1sum' : 'ad78032956d61dd5769f59e8032f611157078993',
 }
 
 selector = Match({
@@ -23,7 +23,6 @@ selector = Match({
         '2002-03-01 00:00:00' : 'n3o1022cj_drk.fits',
         '2002-03-18 00:00:00' : 'n3o1022ej_drk.fits',
         '2002-03-19 00:34:31' : 'n3o1022fj_drk.fits',
-
         '2002-03-23 00:34:28' : 'n3o1022lj_drk.fits',
         '2002-03-27 03:31:17' : 'n3o1022rj_drk.fits',
         '2002-03-28 00:34:37' : 'n3o1022tj_drk.fits',

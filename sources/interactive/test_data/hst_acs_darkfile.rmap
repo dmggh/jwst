@@ -14,7 +14,7 @@ header = {
     'reffile_required' : 'YES',
     'reffile_switch' : 'DARKCORR',
     'rmap_relevance' : '(DARKCORR != "OMIT")',
-    'sha1sum' : 'fff08f4b20c64f840461e375d3eecbd887972b44',
+    'sha1sum' : 'b7237c3dd4162d39920c00bf8d012061df37d3cb',
 }
 
 selector = Match({

@@ -6,7 +6,7 @@ header = {
     'name' : 'jwst_miri_amplifier_0000.rmap',
     'observatory' : 'JWST',
     'parkey' : (('META.INSTRUMENT.DETECTOR', 'META.INSTRUMENT.FILTER'),),
-    'sha1sum' : 'e66f2b5c42bc65d5521fb252d33983aaa9324579',
+    'sha1sum' : '4d118da912b9b1ece46baeaaa9a69f2ead88f591',
 }
 
 selector = Match({

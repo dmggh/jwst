@@ -7,7 +7,7 @@ header = {
     'observatory' : 'HST',
     'parkey' : (('MODE',), ('DATE-OBS', 'TIME-OBS')),
     'rmap_relevance' : 'ALWAYS',
-    'sha1sum' : '21ca83eaea0b074ace3fe2e048d20162532414b4',
+    'sha1sum' : 'ae62d2177c7f3bf970477749d4ecba87678b5d2b',
 }
 
 selector = Match({

@@ -11,7 +11,7 @@ header = {
         'ccdgain' : '(DETECTOR != "SBC")',
     },
     'rmap_relevance' : 'ALWAYS',
-    'sha1sum' : '57de5d9b0192eab3158131dd1e9df3c61e4f81c0',
+    'sha1sum' : '63970bf637360e59874a33e5ec0ce247fa3329f3',
 }
 
 selector = Match({

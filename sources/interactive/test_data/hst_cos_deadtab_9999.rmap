@@ -7,7 +7,7 @@ header = {
     'observatory' : 'HST',
     'parkey' : (('DETECTOR',), ('DATE-OBS', 'TIME-OBS')),
     'rmap_relevance' : 'ALWAYS',
-    'sha1sum' : '21ca83eaea0b074ace3fe2e048d20162532414b4',
+    'sha1sum' : '27ce4ce6d6fab71bcd155aa2d3bd3aa683fd3c79',
 	'extra' : 'something',
 }
 
