@@ -12,7 +12,7 @@ from crds.server import settings, config
 # XXX Cached views must be completely defined by the URL
 # XXX GET/POST parameters and cookies don't count to differentiate pages.
 # XXX Don't cache authenticated pages (@login_required).
-MAX_AGE = 5*60  # seconds
+MAX_AGE = None  # seconds,  or forever for None
 crds_cacher = cache_page(MAX_AGE, cache='crds_cache')
 
 urlpatterns = patterns('',
