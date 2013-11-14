@@ -5,7 +5,7 @@ import os
 import shutil
 import os.path
 
-from django.test import TestCase
+from django.test import TransactionTestCase, TestCase
 
 from crds import (rmap, utils, pysh, log)
 import crds.config as lconfig
@@ -122,25 +122,25 @@ class InteractiveBase(object):
     @classmethod
     def fake_database_files(self, files, link=False):
         for filename in files:
+            # log.info("Faking database file", repr(filename))
             name = os.path.basename(filename)
-            filepath = filename if os.path.dirname(filename) else rmap.locate_file(filename, self.observatory)
+            source = os.path.abspath(filename)
+            where = rmap.locate_file(name, self.observatory)
+            if link:
+                with log.error_on_exception("Symlinking", repr(source), "failed."):
+                    where = rmap.locate_file(name, self.observatory)
+                    log.info("Symlinking fake file", repr(source), "to", repr(where))
+                    os.symlink(source, where)
             models.add_crds_file(
-                self.observatory, name, filepath, 
+                self.observatory, name, where, 
                 deliverer="homer", deliverer_email="homer@simpsons.com", 
                 description="delivered by the man",
                 add_slow_fields=False,
                 state="delivered",
                 update_derivation=False)
-            models.mirror_filename_counters(self.observatory, filepath)
+            models.mirror_filename_counters(self.observatory, where)
             models.AuditBlob.new("homer", "mass import", name, "becuz", "some details",
                                  observatory=self.observatory)
-            if link:
-                try:
-                    where = rmap.locate_file(filename, self.observatory)
-                    log.info("Symlinking fake file", repr(filename), "to", repr(where))
-                    os.symlink(filename, where)
-                except Exception, exc:
-                    pass
 
     def install_files(self, files):
         for path in files:
@@ -196,6 +196,7 @@ class InteractiveBase(object):
             dataset1 = "interactive/test_data/j8bt05njq_raw.fits"
         else:
             dataset1 = "interactive/test_data/jw00001001001_01101_00001_MIRIMAGE_uncal.fits"
+        self.fake_database_files([self.pmap])
         response = self.client.post("/bestrefs/", {
             "pmap_mode" : "pmap_text",
             "pmap_text" : self.pmap,
@@ -227,25 +228,23 @@ class InteractiveBase(object):
 
     def test_mark_bad_post(self):
         self.login()
-        self.fake_database_files(self.blacklist_files)
+        self.fake_database_files(self.blacklist_files, link=True)
         response = self.client.post("/mark_bad/", {
             "observatory" : self.observatory,
-            "file_known" : self.blacklist_files[1],
+            "file_known" : os.path.basename(self.blacklist_files[0]),
             "badflag" : "bad",
             "why" : "just had a feeling.",
             })
-        # print response.content
-        imap, rmap = self.blacklist_files
+        rmap, imap = [ os.path.basename(file) for file in self.blacklist_files]
         self.assert_no_errors(response)
-        self.assertTrue(self.pmap in response.content)
         self.assertTrue(imap in response.content)
         self.assertTrue(rmap in response.content)
         rmapblob = models.FileBlob.load(rmap)
         imapblob = models.FileBlob.load(imap)
         self.assertTrue(rmapblob.blacklisted)
-        self.assertTrye(rmapblob.rejected)
+        self.assertTrue(rmapblob.rejected)
         self.assertTrue(imapblob.blacklisted)
-        self.assertTrue(imapblob.rejected)
+        self.assertFalse(imapblob.rejected)
 
     def test_certify_get(self):
         self.login()
@@ -281,7 +280,7 @@ class InteractiveBase(object):
         self.assert_no_errors(response)
 
     def test_difference_post(self):
-        # self.fake_database_files(self.difference_files)
+        self.fake_database_files(self.difference_files, link=True)
         response = self.client.post("/difference/", {
             "filemode1": "file_known1",
             "file_known1" : self.difference_files[0],
@@ -291,7 +290,7 @@ class InteractiveBase(object):
         self.assert_no_errors(response)
     
     def test_difference_post_uploaded(self):
-        # self.fake_database_files(self.difference_files)
+        # self.fake_database_files(self.difference_files, link=True)
         response = self.client.post("/difference/", {
             "filemode1": "file_uploaded2",
             "file_uploaded1" : open(self.difference_files_uploaded[0]),
@@ -343,6 +342,7 @@ class InteractiveBase(object):
     
     def test_browse_file(self):
         response = self.client.get("/browse/" + self.pmap)
+        self.fake_database_files([self.pmap])
         self.assert_no_errors(response)
 
     def test_browse_db_get(self):
@@ -352,6 +352,7 @@ class InteractiveBase(object):
 
     def test_browse_db_post(self):
         self.login()
+        self.fake_database_files([self.pmap])
         response = self.client.post("/browse_db/", {
                 "observatory" : self.observatory,
                 "instrument" : "*",
@@ -579,7 +580,7 @@ class InteractiveBase(object):
     
     def test_set_context_post(self):
         self.login()
-        self.fake_database_files([self.new_context])
+        self.fake_database_files([self.new_context], link=True)
         self.install_files([self.new_context])
         new_context = os.path.basename(self.new_context)
         response = self.client.post("/set_default_context/", {
@@ -604,7 +605,10 @@ class InteractiveBase(object):
 
 if sconfig.observatory == "hst":
     
-    class HstInteractiveTest(InteractiveBase, TestCase):
+    class Hst(InteractiveBase, TransactionTestCase):
+
+        def __init__(self, *args, **keys):
+            super(Hst, self).__init__(*args, **keys)
         
         observatory = "hst"
         pmap = "hst.pmap"
@@ -659,11 +663,16 @@ if sconfig.observatory == "hst":
         
         create_contexts_rmaps = ["hst_acs_biasfile.rmap", "hst_cos_deadtab.rmap"]
 
-        blacklist_files = ["hst_acs_9999.imap", "hst_acs_biasfile_9999.rmap"]           
-
+        blacklist_files = [  # order critical, dependencies must be added first.
+            "interactive/test_data/hst_acs_darkfile2.rmap",
+            "interactive/test_data/hst_acs2.imap",
+            ]
 else:  # JWST
     
-    class JwstInteractiveTest(InteractiveBase, TestCase):
+    class Jwst(InteractiveBase, TransactionTestCase):
+
+        def __init__(self, *args, **keys):
+            super(Jwst, self).__init__(*args, **keys)
 
         observatory = "jwst"
         pmap = "jwst_0000.pmap"
@@ -716,5 +725,8 @@ else:  # JWST
         create_contexts_rmaps = ["jwst_miri_amplifier_0000.rmap", 
                                  "jwst_miri_photom_0000.rmap"]
 
-        blacklist_files = ["jwst_miri_0000.imap", "jwst_miri_photom_0000.rmap"]
+        blacklist_files = [
+            "interactive/test_data/jwst_miri_0000.imap",
+            "interactive/test_data/jwst_miri_amplifier_9999.rmap",
+            ]
 

@@ -52,6 +52,7 @@ PACKAGE_DATA = {
     '': [ 
         "templates/*.html",
         "interactive/*.dat",
+        "interactive/test_data/*",
         
         "jsonapi/templates/*.html",  
           

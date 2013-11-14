@@ -283,7 +283,7 @@ if server_config.observatory == "hst":
     print "testing hst"
     class HstServiceApiTest(ServiceApiBase, TestCase):
         pmap = "hst.pmap"
-        pmap_date = "hst-2040-01-25T00:05:45"
+        pmap_date = "hst-2013-07-04T00:00:00"
         imap = "hst_wfc3.imap"
         
         observatory = server_config.observatory
@@ -364,7 +364,7 @@ if server_config.observatory == "jwst":
     print "testing jwst"
     class JwstServiceApiTest(ServiceApiBase, TestCase):
         pmap = "jwst.pmap"
-        pmap_date = "jwst-2040-01-25T00:05:45"
+        pmap_date = "jwst-2013-07-04T00:00:00"
         imap = "jwst_miri.imap"
 
         observatory = server_config.observatory

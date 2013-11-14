@@ -2,10 +2,10 @@ header = {
     'derived_from' : 'created by hand 12-23-2011',
     'description' : 'Initially generated on 2011-11-16 10:23:00',
     'mapping' : 'PIPELINE',
-    'name' : 'hst.pmap',
+    'name' : 'hst_0027.pmap',
     'observatory' : 'HST',
     'parkey' : ('INSTRUME',),
-    'sha1sum' : '5ee0368e48d373da377d20fb8d65b1f833483697',
+    'sha1sum' : '5105401c495267ce16abbbb4ff986d4299bf3c00',
 }
 
 selector = {
