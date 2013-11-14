@@ -287,16 +287,18 @@ def set_default_context(context, observatory=OBSERVATORY, state="edit", descript
         new_hist.save()
         if state == "operational":
             fileblob_map = get_fileblob_map()
-            update_activation_dates(fileblob_map, context, new_hist.start_date)
-            update_file_states(fileblob_map, old_context, context)
-            update_file_replacements(fileblob_map, old_context, context)
+            update_activation_dates(context, new_hist.start_date, fileblob_map)
+            update_file_states(context, fileblob_map)
+            update_file_replacements(old_context, context, fileblob_map)
             
     clear_cache()
     # get_default_context(observatory=observatory, state=state)
     # get_bad_files(observatory)
 
-def update_activation_dates(fileblob_map, context, activation_date):
+def update_activation_dates(context, activation_date, fileblob_map=None):
     """Set the activation dates of files which are new in `context` to `activation_date`."""
+    if fileblob_map is None:
+        fileblob_map = get_fileblob_map()
     datestr = timestamp.format_date(activation_date)
     supported_files = _active_files(context)
     for fname, blob in fileblob_map.items():
@@ -307,20 +309,28 @@ def update_activation_dates(fileblob_map, context, activation_date):
                 blob.activation_date = timestamp.parse_date(activation_date)
                 blob.save()
 
-def update_file_states(fileblob_map, old_context, new_context):
-    """Toggle file states between "archived" and "operational" for files in `old_context` and `new_context`."""
-    old_files = _active_files(old_context) if old_context != "none" else set([])
-    new_files = _active_files(new_context)
-    added_files = new_files - old_files
-    removed_files = old_files - new_files
+def update_file_states(new_context=None, fileblob_map=None):
+    """Interpret the catalog link for all files which are in a transitory state."""
+    if new_context is None:
+        new_context = get_default_context(state="operational")
+        log.info("Updating for operational files in", repr(new_context))
+    active_files = _active_files(new_context)
+    if fileblob_map is None:
+        fileblob_map = get_fileblob_map()
     for fname, blob in fileblob_map.items():
         if blob.state in TRANSITORY_STATES + ACTIVE_STATES:
-            if fname in new_files or data_file.get_conjugate(fname) in new_files:
-                _update_file_state(blob, "operational")
+            if fname in active_files or data_file.get_conjugate(fname) in active_files:
+                state = "operational"
             else:
-                _update_file_state(blob, blob.interpret_catalog_link())
+                old_state = blob.state
+                state = blob.interpret_catalog_link()
+                if old_state != state:
+                    log.verbose("Changing state of '{}' from '{}' to '{}'".format(blob.name, old_state, state))
+            _update_file_state(blob, state)
+        elif blob.state in INACTIVE_STATES:
+            log.info("Skipping", repr(blob.name), "in state", repr(blob.state))
         else:
-            pass # file is inactive: uploaded, not yet archived, failed, cancelled, rejected, etc.
+            raise CrdsError("Unhandled file state for '{}' = '{}'".format(fname, blob.state))
 
 def _update_file_state(blob, state):
     """Change the `blob` to `state`, thawing it first,  saving it.  Issue an info."""
@@ -332,24 +342,29 @@ def _update_file_state(blob, state):
 
 def update_delivery_status():
     """Check to see if the un-archived files have been delivered to the archive yet.
-    If so, update the archive state.
+    If so, update the archive state. 
+
+    Used in jsonapi list_mappings service, requires speed,  assumes nominal system 
+    state where deliveries are working.
     """
     blobs = get_fileblob_map(state__in = TRANSITORY_STATES)
     for blob in blobs.values():
         blob.interpret_catalog_link()
-                
+
 def _active_files(context):
     """Return the set of all filenames referred to by `context`."""
     pmap = rmap.load_mapping(context)
     return set(pmap.mapping_names() + pmap.reference_names())
 
-def update_file_replacements(fileblob_map, old_pmap, new_pmap):
+def update_file_replacements(old_pmap, new_pmap, fileblob_map=None):
     """Given root mappings `old_pmap` and `new_pmap`, difference them and update the CRDS catalog
     for any files which are replaced by the transition from old to new.   This will set the reject 
     flag of replaced files,  and set their reject_by_filename name to the file which replaces them.
     """
     if old_pmap == "none":
         return
+    if fileblob_map is None:
+        fileblob_map = get_fileblob_map()
     with log.error_on_exception("FAILED setting file rejects based on context transition", 
                                 repr(old_pmap), "-->", repr(new_pmap)):
         old_map = rmap.asmapping(old_pmap, cached="readonly")
@@ -634,7 +649,7 @@ class FileBlob(BlobModel):
          "type", "derived_from", "sha1sum", "delivery_date", "activation_date", "useafter_date",
          "change_level", "pedigree", "reference_file_type", "size"]
         
-    repr_list = unicode_list = ["id", "name", "type", "instrument", "filekind", "state", "blacklisted", "change_level", "available"]
+    repr_list = unicode_list = ["id", "name", "type", "instrument", "filekind", "state", "blacklisted", "rejected", "change_level", "available"]
         
     exclude_from_info = BlobModel.exclude_from_info + \
         ["pathname","creator","deliverer", "deliverer_email","catalog_link"]
@@ -1014,7 +1029,9 @@ class FileBlob(BlobModel):
         # correct the abspath to where delivered catalogs live on this system.
         catalog_link = os.path.join(config.CRDS_DELIVERY_DIR, os.path.basename(self.catalog_link))
         
-        if os.path.exists(catalog_link):    
+        if not self.catalog_link:  # initial mass imported files never delivered
+            return "archived"
+        elif os.path.exists(catalog_link):    
             # CRDS has made catalog and files available for archiving
             return "delivered"
         elif os.path.exists(catalog_link + "_SUBMIT") or os.path.exists(catalog_link + "_submit"): 
