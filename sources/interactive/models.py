@@ -1219,6 +1219,11 @@ class AuditBlob(BlobModel):
     class Meta:
         db_table = TABLE_PREFIX + "_actions" # rename SQL table from interactive_fileblob
         
+    model_fields = BlobModel.model_fields + ["user", "date", "action", "filename", "observatory", "instrument", "filekind",
+                                             "why", "details"]
+    repr_list = unicode_list = ["date", "filename", "action", "user", "instrument", "filekind", "why", "details"]
+    unicode_list = ["date", "action", "user", "filename", "why"]
+    
     user = models.CharField(max_length=64, default="", help_text="user who performed this action")
     date = models.CharField(max_length=26, default="", help_text="unique name of this model.")
     action = SimpleCharField( AUDITED_ACTIONS, "name of action performed", "" )
@@ -1228,8 +1233,6 @@ class AuditBlob(BlobModel):
     filekind = models.CharField(max_length=32, default="", help_text="filekind this action applied to.")
     why = models.TextField(help_text="reason this action was performed", default="")
     details = models.TextField(help_text="supplementary info", default="")
-
-    model_fields = BlobModel.model_fields + ["user", "date", "action", "filename", "observatory", "instrument", "filekind"]
 
     blob_fields = dict(
         # User supplied fields
@@ -1243,9 +1246,6 @@ class AuditBlob(BlobModel):
         why = BlobField(str, "reason this action was performed",""),
         details = BlobField(str, "supplementary info", ""),
     )
-    
-    repr_list = unicode_list = ["date", "filename", "action", "user", "instrument", "filekind", "why", "details"]
-    unicode_list = ["date", "action", "user", "filename", "why", "details"]
     
     @classmethod
     def new(cls, user, action, affected_file, why, details, 
