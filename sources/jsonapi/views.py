@@ -5,11 +5,12 @@ import os.path
 import base64
 import math
 import re
+import zlib 
 
 from jsonrpc import jsonrpc_method
 from jsonrpc.exceptions import Error
 
-from crds.server.interactive import models as imodels, versions, database
+from crds.server.interactive import models as imodels, versions, database, crds_db
 import crds.server.config as config    # server parameters
 from crds import rmap, utils, log, timestamp
 import crds.config                     # generic client/server
@@ -484,6 +485,16 @@ def get_required_parkeys(request, context):
     context = check_context(context)
     pmap = rmap.get_cached_mapping(context)
     return pmap.get_required_parkeys()
+
+# ===============================================================
+
+@jsonrpc_method('get_sqlite_db(observatory=String)')
+def get_sqlite_db(request, observatory):
+    """Return the CRDS catalog database as a compressed, base64 encoded string."""
+    check_observatory(observatory)
+    db_path = crds_db.dump_sqlite_db(observatory)
+    db = open(db_path,"rb").read()
+    return base64.b64encode(zlib.compress(db))
 
 # ===============================================================
 
