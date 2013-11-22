@@ -703,6 +703,36 @@ class FileBlob(BlobModel):
     
     size = models.BigIntegerField(default=-1, help_text="size of file in bytes.")
     
+    uploaded_as = models.CharField(
+        max_length=80,  blank=True, default="", help_text="original upload filename")
+    
+    creator_name = models.CharField(
+        max_length=80, blank=True, default="", help_text="person who made this file,  possibly/likely not the submitter", )
+    
+    deliverer_user = models.CharField(
+        max_length=80, blank=True, default="", help_text="username who uploaded the file",)
+    
+    deliverer_email = models.CharField(
+        max_length=80, blank=True, default="", help_text="person's e-mail who uploaded the file",)
+
+    description = models.TextField(
+        blank=True, default="none", help_text="Brief rationale for changes to this file.",)
+    
+    catalog_link = models.CharField(
+        max_length=128, blank=True, default="", help_text="",)
+
+    replaced_by_filename = models.CharField(
+        max_length=128, blank=True, default="", help_text="",)
+    
+    blacklisted_by = models.TextField(
+       blank=True, default="none", help_text="Json list of files which are tainting this one.")
+
+    comment = models.TextField(
+        blank=True, default="none", help_text="from DESCRIP keyword of reference file.",)
+    
+    aperture = models.CharField(
+        max_length=80, blank=True, default="none", help_text="from APERTURE keyword of reference file.",)
+    
     # ===============================
     
     blob_fields = dict(
