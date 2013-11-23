@@ -724,9 +724,6 @@ class FileBlob(BlobModel):
     replaced_by_filename = models.CharField(
         max_length=128, blank=True, default="", help_text="",)
     
-    blacklisted_by = models.TextField(
-       blank=True, default="none", help_text="Json list of files which are tainting this one.")
-
     comment = models.TextField(
         blank=True, default="none", help_text="from DESCRIP keyword of reference file.",)
     
