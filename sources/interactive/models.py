@@ -606,8 +606,6 @@ FILE_STATUS_MAP = OrderedDict([
     ("archiving", "blue"),    # Being processed by pipeline poller
     ("archived", "green"),    # Archived and in use.
     ("operational", "darkgreen"), # In operational use in the pipeline.
-    ("blacklisted", "red"),    # transitive mark that all referencing contexts are also bad.
-    ("rejected", "red"),        # intransitive mark that since file is bad
     ("cancelled", "red"),      # submission cancelled by submitter
     ("archiving-failed", "red"),   # delivery to archive failed in CRDS pipeline.
     ("bad", "red")  # blacklisted or rejected
@@ -615,7 +613,7 @@ FILE_STATUS_MAP = OrderedDict([
 
 TRANSITORY_STATES = ["delivered","submitted","archiving"]
 ACTIVE_STATES = ["archived", "operational"]
-INACTIVE_STATES = ["uploaded", "blacklisted", "rejected", "cancelled", "archiving-failed"]
+INACTIVE_STATES = ["uploaded", "cancelled", "archiving-failed"]
 ALL_STATES = TRANSITORY_STATES + ACTIVE_STATES + INACTIVE_STATES
 FILE_STATES = FILE_STATUS_MAP.keys()
 
@@ -731,24 +729,17 @@ class FileBlob(BlobModel):
         max_length=80, blank=True, default="none", help_text="from APERTURE keyword of reference file.",)
     
     # ===============================
-    
-    blob_fields = dict(
-        uploaded_as = BlobField(FILENAME_RE, "original upload filename", ""),
-        creator_name = BlobField(str, "person who made this file",""),
-        deliverer_user = BlobField(str, "username who uploaded the file", ""),
-        deliverer_email = BlobField(str, "person's e-mail who uploaded the file", ""),
-        description = BlobField(str, "Brief rationale for changes to this file.", "none"),
-        catalog_link = BlobField(FILEPATH_RE, 
-            "Path to catalog file listing this file for delivery to OPUS. " \
-            "File transitions from 'delivered' to 'operational' when deleted.", ""),
 
-        # Automatically generated fields
-        # pathname = BlobField("^[A-Za-z0-9_./]+$", "path/filename to CRDS master copy of file", "none"),
-        blacklisted_by = BlobField(list,"List of blacklisted files this file refers to directly or indirectly.", []),
-        replaced_by_filename = BlobField(FILENAME_RE, "", ""),
-        comment = BlobField(str, "from DESCRIP keyword of reference file.", "none"),
-        aperture = BlobField(str, "from APERTURE keyword of reference file.", "none")
-        )
+    @property
+    def blacklisted_by(self):
+        if self.type != "mapping":
+            return []
+        nested_mappings  = rmap.get_cached_mapping(self.name).mapping_names()
+        return [str(blob.name) for blob in FileBlob.filter(rejected=True) if blob.name in nested_mappings]
+
+    # ===============================
+
+    blob_fields = dict()
 
     @property
     def pathname(self):   # assume server has standard cache layout
@@ -1185,44 +1176,37 @@ def transitive_blacklist(blacklist_root, badflag, observatory=OBSERVATORY):
     # Determine files which indirectly or directly reference `blacklist_root`
     uses_files = uses.uses([blacklist_root], observatory)
 
-    all_blacklisted = sorted([blacklist_root] + uses_files)
+    all_blacklisted = [blacklist_root] + uses_files
 
     for also_blacklisted in all_blacklisted:
         log.verbose("Also blacklisting ", repr(also_blacklisted), "as", badflag)
         try:
             if badflag == "bad":
-                blacklist(also_blacklisted, blacklist_root)
+                blacklist(also_blacklisted)
             elif badflag == "ok":
-                unblacklist(also_blacklisted, blacklist_root)
+                unblacklist(also_blacklisted)
         except Exception, exc:
             log.warning("Blacklist operation failed: ", str(exc))
 
     return all_blacklisted
     
-def blacklist(blacklisted,  blacklisted_by):
+def blacklist(blacklisted):
     """Mark the file `blacklisted` as bad because of its reference to file
     `blacklisted_by`.
     """
     fileblob = FileBlob.load(os.path.basename(blacklisted))
     fileblob.blacklisted = True
-    if blacklisted_by not in fileblob.blacklisted_by:
-        fileblob.blacklisted_by.append(blacklisted_by)
     fileblob.save()
     
-def unblacklist(blacklisted,  blacklisted_by):
+def unblacklist(blacklisted):
     """Remove blacklisting of file `blacklisted` on behalf of file
     `blacklisted_by`.
     """
     fileblob = FileBlob.load(os.path.basename(blacklisted))
-    try:
-        fileblob.blacklisted_by.remove(blacklisted_by)
-    except ValueError:
-        pass
     # Only remove blacklisting if there are no remaining bad references.
     if not fileblob.blacklisted_by:
         fileblob.blacklisted = False
-    fileblob.save()
-    
+        fileblob.save()
     
 def set_reject(rejected_filename, rejected_bool):
     """Mark `rejected_filename` as rejected(True) or usable(False),  non-transitively."""
