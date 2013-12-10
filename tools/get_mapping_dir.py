@@ -4,11 +4,12 @@
 import sys
 import os.path
 
+import crds
 import crds.utils as utils
 
 def get_mapping_dir(observatory):
-    module = utils.get_object("crds.mappings."+observatory)
-    dir = os.path.dirname(module.__file__)
+    dir = os.path.dirname(crds.__file__)
+    dir = os.path.join(dir, "cache", "mappings", observatory)
     return dir
 
 if __name__ == "__main__":
