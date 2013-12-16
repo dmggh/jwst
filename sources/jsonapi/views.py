@@ -105,6 +105,9 @@ class InvalidDateFormat(Error):
 class InvalidDateBasedContext(Error):
     """Received a data based context with an invalid format."""
 
+class InvalidFileList(Error):
+    """Not a list of file names."""
+
 def check_known_file(file):
     """Check that `file` is known to CRDS, available, and/or not blacklisted."""
     if not re.match(FILE_RE, file):
@@ -418,12 +421,28 @@ def get_dataset_headers_by_id(request, context, dataset_ids):
     pmap = rmap.get_cached_mapping(context)
     return database.get_dataset_headers_by_id(dataset_ids=dataset_ids, observatory=pmap.observatory)
 
-@jsonrpc_method('get_dataset_headers_by_instrument(context=String, instrument=Array)')
-def get_dataset_headers_by_instrument(request, context, instrument):
+@jsonrpc_method('get_dataset_headers_by_instrument(context=String, instrument=Array, datasets_since=String)')
+def get_dataset_headers_by_instrument(request, context, instrument, datasets_since=None):
     context = check_context(context)
     check_instrument(instrument)
     pmap = rmap.get_cached_mapping(context)
-    return database.get_dataset_headers_by_instrument(instrument, observatory=pmap.observatory)
+    datasets = database.get_dataset_headers_by_instrument(instrument, observatory=pmap.observatory)
+    return filter_datasets_by_date(instrument, datasets_since, datasets)
+
+def filter_datasets_by_date(instrument, datasets_since, datasets):
+    """Return the mapping of datasets which occurred after `datasets_since` based on exposure start."""
+    if datasets_since:
+        filtered = {}
+        for (datasetid, header) in datasets.items():
+            start = header["DATE-OBS"] + " " + header["TIME-OBS"]
+            if start < datasets_since:
+                log.verbose("Skipping dataset", datasetid, "for", instrument,
+                            "based on expstart=" + start, "< datasets_since=" + datasets_since)
+            else:
+                filtered[datasetid] = header
+        return filtered
+    else:
+        return datasets
 
 @jsonrpc_method('get_dataset_ids(context=String, instrument=String)')
 def get_dataset_ids(request, context, instrument):
