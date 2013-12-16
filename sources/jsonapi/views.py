@@ -178,13 +178,13 @@ def _check_date_based_context(context, observatory):
 
 def _pmap_from_date(date, observatory):
     """Using `date` and `observatory` lookup the operational context from that period."""
-    dt = check_date(date)
+    dt = check_context_date(date)
     try:
         return imodels.get_context_by_date(date=date, observatory=observatory)
     except Exception, exc:
         raise UnknownContextError("No CRDS context found corresponding to (prior to) date '%s'" % date)
 
-def check_date(date):
+def check_context_date(date):
     """Verify the format of simple context datetime string `date` and return a datetime.datetime object."""
     try:
         d = crds.config.CONTEXT_DATETIME_RE.match(date)
@@ -193,6 +193,12 @@ def check_date(date):
         return timestamp.parse_date(date)
     except Exception:
         raise InvalidDateBasedContext("Invalid context date/time format '%s' should be YYYY-MM-DDTHH:MM:SS | edit | operational" % date)
+
+def check_date(date):
+    try:
+        return timestamp.is_datetime(date.replace("T"," "))
+    except:
+        raise InvalidDateFormat("Invalid date/time specification: " + repr(str(date)) + " should be YYYY-MM-DDTHH:MM:SS")
 
 def check_mapping(mapping):
     blob = check_known_file(mapping)
@@ -425,8 +431,10 @@ def get_dataset_headers_by_id(request, context, dataset_ids):
 def get_dataset_headers_by_instrument(request, context, instrument, datasets_since=None):
     context = check_context(context)
     check_instrument(instrument)
+    dates_since = check_date(datasets_since)
     pmap = rmap.get_cached_mapping(context)
-    datasets = database.get_dataset_headers_by_instrument(instrument, observatory=pmap.observatory)
+    datasets = database.get_dataset_headers_by_instrument(instrument, observatory=pmap.observatory, 
+                                                          datasets_since=datasets_since)
     return filter_datasets_by_date(instrument, datasets_since, datasets)
 
 def filter_datasets_by_date(instrument, datasets_since, datasets):

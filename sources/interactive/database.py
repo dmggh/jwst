@@ -333,7 +333,9 @@ class HeaderGenerator(object):
     def get_dataset_ids(self):
         return [id[0] for id in self.catalog_db.execute("SELECT {} FROM {}".format(
             self.h_to_db["data_set"], self.h_to_db["data_set"].split(".")[0]))]
-
+        
+    def get_expstart_clause(self, datasets_since):
+        return self.h_to_db.get("expstart", self.h_to_db.get("texpstrt")) + " >= '" + datasets_since + "'"
 
 HEADER_MAP = None
 HEADER_GENERATORS = {}
@@ -392,14 +394,15 @@ def get_dataset_headers_by_id(dataset_ids, observatory="hst"):
         headers.update(_get_dataset_headers_by_id(dataset_ids[i:i+MAX_IDS], observatory))
     return headers
 
-def get_dataset_headers_by_instrument(instrument, observatory="hst"):
+def get_dataset_headers_by_instrument(instrument, observatory="hst", datasets_since=None):
     """Get the header for a particular dataset,  nominally in a context where
     one only cares about a small list of specific datasets.
     """
     init_db()
     try:
         igen = HEADER_GENERATORS[instrument]
-        headers = { hdr["DATA_SET"]:hdr for hdr in igen.get_headers() }
+        extra_clauses = [ igen.get_expstart_clause(datasets_since) ] if datasets_since else []
+        headers = { hdr["DATA_SET"]:hdr for hdr in igen.get_headers(extra_clauses=extra_clauses) }
         return headers
     except Exception, exc:
         raise RuntimeError("Error accessing catalog for instrument" + repr(instrument) + ":" + str(exc))
