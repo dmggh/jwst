@@ -2249,9 +2249,9 @@ if sconfig.DEBUG:
         # log.info("DEBUG COMMAND:", repr(command))
         try:
             if mode == "eval":
-                result = eval(command, locals(), globals())
+                result = eval(command, globals(), locals())
             else:
-                exec command in locals(), globals()
+                exec command in globals(), locals()
                 result = None
         except Exception as exc:
             result = "EXCEPTION: " + str(exc)
