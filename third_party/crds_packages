@@ -2,6 +2,7 @@ readline
 stsci_tools
 pyfits_svn
 models
+astropy
 
 Django
 django-json-rpc
