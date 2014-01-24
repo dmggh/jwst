@@ -374,6 +374,7 @@ def handle_known_or_uploaded_file(request, modevar, knownvar, uploadvar):
     
     Return (uploaded_flag, name_on_users_system,  temporary_file_path)
     """
+    must_delete = False
     if request.POST[modevar] == knownvar:
         # certified_file is a basename,  but CRDS figures out where it is.
         original_name = validate(request, knownvar, is_known_file)
@@ -382,7 +383,19 @@ def handle_known_or_uploaded_file(request, modevar, knownvar, uploadvar):
         ufile = get_uploaded_file(request, uploadvar)
         filepath = ufile.temporary_file_path()
         original_name = ufile.name
-    return str(original_name), str(filepath)
+        # Kludge the temporary file extension to match the original filename.
+        # This enables code which identifies type by extension to work.
+        if os.path.splitext(filepath)[-1] != os.path.splitext(original_name)[-1]:
+            filepath, filepath_old = os.path.splitext(filepath)[0] + os.path.splitext(original_name)[-1], filepath
+            os.rename(filepath_old, filepath)
+            must_delete = True
+    return must_delete, str(original_name), str(filepath)
+
+def handle_upload_delete(must_delete, orig, path):
+    """Delete uploaded file at `path` originally named `orig` IFF `must_delete`."""
+    if must_delete:
+        with log.warn_on_exception("Failed deleting uploaded temporary", repr(orig), "at", repr(path)):
+            os.remove(path)
 
 def get_uploaded_file(request, formvar):
     """Return the DJango UploadedFile associated with `request` and `formvar`,
@@ -1436,9 +1449,9 @@ def difference_files(request):
             file1_path = models.FileBlob.load(file1_orig).pathname
             file2_path = models.FileBlob.load(file2_orig).pathname
     else:
-        file1_orig, file1_path = handle_known_or_uploaded_file(
+        must_delete1, file1_orig, file1_path = handle_known_or_uploaded_file(
             request, "filemode1", "file_known1", "file_uploaded1")
-        file2_orig, file2_path = handle_known_or_uploaded_file(
+        must_delete2, file2_orig, file2_path = handle_known_or_uploaded_file(
             request, "filemode2", "file_known2", "file_uploaded2")
     
     if rmap.is_mapping(file1_orig):  # compute files for nested rmap differences
@@ -1452,6 +1465,9 @@ def difference_files(request):
     diff_results = web_difference.mass_differences(upload_tuples)
     
     # log.info("diff_results:", log.PP(diff_results))
+    
+    handle_upload_delete(must_delete1, file1_orig, file1_path)
+    handle_upload_delete(must_delete2, file2_orig, file2_path)
 
     return crds_render(request, "difference_results.html", { 
             "file1" : file1_orig,

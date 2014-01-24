@@ -23,6 +23,9 @@ def mass_differences(pair_or_quad_tuples, connector=" --> ", push_status=lambda 
 def difference_core(file1_orig, file2_orig, file1_path=None, file2_path=None, push_status=lambda x: None):
     """Compute the rendering dictionary for the differences include file."""
 
+    assert os.path.splitext(file1_orig)[-1] == os.path.splitext(file2_orig)[-1], \
+        "Differenced files should be of the same type and have the same extension."
+
     if file1_path is None:
         file1_path = rmap.locate_mapping(file1_orig)
     if file2_path is None:
@@ -50,16 +53,9 @@ def difference_core(file1_orig, file2_orig, file1_path=None, file2_path=None, pu
         difference = textual_diff(file1_orig, file2_orig, file1_path, file2_path)
         map_text_diffs[str((file1_orig, file2_orig))] = difference
         map_text_diff_items = sorted(map_text_diffs.items())
-    elif file1_orig.endswith(".fits") and file2_orig.endswith(".fits"):
-        diff_lines = pysh.lines("fitsdiff ${file1_path} ${file2_path}")
-        diff_lines = format_fitsdiffs(diff_lines, file1_path, file2_path,
-            file1_orig, file2_orig)
-        difference = ''.join(diff_lines)
-    elif re.match(GEIS_HEADER_RE, file1_orig) and re.match(GEIS_HEADER_RE, file2_orig) and \
-        extension(file1_orig) == extension(file2_orig):
-        difference = textual_diff(file1_orig, file2_orig, file1_path, file2_path)
     else:
-        raise CrdsError("Files should be of the same type and extension.")        
+        diff_lines = pysh.out_err("python -m crds.diff ${file1_path} ${file2_path}").splitlines()
+        difference = '\n'.join(diff_lines)
     if not difference.strip():
         difference = "no differences"
     return {
