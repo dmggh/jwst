@@ -104,8 +104,9 @@ CACHES = {
         },
     'crds_cache': {  # non-standard cache for CRDS optimizations,  
                      # "default" interacts with sessions so make a custom cache.
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': 'unix:/tmp/memcached.sock',
+        'BACKEND' : 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION' : 'unix:/tmp/memcached.sock',
+        "TIMEOUT" : 24 * 3600,
         }
 }
 
