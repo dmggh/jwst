@@ -384,9 +384,13 @@ def get_url(request, context, file):
     ctx = rmap.get_cached_mapping(context)
     return create_url(ctx.observatory, file)
 
-@jsonrpc_method('get_file_info(context=String, file=String)')
-def get_file_info(request, context, file):
-    context = check_context(context)
+@jsonrpc_method('get_file_info(observatory=String, file=String)')
+def get_file_info(request, observatory, file):
+    """Return the CRDS catalog info for a single `file` of the specified `observatory`."""
+    try:
+        observatory = check_observatory(observatory)
+    except InvalidObservatoryError:
+        observatory = check_context(observatory).observatory  # load mapping and fetch observ.
     blob = check_known_file(file)
     blob.thaw()
     return blob.info
