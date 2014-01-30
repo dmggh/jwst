@@ -133,6 +133,7 @@
           'gactab': 'stis_ref_data.ssr_best_gactab',
           'halotab': 'stis_ref_data.ssr_best_halotab',
           'idctab': 'stis_ref_data.ssr_best_idctab',
+	  'imphttab' : 'stis_ref_data.ssr_best_imphttab',
           'inangtab': 'stis_ref_data.ssr_best_inangtab',
           'lamptab': 'stis_ref_data.ssr_best_lamptab',
           'lfltfile': 'stis_ref_data.ssr_best_lfltfile',
