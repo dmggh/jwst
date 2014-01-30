@@ -1448,6 +1448,7 @@ def difference_files(request):
             file2_orig = validate(request, "file2", is_known_file)
             file1_path = models.FileBlob.load(file1_orig).pathname
             file2_path = models.FileBlob.load(file2_orig).pathname
+        must_delete1 = must_delete2 = False
     else:
         must_delete1, file1_orig, file1_path = handle_known_or_uploaded_file(
             request, "filemode1", "file_known1", "file_uploaded1")
