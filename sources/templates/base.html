@@ -3,7 +3,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
-    <title>Calibration Reference Data System (CRDS)</title>
+    <title>{{observatory|upper}} Calibration Reference Data System (CRDS)</title>
 
     {% block head_additions %} 
     {% endblock %}
@@ -91,6 +91,17 @@
             </div>
             
         {% endblock %}
+        
+        <div class="help">
+        <p>
+        {% block bottom_help %}
+        {% endblock bottom_help %}
+        </p>
+        </div>
+        
+        <div id="bottom_filler" class="body_panel">
+        <p><p>
+        </div>        
         
         <div id="crds_info_box" class="full_width">
         </div>

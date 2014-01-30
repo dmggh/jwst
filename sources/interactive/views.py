@@ -380,6 +380,8 @@ def handle_known_or_uploaded_file(request, modevar, knownvar, uploadvar):
         original_name = validate(request, knownvar, is_known_file)
         filepath = get_known_filepath(original_name)
     else:
+        assert request.user.is_authenticated(), \
+            "file uploads are only available for authenticated users."
         ufile = get_uploaded_file(request, uploadvar)
         filepath = ufile.temporary_file_path()
         original_name = ufile.name
@@ -402,6 +404,8 @@ def get_uploaded_file(request, formvar):
     raising an exception if it's original name does not end with one of
     `legal_exts` file extensions.   Handles <input type='file'>, part 1.
     """
+    assert request.user.is_authenticated(), \
+        "file uploads are only available for authenticated users."
     try:
         ufile = request.FILES[formvar]
     except KeyError:
