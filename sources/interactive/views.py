@@ -1460,7 +1460,7 @@ def difference_files(request):
             request, "filemode2", "file_known2", "file_uploaded2")
     
     assert os.path.splitext(file1_orig)[-1] == os.path.splitext(file2_orig)[-1], \
-        "Differenced files should be of the same general class / i.e. file extension."
+        "The specified files are not compatible for differencing.  (Different file name extensions.)"
 
     if rmap.is_mapping(file1_orig):  # compute files for nested rmap differences
         upload_tuples, logical_errors = mapping_upload_tuples(file1_orig, file2_orig, file1_path, file2_path)
