@@ -1461,6 +1461,10 @@ def difference_files(request):
     
     assert os.path.splitext(file1_orig)[-1] == os.path.splitext(file2_orig)[-1], \
         "The specified files are not compatible for differencing.  (Different file name extensions.)"
+    assert os.path.exists(file1_path), \
+        "File " + repr(file1_path) + " is not available in the server file cache."
+    assert os.path.exists(file2_path), \
+        "File " + repr(file2_path) + " is not available in the server file cache."
 
     if rmap.is_mapping(file1_orig):  # compute files for nested rmap differences
         upload_tuples, logical_errors = mapping_upload_tuples(file1_orig, file2_orig, file1_path, file2_path)
@@ -1842,7 +1846,7 @@ def render_browse_table(request, filtered_db, show_defects):
     authenticated = request.user.is_authenticated()
     thead = html.thead(
         html.tr(
-            html.th("diff") +
+            html.th("<input type='submit' id='diff_button' value='diff' />") +
             html.th("delivery date") +
             html.th("name") +
             html.th("aperture") +
@@ -1876,11 +1880,11 @@ def render_browse_table(request, filtered_db, show_defects):
     return table
     
 def render_browse_table_data(request, filtered_db, show_defects):
-    """Generate the HTML for the search results table."""
+    """Generate JSON-able dicts for the search results table."""
     super = request.user.is_superuser
     authenticated = request.user.is_authenticated()
     header = [
-            "<input type='submit' value='diff' />",
+            "<input type='submit' id='diff_button' value='diff' />",
             "delivery date",
             "activation date",
             "useafter date",

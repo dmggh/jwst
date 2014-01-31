@@ -3,6 +3,8 @@
  <p style="font-size: 0.8em;" class="gray">(under context {{pmap.header.name|browse}})</p>
  <br/>
 
+{% include "diff_col_header.html" %}
+
 {% for pitem in pmap.selections %}
     {% accordion  "<span class='blue'>" pitem.0 "</span>" %}
         <p><a href="/browse/{{pitem.1.header.name}}">{{pitem.1.header.name}}</a></p><br/>
@@ -14,4 +16,6 @@
         {% endfor %}
     {% endaccordion %}
 {% endfor %}
+
+{% include "diff_col_trailer.html" %}
 

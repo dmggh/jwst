@@ -16,14 +16,17 @@ $(function () {
                 url : url,
                 context: document.body
             }).done(function (json) {
+                    json["parameters"].push(crds.tag("input","", {"type":"submit", id:"diff_button", value:"diff"}));
                     $.each(json["selections"], function (index, row) {
                         var  refname = row[row.length-1];
-                        row[row.length-1] = crds.tag("a", refname, {"href": "/browse/" + refname})
+                        row[row.length-1] = crds.tag("a", refname, {"href": "/browse/" + refname});
+                        row.push(crds.tag("input", "", {"type" : "checkbox", "value" : refname}));
                     });
                     var table = $(crds.format_table(json["parameters"], json["selections"]));
                     table.hide();
                     table.css({"font-size":"0.7em"});
                     div.html(table);
+                    $("#diff_button").css({"font-weight":"bold"});
                     table.dataTable({
                         "aLengthMenu": [[100, 200, 500, 1000, 2000, -1], [100, 200, 500, 1000, 2000, "All"]],
                         "iDisplayLength" : -1                  
