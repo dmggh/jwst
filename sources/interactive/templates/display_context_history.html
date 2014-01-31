@@ -6,9 +6,8 @@
 
     <h2>Operational Context History</h2>
 
-    <form onsubmit='return crds.diff_selected_contexts();' method="get" enctype="multipart/form-data" action="/difference/">
-        <input type="hidden" name="file1" />
-        <input type="hidden" name="file2" />
+        {% include "diff_col_header.html" %}
+        
         <table border="1">
             <tr>
                 <th width="10%" align="center">start date</th>
@@ -23,33 +22,12 @@
                     <td align="center"><a href="/context_table/{{hist.0.context}}">{{hist.0.context}}</a></span></td>
                     <td align="center" class="{{hist.1.status_class}}">{{hist.1.status}}</span></td>
                     <td align="left">{{hist.0.description}}</td>
-                    <td align="center"><input type="checkbox" name="diff_context" value="{{hist.0.context}}" /></td>
+                    <td align="center"><input type="checkbox" name="diff_file" value="{{hist.0.context}}" /></td>
                 </tr>
             {% endfor %}
             
         </table>
-    </form>
-    
-    <script type="text/javascript">
-        $(function() {
-            $("input[type=submit]").css({"font-weight":"bold"});
-            crds.diff_selected_contexts = function () {
-                selected = $("input:checked");
-                if (selected.length != 2) {
-                    alert("Select exactly two contexts to difference.");
-                    return false;
-                }
-                files = [ selected[0].value, selected[1].value]
-                files.sort();
-                $("input[name=file1]").val(files[0]);
-                $("input[name=file2]").val(files[1]);
-                crds.set_info_box({
-                    text: "Differencing contexts...",
-                     css: {color: "green"},
-                });
-                return true;
-            };
-        });
-    </script>
+        
+        {% include "diff_col_trailer.html" %}
 
 {% endblock contents %}

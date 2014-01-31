@@ -1438,7 +1438,7 @@ def flatten(path):
     
 # ===========================================================================
 
-@error_trap("difference_input.html")
+@error_trap("base.html")
 @log_view
 def difference_files(request):
     """Compare two files,  either known or uploaded,  and display the diffs."""
@@ -1459,6 +1459,9 @@ def difference_files(request):
         must_delete2, file2_orig, file2_path = handle_known_or_uploaded_file(
             request, "filemode2", "file_known2", "file_uploaded2")
     
+    assert os.path.splitext(file1_orig)[-1] == os.path.splitext(file2_orig)[-1], \
+        "Differenced files should be of the same general class / i.e. file extension."
+
     if rmap.is_mapping(file1_orig):  # compute files for nested rmap differences
         upload_tuples, logical_errors = mapping_upload_tuples(file1_orig, file2_orig, file1_path, file2_path)
     else:   # references
@@ -1839,6 +1842,7 @@ def render_browse_table(request, filtered_db, show_defects):
     authenticated = request.user.is_authenticated()
     thead = html.thead(
         html.tr(
+            html.th("diff") +
             html.th("delivery date") +
             html.th("name") +
             html.th("aperture") +
@@ -1854,6 +1858,7 @@ def render_browse_table(request, filtered_db, show_defects):
     rows = []
     for db in filtered_db:
         tr = html.tr(
+            html.td("<input type='checkbox' name='{}'/>".format(db.name)) +
             html.td(stdtags.minutes(db.delivery_date)) +
             html.td(stdtags.browse(db.name)) +
             html.td(db.aperture) +
@@ -1874,7 +1879,9 @@ def render_browse_table_data(request, filtered_db, show_defects):
     """Generate the HTML for the search results table."""
     super = request.user.is_superuser
     authenticated = request.user.is_authenticated()
-    header = ["delivery date",
+    header = [
+            "<input type='submit' value='diff' />",
+            "delivery date",
             "activation date",
             "useafter date",
             "name",
@@ -1889,6 +1896,7 @@ def render_browse_table_data(request, filtered_db, show_defects):
     rows = []
     for db in filtered_db:
         rows.append([
+            "<input type='checkbox' value='{}'/>".format(db.name),
             stdtags.minutes(db.delivery_date),
             stdtags.minutes(db.activation_date),
             stdtags.minutes(db.useafter_date),

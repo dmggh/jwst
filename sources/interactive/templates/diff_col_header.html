@@ -1,0 +1,6 @@
+    {# this fragment is to support a "diff" column in a table display like the context history. #} 
+    
+    <form onsubmit='return crds.diff_selected_files();' method="get" enctype="multipart/form-data" action="/difference/">
+        <input type="hidden" name="file1" />
+        <input type="hidden" name="file2" />
+        

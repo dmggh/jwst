@@ -22,7 +22,10 @@
 {% endaccordion %}
 
 <h3>Database Entries</h3>
-<table id="crds_db_table"></table>
+
+{% include "diff_col_header.html" %}
+    <table id="crds_db_table"></table>
+{% include "diff_col_trailer.html" %}
 
 <script type="text/javascript">
     $("#contents").hide();
