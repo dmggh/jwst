@@ -1846,7 +1846,6 @@ def render_browse_table(request, filtered_db, show_defects):
     authenticated = request.user.is_authenticated()
     thead = html.thead(
         html.tr(
-            html.th("<input type='submit' id='diff_button' value='diff' />") +
             html.th("delivery date") +
             html.th("name") +
             html.th("aperture") +
@@ -1856,13 +1855,13 @@ def render_browse_table(request, filtered_db, show_defects):
             html.th("instrument") + 
             html.th("reference type") +
             (html.th("deliverer") if authenticated else "") +
-            (html.th("defects") if show_defects else "")
+            (html.th("defects") if show_defects else "") +
+            html.th("<input type='submit' id='diff_button' value='diff' />")
         )
     )
     rows = []
     for db in filtered_db:
         tr = html.tr(
-            html.td("<input type='checkbox' name='{}'/>".format(db.name)) +
             html.td(stdtags.minutes(db.delivery_date)) +
             html.td(stdtags.browse(db.name)) +
             html.td(db.aperture) +
@@ -1872,7 +1871,8 @@ def render_browse_table(request, filtered_db, show_defects):
             html.td(db.instrument) + 
             html.td(db.filekind) +
             (html.td(db.deliverer_user) if authenticated else "") +
-            (html.td(repr(db.get_defects())) if show_defects else "")
+            (html.td(repr(db.get_defects())) if show_defects else "") +
+            html.td("<input type='checkbox' name='{}'/>".format(db.name))
         )
         rows.append(tr)
     tbody = html.tbody("\n".join(rows))
@@ -1884,7 +1884,6 @@ def render_browse_table_data(request, filtered_db, show_defects):
     super = request.user.is_superuser
     authenticated = request.user.is_authenticated()
     header = [
-            "<input type='submit' id='diff_button' value='diff' />",
             "delivery date",
             "activation date",
             "useafter date",
@@ -1894,13 +1893,15 @@ def render_browse_table_data(request, filtered_db, show_defects):
             "description",
             "instrument", 
             "reference type",
-            "deliverer" if authenticated else "",
-            "defects" if show_defects else "",
-        ]
+        ] + \
+        (["deliverer"] if authenticated else []) + \
+        (["defects"] if show_defects else []) + \
+        ["<input type='submit' id='diff_button' value='diff' />"]
+        
+
     rows = []
     for db in filtered_db:
         rows.append([
-            "<input type='checkbox' value='{}'/>".format(db.name),
             stdtags.minutes(db.delivery_date),
             stdtags.minutes(db.activation_date),
             stdtags.minutes(db.useafter_date),
@@ -1910,9 +1911,11 @@ def render_browse_table_data(request, filtered_db, show_defects):
             db.description,
             db.instrument, 
             db.filekind,
-            db.deliverer_user if authenticated else "",
-            repr(db.get_defects()) if show_defects else "",
-        ])
+            ] +
+            ([db.deliverer_user] if authenticated else []) +
+            ([repr(db.get_defects())] if show_defects else []) +
+            ["<input type='checkbox' value='{}'/>".format(db.name)]
+        )
     return {"header":header, "data": rows}
 
 def to_datatables(json_table):
