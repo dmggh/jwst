@@ -197,6 +197,7 @@ class InteractiveBase(object):
         else:
             dataset1 = "interactive/test_data/jw00001001001_01101_00001_MIRIMAGE_uncal.fits"
         self.fake_database_files([self.pmap])
+        self.login()
         response = self.client.post("/bestrefs/", {
             "pmap_mode" : "pmap_text",
             "pmap_text" : self.pmap,
@@ -291,6 +292,7 @@ class InteractiveBase(object):
     
     def test_difference_post_uploaded(self):
         # self.fake_database_files(self.difference_files, link=True)
+        self.login()
         response = self.client.post("/difference/", {
             "filemode1": "file_uploaded2",
             "file_uploaded1" : open(self.difference_files_uploaded[0]),
