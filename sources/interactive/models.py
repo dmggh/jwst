@@ -645,7 +645,7 @@ class FileBlob(BlobModel):
     model_fields = BlobModel.model_fields + \
         ["state", "blacklisted", "rejected", "observatory", "instrument", "filekind", 
          "type", "derived_from", "sha1sum", "delivery_date", "activation_date", "useafter_date",
-         "change_level", "pedigree", "reference_file_type", "size"]
+         "change_level", "pedigree", "reference_file_type", "size", "replaced_by_filename"]
         
     repr_list = unicode_list = ["id", "name", "type", "instrument", "filekind", "state", "blacklisted", "rejected", "change_level", "available"]
         
