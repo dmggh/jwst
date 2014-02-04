@@ -110,6 +110,8 @@ jpoll.stop = function () {
 };
 
 
+jpoll.last_seen = -1;
+
 // Poll for messages
 jpoll.pull_messages = function() {
     // jpoll.log("PULL_MESSAGES")
@@ -119,6 +121,11 @@ jpoll.pull_messages = function() {
         for (var index in response) {
             var msg = response[index];
             // jpoll.log("processing " + msg.time + " " + msg.type);
+            if (msg.id <= jpoll.last_seen) {
+                jpoll.log("Dropping duplicate message: " + msg.id + " " + msg.time + " " + msg.data);
+                continue;
+            }
+            jpoll.last_seen = msg.id;
             switch(msg.type) {
                 case "log_message" : 
                     jpoll.log_message(msg.time, msg.data);

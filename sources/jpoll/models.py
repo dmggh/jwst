@@ -67,6 +67,14 @@ class ChannelModel(models.Model):
         """Return json for the list of messages pushed since datetime `since` or the last call if `since` is None."""
         if since is None:
             since = self.last_returned
+
+        # In principle, should've used message.id here to filter, not
+        # time.  In practice, not even id eliminates the
+        # multiprocessing race condition which causes duplicate
+        # messages.  Hence, the Javascript poller has to do it anyway,
+        # hence there's less incentive for adding last_id here after
+        # the fact when it requires manual db ops on the production db.
+
         messages = MessageModel.objects.filter(channel=self, timestamp__gt=since)
         messages = list(messages.order_by("timestamp"))
         if messages:
@@ -110,6 +118,6 @@ class MessageModel(models.Model):
     
     @property
     def message(self):
-        return { "type":self.type, "time":str(self.timestamp), "data": json.loads(self.json), 
+        return { "type":self.type, "id": self.id, "time":str(self.timestamp), "data": json.loads(self.json), 
                  "channel":self.channel.key }
     
