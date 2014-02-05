@@ -4,6 +4,7 @@ import os
 import os.path
 import re
 import datetime
+from collections import OrderedDict
 
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
@@ -13,7 +14,6 @@ from django.core import cache
 # Create your models here.
 from crds import (timestamp, rmap, utils, refactor, log, data_file, uses, diff)
 from crds import CrdsError
-from crds.compat import OrderedDict
 
 from crds.server.config import observatory as OBSERVATORY
 from crds.server.config import table_prefix as TABLE_PREFIX

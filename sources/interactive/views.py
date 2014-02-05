@@ -14,6 +14,7 @@ import glob
 import json
 import time
 import fnmatch
+import ast
 
 # from django.http import HttpResponse
 from django.template import loader, RequestContext
@@ -30,7 +31,7 @@ from django.contrib.auth.decorators import login_required as login_required
 
 import pyfits
 
-from crds import (rmap, utils, timestamp, uses, matches, checksum, compat, log, config)
+from crds import (rmap, utils, timestamp, uses, matches, checksum, log, config)
 from crds import (data_file, pysh)
 from crds import CrdsError
 
@@ -219,7 +220,7 @@ def is_match_tuple(tuple_str):
     tuple.  Otherwise return the tuple.
     """
     try:
-        tup = compat.literal_eval(tuple_str.upper())
+        tup = ast.literal_eval(tuple_str.upper())
         assert isinstance(tup, tuple), "Enter a tuple to match against."
     except Exception:
         raise AssertionError("Enter a tuple to match against.")

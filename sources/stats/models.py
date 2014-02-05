@@ -2,10 +2,11 @@ import datetime
 import pprint
 import json
 from socket import gethostbyaddr
+import ast
 
 from django.db import models
 
-from crds import timestamp, compat
+from crds import timestamp
 from crds.server import config
 
 MAX_RESPONSE_LEN = 100000
@@ -50,7 +51,7 @@ class LogModel(models.Model):
     @property
     def liveblob(self):
         if not hasattr(self, "_liveblob"):
-            self._liveblob = de_unicode(compat.literal_eval(self.blob))
+            self._liveblob = de_unicode(ast.literal_eval(self.blob))
         return self._liveblob
         
     @property
@@ -127,7 +128,7 @@ class LogModel(models.Model):
 
     def __repr__(self):
         return self.datestr + " " + self.event + "\n" + \
-            pprint.pformat(compat.literal_eval(self.blob))
+            pprint.pformat(ast.literal_eval(self.blob))
 
     @classmethod
     def log_string(cls, blob, event="log"):
