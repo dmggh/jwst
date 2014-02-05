@@ -1856,7 +1856,7 @@ def render_browse_table(request, filtered_db, show_defects):
             html.th("reference type") +
             (html.th("deliverer") if authenticated else "") +
             (html.th("defects") if show_defects else "") +
-            html.th("<input type='submit' id='diff_button' value='diff' />")
+            html.th("<input type='submit' id='diff_button' value='diff' />", _class="diff")
         )
     )
     rows = []
@@ -1872,7 +1872,7 @@ def render_browse_table(request, filtered_db, show_defects):
             html.td(db.filekind) +
             (html.td(db.deliverer_user) if authenticated else "") +
             (html.td(repr(db.get_defects())) if show_defects else "") +
-            html.td("<input type='checkbox' name='{}'/>".format(db.name))
+            html.td("<input type='checkbox' name='{}'/>".format(db.name),  _class="diff")
         )
         rows.append(tr)
     tbody = html.tbody("\n".join(rows))
