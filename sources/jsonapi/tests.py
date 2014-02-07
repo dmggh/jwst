@@ -301,6 +301,8 @@ if server_config.observatory == "hst":
         context_date_instr = "hst-acs-2050-01-01T12:00:00"
         context_date_filekind = "hst-acs-darkfile-2050-01-01T12:00:00"
 
+        dataset_ids = ['I9ZF01010', 'JCHJ06FSQ']
+
         header = {
          'APERTURE': 'UVIS',
          'BINAXIS1': '1.0',
@@ -357,6 +359,9 @@ if server_config.observatory == "hst":
         def test_client_get_reference_names(self):
             references = client.get_reference_names(self.pmap)
             self.failUnless(11775 < len(references) < 30000)
+            
+        def test_client_get_best_references_by_ids(self):
+            bestrefs = client.get_best_references_by_ids(self.pmap, self.dataset_ids)
             
 # ===========================================================================
 

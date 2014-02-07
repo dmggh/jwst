@@ -237,11 +237,13 @@ def check_instrument(instr):
     return instr
 
 def check_reftypes(reftypes):
+    cleaned = []
     if not isinstance(reftypes, (list, tuple, type(None))):
         raise InvalidReftypesError("reftypes parameter should be a list of reftype/filekind strings or None.")
     if reftypes is not None:
         for reftype in reftypes:
-            check_reftype(reftype)
+            cleaned.append(check_reftype(reftype))
+    return cleaned
 
 def check_reftype(reftype):
     reftype = reftype.lower()
@@ -252,11 +254,14 @@ def check_reftype(reftype):
     return reftype
 
 def check_dataset_ids(datasets):
+    cleaned = []
     if not isinstance(datasets, list):
         raise InvalidDatasetIds("Expected list of dataset ids.")
     for dataset in datasets:
         if not isinstance(dataset, basestring) or not DATASET_ID_RE.match(dataset):
             raise InvalidDatasetIds("Expected datasets to be official id strings.")
+        cleaned.append(dataset.upper())
+    return cleaned
 
 def check_header_map(header_map):
     if not isinstance(header_map, dict):
@@ -315,15 +320,16 @@ def get_best_references(request, context, header, reftypes):
     conditioned = utils.condition_header(header)
     return rmap.get_best_references(context, conditioned, include=reftypes)
 
-'''
-These are commented out mainly because they have unbounded runtimes.
+MAX_DATASETS_PER_CALL = 200
 
 @jsonrpc_method('get_best_references_by_ids(context=String, dataset_ids=Array, reftypes=Array)')
 def get_best_references_by_ids(request, context, dataset_ids, reftypes):
     context = check_context(context)
-    check_dataset_ids(dataset_ids)
-    check_reftypes(reftypes)
+    dataset_ids = check_dataset_ids(dataset_ids)
+    reftypes = check_reftypes(reftypes)
     pmap = rmap.get_cached_mapping(context)
+    assert len(dataset_ids) <= MAX_DATASETS_PER_CALL, \
+        "Get best references by ids limited to <= {} datasets per call.".format(MAX_DATASETS_PER_CALL)
     headers = database.get_dataset_headers_by_id(dataset_ids=dataset_ids, observatory=pmap.observatory)
     result = {}
     for id, header in headers.items():
@@ -332,6 +338,9 @@ def get_best_references_by_ids(request, context, dataset_ids, reftypes):
         except Exception as exc:
             result[id] = (False, "FAILED: " + str(exc))
     return result
+
+'''
+These are commented out mainly because they have unbounded runtimes.
 
 @jsonrpc_method('get_best_references_by_header_map(context=String, headers=Object, reftypes=Array)')
 def get_best_references_by_header_map(request, context, headers, reftypes):
