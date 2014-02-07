@@ -13,16 +13,16 @@ django-dbbackup
 Parsley
 
 # For WebTest
-# beautifulsoup4
-# WebOb
-# six
-# waitress
-# WebTest
-# django-webtest
+beautifulsoup4
+WebOb
+six
+waitress
+WebTest
+django-webtest
 
 # debug tools
-# django-debug-toolbar
-# django-sugar
+django-debug-toolbar
+django-sugar
 
 # pyodbc stack
 unixODBC
