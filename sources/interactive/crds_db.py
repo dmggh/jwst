@@ -16,5 +16,5 @@ def dump_sqlite_db(observatory):
     prefix = "crds_" + observatory + "_"
     tables = " ".join([prefix + table for table in ["catalog", "context_history"]])
     db_path = config.get_sqlite3_db_path(observatory)
-    pysh.sh("convert_db -u'${user}' -p'${password}' --host='${host}' --port=$port --databases ${database} --tables ${tables} | sqlite3 ${db_path}")
+    pysh.sh("convert_db -u'${user}' -p'${password}' --host='${host}' --port=$port --databases ${database} --tables ${tables} | sqlite3 ${db_path}")  # secured.
     return db_path

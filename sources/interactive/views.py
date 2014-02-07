@@ -40,7 +40,8 @@ from crds.timestamp import (DATE_RE_STR, TIME_RE_STR)
 from . import (models, database, web_certify, web_difference, submit, versions, locks, html)
 from .templatetags import stdtags
 from .models import FieldError, MissingInputError
-from .common import capture_output, srepr, profile
+from .common import capture_output, srepr, profile, complete_re
+from .common import FILE_RE, FILE_RE_STR, DESCRIPTION_RE, PERSON_RE, DATASET_ID_RE, FITS_KEY_RE, FITS_VAL_RE
 
 from crds.server.jpoll import views as jpoll_views
 from crds.server.jsonapi import views as jsonapi_views
@@ -104,14 +105,6 @@ def checkbox(request, variable):
 # ===========================================================================
 
 # "pattern" functions for validate_post/get
-
-FILE_RE = r"[A-Za-z0-9_]+(\.fits|\.pmap|\.imap|\.rmap|\.r\d[hd])"
-DESCRIPTION_RE = r"[A-Za-z0-9._ ]+"
-PERSON_RE = r"[A-Za-z_0-9\.@]*"
-DATASET_ID_RE = r"[A-Za-z0-9_]+"
-URL_RE = r"(/[A-Za-z0-9_]?)+"
-FITS_KEY_RE = r"[A-Z0-9_\-]+"
-FITS_VAL_RE = r"[A-Za-z0-9_\- :\.]*"
 
 def is_pmap(filename):
     """Verify that `filename` names a known CRDS pipeline mapping.
@@ -225,8 +218,6 @@ def is_match_tuple(tuple_str):
     except Exception:
         raise AssertionError("Enter a tuple to match against.")
     return tup
-
-DESCRIPTION_RE = "[^<>]+"
 
 def get_observatory(request):
     """Validate and return the observatory parameter from request.POST"""
@@ -762,9 +753,9 @@ def upload_new(request, template="upload_new_input.html"):
         file_local_dir = str(request.user)
         assert re.match(FILE_RE, f.name), "Invalid upload_new filename: " + srepr(f.name)
         assert re.match("[A-Za-z0-9_]+", file_local_dir), "Invalid file_local_dir " + srepr(file_local_dir)
-        ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir, f.name)
+        ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir, f.name) 
         with log.verbose_on_exception("Failed removing", repr(ingest_path)):
-            pysh.sh("rm -f ${ingest_path}")
+            pysh.sh("rm -f ${ingest_path}")     # secured,  ingest_path must be safe.
             log.info("Removed existing", repr(ingest_path))
         utils.ensure_dir_exists(ingest_path, mode=0770)
         log.info("Linking", f.temporary_file_path(), "to", ingest_path)
@@ -820,7 +811,7 @@ def _upload_delete(request, filename):
         assert re.match("[A-Za-z0-9_]+", file_local_dir), "Invalid file_local_dir " + srepr(file_local_dir)
         ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir, filename)
         log.info("upload_delete", srepr(ingest_path))
-        pysh.sh("rm -f ${ingest_path}")
+        pysh.sh("rm -f ${ingest_path}")   # secured, ingest_path must be safe.
    
 def clear_uploads(request, uploads):
     """Remove the basenames listed in `uploads` from the upload directory."""
@@ -878,7 +869,7 @@ def header_string_to_header(hstring):
         key = words[0]
         value = " ".join(words[1:])
         value = utils.condition_value(value)
-        if not re.match(FITS_KEY_RE, key) and re.match(FITS_VAL_RE, value):
+        if not FITS_KEY_RE.match(key) and FITS_VAL_RE.match(value):
             log.warning("Dropping illegal keyword '%s' with value '%s'." % (key, value))
             continue
         header[key] = value
@@ -985,8 +976,8 @@ def bestrefs_explore_compute(request):
     for par in pars:
         header[par] = utils.condition_value(
             validate(request, par, r"[A-Za-z0-9\+\-.,*/;|{}\[\]:]*"))
-    header["DATE-OBS"] = validate(request, "DATE-OBS", DATE_RE_STR)
-    header["TIME-OBS"] = validate(request, "TIME-OBS", TIME_RE_STR)
+    header["DATE-OBS"] = validate(request, "DATE-OBS", complete_re(DATE_RE_STR))
+    header["TIME-OBS"] = validate(request, "TIME-OBS", complete_re(TIME_RE_STR + "$"))
     return bestrefs_results(request, pmap, header, instrument)
 
 # ===========================================================================
@@ -1810,11 +1801,11 @@ def browse_db_post(request):
     extension = validate(
         request, "extension", models.EXTENSIONS+[r"\*"])
     filename = validate(
-        request, "filename", FILE_RE + r"|\*")
+        request, "filename", complete_re(FILE_RE_STR + r"|\*"))
     deliverer_user = validate(
         request, "deliverer_user", [r"\*"] + usernames())
     status = validate(
-        request, "status",  r"[A-Za-z0-9_.\*]+")
+        request, "status",  complete_re(r"[A-Za-z0-9_.\*]+"))
     select_bad_files = checkbox(request, "select_bad_files")
     show_defects = checkbox(request, "show_defects")
     

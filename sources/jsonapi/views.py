@@ -10,7 +10,9 @@ import zlib
 from jsonrpc import jsonrpc_method
 from jsonrpc.exceptions import Error
 
-from crds.server.interactive import models as imodels, versions, database, crds_db
+from crds.server.interactive import models as imodels
+from crds.server.interactive import versions, database, crds_db
+from crds.server.interactive.common import FILE_RE, DATASET_ID_RE, FITS_KEY_RE, FITS_VAL_RE, LIST_GLOB_RE
 import crds.server.config as config    # server parameters
 from crds import rmap, utils, log, timestamp
 import crds.config                     # generic client/server
@@ -49,9 +51,6 @@ def create_unchecked_url(observatory, filename):
     return url
 
 # ===========================================================================
-
-FILE_RE = r"[A-Za-z0-9_]+(\.fits|\.pmap|\.imap|\.rmap|\.r\d[hd])"
-LIST_GLOB_RE = r"[A-Za-z0-9_\.\*\+\(\)\-\[\]]+"
 
 class UnknownContextError(Error):
     """The specified context is not a known CRDS mapping."""
@@ -216,10 +215,10 @@ def check_header(header):
     if not isinstance(header, dict):
         raise InvalidHeaderError("Header parameter is not a dictionary.")
     for key, value in header.items():
-        if not isinstance(key, (str, unicode)):
-            raise InvalidHeaderError("Bad key in header... not a string.")
-        if not isinstance(value, (str, unicode, int, float, bool)):
-            raise InvalidHeaderError("Bad value in header... not a str, int, float, or bool.")
+        if not isinstance(key, (str, unicode)) or not FITS_KEY_RE.match(key):
+            raise InvalidHeaderError("Bad key in header " + repr(key))
+        if not isinstance(value, (str, unicode, int, float, bool)) or not FITS_VAL_RE.match(value):
+            raise InvalidHeaderError("Bad value in header... not a str, int, float, or bool " + repr(value))
 
 def check_observatory(obs):
     obs = obs.lower()
@@ -256,14 +255,14 @@ def check_dataset_ids(datasets):
     if not isinstance(datasets, list):
         raise InvalidDatasetIds("Expected list of dataset ids.")
     for dataset in datasets:
-        if not isinstance(dataset, basestring):
+        if not isinstance(dataset, basestring) or not DATASET_ID_RE.match(dataset):
             raise InvalidDatasetIds("Expected datasets to be official id strings.")
 
 def check_header_map(header_map):
     if not isinstance(header_map, dict):
         raise InvalidDatasetIds("Expected object mapping dataset ids to headers: { dataset_id : { header } }.")
     for dataset, header in header_map.items():
-        if not isinstance(dataset, basestring):
+        if not isinstance(dataset, basestring) or not DATASET_ID_RE.match(dataset):
             raise InvalidDatasetIds("Bad dataset id: " + repr(dataset))
         try:
             check_header(header)
@@ -275,7 +274,7 @@ def check_file_list(files):
         raise InvalidFileList("Expected list of filenames or None.")
     if files:
         for name in files:
-            if not isinstance(name, basestring):
+            if not isinstance(name, basestring) or not FILE_RE.match(name):
                 raise InvalidFileList("Expected list of filenames or None.")
 
 def check_string_list(strings):
@@ -379,6 +378,7 @@ def get_file_chunk(request, context, filename, chunk):
 
 @jsonrpc_method('get_url(context=String, file=String)')
 def get_url(request, context, file):
+    """Based on `context` to determine observatory,  return the URL of `file`."""
     context = check_context(context)
     check_known_file(file)
     ctx = rmap.get_cached_mapping(context)
@@ -479,6 +479,10 @@ def get_default_context(request, observatory):
 
 @jsonrpc_method('get_context_by_date(date=String, observatory=String)')
 def get_context_by_date(request, date, observatory):
+    if observatory is None:
+        observatory = config.observatory
+    else:
+        observatory = check_observatory(observatory)
     return check_context(date, observatory)
 
 @jsonrpc_method('get_server_info()')
@@ -529,36 +533,12 @@ def get_sqlite_db(request, observatory):
 
 # ===============================================================
 
-#  XXXX Deprecated XXXXXXX <---------------------------------
-
-@jsonrpc_method('get_mapping_data(String, String)')
-def get_mapping_data(request, context, mapping):
-    context = check_context(context)
-    check_mapping(mapping)
-    where = rmap.locate_mapping(mapping)
-    return open(where).read()
-
-#  XXXX Deprecated XXXXXXX <---------------------------------
-
 @jsonrpc_method('get_mapping_url(String, String)')
 def get_mapping_url(request, context, mapping):
     context = check_context(context)
     check_mapping(mapping)
     ctx = rmap.get_cached_mapping(context)
     return create_url(ctx.observatory, mapping)
-
-#  XXXX Deprecated XXXXXXX <---------------------------------
-
-@jsonrpc_method('get_reference_data(String, String)')
-def get_reference_data(request, context, reference):
-    context = check_context(context)
-    check_reference(reference)
-    blob = imodels.FileBlob.load(reference)
-    where = blob.pathname
-    refdata = open(where).read()
-    return base64.b64encode(refdata)
-
-#  XXXX Deprecated XXXXXXX <---------------------------------
 
 @jsonrpc_method('get_reference_url(String, String)')
 def get_reference_url(request, context, reference):

@@ -596,9 +596,6 @@ class BlobModel(CrdsModel):
 PEDIGREES = ["INFLIGHT", "GROUND", "DUMMY", "MODEL"]   # note: INFLIGHT include date
 CHANGE_LEVELS = ["SEVERE", "MODERATE", "TRIVIAL"]
 
-FILENAME_RE = "^[A-Za-z0-9_.]+$"
-FILEPATH_RE = "^[A-Za-z0-9_./]+$"
-
 FILE_STATUS_MAP = OrderedDict([
     ("uploaded", "orange"),   # On the server,  still temporary
     ("delivered", "blue"),    # Delivered to downstream systems, pending archive

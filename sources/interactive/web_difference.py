@@ -3,7 +3,9 @@
 import os.path
 import re
 
-from crds import rmap, pysh, CrdsError, log
+from crds import rmap, pysh, CrdsError, log, config
+
+from . import common
 
 GEIS_HEADER_RE = r"\w+(\.r\dh)"
 
@@ -54,7 +56,9 @@ def difference_core(file1_orig, file2_orig, file1_path=None, file2_path=None, pu
         map_text_diffs[str((file1_orig, file2_orig))] = difference
         map_text_diff_items = sorted(map_text_diffs.items())
     else:
-        diff_lines = pysh.out_err("python -m crds.diff ${file1_path} ${file2_path}").splitlines()
+        file1_path = config.check_path(file1_path)
+        file2_path = config.check_path(flie2_path)
+        diff_lines = pysh.out_err("python -m crds.diff ${file1_path} ${file2_path}").splitlines()   # secured
         difference = '\n'.join(diff_lines)
     if not difference.strip():
         difference = "no differences"
@@ -78,7 +82,9 @@ def textual_diff(file1_orig, file2_orig, file1_path=None, file2_path=None):
         file1_path = rmap.locate_mapping(file1_orig)
     if file2_path is None:
         file2_path = rmap.locate_mapping(file2_orig)
-    diff_lines = pysh.lines("diff -b -u -FUseAfter ${file1_path} ${file2_path}")
+    file1_path = config.check_path(file1_path)
+    file2_path = config.check_path(file2_path)
+    diff_lines = pysh.lines("diff -b -u -FUseAfter ${file1_path} ${file2_path}")  # secured
     result = []
     for line in diff_lines:
         line = line.replace(file1_path, file1_orig)
