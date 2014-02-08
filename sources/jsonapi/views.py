@@ -332,11 +332,16 @@ def get_best_references_by_ids(request, context, dataset_ids, reftypes):
         "Get best references by ids limited to <= {} datasets per call.".format(MAX_DATASETS_PER_CALL)
     headers = database.get_dataset_headers_by_id(dataset_ids=dataset_ids, observatory=pmap.observatory)
     result = {}
-    for id, header in headers.items():
+    for dataset_id in dataset_ids:
         try:
-            result[id] = (True, rmap.get_best_references(context, header, include=reftypes, condition=True))
+            header = headers[dataset_id]
+        except KeyError:
+            result[dataset_id] = (False, "FAILED: " + "unable to obtain matching parameters.")
+            continue
+        try:
+            result[dataset_id] = (True, rmap.get_best_references(context, header, include=reftypes, condition=True))
         except Exception as exc:
-            result[id] = (False, "FAILED: " + str(exc))
+            result[dataset_id] = (False, "FAILED: " + str(exc))
     return result
 
 '''
@@ -436,7 +441,7 @@ def get_file_info_map(request, observatory, files, fields):
 @jsonrpc_method('get_dataset_headers_by_id(context=String, dataset_ids=Array)')
 def get_dataset_headers_by_id(request, context, dataset_ids):
     context = check_context(context)
-    check_dataset_ids(dataset_ids)
+    dataset_ids = check_dataset_ids(dataset_ids)
     pmap = rmap.get_cached_mapping(context)
     return database.get_dataset_headers_by_id(dataset_ids=dataset_ids, observatory=pmap.observatory)
 
