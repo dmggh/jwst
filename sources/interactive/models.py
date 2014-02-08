@@ -1089,7 +1089,7 @@ class FileBlob(BlobModel):
         """A list of other files derived from the same source file...  possibly bad."""
         # include file.state == "uploaded",  those pending confirmation.
         return [col.name for col in BlobModel._filter(FileBlob, derived_from=self.derived_from) 
-                if col.name != self.name and self.derived_from != "none"]
+                if col.name != self.name and self.derived_from != "none" and not "generated" in self.derived_from ]
 
     # Hokeyness because BlobModel doesn't actually have .objects because it
     # it is abstract... so normal class method inheritance techniques fail.
