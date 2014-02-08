@@ -12,7 +12,7 @@ from crds.server.config import crds_server_log_dir
 
 # ===================================================================
 
-DESCRIPTION_RE = re.compile(complete_re(r"[A-Za-z0-9._ ]+"))
+DESCRIPTION_RE = re.compile(complete_re(r"[A-Za-z0-9._ ,\-\+\*]+"))
 PERSON_RE = re.compile(complete_re(r"[A-Za-z_0-9\.@ ]*"))
 
 DATASET_ID_RE = re.compile(complete_re(r"[A-Za-z0-9_]+"))
