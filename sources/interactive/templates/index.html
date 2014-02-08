@@ -49,14 +49,6 @@
                 <li><a href="/batch_submit_references/">Batch Submit References</a></li>
                 <li><a href="/submit/reference/">Submit References</a></li>
                 <li><a href="/submit/mapping/">Submit Mappings</a></li>
-		{% if is_superuser %}
-		<br>
-                <li><a href="/delete/reference/">Delete References (UNCONFIRMED)</a></li>
-                <li><a href="/add_existing/reference/">Add References (UNCONFIRMED)</a></li>
-                <li><a href="/create_contexts/">Create Contexts (UNCONFIRMED)</a></li>
-		<br/>
-                <li><a href="/delivery_status/">Delivery Status</a></li>
-		{% endif  %}
             {% elif is_superuser %}
                 <li><a href="/batch_submit_references/">Batch Submit References (UNLOCKED)</a></li>
                 <li><a href="/submit/reference/">Submit References (UNLOCKED)</a></li>
@@ -72,11 +64,19 @@
         
     	{% if is_superuser %}
            <div class="title_bar">
-	          <h3>Super User Services</h3>
+	     <h3>Super User Services</h3>
            </div>
           <ol>
+            <li><a href="/delivery_status/">Delivery Status</a></li>
             <li><a href="/version_info/">Server Version Info</a></li>
             <li><a href="/admin/">Admin</a></li>
+	    {% if locked_instrument %}
+	    <br>
+            <li><a href="/delete/reference/">Delete References (UNCONFIRMED)</a></li>
+            <li><a href="/add_existing/reference/">Add References (UNCONFIRMED)</a></li>
+            <li><a href="/create_contexts/">Create Contexts (UNCONFIRMED)</a></li>
+	    <br/>
+	    {% endif  %}
           </ol>
         {% endif %}
     {% endif %}
