@@ -29,7 +29,7 @@ def certify_file_list(upload_tuples, check_references=True, context=None, compar
     filemap = models.get_fileblob_map(models.OBSERVATORY)
     certify_results = {}
     disposition = ""
-    for (original_name, upload_path) in upload_tuples:
+    for (original_name, upload_path) in sorted(upload_tuples):
         # In order to capture output easily,  run as subprocess...
         push_status("Certifying '{}'".format(original_name))
         status, output = captured_certify(original_name, upload_path, 
