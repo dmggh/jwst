@@ -25,6 +25,9 @@ FILE_RE = re.compile(complete_re(FILE_RE_STR))
 
 LIST_GLOB_RE = re.compile(complete_re(r"[A-Za-z0-9_\.\*\+\(\)\-\[\]]+"))
 
+INSTRUMENT_RE = re.compile(complete_re(r"[A-Za-z0-9_]+"))
+FIELD_RE = re.compile(complete_re(r"[A-Za-z0-9_]+"))
+
 # ===================================================================
 
 def capture_output(func):

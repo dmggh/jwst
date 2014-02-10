@@ -13,6 +13,7 @@ from jsonrpc.exceptions import Error
 from crds.server.interactive import models as imodels
 from crds.server.interactive import versions, database, crds_db
 from crds.server.interactive.common import FILE_RE, DATASET_ID_RE, FITS_KEY_RE, FITS_VAL_RE, LIST_GLOB_RE
+from crds.server.interactive.common import INSTRUMENT_RE, FIELD_RE
 import crds.server.config as config    # server parameters
 from crds import rmap, utils, log, timestamp
 import crds.config                     # generic client/server
@@ -124,6 +125,8 @@ def check_context(context, observatory=None):
     """
     if observatory is None:    # json_rpc wrapper passes None when unspecified, not unspecified
         observatory = config.observatory
+    else:
+        observatory = check_observatory(observatory)
     if not crds.config.is_mapping(context):  # this is for speed, to short circuit most checking
         if not crds.config.is_mapping_spec(context):  # this is for more clarity
             raise UnknownContextError("Context parameter '%s' is not a .pmap, .imap, or .rmap file or a valid date based context specification." % context)
@@ -195,7 +198,7 @@ def check_context_date(date):
 
 def check_date(date):
     try:
-        return timestamp.is_datetime(date.replace("T"," "))
+        return timestamp.is_datetime(date.replace("T"," "))   # secure
     except:
         raise InvalidDateFormat("Invalid date/time specification: " + repr(str(date)) + " should be YYYY-MM-DDTHH:MM:SS")
 
@@ -219,6 +222,7 @@ def check_header(header):
             raise InvalidHeaderError("Bad key in header " + repr(key))
         if not isinstance(value, (str, unicode, int, float, bool)) or not FITS_VAL_RE.match(value):
             raise InvalidHeaderError("Bad value in header... not a str, int, float, or bool " + repr(value))
+    return header
 
 def check_observatory(obs):
     obs = obs.lower()
@@ -230,7 +234,7 @@ def check_observatory(obs):
 
 def check_instrument(instr):
     instr = instr.lower()
-    if instr not in imodels.INSTRUMENTS:
+    if not isinstance(instr, basestring) or not INSTRUMENT_RE.match(instr) or instr not in imodels.INSTRUMENTS:
         raise InvalidInstrumentError("Mismatch between requested instrument " + 
                                      repr(instr) + " and server instruments " + 
                                      repr(imodels.INSTRUMENTS))
@@ -246,9 +250,9 @@ def check_reftypes(reftypes):
     return cleaned
 
 def check_reftype(reftype):
-    reftype = reftype.lower()
-    if not isinstance(reftype, (str, unicode)):
+    if not isinstance(reftype, basestring):
         raise InvalidReftypesError("Non-string reftype: " + repr(reftype))
+    reftype = reftype.lower()
     if reftype not in imodels.FILEKINDS:
         raise InvalidReftypesError("Reftype '%s' is not a known reference type." % imodels.FILEKINDS)
     return reftype
@@ -273,6 +277,7 @@ def check_header_map(header_map):
             check_header(header)
         except Exception as exc:
             raise InvalidHeaderError("Invalid header at dataset id '{}' : '{}'".format(dataset, str(exc)))
+    return header_map
 
 def check_file_list(files):
     if not isinstance(files, (list, tuple, type(None))):
@@ -281,18 +286,20 @@ def check_file_list(files):
         for name in files:
             if not isinstance(name, basestring) or not FILE_RE.match(name):
                 raise InvalidFileList("Expected list of filenames or None.")
+    return files
 
-def check_string_list(strings):
-    if not isinstance(strings, (list, tuple, type(None))):
-        raise Invalid("Expected list of strings or None.")
-    if strings:
-        for name in strings:
-            if not isinstance(name, basestring):
-                raise InvalidFileList("Expected list of strings or None.")
+def check_field_list(fields):
+    if not isinstance(fields, (list, tuple, type(None))):
+        raise Invalid("Expected list of fields or None.")
+    if fields:
+        for name in fields:
+            if not isinstance(name, basestring) or not FIELD_RE.match(name):
+                raise InvalidFileList("Expected list of fields or None.")
+    return fields
 
 # ===========================================================================
 
-@jsonrpc_method('list_mappings(observatory=String, glob_pattern=String)')
+@jsonrpc_method('list_mappings(observatory=String, glob_pattern=String)')   # secure
 def list_mappings(request, observatory, glob_pattern):
     if observatory is None:
         observatory = config.observatory
@@ -312,17 +319,17 @@ def list_mappings(request, observatory, glob_pattern):
 
     return sorted(blobs.keys())
 
-@jsonrpc_method('get_best_references(context=String, header=Object, reftypes=Array)')
+@jsonrpc_method('get_best_references(context=String, header=Object, reftypes=Array)')  # secure
 def get_best_references(request, context, header, reftypes):
     context = check_context(context)
-    check_header(header)
-    check_reftypes(reftypes)
+    header = check_header(header)
+    reftypes = check_reftypes(reftypes)
     conditioned = utils.condition_header(header)
     return rmap.get_best_references(context, conditioned, include=reftypes)
 
-MAX_DATASETS_PER_CALL = 200
+MAX_DATASETS_PER_CALL = 1000
 
-@jsonrpc_method('get_best_references_by_ids(context=String, dataset_ids=Array, reftypes=Array)')
+@jsonrpc_method('get_best_references_by_ids(context=String, dataset_ids=Array, reftypes=Array)')   # secure
 def get_best_references_by_ids(request, context, dataset_ids, reftypes):
     context = check_context(context)
     dataset_ids = check_dataset_ids(dataset_ids)
@@ -344,14 +351,11 @@ def get_best_references_by_ids(request, context, dataset_ids, reftypes):
             result[dataset_id] = (False, "FAILED: " + str(exc))
     return result
 
-'''
-These are commented out mainly because they have unbounded runtimes.
-
-@jsonrpc_method('get_best_references_by_header_map(context=String, headers=Object, reftypes=Array)')
-def get_best_references_by_header_map(request, context, headers, reftypes):
+@jsonrpc_method('get_best_references_by_header_map(context=String, headers=Object, reftypes=Array)') # secure
+def get_best_references_by_header_map(request, context, headers, reftypes):  
     context = check_context(context)
-    check_header_map(headers)
-    check_reftypes(reftypes)
+    headers = check_header_map(headers)
+    reftypes = check_reftypes(reftypes)
     result = {}
     for id, header in headers.items():
         try:
@@ -359,15 +363,14 @@ def get_best_references_by_header_map(request, context, headers, reftypes):
         except Exception as exc:
             result[id] = (False, "FAILED: " + str(exc))
     return result
-'''
 
-@jsonrpc_method('get_mapping_names(context=String)')
-def get_mapping_names(request, context):
+@jsonrpc_method('get_mapping_names(context=String)') # secure
+def get_mapping_names(request, context):   
     context = check_context(context)
     ctx = rmap.get_cached_mapping(context)
     return ctx.mapping_names()
 
-@jsonrpc_method('get_reference_names(context=String)')
+@jsonrpc_method('get_reference_names(context=String)') # secure
 def get_reference_names(request, context):
     context = check_context(context)
     ctx = rmap.get_cached_mapping(context)
@@ -375,12 +378,12 @@ def get_reference_names(request, context):
 
 CRDS_JSONRPC_CHUNK_SIZE = 2**23    # 8M
 
-@jsonrpc_method('get_file_chunk(context=String, filename=String, chunk=Number)')
+@jsonrpc_method('get_file_chunk(context=String, filename=String, chunk=Number)')   # secure
 def get_file_chunk(request, context, filename, chunk):
     context = check_context(context)
     blob = check_known_file(filename)
     chunks = int(math.ceil(blob.size / CRDS_JSONRPC_CHUNK_SIZE))
-    if int(chunk) != chunk:
+    if not isinstance(chunk, (int, float, basestring)) or math.floor(int(chunk)) != math.floor(chunk):
         raise InvalidChunk("the specified chunk must be an integer index.")
     if not (0 <= chunk < chunks):
         raise InvalidChunk("the specified data chunk " + repr(chunk) + " is invalid.")
@@ -390,7 +393,7 @@ def get_file_chunk(request, context, filename, chunk):
     edata = base64.b64encode(data)
     return [chunks, edata]
 
-@jsonrpc_method('get_url(context=String, file=String)')
+@jsonrpc_method('get_url(context=String, file=String)')  # secure
 def get_url(request, context, file):
     """Based on `context` to determine observatory,  return the URL of `file`."""
     context = check_context(context)
@@ -398,18 +401,18 @@ def get_url(request, context, file):
     ctx = rmap.get_cached_mapping(context)
     return create_url(ctx.observatory, file)
 
-@jsonrpc_method('get_file_info(observatory=String, file=String)')
+@jsonrpc_method('get_file_info(observatory=String, file=String)')   # secure
 def get_file_info(request, observatory, file):
     """Return the CRDS catalog info for a single `file` of the specified `observatory`."""
     try:
         observatory = check_observatory(observatory)
-    except InvalidObservatoryError:
+    except InvalidObservatoryError:   # originally this worked on context, not observatory,  now both.
         observatory = check_context(observatory).observatory  # load mapping and fetch observ.
     blob = check_known_file(file)
     blob.thaw()
     return blob.info
 
-@jsonrpc_method('get_file_info_map(observatory=String, files=Array, fields=Array)')
+@jsonrpc_method('get_file_info_map(observatory=String, files=Array, fields=Array)')  # secure
 def get_file_info_map(request, observatory, files, fields):
     """Return { filename : { field_info, ...} } for filenames in `files` with field_info defined by 
     listed FileBlob `fields`.
@@ -417,9 +420,9 @@ def get_file_info_map(request, observatory, files, fields):
     If `files` is None return for all files.
     If `fields` is None return for all fields.
     """
-    check_observatory(observatory)
-    check_file_list(files)
-    check_string_list(fields)
+    observatory = check_observatory(observatory)
+    files = check_file_list(files)
+    fields = check_fields_list(fields)
     filemap = imodels.get_fileblob_map(observatory=observatory)
     if files is None:
         files = filemap.keys()
@@ -438,17 +441,17 @@ def get_file_info_map(request, observatory, files, fields):
         result[name] = { field:value for (field, value) in blob.info.items() if field in fields }
     return result
 
-@jsonrpc_method('get_dataset_headers_by_id(context=String, dataset_ids=Array)')
+@jsonrpc_method('get_dataset_headers_by_id(context=String, dataset_ids=Array)')   #secure
 def get_dataset_headers_by_id(request, context, dataset_ids):
     context = check_context(context)
     dataset_ids = check_dataset_ids(dataset_ids)
     pmap = rmap.get_cached_mapping(context)
     return database.get_dataset_headers_by_id(dataset_ids=dataset_ids, observatory=pmap.observatory)
 
-@jsonrpc_method('get_dataset_headers_by_instrument(context=String, instrument=Array, datasets_since=String)')
+@jsonrpc_method('get_dataset_headers_by_instrument(context=String, instrument=Array, datasets_since=String)')  # secure
 def get_dataset_headers_by_instrument(request, context, instrument, datasets_since=None):
     context = check_context(context)
-    check_instrument(instrument)
+    instrument = check_instrument(instrument)
     dates_since = check_date(datasets_since)
     pmap = rmap.get_cached_mapping(context)
     datasets = database.get_dataset_headers_by_instrument(instrument, observatory=pmap.observatory, 
@@ -470,28 +473,28 @@ def filter_datasets_by_date(instrument, datasets_since, datasets):
     else:
         return datasets
 
-@jsonrpc_method('get_dataset_ids(context=String, instrument=String)')
+@jsonrpc_method('get_dataset_ids(context=String, instrument=String)')   # secure
 def get_dataset_ids(request, context, instrument):
     context = check_context(context)
-    check_instrument(instrument)
+    instrument = check_instrument(instrument)
     pmap = rmap.get_cached_mapping(context)
     return database.get_dataset_ids(instrument, observatory=pmap.observatory)
 
 # ===============================================================
 
-@jsonrpc_method('file_exists(filename=String)')
+@jsonrpc_method('file_exists(filename=String)')   # secure
 def file_exists(request, filename):
-    return bool(imodels.file_exists(filename))
+    _filename = check_known_filename(filename)
+    return True
 
-@jsonrpc_method('get_default_context(observatory=String)')
+@jsonrpc_method('get_default_context(observatory=String)')    # secure
 def get_default_context(request, observatory):
     if observatory is None:
         observatory = config.observatory
-    observatory = observatory.lower()
-    check_observatory(observatory)
+    observatory = check_observatory(observatory)
     return imodels.get_default_context(observatory, state="operational")
 
-@jsonrpc_method('get_context_by_date(date=String, observatory=String)')
+@jsonrpc_method('get_context_by_date(date=String, observatory=String)')  # secure
 def get_context_by_date(request, date, observatory):
     if observatory is None:
         observatory = config.observatory
@@ -499,7 +502,7 @@ def get_context_by_date(request, date, observatory):
         observatory = check_observatory(observatory)
     return check_context(date, observatory)
 
-@jsonrpc_method('get_server_info()')
+@jsonrpc_method('get_server_info()')   # secure
 def get_server_info(request):
     info = {
         "last_synced" : timestamp.now(),
@@ -529,7 +532,7 @@ def get_server_info(request):
 
 # ===============================================================
 
-@jsonrpc_method('get_required_parkeys(context=String)')
+@jsonrpc_method('get_required_parkeys(context=String)')   # secure
 def get_required_parkeys(request, context):
     context = check_context(context)
     pmap = rmap.get_cached_mapping(context)
@@ -537,10 +540,10 @@ def get_required_parkeys(request, context):
 
 # ===============================================================
 
-@jsonrpc_method('get_sqlite_db(observatory=String)')
+@jsonrpc_method('get_sqlite_db(observatory=String)')    # secure
 def get_sqlite_db(request, observatory):
     """Return the CRDS catalog database as a compressed, base64 encoded string."""
-    check_observatory(observatory)
+    observatory = check_observatory(observatory)
     db_path = crds_db.dump_sqlite_db(observatory)
     db = open(db_path,"rb").read()
     return base64.b64encode(zlib.compress(db))
