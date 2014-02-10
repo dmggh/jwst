@@ -283,7 +283,6 @@ def check_header_map(header_map):
         try:
             check_header(header)
         except Exception as exc:
-            raise
             raise InvalidHeaderError("Invalid header at dataset id '{}' : '{}'".format(dataset, str(exc)))
     return header_map
 
