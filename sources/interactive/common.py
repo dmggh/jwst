@@ -18,7 +18,7 @@ PERSON_RE = re.compile(complete_re(r"[A-Za-z_0-9\.@ ]*"))
 DATASET_ID_RE = re.compile(complete_re(r"[A-Za-z0-9_]+"))
 
 FITS_KEY_RE = re.compile(complete_re(r"[A-Z0-9_\-]+"))
-FITS_VAL_RE = re.compile(complete_re(r"[A-Za-z0-9_\- :\.]*"))
+FITS_VAL_RE = re.compile(complete_re(r"[A-Za-z0-9_\- :\./\$]*"))
 
 FILE_RE_STR = r"[A-Za-z0-9_]+(\.fits|\.pmap|\.imap|\.rmap|\.r\d[hd])"   # partial
 FILE_RE = re.compile(complete_re(FILE_RE_STR))

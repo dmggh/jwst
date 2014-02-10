@@ -225,9 +225,9 @@ def check_header(header):
     if not isinstance(header, dict):
         raise InvalidHeaderError("Header parameter is not a dictionary.")
     for key, value in header.items():
-        if not isinstance(key, (str, unicode)) or not FITS_KEY_RE.match(key):
+        if not isinstance(key, basestring) or not FITS_KEY_RE.match(key):
             raise InvalidHeaderError("Bad key in header " + repr(key))
-        if not isinstance(value, (str, unicode, int, float, bool)) or not FITS_VAL_RE.match(value):
+        if not isinstance(value, (basestring, int, float, bool)) or not FITS_VAL_RE.match(value):
             raise InvalidHeaderError("Bad value in header... not a str, int, float, or bool " + repr(value))
     return header
 
@@ -278,11 +278,12 @@ def check_header_map(header_map):
     if not isinstance(header_map, dict):
         raise InvalidDatasetIds("Expected object mapping dataset ids to headers: { dataset_id : { header } }.")
     for dataset, header in header_map.items():
-        if not isinstance(dataset, basestring) or not DATASET_ID_RE.match(dataset):
+        if not isinstance(dataset, basestring) or (not DATASET_ID_RE.match(dataset) and not FILE_RE.match(dataset)):
             raise InvalidDatasetIds("Bad dataset id: " + repr(dataset))
         try:
             check_header(header)
         except Exception as exc:
+            raise
             raise InvalidHeaderError("Invalid header at dataset id '{}' : '{}'".format(dataset, str(exc)))
     return header_map
 
