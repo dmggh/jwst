@@ -557,17 +557,17 @@ def get_sqlite_db(request, observatory):
 
 # ===============================================================
 
-@jsonrpc_method('get_mapping_url(String, String)')
+@jsonrpc_method('get_mapping_url(String, String)')  # secure
 def get_mapping_url(request, context, mapping):
     context = check_context(context)
-    check_mapping(mapping)
+    _blob = check_mapping(mapping)
     ctx = rmap.get_cached_mapping(context)
     return create_url(ctx.observatory, mapping)
 
-@jsonrpc_method('get_reference_url(String, String)')
+@jsonrpc_method('get_reference_url(String, String)') # secure
 def get_reference_url(request, context, reference):
     context = check_context(context)
-    check_reference(reference)
+    _blob = check_reference(reference)
     ctx = rmap.get_cached_mapping(context)
     return create_url(ctx.observatory, reference)
 
