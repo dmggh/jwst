@@ -33,6 +33,10 @@ switch ($CRDS_SERVER)
        breaksw
 endsw
 
+setenv CRDS_IFS /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}
+setenv CRDS_FILE_CACHE ${CRDS_IFS}/file_cache
+setenv CRDS_SERVER_FILES ${CRDS_IFS}/server_files
+
 setenv PATH ${CRDS}/CRDS_server/host:${CRDS_STACK}/bin:/usr/stsci/Python-2.7.4/bin:/usr/kerberos/bin:/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin
 
 setenv LD_LIBRARY_PATH ${CRDS_STACK}/lib:/usr/stsci/Python-2.7.4/lib
