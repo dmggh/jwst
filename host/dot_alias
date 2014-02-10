@@ -60,6 +60,7 @@ alias server     "cd ${CRDS}/CRDS_server"
 
 alias logs       "cd ${CRDS}/server/logs"
 alias libpython  "cd ${CRDS}/python/lib/python"
+alias backups    "cd ${CRDS}/server/db_backups"
 
 alias deliveries "cd ${CRDS_SERVER_FILES}/deliveries"
 alias catalogs   "cd ${CRDS_SERVER_FILES}/catalogs"
@@ -67,4 +68,5 @@ alias ingest     "cd ${CRDS_SERVER_FILES}/ingest"
 alias file_cache "cd ${CRDS_FILE_CACHE}"
 
 alias ifs        "cd ${CRDS_IFS}"
-alias data1      "cd ${CRDS"
+alias data1      "cd ${CRDS}"
+
