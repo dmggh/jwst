@@ -1,7 +1,7 @@
+"""This module defines JSON-RPC views and checking functions in the django-json-rpc paradigm."""
+
 from __future__ import division
 
-import os
-import os.path
 import base64
 import math
 import re
@@ -38,6 +38,7 @@ def get_jsonrpc_template_vars():
 # ===========================================================================
 
 def create_url(observatory, filename):
+    """Create a CRDS server URL for a filename,  i.e. a URL including possible checking."""
     if crds.config.is_mapping(filename):
         url = config.CRDS_MAPPING_URL + filename
     else:
@@ -45,6 +46,7 @@ def create_url(observatory, filename):
     return url
 
 def create_unchecked_url(observatory, filename):
+    """Create an archive URL for a filename.   Simple file download URL."""
     if crds.config.is_mapping(filename):
         url = config.CRDS_UNCHECKED_MAPPING_URL + filename
     else:
@@ -108,15 +110,18 @@ class InvalidDateBasedContext(Error):
 class InvalidFileList(Error):
     """Not a list of file names."""
 
-def check_known_file(file):
-    """Check that `file` is known to CRDS, available, and/or not blacklisted."""
-    if not re.match(FILE_RE, file):
-        raise BadFilenameError("Invalid filename '%s'" % file)
-    blob = imodels.file_exists(file)
-    if not blob:
-        raise UnknownFile("File '%s' is not known to CRDS."  % file)
+class InvalidFieldList(Error):
+    """Not a list of database field names."""
+
+def check_known_file(filename):
+    """Check that `filename` is known to CRDS, available, and/or not blacklisted."""
+    if not re.match(FILE_RE, filename):
+        raise BadFilenameError("Invalid filename '%s'" % filename)
+    blob = imodels.file_exists(filename)
+    if blob is None:
+        raise UnknownFile("File '%s' is not known to CRDS."  % filename)
     if not blob.available: 
-        raise UnavailableFile("File '%s' is not yet available."  % file)
+        raise UnavailableFile("File '%s' is not yet available."  % filename)
     return blob
 
 def check_context(context, observatory=None):
@@ -129,13 +134,14 @@ def check_context(context, observatory=None):
         observatory = check_observatory(observatory)
     if not crds.config.is_mapping(context):  # this is for speed, to short circuit most checking
         if not crds.config.is_mapping_spec(context):  # this is for more clarity
-            raise UnknownContextError("Context parameter '%s' is not a .pmap, .imap, or .rmap file or a valid date based context specification." % context)
+            raise UnknownContextError("Context parameter '%s' is not a .pmap, .imap, or .rmap file"
+                                      " or a valid date based context specification." % context)
         context = _check_date_based_context(context, observatory)
     if config.observatory not in context:
-            raise MismatchedContextError(("Requested context '%s' doesn't match the observatory '%s'" + 
-                                         " supported by this server.   Switch servers or contexts.") %
-                                         (context, config.observatory))
-    blob = check_known_file(context)
+        raise MismatchedContextError(("Requested context '%s' doesn't match the observatory '%s'" + 
+                                      " supported by this server.   Switch servers or contexts.") %
+                                      (context, config.observatory))
+    _blob = check_known_file(context)
     if not crds.config.is_mapping(context):
         raise UnknownContextError("Context parameter '%s' is not a known CRDS .pmap, .imap, or .rmap file." % context)
     return context
@@ -145,19 +151,19 @@ def _check_date_based_context(context, observatory):
     translate it into a literal .pmap, .imap, or .rmap name.   Otherwise return `context` unchanged.
     """
     instrument = filekind = None
-    m = crds.config.CONTEXT_DATETIME_RE.match(context)
-    if m:
+    match = crds.config.CONTEXT_DATETIME_RE.match(context)
+    if match:
         context = _pmap_from_date(context, observatory)
     else:        
-        m = crds.config.CONTEXT_RE.match(context)
-        if m:
-            obs_instr_kind = m.group("context")[:-1]
+        match = crds.config.CONTEXT_RE.match(context)
+        if match:
+            obs_instr_kind = match.group("context")[:-1]
             parts = obs_instr_kind.split("-")
-            assert 1 <= len(parts) <= 3, "Invalid date based context [observatory-[instrument-[reftype]]] specification."
+            assert 1 <= len(parts) <= 3, "Invalid date based context [observatory-[instrument-[reftype]]] spec."
             observatory = check_observatory(parts[0])
             instrument = parts[1] if len(parts) > 1 else None
             filekind = parts[2] if len(parts) > 2 else None
-            datestr = m.group("date")
+            datestr = match.group("date")
             if datestr in ["edit", "operational"]:  # server defaults are "pseudo dates" :-)
                 context = imodels.get_default_context(observatory=observatory, state=datestr)
             else:
@@ -180,27 +186,28 @@ def _check_date_based_context(context, observatory):
 
 def _pmap_from_date(date, observatory):
     """Using `date` and `observatory` lookup the operational context from that period."""
-    dt = check_context_date(date)
+    _dt = check_context_date(date)
     try:
         return imodels.get_context_by_date(date=date, observatory=observatory)
-    except Exception, exc:
+    except Exception:
         raise UnknownContextError("No CRDS context found corresponding to (prior to) date '%s'" % date)
 
 def check_context_date(date):
     """Verify the format of simple context datetime string `date` and return a datetime.datetime object."""
     try:
-        d = crds.config.CONTEXT_DATETIME_RE.match(date)
-        if not d:
+        if not crds.config.CONTEXT_DATETIME_RE.match(date):
             raise Exception("Forced date error")
         return timestamp.parse_date(date)
     except Exception:
-        raise InvalidDateBasedContext("Invalid context date/time format '%s' should be YYYY-MM-DDTHH:MM:SS | edit | operational" % date)
+        raise InvalidDateBasedContext("Invalid context date/time format '%s' "
+                                      "should be YYYY-MM-DDTHH:MM:SS | edit | operational" % date)
 
 def check_date(date):
     try:
         return timestamp.is_datetime(date.replace("T"," "))   # secure
     except:
-        raise InvalidDateFormat("Invalid date/time specification: " + repr(str(date)) + " should be YYYY-MM-DDTHH:MM:SS")
+        raise InvalidDateFormat("Invalid date/time specification: " + repr(str(date)) + 
+                                " should be YYYY-MM-DDTHH:MM:SS")
 
 def check_mapping(mapping):
     blob = check_known_file(mapping)
@@ -290,7 +297,7 @@ def check_file_list(files):
 
 def check_field_list(fields):
     if not isinstance(fields, (list, tuple, type(None))):
-        raise Invalid("Expected list of fields or None.")
+        raise InvalidFieldList("Expected list of fields or None.")
     if fields:
         for name in fields:
             if not isinstance(name, basestring) or not FIELD_RE.match(name):
@@ -393,22 +400,22 @@ def get_file_chunk(request, context, filename, chunk):
     edata = base64.b64encode(data)
     return [chunks, edata]
 
-@jsonrpc_method('get_url(context=String, file=String)')  # secure
-def get_url(request, context, file):
-    """Based on `context` to determine observatory,  return the URL of `file`."""
+@jsonrpc_method('get_url(context=String, filename=String)')  # secure
+def get_url(request, context, filename):
+    """Based on `context` to determine observatory,  return the URL of `filename`."""
     context = check_context(context)
     check_known_file(file)
     ctx = rmap.get_cached_mapping(context)
-    return create_url(ctx.observatory, file)
+    return create_url(ctx.observatory, filename)
 
-@jsonrpc_method('get_file_info(observatory=String, file=String)')   # secure
-def get_file_info(request, observatory, file):
-    """Return the CRDS catalog info for a single `file` of the specified `observatory`."""
+@jsonrpc_method('get_file_info(observatory=String, filename=String)')   # secure
+def get_file_info(request, observatory, filename):
+    """Return the CRDS catalog info for a single `filename` of the specified `observatory`."""
     try:
         observatory = check_observatory(observatory)
     except InvalidObservatoryError:   # originally this worked on context, not observatory,  now both.
         observatory = check_context(observatory).observatory  # load mapping and fetch observ.
-    blob = check_known_file(file)
+    blob = check_known_file(filename)
     blob.thaw()
     return blob.info
 
@@ -422,7 +429,7 @@ def get_file_info_map(request, observatory, files, fields):
     """
     observatory = check_observatory(observatory)
     files = check_file_list(files)
-    fields = check_fields_list(fields)
+    fields = check_field_list(fields)
     filemap = imodels.get_fileblob_map(observatory=observatory)
     if files is None:
         files = filemap.keys()
@@ -452,7 +459,7 @@ def get_dataset_headers_by_id(request, context, dataset_ids):
 def get_dataset_headers_by_instrument(request, context, instrument, datasets_since=None):
     context = check_context(context)
     instrument = check_instrument(instrument)
-    dates_since = check_date(datasets_since)
+    datasets_since = check_date(datasets_since)
     pmap = rmap.get_cached_mapping(context)
     datasets = database.get_dataset_headers_by_instrument(instrument, observatory=pmap.observatory, 
                                                           datasets_since=datasets_since)
@@ -484,7 +491,7 @@ def get_dataset_ids(request, context, instrument):
 
 @jsonrpc_method('file_exists(filename=String)')   # secure
 def file_exists(request, filename):
-    _filename = check_known_filename(filename)
+    _filename = check_known_file(filename)
     return True
 
 @jsonrpc_method('get_default_context(observatory=String)')    # secure
