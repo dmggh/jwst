@@ -23,9 +23,14 @@ def new_key(request):
     request.session["jpoll_key"] = key
     return key
 
+# e.g. 'JPOLL-KEY-2014-02-11-14:26:44.080829'
+JPOLL_KEY_RE = re.compile(r"^JPOLL-KEY-\d\d\d\d-\d\d-\d\d-\d\d:\d\d:\d\d(.\d\d\d\d\d\d)?$")
+
 def get_key(request):
-     return request.session["jpoll_key"]
-     
+     key = request.session["jpoll_key"]
+     assert JPOLL_KEY_RE.match(key), "Badly formatted jpoll_key " + repr(key)
+     return key
+ 
 def get_channel(request):
     key = get_key(request)
     return jmodels.ChannelModel.open(key)

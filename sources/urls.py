@@ -65,15 +65,9 @@ urlpatterns = patterns('',
     url(r'^get/(?P<filename>[A-Za-z0-9_.]+(fits|imap|rmap|pmap|r\dh))$', 
         'crds.server.interactive.views.brokered_get'),
 
-    # Here Django serves the file,  unchecked,  simple but not recommended.
-    # Ultimately this will be replaced by a better static server,  maybe the archive.
-    # At that point the whole URL will change but not the semantics.
-    url(r'^unchecked_get/(references|mappings)/(hst|jwst)/(?P<filename>[A-Za-z0-9_.]+(fits|imap|rmap|pmap|r\dh))$', 
-        'crds.server.interactive.views.get_file_data'),
+    #     url(r'^get_archive/(?P<filename>[A-Za-z0-9_.]+(tar\.gz|tar\.bz2|tar))$', 
+    #         'crds.server.interactive.views.get_archive'),
 
-    url(r'^get_archive/(?P<filename>[A-Za-z0-9_.]+(tar\.gz|tar\.bz2|tar))$', 
-        'crds.server.interactive.views.get_archive'),
-    
     url(r'^version_info/$', 
         'crds.server.interactive.views.version_info'),
     
@@ -121,5 +115,13 @@ urlpatterns += patterns('',
 
 if config.DEBUG:
     urlpatterns += patterns('', 
-        ('debug_command', crds.server.interactive.views.debug_command)
+        (r'^/debug_command/$', crds.server.interactive.views.debug_command),
+        #         (r'^get_archive/(?P<filename>[A-Za-z0-9_.]+(tar\.gz|tar\.bz2|tar))$', 
+        #             'crds.server.interactive.views.get_archive'),
+        
+        # Here Django serves the file,  unchecked,  simple but not recommended.
+        # Ultimately this will be replaced by a better static server,  maybe the archive.
+        # At that point the whole URL will change but not the semantics.
+        (r'^unchecked_get/(references|mappings)/(hst|jwst)/(?P<filename>[A-Za-z0-9_.]+(fits|imap|rmap|pmap|r\dh))$', 
+         crds.server.interactive.views.get_file_data),
     )

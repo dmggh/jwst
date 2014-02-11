@@ -631,10 +631,17 @@ def instrument_lock_required(func):
 
 def get_locked_instrument(request):
     """Based on the request,  return the instrument locked inside @instrument_lock_required."""
-    return request.session.get("locked_instrument", None)
+    locked = request.session.get("locked_instrument", None)
+    if locked is not None:
+        assert locked in models.INSTRUMENTS, \
+            "Invalid instrument in session store: " + repr(locked)
+    return locked
 
 def set_locked_instrument(request, instrument):
     """Record which instrument is locked relative to this request."""
+    if instrument is not None:
+        assert instrument in models.INSTRUMENTS, \
+            "Failed setting locked instrument in session store to invalid value: " + repr(instrument)
     request.session["locked_instrument"] = instrument
     
 def del_locked_instrument(request):
@@ -1184,7 +1191,7 @@ def submit_confirm(request):
 
 @error_trap("delete_references_input.html")
 @log_view
-@login_required
+@superuser_login_required
 @instrument_lock_required
 def delete_references(request):
     """View to return batch submit reference form or process POST."""
@@ -1246,7 +1253,7 @@ def delete_references_post(request):
 
 @error_trap("add_existing_references_input.html")
 @log_view
-@login_required
+@superuser_login_required
 @instrument_lock_required
 def add_existing_references(request):
     """This view supports adding references which are already in CRDS to a context
@@ -1743,7 +1750,7 @@ def recent_activity_post(request):
 # @profile('delivery_status.stats')
 @error_trap("base.html")
 @log_view
-@login_required
+@superuser_login_required
 def delivery_status(request):
     """Show a table of the catlog files reflecting file deliveries and their status."""
     
@@ -1946,33 +1953,34 @@ def brokered_get(request, filename):
 
     return HttpResponseRedirect(url)
 
-# @condition(etag_func=None)
-@error_trap("base.html")
-@log_view
-def get_file_data(request, filename):
-    """Get file data is a single URL within the CRDS/Django framework which
-    can deliver files via HTTP.   Dedicated static file servers are recommended
-    by Django,   but this is simple,  and works in debug mode.  Most likely
-    this is not used in a production environment.
-    """
-    try:
-        blob = models.FileBlob.load(filename)
-    except LookupError:
-        raise CrdsError("No CRDS database entry for" + srepr(filename))
-
-    assert blob.available, \
-        "File " + srepr(filename) + " is not yet available for distribution."
-
-    if blob.type == "mapping":
-        content_type = "text/plain"
-    else:
-        content_type = "application/octet-stream"
-        
-    response = HttpResponse( stream_response_generator(blob.pathname), content_type=content_type)
-    response["Content-Disposition"] = 'attachment; filename=%s' % filename
-
-    return response
-
+if config.DEBUG:
+    # @condition(etag_func=None)
+    @error_trap("base.html")
+    @log_view
+    def unchecked_get(request, filename):
+        """Get file data is a single URL within the CRDS/Django framework which
+        can deliver files via HTTP.   Dedicated static file servers are recommended
+        by Django,   but this is simple,  and works in debug mode.  Most likely
+        this is not used in a production environment.
+        """
+        try:
+            blob = models.FileBlob.load(filename)
+        except LookupError:
+            raise CrdsError("No CRDS database entry for" + srepr(filename))
+    
+        assert blob.available, \
+            "File " + srepr(filename) + " is not yet available for distribution."
+    
+        if blob.type == "mapping":
+            content_type = "text/plain"
+        else:
+            content_type = "application/octet-stream"
+            
+        response = HttpResponse( stream_response_generator(blob.pathname), content_type=content_type)
+        response["Content-Disposition"] = 'attachment; filename=%s' % filename
+    
+        return response
+    
 def stream_response_generator(filename):
     """Attempt to support large files by yielding chunks of data to the response.
     Response streaming is fragile,  dependent on actions of middleware.
