@@ -62,9 +62,9 @@ def transfer_ownership():
             log.error("Change in ownership of", repr(filename), 
                       "failed:", str(exc))
 
-def locate_unowned_files(dirs, user="crds", group="crdsoper"):
+def locate_unowned_files(dirs, user="crds", group="crdsoper"):  # secure, server utility only
     paths = " ".join(dirs)
-    return pysh.words("find ${paths} !(-user ${user} -a -group ${group})", 
+    return pysh.words("find ${paths} !(-user ${user} -a -group ${group})",  # secure, server utility only
                       raise_on_error=True)
 
 def own_file(filename, mode=0444):

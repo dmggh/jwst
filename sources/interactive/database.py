@@ -344,7 +344,7 @@ def init_db():
     global HEADER_MAP, HEADER_TABLES, HEADER_GENERATORS
     if HEADER_MAP is None:
         with log.error_on_exception("Failed loading", repr(HEADER_TABLES)):
-            HEADER_MAP = eval(open(HEADER_TABLES).read())
+            HEADER_MAP = utils.evalfile(HEADER_TABLES)
             with log.error_on_exception("Failed getting catalog connection"):
                 connection = get_catalog()
                 with log.error_on_exception("Failed setting up header generators"):

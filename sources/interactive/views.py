@@ -755,7 +755,7 @@ def upload_new(request, template="upload_new_input.html"):
         assert re.match("[A-Za-z0-9_]+", file_local_dir), "Invalid file_local_dir " + srepr(file_local_dir)
         ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir, f.name) 
         with log.verbose_on_exception("Failed removing", repr(ingest_path)):
-            pysh.sh("rm -f ${ingest_path}")     # secured,  ingest_path must be safe.
+            pysh.sh("rm -f ${ingest_path}")   #  secure, constructed path
             log.info("Removed existing", repr(ingest_path))
         utils.ensure_dir_exists(ingest_path, mode=0770)
         log.info("Linking", f.temporary_file_path(), "to", ingest_path)
@@ -811,7 +811,7 @@ def _upload_delete(request, filename):
         assert re.match("[A-Za-z0-9_]+", file_local_dir), "Invalid file_local_dir " + srepr(file_local_dir)
         ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir, filename)
         log.info("upload_delete", srepr(ingest_path))
-        pysh.sh("rm -f ${ingest_path}")   # secured, ingest_path must be safe.
+        pysh.sh("rm -f ${ingest_path}")   # secure,  constructed path
    
 def clear_uploads(request, uploads):
     """Remove the basenames listed in `uploads` from the upload directory."""
@@ -2273,13 +2273,13 @@ def get_context_table_parameters(request, pmap):
 if sconfig.DEBUG:
     
     @capture_output
-    def runit(mode, command):
+    def runit(mode, command):   # secure,  only available for config.DEBUG
         # log.info("DEBUG COMMAND:", repr(command))
         try:
             if mode == "eval":
-                result = eval(command, globals(), locals())
+                result = eval(command, globals(), locals())   # secure,  only available for config.DEBUG
             else:
-                exec command in globals(), locals()
+                exec command in globals(), locals()  # secure,  only available for config.DEBUG
                 result = None
         except Exception as exc:
             result = "EXCEPTION: " + str(exc)
