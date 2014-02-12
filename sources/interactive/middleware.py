@@ -10,6 +10,8 @@ class ResetLockExpirationMiddleware(object):
         """For every request,  if there is an authenticated user,  reset the expiration
         dates on all the locks they own.
         """
+        # Don't reset lock expiry for (1) lock status poll or (2) log message polling
+        # Other interactive views clear lock timeout
         if "lock_status" not in request.path and "jpoll" not in request.path:
             user = getattr(request, "user", None)
             if user and user.is_authenticated():

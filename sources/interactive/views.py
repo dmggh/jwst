@@ -77,7 +77,7 @@ def check_value(value, pattern, msg):
         for choice in pattern:
             assert "|" not in choice, "Found | in choice " + srepr(choice) + \
                 " seen as regex special char"
-        pattern = "|".join(pattern)
+        pattern = config.complete_re("|".join(pattern))
     if not re.match(pattern, value):
         raise FieldError(msg)
     return value
@@ -90,8 +90,7 @@ def validate(request, variable, pattern):
     """
     vars = request.GET if request.method == "GET" else request.POST
     value = str(vars[variable]).strip()
-    return check_value(value, pattern, "Invalid value " + srepr(value) + 
-                                        " for " + srepr(variable))
+    return check_value(value, pattern, "Invalid value " + srepr(value) + " for " + srepr(variable))
 
 def get_or_post(request, variable):
     """Return `variable` wherever it is defined in request, GET or POST."""    
@@ -178,6 +177,7 @@ def is_available_file_blob(filename):
     """Verify that `filename` identifies a file already known to CRDS and
     meets any requirements for distribution.   Return its blob.
     """
+    # replicates most of is_known_file because blob is required.
     if not re.match(FILE_RE, filename):
         raise CrdsError("Invalid filename " + srepr(filename))
     try:
@@ -345,8 +345,9 @@ def scrub_file_paths(response, uploaded_pairs):
     observatory = models.OBSERVATORY
     response = response.replace(config.get_path("dummy.pmap", observatory) + "/", "")
     response = response.replace(config.get_path("dummy.fits", observatory) + "/", "")
-    response = response.replace(config.get_crds_path() + "/", "")
     response = response.replace(sconfig.install_root + "/", "")
+    response = response.replace(sconfig.storage_path + "/", "")
+    response = response.replace(config.get_crds_path() + "/", "")
     return response
 
 def get_uploaded_filepaths(request):
@@ -355,6 +356,7 @@ def get_uploaded_filepaths(request):
     for ufile in request.FILES.values():
         filepath = str(ufile.temporary_file_path())
         original_name = str(ufile.name)
+        assert FILE_RE.match(original_name), "Invalid filename " + repr(original_name)
         pairs.append((original_name, filepath))
     return pairs
 
@@ -402,7 +404,7 @@ def get_uploaded_file(request, formvar):
         ufile = request.FILES[formvar]
     except KeyError:
         raise MissingInputError("Specify a file to upload for " + srepr(formvar))
-    if not re.match(FILE_RE, ufile.name):
+    if not FILE_RE.match(ufile.name):
         raise FieldError("Unexpected file extension for " + srepr(ufile.name))
     return ufile
 
@@ -568,6 +570,8 @@ to confirm for some reason...  or even has submitted their own copies of the sam
 """
 
 # These signal handlers are called after a user is logged in or out to manage instrument locks.
+#
+# See also middleware.py which resets lock expiry for most interactive views
 
 from django.contrib.auth.signals import user_logged_in, user_logged_out
 
@@ -680,7 +684,7 @@ def render_repeatable_result(request, template, rdict, jpoll_handler=None):
     result = models.RepeatableResultBlob.new(template, rdict)
     if jpoll_handler:
         jpoll_handler.done(0, result.repeatable_url)
-        time.sleep(10.0)  # wait 10 seconds to give jpoll done processing consistent behavior
+        time.sleep(10.0)  # wait 10 seconds to give jpoll done processing consistent behavior. 2x jpoll poll rate
     return HttpResponseRedirect(result.repeatable_url)
 
 # ===========================================================================
@@ -1041,7 +1045,7 @@ def batch_submit_references(request):
         return batch_submit_references_post(request)
     
 def batch_submit_references_post(request):
-    """View fragment to process file batch reference submnission POSTs."""
+    """View fragment to process file batch reference submission POSTs."""
     # For the initial submission, pmap_name is predictive,  not definitive
     # It can change after confirmation if other subnmissions occured which
     # also generate it.   Batch submissions ALWAYS define this even if
