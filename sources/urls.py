@@ -123,5 +123,5 @@ if config.DEBUG:
         # Ultimately this will be replaced by a better static server,  maybe the archive.
         # At that point the whole URL will change but not the semantics.
         (r'^unchecked_get/(references|mappings)/(hst|jwst)/(?P<filename>[A-Za-z0-9_.]+(fits|imap|rmap|pmap|r\dh))$', 
-         crds.server.interactive.views.get_file_data),
+         crds.server.interactive.views.unchecked_get),
     )

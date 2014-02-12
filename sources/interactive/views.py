@@ -1953,7 +1953,7 @@ def brokered_get(request, filename):
 
     return HttpResponseRedirect(url)
 
-if config.DEBUG:
+if sconfig.DEBUG:
     # @condition(etag_func=None)
     @error_trap("base.html")
     @log_view
