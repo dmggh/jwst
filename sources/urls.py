@@ -18,7 +18,8 @@ crds_cacher = cache_page(MAX_AGE, cache='crds_cache')
 urlpatterns = patterns('',
     url(r'^json/browse/', 'jsonrpc.views.browse', name="jsonrpc_browser"), # for the graphical browser/web console only, omissible
     url(r'^json/', jsonrpc_site.dispatch, name="jsonrpc_mountpoint"),
-    url(r'^json/(?P<method>[a-zA-Z0-9_.]+)$', jsonrpc_site.dispatch), # for HTTP GET only, also omissible
+    
+    # url(r'^json/(?P<method>[a-zA-Z0-9_.]+)$', jsonrpc_site.dispatch), # for HTTP GET only, also omissible,  XSS safe??
     
     url(r'^$', 'crds.server.interactive.views.index'),          
     

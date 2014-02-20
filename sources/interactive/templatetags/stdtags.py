@@ -9,6 +9,7 @@ from django import template
 
 from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
+from django.utils.html import format_html, format_html_join, conditional_escape 
 from django.shortcuts import render as django_render
 
 
@@ -26,37 +27,37 @@ register = template.Library()
 @register.filter(name='gray')
 @stringfilter
 def gray(value):
-    return mark_safe("<span class='gray'>" + value + "</span>")
+    return format_html(u"<span class='{0}'>{1}</span>", "gray", value)
 gray.is_safe = True
 
 @register.filter(name='green')
 @stringfilter
 def green(value):
-    return mark_safe("<span class='green'>" + value + "</span>")
+    return format_html(u"<span class='{0}'>{1}</span>", "green", value)
 green.is_safe = True
 
 @register.filter(name='blue')
 @stringfilter
 def blue(value):
-    return mark_safe("<span class='blue'>" + value + "</span>")
+    return format_html(u"<span class='{0}'>{1}</span>", "blue", value)
 blue.is_safe = True
 
 @register.filter(name='red')
 @stringfilter
 def red(value):
-    return mark_safe("<span class='red'>" + value + "</span>")
+    return format_html(u"<span class='{0}'>{1}</span>", "red", value)
 red.is_safe = True
 
 @register.filter(name='yellow')
 @stringfilter
 def yellow(value):
-    return mark_safe("<span class='yellow'>" + value + "</span>")
+    return format_html(u"<span class='{0}'>{1}</span>", "yellow", value)
 yellow.is_safe = True
 
 @register.filter(name='orange')
 @stringfilter
 def orange(value):
-    return mark_safe("<span class='orange'>" + value + "</span>")
+    return format_html(u"<span class='{0}'>{1}</span>", "orange", value)
 orange.is_safe = True
 
 # ===========================================================================
@@ -66,7 +67,7 @@ orange.is_safe = True
 def minutes(value):  # handle str(datetime.datetime.now())
     """Return date & time formatted to minutes."""
     parts = value.split(":")
-    return ":".join(parts[:-1])
+    return format_html_join(":", "{0}", ((part,) for part in parts[:-1]))
 
 @register.filter
 @stringfilter
@@ -74,9 +75,9 @@ def seconds(value):  # handle str(datetime.datetime.now())
     """Return date & time formatted to seconds."""
     parts = value.split(".")
     if len(parts) > 1:
-        return ".".join(parts[:-1])
+        return conditional_escape(".".join(parts[:-1]))
     else:
-        return parts[0]
+        return conditional_escape(parts[0])
 
 @register.filter
 @stringfilter
@@ -88,14 +89,14 @@ def endswith(s, ending):
 @register.filter
 @stringfilter
 def browse(name):  # handle str(datetime.datetime.now())
-    return mark_safe("<a href='/browse/%s'>%s</a>" % (name, name))
+    return format_html("<a href='/browse/{0}'>{1}</a>", name, name)
 browse.is_safe = True
 
 @register.filter
 @stringfilter
 def exists_color(name):  # handle str(datetime.datetime.now())
     color = "green" if os.path.exists(name) else "red"
-    return mark_safe("<span class='%s'>%s</span>" % (color, name))
+    return format_html("<span class='{0}'>{1}</span>",color, name)
 exists_color.is_safe = True
 
 @register.filter
@@ -108,7 +109,7 @@ def color_status(status):
     elif status.lower().startswith(("failed","error","blacklisted","rejected","bad")):
         return red(status)
     else:
-        return status
+        return format_html(status)
 
 # ===========================================================================
 
@@ -118,9 +119,9 @@ def download_url(filename):
     """
     try:
         # return jviews.create_url(config.observatory, filename)
-        return "/get/" + filename
+        return conditional_escape("/get/" + filename)
     except Exception:
-        return filename
+        return conditional_escape(filename)
 
 #     return mark_safe(url)
 # download.is_safe = True
@@ -153,9 +154,9 @@ def accordion(parser, token):
 
 accordion_template = """
 <div class="accordion">
-    <h3><a href="#">%s</a></h3>
+    <h3><a href="#">{0}</a></h3>
     <div>
-    %s
+    {1}
     </div>
 </div>
 """
@@ -182,4 +183,4 @@ class AccordionNode(template.Node):
             title_words.append(resolved)
         title = " ".join(title_words)
         content = self.nodelist.render(context)
-        return accordion_template % (title, content)
+        return accordion_template.format(title, content)

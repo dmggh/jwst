@@ -3,6 +3,8 @@
 import os.path
 import re
 
+from django.utils import html
+
 from crds import rmap, pysh, CrdsError, log, config
 
 from . import common
@@ -24,6 +26,9 @@ def mass_differences(pair_or_quad_tuples, connector=" --> ", push_status=lambda 
 # Each diff describes some change in the evolution from old --> new.
 def difference_core(file1_orig, file2_orig, file1_path=None, file2_path=None, push_status=lambda x: None):
     """Compute the rendering dictionary for the differences include file."""
+    
+    config.check_filename(file1_orig)
+    config.check_filename(file2_orig)
 
     assert os.path.splitext(file1_orig)[-1] == os.path.splitext(file2_orig)[-1], \
         "Differenced files should be of the same type and have the same extension."
@@ -62,6 +67,9 @@ def difference_core(file1_orig, file2_orig, file1_path=None, file2_path=None, pu
         difference = '\n'.join(diff_lines)
     if not difference.strip():
         difference = "no differences"
+    
+    difference = html.conditional_escape(difference)
+
     return {
        "logical_errors" : logical_errors,
        "logical_diffs" : logical_diffs,
@@ -84,13 +92,10 @@ def textual_diff(file1_orig, file2_orig, file1_path=None, file2_path=None):
         file2_path = rmap.locate_mapping(file2_orig)
     file1_path = config.check_path(file1_path)
     file2_path = config.check_path(file2_path)
-    diff_lines = pysh.lines("diff -b -u -FUseAfter ${file1_path} ${file2_path}")  # secured
-    result = []
-    for line in diff_lines:
-        line = line.replace(file1_path, file1_orig)
-        line = line.replace(file2_path, file2_orig)
-        result.append(line)
-    return ''.join(result)
+    diffs = pysh.out("diff -b -u -FUseAfter ${file1_path} ${file2_path}")  # secured
+    diffs = diffs.replace(file1_path, file1_orig)
+    diffs = diffs.replace(file2_path, file2_orig)
+    return diffs
 
 def mapping_logical_diffs(file1_orig, file2_orig, file1, file2):
     """Return the logical differences between two mapping files."""
@@ -103,7 +108,7 @@ def mapping_logical_diffs(file1_orig, file2_orig, file1, file2):
     except Exception, exc:
         file1, file2 = map(os.path.basename, [file1, file2])
         exc = str(exc).replace(file1, file1_orig).replace(file2, file2_orig)
-        result = [], ["ERROR: " + exc ]
+        result = [], ["ERROR: " + html.escape(exc) ]
     # log.info("mapping_logical_diffs:", log.PP(result))
     return result
 
@@ -126,7 +131,7 @@ def mapping_text_diffs(logical_diffs):
                     try:
                         diffs = textual_diff(file1_orig, file2_orig, file1_path, file2_path)
                     except Exception, exc:
-                        diffs = "diffs failed: " + str(exc)
+                        diffs = html.escape("diffs failed: " + str(exc))
                     diff_map[key] = diffs
     return diff_map
 
@@ -153,9 +158,9 @@ def format_fitsdiffs(lines, file1, file2, file1_orig, file2_orig):
         line = clean_path(lines[i], file1, file1_orig)
         line = clean_path(line, file2, file2_orig)
         if "Primary HDU" in line or re.search(r"Extension HDU \d+", line):
-            line = "<h3>" + line + "</h3>"
+            line = "<h3>" + html.escape(line) + "</h3>"
         line = re.sub(r"([Kk]eyword)\s*([A-Za-z0-9_]*)",
-                      r"\1 <span class='green'>\2</span>", line)
+                      r"\1 <span class='green'>\2</span>", html.escape(line))
         lines[i] = line
     return lines
 
@@ -163,6 +168,6 @@ def clean_path(line, path, file_orig):
     """Replace occurrences of `path` in `line` with a greyed version of
     the `path`s basename.
     """
-    base = "<span class='grey'>" + os.path.basename(file_orig) + "</span>"
+    base = "<span class='grey'>" + html.escape(os.path.basename(file_orig)) + "</span>"
     return line.replace(path, base)
 

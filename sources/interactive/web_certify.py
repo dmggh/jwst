@@ -5,7 +5,7 @@ while making the output look sane.
 
 import os.path
 
-from crds import rmap, certify, log
+from crds import rmap, certify, log, config
 from crds import CrdsError
 
 from . import models
@@ -48,6 +48,7 @@ def captured_certify(original_name, uploaded_path, check_references=True, filema
     
     Returns ("OK|"Warnings"|"Failed", certify_output) 
     """
+    config.check_filename(original_name)
     output = _captured_certify(original_name, uploaded_path, context, compare_old_reference,
                                check_references, filemap)[1]
     if ": ERROR" in output:
@@ -56,7 +57,7 @@ def captured_certify(original_name, uploaded_path, check_references=True, filema
         status = "Warnings"
     else:
         status = "OK"
-    return status, output
+    return status, html.escape(output)
 
 @capture_output
 def _captured_certify(original_name, uploaded_path, context=None, compare_old_reference=False, check_references=False, 

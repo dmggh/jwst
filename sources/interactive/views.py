@@ -22,6 +22,7 @@ from django.shortcuts import redirect
 from django.shortcuts import render as django_render
 from django.http import HttpResponse, HttpResponseRedirect
 import django.utils.safestring as safestring
+from django.utils.html import format_html, format_html_join
 from django.utils import simplejson
 from django.core.urlresolvers import reverse
 
@@ -72,14 +73,13 @@ def check_value(value, pattern, msg):
         try: 
             return pattern(value)
         except AssertionError, exc:
-            raise FieldError(msg + " : " + str(exc))
+            raise FieldError(format_html(msg + " : " + str(exc)))
     elif isinstance(pattern, list):
         for choice in pattern:
-            assert "|" not in choice, "Found | in choice " + srepr(choice) + \
-                " seen as regex special char"
+            assert "|" not in choice, format_html("Found | in choice " + srepr(choice) + " seen as regex special char")
         pattern = config.complete_re("|".join(pattern))
     if not re.match(pattern, value):
-        raise FieldError(msg)
+        raise FieldError(format_html(msg))
     return value
 
 
@@ -264,8 +264,8 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
     rdict = {   # standard template variables
         "observatory" : models.OBSERVATORY,
              
-        "instrument" : "*",
-        "instruments" : ["*"] + models.INSTRUMENTS,
+        "instrument" : "acs",
+        "instruments" : models.INSTRUMENTS + ["*"],
 
         "filekind" : "*",
         "filekinds" : models.FILEKIND_TEXT_DESCR,
@@ -356,7 +356,7 @@ def get_uploaded_filepaths(request):
     for ufile in request.FILES.values():
         filepath = str(ufile.temporary_file_path())
         original_name = str(ufile.name)
-        assert FILE_RE.match(original_name), "Invalid filename " + repr(original_name)
+        assert FILE_RE.match(original_name), "Invalid filename " + srepr(original_name)
         pairs.append((original_name, filepath))
     return pairs
 
@@ -405,7 +405,7 @@ def get_uploaded_file(request, formvar):
     except KeyError:
         raise MissingInputError("Specify a file to upload for " + srepr(formvar))
     if not FILE_RE.match(ufile.name):
-        raise FieldError("Unexpected file extension for " + srepr(ufile.name))
+        raise FieldError("Invalid file name " + srepr(ufile.name))
     return ufile
 
 def get_files(request):
@@ -474,7 +474,7 @@ def error_trap(template):
             try:
                 return func(request, *args, **keys)
             except (AssertionError, CrdsError, FieldError) as exc:
-                msg = "ERROR: " + str(exc)
+                msg = format_html("ERROR: {0}", str(exc))
                 pars = dict(keys.items() + [("error_message", msg)])
                 return crds_render(request, template, pars, requires_pmaps=True)
         trap.func_name = func.func_name
@@ -637,15 +637,14 @@ def get_locked_instrument(request):
     """Based on the request,  return the instrument locked inside @instrument_lock_required."""
     locked = request.session.get("locked_instrument", None)
     if locked is not None:
-        assert locked in models.INSTRUMENTS, \
-            "Invalid instrument in session store: " + repr(locked)
+        assert locked in models.INSTRUMENTS, "Invalid instrument in session store: " + srepr(locked)
     return locked
 
 def set_locked_instrument(request, instrument):
     """Record which instrument is locked relative to this request."""
     if instrument is not None:
         assert instrument in models.INSTRUMENTS, \
-            "Failed setting locked instrument in session store to invalid value: " + repr(instrument)
+            "Failed setting locked instrument in session store to invalid value: " + srepr(instrument)
     request.session["locked_instrument"] = instrument
     
 def del_locked_instrument(request):
@@ -1144,7 +1143,7 @@ def submit_confirm(request):
     elif button == "cancel":
         disposition = "cancelled by submitter"
     elif button == "timeout":
-        disposition = "cancelled due to '%s' session lock timeout" % locked_instrument
+        disposition = format_html("cancelled due to '{0}' session lock timeout", locked_instrument)
         locks.release_locks(user=request.user)
         del_locked_instrument(request)
 
@@ -1517,6 +1516,7 @@ def browse_known_file(request, filename):
     """special view which accepts browse file from a URL parameter,  required
     by cross links like /browse/some_file.rmap
     """
+    assert FILE_RE.match(filename), "Invalid filename " + srepr(filename)  # also URL regex
     try:
         blob = models.FileBlob.load(filename)
         browsed_file = blob.pathname
@@ -1575,77 +1575,11 @@ def get_prior_file_versions(blob, count=20):
 
 def browsify_mapping2(filename, browsed_file):
     """Format a CRDS mapping file as colorized and cross-linked HTML."""
-    contents = ""
     try:
-        lines = open(browsed_file).readlines()
-    except OSError:
-        return ["<h3 class='error'>File " 
-                "<span class='grey'>%s<span> not found</h3>" % (filename,)]
-    lines = ["<pre class='program'>"] + [l.rstrip() for l in lines] + ["</pre>"]
-    return "\n".join(lines)
-
-def browsify_mapping(filename, browsed_file):
-    """Format a CRDS mapping file as colorized and cross-linked HTML."""
-    contents = ""
-    try:
-        linegen = open(browsed_file).readlines()
-    except OSError:
-        return ["<h3 class='error'>File " 
-                "<span class='grey'>%s<span> not found</h3>" % (filename,)]
-
-    for line in linegen:
-        if line.strip():
-            line = browsify_mapping_line(line)
-            # mapping or reference filename --> /browse/<file> link
-            line = re.sub(r"'(" + FILE_RE + ")'",
-                  r"""<a href='/browse/\1'>'\1'</a>""",
-                  line)
-            contents += line
-    return contents
-
-def browsify_mapping_line(line):
-    """Markup one line of a CRDS mapping for use in HTML display and editing."""
-    
-    # header
-    line = re.sub(r"(header|selector)(\s*=\s*)",
-                  r"<span class='green'>\1</span>\2",
-                  line)
-    # '2011-02-07 08:21:00' : 'v3b1842dj_drk.fits',
-    if re.search(r"'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d'\s*:", line):
-        line = "<p class='useafter'>" + line.strip() + "</p>\n"
-    elif re.search(r"UseAfter", line) or line.strip() == "}),":
-        line = "<p class='match'>" + line.strip() + "</p>\n"
-    elif re.match(r"^\s+'\w+'\s+:", line):
-        line = "<p class='header'>" + line.strip() + "</p>\n"
-    else:
-        line = "<p>" + line.strip() + "</p>\n"
-
-    # useafter date
-    line = re.sub(r"('\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d')",
-                  r"<span class='datetime'>\1</span>",
-                  line)
-    
-    # Match, UseAfter  ({    --> <div> <span>
-    line = re.sub(r".*header</span>.*",
-                  r"<br/>\n\n<div class='header'>\n" + line.rstrip(),
-                  line)
-
-    line = re.sub(r".*selector</span>.*",
-                  r"<br/>\n\n<div class='selector'>\n" + line.rstrip(),
-                  line)
-
-    line = re.sub(r"(.*)(Match)(\(.*)",
-                  r"\1<span class='green'>\2</span>\3",
-                  line)
-
-    line = re.sub(r"(.*)(UseAfter)(\(.*)",
-                  r"<div class='match'>\1<span class='green'>\2</span>\3",
-                  line)
-    
-    # }  -->  } </div>
-    line = re.sub(r"(.*\}.*)",  r"\1\n</div>\n", line)
-    
-    return line
+        contents = open(browsed_file).read()
+    except IOError:
+        return format_html("<h3 class='error'>File <span class='grey'>{0}<span> not found</h3>", filename)
+    return format_html("<pre class='program'>\n{0}</pre>", contents)
 
 def browsify_reference(browsed_file):
     """Format a CRDS reference file for HTML display.   Return HTML lines.
@@ -1668,10 +1602,10 @@ def browsify_reference(browsed_file):
         output += "<table border='1'>\n"
         for key, value in sorted(header.items()):
             if value != "UNDEFINED":
-                output += "<tr><td class='label'>%s</td><td>%s</td></tr>\n" % (key, value)
+                format_html("<tr><td class='label'>{0}</td><td>{1}</td></tr>\n", key, value)
         output += "</table>\n"
     else:
-        output = "<p class='error'>File header unavailable for '%s'</p>" % str(browsed_file)
+        output = format_html("<p class='error'>File header unavailable for '{0}'</p>", browsed_file)
 
     output += "<br/>\n"
     
@@ -1679,14 +1613,14 @@ def browsify_reference(browsed_file):
         try:
             fits_info = finfo(browsed_file)[1] + "\n"
         except Exception, exc:
-            output += "<p class='error'>FITS info unavailable: '%s'</p>" % str(exc)
+            output += format_html("<p class='error'>FITS info unavailable: '{0}'</p>", exc)
         else:
             output += "<b>FITS Info</b>\n"
             output += "<pre>\n"
             lines = fits_info.split("\n")
             if lines[0].lower().startswith("filename"):
                 lines = lines[1:]
-            output += "\n".join(lines)
+            output += format_html_join("\n", "{0}", (line for line in lines))
             output += "</pre>\n"
 
     return output
