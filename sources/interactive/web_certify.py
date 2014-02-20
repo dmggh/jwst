@@ -5,6 +5,8 @@ while making the output look sane.
 
 import os.path
 
+from django.utils import html
+
 from crds import rmap, certify, log, config
 from crds import CrdsError
 

@@ -6,6 +6,7 @@ import sys
 import json
 
 from django.db import models
+from django.utils import html
 
 # Create your models here.
 
@@ -45,11 +46,16 @@ class ChannelModel(models.Model):
     
     def log(self, text):
         """Send a log message to the client."""
+        if isinstance(text, basestring):
+            text = html.conditional_escape(text)   # Don't allow HTML in text
         self.push("log_message", text)
         
     def done(self, status, result):
         """Send a log message to the client."""
-        self.push("done", {"status":status, "result":result})
+        assert isinstance(status, int), "status should be an integer"
+        if isinstance(result, basestring):
+            result = html.conditional_escape(result)
+        self.push("done", {"status":status, "result":result}) # Don't allow HTML in result
         
 #     def eval_js(self, js):
 #         """Execute the specified javascript on the client."""
