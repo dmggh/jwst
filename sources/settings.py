@@ -115,9 +115,9 @@ CACHES = {
 CRDS_MAX_LOCK_AGE = 60*60*4   # 4 hours,  refreshed every request
 CRDS_LOCK_ACQUIRE_TIMEOUT = 2 # seconds
 
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True     # closing browser will kill submission
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False    # closing browser will *not* kill submission,  problem with JPOLL
 SESSION_COOKIE_AGE =  2*CRDS_MAX_LOCK_AGE  # 8 hours,  refreshed every view
-SESSION_SAVE_EVERY_REQUEST = True          # reset expiry every view
+SESSION_SAVE_EVERY_REQUEST = False         # reset expiry every view
 
 MIDDLEWARE_CLASSES = (
     # must precede middleware which assumes CSRF already dealt with
