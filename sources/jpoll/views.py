@@ -20,6 +20,7 @@ def jdebug(*args):
     '''print(*args, file=sys.stderr)'''
 
 def new_key(request):
+    """Create the unique identifier for this JPOLL channel."""
     key = "JPOLL-KEY-" + str(datetime.datetime.now()).replace(" ","-")
     request.session["jpoll_key"] = key
     return key
@@ -28,15 +29,18 @@ def new_key(request):
 JPOLL_KEY_RE = re.compile(r"^JPOLL-KEY-\d\d\d\d-\d\d-\d\d-\d\d:\d\d:\d\d(.\d\d\d\d\d\d)?$")
 
 def get_key(request):
-     key = request.session["jpoll_key"]
-     assert JPOLL_KEY_RE.match(key), "Badly formatted jpoll_key " + repr(key)
-     return key
+    """Fetch the unique JPOLL channel identifier for this request."""
+    key = request.session["jpoll_key"]
+    assert JPOLL_KEY_RE.match(key), "Badly formatted jpoll_key " + repr(key)
+    return key
  
 def get_channel(request):
+    """Based on `request`,  load the JPOLL channel for it and return it."""
     key = get_key(request)
     return jmodels.ChannelModel.open(key)
 
 def open_channel(request):
+    """Based on `request`,  attach a new JPOLL channel to it and return it."""
     key = new_key(request)
     jdebug("jpoll: open_channel:", key)
     jmodels.ChannelModel.wipe_key(key)
@@ -44,6 +48,7 @@ def open_channel(request):
     return HttpResponse(json.dumps(key), mimetype='application/json')
 
 def close_channel(request):
+    """Based on `request`,  close the JPOLL channel associated with it,  wiping out old messages."""
     key = get_key(request)
     jdebug("jpoll: close_channel:", key)
     channel = get_channel(request)
@@ -51,6 +56,7 @@ def close_channel(request):
     return HttpResponse(json.dumps(key), mimetype='application/json')
 
 def pull_messages(request):
+    """Return any pending JPOLL messages on the channel associated with `request` as a JSON response."""
     channel = get_channel(request)
     messages = channel.pull()
     jdebug("jpoll: pulling messages for", repr(channel.key),"=", messages)
