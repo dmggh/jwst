@@ -693,19 +693,19 @@ from django.contrib.auth.views import login as django_login
 # @profile("login.stats")
 @error_trap("base.html")
 def login(request):
+    extras = dict(
+        observatory = models.OBSERVATORY,
+        instruments = models.INSTRUMENTS + ["none"],
+        server_usecase = sconfig.server_usecase.lower())
     if request.method == 'POST':
         if request.session.test_cookie_worked():
             request.session.delete_test_cookie()
-            return django_login(request, "login.html", extra_context=dict(instruments=models.INSTRUMENTS + ["none"]))
+            return django_login(request, "login.html", extra_context=extras)
         else:
             raise CrdsError("Please enable cookies and try again.")
     else:
         request.session.set_test_cookie()
-        return django_login(request, "login.html", extra_context={
-                    "observatory" : models.OBSERVATORY,
-                    "instruments" : models.INSTRUMENTS + ["none"],
-                })
-
+        return django_login(request, "login.html", extra_context=extras)
 
 def logout(request):
     """View to get rid of authentication state and become nobody again."""
