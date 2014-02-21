@@ -165,6 +165,15 @@ crds.tag = function (tag, items, attrs) {
     return html;
 };
 
+crds.html_unescape = function (escaped) {
+    return escaped
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, "\"")
+        .replace(/&#039;/g, "'");
+};
+
 $(function() {
     // tune jquery-ui accordions to be closed at start.
     $( ".accordion" ).accordion({
