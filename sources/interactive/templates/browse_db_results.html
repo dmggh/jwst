@@ -27,9 +27,11 @@
     <table id="crds_db_table"></table>
 {% include "diff_col_trailer.html" %}
 
+<div id="table_json" class="hidden_text">{{table_json}}</div>
+
 <script type="text/javascript">
     $("#contents").hide();
-    var dt_init = {{table_json|safe}};
+    var dt_init = JSON.parse(crds.html_unescape($("#table_json").html()));
     dt_init.aLengthMenu = [[100, 200, 500, 1000, 2000, 5000, -1], [100, 200, 500, 1000, 2000, 5000, "All"]];
     dt_init.iDisplayLength = 200;
     $("#crds_db_table").dataTable(dt_init);
