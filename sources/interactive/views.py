@@ -1761,26 +1761,36 @@ def browse_db_post(request):
         if value not in ["*",""]:
             filters[var] = value
             
+    table_json = cached_browse_table(tuple(sorted(filters.items())),
+                                     select_bad_files=select_bad_files,
+                                     show_defects=show_defects, 
+                                     authenticated=request.user.is_authenticated(), 
+                                     super=request.user.is_superuser)
+    
+    return crds_render(request, "browse_db_results.html", {
+            "filters": filters,
+            # "filtered_db" : filtered_db,
+            "table_json" : table_json,
+            "observatory" : observatory,
+            })
+
+@models.crds_cached
+def cached_browse_table(filters, select_bad_files=False, show_defects=False, authenticated=False, super=False):
+    
+    filters = dict(filters)    
     filtered_db = models.FileBlob.filter(**filters)
     
     if select_bad_files:
         filtered_db = [ blob for blob in filtered_db if blob.get_defects() ]
     
     # table = render_browse_table(request, filtered_db, show_defects)
-    table_data = render_browse_table_data(request, filtered_db, show_defects)
-    table_data = to_datatables(table_data)
+    header, rows = render_browse_table_data(filtered_db, show_defects, authenticated, super)
+    table_data = to_datatables(header, rows)
     table_json = json.dumps(table_data)
-    return crds_render(request, "browse_db_results.html", {
-            "filters": filters,
-            "filtered_db" : filtered_db,
-            "table_json" : table_json,
-            "observatory" : observatory,
-            })
+    return table_json
     
-def render_browse_table(request, filtered_db, show_defects):
+def render_browse_table(filtered_db, show_defects, authenticated=False, super=False):
     """Generate the HTML for the search results table."""
-    super = request.user.is_superuser
-    authenticated = request.user.is_authenticated()
     thead = html.thead(
         html.tr(
             html.th("delivery date") +
@@ -1796,30 +1806,29 @@ def render_browse_table(request, filtered_db, show_defects):
             html.th("<input type='submit' id='diff_button' value='diff' />", _class="diff")
         )
     )
+    td = "<td>{0}</td>"
     rows = []
     for db in filtered_db:
         tr = html.tr(
-            html.td(stdtags.minutes(db.delivery_date)) +
-            html.td(stdtags.browse(db.name)) +
-            html.td(db.aperture) +
-            html.td(stdtags.minutes(db.useafter_date)) +
-            html.td(db.status, status_class=db.status_class) +
-            html.td(db.description) +
-            html.td(db.instrument) + 
-            html.td(db.filekind) +
-            (html.td(db.deliverer_user) if authenticated else "") +
-            (html.td(repr(db.get_defects())) if show_defects else "") +
-            html.td("<input type='checkbox' name='{}'/>".format(db.name),  _class="diff")
+            td.format(stdtags.minutes(db.delivery_date)) +
+            td.format(stdtags.browse(db.name)) +
+            td.format(db.aperture) +
+            td.format(stdtags.minutes(db.useafter_date)) +
+            td.format(db.status, status_class=db.status_class) +
+            td.format(db.description) +
+            td.format(db.instrument) + 
+            td.format(db.filekind) +
+            (td.format(db.deliverer_user) if authenticated else "") +
+            (td.format(repr(db.get_defects())) if show_defects else "") +
+            "<td class='diff'><input type='checkbox' name='{0}'/></td>".format(db.name)
         )
         rows.append(tr)
     tbody = html.tbody("\n".join(rows))
     table = html.table("\n".join([thead, tbody]), id="crds_files_table")
     return table
     
-def render_browse_table_data(request, filtered_db, show_defects):
+def render_browse_table_data(filtered_db, show_defects, authenticated=False,  super=False):
     """Generate JSON-able dicts for the search results table."""
-    super = request.user.is_superuser
-    authenticated = request.user.is_authenticated()
     header = [
             "delivery date",
             "activation date",
@@ -1853,15 +1862,14 @@ def render_browse_table_data(request, filtered_db, show_defects):
             ([repr(db.get_defects())] if show_defects else []) +
             ["<input type='checkbox' value='{}'/>".format(db.name)]
         )
-    return {"header":header, "data": rows}
+    return header, rows
 
-def to_datatables(json_table):
+def to_datatables(header, rows):
     """Filter a header/data object into a jQuery datatables representation."""
     return dict(
-            aoColumns = [ { "sTitle" : col } for col in json_table["header"] ],
-            aaData = json_table["data"],
-            )
-    
+            aoColumns = [ { "sTitle" : col } for col in header ],
+            aaData = rows,
+        )
 # ============================================================================
 
 @error_trap("base.html")
@@ -2194,9 +2202,17 @@ def context_table(request, mapping, recursive="10"):
         mapping = models.get_default_context(state=mapping)
     is_mapping(mapping)
     recursive = int(recursive)
+    loaded_mapping = rmap.get_cached_mapping(mapping)
     if request.is_ajax():
-        m = rmap.get_cached_mapping(mapping)
-        return HttpResponse(m.tojson(), mimetype='application/json')
+        table_dict = loaded_mapping.todict()
+        header = table_dict["parameters"] + (html.input("", type='submit', id='diff_button', value='diff'),)
+        log.info("header:", header)
+        rows = [row[:-1] + ("<a href='/browse/{0}'>{1}</a>".format(row[-1], row[-1]), 
+                             "<input type='checkbox' value='{0}' />".format(row[-1]),)
+                for row in table_dict["selections"]]
+        log.info("row_0:", row[0])
+        datatables = to_datatables(header, rows)
+        return HttpResponse(json.dumps(datatables), mimetype='application/json')
     else:
         pars = get_context_table_parameters(request, mapping)
         return crds_render(request, "context_table.html", pars, requires_pmaps=False)

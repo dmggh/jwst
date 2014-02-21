@@ -36,10 +36,14 @@ def crds_cached(f):
     def wrapper(*args, **keys):
         key = __name__ + "_" + f.func_name + "_" + str(args + tuple(sorted(keys.items())))
         key = key.replace("(","_").replace(")","_").replace("'","").replace(",","_").replace(" ","")
-        val = CRDS_CACHE.get(key)
-        if val is None:
+        key = utils.str_checksum(key)
+        val = retrieve_cache(key)
+        if val:
+            log.info("crds_cached", f.func_name, repr(key), "HIT")
+        else:
             val = f(*args, **keys)
-            CRDS_CACHE.set(key, val)
+            log.info("crds_cached", f.func_name, repr(key), "MISS")
+            store_cache(key, val)
         return val
     wrapper.__doc__ = f.__doc__
     wrapper.func_name = f.func_name
@@ -48,6 +52,36 @@ def crds_cached(f):
 def clear_cache():
     """Clear the crds core cache used for storing."""
     CRDS_CACHE.clear()
+
+# multi-chunk due to 1M limit in memcached and pymemcached and possibly Django
+
+def store_cache(key, val, chunk_size=950000):
+    """Store Python val into CRDS cache in multiple chunks at `key`."""
+    # return CRDS_CACHE.set(key, val)
+    pick = json_ext.dumps(val)
+    for i in xrange(0, len(pick), chunk_size):
+        chunk_key = key + "_{:02d}".format(i//chunk_size)
+        chunk_data = pick[i:i+chunk_size]
+        CRDS_CACHE.set(chunk_key, chunk_data)
+        log.info("store_cache", chunk_key, len(chunk_data))
+
+def retrieve_cache(key):
+    """Retrieve Python val from CRDS cache in multiple chunks from `key`."""
+    # return CRDS_CACHE.get(key)
+    i = 0
+    pick = ""
+    while 1:
+        chunk_key = key + "_{:02d}".format(i)
+        fetch = CRDS_CACHE.get(chunk_key)
+        if fetch is None:
+            break
+        pick += fetch
+        i += 1
+        log.info("retrieve_cache", chunk_key, len(fetch))
+    if fetch is None and len(pick) == 0:
+        return None
+    val = json_ext.loads(pick)
+    return val
 
 # ============================================================================
 
