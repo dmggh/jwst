@@ -2178,7 +2178,7 @@ def display_context_history(request):
     which to derive new contexts.
     """
     history = models.get_context_history(observatory=models.OBSERVATORY, state="operational")
-    context_blobs = { blob.name:blob for blob in models.FileBlob.objects.all() if blob.name.endswith(".pmap") }
+    context_blobs = { blob.name:blob for blob in models.FileBlob.filter(name__endswith=".pmap") }
     history_tuples = [ (hist, context_blobs[hist.context]) for hist in history ]
     return crds_render(request, "display_context_history.html", {
             "history" : history,

@@ -550,7 +550,7 @@ class BlobModel(CrdsModel):
         matches = dict(matches)  # copy
         model_filters = {}
         for key in matches.keys():
-            if key in cls.model_fields:
+            if key.split("__")[0] in cls.model_fields:
                 model_filters[key] = matches.pop(key)
         for candidate in cls.objects.filter(**model_filters):
             candidate.thaw()
