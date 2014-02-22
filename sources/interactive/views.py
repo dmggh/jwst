@@ -658,7 +658,7 @@ def del_locked_instrument(request):
 # @profile("index.stats")
 def index(request):
     """Return the top level page for all of interactive CRDS."""
-    pars = get_context_table_parameters(request, "operational")
+    pars = get_context_table_parameters("operational")
     return crds_render(request, "index.html", pars)
 
 # ===========================================================================
@@ -1776,13 +1776,11 @@ def browse_db_post(request):
 
 @models.crds_cached
 def cached_browse_table(filters, select_bad_files=False, show_defects=False, authenticated=False, super=False):
-    
+    """Compute the (mem)cached datatables JSON for database browsing."""
     filters = dict(filters)    
-    filtered_db = models.FileBlob.filter(**filters)
-    
+    filtered_db = models.FileBlob.filter(**filters)    
     if select_bad_files:
         filtered_db = [ blob for blob in filtered_db if blob.get_defects() ]
-    
     # table = render_browse_table(request, filtered_db, show_defects)
     header, rows = render_browse_table_data(filtered_db, show_defects, authenticated, super)
     table_data = to_datatables(header, rows)
@@ -2198,40 +2196,51 @@ def display_context_history(request):
 @error_trap("base.html")
 @log_view
 def context_table(request, mapping, recursive="10"):
-    if re.match("operational|edit", mapping):
-        mapping = models.get_default_context(state=mapping)
-    is_mapping(mapping)
+    """Return either the top level context table HTML associated with a historical
+    context display *or* the JSON representation of a .rmap context display.
+    """
     recursive = int(recursive)
-    loaded_mapping = rmap.get_cached_mapping(mapping)
     if request.is_ajax():
-        table_dict = loaded_mapping.todict()
-        header = table_dict["parameters"] + (html.input("", type='submit', id='diff_button', value='diff'),)
-        log.info("header:", header)
-        rows = [row[:-1] + ("<a href='/browse/{0}'>{1}</a>".format(row[-1], row[-1]), 
-                             "<input type='checkbox' value='{0}' />".format(row[-1]),)
-                for row in table_dict["selections"]]
-        log.info("row_0:", row[0])
-        datatables = to_datatables(header, rows)
+        datatables = get_rmap_datatable_parameters(mapping)
         return HttpResponse(json.dumps(datatables), mimetype='application/json')
     else:
-        pars = get_context_table_parameters(request, mapping)
+        pars = get_context_table_parameters(mapping)
         return crds_render(request, "context_table.html", pars, requires_pmaps=False)
         
-def get_context_table_parameters(request, pmap):
-    """Return the parameters required to display a context table for `mapping`."""
+@models.crds_cached
+def get_context_table_parameters(pmap):
+    """Return the parameters required to display a context table for `pmap`."""
     try:
-        if re.match("operational|edit", pmap):
-            pmap = models.get_default_context(state=pmap)
-        is_pmap(pmap)
-        p = rmap.get_cached_mapping(pmap)
+        pmap_name, pmap_dict = get_mapping_dict(pmap)
+        assert is_pmap(pmap_name), "mapping must be a .pmap"
         return {
-            "pmap" : p.todict(),
-            "mapping_type" : p.header["mapping"],
+            "pmap" : pmap_dict,
+            "mapping_type" : pmap_dict["header"]["mapping"],
         }    
     except Exception, exc:
         log.error("Failure in get_context_table_parameters:", str(exc))
         return {}
-        
+
+@models.crds_cached
+def get_rmap_datatable_parameters(mapping):
+    """Return the datatables dictionary corresponding to `rmap_name`."""
+    mapping_name, rmap_dict = get_mapping_dict(mapping)
+    assert is_rmap(mapping_name), "mapping must be an .rmap"
+    header = rmap_dict["parameters"] + (html.input("", type='submit', id='diff_button', value='diff'),)
+    rows = [row[:-1] + ("<a href='/browse/{0}'>{1}</a>".format(row[-1], row[-1]), 
+                        "<input type='checkbox' value='{0}' />".format(row[-1]),)
+            for row in rmap_dict["selections"]]
+    datatables = to_datatables(header, rows)
+    return datatables
+
+def get_mapping_dict(mapping):
+    """Given mapping spec `mapping`,  return the dictionary representation."""
+    if re.match("operational|edit", mapping):
+        mapping = models.get_default_context(state=mapping)
+    is_mapping(mapping)
+    loaded_mapping = rmap.get_cached_mapping(mapping)
+    return mapping, loaded_mapping.todict()
+
 if sconfig.DEBUG:
     
     @capture_output
