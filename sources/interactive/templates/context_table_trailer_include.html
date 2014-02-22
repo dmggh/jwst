@@ -5,12 +5,17 @@ $(function () {
         change: function( event, ui ) {
             console.log(event);
             var div = $(ui.newContent).children("div.rmap_tag");
-            var url = "/context_table/" + div.attr("mapping_name");
-            if (!url) {
-               // console.log("no url,  skipping fetch.");
+            var mapping_name = div.attr("mapping_name");
+            var url = "/context_table/" + mapping_name;
+            if (div.children("table").html()) {
+                console.log("table already intialized.")
+                return;
+            };
+            if (!mapping_name) {
+               console.log("no url,  skipping fetch.");
                return;
             };
-            // console.log("Fetching " + url);
+            console.log("Fetching " + url);
             div.html($("<p class='green'>").html("Loading..."));
             $.ajax({
                 url : url,
@@ -26,7 +31,7 @@ $(function () {
                 $("#diff_button").css({"font-weight":"bold"});
                 div.show();
             });
-        }
+        },
     });
     $("#contents").show();
 });
