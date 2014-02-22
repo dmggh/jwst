@@ -170,15 +170,15 @@
 {% endaccordion %}
 
 {% accordion "Used By Files" %}
-    <table>
+    <p>
         {% if used_by_files %}
             {% for line in used_by_files %}
-                <tr><td>{{line|browse}}</td></tr>
+                {{line|browse}}, 
             {% endfor %}
         {% else %}
-            <tr><td><b>no files</b></td></tr>
+            <b>no files</b>
         {% endif %}
-    </table>
+    </p>
 {% endaccordion %}
     
 {% if match_paths %}

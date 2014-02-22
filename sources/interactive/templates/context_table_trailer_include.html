@@ -5,7 +5,7 @@ $(function () {
         change: function( event, ui ) {
             console.log(event);
             var div = $(ui.newContent).children("div.rmap_tag");
-            var url = "/context_table/" + div.html();
+            var url = "/context_table/" + div.attr("mapping_name");
             if (!url) {
                // console.log("no url,  skipping fetch.");
                return;

@@ -1620,7 +1620,7 @@ def browsify_reference(browsed_file):
             lines = fits_info.split("\n")
             if lines[0].lower().startswith("filename"):
                 lines = lines[1:]
-            output += format_html_join("\n", "{0}", (line for line in lines))
+            output += format_html_join("\n", "{0}", ((line,) for line in lines))
             output += "</pre>\n"
 
     return output
