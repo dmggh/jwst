@@ -37,8 +37,7 @@ def certify_file_list(upload_tuples, check_references=True, context=None, compar
         status, output = captured_certify(original_name, upload_path, 
             check_references=check_references, filemap=filemap, context=context, 
             compare_old_reference=compare_old_reference)
-        html = html_colorize_log(output)
-        certify_results[original_name] = status, html
+        certify_results[original_name] = status, html_colorize_log(output)
         if status == "Failed.":
             disposition = "bad files"
     return disposition, sorted(certify_results.items())
@@ -95,6 +94,7 @@ def do_certify_file(basename, certifypath, check_references=False, filemap=None,
     sane extension.   certifypath is a fully qualified path,  but sometimes
     with a temporary filename which is total garbage.
     """
+    config.check_filename(basename)
     try:
         certify.certify_files([certifypath], check_references=None,
             trap_exceptions=False, is_mapping = rmap.is_mapping(basename),
@@ -118,6 +118,7 @@ def get_blacklist_file_list(upload_tuples, all_files):
     """
     blacklist_results = {}
     for (original_name, upload_path) in upload_tuples:
+        config.check_filename(original_name)
         try:
             blacklisted_by = get_blacklists(
                 original_name, upload_path, ignore_self=False, files=all_files)
@@ -146,7 +147,8 @@ def get_blacklists(basename, certifypath, ignore_self=True, files=None):
         if files is None:
             files = models.get_fileblob_map(mapping.observatory)
         
-        for child in mapping.mapping_names() + mapping.reference_names():       
+        for child in mapping.mapping_names() + mapping.reference_names():
+            config.check_filename(child)       
             if ignore_self and child == os.path.basename(certifypath): 
                 continue
             if child not in files:   # Unknown file,  what to do?

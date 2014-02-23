@@ -19,7 +19,6 @@ import ast
 # from django.http import HttpResponse
 from django.template import loader, RequestContext
 from django.shortcuts import redirect
-from django.shortcuts import render as django_render
 from django.http import HttpResponse, HttpResponseRedirect
 import django.utils.safestring as safestring
 from django.utils.html import format_html, format_html_join
@@ -136,7 +135,7 @@ def is_mapping(filename, extension=r"\.[pir]map"):
     """Verify that `filename` names a known CRDS mapping.
     Otherwise raise AssertionError.
     """
-    if not re.match("\w+" + extension, filename):
+    if not re.match(complete_re(r"[A-Za-z0-9_]+" + extension), filename):
         raise CrdsError("Invalid mapping filename " + srepr(filename))
     is_known_file(filename)
     return filename
@@ -145,7 +144,7 @@ def is_reference(filename, extension=r"\.fits|\.r\dh|\.r\dd"):
     """Verify that `filename` names a known CRDS reference file.
     Otherwise raise AssertionError.
     """
-    if not re.match(r"\w+"+extension, filename):
+    if not re.match(complete_re(r"\w+" + extension), filename):
         raise CrdsError("Invalid reference filename " + srepr(filename))
     is_known_file(filename)
     return filename
@@ -154,8 +153,7 @@ def is_known_file(filename):
     """Verify that `filename` identifies a file already known to CRDS and
     has progressed beyond the 'uploaded' temporary file stage.
     """
-    if not re.match(FILE_RE, filename):
-        raise CrdsError("Invalid filename " + srepr(filename))
+    config.check_filename(filename)
     try:
         _blob = models.FileBlob.load(filename)
     except LookupError:
@@ -178,8 +176,7 @@ def is_available_file_blob(filename):
     meets any requirements for distribution.   Return its blob.
     """
     # replicates most of is_known_file because blob is required.
-    if not re.match(FILE_RE, filename):
-        raise CrdsError("Invalid filename " + srepr(filename))
+    config.check_filename(filename)
     try:
         blob = models.FileBlob.load(filename)
     except LookupError:
@@ -724,8 +721,8 @@ def set_password(request):
         assert new_password1 == new_password2, "New passwords are not the same."
         assert len(new_password1) >= 6, "At least 6 characters please."
         if not request.user.is_superuser:
-            assert re.match(".*\d.*", new_password1),  "At least one digit please."
-            assert re.match(".*[a-zA-Z].*", new_password1),  "At least one letter please."
+            assert re.match(complete_re(r".*\d.*"), new_password1),  "At least one digit please."
+            assert re.match(complete_re(r".*[a-zA-Z].*"), new_password1),  "At least one letter please."
         request.user.set_password(new_password1)
         request.user.save()
         return crds_render(request, "set_password_results.html")
@@ -1112,7 +1109,7 @@ def submit_confirm(request):
     generation mechanisms.
     """
     button = validate(request, "button", "confirm|cancel|timeout")
-    results_id = validate(request, "results_id", "\d+")
+    results_id = validate(request, "results_id", complete_re(r"\d+"))
     locked_instrument = get_locked_instrument(request)
 
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
@@ -1136,7 +1133,8 @@ def submit_confirm(request):
         disposition = "confirmed"
         if result.get("requires_locking", True):  # only verify locks if contexts are being generated.
             try:
-                locks.verify_locked(type="instrument", name=locked_instrument, user=str(request.user), datestr=result["lock_datestr"])
+                locks.verify_locked(type="instrument", name=locked_instrument, 
+                                    user=str(request.user), datestr=result["lock_datestr"])
             except locks.LockingError, exc:
                 disposition = "cancelled due to: " + str(exc)
                 log.info("Locking exception:", str(exc))
@@ -1162,7 +1160,8 @@ def submit_confirm(request):
         uploaded_files = [(old, new) for (old, new) in new_file_map if (old, new) not in generated_files]
         
         # rmaps specified for context generation but not uploaded or generated
-        context_rmaps = [filename for filename in result.context_rmaps if filename not in dict(generated_files).values() + result.uploaded_basenames]
+        context_rmaps = [filename for filename in result.context_rmaps 
+                         if filename not in dict(generated_files).values() + result.uploaded_basenames]
         
         confirm_results = dict(
             pmap_mode = result.pmap_mode,
@@ -1222,7 +1221,7 @@ def delete_references_post(request):
     
     drs = submit.DeleteReferenceSubmission(pmap_name, uploaded_files, description, 
         user=request.user, locked_instrument=locked_instrument)
-    disposition, new_mappings_map, mapping_certs, mapping_diffs, collision_list = drs.submit()
+    disposition, new_mappings_map, _mapping_certs, _mapping_diffs, collision_list = drs.submit()
     
     new_files = new_mappings_map.values()   # the new rmaps map
     final_pmap, context_map, collision_list = submit.submit_confirm_core( 
@@ -1288,7 +1287,7 @@ def add_existing_references_post(request):
     
     ars = submit.AddExistingReferenceSubmission(pmap_name, uploaded_files, description, 
                                                 user=request.user, locked_instrument=locked_instrument)
-    disposition, new_mappings_map, mapping_certs, mapping_diffs, collision_list = ars.submit()
+    disposition, new_mappings_map, _mapping_certs, _mapping_diffs, collision_list = ars.submit()
     
     new_files = new_mappings_map.values()   # the new rmaps map
     final_pmap, context_map, collision_list = submit.submit_confirm_core( 
@@ -1401,7 +1400,8 @@ def submit_files_post(request, crds_filetype):
         compare_old_reference=compare_old_reference, locked_instrument=locked_instrument,
         status_channel=jpoll_handler)
     
-    disposition, certify_results, new_file_map, collision_list, context_rmaps = simple.submit(crds_filetype, generate_contexts)    
+    disposition, certify_results, new_file_map, collision_list, context_rmaps = \
+        simple.submit(crds_filetype, generate_contexts)    
 
     rdict = {
                 "crds_filetype": crds_filetype,
@@ -2041,18 +2041,17 @@ def version_info(request):
 
 # ============================================================================
 
-"""File enable/disable has somewhat complicated semantics due to the operation of CRDS
-in a distributed fashion and the nature of interrelated mappings files.  In all cases
-files marked bad are assumed to produce scientifically invalid results.
-
-CRDS mappings are marked both "rejected" and "blacklisted".
-Blacklisting is a transitive reject which affects anscestor mappings, i.e. blacklisting
-and rmap blacklists all .pmap's which contain it.
-References are marked as "rejected" only.
-A list of "rejected" files is distributed to clients.  Clients reassess
-blacklisting on their own using the assumption that all mappings are blacklisted.
-Server knowledge of blacklisting mainly supports catalog displays of blacklist causes.
-"""
+# File enable/disable has somewhat complicated semantics due to the operation of CRDS
+# in a distributed fashion and the nature of interrelated mappings files.  In all cases
+# files marked bad are assumed to produce scientifically invalid results.
+# 
+# CRDS mappings are marked both "rejected" and "blacklisted".
+# Blacklisting is a transitive reject which affects anscestor mappings, i.e. blacklisting
+# and rmap blacklists all .pmap's which contain it.
+# References are marked as "rejected" only.
+# A list of "rejected" files is distributed to clients.  Clients reassess
+# blacklisting on their own using the assumption that all mappings are blacklisted.
+# Server knowledge of blacklisting mainly supports catalog displays of blacklist causes.
 
 @error_trap("mark_bad_input.html")
 @log_view
@@ -2066,7 +2065,6 @@ def mark_bad(request):
 
 def mark_bad_post(request):
     """View fragment to process the blacklist POST."""
-    observatory = get_observatory(request)
     blacklist_roots = validate(request, "file_known", is_known_file_list)
     badflag = validate(request, "badflag", "bad|ok")
     why = validate(request, "why", DESCRIPTION_RE)
@@ -2169,7 +2167,8 @@ def update_default_context(new_default, description, context_type, user):
         bad_files = [ name for name in pmap_names if blobs[name].rejected ]
     if bad_files and context_type == "operational":
         raise CrdsError("Context " + srepr(new_default) + 
-                        " contains known bad files and cannot be made the default (last 4 bad files): " + ", ".join(bad_files[-4:]))
+                        " contains known bad files and cannot be made the default (last 4 bad files): " + 
+                        ", ".join(bad_files[-4:]))
     models.set_default_context(new_default, observatory=models.OBSERVATORY, state=context_type, description=description)
     models.AuditBlob.new(user, "set default context", 
                          new_default, description, 
@@ -2245,6 +2244,7 @@ if sconfig.DEBUG:
     
     @capture_output
     def runit(mode, command):   # secure,  only available for config.DEBUG
+        """Exec or Eval a Python command and capture the output."""
         # log.info("DEBUG COMMAND:", repr(command))
         try:
             if mode == "eval":
@@ -2261,6 +2261,9 @@ if sconfig.DEBUG:
     @log_view
     @superuser_login_required
     def debug_command(request):
+        """Support a debug page for evaluating Python expressions and statements on the running server.
+        Intended for Django debug mode only,  not production use,  security hole.
+        """
         if request.method == "GET":
             return crds_render(request, "command_result.html")
         else:

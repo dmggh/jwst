@@ -5,9 +5,7 @@ import re
 
 from django.utils import html
 
-from crds import rmap, pysh, CrdsError, log, config
-
-from . import common
+from crds import rmap, pysh, config
 
 GEIS_HEADER_RE = r"\w+(\.r\dh)"
 
@@ -51,7 +49,8 @@ def difference_core(file1_orig, file2_orig, file1_path=None, file2_path=None, pu
         # filter to same type because table display requires homogeneous columns
         filtered = filter_same_type(file1_path, unfiltered)
         # logical diffs are stored as json,  make json-ify-able items
-        logical_diffs = [ diff.flat.items() for diff in filtered if "header" not in diff[-1] and "different" not in diff[-1] ]
+        logical_diffs = [ diff.flat.items() for diff in filtered 
+                         if "header" not in diff[-1] and "different" not in diff[-1] ]
         header_diffs = [ diff for diff in filtered if "header" in diff[-1] or "different" in diff[-1] ]
         header_diffs = [ diff.flat.items() for diff in header_diffs if not boring_diff(diff) ]
         # map_text_diffs = mapping_text_diffs(logical_diffs)
@@ -62,7 +61,7 @@ def difference_core(file1_orig, file2_orig, file1_path=None, file2_path=None, pu
         map_text_diff_items = sorted(map_text_diffs.items())
     else:
         file1_path = config.check_path(file1_path)
-        file2_path = config.check_path(flie2_path)
+        file2_path = config.check_path(file2_path)
         diff_lines = pysh.out_err("python -m crds.diff ${file1_path} ${file2_path}").splitlines()   # secured
         difference = '\n'.join(diff_lines)
     if not difference.strip():
@@ -82,7 +81,9 @@ def difference_core(file1_orig, file2_orig, file1_path=None, file2_path=None, pu
     
 def boring_diff(diff):
     """Return True IFF a logical diff is more boring than normal,  i.e. routine formal header changes."""
-    return ("replaced 'derived_from'" in diff[-1]) or ("replaced 'name'" in diff[-1]) or ("replaced 'sha1sum'" in diff[-1]) 
+    return (("replaced 'derived_from'" in diff[-1]) or 
+            ("replaced 'name'" in diff[-1]) or 
+            ("replaced 'sha1sum'" in diff[-1]))
 
 def textual_diff(file1_orig, file2_orig, file1_path=None, file2_path=None):
     """Return the output of the context diff of two files."""
