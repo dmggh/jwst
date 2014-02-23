@@ -5,12 +5,12 @@ $(function () {
         change: function( event, ui ) {
             console.log(event);
             var div = $(ui.newContent).children("div.rmap_tag");
-            var mapping_name = div.attr("mapping_name");
-            var url = "/context_table/" + mapping_name;
-            if (div.children("table").html()) {
-                console.log("table already intialized.")
+            if (div.html()) {
+                console.log("table already intialized")
                 return;
             };
+            var mapping_name = div.attr("mapping_name");
+            var url = "/context_table/" + mapping_name;
             if (!mapping_name) {
                console.log("no url,  skipping fetch.");
                return;
