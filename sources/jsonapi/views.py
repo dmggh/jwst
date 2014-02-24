@@ -12,11 +12,12 @@ from jsonrpc.exceptions import Error
 
 from crds.server.interactive import models as imodels
 from crds.server.interactive import versions, database, crds_db
-from crds.server.interactive.common import FILE_RE, DATASET_ID_RE, FITS_KEY_RE, FITS_VAL_RE, LIST_GLOB_RE
+from crds.server.interactive.common import DATASET_ID_RE, FITS_KEY_RE, FITS_VAL_RE, LIST_GLOB_RE
 from crds.server.interactive.common import INSTRUMENT_RE, FIELD_RE
 import crds.server.config as config    # server parameters
 from crds import rmap, utils, log, timestamp
 import crds.config                     # generic client/server
+from crds.config import FILE_RE, check_filename
 
 # =============================================================================
 
@@ -115,8 +116,7 @@ class InvalidFieldList(Error):
 
 def check_known_file(filename):
     """Check that `filename` is known to CRDS, available, and/or not blacklisted."""
-    if not re.match(FILE_RE, filename):
-        raise BadFilenameError("Invalid filename '%s'" % filename)
+    check_filename(filename)
     blob = imodels.file_exists(filename)
     if blob is None:
         raise UnknownFile("File '%s' is not known to CRDS."  % filename)
@@ -404,7 +404,7 @@ def get_file_chunk(request, context, filename, chunk):
 def get_url(request, context, filename):
     """Based on `context` to determine observatory,  return the URL of `filename`."""
     context = check_context(context)
-    check_known_file(file)
+    check_filename(filename)
     ctx = rmap.get_cached_mapping(context)
     return create_url(ctx.observatory, filename)
 
