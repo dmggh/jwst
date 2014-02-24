@@ -572,6 +572,7 @@ class InteractiveBase(object):
         
     def test_display_context_history(self):
         self.login()
+        models.set_default_context(self.pmap, state="operational")
         response = self.client.get("/display_context_history/")
         self.assert_no_errors(response)
     
