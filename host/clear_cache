@@ -1,0 +1,8 @@
+#! /bin/csh
+
+cd ${CRDS_INSTALL_DIR}/CRDS_server
+source env.csh
+python <<EOF
+from crds.server.interactive import models
+models.clear_cache()
+EOF
