@@ -1602,7 +1602,7 @@ def browsify_reference(browsed_file):
         output += "<table border='1'>\n"
         for key, value in sorted(header.items()):
             if value != "UNDEFINED":
-                format_html("<tr><td class='label'>{0}</td><td>{1}</td></tr>\n", key, value)
+                output += format_html("<tr><td class='label'>{0}</td><td>{1}</td></tr>\n", key, value)
         output += "</table>\n"
     else:
         output = format_html("<p class='error'>File header unavailable for '{0}'</p>", browsed_file)
@@ -2164,7 +2164,7 @@ def update_default_context(new_default, description, context_type, user):
     pmap_names = pmap.mapping_names() + pmap.reference_names()
     bad_files = []
     with log.error_on_exception("Bad file check failed"):
-        bad_files = [ name for name in pmap_names if name not in blobs or blobs[name].rejected ]
+        bad_files = [ name for name in pmap_names if (name in blobs and blobs[name].rejected) ]
     if bad_files and context_type == "operational":
         raise CrdsError("Context " + srepr(new_default) + 
                         " contains known bad files and cannot be made the default (last 4 of " + str(len(bad_files)) + " bad files): " + 
