@@ -59,6 +59,7 @@ export LD_LIBRARY_PATH
 	echo 'setenv CRDS_PATH ' $CRDS_PATH
 	echo 'setenv CRDS_SERVER_STORAGE ' ${server_storage}
 	echo 'setenv DJANGO_SETTINGS_MODULE crds.server.settings'
+	echo 'setenv OPENSSL_NO_DEFAULT_ZLIB 1'
 ) > env.csh
 
 perl -p -e's/^setenv (\w+)\s+(.*)/export \1="\2"/g' env.csh >env.sh

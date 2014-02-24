@@ -402,7 +402,7 @@ def update_file_replacements(old_pmap, new_pmap, fileblob_map=None):
         return
     if fileblob_map is None:
         fileblob_map = get_fileblob_map()
-    with log.error_on_exception("FAILED setting file rejects based on context transition", 
+    with log.error_on_exception("failed setting file rejects based on context transition", 
                                 repr(old_pmap), "-->", repr(new_pmap)):
         old_map = rmap.asmapping(old_pmap, cached="readonly")
         #  Recursively figure out all diffs between nested files in the pmaps
@@ -859,7 +859,7 @@ class FileBlob(BlobModel):
                     else:
                         raise RuntimeError("no change from fixer")
                 except Exception, exc:
-                    failed[field] = "FAILED repairing '{}' from '{}' exception: '{}'".format(field, old, str(exc))
+                    failed[field] = "failed repairing '{}' from '{}' exception: '{}'".format(field, old, str(exc))
             else:
                 failed[field] = "NO FIXER for '{}'.".format(field)
         if repairs:
@@ -881,7 +881,7 @@ class FileBlob(BlobModel):
             self.uploaded_as = os.path.basename(self.pathname)
             return 
         else:
-            return "FAILED REPAIRING uploaded_as='{}'".format(frompath)
+            return "failed repairing uploaded_as='{}'".format(frompath)
 
     def repair_type(self):
         self.type = "mapping" if rmap.is_mapping(self.name) else "reference"
@@ -1152,7 +1152,7 @@ def add_crds_file(observatory, upload_name, permanent_location,
         else:  # ensure the name inside the mapping is consistent with permanent location.
             mapping = rmap.fetch_mapping(permanent_location)
             derived_from = mapping.derived_from
-            with log.warn_on_exception("FAILED setting mapping header name of", repr(permanent_location)):
+            with log.warn_on_exception("failed setting mapping header name of", repr(permanent_location)):
                 name = os.path.basename(permanent_location)
                 mapping.header["name"] = name
                 mapping.write(permanent_location)   # XXX mutate mapping file!
