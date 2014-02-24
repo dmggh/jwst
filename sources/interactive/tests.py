@@ -128,7 +128,6 @@ class InteractiveBase(object):
             where = rmap.locate_file(name, self.observatory)
             if link:
                 with log.error_on_exception("Symlinking", repr(source), "failed."):
-                    where = rmap.locate_file(name, self.observatory)
                     log.info("Symlinking fake file", repr(source), "to", repr(where))
                     os.symlink(source, where)
             models.add_crds_file(
@@ -136,7 +135,7 @@ class InteractiveBase(object):
                 deliverer="homer", deliverer_email="homer@simpsons.com", 
                 description="delivered by the man",
                 add_slow_fields=False,
-                state="delivered",
+                state="archived",
                 update_derivation=False)
             models.mirror_filename_counters(self.observatory, where)
             models.AuditBlob.new("homer", "mass import", name, "becuz", "some details",
@@ -329,7 +328,7 @@ class InteractiveBase(object):
 
     def test_create_contexts_post(self):
         self.login()
-        # self.fake_database_files(self.create_contexts_rmaps)
+        self.fake_database_files([self.pmap] + self.create_contexts_rmaps)
         response = self.client.post("/create_contexts/", {
                 "pmap_mode" : "pmap_text",
                 "pmap_text" : self.pmap,
@@ -343,8 +342,8 @@ class InteractiveBase(object):
         self.assertTrue(self.add_1(rmap2) in response.content)
     
     def test_browse_file(self):
-        response = self.client.get("/browse/" + self.pmap)
         self.fake_database_files([self.pmap])
+        response = self.client.get("/browse/" + self.pmap)
         self.assert_no_errors(response)
 
     def test_browse_db_get(self):
@@ -583,8 +582,8 @@ class InteractiveBase(object):
     
     def test_set_context_post(self):
         self.login()
-        self.fake_database_files([self.new_context], link=True)
         self.install_files([self.new_context])
+        self.fake_database_files([self.new_context])
         new_context = os.path.basename(self.new_context)
         response = self.client.post("/set_default_context/", {
             "context_type" : "operational",

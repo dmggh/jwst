@@ -2164,10 +2164,10 @@ def update_default_context(new_default, description, context_type, user):
     pmap_names = pmap.mapping_names() + pmap.reference_names()
     bad_files = []
     with log.error_on_exception("Bad file check failed"):
-        bad_files = [ name for name in pmap_names if blobs[name].rejected ]
+        bad_files = [ name for name in pmap_names if name not in blobs or blobs[name].rejected ]
     if bad_files and context_type == "operational":
         raise CrdsError("Context " + srepr(new_default) + 
-                        " contains known bad files and cannot be made the default (last 4 bad files): " + 
+                        " contains known bad files and cannot be made the default (last 4 of " + str(len(bad_files)) + " bad files): " + 
                         ", ".join(bad_files[-4:]))
     models.set_default_context(new_default, observatory=models.OBSERVATORY, state=context_type, description=description)
     models.AuditBlob.new(user, "set default context", 
@@ -2183,7 +2183,9 @@ def display_context_history(request):
     which to derive new contexts.
     """
     history = models.get_context_history(observatory=models.OBSERVATORY, state="operational")
+    # log.info("context_history:", history)
     context_blobs = { blob.name:blob for blob in models.FileBlob.filter(name__endswith=".pmap") }
+    # log.info("context_blobs:", context_blobs)
     history_tuples = [ (hist, context_blobs[hist.context]) for hist in history ]
     return crds_render(request, "display_context_history.html", {
             "history" : history,
