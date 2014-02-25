@@ -122,7 +122,8 @@ class CrdsModel(models.Model):
     class Meta:
         abstract = True    # Collapse model inheritance for flat SQL tables
         
-    name = models.CharField(max_length=64, default="", help_text="unique name of this model.")
+    name = models.CharField(max_length=64, default="", help_text="unique name of this model.",
+                            blank=True)
 
     unicode_list = ["name"]
     repr_list = ["name"]
@@ -1269,10 +1270,10 @@ class AuditBlob(BlobModel):
     action = SimpleCharField( AUDITED_ACTIONS, "name of action performed", "" )
     filename = models.CharField(max_length=64, default="", help_text="unique name of this model.")
     observatory = models.CharField(max_length=8, default=OBSERVATORY, help_text="observatory this action applied to.")
-    instrument = models.CharField(max_length=32, default="", help_text="instrument this action applied to.")
-    filekind = models.CharField(max_length=32, default="", help_text="filekind this action applied to.")
-    why = models.TextField(help_text="reason this action was performed", default="")
-    details = models.TextField(help_text="supplementary info", default="")
+    instrument = models.CharField(max_length=32, default="", help_text="instrument this action applied to.", blank=True)
+    filekind = models.CharField(max_length=32, default="", help_text="filekind this action applied to.", blank=True)
+    why = models.TextField(help_text="reason this action was performed", default="", blank=True)
+    details = models.TextField(help_text="supplementary info", default="", blank=True)
 
     model_fields = BlobModel.model_fields + ["user", "date", "action", "filename", "observatory", "instrument", "filekind",
                                              "why", "details"]
