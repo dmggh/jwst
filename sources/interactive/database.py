@@ -9,8 +9,10 @@ import os.path
 
 import pyodbc
 
-from crds import rmap, log, utils, timestamp
-from crds.server.interactive import models
+from django.utils import html
+
+from crds import rmap, log, utils, timestamp, config
+from crds.server.interactive import models, common
 from crds.server import config as sconfig
 
 if models.OBSERVATORY == "hst":
@@ -341,6 +343,7 @@ HEADER_MAP = None
 HEADER_GENERATORS = {}
 
 def init_db():
+    """Create HeaderGenerator's for each instrument and set up a global map."""
     global HEADER_MAP, HEADER_TABLES, HEADER_GENERATORS
     if HEADER_MAP is None:
         with log.error_on_exception("Failed loading", repr(HEADER_TABLES)):
@@ -352,16 +355,76 @@ def init_db():
                     for instr in HEADER_MAP:
                         HEADER_GENERATORS[instr] = HeaderGenerator(instr, connection, HEADER_MAP[instr])
 
+# ---------------------------------------------------------------------------------------------------------
+# From here down,  functions are untrusted API calls to access database services.
+# These functions must explicitly screen all input parameters to guard against SQL injection attacks.
+# ---------------------------------------------------------------------------------------------------------
 
+def _safe_assert(condition, msg):
+    """Assert `condition`,  using an HTML-escaped version of `msg` as a guard against XSS."""
+    safe_msg = html.conditional_escape(msg)
+    assert condition, safe_msg
+
+def _check_dataset_id(did):
+    """Raise an exception if `did` is not a valid CRDS dataset id."""
+    _safe_assert(common.DATASET_ID_RE.match(did),  "Invalid dataset id " + repr(did))
+
+def _check_observatory(obs):
+    """Raise an exception if `obs` is not a valid CRDS observatory name."""
+    _safe_assert(obs in models.OBSERVATORIES, "Invalid observatory " + repr(obs))
+
+def _check_instrument(instr):
+    """Raise an exception if `instr` is not a valid instrument for this site."""
+    _safe_assert(instr in models.INSTRUMENTS, "Invalid instrument " + repr(instr))
+
+def _check_date(date):
+    """Raise an exception if `date` is not a valid CRDS context date specification."""
+    _safe_assert(config.CONTEXT_DATETIME_RE.match(date), "Invalid date " + repr(date))
+    
+def _check_filename(filename):
+    """Raise an exception if `filename` is not a valid CRDS filename."""
+    _safe_assert(config.FILE_RE.match(filename), "Invalid file name " + repr(filename))
+    
 def get_dataset_header(dataset, observatory="hst"):
     """Get the header for a particular dataset,  nominally in a context where
     one only cares about a small list of specific datasets.
     """
+    _check_dataset_id(dataset)
+    _check_observatory(observatory)
     return get_dataset_headers_by_id([dataset], observatory)[dataset.upper()]
+
+def get_dataset_headers_by_id(dataset_ids, observatory="hst"):
+    """Get the header for a particular dataset,  nominally in a context where
+    one only cares about a small list of specific datasets.
+    """
+    for did in dataset_ids:
+        _check_dataset_id(did)
+    _check_observatory(observatory)
+    headers = {}
+    for i in range(0, len(dataset_ids), MAX_IDS):
+        headers.update(_get_dataset_headers_by_id(dataset_ids[i:i+MAX_IDS], observatory))
+    return headers
+
+def get_dataset_headers_by_instrument(instrument, observatory="hst", datasets_since=None):
+    """Get the header for a particular dataset,  nominally in a context where
+    one only cares about a small list of specific datasets.
+    """
+    init_db()
+    _check_instrument(instrument)
+    _check_observatory(observatory)
+    _check_date(datasets_since)
+    try:
+        igen = HEADER_GENERATORS[instrument]
+        extra_clauses = [ igen.get_expstart_clause(datasets_since) ] if datasets_since else []
+        headers = { hdr["DATA_SET"]:hdr for hdr in igen.get_headers(extra_clauses=extra_clauses) }
+        return headers
+    except Exception, exc:
+        raise RuntimeError("Error accessing catalog for instrument" + repr(instrument) + ":" + str(exc))
 
 MAX_IDS = 5000
 
 def _get_dataset_headers_by_id(dataset_ids, observatory="hst"):
+    """Based on a list of `dataset_ids`,  return the corresponding DADSOPS bestrefs matching parameters."""
     init_db()
     
     datasets = sorted(list(set(dataset_ids)))
@@ -377,48 +440,30 @@ def _get_dataset_headers_by_id(dataset_ids, observatory="hst"):
         try:
             igen = HEADER_GENERATORS[instrument]
             dataset_column = igen.h_to_db["data_set"]
-            dataset_ids = ", ".join(["'{}'".format(id.upper()) for id in datasets])
+            dataset_ids = ", ".join(["'{}'".format(did.upper()) for did in datasets])
             datasets_clause = "{} in ({})".format(dataset_column, dataset_ids)
             headers = { hdr["DATA_SET"]:hdr for hdr in igen.get_headers(extra_clauses=[datasets_clause]) }
         except Exception, exc:
-            raise RuntimeError("Error accessing catalog for dataset " + repr(dataset) + ":" + str(exc))
+            raise RuntimeError("Error accessing catalog for instrument " + repr(instrument) + ":" + str(exc))
         all_headers.update(headers)
     return all_headers
-
-def get_dataset_headers_by_id(dataset_ids, observatory="hst"):
-    """Get the header for a particular dataset,  nominally in a context where
-    one only cares about a small list of specific datasets.
-    """
-    headers = {}
-    for i in range(0,len(dataset_ids),MAX_IDS):
-        headers.update(_get_dataset_headers_by_id(dataset_ids[i:i+MAX_IDS], observatory))
-    return headers
-
-def get_dataset_headers_by_instrument(instrument, observatory="hst", datasets_since=None):
-    """Get the header for a particular dataset,  nominally in a context where
-    one only cares about a small list of specific datasets.
-    """
-    init_db()
-    try:
-        igen = HEADER_GENERATORS[instrument]
-        extra_clauses = [ igen.get_expstart_clause(datasets_since) ] if datasets_since else []
-        headers = { hdr["DATA_SET"]:hdr for hdr in igen.get_headers(extra_clauses=extra_clauses) }
-        return headers
-    except Exception, exc:
-        raise RuntimeError("Error accessing catalog for instrument" + repr(instrument) + ":" + str(exc))
 
 def get_dataset_ids(instrument, observatory="hst"):
     """Return a list of the known dataset ids for `instrument`."""
     init_db()
+    _check_instrument(instrument)
+    _check_observatory(observatory)
     igen = HEADER_GENERATORS[instrument]
     return igen.get_dataset_ids()
 
 def get_reference_info(instrument, reference):
     """Return file info for a CDBS reference file `reference` belonging to `instrument`."""
+    _check_instrument(instrument)
+    _check_filename(reference)
     if instrument == "nicmos": 
         instrument = "nic"
     elif instrument == "wfii":
-        instrument == "wfpc2"
+        instrument = "wfpc2"
     refops = get_reffile_ops()
     gen = refops.make_dicts(instrument.lower() + "_file", where="WHERE file_name='{}'".format(reference.lower()))
     return gen.next()
