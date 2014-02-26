@@ -33,8 +33,8 @@ CRDS_REFERENCE_URL = CRDS_URL + "get/"
 CRDS_MAPPING_URL   = CRDS_URL + "get/"
 
 # These may get redirected to the archive or a static file server
-CRDS_UNCHECKED_REFERENCE_URL = CRDS_URL + "unchecked_get/references/hst/"
-CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/mappings/hst/"
+CRDS_UNCHECKED_REFERENCE_URL = CRDS_URL + "unchecked_get/references/" + observatory + "/"
+CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/mappings/" + observatory + "/"
 
 # These are the file states which are available for download or rpc.
 # XXX TODO restrict to archived or operational
