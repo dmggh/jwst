@@ -232,7 +232,7 @@ class CounterModel(CrdsModel):
         if model.counter <= existing_serial:
             model.counter = existing_serial + 1
             model.save()
-            log.info("Advanced file counter for '%s' to '%05d' based on from '%s'." % \
+            log.info("Advanced file counter for '%s' to '%05d' based on '%s'." % \
                      (model.name, model.counter, filepath))
             
 def mirror_filename_counters(observatory, official_path):
@@ -322,6 +322,7 @@ def set_default_context(context, observatory=OBSERVATORY, state="edit", descript
         new_hist.description = description
         new_hist.context = context
         new_hist.state = state
+        new_hist.start_date = datetime.datetime.now()
         new_hist.save()
         if state == "operational":
             fileblob_map = get_fileblob_map()
@@ -434,7 +435,7 @@ class ContextHistoryModel(CrdsModel):
     def observatory(self):
         return self.context.split("_")[0].split(".")[0]
 
-    start_date = models.DateTimeField(auto_now_add=True)
+    start_date = models.DateTimeField()
 
     context = models.CharField(max_length=64, default="",
         help_text="name of .pmap assigned to for this kind of context.")
@@ -717,7 +718,7 @@ class FileBlob(BlobModel):
         help_text = "Hex sha1sum of file contents as delivered", default="none")
     
     delivery_date = models.DateTimeField(
-        auto_now_add=True, help_text="Date file was received by CRDS.")
+        auto_now=True, help_text="Date file was received by CRDS.")
     
     activation_date = models.DateTimeField(
         auto_now_add=False, default=DEFAULT_ACTIVATION_DATE, help_text="Date file first listed in an operational context.")
