@@ -650,6 +650,8 @@ def del_locked_instrument(request):
 # ===========================================================================
 
 # @profile("index.stats")
+@error_trap("base.html")
+@log_view
 def index(request):
     """Return the top level page for all of interactive CRDS."""
     pars = get_context_table_parameters("operational")
@@ -658,6 +660,7 @@ def index(request):
 # ===========================================================================
 
 @error_trap("base.html")
+@log_view
 @login_required
 def display_result(request, results_id):
     """Render the repeatable result with `results_id`.  Handle the /display_result/ URL."""
@@ -706,6 +709,7 @@ def logout(request):
     return redirect("/")
 
 @error_trap("set_password.html")
+@log_view
 @login_required
 def set_password(request):
     """Support changing a user's own password."""
@@ -825,6 +829,7 @@ def clear_uploads(request, uploads):
 # ===========================================================================
 
 @error_trap("bestrefs_index2.html")
+@log_view
 def bestrefs(request):
     """View to get the instrument context for best references."""
     if request.method == "GET":
@@ -1076,8 +1081,6 @@ def batch_submit_references_post(request):
                 "description" : description,
                 "context_rmaps" : sorted(new_mappings_map.values()), 
                 
-#                "reference_certs" : reference_certs,
-#                "mapping_certs" : mapping_certs, 
                 "certify_results" : reference_certs + mapping_certs,
                 "collision_list" : collision_list,
                 
@@ -1172,6 +1175,8 @@ def submit_confirm(request):
             collision_list=collision_list)
         
         clear_uploads(request, result.uploaded_basenames)
+        
+        models.clear_cache()
 
     else:
         for new in new_files:
@@ -1230,6 +1235,8 @@ def delete_references_post(request):
     for file in deleted_files:
         models.AuditBlob.new(str(request.user), "delete references", file, description, 
                              details = repr(deleted_files + [final_pmap]))
+        
+    models.clear_cache()
     
     del_results = {
                 "pmap" : final_pmap,
@@ -1296,6 +1303,8 @@ def add_existing_references_post(request):
     for file in added_files:
         models.AuditBlob.new(str(request.user), "add references", file, description, 
                              details = repr(added_files + [final_pmap]))
+        
+    models.clear_cache()
     
     add_results = {
                 "pmap" : final_pmap,
@@ -1337,6 +1346,9 @@ def create_contexts_post(request):
     context_rmaps = validate(request, "rmaps", is_list_of_rmaps)
     description = validate(request, "description", common.DESCRIPTION_RE)
     context_name_map, collisions = submit.create_contexts(description, context_rmaps, str(request.user), pmap_name)
+    
+    models.clear_cache()
+    
     return render_repeatable_result(request, "create_contexts_results.html", {
                 "pmap": pmap_name,
                 "original_pmap": pmap_name,
@@ -1532,17 +1544,8 @@ def browse_known_file(request, filename):
         context = models.get_default_context(blob.observatory)
         match_paths = matches.find_full_match_paths(context, filename)
         match_paths = [flatten(path) for path in match_paths]
-#        try:
-#            certify_results = web_certify.captured_certify(filename, blob.pathname, check_references=True, context=context)
-#        except Exception, exc:
-#            log.warning("certify failed for", blob.pathname)
-#            certify_results = None
     else:
         match_paths = []
-        # Not certified against a context because the default context will generally be from the "future"
-        # and will therefore typically show a number of regressions.   Another option here which I'm skipping
-        # for now is certifying against the mapping that `filename` was derived_from.
-#        certify_results = web_certify.captured_certify(filename, blob.pathname, check_references=False)
 
     return crds_render(request, "browse_results.html", { 
              "fileblob" : blob,
