@@ -35,13 +35,11 @@ from crds import (rmap, utils, timestamp, uses, matches, checksum, log, config)
 from crds import (data_file, pysh)
 from crds import CrdsError
 
-from crds.timestamp import (DATE_RE_STR, TIME_RE_STR)
-
 from . import (models, database, web_certify, web_difference, submit, versions, locks, html)
 from .templatetags import stdtags
 from .models import FieldError, MissingInputError
 from .common import capture_output, srepr, profile, complete_re
-from .common import FILE_RE, FILE_RE_STR, DESCRIPTION_RE, PERSON_RE, DATASET_ID_RE, FITS_KEY_RE, FITS_VAL_RE
+from . import common
 
 from crds.server.jpoll import views as jpoll_views
 from crds.server.jsonapi import views as jsonapi_views
@@ -353,7 +351,7 @@ def get_uploaded_filepaths(request):
     for ufile in request.FILES.values():
         filepath = str(ufile.temporary_file_path())
         original_name = str(ufile.name)
-        assert FILE_RE.match(original_name), "Invalid filename " + srepr(original_name)
+        config.check_filename(original_name)
         pairs.append((original_name, filepath))
     return pairs
 
@@ -401,8 +399,7 @@ def get_uploaded_file(request, formvar):
         ufile = request.FILES[formvar]
     except KeyError:
         raise MissingInputError("Specify a file to upload for " + srepr(formvar))
-    if not FILE_RE.match(ufile.name):
-        raise FieldError("Invalid file name " + srepr(ufile.name))
+    config.check_filename(ufile.name)
     return ufile
 
 def get_files(request):
@@ -758,7 +755,7 @@ def upload_new(request, template="upload_new_input.html"):
     else:
         f = get_uploaded_file(request, 'file')
         file_local_dir = str(request.user)
-        assert re.match(FILE_RE, f.name), "Invalid upload_new filename: " + srepr(f.name)
+        check_filename(f.name)
         assert re.match("[A-Za-z0-9_]+", file_local_dir), "Invalid file_local_dir " + srepr(file_local_dir)
         ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir, f.name) 
         with log.verbose_on_exception("Failed removing", repr(ingest_path)):
@@ -813,7 +810,7 @@ def upload_delete(request, filename):
 
 def _upload_delete(request, filename):
     with log.error_on_exception("Failed upload_delete for:", srepr(filename)):
-        assert re.match(FILE_RE, filename), "Invalid upload_delete filename " + srepr(filename)
+        check_filename(filename)
         file_local_dir = str(request.user)
         assert re.match("[A-Za-z0-9_]+", file_local_dir), "Invalid file_local_dir " + srepr(file_local_dir)
         ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir, filename)
@@ -850,9 +847,9 @@ def bestrefs_post(request):
     elif dataset_mode == "dataset_local":
         header = header_string_to_header(request.POST["dataset_local"])
         header = pmap.minimize_header(header)
-        dataset_name = validate(request, "dataset_name", FILE_RE)
+        dataset_name = validate(request, "dataset_name", config.FILE_RE)
     elif dataset_mode == "dataset_archive":
-        dataset_name = validate(request, "dataset_archive", DATASET_ID_RE)
+        dataset_name = validate(request, "dataset_archive", common.DATASET_ID_RE)
         try:
             header = database.get_dataset_header(dataset_name, pmap.observatory)
         except Exception, exc:
@@ -876,7 +873,7 @@ def header_string_to_header(hstring):
         key = words[0]
         value = " ".join(words[1:])
         value = utils.condition_value(value)
-        if not FITS_KEY_RE.match(key) and FITS_VAL_RE.match(value):
+        if not common.FITS_KEY_RE.match(key) and common.FITS_VAL_RE.match(value):
             log.warning("Dropping illegal keyword '%s' with value '%s'." % (key, value))
             continue
         header[key] = value
@@ -983,8 +980,8 @@ def bestrefs_explore_compute(request):
     for par in pars:
         header[par] = utils.condition_value(
             validate(request, par, r"[A-Za-z0-9\+\-.,*/;|{}\[\]:]*"))
-    header["DATE-OBS"] = validate(request, "DATE-OBS", complete_re(DATE_RE_STR))
-    header["TIME-OBS"] = validate(request, "TIME-OBS", complete_re(TIME_RE_STR + "$"))
+    header["DATE-OBS"] = validate(request, "DATE-OBS", timestamp.DATE_RE_STR)
+    header["TIME-OBS"] = validate(request, "TIME-OBS", timestamp.TIME_RE_STR)
     return bestrefs_results(request, pmap, header, instrument)
 
 # ===========================================================================
@@ -1047,8 +1044,8 @@ def batch_submit_references_post(request):
     # also generate it.   Batch submissions ALWAYS define this even if
     # they're not comparing to a prior context.
     pmap_mode, pmap_name = get_recent_or_user_mode_and_context(request)
-    description = validate(request, "description", DESCRIPTION_RE)
-    creator = validate(request, "creator", PERSON_RE)
+    description = validate(request, "description", common.DESCRIPTION_RE)
+    creator = validate(request, "creator", common.PERSON_RE)
     change_level = validate(request, "change_level", models.CHANGE_LEVELS)
     auto_rename = checkbox(request, "auto_rename")
     compare_old_reference = checkbox(request, "compare_old_reference")
@@ -1207,7 +1204,7 @@ def delete_references_post(request):
     """View fragment to process file delete references POSTs."""
 
     pmap_mode, pmap_name = get_recent_or_user_mode_and_context(request)
-    description = validate(request, "description", DESCRIPTION_RE)
+    description = validate(request, "description", common.DESCRIPTION_RE)
 
     deleted_files = validate(request, "deleted_files", is_known_file_list)
     uploaded_files = { fname:rmap.locate_file(fname, models.OBSERVATORY) for fname in deleted_files }
@@ -1271,7 +1268,7 @@ def add_existing_references_post(request):
     """View fragment to process add existing references form POSTs."""
 
     pmap_mode, pmap_name = get_recent_or_user_mode_and_context(request)
-    description = validate(request, "description", DESCRIPTION_RE)
+    description = validate(request, "description", common.DESCRIPTION_RE)
 
     added_files = validate(request, "added_files", is_known_file_list)
     uploaded_files = { fname:rmap.locate_file(fname, models.OBSERVATORY) for fname in added_files }
@@ -1338,7 +1335,7 @@ def create_contexts_post(request):
     """View fragment handling create_contexts POST case."""
     pmap_name = get_recent_or_user_context(request)
     context_rmaps = validate(request, "rmaps", is_list_of_rmaps)
-    description = validate(request, "description", DESCRIPTION_RE)
+    description = validate(request, "description", common.DESCRIPTION_RE)
     context_name_map, collisions = submit.create_contexts(description, context_rmaps, str(request.user), pmap_name)
     return render_repeatable_result(request, "create_contexts_results.html", {
                 "pmap": pmap_name,
@@ -1385,8 +1382,8 @@ def submit_files_post(request, crds_filetype):
         pmap_mode, pmap_name = get_recent_or_user_mode_and_context(request)
     else:
         pmap_mode, pmap_name = None, None
-    description = validate(request, "description", DESCRIPTION_RE)
-    creator = validate(request, "creator", PERSON_RE)
+    description = validate(request, "description", common.DESCRIPTION_RE)
+    creator = validate(request, "creator", common.PERSON_RE)
     change_level = validate(request, "change_level", models.CHANGE_LEVELS)            
     remove_dir, uploaded_files = get_files(request)
     locked_instrument = get_locked_instrument(request)
@@ -1516,7 +1513,7 @@ def browse_known_file(request, filename):
     """special view which accepts browse file from a URL parameter,  required
     by cross links like /browse/some_file.rmap
     """
-    assert FILE_RE.match(filename), "Invalid filename " + srepr(filename)  # also URL regex
+    config.check_filename(filename)
     try:
         blob = models.FileBlob.load(filename)
         browsed_file = blob.pathname
@@ -1746,7 +1743,7 @@ def browse_db_post(request):
     extension = validate(
         request, "extension", models.EXTENSIONS+[r"\*"])
     filename = validate(
-        request, "filename", complete_re(FILE_RE_STR + r"|\*"))
+        request, "filename", complete_re(config.FILE_RE_STR + r"|" + complete_re(r"\*")))
     deliverer_user = validate(
         request, "deliverer_user", [r"\*"] + usernames())
     status = validate(
@@ -2009,7 +2006,7 @@ def cached_bundle_path(request, arch_extension):
     names = arch_extension # archive format is important,  download filename isn't
     for var in request.GET:
         if var.startswith("file"):
-            name = validate(request, var, FILE_RE)
+            name = validate(request, var, config.FILE_RE)
             names += name
     xsum = utils.str_checksum(names)
     path = sconfig.CRDS_ARCHIVE_CACHE_DIR + "/" + xsum + "."+ arch_extension
@@ -2067,7 +2064,7 @@ def mark_bad_post(request):
     """View fragment to process the blacklist POST."""
     blacklist_roots = validate(request, "file_known", is_known_file_list)
     badflag = validate(request, "badflag", "bad|ok")
-    why = validate(request, "why", DESCRIPTION_RE)
+    why = validate(request, "why", common.DESCRIPTION_RE)
 
     if badflag == "bad":
         for blacklist_root in blacklist_roots:
@@ -2130,7 +2127,7 @@ def set_default_context(request):
     else:
         new_default = get_recent_or_user_context(request)
         context_type = validate(request, "context_type", models.CONTEXT_TYPES)
-        description = validate(request, "description", DESCRIPTION_RE)
+        description = validate(request, "description", common.DESCRIPTION_RE)
 
         old_default = update_default_context(new_default, description, context_type, str(request.user))
         
