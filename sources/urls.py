@@ -36,7 +36,7 @@ urlpatterns = patterns('',
     
     url(r'^certify/$',      'crds.server.interactive.views.certify_file'),          
     url(r'^difference/$',   'crds.server.interactive.views.difference_files'),
-    url(r'^difference/(\w+)/(\w+)/$', crds_cacher(crds.server.interactive.views.difference_files)),
+    url(r'^difference/([A-Za-z0-9_.]+)/([A-Za-z0-9_.]+)/$', crds_cacher(crds.server.interactive.views.difference_files)),
     url(r'^recent_activity/$', 'crds.server.interactive.views.recent_activity'),        
     url(r'^delivery_status/$', 'crds.server.interactive.views.delivery_status'),        
     
