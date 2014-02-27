@@ -149,7 +149,7 @@ mod_wsgi)
         cat env.sh
 	echo "memcached -m 32M -s /tmp/memcached.sock &"
 	echo "disown -h %1"
-        echo "/usr/sbin/httpd -m 32M -f $install_dir/server/conf/httpd.conf"
+        echo "/usr/sbin/httpd -f $install_dir/server/conf/httpd.conf"
         ) > run
 
 	(
