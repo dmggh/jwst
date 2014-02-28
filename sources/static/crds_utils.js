@@ -174,6 +174,15 @@ crds.html_unescape = function (escaped) {
         .replace(/&#039;/g, "'");
 };
 
+crds.html_escape = function (text) {
+    'use strict';
+    var chr = {
+        '"': '&quot;', '&': '&amp;', "'": '&#39;',
+        '/': '&#47;',  '<': '&lt;',  '>': '&gt;'
+    };
+    return text.replace(/[\"&'\/<>]/g, function (a) { return chr[a]; });
+};
+
 $(function() {
     // tune jquery-ui accordions to be closed at start.
     $( ".accordion" ).accordion({
