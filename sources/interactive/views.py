@@ -568,7 +568,7 @@ def superuser_login_required(func):
 
 from django.contrib.auth.signals import user_logged_in, user_logged_out
 
-def lock_login_receiver(_sender, **keys):
+def lock_login_receiver(sender, **keys):
     """Signal handler to acquire locks for a user when they login."""
     request = keys["request"]
     user = str(keys["user"])
@@ -596,7 +596,7 @@ def lock_login_receiver(_sender, **keys):
 
 user_logged_in.connect(lock_login_receiver, dispatch_uid="lock_login_receiver")
 
-def lock_logout_receiver(_sender, **keys):
+def lock_logout_receiver(sender, **keys):
     """Signal handler to release a user's locks if they log out."""
     with log.info_on_exception("logout releasing locks failed"):
         request = keys["request"]
