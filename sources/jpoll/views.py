@@ -1,3 +1,14 @@
+"""JPOLL supports asynchronous messaging between Django view functions and
+appropriately configured pages.   Messages output to a view function JPOLL 
+handler are nominally communicated to the database and downloaded to the page
+by asynchonous AJAX message poll calls while a long running view is computing.
+A final completion message ("done") can be sent to by-pass the nominal view 
+page response;  the done response is capable of replacing the synchronous 
+page response of the primary view,  sometimes made necessary by timeouts of
+intermediate systems,  such as the proxy,  which would otherwise cause the
+final page display to fail.
+"""
+
 # Create your views here.
 
 from __future__ import print_function
@@ -5,12 +16,11 @@ from __future__ import print_function
 import sys
 import time
 import json
-import logging
 import datetime
 import re
 
 from django.shortcuts import render as django_render
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
 
 from . import models as jmodels
 
@@ -59,7 +69,7 @@ def pull_messages(request):
     """Return any pending JPOLL messages on the channel associated with `request` as a JSON response."""
     channel = get_channel(request)
     messages = channel.pull()
-    jdebug("jpoll: pulling messages for", repr(channel.key),"=", messages)
+    jdebug("jpoll: pulling messages for", repr(channel.key), "=", messages)
     return HttpResponse(json.dumps(messages), mimetype='application/json')
 
 #---------------------------------------------------------------------------------------------
@@ -85,10 +95,11 @@ class JpollHandler(object):
     def __init__(self,  key):
         try:
             self.channel = jmodels.ChannelModel.open(key)
-        except:
+        except Exception:
             self.channel = None
 
     def write(self, message):
+        """Output `message` to self's JPOLL channel."""
         try:
             if self.channel is not None:
                 self.channel.log(message)
@@ -96,9 +107,10 @@ class JpollHandler(object):
             sys.stderr.write("ERROR in JPOLL write() of '%s': exception '%s'" % (message, str(exc)))
             
     def flush(self):
-        pass
+        """Dummy to make a JpollHandler a file-like object/."""
     
     def done(self, status, result):
+        """Should be called when a view is done computing to present the result."""
         try:
             if self.channel is not None:
                 self.channel.done(status, result)
@@ -122,7 +134,7 @@ def test_worker(request):
         handler.write("Doing #" + str(i))
         time.sleep(5)
     handler.done(0, "/jpoll/test_response/")
-    time.sleep(10);
+    time.sleep(10)
     return HttpResponse("OK")   # json.dumps("OK"), mimetype='application/json')
 
 def test_response(request):
