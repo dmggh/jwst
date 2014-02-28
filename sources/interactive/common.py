@@ -12,18 +12,18 @@ from crds.server.config import crds_server_log_dir
 
 # ===================================================================
 
-DESCRIPTION_RE = re.compile(complete_re(r"[A-Za-z0-9._ ,\-\+\*]+"))
-PERSON_RE = re.compile(complete_re(r"[A-Za-z_0-9\.@ ]*"))
+DESCRIPTION_RE = re.compile(complete_re(r"[A-Za-z0-9._ ,\-\+\*]{0,20000}"))  # 20k == approx 20 pages
+PERSON_RE = re.compile(complete_re(r"[A-Za-z_0-9\.@ ]{0,128}"))
 
-DATASET_ID_RE = re.compile(complete_re(r"[A-Za-z0-9_]+"))
+DATASET_ID_RE = re.compile(complete_re(r"[A-Za-z0-9_]{1,32}"))
 
-FITS_KEY_RE = re.compile(complete_re(r"[A-Z0-9_\-]+"))
-FITS_VAL_RE = re.compile(complete_re(r"[A-Za-z0-9_\- :\./\$]*"))
+FITS_KEY_RE = re.compile(complete_re(r"[A-Z0-9_\-]{1,8}"))
+FITS_VAL_RE = re.compile(complete_re(r"[A-Za-z0-9_\- :\./\$]{0,256}"))
 
-LIST_GLOB_RE = re.compile(complete_re(r"[A-Za-z0-9_\.\*\+\(\)\-\[\]]+"))
+LIST_GLOB_RE = re.compile(complete_re(r"[A-Za-z0-9_\.\*\+\(\)\-\[\]]{1,128}"))
 
-INSTRUMENT_RE = re.compile(complete_re(r"[A-Za-z0-9_]+"))
-FIELD_RE = re.compile(complete_re(r"[A-Za-z0-9_]+"))
+INSTRUMENT_RE = re.compile(complete_re(r"[A-Za-z0-9_]{1,64}"))
+FIELD_RE = re.compile(complete_re(r"[A-Za-z0-9_]{1,64}"))
 
 # ===================================================================
 
