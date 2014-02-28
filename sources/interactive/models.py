@@ -51,6 +51,7 @@ def crds_cached(f):
 
 def clear_cache():
     """Clear the crds core cache used for storing."""
+    log.info("Clearing Django crds_cache (nominally memcached).")
     CRDS_CACHE.clear()
 
 # multi-chunk due to 1M limit in memcached and pymemcached and possibly Django
@@ -64,7 +65,7 @@ def store_cache(key, val, chunk_size=950000):
             chunk_key = key + "_{:02d}".format(i//chunk_size)
             chunk_data = pick[i:i+chunk_size]
             CRDS_CACHE.set(chunk_key, chunk_data)
-            log.info("store_cache", chunk_key, len(chunk_data))
+            log.verbose("store_cache", chunk_key, len(chunk_data))
 
 def retrieve_cache(key):
     """Retrieve Python val from CRDS cache in multiple chunks from `key`."""
@@ -80,7 +81,7 @@ def retrieve_cache(key):
                 break
             pick += fetch
             i += 1
-            log.info("retrieve_cache", chunk_key, len(fetch))
+            log.verbose("retrieve_cache", chunk_key, len(fetch))
         if fetch is None and len(pick) == 0:
             return None
         val = json_ext.loads(pick)
