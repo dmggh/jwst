@@ -681,7 +681,7 @@ def render_repeatable_result(request, template, rdict, jpoll_handler=None):
     if jpoll_handler:
         jpoll_handler.done(0, result.repeatable_url)
         time.sleep(10.0)  # wait 10 seconds to give jpoll done processing consistent behavior. 2x jpoll poll rate
-    return HttpResponseRedirect(result.repeatable_url)
+    return HttpResponseRedirect(result.repeatable_url)   # secure
 
 # ===========================================================================
 from django.contrib.auth.views import login as django_login
@@ -706,7 +706,7 @@ def login(request):
 def logout(request):
     """View to get rid of authentication state and become nobody again."""
     django.contrib.auth.logout(request)
-    return redirect("/")
+    return redirect("/") # secure
 
 @error_trap("set_password.html")
 @log_view
@@ -810,7 +810,7 @@ def upload_delete(request, filename):
         response['Content-Disposition'] = 'inline; filename=files.json'
         return response
     else:
-        return HttpResponseRedirect('/upload/new')
+        return HttpResponseRedirect('/upload/new')  # secure
 
 def _upload_delete(request, filename):
     with log.error_on_exception("Failed upload_delete for:", srepr(filename)):
@@ -1895,7 +1895,7 @@ def brokered_get(request, filename):
     
     log.info("Brokering file", repr(filename), "from", repr(url))
 
-    return HttpResponseRedirect(url)
+    return HttpResponseRedirect(url)   # secure
 
 if sconfig.DEBUG:
     # @condition(etag_func=None)
