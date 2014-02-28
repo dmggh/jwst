@@ -85,8 +85,8 @@ def validate(request, variable, pattern):
     check_value() conditions specified by `pattern`.  Use GET or POST
     depending on request type.
     """
-    vars = request.GET if request.method == "GET" else request.POST
-    value = str(vars[variable]).strip()
+    variables = request.GET if request.method == "GET" else request.POST
+    value = str(variables[variable]).strip()
     return check_value(value, pattern, "Invalid value " + srepr(value) + " for " + srepr(variable))
 
 def get_or_post(request, variable):
@@ -165,8 +165,8 @@ def is_known_file_list(text):
     verifying that the files exist in CRDS.
     """
     files = text.replace(","," ").split()
-    for file in files:
-        is_known_file(file)
+    for file_ in files:
+        is_known_file(file_)
     return files
 
 def is_available_file_blob(filename):
@@ -235,16 +235,16 @@ def crds_render_html(request, template, dict_=None, requires_pmaps=False):
     # Generate a first pass of the response HTML.
     loaded_template = loader.get_template(template)
     context = RequestContext(request, rdict)
-    html = loaded_template.render(context)
+    html_str = loaded_template.render(context)
     # Remove file paths and fix temporary names with client side names
     uploaded_pairs = rdict.get("uploaded_file_names", get_uploaded_filepaths(request))
-    html = scrub_file_paths(html, uploaded_pairs)
-    return html
+    html_str = scrub_file_paths(html_str, uploaded_pairs)
+    return html_str
 
 def crds_render(request, template, dict_=None, requires_pmaps=False):
     """Render an HttpReponse object.    Return HttpResponse."""
-    html = crds_render_html(request=request, template=template, dict_=dict_, requires_pmaps=requires_pmaps)
-    return HttpResponse(html)
+    html_str = crds_render_html(request=request, template=template, dict_=dict_, requires_pmaps=requires_pmaps)
+    return HttpResponse(html_str)
 
 def get_rendering_dict(request, dict_=None, requires_pmaps=False):
     """Render a template,  making same-named inputs from request available
@@ -406,21 +406,20 @@ def get_files(request):
     """Obtain uploaded files from a common multi-mode form mechanism,  
     returning:   remove_dir,   { original_name : file_path }
     """
-    dir = os.path.join(sconfig.CRDS_INGEST_DIR, str(request.user))
-    uploads = { str(os.path.basename(f)) : str(f) for f in glob.glob(dir + "/*") }
-    log.info("Scanned", srepr(dir), "for uploaded files:", uploads)
-    for f in uploads:
-        if rmap.is_mapping(f):
+    path = os.path.join(sconfig.CRDS_INGEST_DIR, str(request.user))
+    uploads = { str(os.path.basename(file_)) : str(file_) for file_ in glob.glob(path + "/*") }
+    log.info("Scanned", srepr(path), "for uploaded files:", uploads)
+    for file_ in uploads:
+        if rmap.is_mapping(file_):
             # this will fail for user-scp'ed ingests.  but... maybe file already writeable.
-            with log.warn_on_exception("Failed setting file mode on", repr(f)):
-                os.chmod(uploads[f], 0660)
-            # os.chmod(uploads[f], 0222)  # XXXX test test test
-            # this will fail if `f` is not writeable.  but... maybe checksum already good.
-            with log.warn_on_exception("Failed updating checksum on", repr(f)):
-                checksum.update_checksum(uploads[f])
+            with log.warn_on_exception("Failed setting file mode on", repr(file_)):
+                os.chmod(uploads[file_], 0660)
+            # this will fail if `file_` is not writeable.  but... maybe checksum already good.
+            with log.warn_on_exception("Failed updating checksum on", repr(file_)):
+                checksum.update_checksum(uploads[file_])
     if not uploads:
         raise CrdsError("No input files were specified.")
-    return dir, uploads
+    return path, uploads
 
 def get_known_filepath(filename):
     """Given the basename of a mapping or reference file, `file`,
@@ -519,30 +518,31 @@ def log_view(func):
 # ===========================================================================
 # ===========================================================================
 # ===========================================================================
-"""Authentication and locking strategy:
-
-1. File submission views require an authenticated user
-
-2. As part of login,  an instrument is reserved to that user,  and only they can submit for it.
-This part is triggered by the user_logged_in signal which allocates database based locks for that
-instrument and user.
-
-3. Database-based locks are refreshed whenever the session is refreshed.
-This is achieved by providing lock refreshing middleware.  Any interactive use of the site causes refresh.
-
-4. Both Sessions and locks expire 36 hours after the last access by the logged in user.
-
-5. Logging out releases locks owned by a user.
-
-
-There are two ways for a session to expire:
-a. The session clock runs out and it expires.
-b. The user logs out.
-"""
+# Authentication and locking strategy:
+# 
+# 1. File submission views require an authenticated user
+# 
+# 2. As part of login,  an instrument is reserved to that user,  and only they can submit for it.
+# This part is triggered by the user_logged_in signal which allocates database based locks for that
+# instrument and user.
+# 
+# 3. Database-based locks are refreshed whenever the session is refreshed.
+# This is achieved by providing lock refreshing middleware.  Any interactive use of the site causes refresh.
+# 
+# 4. Both Sessions and locks expire 36 hours after the last access by the logged in user.
+# 
+# 5. Logging out releases locks owned by a user.
+# 
+# 
+# There are two ways for a session to expire:
+# a. The session clock runs out and it expires.
+# b. The user logs out.
 
 def superuser_login_required(func):
+    """Decorator to ensure login and check superuser flag."""
     @login_required
     def _inner(request, *args, **keys):
+        """Decorated function to check superuser status."""
         if not request.user.is_superuser:
             raise CrdsError(str(request.user) + " is not a super user.")
         return func(request, *args, **keys)
@@ -550,26 +550,25 @@ def superuser_login_required(func):
     return _inner
 
 # ===========================================================================
-
-"""Hooks for coordinating locks on instruments with logins,  ensuring they're
-obtained on login,  maintained across views, and eventually released on logout.
-Implemented as Django login/logout signal handlers and a view decorator.
-
-This is a kind of pessimistic locking,  where a user reserves a particular instrument
-for as long as they're logged in,  but guaranteeing that when it comes time to submit
-and confirm they've either still got a lock or they'll get notified they were booted.
-This is in contrast to the optimistic approach of getting all set to commit without 
-locking and then finding out someone else has locked the instrument and is waiting 
-to confirm for some reason...  or even has submitted their own copies of the same files.
-"""
-
+#
+# Hooks for coordinating locks on instruments with logins,  ensuring they're
+# obtained on login,  maintained across views, and eventually released on logout.
+# Implemented as Django login/logout signal handlers and a view decorator.
+# 
+# This is a kind of pessimistic locking,  where a user reserves a particular instrument
+# for as long as they're logged in,  but guaranteeing that when it comes time to submit
+# and confirm they've either still got a lock or they'll get notified they were booted.
+# This is in contrast to the optimistic approach of getting all set to commit without 
+# locking and then finding out someone else has locked the instrument and is waiting 
+# to confirm for some reason...  or even has submitted their own copies of the same files.
+# 
 # These signal handlers are called after a user is logged in or out to manage instrument locks.
 #
 # See also middleware.py which resets lock expiry for most interactive views
 
 from django.contrib.auth.signals import user_logged_in, user_logged_out
 
-def lock_login_receiver(sender, **keys):
+def lock_login_receiver(_sender, **keys):
     """Signal handler to acquire locks for a user when they login."""
     request = keys["request"]
     user = str(keys["user"])
@@ -577,13 +576,15 @@ def lock_login_receiver(sender, **keys):
     if "instrument" in request.POST:
         instrument = validate(request, "instrument", models.INSTRUMENTS + ["none"])
         if instrument != "none":
-            # log.info("Login receiver releasing all instrument locks for user '%s' session '%s'." % (user, request.session.session_key))
+            # log.info("Login receiver releasing all instrument locks for user '%s' session '%s'." % 
+            #  (user, request.session.session_key))
             with log.info_on_exception("login releasing locks failed"):
                 locks.release_locks(user=user)
             
             del_locked_instrument(request)
 
-            # log.info("Login receiver acquiring '%s' instrument lock for user '%s' session '%s'." % (instrument, user, request.session.session_key))
+            # log.info("Login receiver acquiring '%s' instrument lock for user '%s' session '%s'." % 
+            # (instrument, user, request.session.session_key))
             try:
                 locks.acquire(user=user, type="instrument", name=instrument, 
                               timeout=settings.CRDS_LOCK_ACQUIRE_TIMEOUT,
@@ -595,7 +596,7 @@ def lock_login_receiver(sender, **keys):
 
 user_logged_in.connect(lock_login_receiver, dispatch_uid="lock_login_receiver")
 
-def lock_logout_receiver(sender, **keys):
+def lock_logout_receiver(_sender, **keys):
     """Signal handler to release a user's locks if they log out."""
     with log.info_on_exception("logout releasing locks failed"):
         request = keys["request"]
@@ -605,6 +606,7 @@ def lock_logout_receiver(sender, **keys):
 
 user_logged_out.connect(lock_logout_receiver, dispatch_uid="lock_logout_receiver")
 
+@login_required
 def lock_status(request):
     """AJAX view to return state of user lock."""
     status = locks.get_lock_status(type="instrument",
@@ -615,6 +617,7 @@ def lock_status(request):
 def instrument_lock_required(func):
     """Decorator to ensure a user still owns an un-expired lock defined by their session data."""
     def _wrapped(request, *args, **keys):
+        """instrument_log_required wrapper function."""
         assert request.user.is_authenticated(), "You must log in."
         instrument = get_locked_instrument(request)
         user = str(request.user)
@@ -689,6 +692,7 @@ from django.contrib.auth.views import login as django_login
 # @profile("login.stats")
 @error_trap("base.html")
 def login(request):
+    """CRDS login view function,  sets and tests session cookie."""
     extras = dict(
         observatory = models.OBSERVATORY,
         instruments = models.INSTRUMENTS + ["none"],
@@ -738,6 +742,7 @@ def set_password(request):
 # https://github.com/sigurdga/django-jquery-file-upload
 
 def response_mimetype(request):
+    """Return the mimetype string associated with `request`."""
     if "application/json" in request.META['HTTP_ACCEPT']:
         return "application/json"
     else:
@@ -757,23 +762,24 @@ def upload_new(request, template="upload_new_input.html"):
     if request.method == "GET":
         return crds_render(request, template)
     else:
-        f = get_uploaded_file(request, 'file')
+        file_ = get_uploaded_file(request, 'file')
         file_local_dir = str(request.user)
-        check_filename(f.name)
+        config.check_filename(file_.name)
         assert re.match("[A-Za-z0-9_]+", file_local_dir), "Invalid file_local_dir " + srepr(file_local_dir)
-        ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir, f.name) 
+        ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir, file_.name) 
         with log.verbose_on_exception("Failed removing", repr(ingest_path)):
             pysh.sh("rm -f ${ingest_path}")   #  secure, constructed path
             log.info("Removed existing", repr(ingest_path))
         utils.ensure_dir_exists(ingest_path, mode=0770)
-        log.info("Linking", f.temporary_file_path(), "to", ingest_path)
-        os.link(f.temporary_file_path(), ingest_path)
-        data = [json_file_details(f.name, f.temporary_file_path())]
+        log.info("Linking", file_.temporary_file_path(), "to", ingest_path)
+        os.link(file_.temporary_file_path(), ingest_path)
+        data = [json_file_details(file_.name, file_.temporary_file_path())]
         response = JSONResponse(data, {}, response_mimetype(request))
         response['Content-Disposition'] = 'inline; filename=files.json'
         return response
 
 def json_file_details(filename, filepath):
+    """Return a dictionary of details about `filename` at `filepath` for django-file-upload."""
     return {'name': filename, 
             # 'url': settings.MEDIA_URL + "pictures/" + f.name.replace(" ", "_"), 
             # 'thumbnail_url': settings.MEDIA_URL + "pictures/" + f.name.replace(" ", "_"), 
@@ -784,15 +790,15 @@ def json_file_details(filename, filepath):
 @error_trap("base.html")
 @log_view
 @login_required
-def upload_list(request, template="upload_new_input.html"):
+def upload_list(request, _template="upload_new_input.html"):
+    """Return JSON describing files in the upload area."""
     file_local_dir = str(request.user)
-    assert re.match("[A-Za-z0-9_]+", file_local_dir), \
-        "Invalid file_local_dir " + srepr(file_local_dir)
+    assert re.match("[A-Za-z0-9_]+", file_local_dir), "Invalid file_local_dir " + srepr(file_local_dir)
     ingest_glob = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir, "*")
     try:
         ingest_paths = { os.path.basename(f):f for f in glob.glob(ingest_glob) }
         log.info("Listing existing ingest files", repr(ingest_paths))
-    except Exception, exc:
+    except Exception:
         ingest_paths = []
         log.info("Failed globbing ingest files.")
     data = [ json_file_details(name, ingest_paths[name]) for name in ingest_paths ]
@@ -804,6 +810,7 @@ def upload_list(request, template="upload_new_input.html"):
 @log_view
 @login_required
 def upload_delete(request, filename):
+    """Manage AJAX file deletes for django-file-upload multifile upload interface."""
     _upload_delete(request, filename)
     if request.is_ajax():
         response = JSONResponse(True, {}, response_mimetype(request))
@@ -813,8 +820,9 @@ def upload_delete(request, filename):
         return HttpResponseRedirect('/upload/new')  # secure
 
 def _upload_delete(request, filename):
+    """Worker function for upload_delete."""
     with log.error_on_exception("Failed upload_delete for:", srepr(filename)):
-        check_filename(filename)
+        config.check_filename(filename)
         file_local_dir = str(request.user)
         assert re.match("[A-Za-z0-9_]+", file_local_dir), "Invalid file_local_dir " + srepr(file_local_dir)
         ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir, filename)
@@ -894,14 +902,11 @@ def bestrefs_results(request, pmap, header, dataset_name=""):
     # organize and format results for HTML display    
     header_items = sorted(header.items())
     bestrefs_items = []
-    archive_files = []
     for key, val in sorted(recommendations.items()):
         if isinstance(val, basestring) and val.startswith("NOT FOUND"):
             val = val[len("NOT FOUND"):]
         bestrefs_items.append((key.upper, val))
         
-    archive_name = os.path.splitext(dataset_name)[0] + "_bestrefs.tar.gz"
-    
     return crds_render(request, "bestrefs_results.html", {
             "observatory" : pmap.observatory,
             "dataset_name" : dataset_name,
@@ -927,11 +932,11 @@ def get_recent_pmaps(last_n=10):
     """
     files = models.FileBlob.objects.filter(name__endswith=".pmap")
     pmaps = []
-    for f in files:
-        f.thaw()
-        if f.state == "uploaded":
+    for file_ in files:
+        file_.thaw()
+        if file_.state == "uploaded":
             continue
-        pmaps.append((f.name, pmap_label(f)))
+        pmaps.append((file_.name, pmap_label(file_)))
     return list(reversed(pmaps))[:last_n]
     
 def pmap_label(blob):
@@ -942,8 +947,8 @@ def pmap_label(blob):
         except LookupError:
             return "FILE LOOKUP FAILED -- invalid context"
     available = "" if blob.available else "*unavailable*" 
-    blacklisted = "*blacklisted*" if blob.blacklisted else ""
-    rejected = "*rejected*" if blob.rejected else ""
+    #     blacklisted = "*blacklisted*" if blob.blacklisted else ""
+    #     rejected = "*rejected*" if blob.rejected else ""
     return " ".join([blob.name, str(blob.delivery_date)[:16], available])  #, blacklisted, rejected])
 
 def bestrefs_explore_post(request):
@@ -1009,7 +1014,7 @@ def certify_post(request):
     context = get_recent_or_user_context(request)
     compare_old_reference = checkbox(request, "compare_old_reference")
     comparison_context = context if compare_old_reference else None
-    remove_dir, uploaded_files = get_files(request)
+    _remove_dir, uploaded_files = get_files(request)
     
     all_files = models.get_fileblob_map()
 
@@ -1054,7 +1059,7 @@ def batch_submit_references_post(request):
     change_level = validate(request, "change_level", models.CHANGE_LEVELS)
     auto_rename = checkbox(request, "auto_rename")
     compare_old_reference = checkbox(request, "compare_old_reference")
-    remove_dir, uploaded_files = get_files(request)
+    _remove_dir, uploaded_files = get_files(request)
     locked_instrument = get_locked_instrument(request)
     
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
@@ -1232,8 +1237,8 @@ def delete_references_post(request):
 
     context_map.update(new_mappings_map)
     
-    for file in deleted_files:
-        models.AuditBlob.new(str(request.user), "delete references", file, description, 
+    for file_ in deleted_files:
+        models.AuditBlob.new(str(request.user), "delete references", file_, description, 
                              details = repr(deleted_files + [final_pmap]))
         
     models.clear_cache()
@@ -1300,8 +1305,8 @@ def add_existing_references_post(request):
 
     context_map.update(new_mappings_map)
     
-    for file in added_files:
-        models.AuditBlob.new(str(request.user), "add references", file, description, 
+    for file_ in added_files:
+        models.AuditBlob.new(str(request.user), "add references", file_, description, 
                              details = repr(added_files + [final_pmap]))
         
     models.clear_cache()
@@ -1326,7 +1331,7 @@ def add_existing_references_post(request):
 # ===========================================================================
 
 
-# XXXX This is light-weight super-user functionality with minimal testing.
+# This is light-weight super-user functionality with minimal testing.
 
 @error_trap("create_contexts_input.html")
 @log_view
@@ -1386,7 +1391,7 @@ def submit_files(request, crds_filetype):
 def submit_files_post(request, crds_filetype):
     """Handle the POST case of submit_files, returning dict of template vars."""
     # crds_filetype constrained by RE in URL to 'mapping' or 'reference'.
-    observatory = get_observatory(request)
+    # observatory = get_observatory(request)
     compare_old_reference = checkbox(request, "compare_old_reference")
     generate_contexts = checkbox(request, "generate_contexts")
     auto_rename = checkbox(request, "auto_rename")
@@ -1397,7 +1402,7 @@ def submit_files_post(request, crds_filetype):
     description = validate(request, "description", common.DESCRIPTION_RE)
     creator = validate(request, "creator", common.PERSON_RE)
     change_level = validate(request, "change_level", models.CHANGE_LEVELS)            
-    remove_dir, uploaded_files = get_files(request)
+    _remove_dir, uploaded_files = get_files(request)
     locked_instrument = get_locked_instrument(request)
 
     assert not generate_contexts or locked_instrument,  "Can't generate contexts in unlocked mode."
@@ -1562,16 +1567,16 @@ def get_prior_file_versions(blob, count=20):
     """Returns a list of the last `count` files used in the derivation
     of the file represented by FileBlob `blob`.   May be < count filenames.
     """
-    versions = []
+    file_versions = []
     while count:
         prior = blob.derived_from
         try:
             blob = models.FileBlob.load(prior)
         except LookupError:
             break
-        versions.append(prior)
+        file_versions.append(prior)
         count -= 1
-    return versions
+    return file_versions
 
 def browsify_mapping2(filename, browsed_file):
     """Format a CRDS mapping file as colorized and cross-linked HTML."""
@@ -1700,7 +1705,7 @@ def delivery_status(request):
         audit.thaw()
         files = []
         status = "delivery corrupt"
-        status_class="error"
+        status_class = "error"
         with log.error_on_exception("Failed interpreting catalog", repr(audit.filename)):
             files = sorted(open(os.path.join(sconfig.CRDS_CATALOG_DIR, audit.filename)).read().splitlines())
             status = fileblobs[files[0]].status
@@ -1764,8 +1769,7 @@ def browse_db_post(request):
     table_json = cached_browse_table(tuple(sorted(filters.items())),
                                      select_bad_files=select_bad_files,
                                      show_defects=show_defects, 
-                                     authenticated=request.user.is_authenticated(), 
-                                     super=request.user.is_superuser)
+                                     authenticated=request.user.is_authenticated())
     
     return crds_render(request, "browse_db_results.html", {
             "filters": filters,
@@ -1775,19 +1779,19 @@ def browse_db_post(request):
             })
 
 @models.crds_cached
-def cached_browse_table(filters, select_bad_files=False, show_defects=False, authenticated=False, super=False):
+def cached_browse_table(filters, select_bad_files=False, show_defects=False, authenticated=False):
     """Compute the (mem)cached datatables JSON for database browsing."""
     filters = dict(filters)    
     filtered_db = models.FileBlob.filter(**filters)    
     if select_bad_files:
         filtered_db = [ blob for blob in filtered_db if blob.get_defects() ]
     # table = render_browse_table(request, filtered_db, show_defects)
-    header, rows = render_browse_table_data(filtered_db, show_defects, authenticated, super)
+    header, rows = render_browse_table_data(filtered_db, show_defects, authenticated)
     table_data = to_datatables(header, rows)
     table_json = json.dumps(table_data)
     return table_json
     
-def render_browse_table(filtered_db, show_defects, authenticated=False, super=False):
+def render_browse_table(filtered_db, show_defects, authenticated=False):
     """Generate the HTML for the search results table."""
     thead = html.thead(
         html.tr(
@@ -1825,7 +1829,7 @@ def render_browse_table(filtered_db, show_defects, authenticated=False, super=Fa
     table = html.table("\n".join([thead, tbody]), id="crds_files_table")
     return table
     
-def render_browse_table_data(filtered_db, show_defects, authenticated=False,  super=False):
+def render_browse_table_data(filtered_db, show_defects, authenticated=False):
     """Generate JSON-able dicts for the search results table."""
     header = [
             "delivery date",
@@ -1872,7 +1876,7 @@ def to_datatables(header, rows):
 
 @error_trap("base.html")
 @log_view
-def brokered_get(request, filename):
+def brokered_get(_request, filename):
     """Brokered get checks that a file exists in CRDS and is available and then
     redirects the request to an optimized download server.   The optimized
     download might be owned by the archive (TBD) or it might be handled
@@ -1901,7 +1905,7 @@ if sconfig.DEBUG:
     # @condition(etag_func=None)
     @error_trap("base.html")
     @log_view
-    def unchecked_get(request, filename):
+    def unchecked_get(_request, filename):
         """Get file data is a single URL within the CRDS/Django framework which
         can deliver files via HTTP.   Dedicated static file servers are recommended
         by Django,   but this is simple,  and works in debug mode.  Most likely
@@ -2147,10 +2151,10 @@ def get_context_pmaps(context_map):
     """
     context_pmaps = {}
     files = models.FileBlob.objects.all()
-    for f in files:
-        if f.name in context_map.values():
-            f.thaw()
-            context_pmaps[f.name] = pmap_label(f)
+    for file_ in files:
+        if file_.name in context_map.values():
+            file_.thaw()
+            context_pmaps[file_.name] = pmap_label(file_)
     return context_pmaps
 
 def update_default_context(new_default, description, context_type, user):
@@ -2167,8 +2171,8 @@ def update_default_context(new_default, description, context_type, user):
         bad_files = [ name for name in pmap_names if (name in blobs and blobs[name].rejected) ]
     if bad_files and context_type == "operational":
         raise CrdsError("Context " + srepr(new_default) + 
-                        " contains known bad files and cannot be made the default (last 4 of " + str(len(bad_files)) + " bad files): " + 
-                        ", ".join(bad_files[-4:]))
+                        " contains known bad files and cannot be made the default (last 4 of " + 
+                        str(len(bad_files)) + " bad files): " + ", ".join(bad_files[-4:]))
     models.set_default_context(new_default, observatory=models.OBSERVATORY, state=context_type, description=description)
     models.AuditBlob.new(user, "set default context", 
                          new_default, description, 

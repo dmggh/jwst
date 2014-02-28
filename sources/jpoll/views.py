@@ -21,10 +21,12 @@ import re
 
 from django.shortcuts import render as django_render
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
 
 from . import models as jmodels
 
 #---------------------------------------------------------------------------------------------
+# Utility functions
 
 def jdebug(*args):
     '''print(*args, file=sys.stderr)'''
@@ -49,6 +51,10 @@ def get_channel(request):
     key = get_key(request)
     return jmodels.ChannelModel.open(key)
 
+#---------------------------------------------------------------------------------------------------
+# View functions
+
+@login_required
 def open_channel(request):
     """Based on `request`,  attach a new JPOLL channel to it and return it."""
     key = new_key(request)
@@ -57,6 +63,7 @@ def open_channel(request):
     jmodels.ChannelModel.new(key)
     return HttpResponse(json.dumps(key), mimetype='application/json')
 
+@login_required
 def close_channel(request):
     """Based on `request`,  close the JPOLL channel associated with it,  wiping out old messages."""
     key = get_key(request)
@@ -65,6 +72,7 @@ def close_channel(request):
     channel.wipe()
     return HttpResponse(json.dumps(key), mimetype='application/json')
 
+@login_required
 def pull_messages(request):
     """Return any pending JPOLL messages on the channel associated with `request` as a JSON response."""
     channel = get_channel(request)
@@ -73,6 +81,7 @@ def pull_messages(request):
     return HttpResponse(json.dumps(messages), mimetype='application/json')
 
 #---------------------------------------------------------------------------------------------
+# JPOLL Handler client functions
 
 def get_jpoll_handler_from_key(key):
     """Return the jpoll handler associated with this key,  suitable as a Stream for logging
