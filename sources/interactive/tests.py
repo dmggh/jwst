@@ -30,7 +30,8 @@ class InteractiveBase(object):
         
         # Set up test server tree
         CRDS_PATH = os.environ["CRDS_PATH"] = sconfig.install_root + "/test"
-        log.info("Test CRDS_PATH", CRDS_PATH, os.environ["CRDS_PATH"])
+        log.info("Test CRDS_PATH", CRDS_PATH, "environ", os.environ["CRDS_PATH"], 
+                 "REAL_MAPPING_DIR", REAL_MAPPING_DIR)
 
         pysh.sh("rm -rf ${CRDS_PATH}", raise_on_error=True)  #, trace_commands=True)
         pysh.sh("mkdir -p ${CRDS_PATH}/ingest", raise_on_error=True)

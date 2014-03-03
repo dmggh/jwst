@@ -22,7 +22,6 @@ from django.shortcuts import redirect
 from django.http import HttpResponse, HttpResponseRedirect
 import django.utils.safestring as safestring
 from django.utils.html import format_html, format_html_join
-from django.utils import simplejson
 from django.core.urlresolvers import reverse
 
 import django.contrib.auth
@@ -751,7 +750,7 @@ def response_mimetype(request):
 class JSONResponse(HttpResponse):
     """JSON response class."""
     def __init__(self, obj='', json_opts={}, mimetype="application/json", *args, **kwargs):
-        content = simplejson.dumps(obj, **json_opts)
+        content = json.dumps(obj, **json_opts)
         super(JSONResponse, self).__init__(content, mimetype, *args, **kwargs)
 
 @error_trap("base.html")

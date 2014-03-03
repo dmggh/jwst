@@ -393,18 +393,6 @@ def get_dataset_header(dataset, observatory="hst"):
     _check_observatory(observatory)
     return get_dataset_headers_by_id([dataset], observatory)[dataset.upper()]
 
-def get_dataset_headers_by_id(dataset_ids, observatory="hst"):
-    """Get the header for a particular dataset,  nominally in a context where
-    one only cares about a small list of specific datasets.
-    """
-    for did in dataset_ids:
-        _check_dataset_id(did)
-    _check_observatory(observatory)
-    headers = {}
-    for i in range(0, len(dataset_ids), MAX_IDS):
-        headers.update(_get_dataset_headers_by_id(dataset_ids[i:i+MAX_IDS], observatory))
-    return headers
-
 def get_dataset_headers_by_instrument(instrument, observatory="hst", datasets_since=None):
     """Get the header for a particular dataset,  nominally in a context where
     one only cares about a small list of specific datasets.
@@ -422,6 +410,18 @@ def get_dataset_headers_by_instrument(instrument, observatory="hst", datasets_si
         raise RuntimeError("Error accessing catalog for instrument" + repr(instrument) + ":" + str(exc))
 
 MAX_IDS = 5000
+
+def get_dataset_headers_by_id(dataset_ids, observatory="hst"):
+    """Get the header for a particular dataset,  nominally in a context where
+    one only cares about a small list of specific datasets.
+    """
+    for did in dataset_ids:
+        _check_dataset_id(did)
+    _check_observatory(observatory)
+    headers = {}
+    for i in range(0, len(dataset_ids), MAX_IDS):
+        headers.update(_get_dataset_headers_by_id(dataset_ids[i:i+MAX_IDS], observatory))
+    return headers
 
 def _get_dataset_headers_by_id(dataset_ids, observatory="hst"):
     """Based on a list of `dataset_ids`,  return the corresponding DADSOPS bestrefs matching parameters."""
