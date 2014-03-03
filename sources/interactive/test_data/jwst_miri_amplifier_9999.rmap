@@ -3,10 +3,10 @@ header = {
     'filekind' : 'AMPLIFIER',
     'instrument' : 'MIRI',
     'mapping' : 'REFERENCE',
-    'name' : 'jwst_miri_amplifier_0000.rmap',
+    'name' : 'jwst_miri_amplifier_9999.rmap',
     'observatory' : 'JWST',
     'parkey' : (('META.INSTRUMENT.DETECTOR', 'META.INSTRUMENT.FILTER'),),
-    'sha1sum' : '4d118da912b9b1ece46baeaaa9a69f2ead88f591',
+    'sha1sum' : '4f9c217c5396e303a4101a61738ec5f38026b491',
 }
 
 selector = Match({

@@ -86,7 +86,7 @@ else if ($observatory == "jwst") then
     python -m crds.list --jwst --cached-mappings --full-path >jwst_mappings
     python -m crds.list --jwst --cached-references --full-path >jwst_references
     python add_files.py --jwst --add-slow-fields --deliver @jwst_mappings
-    python add_files.py --jwst --deliver @jwst_references
+    python add_files.py --jwst --add-slow-fields --deliver @jwst_references
 else
 	echo "unknown observatory"
 	exit -1;
