@@ -28,14 +28,14 @@ echo "-----------------------------------------------------"
 echo "Syncing mappings from $mirrored_server_url"
 echo "-----------------------------------------------------"
 cd ${CRDS}/CRDS_server
-python -m crds.sync --hst --all --repair-files --check-sha1sum --purge-mappings --verbose --profile=sync.stats
+python -m crds.sync --all --repair-files --check-sha1sum --purge-mappings --verbose --profile=sync.stats
 
 echo "-----------------------------------------------------"
 echo "Fast-Syncing references from $mirrored_server_url"
 echo "-----------------------------------------------------"
 # setenv CRDS_DOWNLOAD_CHECKSUMS 0    # Omit sha1sum verification on initial download
 cd ${CRDS}/CRDS_server
-python -m crds.sync --hst --all --repair-files --fetch-references --purge-references --purge-mappings --verbose --profile=sync2.stats
+python -m crds.sync --all --repair-files --fetch-references --purge-references --purge-mappings --verbose --profile=sync2.stats
 
 # This checks the consistency of the database and server cache and delivery areas
 echo "-----------------------------------------------------"
