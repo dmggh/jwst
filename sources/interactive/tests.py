@@ -576,6 +576,11 @@ class InteractiveBase(object):
         response = self.client.get("/display_context_history/")
         self.assert_no_errors(response)
     
+    def test_context_table(self):
+        models.set_default_context(self.pmap, state="operational")
+        response = self.client.get("/context_table/" + self.pmap)
+        self.assert_no_errors(response)
+
     def test_set_context_get(self):
         self.login()
         response = self.client.get("/set_default_context/")
