@@ -1,0 +1,52 @@
+    <br/>
+
+    <p><p><b>NOTE:</b> This page is a <b>diagnostic aid</b> and <b>not for production data calibration.</b>
+    
+    <p><p>For doing production data calibration or working with multiple
+    datasets, utilize command line (HST crds.bestrefs) or built-in (JWST calibration steps) tools.  
+    The command line tools are designed to efficiently determine bestrefs for large numbers of datasets 
+    and update headers as required. 
+    
+    <p><p>The command line tools will both update dataset headers and transparently download required 
+    references to a local cache as needed.   On site at STScI,  typically a shared readonly cache is 
+    used and no file downloads are required.
+    
+    {% if observatory|upper == "HST" %}
+    <p><p> For HST, the program crds.bestrefs can be invoked like this:
+    
+    <pre class="code" style="font-size: 1.2em;">
+    
+    # For a small scale personal CRDS cache
+    % setenv CRDS_PATH $HOME/crds_cache
+    
+    % setenv CRDS_SERVER_URL https://hst-crds.stsci.edu
+    
+    # To download the CRDS rules for the current context to your cache
+    % python -m crds.sync --contexts hst-operational
+    
+    # To update the headers of some dataset .fits files,  and download the recommended references to the local cache.
+    % python -m crds.bestrefs --new-context hst-operational --sync-references --update-bestrefs --files *_raw.fits
+    
+    # setenv iref$, jref$, etc. to  ${CRDS_PATH}/references/hst for processing.
+    </pre>
+    
+    <p><p>Using --sync-references will download the recommended best references to the local cache defined by CRDS_PATH.
+    For typical on site institutional use,  CRDS_PATH will point to a global, shared, read-only cache and --sync-references
+    should be omitted.
+    {% endif %}
+
+    {% if observatory|upper == "JWST" %}
+    
+    <p><p> For JWST, CRDS bestrefs are automatically invoked as part of running calibration steps.  
+    <p><p>At STScI, a default readonly file cache is available and hence CRDS_PATH and CRDS_SERVER_URL do not need to 
+    be set.   However,  if you want to have a local personal cache (say on your laptop for telecommuting or working 
+    with a small number of datasets) then settings like the following are appropriate:
+    
+    <pre class="code" >
+    % setenv CRDS_PATH $HOME/crds_cache   # For a small scale personal cache
+    % setenv CRDS_SERVER_URL https://jwst-crds.stsci.edu
+    % ... run calibration steps ...
+    </pre>
+    
+    {% endif %}
+  

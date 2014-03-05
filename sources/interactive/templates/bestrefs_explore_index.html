@@ -13,22 +13,26 @@
 
     <br/><br/><br/>
 
-    <input type="submit" value="Submit" />
+    <input type="submit" value="Choose Instrument" />
 </form>
 
 {% endblock column1 %}
 
 {% block help %}
     
-    <p><b>Explore Best References</b> Given a set of instrument parameters this
-    form lets a knowledgeable user identify the best reference files recommended by CRDS.
+    <p><b>Explore Best References</b> supports browsing over and manually selecting the 
+    matching parameters for best references.
 
-    <p><p><b>Context</b> this section defines the version of the pipeline 
-    context that should be used to determine the best reference files. The 
-    context file chosen defines the parameter choices which will be available 
-    as well as complete file selection criteria.
+    <p><p><b>Context</b> defines the version of the pipeline 
+    context used to determine the best reference files. The context chosen defines 
+    available parameter choices and file selection rules.
 
     <p><p><b>Instrument</b> defines the instrument for which parameter choices 
     will be displayed.
 
 {% endblock help %}
+
+{% block bottom_help %}
+    {% include "bestrefs_bottom_help.html" %}
+{% endblock bottom_help %}
+

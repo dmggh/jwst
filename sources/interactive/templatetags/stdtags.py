@@ -12,7 +12,7 @@ from django.utils.safestring import mark_safe
 from django.utils.html import format_html, format_html_join, conditional_escape 
 from django.shortcuts import render as django_render
 
-
+import crds
 from crds import (rmap, utils, log)
 from crds.server import (config)
 import crds.server.jsonapi.views as jviews
@@ -83,6 +83,11 @@ def seconds(value):  # handle str(datetime.datetime.now())
 @stringfilter
 def endswith(s, ending):
     return s.endswith(ending)
+
+@register.filter
+@stringfilter
+def file_exists(filename):
+    return os.path.exists(crds.locate_file(filename, config.observatory))
 
 # ===========================================================================
 

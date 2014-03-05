@@ -25,7 +25,7 @@
       {% for reftype, fname in bestrefs_items %}
         <tr>
           <td class="label" width="30%">{{reftype}}:</td>
-          {% if ".fits" in fname %}
+          {% if fname|file_exists %}
             <td width="20%">
                  {{fname|browse}}
             </td>
@@ -41,4 +41,19 @@
     
     <br/>
 {% endblock column2 %}
+
+{% block bottom_help %}
+
+    <br/>
+
+    <p><b class="red" >No match found.</b>  No best reference is defined for the given type. 
+    CRDS did not rule the type as not applicable for this parameter set.
+    
+    <p><p><b class="red">n/a</b>  The type is not applicable for the given matching parameters.
+    
+    <p><p><b class="red">parameter</b> A parameter was not valid (for that type).  CRDS did not
+    rule the parameter as not applicable. 
+
+{% endblock bottom_help %}
+
 

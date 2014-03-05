@@ -10,7 +10,7 @@ jpoll.log_message = function(time, message) {
     var seconds_only = time.split(".")[0];
     var combined_text = "[" +  seconds_only + "] " + message;
     jpoll.log("LOG_MESSAGE: " + combined_text);
-    message = message.replace(/('[^']*')/g, "<span class='darkblue'>$1</span>")
+    message = message.replace(/('[^']*')/g, "<span class='darkblue'>$1</span>");
     $("#jpoll_log").append(
         $("<p style='font-size: 1.25em;'>").append(
             $("<span class='darkgreen'>").html("[" + seconds_only + "]")                               
