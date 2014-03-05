@@ -4,7 +4,7 @@
 <table>
    <tr>
     <td><input type="radio" name="pmap_mode" value="pmap_edit" 
-                onchange='crds.validate_select_pmap(); crds.close_pmap_accordion();' checked >Editing</td>
+                onchange='crds.validate_select_pmap(); crds.close_pmap_accordion();' {{pmap_edit_checked}} >Editing</td>
       <td align="right">
         <input type="hidden" name="pmap_edit" value="{{pmap_edit}}" />
         <p>{{edit_context_label|gray}}</p>
@@ -13,7 +13,7 @@
    </tr>
    <tr>
     <td><input type="radio" name="pmap_mode" value="pmap_operational" 
-                onchange='crds.validate_select_pmap(); crds.close_pmap_accordion();' >Operational</td>
+                onchange='crds.validate_select_pmap(); crds.close_pmap_accordion();' {{pmap_operational_checked}} >Operational</td>
       <td align="right">
         <input type="hidden" name="pmap_operational" value="{{pmap_operational}}" />
         <p>{{operational_context_label|gray}}</p>

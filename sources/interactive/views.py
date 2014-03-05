@@ -226,6 +226,11 @@ def usernames():
 
 # ===========================================================================
 
+def crds_render(request, template, dict_=None, requires_pmaps=False):
+    """Render an HttpReponse object.    Return HttpResponse."""
+    html_str = crds_render_html(request=request, template=template, dict_=dict_, requires_pmaps=requires_pmaps)
+    return HttpResponse(html_str)
+
 def crds_render_html(request, template, dict_=None, requires_pmaps=False):
     """Render a template,  making same-named inputs from request available
     for echoing,  scrubbing file paths.   Return HTML.
@@ -239,11 +244,6 @@ def crds_render_html(request, template, dict_=None, requires_pmaps=False):
     uploaded_pairs = rdict.get("uploaded_file_names", get_uploaded_filepaths(request))
     html_str = scrub_file_paths(html_str, uploaded_pairs)
     return html_str
-
-def crds_render(request, template, dict_=None, requires_pmaps=False):
-    """Render an HttpReponse object.    Return HttpResponse."""
-    html_str = crds_render_html(request=request, template=template, dict_=dict_, requires_pmaps=requires_pmaps)
-    return HttpResponse(html_str)
 
 def get_rendering_dict(request, dict_=None, requires_pmaps=False):
     """Render a template,  making same-named inputs from request available
@@ -296,10 +296,18 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
     if requires_pmaps:
         pmap_edit = models.get_default_context()
         pmap_operational = models.get_default_context(state="operational")
+        if dict_.get("pmap_initial_mode", "edit") == "edit":
+            pmap_edit_checked = "checked"
+            pmap_operational_checked = ""
+        else:
+            pmap_edit_checked = ""
+            pmap_operational_checked = "checked"
         rdict.update({
             "pmap_edit" : pmap_edit,
+            "pmap_edit_checked" : pmap_edit_checked,
             "edit_context_label" : pmap_label(pmap_edit),
             "pmap_operational" : pmap_operational,
+            "pmap_operational_checked" : pmap_operational_checked,
             "operational_context_label" : pmap_label(pmap_operational),
             "pmaps" : get_recent_pmaps(),
         })
@@ -840,7 +848,10 @@ def clear_uploads(request, uploads):
 def bestrefs(request):
     """View to get the instrument context for best references."""
     if request.method == "GET":
-        return crds_render(request, "bestrefs_index2.html", requires_pmaps=True)
+        return crds_render(request, "bestrefs_index2.html", 
+                {
+                 "pmap_initial_mode" : "operational",
+                }, requires_pmaps=True)
     else:
         return bestrefs_post(request)
 
@@ -895,7 +906,9 @@ def bestrefs_results(request, pmap, header, dataset_name=""):
     """Render best reference recommendations under context `pmap` for
     critical parameters dictionary `header`.
     """
-        
+    
+    log.info("matching header:", header)
+    
     recommendations = rmap.get_best_references(pmap, header)
     
     # organize and format results for HTML display    
@@ -920,7 +933,9 @@ def bestrefs_results(request, pmap, header, dataset_name=""):
 def bestrefs_explore(request):
     """View to get the instrument context for best references."""
     if request.method == "GET":
-        return crds_render(request, "bestrefs_explore_index.html", requires_pmaps=True)
+        return crds_render(request, "bestrefs_explore_index.html", {
+                    "pmap_initial_mode" : "operational",
+                }, requires_pmaps=True)
     else:
         return bestrefs_explore_post(request)
     
