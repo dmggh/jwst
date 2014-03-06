@@ -249,6 +249,9 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
     """Render a template,  making same-named inputs from request available
     for echoing.
     """
+    if dict_ is None:
+        dict_ = {}
+
     statuses = ["*"] + models.FILE_STATUS_MAP.keys()
     statuses.remove("uploaded")
     
