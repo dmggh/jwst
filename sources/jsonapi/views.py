@@ -524,13 +524,15 @@ def get_context_by_date(request, date, observatory):
 
 @jsonrpc_method('get_server_info()')   # secure
 def get_server_info(request):
+    version_info = versions.get_version("crds")
+    version_info.pop("file", None)  # don't leak absolute path
     info = {
         "last_synced" : timestamp.now(),
         "edit_context" : imodels.get_default_context(config.observatory),
         "operational_context" : imodels.get_default_context(config.observatory, state="operational"),
         "bad_files" : " ".join(imodels.get_bad_files(config.observatory)),
         "observatory" : config.observatory,
-        "crds_version" : versions.get_version("crds"),
+        "crds_version" : version_info,
         "reference_url": {
             "checked" : {
                 config.observatory : config.CRDS_REFERENCE_URL,
