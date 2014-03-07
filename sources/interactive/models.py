@@ -231,7 +231,7 @@ class CounterModel(CrdsModel):
         existing_serial = int(args[-1])
         model = cls.get_or_create(*args[:-1])
         if model.counter <= existing_serial:
-            model.counter = existing_serial + 1
+            model.counter = existing_serial
             model.save()
             log.info("Advanced file counter for '%s' to '%05d' based on '%s'." % \
                      (model.name, model.counter, filepath))
