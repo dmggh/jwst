@@ -242,7 +242,7 @@ def crds_render_html(request, template, dict_=None, requires_pmaps=False):
     html_str = loaded_template.render(context)
     # Remove file paths and fix temporary names with client side names
     uploaded_pairs = rdict.get("uploaded_file_names", get_uploaded_filepaths(request))
-    html_str = scrub_file_paths(html_str, uploaded_pairs)
+    html_str = squash_file_paths(html_str, uploaded_pairs, str(request.user))
     return html_str
 
 def get_rendering_dict(request, dict_=None, requires_pmaps=False):
@@ -334,7 +334,7 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
             
     return rdict
             
-def scrub_file_paths(response, uploaded_pairs):
+def squash_file_paths(response, uploaded_pairs, user):
     """Fix filepath leakage here as a brevity and security issue.   Uploaded file
     temporary names or paths are replaced with the client-side original name.  CRDS
     file tree paths of various kinds are replaced with the empty string.
@@ -350,6 +350,7 @@ def scrub_file_paths(response, uploaded_pairs):
     observatory = models.OBSERVATORY
     response = response.replace(config.get_path("dummy.pmap", observatory) + "/", "")
     response = response.replace(config.get_path("dummy.fits", observatory) + "/", "")
+    response = response.replace(sconfig.storage_path + "/server_files/ingest/" + user + "/", "")
     response = response.replace(sconfig.install_root + "/", "")
     response = response.replace(sconfig.storage_path + "/", "")
     response = response.replace(config.get_crds_path() + "/", "")
