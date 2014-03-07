@@ -526,6 +526,7 @@ def get_context_by_date(request, date, observatory):
 def get_server_info(request):
     version_info = versions.get_version("crds")
     version_info.pop("file", None)  # don't leak absolute path
+    version_info["svnurl"] = "/" + "/".join(version_info["svnurl"].split("/")[3:])  # don't leak full url,  just branch
     info = {
         "last_synced" : timestamp.now(),
         "edit_context" : imodels.get_default_context(config.observatory),
