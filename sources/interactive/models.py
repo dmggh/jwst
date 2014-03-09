@@ -241,13 +241,18 @@ def mirror_filename_counters(observatory, official_path):
     with the supplied `official name`.   This is particularly required for generated files
     which arrive with pre-assigned names.
     """
-    locator = utils.get_locator_module(observatory)
-    try:
-        path, observatory, instrument, filekind, serial, ext = locator.decompose_newstyle_name(official_path)
-    except AssertionError:
-        pass
+    if official_path.endswith(".cat"):
+        serial = int(os.path.splitext(os.path.basename(official_path))[0].split("_")[-2])
+        CounterModel.mirror(official_path, observatory, "delivery_id", serial)
     else:
-        CounterModel.mirror(official_path, observatory, instrument, filekind, ext, serial)
+        locator = utils.get_locator_module(observatory)
+        try:
+            # NOTE: HST CDBS filenames don't explicitly identify project or instrument,  so pluggable.
+            path, observatory, instrument, filekind, serial, ext = locator.decompose_newstyle_name(official_path)
+        except AssertionError:
+            pass
+        else:
+            CounterModel.mirror(official_path, observatory, instrument, filekind, ext, serial)
 
 # ============================================================================
 
