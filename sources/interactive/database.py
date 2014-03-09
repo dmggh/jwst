@@ -379,7 +379,7 @@ def _check_instrument(instr):
 
 def _check_date(date):
     """Raise an exception if `date` is not a valid CRDS context date specification."""
-    _safe_assert(config.CONTEXT_DATETIME_RE.match(date), "Invalid date " + repr(date))
+    _safe_assert(timestamp.DATETIME_RE.match(date), "Invalid date " + repr(date))
     
 def _check_filename(filename):
     """Raise an exception if `filename` is not a valid CRDS filename."""
