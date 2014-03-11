@@ -54,6 +54,7 @@
     </div>
     
     <div id="contents">
+        <script type="text/javascript">$("#contents").hide();</script>
         {% block contents %}
  
             <div id="contents_top" class="full_width" class="body_panel">
@@ -104,7 +105,9 @@
         <br/>
         <br/>
         <br/>
- 
+
+	<script type="text/javascript">$("#contents").show();</script>
+
     </div>
     
     {% if locked_instrument %}
