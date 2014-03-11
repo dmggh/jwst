@@ -1162,10 +1162,11 @@ def add_crds_file(observatory, upload_name, permanent_location,
         else:  # ensure the name inside the mapping is consistent with permanent location.
             mapping = rmap.fetch_mapping(permanent_location)
             derived_from = mapping.derived_from
-            with log.warn_on_exception("failed setting mapping header name of", repr(permanent_location)):
-                name = os.path.basename(permanent_location)
-                mapping.header["name"] = name
-                mapping.write(permanent_location)   # XXX mutate mapping file!
+            actual_name = os.path.basename(permanent_location)
+            if mapping.header["name"] != actual_name:
+                with log.warn_on_exception("failed setting mapping header name of", repr(permanent_location)):
+                    mapping.header["name"] = actual_name
+                    mapping.write(permanent_location)   # XXX mutate mapping file!
     else:
         derived_from = "none"
     

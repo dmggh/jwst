@@ -42,7 +42,8 @@ class InteractiveBase(object):
 
         mappings = cached_pmap.mapping_names()
         for map in mappings:
-            pysh.sh("cp ${REAL_MAPPING_DIR}/${map} ${CRDS_PATH}/mappings/%s" % cls.observatory, raise_on_error=True)
+            pysh.sh("cp ${REAL_MAPPING_DIR}/${map} ${CRDS_PATH}/mappings/%s" % cls.observatory, 
+                    raise_on_error=True) # , trace_commands=True)
         cls.fake_database_files(mappings)
             
         # monkey-patch these since they're not encapsulated with functions.
@@ -145,9 +146,9 @@ class InteractiveBase(object):
     def install_files(self, files):
         for path in files:
             cached = rmap.locate_file(os.path.basename(path), observatory=self.observatory)
-            pysh.sh("cp -f ${path} ${cached}", trace_commands=True)
-            pysh.sh("chmod +r ${cached}", trace_commands=True)
-            pysh.sh("chmod -wx ${cached}", trace_commands=True)
+            pysh.sh("cp -f ${path} ${cached}") # , trace_commands=True)
+            pysh.sh("chmod +r ${cached}") # , trace_commands=True)
+            pysh.sh("chmod -wx ${cached}") # , trace_commands=True)
 
     def assert_no_errors(self, response, msg=None, status=200):
         try:            

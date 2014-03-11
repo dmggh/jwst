@@ -22,7 +22,10 @@ class ServiceApiBase(object):
     @classmethod
     def setUpClass(self, *args, **keys):
         
+        self.old_environ = dict(os.environ)
+        
         self.CRDS_PATH = CRDS_PATH = os.environ["CRDS_PATH"] = server_config.storage_path + "/test"
+        log.info("Client CRDS_PATH is:", self.CRDS_PATH)
 
         pysh.sh("rm -rf ${CRDS_PATH}", raise_on_error=True, trace_commands=True)
         pysh.sh("mkdir -p ${CRDS_PATH}", raise_on_error=True)
@@ -32,7 +35,8 @@ class ServiceApiBase(object):
     
     @classmethod
     def tearDownClass(self, *args, **keys):
-        os.environ["CRDS_PATH"] = server_config.install_root
+        for (key, val) in self.old_environ.items():
+            os.environ[key] = val
 
     def get_header(self):
         return dict(self.header)
