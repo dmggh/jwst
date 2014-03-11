@@ -468,17 +468,19 @@ def get_dataset_headers_by_id(request, context, dataset_ids):
     pmap = rmap.get_cached_mapping(context)
     return database.get_dataset_headers_by_id(dataset_ids=dataset_ids, observatory=pmap.observatory)
 
-@jsonrpc_method('get_dataset_headers_by_instrument(context=String, instrument=Array, datasets_since=String)')  # secure
+@jsonrpc_method('get_dataset_headers_by_instrument(context=String, instrument=Array, datasets_since=Object)')  # secure
 def get_dataset_headers_by_instrument(request, context, instrument, datasets_since=None):
+    if datasets_since is None:
+        datasets_since = "0000-01-01 00:00:00"
     context = check_context(context)
     instrument = check_instrument(instrument)
     datasets_since = check_date(datasets_since)
     pmap = rmap.get_cached_mapping(context)
     datasets = database.get_dataset_headers_by_instrument(instrument, observatory=pmap.observatory, 
                                                           datasets_since=datasets_since)
-    return filter_datasets_by_date(instrument, datasets_since, datasets)
+    return _filter_datasets_by_date(instrument, datasets_since, datasets)
 
-def filter_datasets_by_date(instrument, datasets_since, datasets):
+def _filter_datasets_by_date(instrument, datasets_since, datasets):
     """Return the mapping of datasets which occurred after `datasets_since` based on exposure start."""
     if datasets_since:
         filtered = {}

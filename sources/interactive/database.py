@@ -397,6 +397,8 @@ def get_dataset_headers_by_instrument(instrument, observatory="hst", datasets_si
     """Get the header for a particular dataset,  nominally in a context where
     one only cares about a small list of specific datasets.
     """
+    if datasets_since is None:
+        datasets_since = "0000-01-01 00:00:00"
     init_db()
     _check_instrument(instrument)
     _check_observatory(observatory)
