@@ -57,6 +57,7 @@
 <li><a class="reference internal" href="#specifying-files">Specifying Files</a></li>
 <li><a class="reference internal" href="#crds-certify">crds.certify</a></li>
 <li><a class="reference internal" href="#crds-diff">crds.diff</a></li>
+<li><a class="reference internal" href="#crds-rowdiff">crds.rowdiff</a></li>
 <li><a class="reference internal" href="#crds-uses">crds.uses</a></li>
 <li><a class="reference internal" href="#crds-matches">crds.matches</a></li>
 <li><a class="reference internal" href="#crds-sync">crds.sync</a></li>
@@ -191,6 +192,77 @@ invoked like:</p>
 % python -m crds.diff  jwst_0001.pmap   jwst_0002.pmap
 (('hst.pmap', 'hst_0004.pmap'), ('hst_acs.imap', 'hst_acs_0004.imap'), ('hst_acs_darkfile.rmap', 'hst_acs_darkfile_0003.rmap'), ('WFC', 'A|ABCD|AD|B|BC|C|D', '0.5|1.0|1.4|2.0'), '2011-03-16 23:34:35', "replaced 'v441434ej_drk.fits' with 'hst_acs_darkfile_0003.fits'")</pre>
 </div>
+</div>
+<div class="section" id="crds-rowdiff">
+<h2>crds.rowdiff<a class="headerlink" href="#crds-rowdiff" title="Permalink to this headline">¶</a></h2>
+<p>Modules that are based on FITSDiff, such as crds.diff, compare
+tabular data on a column-by-column basis. Rowdiff compares tabular data
+on a row-by-row basis, producing UNIX diff-like output instead.
+Non-tabular extensions are ignored.</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>usage: rowdiff.py [-J] [-H] [&#8211;pdb]</dt>
+<dd>[&#8211;ignore-fields IGNORE_FIELDS]
+[&#8211;fields FIELDS]
+[&#8211;mode-fields MODE_FIELDS] old_file new_file</dd>
+</dl>
+<p>Perform FITS table difference by rows</p>
+<dl class="docutils">
+<dt>positional arguments:</dt>
+<dd>old_file                First FITS table to compare
+new_file                Second FITS table to compare</dd>
+<dt>optional arguments:</dt>
+<dd><table class="first last docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--ignore-fields <var>IGNORE_FIELDS</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>List of fields to ignore</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--fields <var>FIELDS</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>List of fields to compare</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--mode-fields <var>MODE_FIELDS</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>List of fields to do a mode compare</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-J</span>, <span class="option">--jwst</span></kbd></td>
+<td>Force observatory to JWST for determining header conventions.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-H</span>, <span class="option">--hst</span></kbd></td>
+<td>Force observatory to HST for determining header conventions.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--pdb</span></kbd></td>
+<td>Run under pdb.</td></tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</div></blockquote>
+<p>The FITS data to be compared are required to be similar: they must have
+the same number of extensions and the types of extensions must match.</p>
+<p>The parameters &#8211;fields and &#8211;ignore-fields define which columns
+are compared between each table extension. These are mutually
+exclusive parameters and an error will generate if both are specified.</p>
+<p>First a summary of the changes between the table extension is given.
+Then, row-by-row difference is given, using unified diff syntax.</p>
+<p>The parameter &#8211;mode-fields initiates a different algorithm.
+Here, it is presumed the tabular data contains columns that can essentially
+be treated as keys upon with rows are selected. The fields specified are those
+key columns.</p>
+<p>All possible coombinations of values are determined be examining both
+extensions. Then, each table is compared against both this list and between
+each other, looking for multiply specified combinations, missing combinations,
+and, for the common combinations between the tables, whether the rest of the
+rows are equivalent or not.</p>
+<p>Examples:</p>
+<blockquote>
+<div><p>% python -m crds.rowdiff s9m1329lu_off.fits s9518396u_off.fits</p>
+<p>% python -m rowdiff s9m1329lu_off.fits s9518396u_off.fits &#8211;mode-fields=detchip,obsdate</p>
+</div></blockquote>
 </div>
 <div class="section" id="crds-uses">
 <h2>crds.uses<a class="headerlink" href="#crds-uses" title="Permalink to this headline">¶</a></h2>
@@ -411,7 +483,7 @@ consulting the CRDS server or looking in the local cache.</p>
 <p>The two primary modes for bestrefs involve the source of reference file matching parameters.   Conceptually
 lookup parameters are always associated with particular datasets and used to identify the references
 required to process those datasets.</p>
-<p>The options <tt class="docutils literal"><span class="pre">--files</span></tt>, <tt class="docutils literal"><span class="pre">--datasets</span></tt>, <tt class="docutils literal"><span class="pre">--instruments</span></tt>, and <tt class="docutils literal"><span class="pre">--all</span></tt> determine the source of lookup parameters:</p>
+<p>The options <tt class="docutils literal"><span class="pre">--files</span></tt>, <tt class="docutils literal"><span class="pre">--datasets</span></tt>, <tt class="docutils literal"><span class="pre">--instruments</span></tt>, and <tt class="docutils literal"><span class="pre">--all-instruments</span></tt> determine the source of lookup parameters:</p>
 <ol class="arabic">
 <li><p class="first">To find best references for a list of files do something like this:</p>
 <div class="highlight-python"><pre>% python -m crds.bestrefs --new-context hst.pmap --files j8bt05njq_raw.fits j8bt06o6q_raw.fits j8bt09jcq_raw.fits</pre>
@@ -429,12 +501,12 @@ required to process those datasets.</p>
 </div>
 </li>
 <li><p class="first">To do mass scale testing for all supported instruments for all cataloged datasets do:</p>
-<div class="highlight-python"><pre>% python -m crds.bestrefs --new-context hst.pmap --all</pre>
+<div class="highlight-python"><pre>% python -m crds.bestrefs --new-context hst.pmap --all-instruments</pre>
 </div>
 </li>
 </ol>
 <p>or to test for differences between two contexts do:</p>
-<div class="highlight-python"><pre>% python -m crds.bestrefs --new-context hst_0002.pmap --old-context hst_0001.pmap --all</pre>
+<div class="highlight-python"><pre>% python -m crds.bestrefs --new-context hst_0002.pmap --old-context hst_0001.pmap --all-instruments</pre>
 </div>
 </div>
 <div class="section" id="comparison-modes">
