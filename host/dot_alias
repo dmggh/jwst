@@ -57,6 +57,7 @@ alias BYE logout
 
 alias crds       "cd ${CRDS}/CRDS"
 alias server     "cd ${CRDS}/CRDS_server"
+alias stack      "cd ${CRDS_STACK}"
 
 alias logs       "cd ${CRDS}/server/logs"
 alias libpython  "cd ${CRDS}/python/lib/python"

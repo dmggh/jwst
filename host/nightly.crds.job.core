@@ -19,7 +19,7 @@ df -h /crds/data1
 df -h /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}*
 
 echo ---------------------------- mounts ------------------------
-mount /home/crds
+mount
 
 echo "==========================================================="
 echo "Third party package re-install"
