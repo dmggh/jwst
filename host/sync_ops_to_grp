@@ -1,0 +1,23 @@
+#! /usr/bin/env pysh
+
+"""This script syncs a CRDS shared cache under /grp/crds/ to it's corresponding
+operational server,  e.g.  sync_ops_to_grp jwst
+"""
+
+usage("<observatory>", 1, 1)
+observatory = sys.argv[1]
+
+assert observatory in ["hst","jwst"],  "Invalid observatory " + repr(observatory)
+
+os.environ["CRDS_PATH"] = "/grp/crds/" + observatory
+os.environ["CRDS_SERVER_URL"] = "https://" + observatory + "-crds.stsci.edu"
+
+% python -m crds.list --config
+% python -m crds.sync --all --fetch-references --check-files --verbose --stats
+% echo "Setting file permissions"
+% chmod 444 ${CRDS_PATH}/mappings/${observatory}/* >& /dev/null
+% chmod 444 ${CRDS_PATH}/references/${observatory}/* >& /dev/null
+% chmod 644 ${CRDS_PATH}/config/${observatory}/* >& /dev/null
+
+# add --check-sha1sum to be *really* sure
+
