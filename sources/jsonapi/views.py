@@ -133,7 +133,7 @@ def check_known_file(filename):
     """Check that `filename` is known to CRDS, available, and/or not blacklisted."""
     check_filename(filename)
     blob = imodels.file_exists(filename)
-    if blob is None:
+    if not blob:
         raise UnknownFile("File '{0}' is not known to CRDS.", filename)
     if not blob.available: 
         raise UnavailableFile("File '{0}' is not yet available.", filename)
@@ -384,11 +384,19 @@ def get_best_references_by_header_map(request, context, headers, reftypes):
             result[id] = (False, "FAILED: " + str(exc))
     return result
 
-@jsonrpc_method('get_mapping_names(context=String)') # secure
-def get_mapping_names(request, context):   
-    context = check_context(context)
-    ctx = rmap.get_cached_mapping(context)
-    return ctx.mapping_names()
+@jsonrpc_method('get_mapping_names(context=Object)') # secure
+def get_mapping_names(request, context):
+    """Return the list of mappings referred to by `context` or a list of contexts."""
+    if isinstance(context, basestring):
+        context = [context]
+    elif not isinstance(context, (list, tuple)):
+        raise UnknownMappingError("Not a .pmap name or list of .pmap names")
+    mappings = set()
+    for pmap in context:
+        pmap = check_context(pmap)
+        ctx = crds.get_cached_mapping(pmap)
+        mappings = mappings.union(set(ctx.mapping_names()))
+    return sorted(list(mappings))
 
 @jsonrpc_method('get_reference_names(context=String)') # secure
 def get_reference_names(request, context):
