@@ -56,24 +56,38 @@ def check_files():
     db_files = imodels.get_fileblob_map()
     cached_files = rmap.list_mappings("*", imodels.OBSERVATORY) + rmap.list_references("*", imodels.OBSERVATORY)
     mapping_files = all_rules_files()
-    check_consistency("database", "cache", db_files, cached_files)
-    check_consistency("database", "mappings", db_files, mapping_files)
-    check_consistency("cache", "mappings", cached_files, mapping_files)
+    missing = dict()
+    missing.update(check_consistency("database", "cache", db_files, cached_files))
+    missing.update(check_consistency("database", "mappings", db_files, mapping_files))
+    missing.update(check_consistency("cache", "mappings", cached_files, mapping_files))
+    log.warning("Inconsistent files:\n", log.PP(missing))
+    intersections = dict()
+    for key1, files1 in missing.items():
+        for key2, files2 in missing.items():
+            if key1 != key2 and (key2, key1) not in intersections:
+                intersections[(key1, key2)] = set(files1).intersection(set(files2))
+    log.warning("Inconsitency intersections:\n", log.PP(intersections))
 
 def check_consistency(name1, name2, files1, files2):
-    _check_consistency(name1, name2, files1, files2)
-    _check_consistency(name2, name1, files2, files1)
+    missing = dict()
+    missing[name1 + ":not-in:" + name2] = _check_consistency(name1, name2, files1, files2)
+    missing[name2 + ":not-in:" + name1] = _check_consistency(name2, name1, files2, files1)
+    return missing
 
 def _check_consistency(name1, name2, files1, files2):
+    missing = set()
     for file in files1:
         log.verbose("Checking", name1, "file", repr(file), "against", name2)
         if file not in files2 and file_conjugate(file) not in files2:
             log.error("Orphaned", name1, "file", repr(file), "is not in", name2)
+            missing.add(file)
         conjugate = file_conjugate(file)
         if conjugate and name2 != "mappings":
             log.verbose("Checking", name1, "conjugate", repr(conjugate), "corresponding to", repr(file), "against", name2)
             if conjugate not in files2:
                 log.error("Missing", name1, "conjugate", repr(conjugate), "is not in", name2)
+                missing.add(file)
+    return missing
 
 def delivered_path(name):
     return os.path.join(config.CRDS_DELIVERY_DIR, name)
