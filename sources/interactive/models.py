@@ -5,6 +5,7 @@ import os.path
 import re
 import datetime
 from collections import OrderedDict
+import math
 
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
@@ -676,8 +677,8 @@ class SimpleCharField(models.CharField):
         length = 0
         for choice in choice_list:
             length = max(length, len(choice))
-        return length
-    
+        return int(2**(math.ceil(math.log(length,2))+1))
+
 class FileBlob(BlobModel):
     """Represents a delivered file,  either a reference or a mapping."""
 
@@ -839,7 +840,7 @@ class FileBlob(BlobModel):
             except Exception, exc:
                 defects.append("BAD {} defect test failed: {}".format(field, str(exc)))
         if verify_checksum and not self.checksum_ok:  # slow
-            defects.append("BAD sha1sum = '%s'".format(self.sha1sum))
+            defects.append("BAD sha1sum = '{}' vs. computed = '{}'".format(self.sha1sum, self.compute_checksum()))
         return defects
 
     @property
