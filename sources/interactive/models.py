@@ -830,11 +830,14 @@ class FileBlob(BlobModel):
         self.thaw()
         defects = []
         for field in self.bad_field_checks:
-            if self.bad_field_checks[field](self):
-                try:
-                    defects.append("BAD {} = '{}'".format(field, getattr(self, field)))
-                except:
-                    defects.append("BAD {}".format(field))
+            try:
+                if self.bad_field_checks[field](self):
+                    try:
+                        defects.append("BAD {} = '{}'".format(field, getattr(self, field)))
+                    except:
+                        defects.append("BAD {}".format(field))
+            except Exception, exc:
+                defects.append("BAD {} defect test failed: {}".format(field, str(exc)))
         if verify_checksum and not self.checksum_ok:  # slow
             defects.append("BAD sha1sum = '%s'".format(self.sha1sum))
         return defects
