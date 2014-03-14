@@ -60,13 +60,21 @@ def check_files():
     missing.update(check_consistency("database", "cache", db_files, cached_files))
     missing.update(check_consistency("database", "mappings", db_files, mapping_files))
     missing.update(check_consistency("cache", "mappings", cached_files, mapping_files))
-    log.warning("Inconsistent files:\n", log.PP(missing))
+    if union(missing.values()):
+        log.warning("Inconsistent files:\n", log.PP(missing))
     intersections = dict()
     for key1, files1 in missing.items():
         for key2, files2 in missing.items():
             if key1 != key2 and (key2, key1) not in intersections:
                 intersections[(key1, key2)] = set(files1).intersection(set(files2))
-    log.warning("Inconsitency intersections:\n", log.PP(intersections))
+    if union(intersections.values()):
+        log.warning("Inconsitency intersections:\n", log.PP(intersections))
+
+def union(sets):
+    u = set()
+    for s in sets:
+        u = u.union(s)
+    return u
 
 def check_consistency(name1, name2, files1, files2):
     missing = dict()
