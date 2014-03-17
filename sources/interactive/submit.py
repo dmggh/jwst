@@ -43,8 +43,9 @@ of errors and/or warnings.
 import os
 import tempfile
 import shutil
+import glob
 
-from crds import log, rmap, utils, refactor, newcontext, checksum, CrdsError
+from crds import log, rmap, utils, refactor, newcontext, checksum, CrdsError, diff
 
 from . import models, web_certify, web_difference, locks
 from .common import srepr
@@ -400,14 +401,25 @@ class FileSubmission(object):
         
         The intent of CRDS naming is to be able to infer time order from serial number.
         """
-        name = self._get_new_name(instrument, filekind, extension)
+        pattern_path = rmap.locate_file("*{}*{}*{}".format(instrument, filekind, extension), 
+                                        self.observatory)
+        existing = [os.path.basename(name) for name in sorted(glob.glob(pattern_path))]
         while True:
-            try:
-                _already_in_use = models.FileBlob.load(name)
-            except LookupError:
-                break
             name = self._get_new_name(instrument, filekind, extension)
-        return name
+            if name in existing:
+                log.info("New name", repr(name), "is already in the cache.  Regenerating name.")
+                continue
+            if existing and diff.newer(existing[-1], name):
+                log.info("Existing name", repr(existing[-1]), "looks newer than", repr(name), ".  Regenerating name.")
+                continue
+            try:
+                models.FileBlob.load(name)
+            except LookupError:
+                log.info("Latest name for", (instrument, filekind, extension), "is", repr(name))
+                return name
+            else:
+                log.info("New name", repr(name), "is already in the database.  Regenerating name.")
+                continue
     
     def _get_new_name(self, instrument, filekind, extension):
         """Generate a candidate new name,  possibly with an existing serial number if un-renamed
