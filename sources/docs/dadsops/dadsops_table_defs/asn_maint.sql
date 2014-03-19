@@ -1,0 +1,22 @@
+CREATE TABLE asn_maint (
+        asn_id                          char(9)         NOT NULL,
+        pep_id                          int             NOT NULL,
+        filter                          varchar(23)     NOT NULL,
+        num_members                     smallint        NOT NULL,
+        exptime                         float           NOT NULL,
+        start_time_dmf                  int             NOT NULL,
+        time_span                       float           NOT NULL,
+        curr                            char(1)         NOT NULL,
+        pipe_status                     char(1)         NULL,
+        pipe_date                       datetime        NULL,
+        asn_radius                      int             NOT NULL,
+        asn_delta_roll                  int             NOT NULL,
+        min_distance                    int             NULL,
+        max_distance                    int             NULL,
+        asn_type                        tinyint         NULL,
+        asn_creation_date_str           varchar(12)     NOT NULL,
+        asn_creation_date               datetime        NOT NULL,
+        asn_validation_date             datetime        NOT NULL,
+        max_gen_date_str                varchar(12)     NOT NULL,
+        release_date_dmf                int             NOT NULL )
+GO

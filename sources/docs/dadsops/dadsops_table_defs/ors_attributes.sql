@@ -1,0 +1,20 @@
+CREATE TABLE otfr_request_stats ( 
+        ors_data_set_name               varchar(39)     NOT NULL,
+        ors_otfr_request_id             varchar(30)     NOT NULL,
+        ors_dads_tracking_id            varchar(20)     NOT NULL,
+        ors_dads_request_date           datetime        NOT NULL,
+        ors_instrume                    char(6)         NOT NULL,
+        ors_program_id                  char(3)         NOT NULL,
+        ors_obset_id                    char(2)         NOT NULL,
+        ors_obsnum                      char(3)         NOT NULL,
+        ors_out_file_count              int             NULL,
+        ors_out_data_set_size           float           NULL,
+        ors_trouble_flag                char(1)         NULL,
+        ors_cal_success                 char(1)         NULL,
+        ors_req_receipt_time            datetime        NULL,
+        ors_pod_retr_start_time         datetime        NULL,
+        ors_pod_retr_stop_time          datetime        NULL,
+        ors_sci_proc_start_time         datetime        NULL,
+        ors_sci_proc_stop_time          datetime        NULL,
+        ors_req_response_time           datetime        NULL )
+go

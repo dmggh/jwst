@@ -1,0 +1,23 @@
+CREATE TABLE archive_data_set_all ( 
+        ads_data_set_name               varchar(39)     NOT NULL,
+        ads_archive_class               char(3)         NOT NULL,
+        ads_generation_date             datetime        NOT NULL,
+        ads_mission                     varchar(10)     NOT NULL,
+        ads_instrument                  varchar(12)     NULL,
+        ads_program_id                  char(3)         NULL,
+        ads_obset_id                    char(2)         NULL,
+        ads_obsnum                      char(3)         NULL,
+        ads_pep_id                      int             NULL,
+        ads_start_time                  datetime        NULL,
+        ads_end_time                    datetime        NULL,
+        ads_data_receipt_time           datetime        NOT NULL,
+        ads_completion_time             datetime        NULL,
+        ads_best_version                char(1)         NOT NULL,
+        ads_data_set_size               float           NOT NULL,
+        ads_data_source                 varchar(6)      NOT NULL,
+        ads_file_count                  int             NOT NULL,
+        ads_build_num                   varchar(12)     NOT NULL,
+        ads_release_date                datetime        NULL,
+        ads_release_date_mod            datetime        NULL,
+        ads_proprietary_start_time      datetime        NULL )
+go
