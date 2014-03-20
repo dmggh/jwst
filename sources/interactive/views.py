@@ -320,10 +320,6 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
         for key, value in dict_.items():
             rdict[key] = value
             
-    # This is only for the purpose of showing/hiding logout.
-    rdict["is_authenticated"] = request.user.is_authenticated()
-    rdict["is_superuser"] = request.user.is_superuser
-    
     # Set up variables required to support django-json-rpc Javacsript
     jsonrpc_vars = jsonapi_views.get_jsonrpc_template_vars()
     for var in jsonrpc_vars:
@@ -332,6 +328,11 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
         else:
             rdict[var] = jsonrpc_vars[var]
             
+    # This is only for the purpose of showing/hiding logout, super user options.
+    # Still,  do it last making it harder to trick.
+    rdict["is_authenticated"] = request.user.is_authenticated()
+    rdict["is_superuser"] = request.user.is_superuser
+    
     return rdict
             
 def squash_file_paths(response, uploaded_pairs, user):
@@ -729,9 +730,16 @@ def logout(request):
 def set_password(request):
     """Support changing a user's own password."""
     if request.method == "POST":
-        old_password =  validate(request, "old_password", ".+")
-        user = django.contrib.auth.authenticate(username=str(request.user), password=old_password)
-        assert user is not None, "Old password is not valid."
+        if request.user.is_superuser:
+            username = validate(request, "username", "[A-Za-z_0-9]+")
+            try:
+                user = django.contrib.auth.models.User.objects.get(username=username)
+            except Exception:
+                raise CrdsError("Unknown user.")
+        else:
+            old_password =  validate(request, "old_password", ".+")
+            user = django.contrib.auth.authenticate(username=str(request.user), password=old_password)
+            assert user is not None, "Old password is not valid."
         new_password1 = validate(request, "new_password1", ".+")
         new_password2 = validate(request, "new_password2", ".+")
         assert new_password1 == new_password2, "New passwords are not the same."
@@ -739,8 +747,8 @@ def set_password(request):
         if not request.user.is_superuser:
             assert re.match(complete_re(r".*\d.*"), new_password1),  "At least one digit please."
             assert re.match(complete_re(r".*[a-zA-Z].*"), new_password1),  "At least one letter please."
-        request.user.set_password(new_password1)
-        request.user.save()
+        user.set_password(new_password1)
+        user.save()
         return crds_render(request, "set_password_results.html")
     else:
         return crds_render(request, "set_password.html")

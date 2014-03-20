@@ -16,6 +16,8 @@ ALLOWED_HOSTS = ['*']
 
 USE_X_FORWARDED_HOST = True
 
+LOGIN_REDIRECT_URL = '/'   # default page redirected to after login,  fix for "/account/profile not found"
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
