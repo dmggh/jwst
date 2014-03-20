@@ -479,7 +479,7 @@ def get_dataset_headers_by_id(request, context, dataset_ids):
 @jsonrpc_method('get_dataset_headers_by_instrument(context=String, instrument=Array, datasets_since=Object)')  # secure
 def get_dataset_headers_by_instrument(request, context, instrument, datasets_since=None):
     if datasets_since is None:
-        datasets_since = "0000-01-01 00:00:00"
+        datasets_since = "1900-01-01T00:00:00"
     context = check_context(context)
     instrument = check_instrument(instrument)
     datasets_since = check_date(datasets_since)
