@@ -9,6 +9,8 @@ import crds.server.interactive.views
 
 from crds.server import settings, config
 
+from crds.config import FILE_RE_STR
+
 # XXX Cached views must be completely defined by the URL
 # XXX GET/POST parameters and cookies don't count to differentiate pages.
 # XXX Don't cache authenticated pages (@login_required).
@@ -36,7 +38,8 @@ urlpatterns = patterns('',
     
     url(r'^certify/$',      'crds.server.interactive.views.certify_file'),          
     url(r'^difference/$',   'crds.server.interactive.views.difference_files'),
-    url(r'^difference/([A-Za-z0-9_.]+)/([A-Za-z0-9_.]+)/$', crds_cacher(crds.server.interactive.views.difference_files)),
+    url(r'^difference/{0}/{1}/$'.format(FILE_RE_STR, FILE_RE_STR), 
+        crds_cacher(crds.server.interactive.views.difference_files)),
     url(r'^recent_activity/$', 'crds.server.interactive.views.recent_activity'),        
     url(r'^delivery_status/$', 'crds.server.interactive.views.delivery_status'),        
     
@@ -46,7 +49,8 @@ urlpatterns = patterns('',
     
     (r'^upload/list/$', 'crds.server.interactive.views.upload_list', {}, 'upload-list'),
     (r'^upload/new/$', 'crds.server.interactive.views.upload_new', {}, 'upload-new'),
-    (r'^upload/delete/(?P<filename>[A-Za-z0-9_.]+)$', 'crds.server.interactive.views.upload_delete', {}, 'upload-delete'),
+    (r'^upload/delete/(?P<filename>{0})$'.format(FILE_RE_STR),
+     'crds.server.interactive.views.upload_delete', {}, 'upload-delete'),
               
     url(r'^batch_submit_references/$', 'crds.server.interactive.views.batch_submit_references'),
     url(r'^submit_confirm/$', 'crds.server.interactive.views.submit_confirm'),
@@ -54,20 +58,19 @@ urlpatterns = patterns('',
     url(r'^delete/reference/$', 'crds.server.interactive.views.delete_references'),
     url(r'^add_existing/reference/$', 'crds.server.interactive.views.add_existing_references'),
             
-    url(r'^browse/(?P<filename>[A-Za-z0-9_.]+(fits|imap|rmap|pmap|r\d[hd]))$', 
+    url(r'^browse/(?P<filename>{0})$'.format(FILE_RE_STR), 
         crds_cacher(crds.server.interactive.views.browse_known_file)),
     url(r'^browse_db/$', 'crds.server.interactive.views.browse_db'),
-
-    url(r'^context_table/(?P<mapping>[a-zA-Z0-9_.]+)/?$', 
+    url(r'^context_table/(?P<mapping>{0})/?$'.format(FILE_RE_STR, FILE_RE_STR),
         'crds.server.interactive.views.context_table'),
-    url(r'^context_table/(?P<mapping>[a-zA-Z0-9_.]+)/(?P<recursive>\d+)$', 
+    url(r'^context_table/(?P<mapping>{0})/(?P<recursive>\d+)$'.format(FILE_RE_STR), 
         'crds.server.interactive.views.context_table'),
     
     # Simple get is screened against the database and redirected
-    url(r'^get/(?P<filename>[A-Za-z0-9_.]+(fits|imap|rmap|pmap|r\dh))$', 
+    url(r'^get/(?P<filename>{0})/?$'.format(FILE_RE_STR), 
         'crds.server.interactive.views.brokered_get'),
 
-    #     url(r'^get_archive/(?P<filename>[A-Za-z0-9_.]+(tar\.gz|tar\.bz2|tar))$', 
+    #     url(r'^get_archive/(?P<filename>{0})$'.format(FILE_RE_STR), 
     #         'crds.server.interactive.views.get_archive'),
 
     url(r'^version_info/$', 
@@ -118,12 +121,12 @@ urlpatterns += patterns('',
 if config.DEBUG:
     urlpatterns += patterns('', 
         (r'^/debug_command/$', crds.server.interactive.views.debug_command),
-        #         (r'^get_archive/(?P<filename>[A-Za-z0-9_.]+(tar\.gz|tar\.bz2|tar))$', 
+        #         (r'^get_archive/(?P<filename>{0})$'.format(FILE_RE_STR),
         #             'crds.server.interactive.views.get_archive'),
         
         # Here Django serves the file,  unchecked,  simple but not recommended.
         # Ultimately this will be replaced by a better static server,  maybe the archive.
         # At that point the whole URL will change but not the semantics.
-        (r'^unchecked_get/(references|mappings)/(hst|jwst)/(?P<filename>[A-Za-z0-9_.]+(fits|imap|rmap|pmap|r\dh))$', 
+        (r'^unchecked_get/(references|mappings)/(hst|jwst)/(?P<filename>{0})$'.format(FILE_RE_STR),
          crds.server.interactive.views.unchecked_get),
     )
