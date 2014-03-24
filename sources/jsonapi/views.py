@@ -339,6 +339,27 @@ def list_mappings(request, observatory, glob_pattern):
 
     return sorted(blobs.keys())
 
+@jsonrpc_method('list_references(observatory=String, glob_pattern=String)')   # secure
+def list_references(request, observatory, glob_pattern):
+    if observatory is None:
+        observatory = config.observatory
+    check_observatory(observatory)
+    if not re.match(LIST_GLOB_RE, glob_pattern):
+        raise BadListGlobError("Illegal glob pattern, not permitted '{0}'", glob_pattern)
+    
+    # Check if files en route to archive already got there.
+    imodels.update_delivery_status()
+    
+    # This just lists all the files in the cache,  some of which aren't achived or even confirmed.
+    references = rmap.list_references(glob_pattern, observatory)
+
+    # In order to sync obsolete bad mappings,  it's important *not* to check for bad files.
+    # Weed out the files not in an available state.
+    blobs = imodels.get_fileblob_map(name__in = references, # rejected = False, blacklisted = False, 
+                                     state__in = config.CRDS_DISTRIBUTION_STATES)
+
+    return sorted(blobs.keys())
+
 @jsonrpc_method('get_best_references(context=String, header=Object, reftypes=Array)')  # secure
 def get_best_references(request, context, header, reftypes):
     context = check_context(context)
