@@ -39,7 +39,7 @@ def crds_cached(f):
         raw_key = raw_key.replace("(","_").replace(")","_").replace("'","").replace(",","_").replace(" ","")
         key = utils.str_checksum(raw_key)
         val = retrieve_cache(key)
-        if val:
+        if val is not None:
             log.info("crds_cached", f.func_name, raw_key, key, "HIT")
         else:
             val = f(*args, **keys)
