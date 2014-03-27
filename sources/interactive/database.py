@@ -77,21 +77,28 @@ def explore_dadops_assocs(cat=None):
     """Count associated and unassociated exposures by instrument.  Experimental."""
     if cat is None:
         cat = get_catalog()
-    stats = { "---" : ("associated", "unassociated", "hdrs") }
-    ids = dict()
-    for instr_char, instr in IPPPSSOOT_INSTR.items():
+
+    stats = { "---" : ("assoc_ids", "assoc_hdrs", "unassoc_ids", "unassoc_hdrs", 
+                       "assoc ids-headers", "unassoc ids-headers)") }
+
+    for instr, instr_char in sorted(INSTR_IPPPSSOOT.items()):
         if instr not in models.INSTRUMENTS:
             log.verbose("Skipping", repr(instr))
             continue
-        assoc = get_instrument_gen(instr).get_assoc_ids()
-        unassoc = get_instrument_gen(instr).get_unassoc_ids()
-        hdrs = get_dataset_headers_by_instrument(instr)
-        ids[instr] = (assoc, unassoc)
-        print instr, "intersect assoc and unassoc =", len(set(assoc).intersection(set(unassoc)))
-        assoc_exposures = len(assoc)
-        unassoc_exposures = len(unassoc)
-        hdr_exposures = len(hdrs)
-        stats[instr] = (assoc_exposures, unassoc_exposures, hdr_exposures)
+
+        gen = get_instrument_gen(instr)
+        assoc = gen._assoc_get_ids()
+        unassoc = gen._unassoc_get_ids()
+        assoc_hdrs = gen._assoc_get_headers()
+        unassoc_hdrs = gen._unassoc_get_headers()
+
+        stats[instr] = (len(assoc), len(assoc_hdrs), 
+                        len(unassoc), len(unassoc_hdrs),
+                        list(set(assoc)-set(assoc_hdrs.keys()))[:5],
+                        list(set(unassoc)-set(unassoc_hdrs.keys()))[:5])
+
+        print instr, stats[instr]
+
     return stats
 
 def compare_headers_to_ids(instrument=None):
@@ -222,12 +229,12 @@ def required_keys(instr):
     pars = get_instrument_db_parkeys(instr)
     pars.append("expstart" if instr != "stis" else "texpstrt")
     pars.append("data_set")
-    pars.append("program_id")
-    pars.append("obset_id")
-    pars.append("obsnum")
+    # pars.append("program_id")
+    # pars.append("obset_id")
+    # pars.append("obsnum")
     pars.append("asn_id")
     pars.append("member_name")
-    imap = rmap.get_cached_mapping("hst_%s.imap" % instr)
+    imap = rmap.get_cached_mapping(models.get_default_context(state="operational")).get_imap(instr)
     pars.extend(imap.selections.keys())
     return pars
 
@@ -344,7 +351,6 @@ class HeaderGenerator(object):
             ", ".join(tables))
         if clauses:
             sql += "WHERE " + " AND ".join(clauses)
-        log.verbose("SQL: ", sql)
         return sql
 
     def _get_headers(self, sql, header_keys):
@@ -386,12 +392,18 @@ class HstHeaderGenerator(HeaderGenerator):
                                      if "assoc_member" not in col)
         self.unassoc_tables = tuple(table for table in self.db_tables
                                     if table != "assoc_member")
+        self.product_table = self.col_to_table(self.h_to_db["data_set"])
+        self.exposure_tables = [table for table in self.db_tables
+                                if self.level(table) == "exposure"]
+
     @property
     def instr_char(self):
         return INSTR_IPPPSSOOT[self.instrument]
     
     def level(self, table):
-        if "ref_data" in table or "_science" in table:
+        if "assoc" in table:
+            return "assoc"
+        elif "ref_data" in table or "_science" in table:
             return "product"
         else:  # acs_a_data, acs_chip
             return "exposure"
@@ -421,9 +433,10 @@ class HstHeaderGenerator(HeaderGenerator):
 
     def get_headers(self, extra_clauses=()):
         headers = self._unassoc_get_headers(extra_clauses)
-        headers.update(self._assoc_get_headers(extra_clauses))
+        if self.exposure_tables:
+            headers.update(self._assoc_get_headers(extra_clauses))
         return headers
-    
+
     def _assoc_get_headers(self, extra_clauses=()):
         assoc_sql = self._assoc_get_sql(extra_clauses)
         return self._get_headers(assoc_sql, self.assoc_header_keys)
@@ -476,12 +489,11 @@ class HstHeaderGenerator(HeaderGenerator):
         clauses = []
         if len(self.unassoc_tables) < 2:
             return clauses
-        product_table = self.col_to_table(self.h_to_db["data_set"])
         for table in self.unassoc_tables:
-            if table == product_table:
+            if table == self.product_table:
                 continue
             for field in ["program_id", "obset_id", "obsnum"]:
-                clause = "{}_{} = {}_{}".format(self.table_prefix[product_table], field, 
+                clause = "{}_{} = {}_{}".format(self.table_prefix[self.product_table], field, 
                                                 self.table_prefix[table], field)
                 clauses.append(clause)
         return clauses
@@ -490,46 +502,29 @@ class HstHeaderGenerator(HeaderGenerator):
         return self.h_to_db.get("expstart", self.h_to_db.get("texpstrt")) + " >= '" + datasets_since + "'"
     
     def get_dataset_ids(self):
-        return sorted(self.get_assoc_ids() + self.get_unassoc_ids())
+        return sorted(self._assoc_get_ids() + self._unassoc_get_ids())
 
-    def get_unassoc_ids(self):
-        dataset_col = self.h_to_db["data_set"]
-        dataset_table = self.col_to_table(dataset_col)
-        return make_ids(self.catalog_db.execute("SELECT DISTINCT {}, {} "
-                                                "FROM {} "
-                                                "WHERE NOT EXISTS "
-                                                "(SELECT asm_asn_id, asm_member_name "
-                                                " FROM assoc_member "
-                                                " WHERE {} = {} "
-                                                " OR {} = {})".format(
-                    dataset_col, dataset_col,
-                    dataset_table, 
-                    dataset_col, "asm_asn_id", 
-                    dataset_col, "asm_member_name")))
-    
-    def get_assoc_ids(self):
-        dataset_col = self.h_to_db["data_set"]
-        dataset_table = self.col_to_table(dataset_col)
-        return make_ids(self.catalog_db.execute("SELECT DISTINCT asm_asn_id, asm_member_name "
-                                                "FROM assoc_member, {} "
-                                                "WHERE asm_member_name  = {}".format(
-                    dataset_table,
-                    dataset_col)))
-    
-    def get_product_ids(self):
-        dataset_col = self.h_to_db["data_set"]
-        dataset_table = self.col_to_table(dataset_col)
-        return make_ids(self.catalog_db.execute("SELECT DISTINCT {}, {} "
-                                                "FROM {} ".format(
-                    dataset_col, dataset_col,
-                    dataset_table)))
+    def _assoc_get_ids(self):
+        return self._make_ids(self._assoc_get_id_sql())
 
-def make_ids(row_tuples):
-    """Convert a list of (asn_id, member_name) or (exp_name, exp_name)
-    row tuples into a list of CompoundId's.
-    """
-    return [CompoundId(*dataset) for dataset in sorted(row_tuples)]
-    
+    def _unassoc_get_ids(self):
+        return self._make_ids(self._unassoc_get_id_sql())
+
+    def _make_ids(self, sql):
+        return list(set([CompoundId(*row) for row in self.catalog_db.execute(sql)]))
+
+    def _assoc_get_id_sql(self):
+        id_columns = ["assoc_member.asm_asn_id", "assoc_member.asm_member_name"]
+        return self._getter_sql(id_columns, self.assoc_tables, 
+                                tuple(self._assoc_join_clauses()))
+
+    def _unassoc_get_id_sql(self):
+        id_columns = [self.h_to_db["data_set"], self.h_to_db["data_set"]]
+        return self._getter_sql(id_columns, self.unassoc_tables, 
+                                tuple(self._unassoc_join_clauses()))
+
+# ---------------------------------------------------------------------------------------------
+
 HEADER_MAP = None
 HEADER_GENERATORS = {}
 
@@ -635,6 +630,7 @@ def _get_dataset_headers_by_id(dataset_ids, observatory="hst"):
     for dataset in datasets:
         instrument = dataset_to_instrument(dataset)
         by_instrument[instrument].append(dataset)
+
     all_headers = {}
     for instrument, datasets in by_instrument.items():
         try:
@@ -642,10 +638,11 @@ def _get_dataset_headers_by_id(dataset_ids, observatory="hst"):
             dataset_column = igen.h_to_db["data_set"]
             dataset_ids = ", ".join(["'{}'".format(did.upper()) for did in datasets])
             datasets_clause = "{} in ({})".format(dataset_column, dataset_ids)
-            headers = { hdr["DATA_SET"]:hdr for hdr in igen.get_headers(extra_clauses=[datasets_clause]) }
+            headers = igen.get_headers(extra_clauses=[datasets_clause])
         except Exception, exc:
             raise RuntimeError("Error accessing catalog for instrument " + repr(instrument) + ":" + str(exc))
         all_headers.update(headers)
+
     return all_headers
 
 def get_dataset_ids(instrument, observatory="hst"):
