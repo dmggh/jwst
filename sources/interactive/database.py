@@ -24,35 +24,34 @@ log.set_verbose(False)
 HERE = os.path.dirname(__file__) or "."
 HEADER_TABLES = HERE + "/db_header_tables.dat"
 
-"""  
-IPPPSSOOT   ---   dataset naming breakdown
-
-Denotes the instrument type:
-J - Advanced Camera for Surveys
-U - Wide Field / Planetary Camera 2
-V - High Speed Photometer
-W - Wide Field / Planetary Camera
-X - Faint Object Camera
-Y - Faint Object Spectrograph
-Z - Goddard High Resolution Spectrograph
-E - Reserved for engineering data
-F - Fine Guide Sensor (Astrometry)
-H-I,M - Reserved for additional instruments
-N - Near Infrared Camera Multi Object Spectrograph
-O - Space Telescope Imaging Spectrograph
-S - Reserved for engineering subset data
-T - Reserved for guide star position data
-PPP     Denotes the program ID, any combination of letters or numbers
-SS    Denotes the observation set ID, any combination of letters or numbers
-OO    Denotes the observation ID, any combination of letters or numbers
-T    Denotes the source of transmission:
-R - Real time (not tape recorded)
-T - Tape recorded
-M - Merged real time and tape recorded
-N - Retransmitted merged real time and tape recorded
-O - Retransmitted real time
-P - Retransmitted tape recorded
-"""
+# IPPPSSOOT   ---   dataset naming breakdown
+#
+# Denotes the instrument type:
+# J - Advanced Camera for Surveys
+# U - Wide Field / Planetary Camera 2
+# V - High Speed Photometer
+# W - Wide Field / Planetary Camera
+# X - Faint Object Camera
+# Y - Faint Object Spectrograph
+# Z - Goddard High Resolution Spectrograph
+# E - Reserved for engineering data
+# F - Fine Guide Sensor (Astrometry)
+# H-I,M - Reserved for additional instruments
+# N - Near Infrared Camera Multi Object Spectrograph
+# O - Space Telescope Imaging Spectrograph
+# S - Reserved for engineering subset data
+# T - Reserved for guide star position data
+# PPP     Denotes the program ID, any combination of letters or numbers
+# SS    Denotes the observation set ID, any combination of letters or numbers
+# OO    Denotes the observation ID, any combination of letters or numbers
+# T    Denotes the source of transmission:
+# R - Real time (not tape recorded)
+# T - Tape recorded
+# M - Merged real time and tape recorded
+# N - Retransmitted merged real time and tape recorded
+# O - Retransmitted real time
+# P - Retransmitted tape recorded
+#
 
 IPPPSSOOT_INSTR = {
     "J" : "acs",
@@ -70,7 +69,53 @@ IPPPSSOOT_INSTR = {
     "L" : "cos",
 }
 
+INSTR_IPPPSSOOT = utils.invert_dict(IPPPSSOOT_INSTR)
+
+# ---------------------------------------------------------------------------------------------
+
+def explore_dadops_assocs(cat=None):
+    """Count associated and unassociated exposures by instrument.  Experimental."""
+    if cat is None:
+        cat = get_catalog()
+    stats = { "---" : ("associated", "unassociated", "hdrs") }
+    ids = dict()
+    for instr_char, instr in IPPPSSOOT_INSTR.items():
+        if instr not in models.INSTRUMENTS:
+            log.verbose("Skipping", repr(instr))
+            continue
+        assoc = get_instrument_gen(instr).get_assoc_ids()
+        unassoc = get_instrument_gen(instr).get_unassoc_ids()
+        hdrs = get_dataset_headers_by_instrument(instr)
+        ids[instr] = (assoc, unassoc)
+        print instr, "intersect assoc and unassoc =", len(set(assoc).intersection(set(unassoc)))
+        assoc_exposures = len(assoc)
+        unassoc_exposures = len(unassoc)
+        hdr_exposures = len(hdrs)
+        stats[instr] = (assoc_exposures, unassoc_exposures, hdr_exposures)
+    return stats
+
+def compare_headers_to_ids(instrument=None):
+    """Compare the dataset header ids for `instrument` to the dataset_ids which
+    are computed independently.   Experimental.
+    """
+    if instrument is None:
+        comparison = [("instrument", "ids1", "ids2", "missing12", "missing21")]
+        for instr in models.INSTRUMENTS:
+            comparison.append(compare_headers_to_ids(instr))
+        return comparison
+    else:
+        log.info("Comparing:", repr(instrument))
+        ids1 = get_dataset_headers_by_instrument(instrument)
+        gen = get_instrument_gen(instrument)
+        ids2 = gen.get_dataset_ids()
+        missing12 = set(ids1)-set(ids2)
+        missing21 = set(ids2)-set(ids1)
+        return (instrument, len(ids1), len(ids2), len(missing12), len(missing21))
+
+# ---------------------------------------------------------------------------------------------
+
 def dataset_to_instrument(dataset):
+    """Convert `dataset` id to its corresponding instrument name."""
     instr = dataset[0].upper()
     try:
         return IPPPSSOOT_INSTR[instr]
@@ -78,6 +123,9 @@ def dataset_to_instrument(dataset):
         raise ValueError("Can't determine instrument for dataset " + repr(dataset))
 
 class DB(object):
+    """This is a basic raw interface to a database, exposing tables, columns, and SQL.
+    It is also capable of converting any table into a list of dictionaries, one per row.
+    """
     def __init__(self, dsn, user, password=None):
         self.dsn = dsn
         self.user = user
@@ -93,11 +141,15 @@ class DB(object):
         log.verbose("Executing SQL:", repr(sql))
         return self.cursor.execute(sql)
 
+    def lexecute(self, sql):
+        gen = self.execute(sql)
+        return sorted([tuple(t) for t in gen])
+
     def get_tables(self):
-        return [row.table_name for row in self.cursor.tables()]
+        return sorted(str(row.table_name) for row in self.cursor.tables())
 
     def get_columns(self, table):
-        return [col.column_name for col in self.cursor.columns(table=table)]
+        return [str(col.column_name) for col in self.cursor.columns(table=table)] # *** DO NOT SORT
 
     def make_dicts(self, table, col_list=None, ordered=False, where="", dataset=None, lowercase=True):
         if dataset is not None:
@@ -119,7 +171,12 @@ class DB(object):
             kind = OrderedDict if ordered else dict
             yield kind(items)
 
+# ---------------------------------------------------------------------------------------------
+
 def get_password():
+    """Return the password associated with this database,  retrieving it from a file if possible,
+    otherwise prompting.
+    """
     if not hasattr(get_password, "_password"):
         try: # crazy scheme works with "password" or "blah password" in password file.
             get_password._password = open(sconfig.CATALOG_DB_PFILE).read().split()[-1:][0]
@@ -138,6 +195,12 @@ def get_reffile_ops(user=sconfig.CATALOG_DB_USER):
     if not hasattr(get_reffile_ops, "_reffile_ops"):
         get_reffile_ops._reffile_ops = DB(sconfig.REFFILE_DB_DSN, user, get_password())
     return get_reffile_ops._reffile_ops
+
+# ---------------------------------------------------------------------------------------------
+
+# Functions related to scanning the tables looking for columns containing required keywords.
+# These functions collectively generate db_header_tables.dat,  with some manual tweaking
+# required so examine diffs carefully after any re-run of gen_header_tables.
 
 def get_instrument_db_parkeys(instrument):
     """Return the union of the database versions of all parkeys for all
@@ -159,6 +222,11 @@ def required_keys(instr):
     pars = get_instrument_db_parkeys(instr)
     pars.append("expstart" if instr != "stis" else "texpstrt")
     pars.append("data_set")
+    pars.append("program_id")
+    pars.append("obset_id")
+    pars.append("obsnum")
+    pars.append("asn_id")
+    pars.append("member_name")
     imap = rmap.get_cached_mapping("hst_%s.imap" % instr)
     pars.extend(imap.selections.keys())
     return pars
@@ -216,7 +284,7 @@ def clean_scan(instr):
             clean[var] = tvar[1]
         else:
             clean[var] = tvar
-
+            
     return clean
 
 def scan_tables(instr):
@@ -229,7 +297,7 @@ def scan_tables(instr):
     pars = required_keys(instr)
     columns = {}
     for table in catalog.get_tables():
-        if instr not in table:
+        if instr not in table and "assoc_member" not in table:
             continue
         for par in pars:
             for col in catalog.get_columns(table):
@@ -239,88 +307,107 @@ def scan_tables(instr):
                     columns[par].append(str(table + "." + col))
     return columns, set(pars) - set(columns.keys())
 
-"""
-SELECT Persons.LastName, Persons.FirstName, Orders.OrderNo
-FROM Persons
-FULL JOIN Orders
-ON Persons.P_Id=Orders.P_Id
-ORDER BY Persons.LastName
+# ---------------------------------------------------------------------------------------------
 
-select * from table where name in (word1,word2,word3)
-"""
+class CompoundId(str):
+    """Store a compound "dataset" ID used to capture both member and association.
+    Similar to a named tuple but possibly more JSON-friendly since ultimately it's a string.
+    Assocations are groups of exposures each identified by it's member id.
+    Not all exposures are "associated";  unassociated exposures have the same association and member id.
+    """
+    def __new__(cls, association, member):
+        return super(CompoundId, cls).__new__(cls, association + ":" + member)
+
+    def __init__(self, association, member):
+        # super(CompoundId, self).__init__(association + ":" + member)
+        self.association = association
+        self.member = member
+        
+    def __repr__(self):
+        return self.__class__.__name__ + "(association='{}', member='{}')".format(self.association, self.member)
+
+# ---------------------------------------------------------------------------------------------
 
 class HeaderGenerator(object):
     def __init__(self, instrument, catalog_db, header_to_db_map):
         self.instrument = instrument.lower()
         self.catalog_db = catalog_db        
         self.h_to_db = header_to_db_map
+        self.db_columns = self.h_to_db.values()
+        self.db_tables = sorted(set(column.split(".")[0] 
+                                    for column in self.db_columns))
+        self.header_keys = tuple(key.upper() for key in self.h_to_db.keys())
 
-    @property
-    def header_keys(self):
-        return [key.upper() for key in self.h_to_db.keys()]
-
-    @property
-    def db_columns(self):
-        return self.h_to_db.values()
-
-    @property
-    def db_tables(self):
-        tables = set()
-        for column in self.db_columns:
-            table, col = column.split(".")
-            tables.add(table)
-        return list(tables)
-
-    @property
-    def all_columns(self):
-        all_cols = []
-        for table in self.db_tables:
-            all_cols += [table + "." + col for col in self.catalog_db.get_columns(table)]
-        return all_cols
-
-    def getter_sql(self, extra_constraints={}, extra_clauses=()):
-        sql = "SELECT %s FROM %s " % (", ".join(self.db_columns), ", ".join(self.db_tables))
-        clauses = self.join_clauses() 
-        if extra_constraints:
-            clauses.extend(self.constraint_clauses(extra_constraints))
-        clauses.extend(list(extra_clauses))
+    def _getter_sql(self, columns, tables, clauses=()):
+        sql = "SELECT {} FROM {} ".format(
+            ", ".join(columns), 
+            ", ".join(tables))
         if clauses:
-            sql += "WHERE " + (" AND ").join(clauses)
+            sql += "WHERE " + " AND ".join(clauses)
+        log.verbose("SQL: ", sql)
         return sql
 
-    def join_clauses(self, join_suffices=("program_id", "obset_id", "obsnum")):
-        clauses = []
-        if len(self.db_tables) < 2:
-            return clauses
-        for suffix in join_suffices:
-            joined = []
-            for col in self.all_columns:
-                if col.endswith(suffix):
-                    joined.append(col)
-            if len(joined) >= 2:
-                for more in joined[1:]:
-                    clauses.append(joined[0] + "=" + more)
-        return clauses
-
-    def constraint_clauses(self, extra_constraints):
-        clauses = []
-        for key in extra_constraints:
-            for col in self.all_columns:
-                if key.lower() in col:
-                    break
-            else:
-                raise ValueError("No db column found for constraint " + repr(key))
-            clauses.append(col + "=" + repr(extra_constraints[key]))
-        return clauses
-
-    def get_headers(self, extra_constraints={}, extra_clauses=(), condition=True):
-        sql = self.getter_sql(extra_constraints, extra_clauses)
-        for dataset in self.catalog_db.execute(sql):
-            hdr = dict(zip(self.header_keys, list(dataset)))
-            if condition:
-                hdr = { key:utils.condition_value(hdr[key]) for key in hdr }
+    def _get_headers(self, sql, header_keys):
+        hdrs = {}
+        for sql_row in self.catalog_db.execute(sql):
+            hdr = dict(zip(header_keys, sql_row))
+            hdr = self.condition_header(hdr)
             hdr = self.fix_hdr(hdr)
-            yield hdr
+            hdrs[self.compound_id(hdr)] = hdr
+        return hdrs
+
+    def condition_header(self, hdr):
+        return { key:utils.condition_value(hdr[key]) for key in hdr }
+
+    def fix_hdr(self, hdr):
+        return hdr
+    
+    def compound_id(self, hdr):
+        """Given a dataset header,  construct and return a CompoundId .
+        These have associated and unassociated forms.
+        """
+        if "ASN_ID" in hdr:
+            return CompoundId(hdr["ASN_ID"], hdr["MEMBER_NAME"])
+        else:
+            return CompoundId(hdr["DATA_SET"], hdr["DATA_SET"])
+        
+class HstHeaderGenerator(HeaderGenerator):
+    def __init__(self, *args, **keys):
+        super(HstHeaderGenerator, self).__init__(*args, **keys)
+        self.assoc_header_keys = tuple(self.header_keys)
+        self.unassoc_header_keys = tuple(key
+            for key in self.header_keys
+            if  "assoc_member" not in self.h_to_db[key.lower()])
+        self.table_prefix = { self.col_to_table(col):self.col_to_prefix(col) 
+                              for col in self.db_columns }
+        self.assoc_columns = tuple(self.db_columns)
+        self.assoc_tables = tuple(self.db_tables)
+        self.unassoc_columns = tuple(col for col in self.db_columns
+                                     if "assoc_member" not in col)
+        self.unassoc_tables = tuple(table for table in self.db_tables
+                                    if table != "assoc_member")
+    @property
+    def instr_char(self):
+        return INSTR_IPPPSSOOT[self.instrument]
+    
+    def level(self, table):
+        if "ref_data" in table or "_science" in table:
+            return "product"
+        else:  # acs_a_data, acs_chip
+            return "exposure"
+
+    def col_to_table(self, col):
+        """>>> col_to_table('wfpc2_ref_data.w2r_best_maskfile') 
+        'wfpc2_ref_data'
+        """
+        return col.split(".")[0]
+
+    def col_to_prefix(self, col):
+        """>>> col_to_prefix('wfpc2_ref_data.w2r_best_maskfile') 
+        'wfpc2_ref_data.w2r'
+        """
+        table, column = col.split(".")
+        return table + "." + column[:3]
 
     def fix_hdr(self, hdr):
         hdr["INSTRUME"] = self.instrument.upper()
@@ -329,16 +416,120 @@ class HeaderGenerator(object):
         try:
             hdr["DATE-OBS"], hdr["TIME-OBS"] = timestamp.format_date(expstart).split()
         except:
-            log.warning("Bad database EXPSTART", expstart)
+            log.warning("Bad database EXPSTART", expstart, hdr)
         return hdr 
 
-    def get_dataset_ids(self):
-        return [id[0] for id in self.catalog_db.execute("SELECT {} FROM {}".format(
-            self.h_to_db["data_set"], self.h_to_db["data_set"].split(".")[0]))]
-        
+    def get_headers(self, extra_clauses=()):
+        headers = self._unassoc_get_headers(extra_clauses)
+        headers.update(self._assoc_get_headers(extra_clauses))
+        return headers
+    
+    def _assoc_get_headers(self, extra_clauses=()):
+        assoc_sql = self._assoc_get_sql(extra_clauses)
+        return self._get_headers(assoc_sql, self.assoc_header_keys)
+
+    def _unassoc_get_headers(self, extra_clauses=()):
+        unassoc_sql = self._unassoc_get_sql(extra_clauses)
+        return self._get_headers(unassoc_sql, self.unassoc_header_keys)
+
+    def _assoc_get_sql(self, extra_clauses=()):
+        return self._getter_sql(self.assoc_columns, self.assoc_tables, 
+                                tuple(self._assoc_join_clauses()) + 
+                                tuple(extra_clauses))
+    
+    def _unassoc_get_sql(self, extra_clauses=()):
+        return self._getter_sql(self.unassoc_columns, self.unassoc_tables,
+                                tuple(self._unassoc_join_clauses()) + 
+                                tuple(extra_clauses))
+
+    def _assoc_join_clauses(self):
+        """Return a list of table join constraints to AND together for 
+        associated datasets based on the requested list of columns of
+        the form [table.column, ...]
+        """
+        clauses = []
+        if len(self.assoc_tables) < 2:
+            return clauses
+        for table in self.assoc_tables:
+            if table == "assoc_member":
+                continue
+            tab_prefix = self.table_prefix[table]  # e.g. assoc_member.asm
+            if self.level(table) == "product":
+                clauses.append("assoc_member.asm_asn_id = {}_data_set_name".format(tab_prefix))
+            else:
+                for field in ["program_id", "obset_id", "obsnum"]:
+                    clause = "{}_{} = {}_{}".format("assoc_member.asm", field, tab_prefix, field)
+                    clauses.append(clause)
+        return clauses
+
+    def _unassoc_join_clauses(self):
+        """Return a list of table join constraints to AND together for
+        unassociated datasets based on the requested list of columns
+        of the form [table.column, ...].  Unassociated datasets aren't
+        mentioned in assoc_member at all.  The components of data_set_name
+        should be joinable across all tables,
+
+        Almost all tables supply data_set_name.  All tables seem to
+        supply the pieces: program_id, obset_id, obsnum so just use
+        those universally.  Bite tongue, cussing not allowed.
+        """
+        clauses = []
+        if len(self.unassoc_tables) < 2:
+            return clauses
+        product_table = self.col_to_table(self.h_to_db["data_set"])
+        for table in self.unassoc_tables:
+            if table == product_table:
+                continue
+            for field in ["program_id", "obset_id", "obsnum"]:
+                clause = "{}_{} = {}_{}".format(self.table_prefix[product_table], field, 
+                                                self.table_prefix[table], field)
+                clauses.append(clause)
+        return clauses
+
     def get_expstart_clause(self, datasets_since):
         return self.h_to_db.get("expstart", self.h_to_db.get("texpstrt")) + " >= '" + datasets_since + "'"
+    
+    def get_dataset_ids(self):
+        return sorted(self.get_assoc_ids() + self.get_unassoc_ids())
 
+    def get_unassoc_ids(self):
+        dataset_col = self.h_to_db["data_set"]
+        dataset_table = self.col_to_table(dataset_col)
+        return make_ids(self.catalog_db.execute("SELECT DISTINCT {}, {} "
+                                                "FROM {} "
+                                                "WHERE NOT EXISTS "
+                                                "(SELECT asm_asn_id, asm_member_name "
+                                                " FROM assoc_member "
+                                                " WHERE {} = {} "
+                                                " OR {} = {})".format(
+                    dataset_col, dataset_col,
+                    dataset_table, 
+                    dataset_col, "asm_asn_id", 
+                    dataset_col, "asm_member_name")))
+    
+    def get_assoc_ids(self):
+        dataset_col = self.h_to_db["data_set"]
+        dataset_table = self.col_to_table(dataset_col)
+        return make_ids(self.catalog_db.execute("SELECT DISTINCT asm_asn_id, asm_member_name "
+                                                "FROM assoc_member, {} "
+                                                "WHERE asm_member_name  = {}".format(
+                    dataset_table,
+                    dataset_col)))
+    
+    def get_product_ids(self):
+        dataset_col = self.h_to_db["data_set"]
+        dataset_table = self.col_to_table(dataset_col)
+        return make_ids(self.catalog_db.execute("SELECT DISTINCT {}, {} "
+                                                "FROM {} ".format(
+                    dataset_col, dataset_col,
+                    dataset_table)))
+
+def make_ids(row_tuples):
+    """Convert a list of (asn_id, member_name) or (exp_name, exp_name)
+    row tuples into a list of CompoundId's.
+    """
+    return [CompoundId(*dataset) for dataset in sorted(row_tuples)]
+    
 HEADER_MAP = None
 HEADER_GENERATORS = {}
 
@@ -353,7 +544,12 @@ def init_db():
                 with log.error_on_exception("Failed setting up header generators"):
                     HEADER_GENERATORS = {}
                     for instr in HEADER_MAP:
-                        HEADER_GENERATORS[instr] = HeaderGenerator(instr, connection, HEADER_MAP[instr])
+                        HEADER_GENERATORS[instr] = HstHeaderGenerator(instr, connection, HEADER_MAP[instr])
+                        
+def get_instrument_gen(instrument):
+    """Return the header generator for `instrument`."""
+    init_db()
+    return HEADER_GENERATORS[instrument.lower()]
 
 # ---------------------------------------------------------------------------------------------------------
 # From here down,  functions are untrusted API calls to access database services.
@@ -398,7 +594,7 @@ def get_dataset_headers_by_instrument(instrument, observatory="hst", datasets_si
     one only cares about a small list of specific datasets.
     """
     if datasets_since is None:
-        datasets_since = "0000-01-01 00:00:00"
+        datasets_since = "1900-01-01 00:00:00"
     init_db()
     _check_instrument(instrument)
     _check_observatory(observatory)
@@ -406,8 +602,7 @@ def get_dataset_headers_by_instrument(instrument, observatory="hst", datasets_si
     try:
         igen = HEADER_GENERATORS[instrument]
         extra_clauses = [ igen.get_expstart_clause(datasets_since) ] if datasets_since else []
-        headers = { hdr["DATA_SET"]:hdr for hdr in igen.get_headers(extra_clauses=extra_clauses) }
-        return headers
+        return igen.get_headers(extra_clauses)
     except Exception, exc:
         raise RuntimeError("Error accessing catalog for instrument" + repr(instrument) + ":" + str(exc))
 
@@ -425,6 +620,9 @@ def get_dataset_headers_by_id(dataset_ids, observatory="hst"):
         headers.update(_get_dataset_headers_by_id(dataset_ids[i:i+MAX_IDS], observatory))
     return headers
 
+# XXX
+# XXX re-write accounting for associations and compound dataset ids!
+# XXX 
 def _get_dataset_headers_by_id(dataset_ids, observatory="hst"):
     """Based on a list of `dataset_ids`,  return the corresponding DADSOPS bestrefs matching parameters."""
     init_db()
