@@ -7,7 +7,7 @@ source env.csh
 set old = $1;  shift;
 set new = $1;  shift;
 
-( python -m crds.bestrefs --old-context $old --new-context $new --compare-source-bestrefs --print-affected $* >affected.ids) |& tee bestrefs.err
+( python -m crds.bestrefs --old-context $old --new-context $new --print-affected $* >affected.ids) |& tee bestrefs.err
 
-echo "Context switch from $old to $new affected `wc -l affected.ids` datasets"
+echo "Context switch from $old to $new affected `wc -l affected.ids | cut -d' ' -f1` datasets"
 
