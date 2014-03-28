@@ -333,6 +333,9 @@ class CompoundId(str):
     def __repr__(self):
         return self.__class__.__name__ + "(association='{}', member='{}')".format(self.association, self.member)
 
+    def __str__(self):
+        return self.association + ":" + self.member
+
 # ---------------------------------------------------------------------------------------------
 
 class HeaderGenerator(object):
@@ -546,6 +549,8 @@ def get_instrument_gen(instrument):
     init_db()
     return HEADER_GENERATORS[instrument.lower()]
 
+# =========================================================================================================
+
 # ---------------------------------------------------------------------------------------------------------
 # From here down,  functions are untrusted API calls to access database services.
 # These functions must explicitly screen all input parameters to guard against SQL injection attacks.
@@ -576,14 +581,7 @@ def _check_filename(filename):
     """Raise an exception if `filename` is not a valid CRDS filename."""
     _safe_assert(config.FILE_RE.match(filename), "Invalid file name " + repr(filename))
     
-def get_dataset_header(dataset, observatory="hst"):
-    """Get the header for a particular dataset,  nominally in a context where
-    one only cares about a small list of specific datasets.
-    """
-    _check_dataset_id(dataset)
-    _check_observatory(observatory)
-    return get_dataset_headers_by_id([dataset], observatory)[dataset.upper()]
-
+# ---------------------------------------------------------------------------------------------------------
 def get_dataset_headers_by_instrument(instrument, observatory="hst", datasets_since=None):
     """Get the header for a particular dataset,  nominally in a context where
     one only cares about a small list of specific datasets.
@@ -601,50 +599,98 @@ def get_dataset_headers_by_instrument(instrument, observatory="hst", datasets_si
     except Exception, exc:
         raise RuntimeError("Error accessing catalog for instrument" + repr(instrument) + ":" + str(exc))
 
-MAX_IDS = 5000
+# ---------------------------------------------------------------------------------------------------------
 
-def get_dataset_headers_by_id(dataset_ids, observatory="hst"):
+def get_dataset_header(dataset, observatory="hst"):
     """Get the header for a particular dataset,  nominally in a context where
     one only cares about a small list of specific datasets.
     """
+    _check_dataset_id(dataset)
+    _check_observatory(observatory)
+    return get_dataset_headers_by_id([dataset], observatory)[dataset.upper()]
+
+# ---------------------------------------------------------------------------------------------------------
+MAX_IDS = 5000
+
+"""
+Here's the strategy for ID specification as-of now, it may evolve:
+
+Fully specified ID's are of the form <product>:<member>.   <product>'s are defined
+by data_set_name (and/or program_id, obset_id, obsnum) in the ref_data table for an instrument.
+
+Since there is no "destructive" overlap between <product> and <member>,  it's also
+possible to ask for <product> or <member> in a partially specified ID with no colon.
+(for unassociated exposures,  <product> == <member>,  but the resulting header is the same
+for both. that's "non-destructive" overlap.)
+
+Asking for <product> will return <product>:<member> for all associated members.
+
+Asking for <member> will return <product>:<member> for the associated product.
+
+In the case of unassociated exposures,  <member> == <product>, so <member>:<member> is returned.
+
+The way the query works is to constrain the "data_set" column to be in [<products>, ...].
+
+data_set always corresponds to data_set_name in the product level ref_data table.
+
+data_set will join either to exposure level tables for unassociated exposures,  or to the
+association table asm_asn_id for associated exposures.   associated exposures further join
+to exposure tables via asm_member_name which takes the place of data_set_name.
+
+In both cases,  the bulk of the query constraint comes from the table join.  A tertiary
+aspect of constraint is to ensure that only requested product exposures are returned.
+
+Since for unassociated exposures, <product> == <member>,  it's enough to constrain on <product>
+to get all matching headers.
+
+A minor bug is that this approach returns complete association sets even when a specific
+associated exposure is requested.
+
+"""
+
+def get_dataset_headers_by_id(dataset_ids, observatory="hst"):
+    """Based on a list of `dataset_ids`,  return the corresponding DADSOPS bestrefs matching parameters."""
+
     for did in dataset_ids:
         _check_dataset_id(did)
     _check_observatory(observatory)
-    headers = {}
-    for i in range(0, len(dataset_ids), MAX_IDS):
-        headers.update(_get_dataset_headers_by_id(dataset_ids[i:i+MAX_IDS], observatory))
-    return headers
 
-# XXX
-# XXX re-write accounting for associations and compound dataset ids!
-# XXX 
-def _get_dataset_headers_by_id(dataset_ids, observatory="hst"):
-    """Based on a list of `dataset_ids`,  return the corresponding DADSOPS bestrefs matching parameters."""
+    assert len(dataset_ids) <= MAX_IDS, \
+           "Too many ids.   More than {} datasets specified.".format(MAX_IDS)
+
     init_db()
     
-    datasets = sorted(list(set(dataset_ids)))
-    assert len(datasets) <= MAX_IDS, \
-           "Too many ids.   More than %d datasets specified." % MAX_IDS
-        
+    datasets = sorted([did.upper() for did in set(dataset_ids)])
+    products = sorted(list(set([ did.split(":")[0] for did in datasets ])))
+
     by_instrument = defaultdict(list)
-    for dataset in datasets:
-        instrument = dataset_to_instrument(dataset)
-        by_instrument[instrument].append(dataset)
+    for product in products:
+        instrument = dataset_to_instrument(product)
+        by_instrument[instrument].append(product)
 
     all_headers = {}
-    for instrument, datasets in by_instrument.items():
+    for instrument, products in by_instrument.items():
         try:
             igen = HEADER_GENERATORS[instrument]
-            dataset_column = igen.h_to_db["data_set"]
-            dataset_ids = ", ".join(["'{}'".format(did.upper()) for did in datasets])
-            datasets_clause = "{} in ({})".format(dataset_column, dataset_ids)
-            headers = igen.get_headers(extra_clauses=[datasets_clause])
+            comma_product_ids = ", ".join(["'{}'".format(did) for did in products])
+            product_clause = "{} in ({})".format(igen.h_to_db["data_set"], comma_product_ids)
+            headers = igen.get_headers(extra_clauses=[product_clause])
         except Exception, exc:
             raise RuntimeError("Error accessing catalog for instrument " + repr(instrument) + ":" + str(exc))
         all_headers.update(headers)
 
+    products = [ cid.association for cid in all_headers ]
+    exposures = [ cid.member for cid in all_headers ]
+    combined = [ str(cid) for cid in all_headers ]
+    found_ids  = products + exposures + combined
+
+    missing = [ did for did in datasets if did not in found_ids ]
+
+    all_headers.update( { did : "NOT FOUND" for did in missing } )
+
     return all_headers
 
+# ---------------------------------------------------------------------------------------------------------
 def get_dataset_ids(instrument, observatory="hst"):
     """Return a list of the known dataset ids for `instrument`."""
     init_db()
@@ -653,6 +699,7 @@ def get_dataset_ids(instrument, observatory="hst"):
     igen = HEADER_GENERATORS[instrument]
     return igen.get_dataset_ids()
 
+# ---------------------------------------------------------------------------------------------------------
 def get_reference_info(instrument, reference):
     """Return file info for a CDBS reference file `reference` belonging to `instrument`."""
     _check_instrument(instrument)
