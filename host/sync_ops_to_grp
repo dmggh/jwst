@@ -9,9 +9,10 @@ observatory = sys.argv[1]
 
 assert observatory in ["hst","jwst"],  "Invalid observatory " + repr(observatory)
 
-os.environ["CRDS_PATH"] = "/grp/crds/" + observatory
-os.environ["CRDS_SERVER_URL"] = "https://" + observatory + "-crds.stsci.edu"
+os.environ["CRDS_PATH"] = CACHE = "/grp/crds/" + observatory
+os.environ["CRDS_SERVER_URL"] = SERVER = "https://" + observatory + "-crds.stsci.edu"
 
+% echo Syncing ${SERVER} to ${CACHE}
 % python -m crds.list --config
 % python -m crds.sync --all --fetch-references --check-files --verbose --stats
 % echo "Setting file permissions"

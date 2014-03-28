@@ -7,6 +7,9 @@ MAILTO=jmiller@stsci.edu
 # run five minutes after 3 am, every day
 5 3 * * *      source $HOME/.setenv;  nightly.crds.job 
 
+# every 5 minutes, no e-mail
+*/5 * * * *    source $HOME/.setenv;  five_minute.crds.job  >& /dev/null
+
 # run at 2:15pm on the first of every month
 #   15 14 1 * *     $HOME/bin/monthly
 # run at 10 pm on weekdays, annoy Joe

@@ -1,7 +1,4 @@
 #! /bin/csh
 
-server
-source env.csh
-
-host/affected_datasets $* --diffs-only --datasets-since=auto
+affected_datasets $* --diffs-only --datasets-since=auto
 
