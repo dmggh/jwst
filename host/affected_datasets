@@ -5,5 +5,5 @@ set new = $1;  shift;
 
 python -m crds.bestrefs --old-context $old --new-context $new --print-affected --stats $* >affected_ids.txt
 
-echo "Context switch from $old to $new affected `wc -l affected.ids | cut -d' ' -f1` datasets"
+echo "Context switch from $old to $new affected `wc -l affected_ids.txt | cut -d' ' -f1` datasets"
 

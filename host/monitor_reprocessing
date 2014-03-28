@@ -9,6 +9,8 @@ if ("$CRDS_PROJECT" == "jwst") then
     exit 0   # no JWST reprocessing until equivalent of DADSOPS exists and is interfaced.
 endif
 
+set RECIPIENTS = "jmiller@stsci.edu"
+
 set monitor_out_dir = ${CRDS}/monitor_reprocessing
 
 if (! (-x $monitor_out_dir)) then
@@ -31,7 +33,7 @@ if ("$old_context" != "") then
     set new = `echo ${new} | cut -d'.' -f1`
     
     if ($old < $new) then
-	set subject = "Context change from $old_context to $new_context on $CRDS_USECASE server on `date`"
+	set subject = "CRDS $CRDS_USECASE server affected datasets for context change from $old_context to $new_context"
 	echo "-------------------------------------------------------------------------------------------------"
 	echo $subject
 	echo "-------------------------------------------------------------------------------------------------"
@@ -39,7 +41,7 @@ if ("$old_context" != "") then
         mkdir -p $output_dir
 	cd $output_dir
 	affected_datasets_fast ${old_context} ${new_context} |& tee bestrefs_err.txt
-	mail jmiller@stsci.edu -a affected_ids.txt -a bestrefs_err.txt -s "$subject"
+	mail -a`pwd`/affected_ids.txt -a`pwd`/bestrefs_err.txt -s"$subject" $RECIPIENTS </dev/null
     else
 	echo "No change in context $new_context"
     endif
