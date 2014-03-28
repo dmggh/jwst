@@ -233,7 +233,8 @@ def required_keys(instr):
     # pars.append("obset_id")
     # pars.append("obsnum")
     pars.append("asn_id")
-    pars.append("member_name")
+    pars.append("member_name") 
+    pars.append("member_type")
     imap = rmap.get_cached_mapping(models.get_default_context(state="operational")).get_imap(instr)
     pars.extend(imap.selections.keys())
     return pars
@@ -376,9 +377,9 @@ class HeaderGenerator(object):
         These have associated and unassociated forms.
         """
         if "ASN_ID" in hdr:
-            return CompoundId(hdr["ASN_ID"], hdr["MEMBER_NAME"])
+            return hdr["ASN_ID"] + ":" + hdr["MEMBER_NAME"]
         else:
-            return CompoundId(hdr["DATA_SET"], hdr["DATA_SET"])
+            return hdr["DATA_SET"] + ":" + hdr["DATA_SET"]
         
 class HstHeaderGenerator(HeaderGenerator):
     def __init__(self, *args, **keys):
@@ -514,7 +515,7 @@ class HstHeaderGenerator(HeaderGenerator):
         return self._make_ids(self._unassoc_get_id_sql())
 
     def _make_ids(self, sql):
-        return list(set([CompoundId(*row) for row in self.catalog_db.execute(sql)]))
+        return list(set([row[0] + ":" + row[1] for row in self.catalog_db.execute(sql)]))
 
     def _assoc_get_id_sql(self):
         id_columns = ["assoc_member.asm_asn_id", "assoc_member.asm_member_name"]
@@ -600,16 +601,6 @@ def get_dataset_headers_by_instrument(instrument, observatory="hst", datasets_si
         raise RuntimeError("Error accessing catalog for instrument" + repr(instrument) + ":" + str(exc))
 
 # ---------------------------------------------------------------------------------------------------------
-
-def get_dataset_header(dataset, observatory="hst"):
-    """Get the header for a particular dataset,  nominally in a context where
-    one only cares about a small list of specific datasets.
-    """
-    _check_dataset_id(dataset)
-    _check_observatory(observatory)
-    return get_dataset_headers_by_id([dataset], observatory)[dataset.upper()]
-
-# ---------------------------------------------------------------------------------------------------------
 MAX_IDS = 5000
 
 """
@@ -679,10 +670,10 @@ def get_dataset_headers_by_id(dataset_ids, observatory="hst"):
             raise RuntimeError("Error accessing catalog for instrument " + repr(instrument) + ":" + str(exc))
         all_headers.update(headers)
 
-    products = [ cid.association for cid in all_headers ]
-    exposures = [ cid.member for cid in all_headers ]
-    combined = [ str(cid) for cid in all_headers ]
-    found_ids  = products + exposures + combined
+    products = [ cid.split(":")[0] for cid in all_headers ]
+    exposures = [ cid.split(":")[1] for cid in all_headers ]
+    combined = all_headers.keys()
+    found_ids  = sorted(set(products + exposures + combined))
 
     missing = [ did for did in datasets if did not in found_ids ]
 

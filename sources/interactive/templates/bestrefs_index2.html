@@ -201,7 +201,7 @@
       {% endif %}
       <tr>
         <td class="h4">
-            <input type="radio" name="dataset_mode" value="dataset_archive" />Archived Dataset ID
+            <input type="radio" name="dataset_mode" value="dataset_archive" />Catalog Dataset ID
         </td>
         <td align="left">
             <input type="text" width="32" name="dataset_archive" id="dataset_archive"
@@ -226,10 +226,12 @@
     best references. The context file chosen defines the parameter choices which 
     will be available as well as file selection rules.
 
-    <p><p><b>Dataset</b> Archived dataset id specifies the name of an archived parameter set 
-    for which to determine best references.  Upload FITS Header loads reference matching parameters 
-    from a FITS file on your local system;   the loaded matching parameters may be edited
-    in the browser.
+    <p><p><b>Dataset</b> Cataloged dataset id specifies the name of a cataloged parameter set 
+    for which to determine best references.  If the dataset id names an association,  the results
+    returned are for the first member of the association.
+
+    <p><p>Upload FITS Header loads reference matching parameters from a FITS file on your local system;   
+    the loaded matching parameters may be edited in the browser.
 
 {% endblock help %}
 

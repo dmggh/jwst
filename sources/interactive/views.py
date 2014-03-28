@@ -878,22 +878,25 @@ def bestrefs_post(request):
         dataset_path = uploaded_file.temporary_file_path()
         dataset_name = uploaded_file.name
         # base on the context and datset,  compute best references
-        header = pmap.get_minimum_header(dataset_path, original_name=dataset_name)
+        header = data_file.get_conditioned_header(dataset, original_name=original_name)
     elif dataset_mode == "dataset_local":
         header = header_string_to_header(request.POST["dataset_local"])
-        header = pmap.minimize_header(header)
         dataset_name = validate(request, "dataset_name", config.FILE_RE)
     elif dataset_mode == "dataset_archive":
         dataset_name = validate(request, "dataset_archive", common.DATASET_ID_RE)
         try:
-            header = database.get_dataset_header(dataset_name, pmap.observatory)
+            # If dataset is an association,  it will return multiple headers,  just show one.
+            headers = database.get_dataset_headers_by_id([dataset_name], pmap.observatory)
+            first = sorted(headers.keys())[0]
+            header = headers[first]
         except Exception, exc:
             raise CrdsError("Problem getting header for dataset " + 
                             srepr(dataset_name) + ": " + str(exc))
-        header = pmap.minimize_header(header)
     else:
         raise ValueError("Bad dataset_mode " + srepr(dataset_mode))
 
+    header = pmap.minimize_header(header)
+    
     results = bestrefs_results(request, pmap, header, dataset_name)
 
     return results
