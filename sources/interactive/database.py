@@ -317,28 +317,6 @@ def scan_tables(instr):
 
 # ---------------------------------------------------------------------------------------------
 
-class CompoundId(str):
-    """Store a compound "dataset" ID used to capture both member and association.
-    Similar to a named tuple but possibly more JSON-friendly since ultimately it's a string.
-    Assocations are groups of exposures each identified by it's member id.
-    Not all exposures are "associated";  unassociated exposures have the same association and member id.
-    """
-    def __new__(cls, association, member):
-        return super(CompoundId, cls).__new__(cls, association + ":" + member)
-
-    def __init__(self, association, member):
-        # super(CompoundId, self).__init__(association + ":" + member)
-        self.association = association
-        self.member = member
-        
-    def __repr__(self):
-        return self.__class__.__name__ + "(association='{}', member='{}')".format(self.association, self.member)
-
-    def __str__(self):
-        return self.association + ":" + self.member
-
-# ---------------------------------------------------------------------------------------------
-
 class HeaderGenerator(object):
     def __init__(self, instrument, catalog_db, header_to_db_map):
         self.instrument = instrument.lower()
@@ -382,6 +360,25 @@ class HeaderGenerator(object):
             return hdr["DATA_SET"] + ":" + hdr["DATA_SET"]
         
 class HstHeaderGenerator(HeaderGenerator):
+
+    product_fields = {
+        "acs"    : "acs_ref_data.acr_data_set_name",
+        "cos"    : "cos_ref_data.csr_data_set_name",
+        "nicmos" : "nicmos_ref_data.nsr_data_set_name",
+        "stis"   : "stis_ref_data.ssr_data_set_name",
+        "wfc3"   : "wfc3_ref_data.w3r_data_set_name",
+        "wfpc2"  : "wfpc2_ref_data.w2r_data_set_name",
+        }
+
+    exposure_fields = {
+        "acs"    : "acs_a_data.aca_data_set_name",
+        "cos"    : "cos_a_data.csa_data_set_name",
+        "nicmos" : "nicmos_a_data.nsa_data_set_name",
+        "stis"   : "stis_a_data.ssa_data_set_name",
+        "wfc3"   : "wfc3_a_data.w3a_data_set_name",
+        "wfpc2"  : "wfpc2_primary_data.wp2_data_set_name",
+        }
+
     def __init__(self, *args, **keys):
         super(HstHeaderGenerator, self).__init__(*args, **keys)
         self.assoc_header_keys = tuple(self.header_keys)
@@ -399,6 +396,8 @@ class HstHeaderGenerator(HeaderGenerator):
         self.product_table = self.col_to_table(self.h_to_db["data_set"])
         self.exposure_tables = [table for table in self.db_tables
                                 if self.level(table) == "exposure"]
+        self.product_field = self.product_fields[self.instrument]
+        self.exposure_field = self.exposure_fields[self.instrument]
 
     @property
     def instr_char(self):
@@ -433,12 +432,12 @@ class HstHeaderGenerator(HeaderGenerator):
             hdr["DATE-OBS"], hdr["TIME-OBS"] = timestamp.format_date(expstart).split()
         except:
             log.warning("Bad database EXPSTART", expstart, hdr)
-        return hdr 
+        return hdr
 
-    def get_headers(self, extra_clauses=()):
-        headers = self._unassoc_get_headers(extra_clauses)
+    def get_headers(self, unassoc_extra_clauses=(), assoc_extra_clauses=()):
+        headers = self._unassoc_get_headers(unassoc_extra_clauses)
         if self.exposure_tables:
-            headers.update(self._assoc_get_headers(extra_clauses))
+            headers.update(self._assoc_get_headers(assoc_extra_clauses))
         return headers
 
     def _assoc_get_headers(self, extra_clauses=()):
@@ -612,15 +611,18 @@ by data_set_name (and/or program_id, obset_id, obsnum) in the ref_data table for
 Since there is no "destructive" overlap between <product> and <member>,  it's also
 possible to ask for <product> or <member> in a partially specified ID with no colon.
 (for unassociated exposures,  <product> == <member>,  but the resulting header is the same
-for both. that's "non-destructive" overlap.)
+for both. that's "non-destructive" overlap.)  Because associations can have unique inputs
+and results for each exposure,  compound ids are used to report results.  For symmetry,
+unassociated products have compound ids with the same exposure and product ids,  just 
+as they appear in the tables (and unfortinuately,  not in the assoc_member table).
 
 Asking for <product> will return <product>:<member> for all associated members.
 
-Asking for <member> will return <product>:<member> for the associated product.
+Asking for <member> will return <product>:<member> just for <member>.
 
 In the case of unassociated exposures,  <member> == <product>, so <member>:<member> is returned.
 
-The way the query works is to constrain the "data_set" column to be in [<products>, ...].
+The query works by constraining the "data_set" column to be in [<products>, ...].
 
 data_set always corresponds to data_set_name in the product level ref_data table.
 
@@ -642,12 +644,13 @@ associated exposure is requested.
 def get_dataset_headers_by_id(dataset_ids, observatory="hst"):
     """Based on a list of `dataset_ids`,  return the corresponding DADSOPS bestrefs matching parameters."""
 
-    for did in dataset_ids:
-        _check_dataset_id(did)
     _check_observatory(observatory)
 
     assert len(dataset_ids) <= MAX_IDS, \
            "Too many ids.   More than {} datasets specified.".format(MAX_IDS)
+
+    for did in dataset_ids:
+        _check_dataset_id(did)
 
     init_db()
     
@@ -663,9 +666,10 @@ def get_dataset_headers_by_id(dataset_ids, observatory="hst"):
     for instrument, products in by_instrument.items():
         try:
             igen = HEADER_GENERATORS[instrument]
-            comma_product_ids = ", ".join(["'{}'".format(did) for did in products])
-            product_clause = "{} in ({})".format(igen.h_to_db["data_set"], comma_product_ids)
-            headers = igen.get_headers(extra_clauses=[product_clause])
+            assoc_clauses, unassoc_clauses = dataset_ids_clauses(
+                dataset_ids, igen.product_field, igen.exposure_field)
+            headers = igen.get_headers(
+                unassoc_extra_clauses=unassoc_clauses, assoc_extra_clauses=assoc_clauses)
         except Exception, exc:
             raise RuntimeError("Error accessing catalog for instrument " + repr(instrument) + ":" + str(exc))
         all_headers.update(headers)
@@ -673,13 +677,75 @@ def get_dataset_headers_by_id(dataset_ids, observatory="hst"):
     products = [ cid.split(":")[0] for cid in all_headers ]
     exposures = [ cid.split(":")[1] for cid in all_headers ]
     combined = all_headers.keys()
-    found_ids  = sorted(set(products + exposures + combined))
+    found_ids  = set(products + exposures + combined)
 
     missing = [ did for did in datasets if did not in found_ids ]
 
     all_headers.update( { did : "NOT FOUND" for did in missing } )
 
     return all_headers
+
+def dataset_ids_clauses(dataset_ids, products_field, exposures_field):
+    """Compute SQL to constrain returned datasets to specific ID list.
+
+    dataset_ids  [ dataset_id, ...]
+    products_field   SQL <table>.<field> where product ids are found
+    exposures_field  SQL <table>.<field> where exposure/member ids are found
+
+    Dataset IDs are of these forms:
+    1. <product>  (ends in 0 or 1)
+    2. <exposure>
+    3. <product>:<product>  == <exposure>:<exposure> (unassociated)
+    3. <product>:<exposure> (associated)
+
+    Returns "<product_clause> OR <exposure_clause>"
+
+    This works on the principle that the product_clause is a weaker constaint
+    than the exposure clause and unassociated exposures can be speciied 
+    "either way".  Adding an ID to the products list will return every member
+    of the association.   Adding and ID to the exposures list will only return
+    that exposure.  The basic query constrained by these clauses returns all
+    associated and unassociated exposures.
+
+    All members/exposures of products in <product_clause> are returned.
+
+    Only the explicitly mentioned exposure in <exposure_clause> is returned.
+    
+    If both the vague and explict forms of associated exposures are specified,
+    the vague ID is fully interpreted and ALL memnbers should be returned.
+
+    If only explicit form of associated exposures are used,  then only the
+    explicitly requested exposures should be returned.
+
+    NOTE: member_name is only available for associated exposures.
+    """
+    products_set, exposures_set = set(), set()
+    for did in dataset_ids:
+        parts = did.split(":")
+        if len(parts) == 1:
+            products_set.add(did)  # works either way
+            exposures_set.add(did)
+            # if did.endswith(("0","1")):
+            #    products_set.add(did)
+            # else:
+            #    exposures_set.add(did) 
+        elif len(parts) == 2:
+            product, exposure = parts
+            if product == exposure:  # unassociated
+                products_set.add(product)
+            else: # associated
+                exposures_set.add(exposure)        
+        else:
+            raise InvalidDatasetIdError("Compound dataset ids have 1-2 parts separated by a colon.")
+    
+    products_clause = field_contains_clause(products_field, products_set)
+    exposures_clause = field_contains_clause(exposures_field, exposures_set)
+
+    return (products_clause,), (exposures_clause,)
+    
+def field_contains_clause(field, ids):
+    comma_ids = ", ".join(["'{}'".format(did) for did in ids]) or "'DUMMY'"
+    return "({} IN ({}))".format(field, comma_ids)
 
 # ---------------------------------------------------------------------------------------------------------
 def get_dataset_ids(instrument, observatory="hst"):

@@ -878,7 +878,7 @@ def bestrefs_post(request):
         dataset_path = uploaded_file.temporary_file_path()
         dataset_name = uploaded_file.name
         # base on the context and datset,  compute best references
-        header = data_file.get_conditioned_header(dataset, original_name=original_name)
+        header = data_file.get_conditioned_header(dataset_path, original_name=original_name)
     elif dataset_mode == "dataset_local":
         header = header_string_to_header(request.POST["dataset_local"])
         dataset_name = validate(request, "dataset_name", config.FILE_RE)
