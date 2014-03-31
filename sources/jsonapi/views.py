@@ -514,7 +514,11 @@ def _filter_datasets_by_date(instrument, datasets_since, datasets):
     if datasets_since:
         filtered = {}
         for (datasetid, header) in datasets.items():
-            start = header["DATE-OBS"] + " " + header["TIME-OBS"]
+            try:
+                start = header["DATE-OBS"] + " " + header["TIME-OBS"]
+            except KeyError as exc:
+                log.verbose("Skipping dataset", datasetid, "for", instrument, ":", str(exc))
+                continue
             if start < datasets_since:
                 log.verbose("Skipping dataset", datasetid, "for", instrument,
                             "based on expstart=" + start, "< datasets_since=" + datasets_since)

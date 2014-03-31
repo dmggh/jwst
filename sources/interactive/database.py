@@ -361,24 +361,6 @@ class HeaderGenerator(object):
         
 class HstHeaderGenerator(HeaderGenerator):
 
-    product_fields = {
-        "acs"    : "acs_ref_data.acr_data_set_name",
-        "cos"    : "cos_ref_data.csr_data_set_name",
-        "nicmos" : "nicmos_ref_data.nsr_data_set_name",
-        "stis"   : "stis_ref_data.ssr_data_set_name",
-        "wfc3"   : "wfc3_ref_data.w3r_data_set_name",
-        "wfpc2"  : "wfpc2_ref_data.w2r_data_set_name",
-        }
-
-    exposure_fields = {
-        "acs"    : "acs_a_data.aca_data_set_name",
-        "cos"    : "cos_a_data.csa_data_set_name",
-        "nicmos" : "nicmos_a_data.nsa_data_set_name",
-        "stis"   : "stis_a_data.ssa_data_set_name",
-        "wfc3"   : "wfc3_a_data.w3a_data_set_name",
-        "wfpc2"  : "wfpc2_primary_data.wp2_data_set_name",
-        }
-
     def __init__(self, *args, **keys):
         super(HstHeaderGenerator, self).__init__(*args, **keys)
         self.assoc_header_keys = tuple(self.header_keys)
@@ -393,11 +375,14 @@ class HstHeaderGenerator(HeaderGenerator):
                                      if "assoc_member" not in col)
         self.unassoc_tables = tuple(table for table in self.db_tables
                                     if table != "assoc_member")
-        self.product_table = self.col_to_table(self.h_to_db["data_set"])
+
+        self.product_column = self.h_to_db["data_set"]
+        self.exposure_column = self.h_to_db["data_set_exp"]
+
+        self.product_table = self.col_to_table(self.product_column)
+
         self.exposure_tables = [table for table in self.db_tables
                                 if self.level(table) == "exposure"]
-        self.product_field = self.product_fields[self.instrument]
-        self.exposure_field = self.exposure_fields[self.instrument]
 
     @property
     def instr_char(self):
@@ -667,7 +652,7 @@ def get_dataset_headers_by_id(dataset_ids, observatory="hst"):
         try:
             igen = HEADER_GENERATORS[instrument]
             assoc_clauses, unassoc_clauses = dataset_ids_clauses(
-                dataset_ids, igen.product_field, igen.exposure_field)
+                dataset_ids, igen.product_column, igen.exposure_column)
             headers = igen.get_headers(
                 unassoc_extra_clauses=unassoc_clauses, assoc_extra_clauses=assoc_clauses)
         except Exception, exc:
@@ -681,7 +666,7 @@ def get_dataset_headers_by_id(dataset_ids, observatory="hst"):
 
     missing = [ did for did in datasets if did not in found_ids ]
 
-    all_headers.update( { did : "NOT FOUND" for did in missing } )
+    all_headers.update( { did : "NOT FOUND no match found in query" for did in missing } )
 
     return all_headers
 
