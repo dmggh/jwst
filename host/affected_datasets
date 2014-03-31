@@ -1,9 +1,47 @@
 #! /bin/csh
 
-set old = $1;  shift;
-set new = $1;  shift;
+server
+source env.csh
 
-python -m crds.bestrefs --old-context $old --new-context $new --print-affected --stats $* >affected_ids.txt
+if ($#argv < 2) then
+    echo "usage: `basename $0` <old_context> <new_context> [fast]"
+    exit 1
+endif
 
-echo "Context switch from $old to $new affected `wc -l affected_ids.txt | cut -d' ' -f1` datasets"
+set old_context = $1;  shift;
+set new_context = $1;  shift;
+
+if ($1 == "fast") then
+    shift;
+    set switches = "--diffs-only --datasets-since=auto"
+else
+    set switches = "--all-instruments"
+endif
+
+set RECIPIENTS = "jmiller@stsci.edu"
+
+set date = `datetag`
+set subject = "CRDS $CRDS_PROJECT $CRDS_USECASE server Affected Datasets by Change from $old_context to $new_context on $date"
+
+# rip out the ints so csh < works,  e.g. hst_0200.pmap --> 0200
+set old = `echo ${old_context} | cut -d'_' -f2`
+set old = `echo ${old} | cut -d'.' -f1`  
+set new = `echo ${new_context} | cut -d'_' -f2`
+set new = `echo ${new} | cut -d'.' -f1`
+set output_dir = "${CRDS}/monitor_reprocessing/`datetag`_${old}_${new}"
+mkdir -p $output_dir
+cd $output_dir
+
+echo >bestrefs_err.txt
+(   \
+    echo "--------------------------------------------------------------------------------------------------------------"; \
+    echo $subject; \
+    echo "--------------------------------------------------------------------------------------------------------------"; \
+    python -m crds.bestrefs --old-context $old_context --new-context $new_context --print-affected --stats $switches $* >affected_ids.txt; \
+    echo "--------------------------------------------------------------------------------------------------------------"; \
+    echo "Context switch from $old_context to $new_context affected `wc -l affected_ids.txt | cut -d' ' -f1` datasets"; \
+    echo "--------------------------------------------------------------------------------------------------------------"; \
+) |& tee bestrefs_err.txt
+
+mail -a`pwd`/bestrefs_err.txt -a`pwd`/affected_ids.txt -s"$subject" $RECIPIENTS </dev/null
 

@@ -1,5 +1,11 @@
 #! /bin/csh
 
+# This script is intended to be run periodically as a cronjob and to
+# compare the context at the last run to the current operational
+# context.  When the operational context changes, the affected datasets
+# script is run to asssess which datasets have new references and are
+# candidates for reprocessing.
+
 cd $CRDS/CRDS_server
 source env.csh
 
@@ -7,14 +13,7 @@ if ("$CRDS_PROJECT" == "jwst") then
     exit 0   # no JWST reprocessing until equivalent of DADSOPS exists and is interfaced.
 endif
 
-set RECIPIENTS = "jmiller@stsci.edu"
-
-set monitor_out_dir = ${CRDS}/monitor_reprocessing
-
-if (! (-x $monitor_out_dir)) then
-    mkdir $monitor_out_dir
-endif
-cd $monitor_out_dir
+cd ${CRDS}/monitor_reprocessing
 
 set old_context = `cat old_context.txt`
 set new_context = `python -m crds.list --config |& grep operational_context | cut -d"'" -f2`
@@ -22,27 +21,20 @@ set new_context = `python -m crds.list --config |& grep operational_context | cu
 echo "$new_context" >old_context.txt
 
 if ("$old_context" != "") then
-    
+
     # rip out the ints so csh < works,  e.g. hst_0200.pmap --> 0200
     set old = `echo ${old_context} | cut -d'_' -f2`
-    set old = `echo ${old} | cut -d'.' -f1`
-    
+    set old = `echo ${old} | cut -d'.' -f1`  
     set new = `echo ${new_context} | cut -d'_' -f2`
     set new = `echo ${new} | cut -d'.' -f1`
-    
+
     if ($old < $new) then
-	set subject = "CRDS $CRDS_PROJECT $CRDS_USECASE server Affected Datasets for Context Change from $old_context to $new_context"
-	echo "-------------------------------------------------------------------------------------------------"
-	echo $subject
-	echo "-------------------------------------------------------------------------------------------------"
-        set output_dir = "`datetag`_${old}_${new}"
-        mkdir -p $output_dir
-	cd $output_dir
-	affected_datasets_fast ${old_context} ${new_context} |& tee bestrefs_err.txt
-	mail -a`pwd`/bestrefs_err.txt -a`pwd`/affected_ids.txt -s"$subject" $RECIPIENTS </dev/null
+	# affected_datasets_fast $old_context $new_context
+	affected_datasets $old_context $new_context
     else
 	echo "No change in context $new_context"
     endif
 else
     echo "Initializing context monitor at context $new_context"
 endif
+
