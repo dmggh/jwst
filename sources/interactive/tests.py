@@ -197,7 +197,7 @@ class InteractiveBase(object):
             dataset1 = "interactive/test_data/j8bt05njq_raw.fits"
         else:
             dataset1 = "interactive/test_data/jw00001001001_01101_00001_MIRIMAGE_uncal.fits"
-        self.fake_database_files([self.pmap])
+        # self.fake_database_files([self.pmap])
         self.login()
         response = self.client.post("/bestrefs/", {
             "pmap_mode" : "pmap_text",
