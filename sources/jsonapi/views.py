@@ -17,6 +17,8 @@ from crds.server.interactive import versions, database, crds_db
 from crds.server.interactive.common import DATASET_ID_RE, FITS_KEY_RE, FITS_VAL_RE, LIST_GLOB_RE
 from crds.server.interactive.common import INSTRUMENT_RE, FIELD_RE
 import crds.server.config as config    # server parameters
+
+from crds.client import proxy
 from crds import rmap, utils, log, timestamp
 import crds.config                     # generic client/server
 from crds.config import FILE_RE, check_filename
@@ -507,7 +509,8 @@ def get_dataset_headers_by_instrument(request, context, instrument, datasets_sin
     pmap = rmap.get_cached_mapping(context)
     datasets = database.get_dataset_headers_by_instrument(instrument, observatory=pmap.observatory, 
                                                           datasets_since=datasets_since)
-    return _filter_datasets_by_date(instrument, datasets_since, datasets)
+    datasets = _filter_datasets_by_date(instrument, datasets_since, datasets)
+    return proxy.crds_encode(datasets)
 
 def _filter_datasets_by_date(instrument, datasets_since, datasets):
     """Return the mapping of datasets which occurred after `datasets_since` based on exposure start."""
