@@ -38,15 +38,20 @@ echo >bestrefs_err.txt
     echo "--------------------------------------------------------------------------------------------------------------"; \
     python -m crds.bestrefs --old-context $old_context --new-context $new_context --print-affected --stats $switches $* >affected_ids.txt; \
     echo $status >bestrefs.status; \
-    echo "--------------------------------------------------------------------------------------------------------------"; \
-    echo "Context switch from $old_context to $new_context affected `wc -l affected_ids.txt | cut -d' ' -f1` datasets"; \
-    echo "--------------------------------------------------------------------------------------------------------------"; \
 ) |& tee bestrefs_err.txt
 
 setenv bestrefs_status `cat bestrefs.status`
 
 if ($bestrefs_status == 0) then
+    (echo "--------------------------------------------------------------------------------------------------------------"; \
+     echo "Context switch from $old_context to $new_context affected `wc -l affected_ids.txt | cut -d' ' -f1` datasets"; \
+     echo "--------------------------------------------------------------------------------------------------------------"; \
+    ) |& tee -a bestrefs_err.txt
     mail -a`pwd`/bestrefs_err.txt -a`pwd`/affected_ids.txt -s"$subject" $RECIPIENTS </dev/null
 else
+    (echo "--------------------------------------------------------------------------------------------------------------"; \
+     echo "FALED with status $bestrefs_status"; \
+     echo "--------------------------------------------------------------------------------------------------------------"; \
+    ) |& tee -a bestrefs_err.txt
     mail -a`pwd`/bestrefs_err.txt -s"FAILED: $subject" $RECIPIENTS </dev/null    
 endif

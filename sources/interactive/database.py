@@ -489,27 +489,27 @@ class HstHeaderGenerator(HeaderGenerator):
     def get_expstart_clause(self, datasets_since):
         return self.h_to_db.get("expstart", self.h_to_db.get("texpstrt")) + " >= '" + datasets_since + "'"
     
-    def get_dataset_ids(self):
-        return sorted(self._assoc_get_ids() + self._unassoc_get_ids())
+    def get_dataset_ids(self, extra_clauses=()):
+        return sorted(self._assoc_get_ids(extra_clauses) + self._unassoc_get_ids(extra_clauses))
 
-    def _assoc_get_ids(self):
-        return self._make_ids(self._assoc_get_id_sql())
+    def _assoc_get_ids(self, extra_clauses=()):
+        return self._make_ids(self._assoc_get_id_sql(extra_clauses))
 
-    def _unassoc_get_ids(self):
-        return self._make_ids(self._unassoc_get_id_sql())
+    def _unassoc_get_ids(self, extra_clauses=()):
+        return self._make_ids(self._unassoc_get_id_sql(extra_clauses))
 
     def _make_ids(self, sql):
         return list(set([row[0] + ":" + row[1] for row in self.catalog_db.execute(sql)]))
 
-    def _assoc_get_id_sql(self):
+    def _assoc_get_id_sql(self, extra_clauses=()):
         id_columns = ["assoc_member.asm_asn_id", "assoc_member.asm_member_name"]
         return self._getter_sql(id_columns, self.assoc_tables, 
-                                tuple(self._assoc_join_clauses()))
+                                tuple(self._assoc_join_clauses()) + extra_clauses)
 
-    def _unassoc_get_id_sql(self):
+    def _unassoc_get_id_sql(self, extra_clauses=()):
         id_columns = [self.h_to_db["data_set"], self.h_to_db["data_set"]]
         return self._getter_sql(id_columns, self.unassoc_tables, 
-                                tuple(self._unassoc_join_clauses()))
+                                tuple(self._unassoc_join_clauses()) + extra_clauses)
 
 # ---------------------------------------------------------------------------------------------
 
@@ -580,7 +580,7 @@ def get_dataset_headers_by_instrument(instrument, observatory="hst", datasets_si
     try:
         igen = HEADER_GENERATORS[instrument]
         extra_clauses = [ igen.get_expstart_clause(datasets_since) ] if datasets_since else []
-        return igen.get_headers(extra_clauses)
+        return igen.get_headers(extra_clauses, extra_clauses)
     except Exception, exc:
         raise RuntimeError("Error accessing catalog for instrument" + repr(instrument) + ":" + str(exc))
 
@@ -626,10 +626,14 @@ associated exposure is requested.
 
 """
 
-def get_dataset_headers_by_id(dataset_ids, observatory="hst"):
+def get_dataset_headers_by_id(dataset_ids, observatory="hst", datasets_since=None):
     """Based on a list of `dataset_ids`,  return the corresponding DADSOPS bestrefs matching parameters."""
 
+    if datasets_since is None:
+        datasets_since = "1900-01-01 00:00:00"
+
     _check_observatory(observatory)
+    _check_date(datasets_since)
 
     assert len(dataset_ids) <= MAX_IDS, \
            "Too many ids.   More than {} datasets specified.".format(MAX_IDS)
@@ -651,10 +655,12 @@ def get_dataset_headers_by_id(dataset_ids, observatory="hst"):
     for instrument, products in by_instrument.items():
         try:
             igen = HEADER_GENERATORS[instrument]
+            extra_clauses = tuple([ igen.get_expstart_clause(datasets_since) ] if datasets_since else [])
             assoc_clauses, unassoc_clauses = dataset_ids_clauses(
                 dataset_ids, igen.product_column, igen.exposure_column)
             headers = igen.get_headers(
-                unassoc_extra_clauses=unassoc_clauses, assoc_extra_clauses=assoc_clauses)
+                unassoc_extra_clauses = unassoc_clauses + extra_clauses, 
+                assoc_extra_clauses = assoc_clauses + extra_clauses)
         except Exception, exc:
             raise RuntimeError("Error accessing catalog for instrument " + repr(instrument) + ":" + str(exc))
         all_headers.update(headers)
@@ -736,13 +742,21 @@ def field_contains_clause(field, ids):
         return ()
 
 # ---------------------------------------------------------------------------------------------------------
-def get_dataset_ids(instrument, observatory="hst"):
+def get_dataset_ids(instrument, observatory="hst", datasets_since=None):
     """Return a list of the known dataset ids for `instrument`."""
-    init_db()
+    if datasets_since is None:
+        datasets_since = "1900-01-01 00:00:00"
+
     _check_instrument(instrument)
     _check_observatory(observatory)
+    _check_date(datasets_since)
+
+    init_db()
+
     igen = HEADER_GENERATORS[instrument]
-    return igen.get_dataset_ids()
+    extra_clauses = tuple([ igen.get_expstart_clause(datasets_since) ] if datasets_since else [])
+
+    return igen.get_dataset_ids(extra_clauses)
 
 # ---------------------------------------------------------------------------------------------------------
 def get_reference_info(instrument, reference):

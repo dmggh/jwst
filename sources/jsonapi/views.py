@@ -220,7 +220,9 @@ def check_context_date(date):
         raise InvalidDateBasedContext("Invalid context date/time format '{0}' " \
                                       "should be YYYY-MM-DDTHH:MM:SS | edit | operational", date)
 
-def check_date(date):
+def check_datasets_since(date):
+    if date is None:
+        date = "1900-01-01T00:00:00"
     try:
         return timestamp.is_datetime(date.replace("T"," "))   # secure
     except:
@@ -492,24 +494,24 @@ def get_file_info_map(request, observatory, files, fields):
         result[name] = { field:value for (field, value) in blob.info.items() if field in fields }
     return result
 
-@jsonrpc_method('get_dataset_headers_by_id(context=String, dataset_ids=Array)')   #secure
-def get_dataset_headers_by_id(request, context, dataset_ids):
+@jsonrpc_method('get_dataset_headers_by_id(context=String, dataset_ids=Array, datasets_since=Object)')   #secure
+def get_dataset_headers_by_id(request, context, dataset_ids, datasets_since):
     context = check_context(context)
     dataset_ids = check_dataset_ids(dataset_ids)
+    datasets_since = check_datasets_since(datasets_since)
     pmap = rmap.get_cached_mapping(context)
-    return database.get_dataset_headers_by_id(dataset_ids=dataset_ids, observatory=pmap.observatory)
+    return database.get_dataset_headers_by_id(dataset_ids=dataset_ids, observatory=pmap.observatory, 
+                                              datasets_since=datasets_since)
 
 @jsonrpc_method('get_dataset_headers_by_instrument(context=String, instrument=Array, datasets_since=Object)')  # secure
 def get_dataset_headers_by_instrument(request, context, instrument, datasets_since=None):
-    if datasets_since is None:
-        datasets_since = "1900-01-01T00:00:00"
     context = check_context(context)
     instrument = check_instrument(instrument)
-    datasets_since = check_date(datasets_since)
+    datasets_since = check_datasets_since(datasets_since)
     pmap = rmap.get_cached_mapping(context)
     datasets = database.get_dataset_headers_by_instrument(instrument, observatory=pmap.observatory, 
                                                           datasets_since=datasets_since)
-    datasets = _filter_datasets_by_date(instrument, datasets_since, datasets)
+    # datasets = _filter_datasets_by_date(instrument, datasets_since, datasets)
     return proxy.crds_encode(datasets)
 
 def _filter_datasets_by_date(instrument, datasets_since, datasets):
@@ -531,12 +533,14 @@ def _filter_datasets_by_date(instrument, datasets_since, datasets):
     else:
         return datasets
 
-@jsonrpc_method('get_dataset_ids(context=String, instrument=String)')   # secure
-def get_dataset_ids(request, context, instrument):
+@jsonrpc_method('get_dataset_ids(context=String, instrument=String, datasets_since=Object)')   # secure
+def get_dataset_ids(request, context, instrument, datasets_since=None):
     context = check_context(context)
     instrument = check_instrument(instrument)
     pmap = rmap.get_cached_mapping(context)
-    return database.get_dataset_ids(instrument, observatory=pmap.observatory)
+    datasets_since = check_datasets_since(datasets_since)
+    return database.get_dataset_ids(instrument, observatory=pmap.observatory, 
+                                    datasets_since=datasets_since)
 
 # ===============================================================
 
