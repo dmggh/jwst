@@ -670,7 +670,7 @@ def get_dataset_headers_by_id(dataset_ids, observatory="hst"):
 
     return all_headers
 
-def dataset_ids_clauses(dataset_ids, products_field, exposures_field):
+def dataset_ids_clauses(dataset_ids, assoc_field, unassoc_field):
     """Compute SQL to constrain returned datasets to specific ID list.
 
     dataset_ids  [ dataset_id, ...]
@@ -704,33 +704,36 @@ def dataset_ids_clauses(dataset_ids, products_field, exposures_field):
 
     NOTE: member_name is only available for associated exposures.
     """
-    products_set, exposures_set = set(), set()
+    assoc_set, unassoc_set = set(), set()
     for did in dataset_ids:
         parts = did.split(":")
         if len(parts) == 1:
-            products_set.add(did)  # works either way
-            exposures_set.add(did)
+            assoc_set.add(did)  # works either way
+            unassoc_set.add(did)
             # if did.endswith(("0","1")):
-            #    products_set.add(did)
+            #    assoc_set.add(did)
             # else:
-            #    exposures_set.add(did) 
+            #    unassoc_set.add(did) 
         elif len(parts) == 2:
-            product, exposure = parts
-            if product == exposure:  # unassociated
-                products_set.add(product)
+            assoc, unassoc = parts
+            if assoc == unassoc:  # unassociated
+                unassoc_set.add(unassoc)        
             else: # associated
-                exposures_set.add(exposure)        
+                assoc_set.add(assoc)
         else:
             raise InvalidDatasetIdError("Compound dataset ids have 1-2 parts separated by a colon.")
     
-    products_clause = field_contains_clause(products_field, products_set)
-    exposures_clause = field_contains_clause(exposures_field, exposures_set)
+    assoc_clauses = field_contains_clause(assoc_field, assoc_set)
+    unassoc_clauses = field_contains_clause(unassoc_field, unassoc_set)
 
-    return (products_clause,), (exposures_clause,)
+    return assoc_clauses, unassoc_clauses
     
 def field_contains_clause(field, ids):
-    comma_ids = ", ".join(["'{}'".format(did) for did in ids]) or "'DUMMY'"
-    return "({} IN ({}))".format(field, comma_ids)
+    if ids:
+        comma_ids = ", ".join(["'{}'".format(did) for did in ids])
+        return ("({} IN ({}))".format(field, comma_ids),)
+    else:
+        return ()
 
 # ---------------------------------------------------------------------------------------------------------
 def get_dataset_ids(instrument, observatory="hst"):

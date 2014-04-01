@@ -34,8 +34,15 @@ class DatabaseBase(object):
     def tearDown(self):
         pass
 
+    def check_headers(self, headers):
+        for source in headers:
+            assert not isinstance(headers[source], str), \
+                "Header fetch failed for " + repr(source) + " : " + repr(headers[source])
+
     def get_dataset_headers_by_instrument(self, instr):
         headers = db.get_dataset_headers_by_instrument(instr, self.observatory)
+        self.check_headers(headers)
+
         # log.info("get_headers_by_instrument('{}')".format(instr), "->", len(headers))
 
     def get_dataset_ids(self, instr):
@@ -44,7 +51,7 @@ class DatabaseBase(object):
     def get_dataset_headers_by_id(self, instr):
         ids = db.get_dataset_ids(instr, self.observatory)
         headers = db.get_dataset_headers_by_id(ids[:100], self.observatory)
-
+        self.check_headers(headers)
 
 if sconfig.observatory == "hst":
     
