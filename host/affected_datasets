@@ -50,7 +50,7 @@ if ($bestrefs_status == 0) then
     mail -a`pwd`/bestrefs_err.txt -a`pwd`/affected_ids.txt -s"$subject" $RECIPIENTS </dev/null
 else
     (echo "--------------------------------------------------------------------------------------------------------------"; \
-     echo "FALED with status $bestrefs_status"; \
+     echo "FAILED with status $bestrefs_status"; \
      echo "--------------------------------------------------------------------------------------------------------------"; \
     ) |& tee -a bestrefs_err.txt
     mail -a`pwd`/bestrefs_err.txt -s"FAILED: $subject" $RECIPIENTS </dev/null    
