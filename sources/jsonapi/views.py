@@ -372,7 +372,7 @@ def get_best_references(request, context, header, reftypes):
     conditioned = utils.condition_header(header)
     return rmap.get_best_references(context, conditioned, include=reftypes)
 
-MAX_DATASETS_PER_CALL = 1000
+MAX_BESTREFS_PER_RPC = 1000
 
 @jsonrpc_method('get_best_references_by_ids(context=String, dataset_ids=Array, reftypes=Array)')   # secure
 def get_best_references_by_ids(request, context, dataset_ids, reftypes):
@@ -380,8 +380,8 @@ def get_best_references_by_ids(request, context, dataset_ids, reftypes):
     dataset_ids = check_dataset_ids(dataset_ids)
     reftypes = check_reftypes(reftypes)
     pmap = rmap.get_cached_mapping(context)
-    if not len(dataset_ids) <= MAX_DATASETS_PER_CALL:
-        raise InvalidDatasetIds("Get best references by ids limited to <= '{0}' datasets per call.", MAX_DATASETS_PER_CALL)
+    if not len(dataset_ids) <= MAX_BESTREFS_PER_RPC:
+        raise InvalidDatasetIds("Get best references by ids limited to <= '{0}' datasets per call.", MAX_BESTREFS_PER_RPC)
     headers = database.get_dataset_headers_by_id(dataset_ids=dataset_ids, observatory=pmap.observatory)
     result = {}
     for dataset_id in dataset_ids:
@@ -494,44 +494,25 @@ def get_file_info_map(request, observatory, files, fields):
         result[name] = { field:value for (field, value) in blob.info.items() if field in fields }
     return result
 
+MAX_HEADERS_PER_RPC = 5000
+
 @jsonrpc_method('get_dataset_headers_by_id(context=String, dataset_ids=Array, datasets_since=Object)')   #secure
 def get_dataset_headers_by_id(request, context, dataset_ids, datasets_since):
     context = check_context(context)
     dataset_ids = check_dataset_ids(dataset_ids)
     datasets_since = check_datasets_since(datasets_since)
     pmap = rmap.get_cached_mapping(context)
+
+    assert len(dataset_ids) <= MAX_HEADERS_PER_RPC, \
+           "Too many ids.   More than {} datasets specified.".format(MAX_HEADERS_PER_RPC)
+
     return database.get_dataset_headers_by_id(dataset_ids=dataset_ids, observatory=pmap.observatory, 
                                               datasets_since=datasets_since)
 
 @jsonrpc_method('get_dataset_headers_by_instrument(context=String, instrument=Array, datasets_since=Object)')  # secure
 def get_dataset_headers_by_instrument(request, context, instrument, datasets_since=None):
-    context = check_context(context)
-    instrument = check_instrument(instrument)
-    datasets_since = check_datasets_since(datasets_since)
-    pmap = rmap.get_cached_mapping(context)
-    datasets = database.get_dataset_headers_by_instrument(instrument, observatory=pmap.observatory, 
-                                                          datasets_since=datasets_since)
-    # datasets = _filter_datasets_by_date(instrument, datasets_since, datasets)
-    return proxy.crds_encode(datasets)
+    raise RuntimeError("get_dataset_headers_by_instrument() is no longer directly supported by CRDS servers.  Upgrade your CRDS client.")
 
-def _filter_datasets_by_date(instrument, datasets_since, datasets):
-    """Return the mapping of datasets which occurred after `datasets_since` based on exposure start."""
-    if datasets_since:
-        filtered = {}
-        for (datasetid, header) in datasets.items():
-            try:
-                start = header["DATE-OBS"] + " " + header["TIME-OBS"]
-            except KeyError as exc:
-                log.verbose("Skipping dataset", datasetid, "for", instrument, ":", str(exc))
-                continue
-            if start < datasets_since:
-                log.verbose("Skipping dataset", datasetid, "for", instrument,
-                            "based on expstart=" + start, "< datasets_since=" + datasets_since)
-            else:
-                filtered[datasetid] = header
-        return filtered
-    else:
-        return datasets
 
 @jsonrpc_method('get_dataset_ids(context=String, instrument=String, datasets_since=Object)')   # secure
 def get_dataset_ids(request, context, instrument, datasets_since=None):
@@ -576,6 +557,8 @@ def get_server_info(request):
         "bad_files" : " ".join(imodels.get_bad_files(config.observatory)),
         "observatory" : config.observatory,
         "crds_version" : version_info,
+        "max_headers_per_rpc" : MAX_HEADERS_PER_RPC,
+        "max_bestrefs_per_rpc" : MAX_BESTREFS_PER_RPC,
         "reference_url": {
             "checked" : {
                 config.observatory : config.CRDS_REFERENCE_URL,

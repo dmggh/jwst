@@ -585,8 +585,6 @@ def get_dataset_headers_by_instrument(instrument, observatory="hst", datasets_si
         raise RuntimeError("Error accessing catalog for instrument" + repr(instrument) + ":" + str(exc))
 
 # ---------------------------------------------------------------------------------------------------------
-MAX_IDS = 5000
-
 """
 Here's the strategy for ID specification as-of now, it may evolve:
 
@@ -634,9 +632,6 @@ def get_dataset_headers_by_id(dataset_ids, observatory="hst", datasets_since=Non
 
     _check_observatory(observatory)
     _check_date(datasets_since)
-
-    assert len(dataset_ids) <= MAX_IDS, \
-           "Too many ids.   More than {} datasets specified.".format(MAX_IDS)
 
     for did in dataset_ids:
         _check_dataset_id(did)
