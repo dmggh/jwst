@@ -711,10 +711,6 @@ def dataset_ids_clauses(dataset_ids, assoc_field, unassoc_field):
         if len(parts) == 1:
             assoc_set.add(did)  # works either way
             unassoc_set.add(did)
-            # if did.endswith(("0","1")):
-            #    assoc_set.add(did)
-            # else:
-            #    unassoc_set.add(did) 
         elif len(parts) == 2:
             assoc, unassoc = parts
             if assoc == unassoc:  # unassociated
@@ -734,7 +730,7 @@ def field_contains_clause(field, ids):
         comma_ids = ", ".join(["'{}'".format(did) for did in ids])
         return ("({} IN ({}))".format(field, comma_ids),)
     else:
-        return ()
+        return ("({} IN ('DUMMY'))".format(field),)
 
 # ---------------------------------------------------------------------------------------------------------
 def get_dataset_ids(instrument, observatory="hst", datasets_since=None):
