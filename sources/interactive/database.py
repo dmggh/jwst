@@ -712,19 +712,20 @@ def dataset_ids_clauses(dataset_ids, assoc_field, unassoc_field):
             assoc_set.add(did)  # works either way
             unassoc_set.add(did)
         elif len(parts) == 2:
-            assoc, unassoc = parts
-            if assoc == unassoc:  # unassociated
-                unassoc_set.add(unassoc)        
-            else: # associated
-                assoc_set.add(assoc)
+            _assoc, unassoc = parts
+            unassoc_set.add(unassoc)        
         else:
             raise InvalidDatasetIdError("Compound dataset ids have 1-2 parts separated by a colon.")
     
-    assoc_clauses = field_contains_clause(assoc_field, assoc_set)
     unassoc_clauses = field_contains_clause(unassoc_field, unassoc_set)
-
+    assoc_clauses = ("({} OR {}) ".format(
+            field_contains_clause(assoc_field, assoc_set)[0],
+            unassoc_clauses[0]),
+                     "{} = {}".format(
+            "assoc_member.asm_member_name", 
+            unassoc_field),)
     return assoc_clauses, unassoc_clauses
-    
+
 def field_contains_clause(field, ids):
     if ids:
         comma_ids = ", ".join(["'{}'".format(did) for did in ids])
