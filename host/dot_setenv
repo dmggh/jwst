@@ -1,11 +1,16 @@
 #-*-sh-*-
 
+limit stacksize 64000k
+# limit memorylocked 512k
+
 setenv  CRDS_SERVER `uname -n | cut -d'.' -f1`
 
 # CRDS and CRDS_STACK,  same pattern,  different dirs,  override below as needed
 setenv CRDS /crds/data1/${CRDS_SERVER}
 setenv CRDS_STACK ${CRDS}/crds_stacks/crds_10
 setenv URP_TYPE crds
+
+setenv CRDS_AFFECTED_DATASETS_RECIPIENTS jmiller@stsci.edu
 
 switch ($CRDS_SERVER)
        case dljwstcrdsv1:

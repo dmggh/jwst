@@ -18,8 +18,6 @@ else
     set switches = "--all-instruments"
 endif
 
-set RECIPIENTS = "jmiller@stsci.edu"
-
 set date = `datetag`
 set subject = "CRDS $CRDS_PROJECT $CRDS_USECASE Datasets Affected by Change from $old_context to $new_context on $date"
 
@@ -43,15 +41,16 @@ echo >bestrefs_err.txt
 setenv bestrefs_status `cat bestrefs.status`
 
 if ($bestrefs_status == 0) then
-    (echo "--------------------------------------------------------------------------------------------------------------"; \
-     echo "Context switch from $old_context to $new_context affected `wc -l affected_ids.txt | cut -d' ' -f1` datasets"; \
-     echo "--------------------------------------------------------------------------------------------------------------"; \
-    ) |& tee -a bestrefs_err.txt
-    mail -a`pwd`/bestrefs_err.txt -a`pwd`/affected_ids.txt -s"$subject" $RECIPIENTS </dev/null
+    set disposition="OK"
+else if ($bestrefs_status == 1) then
+    set disposition="ERRORS"
 else
-    (echo "--------------------------------------------------------------------------------------------------------------"; \
-     echo "FAILED with status $bestrefs_status"; \
-     echo "--------------------------------------------------------------------------------------------------------------"; \
-    ) |& tee -a bestrefs_err.txt
-    mail -a`pwd`/bestrefs_err.txt -s"FAILED: $subject" $RECIPIENTS </dev/null    
+    set disposition="FAILED"
 endif
+
+(echo "--------------------------------------------------------------------------------------------------------------"; \
+ echo "${disposition}: Context switch from $old_context to $new_context affected `wc -l affected_ids.txt | cut -d' ' -f1` datasets"; \
+ echo "--------------------------------------------------------------------------------------------------------------"; \
+) |& tee -a bestrefs_err.txt
+
+mail -a`pwd`/bestrefs_err.txt -a`pwd`/affected_ids.txt -s"${disposition}: $subject" $CRDS_AFFECTED_DATASETS_RECIPIENTS </dev/null

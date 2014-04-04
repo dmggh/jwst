@@ -29,8 +29,7 @@ if ("$old_context" != "") then
     set new = `echo ${new} | cut -d'.' -f1`
 
     if ($old < $new) then
-	# affected_datasets_fast $old_context $new_context
-	affected_datasets $old_context $new_context
+	affected_datasets $old_context $new_context fast
     else
 	echo "No change in context $new_context"
     endif
