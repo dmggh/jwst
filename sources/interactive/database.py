@@ -81,7 +81,7 @@ def explore_dadops_assocs(cat=None):
     stats = { "---" : ("assoc_ids", "assoc_hdrs", "unassoc_ids", "unassoc_hdrs", 
                        "assoc ids-headers", "unassoc ids-headers)") }
 
-    for instr, instr_char in sorted(INSTR_IPPPSSOOT.items()):
+    for instr in sorted(INSTR_IPPPSSOOT):
         if instr not in models.INSTRUMENTS:
             log.verbose("Skipping", repr(instr))
             continue
@@ -670,6 +670,9 @@ def get_dataset_headers_by_id(dataset_ids, observatory="hst", datasets_since=Non
     all_headers.update( { did : "NOT FOUND no match found in query" for did in missing } )
 
     return all_headers
+
+class InvalidDatasetIdError(RuntimeError):
+    """The format of a dataset id is bad."""
 
 def dataset_ids_clauses(dataset_ids, assoc_field, unassoc_field):
     """Compute SQL to constrain returned datasets to specific ID list.
