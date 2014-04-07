@@ -81,7 +81,7 @@ class CrdsLock(object):
     
     @property
     def is_expired(self):
-        self._get_locks()
+        self._get_locks(return_expired=True)
         return self._resource_lock.is_expired
     
     @property
@@ -171,10 +171,10 @@ class CrdsLock(object):
         else:
             return lock
     
-    def _get_locks(self):
-        self._resource_lock = self._get_existing(self.resource_lock)
+    def _get_locks(self, return_expired=False):
+        self._resource_lock = self._get_existing(self.resource_lock, return_expired)
         if self.user:
-            self._user_lock = self._get_existing(self.user_lock)
+            self._user_lock = self._get_existing(self.user_lock, return_expired)
         
     def _check_unbroken(self, lock_name, lock, datestr=None):
         if datestr:
@@ -209,6 +209,17 @@ class CrdsLock(object):
         new_expire = lock.created_on + datetime.timedelta(seconds=lock.max_age)
         # log.info("New lock duration", new_expire-now)
         # self._std_info("reset expiry", lock.locked_object)
+
+    def delete(self):
+        """Remove supporting lock objects from database.  NOTE:  this is not __del__
+        since CrdsLock objects go out of scope all the time.   This is for supporting
+        database maintenance.
+        """
+        with log.error_on_exception("Failed deleting resource lock for", repr(self)):
+            self._resource_lock.delete()
+        with log.error_on_exception("Failed deleting user lock for", repr(self)):
+            if self._user_lock is not None:
+                self._user_lock.delete()
     
 def acquire(name, type="", user="", timeout=NEVER, max_age=settings.CRDS_MAX_LOCK_AGE):
     """Acquire the locks associated with `name` and `type` on behalf of `user`.   Fail after `timeout` seconds
@@ -285,7 +296,8 @@ def release_locks(name=None, user=None, type=None):
 def owner_of(name, type=None):
     """Return the owner of the first CrdsLock found with the specified `name` and `type`, or 'unknown'."""
     for lock in filter_locks(name=name, type=type):
-        return lock.user
+        if not lock.is_expired:
+            return lock.user
     return "unknown"
 
 def get_lock_status(user, name=None, type=None):
@@ -311,6 +323,17 @@ def get_lock_status(user, name=None, type=None):
     else:
         return { "name": "", "user": user, "type": type, "status" : "error", 
                 "exception": "no lock found."}
+
+def get_expired_locks():
+    """Return a list of expired CrdsLocks."""
+    return [ lock for lock in filter_locks() if lock.is_expired ]
+
+def clear_expired_locks():
+    """Examine all locks and remove the expired locks."""
+    log.info("Clearing expired locks.")
+    for lock in get_expired_locks():
+        log.info("Clearing expired lock", lock)
+        lock.delete()
 
 # -----------------------------------------------------------------------------
 

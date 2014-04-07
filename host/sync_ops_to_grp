@@ -1,24 +1,27 @@
-#! /usr/bin/env pysh
+#! /bin/tcsh
 
-"""This script syncs a CRDS shared cache under /grp/crds/ to it's corresponding
-operational server,  e.g.  sync_ops_to_grp jwst
-"""
+# This script syncs an ops server to /grp/crds/${CRDS_PROJECT}.  Run on 
+# test or dev servers,  the script exits w/o doing anything.
 
-usage("<observatory>", 1, 1)
-observatory = sys.argv[1]
+cd ${CRDS}/CRDS_server
+source env.csh
 
-assert observatory in ["hst","jwst"],  "Invalid observatory " + repr(observatory)
+setenv CRDS_PATH /grp/crds/${CRDS_PROJECT}
+setenv CRDS_SERVER_URL https://${CRDS_PROJECT}-crds.stsci.edu
 
-os.environ["CRDS_PATH"] = CACHE = "/grp/crds/" + observatory
-os.environ["CRDS_SERVER_URL"] = SERVER = "https://" + observatory + "-crds.stsci.edu"
+if ( ${CRDS_USECASE} != "ops" ) then
+   echo "Skipping sync_ops_to_grp on ${CRDS_PROJECT} ${CRDS_USECASE} server."
+   exit 0
+endif
 
-% echo Syncing ${SERVER} to ${CACHE}
-% python -m crds.list --config
-% python -m crds.sync --all --fetch-references --check-files --verbose --stats
-% echo "Setting file permissions"
-% chmod 444 ${CRDS_PATH}/mappings/${observatory}/* >& /dev/null
-% chmod 444 ${CRDS_PATH}/references/${observatory}/* >& /dev/null
-% chmod 644 ${CRDS_PATH}/config/${observatory}/* >& /dev/null
-
+echo Syncing ${SERVER} to ${CACHE}
+python -m crds.list --config
+python -m crds.sync --all --fetch-references --check-files --verbose --stats
 # add --check-sha1sum to be *really* sure
+
+echo "Setting file permissions"
+chmod 444 ${CRDS_PATH}/mappings/${observatory}/* >& /dev/null
+chmod 444 ${CRDS_PATH}/references/${observatory}/* >& /dev/null
+chmod 644 ${CRDS_PATH}/config/${observatory}/* >& /dev/null
+
 

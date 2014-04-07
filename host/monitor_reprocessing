@@ -9,15 +9,19 @@
 cd $CRDS/CRDS_server
 source env.csh
 
-if ("$CRDS_PROJECT" == "jwst") then
+echo "Monitoring reprocessing opportunities based on context changes."
+
+if (${CRDS_PROJECT} == "jwst") then
+    echo "Quitting JWST reprocessing,  no DADSOPS dataset header source."
     exit 0   # no JWST reprocessing until equivalent of DADSOPS exists and is interfaced.
 endif
 
 cd ${CRDS}/monitor_reprocessing
 
+echo "Determining current operational context."
+
 set old_context = `cat old_context.txt`
 set new_context = `python -m crds.list --config |& grep operational_context | cut -d"'" -f2`
-
 echo "$new_context" >old_context.txt
 
 if ("$old_context" != "") then

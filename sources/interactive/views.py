@@ -605,6 +605,9 @@ def lock_login_receiver(sender, **keys):
             except locks.ResourceLockedError:
                 owner = locks.owner_of(name=instrument, type="instrument")
                 raise CrdsError("User '%s' has already locked instrument '%s'." % (owner, instrument))
+            except Exception as exc:
+                log.error("Untrapped login locking exception:", repr(exc), ":", str(exc))
+                raise
 
 user_logged_in.connect(lock_login_receiver, dispatch_uid="lock_login_receiver")
 
@@ -1134,8 +1137,8 @@ def batch_submit_references_post(request):
 # ============================================================================
 
 @error_trap("base.html")
-@login_required
 @log_view
+@login_required
 # critical to omit:   @instrument_lock_required
 # @ilr will get a new lock.  critical that lock not expire prior to confirm.
 def submit_confirm(request):
