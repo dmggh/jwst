@@ -10,11 +10,11 @@ MAILTO=jmiller@stsci.edu
 # every 5 minutes, no e-mail
 */5 * * * *    source $HOME/.setenv;  cd ${CRDS}/CRDS_server;  source env.csh; monitor_reprocessing >& /dev/null
 
-# every 1 hours, no e-mail
-* */1 * * *   source $HOME/.setenv;  cd ${CRDS}/CRDS_server;  source env.csh; clear_expired_locks  >& /dev/null
+# every 5 minutes, no e-mail
+*/5 * * * *   source $HOME/.setenv;  cd ${CRDS}/CRDS_server;  source env.csh; clear_expired_locks  >& /dev/null
 
-# every 2 hours, no e-mail
-0 */2 * * * *  source $HOME/.setenv;  cd ${CRDS}/CRDS_server;  source env.csh; sync_ops_to_grp  >& /dev/null
+# every 2 hours, no e-mail,  slow to prevent multiple concurrent syncs
+0 0-23/2 * * *  source $HOME/.setenv;  cd ${CRDS}/CRDS_server;  source env.csh; sync_ops_to_grp # >& /dev/null
 
 # run at 2:15pm on the first of every month
 #   15 14 1 * *     $HOME/bin/monthly
