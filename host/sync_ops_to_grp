@@ -14,14 +14,13 @@ if ( ${CRDS_USECASE} != "ops" ) then
    exit 0
 endif
 
-echo Syncing ${SERVER} to ${CACHE}
+echo Syncing ${CRDS_SERVER} to ${CRDS_PATH}
 python -m crds.list --config
 python -m crds.sync --all --fetch-references --check-files --verbose --stats
 # add --check-sha1sum to be *really* sure
 
 echo "Setting file permissions"
-chmod 444 ${CRDS_PATH}/mappings/${observatory}/* >& /dev/null
-chmod 444 ${CRDS_PATH}/references/${observatory}/* >& /dev/null
-chmod 644 ${CRDS_PATH}/config/${observatory}/* >& /dev/null
-
+chmod 444 ${CRDS_PATH}/mappings/${CRDS_PROJECT}/* >& /dev/null
+chmod 444 ${CRDS_PATH}/references/${CRDS_PROJECT}/* >& /dev/null
+chmod 644 ${CRDS_PATH}/config/${CRDS_PROJECT}/* >& /dev/null
 
