@@ -892,6 +892,8 @@ def bestrefs_post(request):
             headers = database.get_dataset_headers_by_id([dataset_name], pmap.observatory)
             first = sorted(headers.keys())[0]
             header = headers[first]
+            if isinstance(header, basestring):
+                raise CrdsError(header)
         except Exception, exc:
             raise CrdsError("Problem getting header for dataset " + 
                             srepr(dataset_name) + ": " + str(exc))
