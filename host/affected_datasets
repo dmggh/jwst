@@ -56,12 +56,16 @@ endif
 # When things go really badly, error logs can approach a gigabyte,  enough to gag thunderbird even if
 # the mailer will actually send the attachment.  So,  instead,  create a truncated error file.
 
-if (`wc -l bestrefs_err.txt | cut -d' ' -f1` < 10000) then
+if (`wc -l bestrefs_err.txt | cut -d' ' -f1` < 400) then
     set bestrefs_err_file="bestrefs_err.txt"
 else
     set bestrefs_err_file="bestrefs_err_truncated.txt"
-    head -n 5000 bestrefs_err.txt >bestrefs_err_truncated.txt
-    tail -n 5000 bestrefs_err.txt >>bestrefs_err_truncated.txt
+    head -n 200 bestrefs_err.txt >bestrefs_err_truncated.txt
+    echo ".... <snip> ...." >>bestrefs_err_truncated.txt
+    tail -n 200 bestrefs_err.txt >>bestrefs_err_truncated.txt
 endif
 
-mail -a`pwd`/$bestrefs_err_file -a`pwd`/affected_ids.txt -s"${disposition}: $subject" $CRDS_AFFECTED_DATASETS_RECIPIENTS </dev/null
+gzip affected_ids.txt
+
+mail -a`pwd`/$bestrefs_err_file -a`pwd`/affected_ids.txt.gz -s"${disposition}: $subject" $CRDS_AFFECTED_DATASETS_RECIPIENTS </dev/null
+
