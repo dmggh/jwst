@@ -19,7 +19,7 @@ else
 endif
 
 set date = `datetag`
-set subject = "CRDS $CRDS_PROJECT $CRDS_USECASE Datasets Affected by Change from $old_context to $new_context on $date"
+set header = "CRDS $CRDS_PROJECT $CRDS_USECASE datasets affected $old_context --> $new_context on $date"
 
 # rip out the ints so csh < works,  e.g. hst_0200.pmap --> 0200
 set old = `echo ${old_context} | cut -d'_' -f2`
@@ -32,7 +32,7 @@ cd $output_dir
 
 echo >bestrefs_err.txt
 (   echo "--------------------------------------------------------------------------------------------------------------"; \
-    echo $subject; \
+    echo "$header"; \
     echo "--------------------------------------------------------------------------------------------------------------"; \
     python -m crds.bestrefs --old-context $old_context --new-context $new_context --print-affected --stats $switches $* >affected_ids.txt; \
     echo $status >bestrefs.status; \
@@ -48,8 +48,12 @@ else
     set disposition="FAILED"
 endif
 
+set affected_count=`wc -l affected_ids.txt | cut -d' ' -f1`
+
+set subject="${disposition}: $header : $affected_count affected"
+
 (echo "--------------------------------------------------------------------------------------------------------------"; \
- echo "${disposition}: Context switch from $old_context to $new_context affected `wc -l affected_ids.txt | cut -d' ' -f1` datasets"; \
+ echo "$subject"; \
  echo "--------------------------------------------------------------------------------------------------------------"; \
 ) |& tee -a bestrefs_err.txt
 
@@ -67,5 +71,5 @@ endif
 
 gzip affected_ids.txt
 
-mail -a`pwd`/$bestrefs_err_file -a`pwd`/affected_ids.txt.gz -s"${disposition}: $subject" $CRDS_AFFECTED_DATASETS_RECIPIENTS </dev/null
+mail -a`pwd`/$bestrefs_err_file -a`pwd`/affected_ids.txt.gz -s "$subject" $CRDS_AFFECTED_DATASETS_RECIPIENTS </dev/null
 
