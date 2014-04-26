@@ -317,7 +317,7 @@ def scan_tables(instr):
 
 # ---------------------------------------------------------------------------------------------
 
-class HeaderGenerator(object):
+class HeaderGenerator(common.Struct):
     def __init__(self, instrument, catalog_db, header_to_db_map):
         self.instrument = instrument.lower()
         self.catalog_db = catalog_db        
@@ -502,11 +502,13 @@ class HstHeaderGenerator(HeaderGenerator):
         return list(set([row[0] + ":" + row[1] for row in self.catalog_db.execute(sql)]))
 
     def _assoc_get_id_sql(self, extra_clauses=()):
+        # ID columns are the fields used to create "dataset ids".
         id_columns = ["assoc_member.asm_asn_id", "assoc_member.asm_member_name"]
         return self._getter_sql(id_columns, self.assoc_tables, 
                                 tuple(self._assoc_join_clauses()) + extra_clauses)
 
     def _unassoc_get_id_sql(self, extra_clauses=()):
+        # ID columns are the fields used to create "dataset ids".
         id_columns = [self.h_to_db["data_set"], self.h_to_db["data_set"]]
         return self._getter_sql(id_columns, self.unassoc_tables, 
                                 tuple(self._unassoc_join_clauses()) + extra_clauses)
@@ -619,9 +621,6 @@ aspect of constraint is to ensure that only requested product exposures are retu
 Since for unassociated exposures, <product> == <member>,  it's enough to constrain on <product>
 to get all matching headers.
 
-A minor bug is that this approach returns complete association sets even when a specific
-associated exposure is requested.
-
 """
 
 def get_dataset_headers_by_id(dataset_ids, observatory="hst", datasets_since=None):
@@ -651,12 +650,12 @@ def get_dataset_headers_by_id(dataset_ids, observatory="hst", datasets_since=Non
         try:
             igen = HEADER_GENERATORS[instrument]
             extra_clauses = tuple([ igen.get_expstart_clause(datasets_since) ] if datasets_since else [])
-            assoc_clauses, unassoc_clauses = dataset_ids_clauses(
-                dataset_ids, igen.product_column, igen.exposure_column)
+            assoc_clauses, unassoc_clauses = dataset_ids_clauses(dataset_ids, igen)
             headers = igen.get_headers(
                 unassoc_extra_clauses = unassoc_clauses + extra_clauses, 
                 assoc_extra_clauses = assoc_clauses + extra_clauses)
         except Exception, exc:
+            raise
             raise RuntimeError("Error accessing catalog for instrument " + repr(instrument) + ":" + str(exc))
         all_headers.update(headers)
 
@@ -674,7 +673,7 @@ def get_dataset_headers_by_id(dataset_ids, observatory="hst", datasets_since=Non
 class InvalidDatasetIdError(RuntimeError):
     """The format of a dataset id is bad."""
 
-def dataset_ids_clauses(dataset_ids, assoc_field, unassoc_field):
+def dataset_ids_clauses(dataset_ids, igen): # assoc_field, unassoc_field):
     """Compute SQL to constrain returned datasets to specific ID list.
 
     dataset_ids  [ dataset_id, ...]
@@ -690,7 +689,7 @@ def dataset_ids_clauses(dataset_ids, assoc_field, unassoc_field):
     Returns "<product_clause> OR <exposure_clause>"
 
     This works on the principle that the product_clause is a weaker constaint
-    than the exposure clause and unassociated exposures can be speciied 
+    than the exposure clause and unassociated exposures can be specified 
     "either way".  Adding an ID to the products list will return every member
     of the association.   Adding and ID to the exposures list will only return
     that exposure.  The basic query constrained by these clauses returns all
@@ -708,33 +707,66 @@ def dataset_ids_clauses(dataset_ids, assoc_field, unassoc_field):
 
     NOTE: member_name is only available for associated exposures.
     """
-    assoc_set, unassoc_set = set(), set()
+    assoc_set, member_set = set(), set()
     for did in dataset_ids:
         parts = did.split(":")
         if len(parts) == 1:
             assoc_set.add(did)  # works either way
-            unassoc_set.add(did)
+            member_set.add(did)
         elif len(parts) == 2:
-            _assoc, unassoc = parts
-            unassoc_set.add(unassoc)        
+            assoc, member = parts
+            # assoc_set.add(assoc)
+            member_set.add(member)        
         else:
             raise InvalidDatasetIdError("Compound dataset ids have 1-2 parts separated by a colon.")
     
-    unassoc_clauses = field_contains_clause(unassoc_field, unassoc_set)
-    assoc_clauses = ("({} OR {}) ".format(
-            field_contains_clause(assoc_field, assoc_set)[0],
-            unassoc_clauses[0]),
-                     "{} = {}".format(
-            "assoc_member.asm_member_name", 
-            unassoc_field),)
+    bind_product_col_to_exposure_col = "({} = {})".format(igen.product_column, igen.exposure_column)
+    bind_product_to_combined_set = field_contains_clause(igen.product_column, assoc_set.union(member_set))
+    unassoc_clauses = (
+        bind_product_col_to_exposure_col,
+        bind_product_to_combined_set)
+
+    # Determine associated clauses,  STIS seems to violate the norm of joining asm_member_name to
+    # igen.exposure_col,  joining instead igen.product_col.  However,  member_names still exist,
+    # so it'd be nice to be able to pick those up
+    if igen.instrument == "stis":
+        bind_asn_id_to_product_col = "({} = {})".format("assoc_member.asm_asn_id", igen.product_column)
+        bind_asn_id_to_assoc_set = field_contains_clause("assoc_member.asm_asn_id", assoc_set)
+        bind_asn_member_to_member_set = field_contains_clause("assoc_member.asm_member_name", member_set)
+        assoc_clauses = (
+            bind_asn_id_to_product_col, 
+            "({} OR {})".format(
+                bind_asn_id_to_assoc_set,
+                bind_asn_member_to_member_set),
+            )
+    else:
+        bind_product_col_to_assoc_set = field_contains_clause(igen.product_column, assoc_set)
+        bind_exposure_col_to_member_set = field_contains_clause(igen.exposure_column, member_set)
+        bind_asn_id_to_product_col = "(assoc_member.asm_asn_id = {})".format(igen.product_column)
+        bind_asn_member_to_exposure_col = "({} = {})".format("assoc_member.asm_member_name", igen.exposure_column)
+        bind_product_exposure_cols_to_id_sets = "({} OR {})".format(bind_product_col_to_assoc_set, bind_exposure_col_to_member_set)
+        assoc_clauses = (
+            bind_asn_id_to_product_col,
+            bind_asn_member_to_exposure_col,
+            bind_product_exposure_cols_to_id_sets
+            )
+
     return assoc_clauses, unassoc_clauses
 
 def field_contains_clause(field, ids):
+    """Return a SQL IN clause such that `field` is IN the `ids`,  or
+    a clause which evaluates to False if `ids` is empty.
+    """
     if ids:
-        comma_ids = ", ".join(["'{}'".format(did) for did in ids])
-        return ("({} IN ({}))".format(field, comma_ids),)
+        return "({} IN ({}))".format(field, comma_ids(ids))
     else:
-        return ("({} IN ('DUMMY'))".format(field),)
+        return "({} IN ('DUMMY'))".format(field)
+
+def comma_ids(ids):
+    """
+    Given ["A", "B", "C"] returns "'A', 'B', 'C'"
+    """
+    return ", ".join(["'{}'".format(did) for did in ids])
 
 # ---------------------------------------------------------------------------------------------------------
 def get_dataset_ids(instrument, observatory="hst", datasets_since=None):

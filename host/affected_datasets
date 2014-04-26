@@ -35,7 +35,7 @@ echo >bestrefs_err.txt
     echo "$header"; \
     echo "--------------------------------------------------------------------------------------------------------------"; \
     python -m crds.bestrefs --old-context $old_context --new-context $new_context --print-affected \
-	--stats --print-update-counts $switches $* >affected_ids.txt; \
+	--stats --print-update-counts --dump-unique-errors $switches $* >affected_ids.txt; \
     echo $status >bestrefs.status; \
 ) |& tee bestrefs_err.txt
 
