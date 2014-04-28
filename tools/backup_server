@@ -25,11 +25,11 @@ echo "Tarring server directories."
 echo "============================================================"
 # Created dated backup copies in ${BACKUP_DIR}
 # Create a single generic copy in ${HOME}/backups for mirroring "yesterday".
-cd ${CRDS_SERVER_STORAGE}
+cd ${CRDS_SERVER_FILES}
 tar zcf ${HOME}/backups/catalogs.${TAIL}.tar.gz catalogs
 tar zcf ${BACKUP_DIR}/catalogs.${TAIL}.${DATETAG}.tar.gz catalogs
 
-cd ${CRDS_SERVER_STORAGE}/deliveries
+cd ${CRDS_SERVER_FILES}/deliveries
 ls -1 >${HOME}/backups/deliveries.${TAIL}.txt
 ls -1 >${BACKUP_DIR}/deliveries.${TAIL}.${DATETAG}.txt
 

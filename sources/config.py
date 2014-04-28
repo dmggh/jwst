@@ -10,9 +10,9 @@ install_dir= install_root
 # possibly multi-terabyte if complete and not linked to other storage
 CRDS_PATH = storage_path + "/file_cache"
 
-# server_storage is where server upload and delivery related files are kept
+# server_files is where server upload and delivery related files are kept
 # possibly hundreds of gigabytes
-server_storage = storage_path + "/server_files"
+server_files = storage_path + "/server_files"
 
 ref_path= CRDS_PATH + '/references'
 map_path= CRDS_PATH + '/mappings'
@@ -20,7 +20,7 @@ ref_path_full = ref_path + "/" + observatory
 map_path_full = map_path + "/" + observatory
 
 # Where files are linked for pickup by DMS / archive.
-CRDS_DELIVERY_DIR = server_storage + "/deliveries"
+CRDS_DELIVERY_DIR = server_files + "/deliveries"
 
 # List of directories where delivered files are linked
 CRDS_DELIVERY_DIRS = [
@@ -29,16 +29,16 @@ CRDS_DELIVERY_DIRS = [
 
 # Master directory for the catalog file associated with a delivery
 # CRDS keeps these even when OPUS/DMS/CDDS-pipeline is done archiving.
-CRDS_CATALOG_DIR = server_storage + "/catalogs"
+CRDS_CATALOG_DIR = server_files + "/catalogs"
 
 # Dir the file upload hanlder stores temporary large uploaded files.
-FILE_UPLOAD_TEMP_DIR = server_storage + "/uploads"
+FILE_UPLOAD_TEMP_DIR = server_files + "/uploads"
 
 # Dir where deliverers can scp files for ingest.
-CRDS_INGEST_DIR = server_storage + "/ingest"
+CRDS_INGEST_DIR = server_files + "/ingest"
 
 # Dir where dynamic mapping bundles are kept.
-CRDS_ARCHIVE_CACHE_DIR = server_storage + "/archive_cache"
+CRDS_ARCHIVE_CACHE_DIR = server_files + "/archive_cache"
 
 # table_prefix is added to the beginning of any database table name
 table_prefix = 'crds_' + observatory

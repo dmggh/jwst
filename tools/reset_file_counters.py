@@ -6,7 +6,7 @@ import glob
 import crds
 from crds.server.interactive import models
 
-CRDS_SERVER_STORAGE = os.environ["CRDS_SERVER_STORAGE"]
+CRDS_SERVER_FILES = os.environ["CRDS_SERVER_FILES"]
 
 def reset_counters():
     models.CounterModel.objects.all().delete()
@@ -19,7 +19,7 @@ def reset_fileblob_counters():
         models.mirror_filename_counters(models.OBSERVATORY, path)
 
 def reset_delivery_counters():
-    for path in glob.glob(CRDS_SERVER_STORAGE + "/catalogs/*.cat"):
+    for path in glob.glob(CRDS_SERVER_FILES + "/catalogs/*.cat"):
         models.mirror_filename_counters(models.OBSERVATORY, path)
 
 if __name__ == "__main__":
