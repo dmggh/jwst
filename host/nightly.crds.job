@@ -7,6 +7,11 @@ setenv TAIL ${CRDS_PROJECT}.${CRDS_USECASE}
 setenv ETAIL ${TAIL}.err
 
 echo "==========================================================="
+echo "CRDS config"
+echo "==========================================================="
+python -m crds.list --config
+
+echo "==========================================================="
 echo "CRDS subversion status"
 echo "==========================================================="
 cd ${CRDS}/CRDS

@@ -568,10 +568,11 @@ class BlobModel(CrdsModel):
         "simultaneous" updates of the same object.
         """
         # select for update locks a model row until it is saved or rolled back.
-        if hasattr(cls.objects, "select_for_update"):  # requires Django > 1.4
-            candidates = cls.objects.select_for_update().filter(name=name)
-        else:
-            candidates = cls.objects.filter(name=name)            
+        # if hasattr(cls.objects, "select_for_update"):  # requires Django > 1.4
+        #    candidates = cls.objects.select_for_update().filter(name=name)
+        #else:
+        # XXX now select_for_update must be done inside a transaction.
+        candidates = cls.objects.filter(name=name)            
         if len(candidates) == 0:
             raise LookupError("Couldn't find " + cls.__name__ + 
                               " named " + repr(name))
