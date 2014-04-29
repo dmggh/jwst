@@ -4,14 +4,25 @@ setenv CRDS_STACK ${CRDS}/crds_stacks/crds_11
 setenv META_PREFIX ${CRDS_STACK}
 
 rm -rf ${CRDS_STACK}
-
 cd ${CRDS}/crds_stacks/installer3
 
 cd build
+rm *.err
 ./meta clean
 ./meta install @base  |& tee base.err
 
+setenv PATH ${CRDS_STACK}/bin:${PATH}
+rehash
+
+# Install the entire base to get mercurial... for this.
 ../src/pull_local
 
-./meta install @crds_packages  |& tee crds_packages.err
+rm -rf ${CRDS_STACK}
+./meta clean
+./meta install @crds  |& tee crds.err
+./meta clean
+
+rehash
+hg summary >${CRDS_STACK}/hg.summary
+hg status >${CRDS_STACK}/hg.status
 
