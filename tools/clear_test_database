@@ -1,0 +1,22 @@
+#! /bin/csh
+#
+# XXXXXX broken script,  fails with 
+#
+#     ERROR 1044 (42000) at line 1: Access denied for user 'hstcrds'@'%.stsci.edu' to database 'crds_test_hst_dev'
+#
+# Intended to handle stuck test database,  generally from <control-c> in runtests:
+#    
+#     Got an error creating the test database: (1007, "Can't create database 'test_crds_hst_dev'; database exists")
+#
+#
+
+# cd ${CRDS}/CRDS_server
+# source env.csh
+# echo "drop database crds_test_${CRDS_PROJECT}_${CRDS_USECASE};" > drop_cmd.txt
+# ./manage dbshell <drop_cmd.txt
+# rm drop_cmd.txt
+
+
+echo "run ./manage dbshell"
+echo  "at SQL prompt type:"
+echo "drop database crds_test_${CRDS_PROJECT}_${CRDS_USECASE};" 
