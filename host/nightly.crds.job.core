@@ -66,5 +66,5 @@ tail -100 orphan_files.${ETAIL}
 echo "=========================================================="
 echo "Stack Build crds_11"
 echo "=========================================================="
-host/build_stack |& tee build_stack.err
-
+host/build_stack >& tee build_stack.${ETAIL}
+tail -100 build_stack.${ETAIL}
