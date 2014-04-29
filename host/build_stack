@@ -1,0 +1,17 @@
+#! /bin/csh
+
+setenv CRDS_STACK ${CRDS}/crds_stacks/crds_11
+setenv META_PREFIX ${CRDS_STACK}
+
+rm -rf ${CRDS_STACK}
+
+cd ${CRDS}/crds_stacks/installer3
+
+cd build
+./meta clean
+./meta install @base  |& tee base.err
+
+../src/pull_local
+
+./meta install @crds_packages  |& tee crds_packages.err
+
