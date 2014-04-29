@@ -18,22 +18,22 @@ setenv URP_TYPE crds
 
 switch ($CRDS_SERVER)
        case dljwstcrdsv1:
-	    setenv CRDS_STACK ${CRDS}/crds_stacks/crds_inst3
+	    setenv CRDS_STACK ${CRDS}/crds_stacks/crds_10
             setenv CRDS_PROJECT jwst
             setenv CRDS_USECASE dev
        breaksw
        case tljwstcrdsv1:
-	    setenv CRDS_STACK ${CRDS}/crds_stacks/crds_inst3
+	    setenv CRDS_STACK ${CRDS}/crds_stacks/crds_10
             setenv CRDS_PROJECT jwst
 	    setenv CRDS_USECASE test
        breaksw
        case pljwstcrdsv1:
-	    setenv CRDS_STACK ${CRDS}/crds_stacks/crds_inst3
+	    setenv CRDS_STACK ${CRDS}/crds_stacks/crds_10
             setenv CRDS_PROJECT jwst
 	    setenv CRDS_USECASE ops
        breaksw
        case dlhstcrdsv1:
-	    setenv CRDS_STACK ${CRDS}/crds_stacks/crds_inst3
+	    setenv CRDS_STACK ${CRDS}/crds_stacks/crds_10
             setenv CRDS_PROJECT hst
 	    setenv CRDS_USECASE dev
        breaksw
@@ -51,7 +51,7 @@ endsw
 
 setenv META_PREFIX ${CRDS_STACK}
 
-setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@stsci.edu"
+setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@stsci.edu   crds_datamng@stsci.edu"
 
 setenv CRDS_IFS /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}
 setenv CRDS_FILE_CACHE ${CRDS_IFS}/file_cache
