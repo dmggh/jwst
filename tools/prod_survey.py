@@ -97,7 +97,7 @@ def main():
     missing_count, missing_types = scan_missing(classified)
     print "=" * 100
     print "There are", missing_count, "patterns with unrepresented exposures."
-    print "These types had missing members:\n", missing_types
+    print "These", len(missing_types), "had missing members:\n", missing_types
 
 if __name__ == "__main__":
     main()
