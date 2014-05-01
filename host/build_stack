@@ -8,7 +8,7 @@ cd ${CRDS}/crds_stacks/installer3
 
 cd build
 rm *.err
-./meta clean
+./meta clean >& /dev/null
 ./meta install @base  |& tee ${CRDS_STACK}/base.err
 
 setenv PATH ${CRDS_STACK}/bin:${PATH}
@@ -18,9 +18,9 @@ rehash
 ../src/pull_local
 
 rm -rf ${CRDS_STACK}
-./meta clean
+./meta clean >& /dev/null
 ./meta install @crds  |& tee ${CRDS_STACK}/crds.err
-./meta clean
+./meta clean >& /dev/null
 
 rehash
 hg summary |& tee ${CRDS_STACK}/hg.summary
