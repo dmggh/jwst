@@ -47,16 +47,15 @@ def get_missing(sample):
     assocs = get_associations(where="WHERE asm_asn_id = '{}'".format(sample))
     missing = []
     for (asn, member, member_type) in assocs:
-        if asn != member:
-            compound = asn + ":" + member
-            if compound.upper() not in headers:
-                missing.append(member)
+        compound = asn + ":" + member
+        if compound.upper() not in headers:
+            missing.append(member)
     member_types = { member:member_type for (asn, member, member_type) in assocs } 
-    found = sorted([ (member_types[member_id(compound)], member_id(compound))
-                     for compound in headers 
-                     if not isinstance(headers[compound], basestring) ])
-    missing = sorted([ (member_types[member], member) for member in missing ])
-    return missing, found, assocs
+    found_tups = sorted([ (member_types[member_id(compound)], member_id(compound))
+                          for compound in headers 
+                          if not isinstance(headers[compound], basestring) ])
+    missing_tups = sorted([ (member_types[member], member) for member in missing ])
+    return missing_tups, found_tups, assocs
 
 def member_id(compound):
     return compound.split(":")[1]
@@ -69,8 +68,10 @@ def scan_missing(classified):
         print "**scanning**", count, sample, pattern
         missing, found, assocs = get_missing(sample)
         if missing:
-            print "**found**   ", count, sample, len(found), len(assocs)-1, found, pattern
-            print "**missing** ", count, sample, len(missing), len(assocs)-1, missing, pattern
+            print "**found**   ", count, sample, len(found), len(assocs), found, pattern
+            print "**missing** ", count, sample, len(missing), len(assocs), missing, pattern
+            if not len(found):
+                print "**bust**", count, sample, pattern
             # print count, sample, assocs
             missing_count += 1
             for (typ, member) in missing:
