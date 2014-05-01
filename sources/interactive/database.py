@@ -769,6 +769,73 @@ def comma_ids(ids):
     return ", ".join(["'{}'".format(did) for did in ids])
 
 # ---------------------------------------------------------------------------------------------------------
+
+CORRESPONDING_TYPE = {                      
+    "PRODUCT"   : "SCIENCE",
+
+    "PROD-DTH"  : "EXP-DTH",
+    "PROD-TARG" : "EXP-TARG",
+    'PROD-CRJ'  : 'EXP-CRJ', 
+    'PROD-RPT'  : 'EXP-RPT', 
+    'PROD-FP'   : 'EXP-FP', 
+    
+    'PROD-BCK1' : 'EXP-BCK1', 
+    'PROD-BCK2' : 'EXP-BCK2', 
+    'PROD-BCK3' : 'EXP-BCK3', 
+    'PROD-BCK4' : 'EXP-BCK4', 
+    
+    'PROD-CR1'  : 'EXP-CR1', 
+    'PROD-CR2'  : 'EXP-CR2', 
+    'PROD-CR3'  : 'EXP-CR3',
+    'PROD-CR4'  : 'EXP-CR4', 
+    'PROD-CR5'  : 'EXP-CR5', 
+    'PROD-CR6'  : 'EXP-CR6', 
+    'PROD-CR7'  : 'EXP-CR7', 
+    'PROD-CR8'  : 'EXP-CR8', 
+    'PROD-CR9'  : 'EXP-CR9', 
+    'PROD-CR10' : 'EXP-CR10', 
+    'PROD-CR11' : 'EXP-CR11', 
+    'PROD-CR12' : 'EXP-CR12', 
+     
+     'PROD-RP1'  : 'EXP-RP1', 
+     'PROD-RP2'  : 'EXP-RP2', 
+     'PROD-RP3'  : 'EXP-RP3', 
+     'PROD-RP4'  : 'EXP-RP4', 
+     'PROD-RP5'  : 'EXP-RP5',  
+     'PROD-RP6'  : 'EXP-RP6', 
+     'PROD-RP7'  : 'EXP-RP7', 
+     'PROD-RP8'  : 'EXP-RP8', 
+     'PROD-RP9'  : 'EXP-RP9', 
+     'PROD-RP10' : 'EXP-RP10', 
+     'PROD-RP11' : 'EXP-RP11', 
+     'PROD-RP12' : 'EXP-RP12', 
+}
+
+def get_synthetic_dataset_headers_by_id(dataset_id, observatory="hst"):
+    """Leverage the association table to provide headers for member ids which don't
+    successfully join through all an instrument's tables.  Use headers for ids which do 
+    join through all tables as surrogates for ids which don't,  based on member type patterns.
+    """
+    headers = get_dataset_headers_by_id([dataset_id], observatory)
+    for compound_id in headers:
+        if not isinstance(headers[compound_id], basestring):
+            return headers
+    cat = get_catalog()
+    asn_id, member_name, member_type = cat.lexecute(
+        "SELECT asm_asn_id, asm_member_name, asm_member_type "
+        "FROM assoc_member WHERE asm_member_name = '{}'".format(dataset_id))[0]
+    assocs = sorted(cat.lexecute(
+        "SELECT asm_asn_id, asm_member_name, asm_member_type "
+        "FROM assoc_member WHERE asm_asn_id = '{}'".format(asn_id)))
+    member_type = { member:mtype for (asn, member, mtype) in assocs }
+    representative_member = {}
+    for  asn, member, mtype in assocs:
+        if mtype not in representative_member:
+            representative_member[mtype] = member
+    corresponding_id = representative_member[CORRESPONDING_TYPE[member_type[dataset_id]]]
+    return get_dataset_headers_by_id([corresponding_id], observatory)
+    
+# ---------------------------------------------------------------------------------------------------------
 def get_dataset_ids(instrument, observatory="hst", datasets_since=None):
     """Return a list of the known dataset ids for `instrument`."""
     if datasets_since is None:
