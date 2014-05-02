@@ -815,29 +815,47 @@ CORRESPONDING_TYPE = {
      'PROD-RP12' : 'EXP-RP12', 
 }
 
-def get_synthetic_dataset_headers_by_id(dataset_id, observatory="hst"):
+def get_synthetic_dataset_headers_by_id(dataset_ids, observatory="hst", datasets_since=None):
     """Leverage the association table to provide headers for member ids which don't
     successfully join through all an instrument's tables.  Use headers for ids which do 
     join through all tables as surrogates for ids which don't,  based on member type patterns.
+
+    Return { dataset_id : { matching_parameters}, err_id : "NOT FOUND ..."}
     """
-    headers = get_dataset_headers_by_id([dataset_id], observatory)
+    headers = {}
+    for dataset_id in dataset_ids:
+        for_id = _get_synthetic_dataset_headers_by_id(dataset_id, observatory, datasets_since)
+        headers.update(for_id)
+    return headers
+    
+def _get_synthetic_dataset_headers_by_id(dataset_id, observatory="hst", datasets_since=None):
+    """Generate header for one id,  using surrogate header if id doesn't fully join all product
+    and exposure level tables.
+    """
+    if datasets_since is None:
+        datasets_since = "1900-01-01 00:00:00"
+    headers = get_dataset_headers_by_id([dataset_id], observatory, datasets_since)
     for compound_id in headers:
         if not isinstance(headers[compound_id], basestring):
             return headers
-    cat = get_catalog()
-    asn_id, member_name, member_type = cat.lexecute(
-        "SELECT asm_asn_id, asm_member_name, asm_member_type "
-        "FROM assoc_member WHERE asm_member_name = '{}'".format(dataset_id))[0]
-    assocs = sorted(cat.lexecute(
-        "SELECT asm_asn_id, asm_member_name, asm_member_type "
-        "FROM assoc_member WHERE asm_asn_id = '{}'".format(asn_id)))
-    member_type = { member:mtype for (asn, member, mtype) in assocs }
-    representative_member = {}
-    for  asn, member, mtype in assocs:
-        if mtype not in representative_member:
-            representative_member[mtype] = member
-    corresponding_id = representative_member[CORRESPONDING_TYPE[member_type[dataset_id]]]
-    return get_dataset_headers_by_id([corresponding_id], observatory)
+    try:
+        cat = get_catalog()
+        asn_id, member_name, member_type = cat.lexecute(
+            "SELECT asm_asn_id, asm_member_name, asm_member_type "
+            "FROM assoc_member WHERE asm_member_name = '{}'".format(dataset_id))[0]
+        assocs = sorted(cat.lexecute(
+                "SELECT asm_asn_id, asm_member_name, asm_member_type "
+                "FROM assoc_member WHERE asm_asn_id = '{}'".format(asn_id)))
+        member_type = { member:mtype for (asn, member, mtype) in assocs }
+        representative_member = {}
+        for  asn, member, mtype in assocs:
+            if mtype not in representative_member:
+                representative_member[mtype] = member
+        corresponding_id = representative_member[CORRESPONDING_TYPE[member_type[dataset_id]]]
+    except Exception:
+        return { dataset_id : "NOT FOUND mo match found in query" }
+    else:
+        return get_dataset_headers_by_id([corresponding_id], observatory, datasets_since)
     
 # ---------------------------------------------------------------------------------------------------------
 def get_dataset_ids(instrument, observatory="hst", datasets_since=None):
