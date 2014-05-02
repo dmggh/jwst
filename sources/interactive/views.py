@@ -179,7 +179,7 @@ def is_available_file_blob(filename):
     except LookupError:
         raise CrdsError("No database entry for " + srepr(filename) + ".")
     assert blob.available, \
-        "File " + srepr(filename) + " is not yet available."
+        "File " + srepr(filename) + " is not yet available.   Files must be successfully delivered to the archive before operational use."
     return blob
 
 def is_available_file(filename):
