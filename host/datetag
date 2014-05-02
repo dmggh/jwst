@@ -2,7 +2,7 @@
 
 import datetime
 
-print datetime.datetime.now().isoformat("-")[:-4]
+print datetime.datetime.now().isoformat("-")[:-7]
 
 
 

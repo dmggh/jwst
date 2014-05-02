@@ -13,7 +13,10 @@ set deliveries_file=${BACKUP_DIR}/deliveries.${observatory}.${server_mode}.txt
 cd ${CRDS}/CRDS_server
 source env.csh
 
-./stop $observatory $server_mode
+echo "-----------------------------------------------------"
+echo "Stopping server ${CRDS_PROJECT} ${CRDS_USECASE}"
+echo "-----------------------------------------------------"
+./stop ${CRDS_PROJECT} ${CRDS_USECASE}
 
 # This replaces the local database with the specified backup, presumably from the master server
 echo "-----------------------------------------------------"
@@ -70,4 +73,9 @@ echo "-----------------------------------------------------"
 cd ${CRDS}/CRDS_server
 tools/orphan_files
 
-# ./run $observatory $server_mode
+
+echo "-----------------------------------------------------"
+echo "Re-installing and restarting server ${CRDS_PROJECT} ${CRDS_USECASE}"
+echo "-----------------------------------------------------"
+./rerun ${CRDS_PROJECT} ${CRDS_USECASE}
+
