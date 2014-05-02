@@ -63,8 +63,8 @@ cd ${CRDS}/CRDS_server
 tools/orphan_files --verbose >& orphan_files.${ETAIL}
 tail -100 orphan_files.${ETAIL}
 
-echo "=========================================================="
-echo "Stack Build crds_11"
-echo "=========================================================="
-host/build_stack >& build_stack.${ETAIL}
-tail -100 build_stack.${ETAIL}
+# echo "=========================================================="
+# echo "Stack Build crds_11"
+# echo "=========================================================="
+# host/build_stack >& build_stack.${ETAIL}
+# tail -100 build_stack.${ETAIL}
