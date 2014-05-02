@@ -11,6 +11,7 @@ import pyodbc
 
 from django.utils import html
 
+import crds
 from crds import rmap, log, utils, timestamp, config
 from crds.server.interactive import models, common
 from crds.server import config as sconfig
@@ -534,8 +535,11 @@ def init_db():
 def get_instrument_gen(instrument):
     """Return the header generator for `instrument`."""
     init_db()
-    return HEADER_GENERATORS[instrument.lower()]
-
+    try:
+        return HEADER_GENERATORS[instrument.lower()]
+    except:
+        raise crds.CrdsError("CRDS access to DADSOPS database for instrument '{}' failed.".format(instrument.upper()))
+        
 # =========================================================================================================
 
 # ---------------------------------------------------------------------------------------------------------
@@ -580,7 +584,7 @@ def get_dataset_headers_by_instrument(instrument, observatory="hst", datasets_si
     _check_observatory(observatory)
     _check_date(datasets_since)
     try:
-        igen = HEADER_GENERATORS[instrument]
+        igen = get_instrument_gen(instrument)
         extra_clauses = [ igen.get_expstart_clause(datasets_since) ] if datasets_since else []
         return igen.get_headers(extra_clauses, extra_clauses)
     except Exception, exc:
@@ -648,7 +652,7 @@ def get_dataset_headers_by_id(dataset_ids, observatory="hst", datasets_since=Non
     all_headers = {}
     for instrument, products in by_instrument.items():
         try:
-            igen = HEADER_GENERATORS[instrument]
+            igen = get_instrument_gen(instrument)
             extra_clauses = tuple([ igen.get_expstart_clause(datasets_since) ] if datasets_since else [])
             assoc_clauses, unassoc_clauses = dataset_ids_clauses(dataset_ids, igen)
             headers = igen.get_headers(
@@ -847,7 +851,7 @@ def get_dataset_ids(instrument, observatory="hst", datasets_since=None):
 
     init_db()
 
-    igen = HEADER_GENERATORS[instrument]
+    igen = get_instrument_gen(instrument)
     extra_clauses = tuple([ igen.get_expstart_clause(datasets_since) ] if datasets_since else [])
 
     return igen.get_dataset_ids(extra_clauses)
