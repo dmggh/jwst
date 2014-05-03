@@ -28,7 +28,7 @@ import django.contrib.auth
 import django.contrib.auth.models
 from django.contrib.auth.decorators import login_required as login_required
 
-import pyfits
+from astropy.io import fits as pyfits
 
 from crds import (rmap, utils, timestamp, uses, matches, checksum, log, config)
 from crds import (data_file, pysh)
