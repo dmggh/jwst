@@ -1,24 +1,31 @@
 1. General server setup flow is:
 
-# Install third party database components, pyodbc and unixODBC/FreeTDS stack,
-# as well as additional django applications.   This is a long (minutes) slow
-# compile of third_party code. 
-./init_pkgs [hst|jwst] [django|dev|test|prod]
+# On server VMs, initialize the environment from ~crds/.setenv,  a *global* rc file
+# shared by all VMs which should only be changed with caution.
 
-# django    Django/SQLite django server
-# dev  Apache/VM/Isilon/MySQL/Proxy/mod_wsgi development server
-# test   Apache/VM/Isilon/MySQL/Proxy/mod_wsgi pipeline test server
-# prod   Apache/VM/Isilon/MySQL/Proxy/mod_wsgi pipeline production server
+% source ~/.setenv  
+% server  # alias to cd to CRDS_server source code
+
+Setup the server python stack by building the crds packages list from the installer3 system.
+Look at host/build_stack for the process of building the stack.
+The master installer3 mercurial repo is at /eng/ssb/crds/installer3.  Copies are on each VM.
+
+There 4 CRDS server "use cases".
+
+django    Django/SQLite django server
+dev  Apache/VM/Isilon/MySQL/Proxy/mod_wsgi development server
+test   Apache/VM/Isilon/MySQL/Proxy/mod_wsgi pipeline test server
+prod   Apache/VM/Isilon/MySQL/Proxy/mod_wsgi pipeline production server
 
 # Install the code as indicated by the appropriate config file from
 # sources/configs/config.<observatory>.<server_kind>
-./install [hst|jwst]  [django|devtest|prod]
+./install [hst|jwst]  [django|dev|test|prod]
 
 # Possibly re-run install if the first run failed due to missing packages
 ./install [hst|jwst]  [django|dev|test|prod]
 
 # Initilize the CRDS catalog with existing reference files, deliver initial
-# set of mappings.
+# set of mappings.   Generally this is no longer done,  except maybe for private Django dev-server installations.
 # Enter system passwords.
 ./init [hst|jwst] [django|dev|test|prod]
 <enter password for test user>
@@ -59,24 +66,25 @@ e.g.
 
 8. Mirroring
 
-First,  backup the database of the source server.  Copy the result to /home/crds.  chmod 700.
+e.g. copy the test server (hst-crds-test, tlhstcrdsv1) down to the dev server (hst-crds-dev, dlhstcrdsv1).
 
-Second,  restore the database to the destination server.
+This replicates the database and syncs the cache and server support directories.   This is only recommended
+in a *downward* ops -> test -> dev direction.  It stops and restarts the server as required.
 
-Go to the destination server's CRDS_server directory. source env.csh
+First,  on the source server:
 
-Set CRDS_SERVER_URL to the source server.
+# login tlhstcrdsv1
+% server
+% tools/backup_server
 
-Run the sync tool to copy or update files from the source to the destination.   If you --purge, dry-run first.
+That puts required backup files in global ~/backups
 
-    % python -m crds.sync --all --fetch-references --check-files --repair-files [--purge-mappings] [--purge-references]
+Second,  on the destination server:
 
-Set CRDS_SERVER_URL to the destination server.  Run the sync tool to update the server config back to the destination server config.
+# login dlhstcrdsv1
+% server
+% tools/mirror_server hst test https://hst-crds-test.stsci.edu |& tee mirror_server.hst.test.err
 
-    % python -m crds.sync --all #  (mappings only, already cached,  should update config)
+where the parameters to mirror_server specify the *source* server and the destination is
+implicitly the server of the current login.
 
-Run the certify tool against all contexts to check that all files mentioned by mappings exist
-
-    % python -m crds.certify `python -m crds.list --mappings` --exist
-
-Run tools/orphan_files to look for discrepancies between the database, catalogs, and cache
