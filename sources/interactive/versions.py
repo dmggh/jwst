@@ -15,14 +15,12 @@ MODULE_LIST = (
     
     'crds',
     'crds.server',
-    'crds.client',
-    'crds.hst',
-    'crds.jwst',
     
     'pyodbc',
     'jsonrpc',
     
     'pyfits',
+    'astropy',
     'jwstlib.models',
     )
 
