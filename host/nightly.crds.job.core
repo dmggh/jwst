@@ -21,24 +21,17 @@ df -h /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}*
 echo ---------------------------- mounts ------------------------
 mount
 
-echo "==========================================================="
-echo "Third party package re-install"
-echo "==========================================================="
-./init_pkgs ${CRDS_PROJECT} ${CRDS_USECASE} >& init_pkgs.${ETAIL}
-tail -100 init_pkgs.${ETAIL}
+echo "=========================================================="
+echo "Stack Build crds_11"
+echo "=========================================================="
+host/build_stack >& build_stack.${ETAIL}
+tail -100 build_stack.${ETAIL}
 
 echo "==========================================================="
 echo "Server re-install and re-start"
 echo "==========================================================="
 ./rerun ${CRDS_PROJECT} ${CRDS_USECASE} >& rerun.${ETAIL}
 tail -100 rerun.${ETAIL}
-
-echo "==========================================================="
-echo "Server self-test"
-echo "==========================================================="
-cd ${CRDS}/CRDS_server
-./runtests ${CRDS_PROJECT} ${CRDS_USECASE}  >& runtests.${ETAIL}
-tail -100 runtests.${ETAIL}
 
 echo "============================================================"
 echo "Backing up server"
@@ -63,8 +56,10 @@ cd ${CRDS}/CRDS_server
 tools/orphan_files --verbose >& orphan_files.${ETAIL}
 tail -100 orphan_files.${ETAIL}
 
-echo "=========================================================="
-echo "Stack Build crds_11"
-echo "=========================================================="
-host/build_stack >& build_stack.${ETAIL}
-tail -100 build_stack.${ETAIL}
+echo "==========================================================="
+echo "Server self-test"
+echo "==========================================================="
+cd ${CRDS}/CRDS_server
+./runtests ${CRDS_PROJECT} ${CRDS_USECASE}  >& runtests.${ETAIL}
+tail -100 runtests.${ETAIL}
+
