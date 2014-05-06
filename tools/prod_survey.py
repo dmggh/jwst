@@ -6,6 +6,8 @@ from pprint import pprint as pp
 
 from crds.server.interactive import database as db
 
+# from crds import log
+# log.set_verbose()
 
 def get_associations(where=""):
     cat = db.get_catalog()
@@ -43,7 +45,7 @@ def get_unique_assoc_types():
     return [t[0] for t in types]
 
 def get_missing(sample):
-    headers = db.get_dataset_headers_by_id([sample])
+    headers = db.get_synthetic_dataset_headers_by_id([sample])
     assocs = get_associations(where="WHERE asm_asn_id = '{}'".format(sample))
     missing = []
     for (asn, member, member_type) in assocs:
@@ -63,6 +65,9 @@ def member_id(compound):
 def scan_missing(classified):
     missing_count = 0
     missing_types = set()
+    busted_count = 0
+    busted_types = set()
+    busted_instruments = set()
     for count, sample, pattern in classified:
         print "-"*100
         print "**scanning**", count, sample, pattern
@@ -72,11 +77,15 @@ def scan_missing(classified):
             print "**missing** ", count, sample, len(missing), len(assocs), missing, pattern
             if not len(found):
                 print "**bust**", count, sample, pattern
+                busted_count += count
+                for (type, member) in missing:
+                    busted_types.add(typ)
+                busted_instruments.add(db.dataset_to_instrument(sample))
             # print count, sample, assocs
             missing_count += 1
             for (typ, member) in missing:
                 missing_types.add(typ)
-    return missing_count, sorted(list(missing_types))
+    return missing_count, sorted(list(missing_types)), busted_count, sorted(list(busted_types))
 
 def main():
     print "=" * 100
@@ -95,10 +104,13 @@ def main():
     print
     print
     print "=" * 100
-    missing_count, missing_types = scan_missing(classified)
+    missing_count, missing_types, busted_count, busted_types = scan_missing(classified)
     print "=" * 100
     print "There are", missing_count, "patterns with unrepresented exposures."
     print "These", len(missing_types), "had missing members:\n", missing_types
+    print "=" * 100
+    print "There are", busted_count, "patterns with unrepresented exposures."
+    print "These", len(busted_types), "had missing members:\n", busted_types
 
 if __name__ == "__main__":
     main()

@@ -166,7 +166,7 @@ class DB(object):
                 if "data_set_name" in col:
                     dsname = col
                     break
-            where += "where %s='%s'" % (dsname, dataset)
+            where += " (WHERE %s='%s')" % (dsname, dataset)
 
         if col_list is None:
             col_list = self.get_columns(table)
@@ -174,7 +174,7 @@ class DB(object):
         if not col_names.strip():
             col_names = "*"
 
-        for row in self.execute("select %s from %s %s" % (col_names, table, where)):
+        for row in self.execute("SELECT %s FROM %s %s" % (col_names, table, where)):
             items = zip(col_list, [str(x).lower() for x in row] if lowercase else row)
             kind = OrderedDict if ordered else dict
             yield kind(items)
@@ -359,11 +359,55 @@ class HeaderGenerator(common.Struct):
             return hdr["ASN_ID"] + ":" + hdr["MEMBER_NAME"]
         else:
             return hdr["DATA_SET"] + ":" + hdr["DATA_SET"]
+
+def bind_assoc_to_product(product_field):
+    """Guess they didn't keep the process of joining the association level
+    table to the product tables simple, or document it.
+    """
+    return sql_or(
+        sql_eq("assoc_member.asm_asn_id", product_field),
+        sql_eq("assoc_member.asm_member_name", product_field),
+        # sql_and(
+            # sql_eq("assoc_member.asm_member_name", product_field),
+            # sql_like("assoc_member.asm_member_name", "%1"),
+            # sql_ne("assoc_member.asm_asn_id", "assoc_member.asm_member_name"),
+        #    )
+        )
+
+def sql_or(*clauses):
+    return "(" + " OR ".join(clauses) + ")"
         
+def sql_and(*clauses):
+    return "(" + " AND ".join(clauses) + ")"
+
+def sql_eq(*clauses):
+    return "(" + " = ".join(clauses) + ")"
+
+def sql_ne(*clauses):
+    return "(" + " != ".join(clauses) + ")"
+
+def sql_like(a, b):
+    return "({} LIKE '{}')".format(a, b)
+        
+def sql_in(field, ids):
+    """Return a SQL IN clause such that `field` is IN the `ids`,  or
+    a clause which evaluates to False if `ids` is empty.
+    """
+    if ids:
+        return "({} IN ({}))".format(field, sql_comma_ids(ids))
+    else:
+        return "({} IN ('DUMMY'))".format(field)
+
+def sql_comma_ids(ids):
+    """
+    Given ["A", "B", "C"] returns "'A', 'B', 'C'"
+    """
+    return ", ".join(["'{}'".format(did) for did in ids])
+
 class HstHeaderGenerator(HeaderGenerator):
 
     def __init__(self, *args, **keys):
-        super(HstHeaderGenerator, self).__init__(*args, **keys)
+        HeaderGenerator.__init__(self, *args, **keys)
         self.assoc_header_keys = tuple(self.header_keys)
         self.unassoc_header_keys = tuple(key
             for key in self.header_keys
@@ -457,10 +501,11 @@ class HstHeaderGenerator(HeaderGenerator):
                 continue
             tab_prefix = self.table_prefix[table]  # e.g. assoc_member.asm
             if self.level(table) == "product":
-                clauses.append("assoc_member.asm_asn_id = {}_data_set_name".format(tab_prefix))
+                clause = bind_assoc_to_product("{}_data_set_name".format(tab_prefix))
+                clauses.append(clause)
             else:
                 for field in ["program_id", "obset_id", "obsnum"]:
-                    clause = "{}_{} = {}_{}".format("assoc_member.asm", field, tab_prefix, field)
+                    clause = "({}_{} = {}_{})".format("assoc_member.asm", field, tab_prefix, field)
                     clauses.append(clause)
         return clauses
 
@@ -724,8 +769,8 @@ def dataset_ids_clauses(dataset_ids, igen): # assoc_field, unassoc_field):
         else:
             raise InvalidDatasetIdError("Compound dataset ids have 1-2 parts separated by a colon.")
     
-    bind_product_col_to_exposure_col = "({} = {})".format(igen.product_column, igen.exposure_column)
-    bind_product_to_combined_set = field_contains_clause(igen.product_column, assoc_set.union(member_set))
+    bind_product_col_to_exposure_col = sql_eq(igen.product_column, igen.exposure_column)
+    bind_product_to_combined_set = sql_in(igen.product_column, assoc_set.union(member_set))
     unassoc_clauses = (
         bind_product_col_to_exposure_col,
         bind_product_to_combined_set)
@@ -734,45 +779,75 @@ def dataset_ids_clauses(dataset_ids, igen): # assoc_field, unassoc_field):
     # igen.exposure_col,  joining instead igen.product_col.  However,  member_names still exist,
     # so it'd be nice to be able to pick those up
     if igen.instrument == "stis":
-        bind_asn_id_to_product_col = "({} = {})".format("assoc_member.asm_asn_id", igen.product_column)
-        bind_asn_id_to_assoc_set = field_contains_clause("assoc_member.asm_asn_id", assoc_set)
-        bind_asn_member_to_member_set = field_contains_clause("assoc_member.asm_member_name", member_set)
+        bind_assoc_to_product_col = sql_eq("assoc_member.asm_asn_id", igen.product_column)
+        bind_asn_id_to_assoc_set = sql_in("assoc_member.asm_asn_id", assoc_set)
+        bind_asn_member_to_member_set = sql_in("assoc_member.asm_member_name", member_set)
         assoc_clauses = (
-            bind_asn_id_to_product_col, 
-            "({} OR {})".format(
-                bind_asn_id_to_assoc_set,
-                bind_asn_member_to_member_set),
+            bind_assoc_to_product_col,
+            sql_or(bind_asn_id_to_assoc_set, bind_asn_member_to_member_set)
             )
     else:
-        bind_product_col_to_assoc_set = field_contains_clause(igen.product_column, assoc_set)
-        bind_exposure_col_to_member_set = field_contains_clause(igen.exposure_column, member_set)
-        bind_asn_id_to_product_col = "(assoc_member.asm_asn_id = {})".format(igen.product_column)
-        bind_asn_member_to_exposure_col = "({} = {})".format("assoc_member.asm_member_name", igen.exposure_column)
-        bind_product_exposure_cols_to_id_sets = "({} OR {})".format(bind_product_col_to_assoc_set, bind_exposure_col_to_member_set)
+        bind_product_col_to_assoc_set = sql_in(igen.product_column, assoc_set)
+        bind_exposure_col_to_member_set = sql_in(igen.exposure_column, member_set)
+        bind_assoc_to_product_col = bind_assoc_to_product(igen.product_column)
+        bind_asn_member_to_exposure_col = sql_eq("assoc_member.asm_member_name", igen.exposure_column)
+        bind_product_exposure_cols_to_id_sets = sql_or(bind_product_col_to_assoc_set, bind_exposure_col_to_member_set)
         assoc_clauses = (
-            bind_asn_id_to_product_col,
+            bind_assoc_to_product_col,
             bind_asn_member_to_exposure_col,
             bind_product_exposure_cols_to_id_sets
             )
 
     return assoc_clauses, unassoc_clauses
 
-def field_contains_clause(field, ids):
-    """Return a SQL IN clause such that `field` is IN the `ids`,  or
-    a clause which evaluates to False if `ids` is empty.
-    """
-    if ids:
-        return "({} IN ({}))".format(field, comma_ids(ids))
-    else:
-        return "({} IN ('DUMMY'))".format(field)
-
-def comma_ids(ids):
-    """
-    Given ["A", "B", "C"] returns "'A', 'B', 'C'"
-    """
-    return ", ".join(["'{}'".format(did) for did in ids])
-
 # ---------------------------------------------------------------------------------------------------------
+
+def get_synthetic_dataset_headers_by_id(dataset_ids, observatory="hst", datasets_since=None):
+    """Leverage the association table to provide headers for member ids which don't
+    successfully join through all an instrument's tables.  Use headers for ids which do 
+    join through all tables as surrogates for ids which don't,  based on member type patterns.
+
+    Return { dataset_id : { matching_parameters}, err_id : "NOT FOUND ..."}
+    """
+    id_map = get_synthetic_id_map(dataset_ids)
+    source_ids = [did[0] for did in sorted(list(set(id_map.values())))]
+    source_headers = get_dataset_headers_by_id(source_ids, observatory, datasets_since)
+    headers = { did : source_headers[src_id] for (did, (src_id, typ, ctype)) in id_map.items() }
+    return headers
+
+
+def partition_dataset_ids(dataset_ids):
+    """Split an incoming list of dataset_ids into association and member ids.
+
+    Ids can be of form:    
+           <assoc>0
+           <member>[^0]
+           <assoc>0:<member>[^0]
+           
+    Returns ([<assoc>0, ...],  [<member>, ...])
+    """
+    dataset_ids = [did.upper() for did in dataset_ids]
+    assocs, members = set(), set()
+    for did in dataset_ids:
+        if ":" in did:
+            assoc, member = did.split(":")
+            assocs.add(assoc)
+            members.add(member)
+        else:
+            if did.endswith("0"):
+                assocs.add(did)
+            else:
+                members.add(did)
+    return list(assocs), list(members)
+
+def compound_id(assoc, member):
+    """Constructs a CRDS compound id from an association ID and a member ID."""
+    return assoc.upper() + ":" + member.upper()
+
+# This is a table of the assoc_member.asm_member_type correspondence rules
+# where keys are assumed to be "unrepresented" types and values are assumed
+# to fully resolve in DADSOPS producing workable headers for that member.
+# The workable member is used as a surrogate for the unrepresented member.
 
 CORRESPONDING_TYPE = {                      
     "PRODUCT"   : "SCIENCE",
@@ -815,48 +890,46 @@ CORRESPONDING_TYPE = {
      'PROD-RP12' : 'EXP-RP12', 
 }
 
-def get_synthetic_dataset_headers_by_id(dataset_ids, observatory="hst", datasets_since=None):
-    """Leverage the association table to provide headers for member ids which don't
-    successfully join through all an instrument's tables.  Use headers for ids which do 
-    join through all tables as surrogates for ids which don't,  based on member type patterns.
+def get_synthetic_id_map(dataset_ids):
+    """Given a list of arbitrary dataset ids,  compute the list of equivalent ids
+    which the incoming ids map to.   This supports using surrogate parameters for
+    intermediate products which aren't fully represented in the database.  It's
+    hideous and I was a victim too...
 
-    Return { dataset_id : { matching_parameters}, err_id : "NOT FOUND ..."}
+    Returns { incoming_id : (workable_id, incoming_type, workable_type), ... }
+
+    The mapping of incoming_type : workable_type indicates which member was substituted
+    for which in a visually comprehensible manner.
     """
-    headers = {}
-    for dataset_id in dataset_ids:
-        for_id = _get_synthetic_dataset_headers_by_id(dataset_id, observatory, datasets_since)
-        headers.update(for_id)
-    return headers
-    
-def _get_synthetic_dataset_headers_by_id(dataset_id, observatory="hst", datasets_since=None):
-    """Generate header for one id,  using surrogate header if id doesn't fully join all product
-    and exposure level tables.
-    """
-    if datasets_since is None:
-        datasets_since = "1900-01-01 00:00:00"
-    headers = get_dataset_headers_by_id([dataset_id], observatory, datasets_since)
-    for compound_id in headers:
-        if not isinstance(headers[compound_id], basestring):
-            return headers
-    try:
-        cat = get_catalog()
-        asn_id, member_name, member_type = cat.lexecute(
-            "SELECT asm_asn_id, asm_member_name, asm_member_type "
-            "FROM assoc_member WHERE asm_member_name = '{}'".format(dataset_id))[0]
-        assocs = sorted(cat.lexecute(
-                "SELECT asm_asn_id, asm_member_name, asm_member_type "
-                "FROM assoc_member WHERE asm_asn_id = '{}'".format(asn_id)))
-        member_type = { member:mtype for (asn, member, mtype) in assocs }
-        representative_member = {}
-        for  asn, member, mtype in assocs:
-            if mtype not in representative_member:
-                representative_member[mtype] = member
-        corresponding_id = representative_member[CORRESPONDING_TYPE[member_type[dataset_id]]]
-    except Exception:
-        return { dataset_id : "NOT FOUND mo match found in query" }
-    else:
-        return get_dataset_headers_by_id([corresponding_id], observatory, datasets_since)
-    
+    cat = get_catalog()
+
+    assocs, members = partition_dataset_ids(dataset_ids)
+
+    member_assocs = cat.lexecute("SELECT asm_asn_id, asm_member_name, asm_member_type"
+                                 " FROM assoc_member WHERE {}".format(sql_in("asm_member_name", members)))
+
+    asn_ids = sorted([ tup[0] for tup in member_assocs ] + assocs)
+    assocs = cat.lexecute("SELECT asm_asn_id, asm_member_name, asm_member_type"
+                          " FROM assoc_member WHERE {}".format(sql_in("asm_asn_id", asn_ids)))
+
+    type_mapping = defaultdict(dict)
+    for (assoc, member, typ) in reversed(assocs):
+        type_mapping[assoc][typ] = member
+
+    new_ids = {}
+    for did in dataset_ids:
+        for (assoc, member, typ) in assocs:
+            if did in [assoc, member, compound_id(assoc, member)]:
+                if typ not in CORRESPONDING_TYPE.keys():
+                    ctype = typ
+                    corresponding_member = member
+                else:
+                    ctype = CORRESPONDING_TYPE[typ]
+                    corresponding_member = type_mapping[assoc].get(ctype, member)
+                new_ids[compound_id(assoc, member)] = (compound_id(assoc, corresponding_member), typ, ctype)
+
+    return new_ids
+
 # ---------------------------------------------------------------------------------------------------------
 def get_dataset_ids(instrument, observatory="hst", datasets_since=None):
     """Return a list of the known dataset ids for `instrument`."""
