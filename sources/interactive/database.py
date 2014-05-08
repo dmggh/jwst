@@ -704,7 +704,6 @@ def get_dataset_headers_by_id(dataset_ids, observatory="hst", datasets_since=Non
                 unassoc_extra_clauses = unassoc_clauses + extra_clauses, 
                 assoc_extra_clauses = assoc_clauses + extra_clauses)
         except Exception, exc:
-            raise
             raise RuntimeError("Error accessing catalog for instrument " + repr(instrument) + ":" + str(exc))
         all_headers.update(headers)
 
