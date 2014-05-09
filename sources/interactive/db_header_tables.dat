@@ -50,6 +50,7 @@
          'pctetab': 'acs_ref_data.acr_best_pctetab',
          'pfltfile': 'acs_ref_data.acr_best_pfltfile',
          'photcorr': 'acs_ref_data.acr_best_photcorr',
+         'rptcorr': 'acs_ref_data.acr_best_rptcorr',
          'shadcorr': 'acs_ref_data.acr_best_shadcorr',
          'shadfile': 'acs_ref_data.acr_best_shadfile',
          'shutrpos': 'acs_ref_data.acr_shutrpos',
