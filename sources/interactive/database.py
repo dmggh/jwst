@@ -808,7 +808,7 @@ def get_synthetic_dataset_headers_by_id(dataset_ids, observatory="hst", datasets
 
     Return { dataset_id : { matching_parameters}, err_id : "NOT FOUND ..."}
     """
-    id_map = get_synthetic_id_map(dataset_ids)
+    id_map = get_synthetic_id_map([did.upper() for did in dataset_ids])
     source_ids = [did[0] for did in sorted(list(set(id_map.values())))]
     source_headers = get_dataset_headers_by_id(source_ids, observatory, datasets_since)
     headers = { did : source_headers[src_id] for (did, (src_id, typ, ctype)) in id_map.items() }
