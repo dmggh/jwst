@@ -297,23 +297,7 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
         rdict[key] = safestring.mark_for_escaping(value)
 
     if requires_pmaps:
-        pmap_edit = models.get_default_context()
-        pmap_operational = models.get_default_context(state="operational")
-        if dict_.get("pmap_initial_mode", "edit") == "edit":
-            pmap_edit_checked = "checked"
-            pmap_operational_checked = ""
-        else:
-            pmap_edit_checked = ""
-            pmap_operational_checked = "checked"
-        rdict.update({
-            "pmap_edit" : pmap_edit,
-            "pmap_edit_checked" : pmap_edit_checked,
-            "edit_context_label" : pmap_label(pmap_edit),
-            "pmap_operational" : pmap_operational,
-            "pmap_operational_checked" : pmap_operational_checked,
-            "operational_context_label" : pmap_label(pmap_operational),
-            "pmaps" : get_recent_pmaps(),
-        })
+        rdict.update(get_pmap_template_vars(dict_))
 
     # include view outputs
     if dict_ is not None:
@@ -334,6 +318,35 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
     rdict["is_superuser"] = request.user.is_superuser
     
     return rdict
+
+def get_pmap_template_vars(dict_):
+    """Get the template variables required for the pmap selection accordion."""
+    pmap_edit = models.get_default_context()
+    pmap_edit_label = pmap_label(pmap_edit)
+    pmap_operational = models.get_default_context(state="operational")
+    pmap_operational_label = pmap_label(pmap_operational)
+    if dict_.get("pmap_initial_mode", "edit") == "edit":
+        pmap_edit_checked = "checked"
+        pmap_operational_checked = ""
+    else:
+        pmap_edit_checked = ""
+        pmap_operational_checked = "checked"
+    recent_pmaps = get_recent_pmaps()
+    pmap_labels = dict(recent_pmaps)
+    pmap_labels[pmap_edit] = pmap_edit_label
+    pmap_labels[pmap_operational] = pmap_operational_label
+    pmap_labels_json = json.dumps(pmap_labels)
+    return {
+        "pmap_edit" : pmap_edit,
+        "pmap_edit_checked" : pmap_edit_checked,
+        "edit_context_label" : pmap_label(pmap_edit),
+        "pmap_operational" : pmap_operational,
+        "pmap_operational_checked" : pmap_operational_checked,
+        "operational_context_label" : pmap_label(pmap_operational),
+        "pmaps" : recent_pmaps,
+        "pmap_labels_json" : pmap_labels_json,
+        }
+
             
 def squash_file_paths(response, uploaded_pairs, user):
     """Fix filepath leakage here as a brevity and security issue.   Uploaded file
@@ -981,9 +994,10 @@ def pmap_label(blob):
         except LookupError:
             return "FILE LOOKUP FAILED -- invalid context"
     available = "" if blob.available else "*unavailable*" 
+    bad = "*bad*" if blob.is_bad_file else ""
     #     blacklisted = "*blacklisted*" if blob.blacklisted else ""
     #     rejected = "*rejected*" if blob.rejected else ""
-    return " ".join([blob.name, str(blob.delivery_date)[:16], available])  #, blacklisted, rejected])
+    return " ".join([blob.name, str(blob.delivery_date)[:16], available, bad])  #, blacklisted, rejected])
 
 def bestrefs_explore_post(request):
     """View to get best reference dataset parameters."""

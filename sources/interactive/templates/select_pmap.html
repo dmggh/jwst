@@ -4,7 +4,7 @@
 <table>
    <tr>
     <td><input type="radio" name="pmap_mode" value="pmap_edit" 
-                onchange='crds.validate_select_pmap(); crds.close_pmap_accordion();' {{pmap_edit_checked}} >Editing</td>
+                onchange='crds.select_pmap_onchange("pmap_edit");' {{pmap_edit_checked}} >Editing</td>
       <td align="right">
         <input type="hidden" name="pmap_edit" value="{{pmap_edit}}" />
         <p>{{edit_context_label|gray}}</p>
@@ -13,7 +13,7 @@
    </tr>
    <tr>
     <td><input type="radio" name="pmap_mode" value="pmap_operational" 
-                onchange='crds.validate_select_pmap(); crds.close_pmap_accordion();' {{pmap_operational_checked}} >Operational</td>
+                onchange='crds.select_pmap_onchange("pmap_operational");' {{pmap_operational_checked}} >Operational</td>
       <td align="right">
         <input type="hidden" name="pmap_operational" value="{{pmap_operational}}" />
         <p>{{operational_context_label|gray}}</p>
@@ -22,9 +22,9 @@
    </tr>
   <tr>
     <td><input type="radio" name="pmap_mode" value="pmap_menu" 
-               onchange='crds.validate_select_pmap();' >Recent</td>
+               onchange='crds.select_pmap_onchange("pmap_menu");' >Recent</td>
       <td align="right">
-        <select name="pmap_menu" style="width: 20em; height: 30px; " 
+        <select name="pmap_menu" style="width: 25em; height: 30px; " 
                 onchange='crds.set_radio("pmap_mode","pmap_menu"); crds.validate_select_pmap(); crds.close_pmap_accordion();' />
             {% for pmap in pmaps %}
                 {% if pmap.0 == pmap_menu %}
@@ -38,9 +38,9 @@
   </tr>
   <tr>
     <td><input type="radio" name="pmap_mode" value="pmap_text" 
-                onchange='crds.validate_select_pmap();' >User Specified</td>
+                onchange='crds.select_pmap_onchange("pmap_text");' >User Specified</td>
       <td align="right"><input type="text" name="pmap_text" value="{{pmap_text}}"
-            onchange='crds.set_radio("pmap_mode","pmap_text"); crds.validate_select_pmap(); crds.close_pmap_accordion();' /></td>
+            onchange='crds.select_pmap_onchange("pmap_text");' /></td>
       <td class="hint">e.g. hst_0001.pmap</td>
   </tr>
 </table>
@@ -65,6 +65,10 @@ for the first submission.
 
 {% endaccordion %}
 
+<div id='pmap_labels_json' class='hidden'>
+{{pmap_labels_json}}
+</div>
+
 <script type="text/javascript">
     $( function () {
         crds.validate_select_pmap = function () {
@@ -77,6 +81,7 @@ for the first submission.
                     return false;
                 };
             };
+            var pmap_option;
             if (pmap_mode == "pmap_text") {
                 pmap_option = pmap;
                 title = "User Specified";
@@ -87,14 +92,20 @@ for the first submission.
                 pmap_option = $("input[value='pmap_operational']").parent().next().children().val();
                 title = "Operational Context";
             } else if (pmap_mode == "pmap_menu") {
-                pmap_option = $("select[name='pmap_menu'] option:selected").text()
+                pmap_option = $("select[name='pmap_menu'] option:selected").val()
                 title = "Recent Context";
             } else {
                     console.log("Bad pmap_mode ", pmap_mode);
             };
-            pmap_status = pmap_option + " (" + title + ")";
+    
+            var pmap_label;
+            if (pmap_option in crds.pmap_labels) {
+               pmap_label = crds.pmap_labels[pmap_option].replace("*bad*","<span class='error'>*bad*</span>");
+            } else {
+               pmap_label = pmap_option + " *unknown*";
+            };
+            var pmap_status = pmap_label + " (" + title + ")";
             $("span[name='pmap_status']").html(pmap_status);
-            
             return true;
         };
         crds.close_pmap_accordion = function () {
@@ -102,6 +113,12 @@ for the first submission.
                 active: false
             });
         };
+        crds.select_pmap_onchange = function (pmap_mode) {
+           crds.validate_select_pmap();
+           crds.close_pmap_accordion();
+           crds.set_radio("pmap_mode", pmap_mode);
+        };
+        crds.pmap_labels = JSON.parse($("#pmap_labels_json").text());
         crds.validate_select_pmap();
     });
     

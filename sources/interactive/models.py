@@ -806,6 +806,7 @@ class FileBlob(BlobModel):
     
     bad_field_checks = {
         "uploaded_as" : lambda self: not self.uploaded_as,
+        "blacklisted" : lambda self: self.blacklisted_by and not self.blacklisted,
         "size" : lambda self: self.size == -1 or self.size != self.compute_size(),
         "sha1sum" : lambda self: self.sha1sum == "none",
         "activation_date": lambda self: self.state in ["archived", "operational"] and \
@@ -880,6 +881,10 @@ class FileBlob(BlobModel):
         if repairs:
             self.save()
         return repairs, failed
+    
+    def repair_blacklisted(self):
+        """If the fileblob has blacklisted_by files,  then it should have it's blacklisted flag set True."""
+        self.blacklisted = len(self.blacklisted_by) > 0
 
     def repair_mapping_name_field(self):
         """Fix the mapping header name field to be consistent with the blob name name and path."""
