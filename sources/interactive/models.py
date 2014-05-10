@@ -1000,6 +1000,7 @@ class FileBlob(BlobModel):
         if self.type == "reference":
             self.init_FITS_fields()
         self.sha1sum = self.compute_checksum()
+        self.blacklisted = len(self.blacklisted_by) > 0
         self.save()
         try:
             # Give GEIS data a "pass" because evidently many diffs are header portion only.
