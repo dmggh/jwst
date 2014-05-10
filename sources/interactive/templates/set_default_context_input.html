@@ -12,7 +12,7 @@
             </tr>
             <tr>
                 <td>
-                    <select name="context_type" onchange="crds.set_context_display(sel.options[sel.selectedIndex].value);">
+                    <select name="context_type" id="context_type" onchange="crds.set_context_display($('#context_type').val());">
                         {% for ctype in context_types %}
                             {% if ctype == "operational" %}
                                 <option selected>{{ctype}}</option>
@@ -30,15 +30,13 @@
       {% include "select_pmap.html" %}
       
       <h3>Reason for Change:</h3>
-      <p>
-            <textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea>   
-      </p>
+      <p><textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea></p>
       <br/>
 
-      <input type="submit" value="Set Default Context" >
+      <input type="submit" value="Set Default Context" />
     </form>
     
-    <script>
+    <script type="text/javascript">
         crds.context_map = {
             {% for context in context_map.items %}
                 "{{context.0}}" : "{{context.1}}",
@@ -50,6 +48,7 @@
             {% endfor %}
         };
         crds.set_context_display = function(value) {
+	    console.log("set_context_display " + value);
             $('#context_display').html(crds.context_pmaps[crds.context_map[value]]);
         };
         crds.set_context_display("operational");
