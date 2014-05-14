@@ -815,34 +815,6 @@ def get_synthetic_dataset_headers_by_id(dataset_ids, observatory="hst", datasets
     return headers
 
 
-def partition_dataset_ids(dataset_ids):
-    """Split an incoming list of dataset_ids into association and member ids.
-
-    Ids can be of form:    
-           <assoc>0
-           <member>[^0]
-           <assoc>0:<member>[^0]
-           
-    Returns ([<assoc>0, ...],  [<member>, ...])
-    """
-    dataset_ids = [did.upper() for did in dataset_ids]
-    assocs, members = set(), set()
-    for did in dataset_ids:
-        if ":" in did:
-            assoc, member = did.split(":")
-            assocs.add(assoc)
-            members.add(member)
-        else:
-            if did.endswith("0"):
-                assocs.add(did)
-            else:
-                members.add(did)
-    return list(assocs), list(members)
-
-def compound_id(assoc, member):
-    """Constructs a CRDS compound id from an association ID and a member ID."""
-    return assoc.upper() + ":" + member.upper()
-
 # This is a table of the assoc_member.asm_member_type correspondence rules
 # where keys are assumed to be "unrepresented" types and values are assumed
 # to fully resolve in DADSOPS producing workable headers for that member.
@@ -927,7 +899,42 @@ def get_synthetic_id_map(dataset_ids):
                     corresponding_member = type_mapping[assoc].get(ctype, member)
                 new_ids[compound_id(assoc, member)] = (compound_id(assoc, corresponding_member), typ, ctype)
 
+    for did in dataset_ids:
+        for compound in new_ids.keys():
+            if did in compound:
+                break
+        else: # Add in unassociated exposures as-is
+            new_ids[compound_id(did, did)] = (compound_id(did, did), "UNASSOC", "UNASSOC")
+
     return new_ids
+
+def partition_dataset_ids(dataset_ids):
+    """Split an incoming list of dataset_ids into association and member ids.
+
+    Ids can be of form:    
+           <assoc>0
+           <member>[^0]
+           <assoc>0:<member>[^0]
+           
+    Returns ([<assoc>0, ...],  [<member>, ...])
+    """
+    dataset_ids = [did.upper() for did in dataset_ids]
+    assocs, members = set(), set()
+    for did in dataset_ids:
+        if ":" in did:
+            assoc, member = did.split(":")
+            assocs.add(assoc)
+            members.add(member)
+        else:
+            if did.endswith("0"):
+                assocs.add(did)
+            else:
+                members.add(did)
+    return list(assocs), list(members)
+
+def compound_id(assoc, member):
+    """Constructs a CRDS compound id from an association ID and a member ID."""
+    return assoc.upper() + ":" + member.upper()
 
 # ---------------------------------------------------------------------------------------------------------
 def get_dataset_ids(instrument, observatory="hst", datasets_since=None):
