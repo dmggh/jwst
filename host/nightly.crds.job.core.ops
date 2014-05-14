@@ -57,7 +57,7 @@ echo "==========================================================="
 # tail -100 rerun.${ETAIL}
 ./stop ${CRDS_PROJECT} ${CRDS_USECASE} |& tee stop.${ETAIL}
 sleep 5
-./run ${CRDS_PROJECT} ${CRDS_USECASE} |&| tee run.${ETAIL}
+./run ${CRDS_PROJECT} ${CRDS_USECASE} |& tee run.${ETAIL}
 
 echo "==========================================================="
 echo "Server self-test"
