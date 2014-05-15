@@ -50,19 +50,19 @@ tail -100 orphan_files.${ETAIL}
 # host/build_stack >& build_stack.${ETAIL}
 # tail -100 build_stack.${ETAIL}
 
-echo "==========================================================="
-echo "Server re-start"
-echo "==========================================================="
+# echo "==========================================================="
+# echo "Server re-start"
+# echo "==========================================================="
 # ./rerun ${CRDS_PROJECT} ${CRDS_USECASE} >& rerun.${ETAIL}
 # tail -100 rerun.${ETAIL}
-./stop ${CRDS_PROJECT} ${CRDS_USECASE} |& tee stop.${ETAIL}
-sleep 5
-./run ${CRDS_PROJECT} ${CRDS_USECASE} |& tee run.${ETAIL}
+# ./stop ${CRDS_PROJECT} ${CRDS_USECASE} |& tee stop.${ETAIL}
+# sleep 5
+# ./run ${CRDS_PROJECT} ${CRDS_USECASE} |& tee run.${ETAIL}
 
-echo "==========================================================="
-echo "Server self-test"
-echo "==========================================================="
-cd ${CRDS}/CRDS_server
-./runtests ${CRDS_PROJECT} ${CRDS_USECASE}  >& runtests.${ETAIL}
-tail -100 runtests.${ETAIL}
+# echo "==========================================================="
+# echo "Server self-test"
+# echo "==========================================================="
+# cd ${CRDS}/CRDS_server
+# ./runtests ${CRDS_PROJECT} ${CRDS_USECASE}  >& runtests.${ETAIL}
+# tail -100 runtests.${ETAIL}
 
