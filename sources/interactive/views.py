@@ -2279,7 +2279,8 @@ def get_rmap_datatable_parameters(mapping):
     """Return the datatables dictionary corresponding to `rmap_name`."""
     mapping_name, rmap_dict = get_mapping_dict(mapping)
     assert is_rmap(mapping_name), "mapping must be an .rmap"
-    header = rmap_dict["parameters"] + (html.input("", type='submit', id='diff_button', value='diff'),)
+    header = fix_meta_parameters(rmap_dict["parameters"]) + \
+        (html.input("", type='submit', id='diff_button', value='diff'),)
     rows = [row[:-1] + ("<a href='/browse/{0}'>{1}</a>".format(row[-1], row[-1]), 
                         "<input type='checkbox' value='{0}' />".format(row[-1]),)
             for row in rmap_dict["selections"]]
@@ -2288,12 +2289,21 @@ def get_rmap_datatable_parameters(mapping):
 
 def get_mapping_dict(mapping):
     """Given mapping spec `mapping`,  return the dictionary representation."""
-    if re.match("operational|edit", mapping):
+    if re.match(complete_re(r"operational|edit"), mapping):
         mapping = models.get_default_context(state=mapping)
     is_mapping(mapping)
     loaded_mapping = rmap.get_cached_mapping(mapping)
     return mapping, loaded_mapping.todict()
 
+def fix_meta_parameters(parameters):
+    """Harmless web-hack for JWST,  ditch the wordy META. prefix on every parameter just
+    for the context display.
+    """
+    if isinstance(parameters, basestring):
+        return parameters.replace("META.","")
+    else:
+        return tuple([fix_meta_parameters(par) for par in parameters])
+    
 if sconfig.DEBUG:
     
     @capture_output
