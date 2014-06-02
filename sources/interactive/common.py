@@ -13,7 +13,7 @@ from crds.server.config import crds_server_log_dir
 # ===================================================================
 
 DESCRIPTION_RE = re.compile(complete_re(r"[A-Za-z0-9._\s/,#=\-\+\*!]{0,20000}"))  # 20k == approx 20 pages
-PERSON_RE = re.compile(complete_re(r"[A-Za-z_0-9\.@ ]{0,128}"))
+PERSON_RE = re.compile(complete_re(r"[A-Za-z_0-9\.@, ]{0,128}"))
 
 DATASET_ID_RE = re.compile(complete_re(r"[A-Za-z0-9_:]{1,128}"))
 
