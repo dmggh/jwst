@@ -5,16 +5,16 @@ SHELL=/bin/tcsh
 MAILTO=jmiller@stsci.edu
 
 # run five minutes after 3 am, every day
-5 3 * * *      source $HOME/.setenv;  nightly.crds.job 
+5 3 * * *       source /crds/data1/cron/cronenv.csh;      nightly.crds.job 
 
 # every 5 minutes, no e-mail
-*/5 * * * *    source $HOME/.setenv;  cd ${CRDS}/CRDS_server;  source env.csh; monitor_reprocessing >& /dev/null
+*/5 * * * *     source /crds/data1/cron/cronenv.csh;      monitor_reprocessing >& /dev/null
 
 # every 5 minutes, no e-mail
-*/5 * * * *   source $HOME/.setenv;  cd ${CRDS}/CRDS_server;  source env.csh; clear_expired_locks  >& /dev/null
+*/5 * * * *     source /crds/data1/cron/cronenv.csh;      clear_expired_locks  >& /dev/null
 
 # every 2 hours, no e-mail,  slow to prevent multiple concurrent syncs
-0 0-23/2 * * *  source $HOME/.setenv;  cd ${CRDS}/CRDS_server;  source env.csh; sync_ops_to_grp >& /dev/null
+0 0-23/2 * * *  source /crds/data1/cron/cronenv.csh;      sync_ops_to_grp >& /dev/null
 
 # run at 2:15pm on the first of every month
 #   15 14 1 * *     $HOME/bin/monthly
