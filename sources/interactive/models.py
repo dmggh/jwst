@@ -728,13 +728,13 @@ class FileBlob(BlobModel):
         help_text = "Hex sha1sum of file contents as delivered", default="none")
     
     delivery_date = models.DateTimeField(
-        auto_now=True, help_text="Date file was received by CRDS.")
+        default=datetime.datetime.now, help_text="Date file was received by CRDS.")
     
     activation_date = models.DateTimeField(
-        auto_now_add=False, default=DEFAULT_ACTIVATION_DATE, help_text="Date file first listed in an operational context.")
+        default=DEFAULT_ACTIVATION_DATE, help_text="Date file first listed in an operational context.")
     
     useafter_date = models.DateTimeField(
-        auto_now_add=False, default=DEFAULT_ACTIVATION_DATE, help_text="Dataset date after which this file is a valid reference.")
+        default=DEFAULT_ACTIVATION_DATE, help_text="Dataset date after which this file is a valid reference.")
 
     change_level = SimpleCharField(
         CHANGE_LEVELS,  "Affect of changes in this file relative to preceding version on science results", "SEVERE")
