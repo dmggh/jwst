@@ -665,6 +665,7 @@ assert len(ALL_STATES) == len(set(ALL_STATES)), "Doubly-assigned or duplicate st
 assert len(FILE_STATES) >= len(ALL_STATES),  "Uncategorized state in FileBlob state declarations."
 
 DEFAULT_ACTIVATION_DATE =  datetime.datetime(2050, 1, 1, 0, 0)
+START_OF_CRDS = datetime.datetime(2013, 6, 1, 0, 0)
 
 class SimpleCharField(models.CharField):
     def __init__(self, choice_list, help_text, default):
@@ -809,6 +810,7 @@ class FileBlob(BlobModel):
         "blacklisted" : lambda self: self.blacklisted_by and not self.blacklisted,
         "size" : lambda self: self.size == -1 or self.size != self.compute_size(),
         "sha1sum" : lambda self: self.sha1sum == "none",
+        "delivery_date" : lambda self: self.delivery_date > self.activation_date and self.activation_date >= START_OF_CRDS,
         "activation_date": lambda self: self.state in ["archived", "operational"] and \
                                     self.activation_date == DEFAULT_ACTIVATION_DATE,
         "useafter_date": lambda self: (self.useafter_date in [self.delivery_date, DEFAULT_ACTIVATION_DATE] and self.type != "mapping"),
@@ -937,6 +939,11 @@ class FileBlob(BlobModel):
         self.set_fits_field("comment", "DESCRIP")
 
     if OBSERVATORY == "hst":
+        def repair_delivery_date(self):
+            delivery_date = [ audit.date for audit in AuditBlob.filter(filename=self.name) 
+                                if audit.action in ["mass import", "submit file", "batch submit"]][0]
+            self.delivery_date = delivery_date
+
         def repair_activation_date(self):
             if self.type == "mapping":
                 for hist in reversed(get_context_history()):  # find earliest pmap which uses mapping
@@ -951,7 +958,7 @@ class FileBlob(BlobModel):
                     name = data_file.get_conjugate(name)
                 from crds.server.interactive import database
                 info = database.get_reference_info(self.instrument, name)
-                self.useafter_date = timestamp.parse_date(info["opus_load_date"])
+                self.activation_date = timestamp.parse_date(info["opus_load_date"])
 
         def repair_useafter_date(self):
             if self.type == "mapping":
