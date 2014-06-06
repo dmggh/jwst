@@ -155,7 +155,7 @@ mod_wsgi)
         # our production environment with possible dependencies on that data.)
         (
         cat env.sh
-	echo "nohup memcached -m 32M -s /tmp/memcached.sock >>& ${install_dir}/server/logs/memcached.log </dev/null &"
+	echo "nohup memcached -m 32M -s /tmp/memcached.sock >>${install_dir}/server/logs/memcached.log 2>&1 </dev/null &"
 	echo "disown -h %1"
         echo "/usr/sbin/httpd -f $install_dir/server/conf/httpd.conf"
         ) > run
@@ -186,7 +186,7 @@ django)
         (
 	cat env.csh
         echo "cd $install_dir/python/lib/python/crds/server"
-	echo "nohup memcached -m 32M -s /tmp/memcached.sock >>& ${install_dir}/server/logs/memcached.log </dev/null &"
+	echo "nohup memcached -m 32M -s /tmp/memcached.sock >>${install_dir}/server/logs/memcached.log 2>&1 </dev/null &"
 	echo "onintr control_c"
         echo "python manage.py runserver $noreload $hostname:$port"
 	echo "control_c:"
