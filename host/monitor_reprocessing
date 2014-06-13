@@ -1,4 +1,4 @@
-#! /bin/csh -x
+#! /bin/csh 
 
 # This script is intended to be run periodically as a cronjob and to
 # compare the context at the last run to the current operational
