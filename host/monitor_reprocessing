@@ -1,4 +1,4 @@
-#! /bin/csh
+#! /bin/csh -x
 
 # This script is intended to be run periodically as a cronjob and to
 # compare the context at the last run to the current operational
@@ -28,9 +28,9 @@ if ("$old_context" != "") then
 
     # rip out the ints so csh < works,  e.g. hst_0200.pmap --> 0200
     set old = `echo ${old_context} | cut -d'_' -f2`
-    set old = `echo ${old} | cut -d'.' -f1`  
+    set old = `echo ${old} | cut -d'.' -f1 | sed 's/^0*//g'`
     set new = `echo ${new_context} | cut -d'_' -f2`
-    set new = `echo ${new} | cut -d'.' -f1`
+    set new = `echo ${new} | cut -d'.' -f1 | sed 's/^0*//g'`
 
     if ($old < $new) then
 	affected_datasets $old_context $new_context fast
