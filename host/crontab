@@ -14,7 +14,7 @@ MAILTO=jmiller@stsci.edu
 */5 * * * *     source /crds/data1/cron/cronenv.csh;      clear_expired_locks  >& /dev/null
 
 # every 2 hours, no e-mail,  slow to prevent multiple concurrent syncs
-0 0-23/2 * * *  source /crds/data1/cron/cronenv.csh;      sync_ops_to_grp >& /dev/null
+*/10 * * * *  source /crds/data1/cron/cronenv.csh;      sync_ops_to_grp >& /dev/null
 
 # run at 2:15pm on the first of every month
 #   15 14 1 * *     $HOME/bin/monthly
