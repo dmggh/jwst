@@ -665,7 +665,7 @@ assert len(ALL_STATES) == len(set(ALL_STATES)), "Doubly-assigned or duplicate st
 assert len(FILE_STATES) >= len(ALL_STATES),  "Uncategorized state in FileBlob state declarations."
 
 DEFAULT_ACTIVATION_DATE =  datetime.datetime(2050, 1, 1, 0, 0)
-START_OF_CRDS = datetime.datetime(2013, 6, 1, 0, 0)
+START_OF_CRDS = datetime.datetime(2013, 8, 1, 0, 0)
 
 class SimpleCharField(models.CharField):
     def __init__(self, choice_list, help_text, default):
@@ -813,13 +813,10 @@ class FileBlob(BlobModel):
         "delivery_date" : lambda self: self.delivery_date > self.activation_date and self.activation_date >= START_OF_CRDS,
         "activation_date": lambda self: self.state in ["archived", "operational"] and \
                                     self.activation_date == DEFAULT_ACTIVATION_DATE,
-        "useafter_date": lambda self: (self.useafter_date in [self.delivery_date, DEFAULT_ACTIVATION_DATE] and self.type != "mapping"),
         "type" : lambda self: not self.type,
         "observatory": lambda self: self.observatory not in OBSERVATORIES,
         "instrument": lambda self:  (not self.name.endswith(".pmap")) and self.instrument not in INSTRUMENTS,
         "filekind": lambda self:  (not self.name.endswith((".pmap",".imap"))) and self.filekind not in FILEKINDS,
-        "aperture" : lambda self: self.aperture=="none" and self.type != "mapping" and \
-            self.instrument != "wfpc2",
         "comment" : lambda self: not self.comment,
         "description" : lambda self: not self.description,
         "pedigree" : lambda self: self.type == "reference" and not self.pedigree and \
@@ -938,11 +935,12 @@ class FileBlob(BlobModel):
     def repair_comment(self):
         self.set_fits_field("comment", "DESCRIP")
 
+    def repair_delivery_date(self):
+        delivery_date = [ audit.date for audit in AuditBlob.filter(filename=self.name) 
+                          if audit.action in ["mass import", "submit file", "batch submit"]][0]
+        self.delivery_date = delivery_date
+
     if OBSERVATORY == "hst":
-        def repair_delivery_date(self):
-            delivery_date = [ audit.date for audit in AuditBlob.filter(filename=self.name) 
-                                if audit.action in ["mass import", "submit file", "batch submit"]][0]
-            self.delivery_date = delivery_date
 
         def repair_activation_date(self):
             if self.type == "mapping":
@@ -970,6 +968,14 @@ class FileBlob(BlobModel):
                 from crds.server.interactive import database
                 info = database.get_reference_info(self.instrument, name)
                 self.useafter_date = timestamp.parse_date(info["useafter_date"])
+
+        bad_field_checks["aperture"] = lambda self: self.aperture=="none" and self.type != "mapping" and self.instrument != "wfpc2"
+        bad_field_checks["useafter_date"] = lambda self: self.useafter_date in [self.delivery_date, DEFAULT_ACTIVATION_DATE] and self.type != "mapping"
+
+    elif OBSERVATORY == "jwst":
+        
+        pass
+        
         
     @property
     def moniker(self):
