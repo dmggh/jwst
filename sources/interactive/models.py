@@ -399,8 +399,18 @@ def update_delivery_status():
 
 def _active_files(context):
     """Return the set of all filenames referred to by `context`."""
-    pmap = rmap.load_mapping(context)
+    pmap = rmap.get_cached_mapping(context)
     return set(pmap.mapping_names() + pmap.reference_names())
+
+def _all_activated_files():
+    """Return the set of all files known to have ever been activated (used in operational context)."""
+    all_files = set()
+    for blob in get_context_history():
+        if blob.state == "operational":
+            log.info("Loading active files from", repr(blob.context))
+            all_files = all_files.union(_active_files(blob.context))
+    
+    return all_files
 
 def update_file_replacements(old_pmap, new_pmap, fileblob_map=None):
     """Given root mappings `old_pmap` and `new_pmap`, difference them and update the CRDS catalog
@@ -812,7 +822,7 @@ class FileBlob(BlobModel):
         "sha1sum" : lambda self: self.sha1sum == "none",
         "delivery_date" : lambda self: self.delivery_date > self.activation_date and self.activation_date >= START_OF_CRDS,
         "activation_date": lambda self: self.state in ["archived", "operational"] and \
-                                    self.activation_date == DEFAULT_ACTIVATION_DATE,
+                                    self.activation_date == DEFAULT_ACTIVATION_DATE and self.name in _all_activated_files(),
         "type" : lambda self: not self.type,
         "observatory": lambda self: self.observatory not in OBSERVATORIES,
         "instrument": lambda self:  (not self.name.endswith(".pmap")) and self.instrument not in INSTRUMENTS,
@@ -974,8 +984,7 @@ class FileBlob(BlobModel):
 
     elif OBSERVATORY == "jwst":
         
-        pass
-        
+        pass        
         
     @property
     def moniker(self):
