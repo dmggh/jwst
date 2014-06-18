@@ -86,10 +86,10 @@ create_dir $secret $install_dir/server/conf
 create_dir $secret $install_dir/server/wsgi-scripts
 
 # Set up rc script for cron jobs referenced by host/crontab
-create_dir $secret $install_dir/../cron
-cp host/cronenv.csh $install_dir/../cron
-cp host/dot_setenv $install_dir/../cron
-chmod 600 $install_dir/cron/*
+# create_dir $secret $install_dir/../cron
+# cp host/cronenv.csh $install_dir/../cron
+# cp host/dot_setenv $install_dir/../cron
+# chmod 600 $install_dir/cron/*
 
 ###
 ### special cases for each type of web server we might be using
