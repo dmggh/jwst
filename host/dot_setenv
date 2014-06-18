@@ -13,7 +13,6 @@ setenv  CRDS_SERVER `uname -n | cut -d'.' -f1`
 
 # CRDS and CRDS_STACK,  same pattern,  different dirs,  override below as needed
 setenv CRDS /crds/data1/${CRDS_SERVER}
-setenv CRDS_STACK ${CRDS}/crds_stacks/crds_10
 setenv URP_TYPE crds
 
 switch ($CRDS_SERVER)
@@ -62,8 +61,6 @@ setenv META_PREFIX ${CRDS_STACK}
 setenv CRDS_IFS /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}
 setenv CRDS_FILE_CACHE ${CRDS_IFS}/file_cache
 setenv CRDS_SERVER_FILES ${CRDS_IFS}/server_files
-
-setenv CRDS_LOCKS ${CRDS_FILE_CACHE}  # this should be a decent file system,  NFS might fail.
 
 setenv PATH ${CRDS}/CRDS_server/host:${CRDS_STACK}/bin:/usr/kerberos/bin:/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin
 # /usr/stsci/Python-2.7.4/bin:

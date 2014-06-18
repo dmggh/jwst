@@ -5,16 +5,20 @@ SHELL=/bin/tcsh
 MAILTO=jmiller@stsci.edu
 
 # run five minutes after 3 am, every day
-5 3 * * *       source /crds/data1/cron/cronenv.csh;      nightly.crds.job 
+5 3 * * *       source $HOME/cronenv.csh;      nightly.crds.job 
 
 # every 5 minutes, no e-mail
-*/5 * * * *     source /crds/data1/cron/cronenv.csh;      monitor_reprocessing >& /dev/null
+*/5 * * * *     source $HOME/cronenv.csh;      monitor_reprocessing >& monitor_reprocessing.log
 
 # every 5 minutes, no e-mail
-*/5 * * * *     source /crds/data1/cron/cronenv.csh;      clear_expired_locks  >& /dev/null
+*/5 * * * *     source $HOME/cronenv.csh;      clear_expired_locks  >& clear_expired_locks.log
 
-# every 2 hours, no e-mail,  slow to prevent multiple concurrent syncs
-*/10 * * * *  source /crds/data1/cron/cronenv.csh;      sync_ops_to_grp >& /dev/null
+# every 10 minutes, no e-mail
+*/10 * * * *  source $HOME/cronenv.csh;      sync_ops_to_grp >& sync_ops_to_grp.log
+
+# once a week, Friday night at midnight + 4 minutes, check cache sha1sums
+# don't do this on CRDS VM since it loads down the VM file buffer cache
+# 04 0 * * fri  source $HOME/cronenv.csh;      sync_ops_to_grp --check-sha1sum
 
 # run at 2:15pm on the first of every month
 #   15 14 1 * *     $HOME/bin/monthly
