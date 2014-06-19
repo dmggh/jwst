@@ -19,7 +19,9 @@ crds_cacher = cache_page(MAX_AGE, cache='crds_cache')
 
 urlpatterns = patterns('',
     # url(r'^json/browse/', 'jsonrpc.views.browse', name="jsonrpc_browser"), # for the graphical browser/web console only, omissible
-    url(r'^json/', jsonrpc_site.dispatch, name="jsonrpc_mountpoint"),
+
+    url(r'^json/[A-Za-z0-9_]+/[A-Za-z0-9_\-]+/$', jsonrpc_site.dispatch, name="jsonrpc_mountpoint"),  # custom additionm rpc traceability in logs, adds:  method, rpc_id
+    url(r'^json/', jsonrpc_site.dispatch, name="jsonrpc_mountpoint"),  # original URL API,  still supported,  less informative in logs
     
     # url(r'^json/(?P<method>[a-zA-Z0-9_.]+)$', jsonrpc_site.dispatch), # for HTTP GET only, also omissible,  XSS safe??
     
