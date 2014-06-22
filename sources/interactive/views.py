@@ -1741,7 +1741,7 @@ def recent_activity_post(request):
 # @profile('delivery_status.stats')
 @error_trap("base.html")
 @log_view
-@superuser_login_required
+@login_required
 def delivery_status(request):
     """Show a table of the catlog files reflecting file deliveries and their status."""
     
