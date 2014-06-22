@@ -22,7 +22,12 @@
                     <td align="center"><a href="/context_table/{{hist.0.context}}">{{hist.0.context}}</a></span></td>
                     <td align="center" class="{{hist.1.status_class}}">{{hist.1.status}}</span></td>
                     <td align="left">{{hist.0.description}}</td>
-                    <td align="center"><input type="checkbox" name="diff_file" value="{{hist.0.context}}" /></td>
+                    <td align="center">
+                        <input type="checkbox" name="diff_file" value="{{hist.0.context}}" />
+                        {% if is_authenticated %}
+                            <a href="/edit_context_history/{{hist.0.id}}/{{hist.0.context}}">*</a>  {#  style="text-decoration:none" #}
+                        {% endif %}
+                    </td>
                 </tr>
             {% endfor %}
             

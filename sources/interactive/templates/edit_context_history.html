@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load url from future %}
+
+{% block column1 %}
+
+<h2>Edit Context History</h2>
+
+<form method="post" action="/edit_context_history/{{context_history.id}}/{{context_history.context}}/"" >
+{% csrf_token %}
+
+    <h3>History Date</h3>
+    <p>{{context_history.start_date}}</p>
+    
+    <h3>Context Name</h3>
+    <p>{{context_history.context}}</p>
+
+    <h3>Description</h3>
+    <textarea name="description"> {{context_history.description}}</textarea>
+    
+    <br/>
+    <br/>
+    <input type="submit" value="Submit" />  
+
+</form>
+
+<script type="application/javascript">
+</script>
+
+{% endblock %}
+
+{% block column2 %}
+{% endblock %}
+

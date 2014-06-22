@@ -2239,10 +2239,28 @@ def display_context_history(request):
     context_blobs = { blob.name:blob for blob in models.FileBlob.filter(name__endswith=".pmap") }
     # log.info("context_blobs:", context_blobs)
     history_tuples = [ (hist, context_blobs[hist.context]) for hist in history ]
-    return crds_render(request, "display_context_history.html", {
+    response = crds_render(request, "display_context_history.html", {
             "history" : history,
             "history_tuples" : history_tuples,
         }, requires_pmaps=False)
+    response['Cache-Control'] = "no-cache"
+    return response
+
+@error_trap("edit_context_history.html")
+@login_required
+@log_view
+def edit_context_history(request, history_id):
+    if request.method == "GET":
+        return crds_render(request, "edit_context_history.html", dict(
+            context_history=models.ContextHistoryModel.objects.get(id=int(history_id)),
+        ), requires_pmaps=False)
+    else:
+        context_history=models.ContextHistoryModel.objects.get(id=int(history_id))
+        context_history.description = validate(request, "description", common.DESCRIPTION_RE)
+        context_history.save()
+        models.clear_cache()
+        response = redirect("/display_context_history") # secure
+        return response
 
 # ============================================================================
 
@@ -2273,6 +2291,7 @@ def get_context_table_parameters(pmap):
     except Exception, exc:
         log.error("Failure in get_context_table_parameters:", str(exc))
         return {}
+    
 
 @models.crds_cached
 def get_rmap_datatable_parameters(mapping):

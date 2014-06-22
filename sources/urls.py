@@ -90,6 +90,11 @@ urlpatterns = patterns('',
                          
     url(r'^display_result/(?P<results_id>\d+)$', 
         'crds.server.interactive.views.display_result'),
+                       
+    url(r'^edit_context_history/(?P<history_id>\d+)/{0}/$'.format(FILE_RE_STR), 
+        'crds.server.interactive.views.edit_context_history'),
+                       
+
                          
     url(r'^jpoll/open_channel/$', 'crds.server.jpoll.views.open_channel'),
     url(r'^jpoll/pull_messages/$', 'crds.server.jpoll.views.pull_messages'),
