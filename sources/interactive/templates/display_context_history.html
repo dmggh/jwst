@@ -24,7 +24,7 @@
                     <td align="left">{{hist.0.description}}</td>
                     <td align="center">
                         <input type="checkbox" name="diff_file" value="{{hist.0.context}}" />
-                        {% if is_authenticated %}
+                        {% if is_authenticated and user|in_group:"edit_context_history" %}
                             <a href="/edit_context_history/{{hist.0.id}}/{{hist.0.context}}">*</a>  {#  style="text-decoration:none" #}
                         {% endif %}
                     </td>

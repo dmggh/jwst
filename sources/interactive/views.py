@@ -27,6 +27,7 @@ from django.core.urlresolvers import reverse
 import django.contrib.auth
 import django.contrib.auth.models
 from django.contrib.auth.decorators import login_required as login_required
+from django.contrib.auth.decorators import user_passes_test
 
 from astropy.io import fits as pyfits
 
@@ -574,6 +575,16 @@ def superuser_login_required(func):
     _inner.func_name = func.func_name
     return _inner
 
+
+def group_required(*group_names):
+    """Requires user membership in at least one of the groups passed in."""
+    def in_groups(u):
+        if u.is_authenticated():
+            if bool(u.groups.filter(name__in=group_names)) | u.is_superuser:
+                return True
+        return False
+    return user_passes_test(in_groups)
+
 # ===========================================================================
 #
 # Hooks for coordinating locks on instruments with logins,  ensuring they're
@@ -743,6 +754,7 @@ def logout(request):
 @error_trap("set_password.html")
 @log_view
 @login_required
+@group_required("file_submission")
 def set_password(request):
     """Support changing a user's own password."""
     if request.method == "POST":
@@ -1083,6 +1095,7 @@ def certify_post(request):
 @error_trap("batch_submit_reference_input.html")
 @log_view
 @login_required
+@group_required("file_submission")
 @instrument_lock_required
 # @profile("batch_submit_reference.stats")
 def batch_submit_references(request):
@@ -1155,6 +1168,7 @@ def batch_submit_references_post(request):
 @error_trap("base.html")
 @log_view
 @login_required
+@group_required("file_submission")
 # critical to omit:   @instrument_lock_required
 # @ilr will get a new lock.  critical that lock not expire prior to confirm.
 def submit_confirm(request):
@@ -1423,6 +1437,7 @@ def create_contexts_post(request):
 @error_trap("submit_input.html")
 @log_view
 @login_required
+@group_required("file_submission")
 @instrument_lock_required
 def submit_files(request, crds_filetype):
     """Handle file submission,  crds_filetype=reference|mapping."""
@@ -2108,6 +2123,7 @@ def version_info(request):
 @error_trap("mark_bad_input.html")
 @log_view
 @login_required
+@group_required("file_submission")
 def mark_bad(request):
     """Serve the blacklist input form or process the POST."""
     if request.method == "GET":
@@ -2167,6 +2183,7 @@ def mark_bad_core(user, blacklist_root, badflag, why):
 @error_trap("base.html")
 @log_view
 @login_required
+@group_required("file_submission")
 def set_default_context(request):
     """Change the default context presented to users as the nominal start from
     which to derive new contexts.
@@ -2234,11 +2251,7 @@ def display_context_history(request):
     """Change the default context presented to users as the nominal start from
     which to derive new contexts.
     """
-    history = models.get_context_history(observatory=models.OBSERVATORY, state="operational")
-    # log.info("context_history:", history)
-    context_blobs = { blob.name:blob for blob in models.FileBlob.filter(name__endswith=".pmap") }
-    # log.info("context_blobs:", context_blobs)
-    history_tuples = [ (hist, context_blobs[hist.context]) for hist in history ]
+    history, history_tuples = get_context_history_variables()
     response = crds_render(request, "display_context_history.html", {
             "history" : history,
             "history_tuples" : history_tuples,
@@ -2246,9 +2259,20 @@ def display_context_history(request):
     response['Cache-Control'] = "no-cache"
     return response
 
+#  @models.crds_cached  currently not cacheable due to datetime.datetime's
+def get_context_history_variables():
+    """Return the data required to render the context history,  suitable for caching."""
+    history = models.get_context_history(observatory=models.OBSERVATORY, state="operational")
+    # log.info("context_history:", history)
+    context_blobs = { blob.name:blob for blob in models.FileBlob.filter(name__endswith=".pmap") }
+    # log.info("context_blobs:", context_blobs)
+    history_tuples = [ (hist, context_blobs[hist.context]) for hist in history ]
+    return history, history_tuples
+
 @error_trap("edit_context_history.html")
 @login_required
 @log_view
+@group_required("edit_context_history")
 def edit_context_history(request, history_id):
     if request.method == "GET":
         return crds_render(request, "edit_context_history.html", dict(

@@ -11,6 +11,7 @@ from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
 from django.utils.html import format_html, format_html_join, conditional_escape 
 from django.shortcuts import render as django_render
+import django.utils.encoding
 
 import crds
 from crds import (rmap, utils, log)
@@ -189,3 +190,29 @@ class AccordionNode(template.Node):
         title = " ".join(title_words)
         content = self.nodelist.render(context)
         return accordion_template.format(title, content)
+    
+# ===========================================================================
+# copied from https://djangosnippets.org/snippets/847/
+
+@register.filter
+def in_group(user, groups):
+    """Returns a boolean if the user is in the given group, or comma-separated
+    list of groups.
+
+    Usage::
+
+        {% if user|in_group:"Friends" %}
+        ...
+        {% endif %}
+
+    or::
+
+        {% if user|in_group:"Friends,Enemies" %}
+        ...
+        {% endif %}
+
+    """
+    group_list = django.utils.encoding.force_unicode(groups).split(',')
+    return bool(user.groups.filter(name__in=group_list).values('name'))
+
+
