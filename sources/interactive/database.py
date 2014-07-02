@@ -4,7 +4,7 @@ catalog.
 """
 import pprint
 import getpass
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict, defaultdict, namedtuple
 import os.path
 
 import pyodbc
@@ -17,7 +17,7 @@ from crds.server.interactive import models, common
 from crds.server import config as sconfig
 
 if models.OBSERVATORY == "hst":
-    import crds.hst
+    import crds.hst, crds.hst.locate
     import crds.hst.parkeys as parkeys
 
 log.set_verbose(False)
@@ -71,6 +71,18 @@ IPPPSSOOT_INSTR = {
 }
 
 INSTR_IPPPSSOOT = utils.invert_dict(IPPPSSOOT_INSTR)
+
+# ---------------------------------------------------------------------------------------------
+
+FitsToDadsTuple = namedtuple("FitsToDadsTuple", ["observatory", "instrument", "fits", "field", "table", "empty1", "empty2"])
+FITS_TO_DADS = dict()
+
+def load_FITS_to_DADS():
+    """Load the mapping from FITS keywords to DADS database fields for the HST catalog."""
+    global FITS_TO_DADS
+    for line in open(os.path.join(HERE, "dads_keywords.bdf")).read().splitlines():
+        tup = FitsToDadsTuple(*[name.lower() for name in line.split("|")]) # Somebody wrote a module for this.
+        FITS_TO_DADS[(tup.instrument, tup.fits)] = tup.table + "." + tup.field
 
 # ---------------------------------------------------------------------------------------------
 
@@ -153,11 +165,21 @@ class DB(object):
         gen = self.execute(sql)
         return sorted([tuple(t) for t in gen])
 
+    @utils.cached
     def get_tables(self):
         return sorted(str(row.table_name) for row in self.cursor.tables())
 
+    @utils.cached
     def get_columns(self, table):
         return [str(col.column_name) for col in self.cursor.columns(table=table)] # *** DO NOT SORT
+
+    def get_instrument_tables(self, instrument):
+        return [ table for table in self.get_tables() if table.startswith(instrument)]
+
+    def get_instrument_columns(self, instrument):
+        return sorted([table + "." + col 
+                      for table in self.get_instrument_tables(instrument)
+                      for col in self.get_columns(table)])
 
     def make_dicts(self, table, col_list=None, ordered=False, where="", dataset=None, lowercase=True):
         if dataset is not None:
@@ -221,7 +243,11 @@ def get_instrument_db_parkeys(instrument):
         switch = parkeys.get_reffile_switch(instrument, filekind)
         if switch.lower() != "none":
             dbkeys.add(switch)
-    return sorted(dbkeys)
+    log.info("Parkeys for", repr(instrument), "=", sorted(list(dbkeys)))
+    rowkeys = crds.hst.locate.get_row_keys_by_instrument(instrument)
+    log.info("Rowkeys for", repr(instrument), "=", rowkeys)
+    dbkeys = dbkeys.union(set(rowkeys))
+    return sorted([key.lower() for key in dbkeys])
 
 def required_keys(instr):
     """Get both the input parkeys and expected results keywords for
@@ -233,9 +259,9 @@ def required_keys(instr):
     # pars.append("program_id")
     # pars.append("obset_id")
     # pars.append("obsnum")
-    pars.append("asn_id")
-    pars.append("member_name") 
-    pars.append("member_type")
+    pars.append("asm_asn_id")
+    pars.append("asm_member_name") 
+    pars.append("asm_member_type")
     imap = rmap.get_cached_mapping(models.get_default_context(state="operational")).get_imap(instr)
     pars.extend(imap.selections.keys())
     return pars
@@ -248,6 +274,7 @@ def gen_header_tables(datfile=HEADER_TABLES):
     where best_refs_item is nominally the name of a best refs parameter or
     result or other relevant info,  assumed to be a substring of `column`.
     """
+    log.info("All DADSOPS tables:", get_catalog().get_tables())
     table = {}
     for instr in crds.hst.INSTRUMENTS:
         table[instr] = clean_scan(instr)
@@ -259,42 +286,14 @@ def clean_scan(instr):
     Emits a warning for parameters which are not automatically mapped to the
     database.
     """
+    load_FITS_to_DADS()
     columns, remainder = scan_tables(instr)
     if remainder:
         log.warning("For", repr(instr), "can't locate", sorted(list(remainder)))
+        log.info("Columns for", repr(instr),"are", log.PP(get_catalog().get_instrument_columns(instr)))
     else:
         log.info("Collected", repr(instr), "ok")
-    clean = {}
-    for var in columns:
-        tvar2 = columns[var]
-        tvar = []
-        for cand in tvar2:
-            if "_old" not in cand:
-                tvar.append(cand)
-
-        for cand in tvar:
-            if "best" in cand:
-                tvar = [cand]
-                break
-
-        for cand in tvar:
-            if "ref_data" in cand and "tv_ref_data" not in cand:
-                tvar = [cand]
-                break
-
-        for cand in tvar:
-            if "science" in cand and "tv_science" not in cand:
-                tvar = [cand]
-                break
-
-        if len(tvar) == 1:
-            clean[var] = tvar[0]
-        elif len(tvar) == 2 and "best" in tvar[1] and "best" not in tvar[0]:
-            clean[var] = tvar[1]
-        else:
-            clean[var] = tvar
-            
-    return clean
+    return columns
 
 def scan_tables(instr):
     """scan_tables() automatically matches the required parameters for each
@@ -302,26 +301,45 @@ def scan_tables(instr):
     returning a map  { parameter : [ "table.column", ...] } finding plausible
     locations for each CRDS best refs parameter in the dataset catalog.
     """
+    log.reset()
     catalog = get_catalog()
     pars = required_keys(instr)
-    columns = {}
-    for table in catalog.get_tables():
-        if instr not in table and "assoc_member" not in table:
-            continue
-        for par in pars:
-            for col in catalog.get_columns(table):
-                if par in col:
-                    if par not in columns:
-                        columns[par] = []
-                    columns[par].append(str(table + "." + col))
-    return columns, set(pars) - set(columns.keys())
+    columns = dict()
+    tables = catalog.get_instrument_tables(instr) + ["assoc_member"]
+    log.info("Scanning for", repr(instr), "tables =", tables)
+    remainder = []
+    for par in pars:
+        columns[par] = []
+        for table in tables:
+            if instr not in table and table != "assoc_member":
+                continue
+            try:
+                field = FITS_TO_DADS[(instr, par)]
+                if field not in columns[par]:
+                    columns[par].append(field)
+                log.info("FITS_TO_DADS found for", (instr, par))
+                break
+            except KeyError:
+                for col in catalog.get_columns(table):
+                    if par in col:
+                        field = str(table + "." + col)
+                        if field not in columns[par]:
+                            columns[par].append(field)
+                            log.info("Turbo hog wild, SCORE for", repr(par), "=", field)
+        if not columns[par]:
+            log.error("FITS_TO_DADS + 'turbo hog wild' both BUST for", (instr, par))
+            remainder.append(par)
+        elif len(columns[par]) == 1: 
+            columns[par] = columns[par][0]
+    log.standard_status()
+    return columns, sorted(remainder)
 
 # ---------------------------------------------------------------------------------------------
 
 class HeaderGenerator(common.Struct):
     def __init__(self, instrument, catalog_db, header_to_db_map):
         self.instrument = instrument.lower()
-        self.catalog_db = catalog_db        
+        self.catalog_db = catalog_db
         self.h_to_db = header_to_db_map
         self.db_columns = self.h_to_db.values()
         self.db_tables = sorted(set(column.split(".")[0] 
