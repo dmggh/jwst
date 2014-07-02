@@ -99,6 +99,7 @@
          'obstype': 'cos_ref_data.csr_obstype',
          'opt_elem': 'cos_ref_data.csr_opt_elem',
          'phatab': 'cos_ref_data.csr_phatab',
+	 'segment' : 'cos_d_data.csd_segment',
          'spwcstab': 'cos_ref_data.csr_spwcstab',
          'tdscorr': 'cos_ref_data.csr_tdscorr',
          'tdstab': 'cos_ref_data.csr_tdstab',
