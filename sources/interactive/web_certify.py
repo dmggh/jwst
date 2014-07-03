@@ -52,7 +52,8 @@ def captured_certify(original_name, uploaded_path, check_references=True, filema
     config.check_filename(original_name)
     output = _captured_certify(original_name, uploaded_path, context, compare_old_reference,
                                check_references, filemap)[1]
-    if ": ERROR" in output:
+
+    if "CRDS : ERROR" in output:
         status = "Failed."
     elif ": WARNING" in output:
         status = "Warnings"
