@@ -39,7 +39,7 @@
          'fw1offst': 'acs_ref_data.acr_fw1offst',
          'fw2offst': 'acs_ref_data.acr_fw2offst',
          'fwsoffst': 'acs_ref_data.acr_fwsoffst',
-         'glincorr': 'acs_ref_data.acr__best_glincorr',
+         'glincorr': 'acs_ref_data.acr_best_glincorr',
          'idctab': 'acs_ref_data.acr_best_idctab',
          'imphttab': 'acs_ref_data.acr_best_imphttab',
          'ltv1': 'acs_chip.acc_ltv1',
