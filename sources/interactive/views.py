@@ -1085,10 +1085,10 @@ def certify_post(request):
 
     blacklist_results = web_certify.get_blacklist_file_list(uploaded_files.items(), all_files=all_files)
 
-    return crds_render(request, "certify_results.html", {
+    return render_repeatable_result(request, "certify_results.html", {
              "certify_results":certify_results,
              "blacklist_results":blacklist_results,
-    })
+             },  jpoll_handler=jpoll_handler)
     
 # ===========================================================================
 

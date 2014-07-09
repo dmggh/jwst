@@ -16,7 +16,7 @@
 
     <form method="post" action="/certify/" enctype="multipart/form-data"
         id="certify_form" class="jpoll_ajax_html_form"
-        onsubmit="crds.setup_status_display('Certification Status'); return true;"> 
+        onsubmit="return crds.setup_status_display('Certification Status');"> 
       {% csrf_token %}
 
       {% include "comparison_context.html" %}

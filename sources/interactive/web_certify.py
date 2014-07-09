@@ -4,6 +4,7 @@ while making the output look sane.
 """
 
 import os.path
+import re
 
 from django.utils import html
 
@@ -53,9 +54,9 @@ def captured_certify(original_name, uploaded_path, check_references=True, filema
     output = _captured_certify(original_name, uploaded_path, context, compare_old_reference,
                                check_references, filemap)[1]
 
-    if "CRDS : ERROR" in output:
+    if re.search(r"(CRDS\s+:\s+ERROR)", output):
         status = "Failed."
-    elif ": WARNING" in output:
+    elif re.search(r"(CRDS\s+:\s+WARNING)", output):
         status = "Warnings"
     else:
         status = "OK"

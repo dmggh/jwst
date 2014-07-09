@@ -98,7 +98,9 @@ crds.setup_status_display = function (title) {
     $(".error").empty();
     
     // Initiate status/done polling to update log.
-    jpoll.start();                   
+    jpoll.start();
+    
+    return true;                   
 };
 
 crds.validate_and_confirm_file_submit = function(form) {
