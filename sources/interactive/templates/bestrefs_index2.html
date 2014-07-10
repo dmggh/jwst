@@ -27,8 +27,8 @@
     //     }
     // }
     
-    var readError = function(progressEvent) {
-        console.log('readError',progressEvent);
+    var readErr = function(progressEvent) {
+        console.log('readErr',progressEvent);
         switch(progressEvent.target.error.code) {
             case progressEvent.target.error.NOT_FOUND_ERR:
                 alert('File not found!');
@@ -48,7 +48,7 @@
         reader.file = file; // We need it later (filename)
         reader.addEventListener('loadstart', readStart, false);
         reader.addEventListener('loadend', readEnd, false);
-        reader.addEventListener('error', readError, false);
+        reader.addEventListener('error', readErr, false);
         // reader.addEventListener('progress', readProgress, false);
         reader.readAsBinaryString(file);
     }
