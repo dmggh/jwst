@@ -7,6 +7,7 @@ observatory = 'hst'
 server_usecase = 'dev'
 CRDS_SERVER_IP = "130.167.252.84"
 port = 8001
+proxy_port = 80
 
 # This is a VM-related storage partition used as server space
 install_root = '/crds/data1/' + HOST
@@ -20,7 +21,7 @@ CATALOG_DB_DSN = "HarpoDadsopsRepDsn"
 REFFILE_DB_DSN = "HarpoReffileOpsRepDsn"
 
 CRDS_DIRECT_URL = "https://" + HOST + ".stsci.edu:" + str(port) + "/"
-CRDS_URL = "https://" + PROXY + ".stsci.edu/"
+CRDS_URL = "https://" + PROXY + ".stsci.edu:" + str(proxy_port) + "/" 
 
 servertype = 'mod_wsgi'
 apachemod = install_root + "/lib"

@@ -30,7 +30,7 @@ tools/switch_ports $observatory $server_mode $ORIGINAL_PORT $BACKUP_PORT
 
 # switch over to backup port
 source env.csh
-setenv CRDS_SERVER_URL https://${CRDS_SERVER}:${BACKUP_PORT}
+# setenv CRDS_SERVER_URL https://${CRDS_SERVER}:${BACKUP_PORT}
 
 # This replaces the local database with the specified backup, presumably from the master server
 echo "-----------------------------------------------------"
@@ -40,7 +40,6 @@ cd ${CRDS}/CRDS_server
 ./manage dbrestore -f $database_backup_file
 
 # This synchronizes the local cache to the master server
-setenv CRDS_SERVER_URL $mirrored_server_url
 echo "-----------------------------------------------------"
 echo "Syncing mappings from $mirrored_server_url"
 echo "-----------------------------------------------------"
@@ -90,6 +89,6 @@ tools/orphan_files
 echo "-----------------------------------------------------"
 echo "Re-installing and restarting server ${CRDS_PROJECT} ${CRDS_USECASE}"
 echo "-----------------------------------------------------"
-tools/switch_ports $observatory $server_mode $BACKUP_PORT $ORIGINAL_PORT 
+tools/switch_ports $observatory $server_mode $BACKUP_PORT $ORIGINAL_PORT -revert
 ./rerun ${CRDS_PROJECT} ${CRDS_USECASE}
 
