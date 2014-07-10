@@ -223,7 +223,12 @@
     <table>
       <tr>
         <td class="h4">
+	{% if observatory == "jwst" and not is_authenticated %}
+	    {# suppress radio button for anonymous JWST #}
+            <input type="hidden" name="dataset_mode" value="dataset_local" checked>Upload FITS Header
+	{% else %}
             <input type="radio" name="dataset_mode" value="dataset_local" checked>Upload FITS Header
+	{% endif %}
         </td>
         <td align="left">
             <input type='file' id='dataset_local' onchange='set_contents(this);' />
@@ -240,6 +245,7 @@
         </td> 
       </tr>
       {% endif %}
+      {% if observatory != "jwst" %}
       <tr>
         <td class="h4">
             <input type="radio" name="dataset_mode" value="dataset_archive" />Catalog Dataset ID
@@ -251,6 +257,7 @@
             <span class='hint'>.e.g. I9ZF01010</span>
         </td>
       </tr>
+      {% endif %}
     </table>
     
     <br/>
@@ -267,11 +274,13 @@
     best references. The context file chosen defines the parameter choices which 
     will be available as well as file selection rules.
 
+    {% if observatory != "jwst" %}
     <p><p><b>Dataset</b> Cataloged dataset id specifies the name of a cataloged parameter set 
     for which to determine best references.  If the dataset id names an association,  the results
     returned are for the first member of the association.
+    {% endif %}
 
-    <p><p>Upload FITS Header loads reference matching parameters from a FITS file on your local system;   
+    <p><p><b>Upload FITS Header</b> loads reference matching parameters from a FITS file on your local system;   
     the loaded matching parameters may be edited in the browser.
 
 {% endblock help %}
