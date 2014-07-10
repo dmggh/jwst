@@ -16,13 +16,21 @@ set database_backup_file=${BACKUP_DIR}/backup.${observatory}.${server_mode}.mysq
 set catalog_file=${BACKUP_DIR}/catalogs.${observatory}.${server_mode}.tar.gz
 set deliveries_file=${BACKUP_DIR}/deliveries.${observatory}.${server_mode}.txt
 
+set BACKUP_PORT=8002   # vs. nominal operational port 8001
+set ORIGINAL_PORT=$SERVER_PORT
+
 cd ${CRDS}/CRDS_server
 source env.csh
 
-# echo "-----------------------------------------------------"
-# echo "Stopping server ${CRDS_PROJECT} ${CRDS_USECASE}"
-# echo "-----------------------------------------------------"
-# ./stop ${CRDS_PROJECT} ${CRDS_USECASE}
+echo "------------------------------------------------------------------"
+echo "Restarting server ${CRDS_PROJECT} ${CRDS_USECASE} on private ports"
+echo "------------------------------------------------------------------"
+tools/switch_ports $observatory $server_mode $ORIGINAL_PORT $BACKUP_PORT
+./rerun  ${CRDS_PROJECT} ${CRDS_USECASE}
+
+# switch over to backup port
+source env.csh
+setenv CRDS_SERVER_URL https://${CRDS_SERVER}:${BACKUP_PORT}
 
 # This replaces the local database with the specified backup, presumably from the master server
 echo "-----------------------------------------------------"
@@ -79,9 +87,9 @@ echo "-----------------------------------------------------"
 cd ${CRDS}/CRDS_server
 tools/orphan_files
 
-
 echo "-----------------------------------------------------"
 echo "Re-installing and restarting server ${CRDS_PROJECT} ${CRDS_USECASE}"
 echo "-----------------------------------------------------"
+tools/switch_ports $observatory $server_mode $BACKUP_PORT $ORIGINAL_PORT 
 ./rerun ${CRDS_PROJECT} ${CRDS_USECASE}
 
