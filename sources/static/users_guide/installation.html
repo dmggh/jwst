@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -15,7 +13,7 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
+        URL_ROOT:    './',
         VERSION:     '1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -243,7 +241,8 @@ and reference files.  contains command line utility programs.</li>
 </ul>
 </div></blockquote>
 <p>More information can be found on each tool using the command line &#8211; &#8211;help switch,  e.g.:</p>
-<div class="highlight-python"><pre>% python -m crds.bestrefs --help</pre>
+<div class="highlight-python"><div class="highlight"><pre>% python -m crds.bestrefs --help
+</pre></div>
 </div>
 <p>or in the command line tools section of this document.</p>
 </div>
@@ -254,7 +253,8 @@ and consequently CRDS will be pre-installed.</p>
 <div class="section" id="installing-with-pip">
 <h2>Installing with PIP<a class="headerlink" href="#installing-with-pip" title="Permalink to this headline">¶</a></h2>
 <p>CRDS is available on pypi and explicitly installable using pip:</p>
-<div class="highlight-python"><pre>% pip install crds</pre>
+<div class="highlight-python"><div class="highlight"><pre>% pip install crds
+</pre></div>
 </div>
 </div>
 <div class="section" id="installing-from-source">
@@ -262,29 +262,32 @@ and consequently CRDS will be pre-installed.</p>
 <div class="section" id="subversion-checkout">
 <h3>Subversion Checkout<a class="headerlink" href="#subversion-checkout" title="Permalink to this headline">¶</a></h3>
 <p>Alternately, CRDS source code can be downloaded from the CRDS subversion repository like this:</p>
-<div class="highlight-python"><pre>% svn co https://aeon.stsci.edu/ssb/svn/crds/trunk  crds</pre>
+<div class="highlight-python"><div class="highlight"><pre>% svn co https://aeon.stsci.edu/ssb/svn/crds/trunk  crds
+</pre></div>
 </div>
 </div>
 <div class="section" id="run-the-install-script">
 <h3>Run the Install Script<a class="headerlink" href="#run-the-install-script" title="Permalink to this headline">¶</a></h3>
 <p>Installing from source,  run the install script in the root source code directory:</p>
-<div class="highlight-python"><pre> % cd crds
+<div class="highlight-python"><div class="highlight"><pre> % cd crds
  % ./install
-final status 000000</pre>
+final status 000000
+</pre></div>
 </div>
 </div>
 </div>
 <div class="section" id="test-the-installation">
 <h2>Test the installation<a class="headerlink" href="#test-the-installation" title="Permalink to this headline">¶</a></h2>
 <p>Basic CRDS client testing can be performed onsite at STScI from the source code directory as follows:</p>
-<div class="highlight-python"><pre> % cd crds
+<div class="highlight-python"><div class="highlight"><pre> % cd crds
  % source envs/hst-crds-readonly.csh
  % ./runtests
 ........... lots of dots ....
 ----------------------------------------------------------------------
 Ran 157 tests in 41.232s
 
-OK</pre>
+OK
+</pre></div>
 </div>
 <p>Test errors will result if the CRDS server at <a class="reference external" href="https://hst-crds.stsci.edu">https://hst-crds.stsci.edu</a> or Central Store
 file system /grp/crds/hst are not accessible from your network or host.</p>
@@ -335,11 +338,13 @@ CRDS are tuned for onsite use at STScI using operational references,  requiring 
 <p>CRDS supports HST and JWST projects using project-specific servers and an explicit cache of CRDS rules and reference
 files.   CRDS has two environment variables which define basic setup.   These variables control the server where CRDS
 obtains rules and references and where CRDS caches files to on your local system:</p>
-<div class="highlight-python"><pre>% setenv CRDS_SERVER_URL  &lt;some_crds_server&gt;
-% setenv CRDS_PATH        &lt;some_crds_reference_and_rules_cache_directory&gt;</pre>
+<div class="highlight-python"><div class="highlight"><pre>% setenv CRDS_SERVER_URL  &lt;some_crds_server&gt;
+% setenv CRDS_PATH        &lt;some_crds_reference_and_rules_cache_directory&gt;
+</pre></div>
 </div>
 <p>If you are currently working on only a single project,  it may be helpful to declare that project:</p>
-<div class="highlight-python"><pre>% setenv CRDS_OBSERVATORY   hst (or jwst)</pre>
+<div class="highlight-python"><div class="highlight"><pre>% setenv CRDS_OBSERVATORY   hst (or jwst)
+</pre></div>
 </div>
 </div>
 <div class="section" id="setup-for-on-site-operartional-use-hst-or-jwst">
@@ -350,7 +355,8 @@ operational files,  not development and test.</p>
 <h3>File Cache Location (CRDS_PATH)<a class="headerlink" href="#file-cache-location-crds-path" title="Permalink to this headline">¶</a></h3>
 <p>For typical onsite use at STScI, CRDS users can share a file cache which contains all rules and references.  The
 location of the shared cache initially defaults to:</p>
-<div class="highlight-python"><pre>/grp/crds/cache</pre>
+<div class="highlight-python"><div class="highlight"><pre>/grp/crds/cache
+</pre></div>
 </div>
 <p>/grp/crds/cache is designed to support both HST and JWST with a single defaulted <strong>CRDS_PATH</strong> setting.</p>
 <p>Since /grp/crds/cache is the default,  you don&#8217;t have to explicitly set <strong>CRDS_PATH</strong>.</p>
@@ -410,14 +416,16 @@ a static system, and no warnings will  be issued because the server is not reach
 <p>For reference type development,  updates are generally made and tested in the test pipelines at STScI.  For
 coordinating with those tests,  <strong>CRDS_PATH</strong> and <strong>CRDS_SERVER_URL</strong> must be explicitly set to a test cache and server
 similar to this:</p>
-<div class="highlight-python"><pre>% setenv CRDS_PATH  ${HOME}/crds_cache_test
-% setenv CRDS_SERVER_URL https://hst-crds-test.stsci.edu</pre>
+<div class="highlight-python"><div class="highlight"><pre>% setenv CRDS_PATH  ${HOME}/crds_cache_test
+% setenv CRDS_SERVER_URL https://hst-crds-test.stsci.edu
+</pre></div>
 </div>
 <p>After syncing this will provide access to CRDS test files and rules in a local cache:</p>
-<div class="highlight-python"><pre># Fetch all the test rules
+<div class="highlight-python"><div class="highlight"><pre># Fetch all the test rules
 % python -m crds.sync --all
 # Fetch specifically listed test references
-% python -m crds.sync --files &lt;test_references_only_the_test_server_has...&gt;</pre>
+% python -m crds.sync --files &lt;test_references_only_the_test_server_has...&gt;
+</pre></div>
 </div>
 <p>Testing reference type changes (new keywords,  new values or value restrictions, etc) may also require access to
 development versions of CRDS code.   In particular,  when adding parameters or changing legal parameter values,
@@ -435,10 +443,12 @@ the references you need,  can go to the website for you and download the files y
 cached a file,  unless you delete it,  you never have to download it again.</p>
 <p>For offsite users without VPN access who are running local calibrations,  you can create a small personal
 cache of rules and references supporting only the datasets you care about:</p>
-<div class="highlight-python"><pre>% setenv CRDS_PATH  ${HOME}/crds_cache</pre>
+<div class="highlight-python"><div class="highlight"><pre>% setenv CRDS_PATH  ${HOME}/crds_cache
+</pre></div>
 </div>
 <p>For <strong>HST</strong>, to fetch the references required to process some FITS datasets:</p>
-<div class="highlight-python"><pre>% python -m crds.bestrefs --files dataset*.fits --sync-references=1</pre>
+<div class="highlight-python"><div class="highlight"><pre>% python -m crds.bestrefs --files dataset*.fits --sync-references=1
+</pre></div>
 </div>
 <p>By default crds.bestrefs does not alter your dataset FITS files.   If you also wish to update your dataset FITS
 headers with best references,  add &#8211;update-bestrefs.</p>
@@ -453,13 +463,14 @@ any new reference or rules delivery,  changing the operational context,  or mark
 <h3>Additional HST Settings<a class="headerlink" href="#additional-hst-settings" title="Permalink to this headline">¶</a></h3>
 <p>HST calibration steps access reference files indirectly through environment variables.  Those variables
 should be set to point to the appropriate directory under CRDS_PATH:</p>
-<div class="highlight-python"><pre>% setenv iref ${CRDS_PATH}/references/hst
+<div class="highlight-python"><div class="highlight"><pre>% setenv iref ${CRDS_PATH}/references/hst
 % setenv jref ${CRDS_PATH}/references/hst
 % setenv oref ${CRDS_PATH}/references/hst
 % setenv lref ${CRDS_PATH}/references/hst
 % setenv nref ${CRDS_PATH}/references/hst
 % setenv uref ${uref_linux}
-% setenv uref_linux ${CRDS_PATH}/references/hst</pre>
+% setenv uref_linux ${CRDS_PATH}/references/hst
+</pre></div>
 </div>
 <p>Currently the CRDS cache is structured so that references from all instruments of a project reside in one common
 directory.</p>
@@ -471,7 +482,8 @@ symbolic context which is in use in the JWST pipeline.  During early development
 to the latest context which is sufficiently mature for broad use.  Use of jwst-operational is automatic.</p>
 <p>The context used for JWST can be overridden to some specific historical or experimental context by setting
 the <strong>CRDS_CONTEXT</strong> environment variable:</p>
-<div class="highlight-python"><pre>% setenv CRDS_CONTEXT jwst_0057.pmap</pre>
+<div class="highlight-python"><div class="highlight"><pre>% setenv CRDS_CONTEXT jwst_0057.pmap
+</pre></div>
 </div>
 <p><strong>CRDS_CONTEXT</strong> does not override command line switches or parameters passed explicitly to crds.getreferences().</p>
 </div>
@@ -484,7 +496,7 @@ location and structure of the file cache.</p>
 <h3>Multi-Project Caches<a class="headerlink" href="#multi-project-caches" title="Permalink to this headline">¶</a></h3>
 <p><strong>CRDS_PATH</strong> defines a cache structure for multiple projects. Each major branch of a multi-project cache
 contains project specific subdirectories:</p>
-<div class="highlight-python"><pre>/cache
+<div class="highlight-python"><div class="highlight"><pre>/cache
     /mappings
         /hst
             hst mapping files...
@@ -499,7 +511,8 @@ contains project specific subdirectories:</p>
         /hst
             hst config files...
         /jwst
-            jwst config files...</pre>
+            jwst config files...
+</pre></div>
 </div>
 <ul class="simple">
 <li><em>mappings</em> contains versioned rules files for CRDS reference file assignments</li>
@@ -528,13 +541,14 @@ with different servers for the <em>same observatory</em>, e.g. both hst-test and
 <p><strong>CRDS_PATH_SINGLE</strong> defines a cache structure for a single project.  The component paths
 implied by <strong>CRDS_PATH_SINGLE</strong>  omit the observatory subdirectory,  giving a simpler and
 shallower cache structure:</p>
-<div class="highlight-python"><pre>/cache
+<div class="highlight-python"><div class="highlight"><pre>/cache
     /mappings
         mapping_files...
     /references
         reference files...
     /config
-        config files...</pre>
+        config files...
+</pre></div>
 </div>
 <p>It&#8217;s an error to use a single project cache with more than one project or server.  It is
 inadvisable to mix multi-project (no _SINGLE) and single-project (_SINGLE) configuration
@@ -603,7 +617,7 @@ proceed immediately after fail.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2012, STScI.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>
