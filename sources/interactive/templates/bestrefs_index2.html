@@ -207,8 +207,16 @@
         }
         
         return true;
+      };
+
+      crds.set_radio_clear_fits = function(mode) {
+	console.log("crds.set_radio_clear_fits " +  mode);
+	crds.set_radio("dataset_mode", mode);
+	if (mode != "dataset_local") {
+	   var input = $("<input type='file' id='dataset_local' onchange='set_contents(this);'>Upload FITS Header");
+	   $("#dataset_local_input_td").html(input);
+	}
       }
-      
 </script>
 
 
@@ -230,8 +238,8 @@
             <input type="radio" name="dataset_mode" value="dataset_local" checked>Upload FITS Header
 	{% endif %}
         </td>
-        <td align="left">
-            <input type='file' id='dataset_local' onchange='set_contents(this);' />
+        <td align="left" id="dataset_local_input_td">
+            <input type='file' id='dataset_local' onchange='set_contents(this);' />  {# see also set_radio_clear_fits() above #}
         </td>
       </tr>
       {% if is_authenticated %}
@@ -239,9 +247,9 @@
         <td class="h4">
            <input type="radio" name="dataset_mode" value="dataset_uploaded">Upload Dataset
         </td>
-        <td align="right">
+        <td align="right" id='dataset_uploaded_input_td'>
            <input type="file" class="multi" maxlength="1" name="dataset_uploaded"
-                    id="dataset_uploaded" onchange="crds.set_radio('dataset_mode', 'dataset_uploaded');" />
+                    id="dataset_uploaded" onchange="crds.set_radio_clear_fits('dataset_uploaded');" />
         </td> 
       </tr>
       {% endif %}
@@ -253,7 +261,7 @@
         <td align="left">
             <input type="text" width="32" name="dataset_archive" id="dataset_archive"
                     value="{{dataset_archive}}" 
-                    onchange="crds.set_radio('dataset_mode','dataset_archive');" />
+                    onchange="crds.set_radio_clear_fits('dataset_archive');" />
             <span class='hint'>.e.g. I9ZF01010</span>
         </td>
       </tr>
