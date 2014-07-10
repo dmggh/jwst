@@ -86,11 +86,14 @@ def validate(request, variable, pattern):
     depending on request type.
     """
     variables = request.GET if request.method == "GET" else request.POST
-    value = str(variables[variable]).strip()
+    try:
+        value = str(variables[variable]).strip()
+    except:
+        raise FieldError("Undefined parameter " + repr(variable))
     return check_value(value, pattern, "Invalid value " + srepr(value) + " for " + srepr(variable))
 
 def get_or_post(request, variable):
-    """Return `variable` wherever it is defined in request, GET or POST."""    
+    """Return `variable` wherever it is defined in request, GET or POST."""
     return (variable in request.POST and request.POST[variable]) or \
            (variable in request.GET  and request.GET[variable])
 
