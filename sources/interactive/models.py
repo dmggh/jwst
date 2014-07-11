@@ -1019,7 +1019,7 @@ class FileBlob(BlobModel):
     def add_slow_fields(self, allow_duplicates=False):
         self.thaw()
         log.info("Adding slow fields for",  self.moniker)
-        if self.type == "reference":
+        if self.type == "reference" and self.name.endswith(".fits"):
             self.init_FITS_fields()
         self.sha1sum = self.compute_checksum()
         self.blacklisted = len(self.blacklisted_by) > 0

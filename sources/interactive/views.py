@@ -1605,10 +1605,16 @@ def browse_known_file(request, filename):
         raise CrdsError("Can't find " + repr(filename))
     
     if rmap.is_mapping(filename):
-        file_contents = browsify_mapping2(filename, browsed_file)
+        file_contents = browsify_mapping(filename, browsed_file)
+    elif filename.endswith(".fits"):
+        file_contents = browsify_fits_reference(filename, browsed_file)
+    elif filename.endswith(".yaml"):
+        file_contents = browsify_yaml_reference(filename, browsed_file)
+    elif filename.endswith(".json"):
+        file_contents = browsify_json_reference(filename, browsed_file)
     else:
-        file_contents = browsify_reference(browsed_file)
-        
+        file_contents = browsify_text_reference(filename, browsed_file)
+    
     used_by_files = list(uses.uses([filename], blob.observatory))
     
     if blob and blob.type == "reference":
@@ -1644,15 +1650,7 @@ def get_prior_file_versions(blob, count=20):
         count -= 1
     return file_versions
 
-def browsify_mapping2(filename, browsed_file):
-    """Format a CRDS mapping file as colorized and cross-linked HTML."""
-    try:
-        contents = open(browsed_file).read()
-    except IOError:
-        return format_html("<h3 class='error'>File <span class='grey'>{0}<span> not found</h3>", filename)
-    return format_html("<pre class='program'>\n{0}</pre>", contents)
-
-def browsify_reference(browsed_file):
+def browsify_fits_reference(browsed_file):
     """Format a CRDS reference file for HTML display.   Return HTML lines.
     """
     ref_blob = models.FileBlob.load(os.path.basename(browsed_file))
@@ -1696,11 +1694,34 @@ def browsify_reference(browsed_file):
 
     return output
 
-
 @capture_output
 def finfo(filename):
     """Capture the output from the pyfits info() function."""
     pyfits.info(filename)
+
+def browsify_text_file(filename, browsed_file):
+    """Format a CRDS text file as colorized HTML."""
+    try:
+        contents = open(browsed_file).read()
+    except IOError:
+        return format_html("<h3 class='error'>File <span class='grey'>{0}<span> not found</h3>", filename)
+    return format_html("<pre class='program'>\n{0}</pre>", contents)
+
+def browsify_mapping(filename, browsed_file):
+    """Format a CRDS mapping file for HTML display.  Return HTML string."""
+    return browsify_text_file(filename, browsed_file)
+
+def browsify_text_reference(filename, browsed_file):
+    """Format a CRDS text reference file for HTML display.   Return HTML string."""
+    return browsify_text_file(filename, browsed_file)
+
+def browsify_yaml_reference(filename, browsed_file):
+    """Format a CRDS YAML reference file for HTML display.   Return HTML string."""
+    return browsify_text_reference(filename, browsed_file)
+
+def browsify_json_reference(filename, browsed_file):
+    """Format a CRDS JSON reference file for HTML display.   Return HTML string."""
+    return browsify_text_reference(filename, browsed_file)
 
 
 # ===========================================================================
