@@ -739,15 +739,7 @@ def login(request):
         observatory = models.OBSERVATORY,
         instruments = models.INSTRUMENTS + ["none"],
         server_usecase = sconfig.server_usecase.lower())
-    if request.method == 'POST':
-        if request.session.test_cookie_worked():
-            request.session.delete_test_cookie()
-            return django_login(request, "login.html", extra_context=extras)
-        else:
-            raise CrdsError("Please enable cookies and try again.")
-    else:
-        request.session.set_test_cookie()
-        return django_login(request, "login.html", extra_context=extras)
+    return django_login(request, "login.html", extra_context=extras)
 
 def logout(request):
     """View to get rid of authentication state and become nobody again."""
