@@ -261,7 +261,7 @@ class InteractiveBase(object):
             "pmap_mode": "pmap_edit",
         })
         # print "certify post FITS response:", response.content
-        self.assert_no_errors(response)
+        self.assert_no_errors(response, status=302)
         self.assertNotIn("ERROR", response.content)
         self.assertEqual(response.content.count("OK"), 2)
 
@@ -272,7 +272,7 @@ class InteractiveBase(object):
         response = self.client.post("/certify/", {
             "pmap_mode": "pmap_edit",
         })
-        self.assert_no_errors(response)
+        self.assert_no_errors(response, status=302)
         self.assertTrue("ERROR", response.content)
         self.assertTrue("Failed" not in response.content)
         self.assertTrue(response.content.count("OK") == 2)
