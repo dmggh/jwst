@@ -1,6 +1,6 @@
 #! /bin/csh
 
-# usage:   tools/restore_backup
+# usage:   tools/restore_server
 # restores the last nightly backup for this server.
 
 set BACKUP_DIR=$HOME/backups
@@ -25,8 +25,7 @@ source env.csh
 echo "------------------------------------------------------------------"
 echo "Restarting server ${CRDS_PROJECT} ${CRDS_USECASE} on private ports"
 echo "------------------------------------------------------------------"
-tools/switch_ports $observatory $server_mode $ORIGINAL_PORT $BACKUP_PORT
-./rerun  ${CRDS_PROJECT} ${CRDS_USECASE}
+tools/set_backup_url True
 
 # switch over to backup port
 source env.csh
@@ -89,6 +88,5 @@ tools/orphan_files
 echo "-----------------------------------------------------"
 echo "Re-installing and restarting server ${CRDS_PROJECT} ${CRDS_USECASE}"
 echo "-----------------------------------------------------"
-tools/switch_ports $observatory $server_mode $BACKUP_PORT $ORIGINAL_PORT -revert
-./rerun ${CRDS_PROJECT} ${CRDS_USECASE}
+tools/set_backup_url False
 

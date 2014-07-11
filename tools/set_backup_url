@@ -1,0 +1,13 @@
+#! /usr/bin/env pysh
+#-*-python-*-
+
+# Command to switch Apache ports to hide server during system backup restores.
+
+usage("set_backup_mode <flag>", 1, 1)
+
+is_backup = (sys.argv[1].upper() in ["1","T","TRUE"])
+
+sh("perl -pi -e's/BACKUP_URL_SCHEME = (True|False|0|1)/BACKUP_URL_SCHEME = $is_backup/g' sources/configs/config.${CRDS_USECASE}.${CRDS_PROJECT}.py", trace_commands=True) 
+
+sh("./rerun ${CRDS_PROJECT} ${CRDS_USECASE} >& rerun.${CRDS_PROJECT}.${CRDS_USECASE}.err", trace_commands=True)
+

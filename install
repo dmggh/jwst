@@ -100,7 +100,8 @@ in
 # apache with mod_python
 mod_wsgi)
         cp servers/httpd.mod_wsgi.conf $install_dir/server/conf/httpd.conf
-	cp servers/ssl.conf $install_dir/server/conf/ssl.conf
+	perl -p -e"s/SUB_PORT/$port/g" servers/ssl.conf >ssl.tmp
+	cp ssl.tmp $install_dir/server/conf/ssl.conf
 	cp servers/*.wsgi $install_dir/server/wsgi-scripts
 	rm -f $install_dir/lib/mod_wsgi.so
 	ln -s ${CRDS_STACK}/lib/mod_wsgi.so $install_dir/lib
