@@ -259,9 +259,9 @@ class InteractiveBase(object):
         self.add_file_to_ingest_dir(self.certify_post_fits)
         response = self.client.post("/certify/", {
             "pmap_mode": "pmap_edit",
-        })
+        }, follow=True)
         # print "certify post FITS response:", response.content
-        self.assert_no_errors(response, status=302)
+        self.assert_no_errors(response)
         self.assertNotIn("ERROR", response.content)
         self.assertEqual(response.content.count("OK"), 2)
 
@@ -271,8 +271,8 @@ class InteractiveBase(object):
         self.fake_database_files(self.certify_rmap_fits)
         response = self.client.post("/certify/", {
             "pmap_mode": "pmap_edit",
-        })
-        self.assert_no_errors(response, status=302)
+        }, follow=True)
+        self.assert_no_errors(response)
         self.assertTrue("ERROR", response.content)
         self.assertTrue("Failed" not in response.content)
         self.assertTrue(response.content.count("OK") == 2)
