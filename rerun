@@ -1,33 +1,23 @@
-#! /bin/sh
+#! /bin/tcsh
+
+# Script to stop, re-install, and restart CRDS server
 
 cd `dirname $0`
-
-if [ "$1" != "hst" ] && [ "$1" != "jwst" ]; then
-	echo 'usage: ./install [jwst|hst] [django|test]'
-	exit -1
-fi
-
-if [ "$2" != "django" ] && [ "$2" != "dev" ] && [ "$2" != "test" ] && [ "$2" != "ops" ]; then
-	echo 'usage: ./install [jwst|hst] [django|dev|test|ops]'
-	exit -1
-fi
-
-# svn update
 
 # (cd ../CRDS; svn update)
 
 echo "==========================================================="
 echo "Stopping server"
 echo "==========================================================="
-./stop  $1 $2 
+./stop  $CRDS_PROJECT $CRDS_USECASE
 
 echo "==========================================================="
 echo "Installing crds.server Python Django application"
 echo "==========================================================="
-./install $1 $2
+./install $CRDS_PROJECT $CRDS_USECASE  |& tee install.${CRDS_PROJECT}.${CRDS_USECASE}.err
 
 echo "==========================================================="
 echo "Re-starting server"
 echo "==========================================================="
-./run $1 $2
+./run $CRDS_PROJECT $CRDS_USECASE
 
