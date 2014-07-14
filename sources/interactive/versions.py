@@ -21,7 +21,10 @@ MODULE_LIST = (
     
     'pyfits',
     'astropy',
-    'jwstlib.models',
+    'jwst_lib.models',
+    
+    'parsley',
+    'yaml'
     )
 
 def get_all_versions( mods = MODULE_LIST ):
