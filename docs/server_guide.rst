@@ -1,6 +1,3 @@
-CRDS Server Maintenance Guide
-=============================
-
 Introduction
 ------------
 This guide is intended to introduce the CRDS servers for the purposes of maintenance and emergency backup for Todd.
@@ -50,14 +47,25 @@ hst           dev            dlhstcrdsv1    8001            https://hst-crds-dev
 hst           test           tlhstcrdsv1    8001            https://hst-crds-test.stsci.edu
 hst           ops            plhstcrdsv1    8001            https://hst-crds.stsci.edu
 
+jwst          dev            dljwstcrdsv1   8001            https://jwst-crds-dev.stsci.edu
 jwst          test           tljwstcrdsv1   8001            https://jwst-crds-test.stsci.edu
-jwst          test           tljwstcrdsv1   8001            https://jwst-crds-test.stsci.edu
-jwst          test           tljwstcrdsv1   8001            https://jwst-crds.stsci.edu
+jwst          ops            pljwstcrdsv1   8001            https://jwst-crds.stsci.edu
+
+For debug purposes the servers can be accessed bypassing the proxy by using VM-based URLs such
+as https://plhstcrdsv1.stsci.edu:8001/.
+
+See CRDS_server/sources/site_config.py to verify this information.
 
 Server File Systems
 -------------------
 
-The VMs share a common /home/crds directory which is in effect a single point for failures.
+/home/crds
+..........
+
+The VMs and servers share a common /home/crds directory which has potential as a single point failure.  In particular,
+critical shell rc scripts (.setenv) are shared by all servers and must be updated with extreme care because
+any error instantly affects all 6 servers.  As a rule, .setenv should also be kept as simple as reasonably
+possible.  /home/crds is useful for communicating information between VMs during setup and maintenance.
 
 Server Static File Storage
 ..........................
@@ -78,19 +86,19 @@ CRDS
 ++++
 
 The checkout of the CRDS core library source code installed with the CRDS server is located in the static file tree
-under the subdirectory CRDS and visited using the alias "crds".
+under the subdirectory CRDS and visited using the alias "crds".  e.g.  /crds/data1/plhstcrdsv1/CRDS
 
 CRDS_server
 +++++++++++
 
 The checkout of the CRDS server source code is located in the static file tree under the subdirectory CRDS_server
-and visited using the alias "server".
+and visited using the alias "server".  e.g. /crds/data1/plhstcrdsv1/CRDS_server
 
 host
 ::::
 
 The CRDS_server/host subdirectory is on the PATH.  It contains scripts related to cron jobs,  affected datasets 
-reprocessing, stack building,  server utilities, etc.
+reprocessing, stack building,  server utilities, etc.   e.g. /crds/data1/plhstcrdsv1/CRDS_server/host
 
 tools
 :::::
@@ -98,17 +106,17 @@ tools
 The CRDS_server/tools directory contains more complicated scripts related to server backup, restore, mirroring, 
 consistency checking, server initialization, user and group maintenance, etc.   The tools directory is not on the
 PATH and contains more eclectic scripts developed in an unplanned manner,  basically capturing whatever I needed
-to do repeatedly or had to Google.
+to do repeatedly or had to Google.   e.g. /crds/data1/plhstcrdsv1/CRDS_server/tools
 
 servers
 :::::::
 
-This directory contains the Apache and mod_wsgi configuration files.
+This directory contains the Apache and mod_wsgi configuration files.  e.g. /crds/data1/plhstcrdsv1/CRDS_server/servers
 
 sources
 :::::::
 
-This directory contains the Django server and application source code.   
+This directory contains the Django server and application source code.   e.g. /crds/data1/plhstcrdsv1/CRDS_server/sources
 
 * sources/configs contains site specific django configuration and database configuration files.  The appropriate files
   are copied to sources/site_config.py and sources/crds_database.py at install time.   Those are then imported into
@@ -141,7 +149,18 @@ This directory contains the Django server and application source code.
 crds_stacks
 +++++++++++
 
-The crds_stacks subdirectory contains the stock python stack where
+The crds_stacks subdirectory contains stock python stacks and source code.  The CRDS server Python stack is built 
+from source contained in the installer3 subdirectory.  An automatic nightly build and reinstall of the stack occurs on the 
+dev and test servers so it's possible to upgrade all the non-ops servers by updating the installer3 repo.  The
+master copy of the CRDS server installer3 repo is contained in /eng/ssb/crds/installer3.   Independent checkouts 
+of the repo are contained in the stacks file store for each VM.   e.g. /crds/data1/plhstcrdsv1/crds_stacks
+
+monitor_reprocessing
+++++++++++++++++++++
+
+Output from the monitor_reprocessing cron job is stored in dated subdirectories here.  Also the file old_context.txt
+which records the last known operational context against which changes are measured.  Changed old_context.txt will
+trigger an affected datasets calculation as will changing the operational context on the web site.
 
 Server Dynamic File Storage
 ...........................
@@ -154,6 +173,9 @@ For operating,  the CRDS servers require a certain amount of dynamic storage use
 The server dynamic file storage is located on the Isilon file server at:
 
     /ifs/crds/<obsevatory>/<use>/server_files,    e.g. /ifs/crds/hst/ops/server_files.
+    
+Since this area is actively written as a consequence of users accessing the web site,  it is kept distinct from the
+code and files required to run the server.
 
 Catalog Directory
 +++++++++++++++++
@@ -246,6 +268,8 @@ Use shell command::
     
 to dump the current crontab and observe the jobs.   Cronjobs currently produce .log files in the CRDS_server directory.
 
+See "man cron" or Google for more info on maintaining the cron table.
+
 nightly.cron.job
 ................
 
@@ -271,12 +295,11 @@ clear_expired_locks
 ...................
 
 Somewhat dubious,  this falls into the category of periodic server maintenance,  removing expired instrument locking 
-records from the server locking database.
+records from the server locking database.   Every 5 minutes.
 
 sync_ops_to_grp
 ...............
 
-Every 10 minutes sync_ops_to_grp runs crds.sync to publish the crds ops server to the /grp/crds/cache readonly
-file cache.   This does not produce e-mail.
-
+Every 10 minutes sync_ops_to_grp runs crds.sync to publish the crds ops server to the /grp/crds/cache global readonly
+Central Store file cache CRDS currently uses as default for OPUS 2014.3.   This does not produce e-mail.
 
