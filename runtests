@@ -2,29 +2,27 @@
 
 # <observatory=hst|jwst> <server_mode=django|dev|test|prod>
 
-set observatory = "$1"
-set server_mode = "$2"
-
-if ($server_mode == django) then
-echo "installing $1 $2..."
-./install $1 $2 <<EOF
-yes
-EOF
-endif
-
+cd ${CRDS}/CRDS_server
 source env.csh
+echo "Switching to backup port"
+tools/set_backup_url True  >& /dev/null
+
+setenv LOG ${CRDS}/CRDS_server/runtests.${CRDS_PROJECT}.${CRDS_USECASE}.err
 
 cd sources
-
-if ($# > 2) then
-    echo "Using explicit tests " $3 $4 $5 $6 $7 $8 $9
+if ($# > 0) then
+    echo "Using explicit tests " $1 $2 $3 $4 $5 $6 $7 $8 $9
     # subsequent parameters are apps to test
-    python manage.py test $3 $4 $5 $6 $7 $8 $9 --verbosity=2
-else if ($observatory == "jwst") then
+    python -u manage.py test $1 $2 $3 $4 $5 $6 $7 $8 $9 --verbosity=2 |& tee $LOG
+else if ($CRDS_PROJECT == "jwst") then
     echo "Using implied JWST tests " ALL
-    python manage.py test --verbosity=2
+    python -u manage.py test --verbosity=2 |& tee $LOG
 else
     echo "Using implied HST tests " ALL
-    python manage.py test --verbosity=2
+    python -u manage.py test --verbosity=2 |& tee $LOG
 endif
+
+cd ${CRDS}/CRDS_server
+echo "Switching from backup port back to nominal operating port."
+tools/set_backup_url False >& /dev/null
 

@@ -60,6 +60,6 @@ echo "==========================================================="
 echo "Server self-test"
 echo "==========================================================="
 cd ${CRDS}/CRDS_server
-./runtests ${CRDS_PROJECT} ${CRDS_USECASE}  >& runtests.${ETAIL}
+./runtests 
 tail -100 runtests.${ETAIL}
 
