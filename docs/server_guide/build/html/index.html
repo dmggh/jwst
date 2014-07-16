@@ -1,0 +1,167 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>CRDS Server Guide &mdash; crds 1.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="crds 1.1 documentation" href="#" />
+    <link rel="next" title="Introduction" href="server_guide.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="server_guide.html" title="Introduction"
+             accesskey="N">next</a> |</li>
+        <li><a href="#">crds 1.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="#">
+              <img class="logo" src="_static/stsci_logo.png" alt="Logo"/>
+            </a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="server_guide.html"
+                        title="next chapter">Introduction</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="crds-server-guide">
+<h1>CRDS Server Guide<a class="headerlink" href="#crds-server-guide" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="server_guide.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server_guide.html#servers">Servers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="server_guide.html#crds-pseudo-user-and-group">CRDS pseudo-user and group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server_guide.html#virtual-machines-and-urls">Virtual Machines and URLs</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="server_guide.html#server-file-systems">Server File Systems</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="server_guide.html#home-crds">/home/crds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server_guide.html#server-static-file-storage">Server Static File Storage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="server_guide.html#server-runtime-directories">Server Runtime Directories</a></li>
+<li class="toctree-l3"><a class="reference internal" href="server_guide.html#database-files">Database files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="server_guide.html#crds">CRDS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="server_guide.html#crds-server">CRDS_server</a></li>
+<li class="toctree-l3"><a class="reference internal" href="server_guide.html#crds-stacks">crds_stacks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="server_guide.html#monitor-reprocessing">monitor_reprocessing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="server_guide.html#server-dynamic-file-storage">Server Dynamic File Storage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="server_guide.html#catalog-directory">Catalog Directory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="server_guide.html#deliveries-directory">Deliveries Directory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="server_guide.html#uploads-directory">Uploads Directory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="server_guide.html#ingest-directory">Ingest Directory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="server_guide.html#ingest-ssb-directory">Ingest SSB Directory</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="server_guide.html#server-file-cache">Server File Cache</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="server_guide.html#rc-scripts">RC scripts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="server_guide.html#setenv">.setenv</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server_guide.html#home-rc-script">$HOME/rc_script</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="server_guide.html#cron-jobs">Cron Jobs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="server_guide.html#nightly-cron-job">nightly.cron.job</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server_guide.html#id2">monitor_reprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server_guide.html#clear-expired-locks">clear_expired_locks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server_guide.html#sync-ops-to-grp">sync_ops_to_grp</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="server_guide.html#maintenance-commands">Maintenance Commands</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="server_guide.html#installing-the-server-application">Installing the Server Application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server_guide.html#starting-and-stopping-the-server">Starting and Stopping the Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server_guide.html#re-installing-the-crds-server">Re-installing the CRDS Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server_guide.html#running-server-tests">Running Server Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server_guide.html#crds-catalog-initializaton">CRDS catalog initializaton</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server_guide.html#starting-the-server">Starting the server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server_guide.html#updating-and-restarting">Updating and Restarting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server_guide.html#running-server-self-tests">Running Server Self-tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server_guide.html#django-management-commands">Django Management Commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server_guide.html#command-line-server-debug">Command Line Server Debug</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server_guide.html#crds-catalog-database-sql-commands">CRDS Catalog Database SQL Commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server_guide.html#nightly-backup">Nightly Backup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server_guide.html#restoring-nightly-backups">Restoring Nightly Backups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server_guide.html#server-mirroring">Server Mirroring</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="server_guide.html" title="Introduction"
+             >next</a> |</li>
+        <li><a href="#">crds 1.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, STScI.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>
