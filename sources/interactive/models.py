@@ -941,7 +941,10 @@ class FileBlob(BlobModel):
 
     def repair_pedigree(self):
         self.set_fits_field("pedigree", "PEDIGREE")
-        
+        if self.observatory == "jwst" and not self.pedigree:
+            log.warning("Using JWST default PEDIGREE of DUMMY.")
+            self.pedigree = "DUMMY"
+
     def repair_comment(self):
         self.set_fits_field("comment", "DESCRIP")
 
