@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -15,7 +13,7 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
+        URL_ROOT:    './',
         VERSION:     '1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -55,62 +53,60 @@
 <li><a class="reference internal" href="#virtual-machines-and-urls">Virtual Machines and URLs</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#mailing-lists">Mailing Lists</a></li>
 <li><a class="reference internal" href="#server-file-systems">Server File Systems</a><ul>
-<li><a class="reference internal" href="#home-crds">/home/crds</a></li>
+<li><a class="reference internal" href="#cross-server-shared-home-home-crds">Cross-Server Shared Home (/home/crds)</a><ul>
+<li><a class="reference internal" href="#setenv">.setenv</a></li>
+<li><a class="reference internal" href="#alias">.alias</a></li>
+<li><a class="reference internal" href="#rc-script">rc_script</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#server-static-file-storage">Server Static File Storage</a><ul>
-<li><a class="reference internal" href="#server-runtime-directories">Server Runtime Directories</a><ul>
-<li><a class="reference internal" href="#conf">conf</a></li>
-<li><a class="reference internal" href="#logs">logs</a></li>
-<li><a class="reference internal" href="#db-backups">db_backups</a></li>
-<li><a class="reference internal" href="#wsgi-scripts">wsgi-scripts</a></li>
-<li><a class="reference internal" href="#run">run</a></li>
+<li><a class="reference internal" href="#server-runtime-directory">server runtime directory</a><ul>
+<li><a class="reference internal" href="#conf-subdirectory">conf subdirectory</a></li>
+<li><a class="reference internal" href="#logs-subdirectory">logs subdirectory</a></li>
+<li><a class="reference internal" href="#db-backups-subdirectory">db_backups subdirectory</a></li>
+<li><a class="reference internal" href="#wsgi-scripts-subdirectory">wsgi-scripts subdirectory</a></li>
+<li><a class="reference internal" href="#run-subdirectory">run subdirectory</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#database-files">Database files</a></li>
-<li><a class="reference internal" href="#crds">CRDS</a></li>
-<li><a class="reference internal" href="#crds-server">CRDS_server</a><ul>
-<li><a class="reference internal" href="#host">host</a></li>
-<li><a class="reference internal" href="#tools">tools</a></li>
-<li><a class="reference internal" href="#id1">servers</a></li>
-<li><a class="reference internal" href="#sources">sources</a></li>
+<li><a class="reference internal" href="#database-directory">database directory</a></li>
+<li><a class="reference internal" href="#crds-client-source-directory">CRDS client source directory</a></li>
+<li><a class="reference internal" href="#crds-server-source-directory">CRDS_server source directory</a><ul>
+<li><a class="reference internal" href="#sources-directory">sources directory</a></li>
+<li><a class="reference internal" href="#host-directory">host directory</a></li>
+<li><a class="reference internal" href="#tools-directory">tools directory</a></li>
+<li><a class="reference internal" href="#servers-directory">servers directory</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#crds-stacks">crds_stacks</a></li>
-<li><a class="reference internal" href="#monitor-reprocessing">monitor_reprocessing</a></li>
+<li><a class="reference internal" href="#crds-stacks-directory">crds_stacks directory</a></li>
+<li><a class="reference internal" href="#monitor-reprocessing-directory">monitor_reprocessing directory</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#server-dynamic-file-storage">Server Dynamic File Storage</a><ul>
-<li><a class="reference internal" href="#catalog-directory">Catalog Directory</a></li>
-<li><a class="reference internal" href="#deliveries-directory">Deliveries Directory</a></li>
-<li><a class="reference internal" href="#uploads-directory">Uploads Directory</a></li>
-<li><a class="reference internal" href="#ingest-directory">Ingest Directory</a></li>
-<li><a class="reference internal" href="#ingest-ssb-directory">Ingest SSB Directory</a></li>
+<li><a class="reference internal" href="#catalogs-subdirectory">catalogs subdirectory</a></li>
+<li><a class="reference internal" href="#deliveries-subdirectory">deliveries subdirectory</a></li>
+<li><a class="reference internal" href="#uploads-subdirectory">uploads subdirectory</a></li>
+<li><a class="reference internal" href="#ingest-subdirectory">ingest subdirectory</a></li>
+<li><a class="reference internal" href="#ingest-ssb-subdirectory">ingest_ssb subdirectory</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#server-file-cache">Server File Cache</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#rc-scripts">RC scripts</a><ul>
-<li><a class="reference internal" href="#setenv">.setenv</a></li>
-<li><a class="reference internal" href="#home-rc-script">$HOME/rc_script</a></li>
+<li><a class="reference internal" href="#server-file-private-cache">Server File Private Cache</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#cron-jobs">Cron Jobs</a><ul>
 <li><a class="reference internal" href="#nightly-cron-job">nightly.cron.job</a></li>
-<li><a class="reference internal" href="#id2">monitor_reprocessing</a></li>
+<li><a class="reference internal" href="#monitor-reprocessing">monitor_reprocessing</a></li>
 <li><a class="reference internal" href="#clear-expired-locks">clear_expired_locks</a></li>
 <li><a class="reference internal" href="#sync-ops-to-grp">sync_ops_to_grp</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#maintenance-commands">Maintenance Commands</a><ul>
 <li><a class="reference internal" href="#installing-the-server-application">Installing the Server Application</a></li>
+<li><a class="reference internal" href="#crds-catalog-initialization">CRDS Catalog Initialization</a></li>
 <li><a class="reference internal" href="#starting-and-stopping-the-server">Starting and Stopping the Server</a></li>
-<li><a class="reference internal" href="#re-installing-the-crds-server">Re-installing the CRDS Server</a></li>
-<li><a class="reference internal" href="#running-server-tests">Running Server Tests</a></li>
-<li><a class="reference internal" href="#crds-catalog-initializaton">CRDS catalog initializaton</a></li>
-<li><a class="reference internal" href="#starting-the-server">Starting the server</a></li>
 <li><a class="reference internal" href="#updating-and-restarting">Updating and Restarting</a></li>
-<li><a class="reference internal" href="#running-server-self-tests">Running Server Self-tests</a></li>
+<li><a class="reference internal" href="#running-server-tests">Running Server Tests</a></li>
 <li><a class="reference internal" href="#django-management-commands">Django Management Commands</a></li>
 <li><a class="reference internal" href="#command-line-server-debug">Command Line Server Debug</a></li>
 <li><a class="reference internal" href="#crds-catalog-database-sql-commands">CRDS Catalog Database SQL Commands</a></li>
@@ -156,7 +152,7 @@
 <p>Historical Institute contacts for the CRDS servers include:</p>
 <blockquote>
 <div><ul class="simple">
-<li>Todd Miller:    yours truly,  primary CRDS and (sole) CRDS server application developer.</li>
+<li>Todd Miller:    primary CRDS and CRDS server application developer.</li>
 <li>Patrick Taylor: web proxies, ssl support, and server rc/reboot script coordination</li>
 <li>Thomas Walker:  initial VM creation, file systems, and Isilon storage setup.</li>
 </ul>
@@ -166,20 +162,21 @@
 <h1>Servers<a class="headerlink" href="#servers" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="crds-pseudo-user-and-group">
 <h2>CRDS pseudo-user and group<a class="headerlink" href="#crds-pseudo-user-and-group" title="Permalink to this headline">¶</a></h2>
-<p>The CRDS servers run as the no-login user &#8220;crds&#8221;.  The CRDS servers are maintained by getting sudo
-access to the crds user and the equivalent of &#8220;su crds&#8221; from a normal user account.   The CRDS
-crds_server script contains the following:</p>
-<div class="highlight-python"><pre>ssh -A -t $1.stsci.edu /usr/bin/sudo /bin/su - crds</pre>
+<p>The CRDS servers run as the no-login user &#8220;crds&#8221;.  The CRDS  crds_server script contains the following:</p>
+<div class="highlight-python"><div class="highlight"><pre>% ssh -A -t $1.stsci.edu /usr/bin/sudo /bin/su - crds
+</pre></div>
 </div>
 <p>and is invoked like this:</p>
-<div class="highlight-python"><pre>% crds_server plhstcrdsv1
-# crds_server &lt;VM-hostname&gt;</pre>
+<div class="highlight-python"><div class="highlight"><pre>% crds_server plhstcrdsv1
+# crds_server &lt;VM-hostname&gt;
+</pre></div>
 </div>
-<p>The ssh first logs into your normal user account on the server VM, then su&#8217;s you to CRDS.</p>
+<p>The ssh first logs into your normal user account on the server VM, then su&#8217;s you to CRDS.   It is not possible
+to directly login to the crds user.</p>
 <p>Server maintainers need to get membership in group crdsoper and &#8220;sudo su crds&#8221; access on
 the appropriate server VMs.</p>
 <p>Members of DSB share the crdsoper group and use it to modify the CRDS server file delivery
-directory described below.</p>
+directory described below or copy files directly to their ingest directories.</p>
 </div>
 <div class="section" id="virtual-machines-and-urls">
 <h2>Virtual Machines and URLs<a class="headerlink" href="#virtual-machines-and-urls" title="Permalink to this headline">¶</a></h2>
@@ -259,15 +256,124 @@ server URLs will be visible off site.</p>
 <p>See CRDS_server/sources/site_config.py to verify this information.</p>
 </div>
 </div>
+<div class="section" id="mailing-lists">
+<h1>Mailing Lists<a class="headerlink" href="#mailing-lists" title="Permalink to this headline">¶</a></h1>
+<p>The following CRDS mailing lists are defined on behalf of CRDS:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="28%" />
+<col width="12%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">mailing list</th>
+<th class="head">moderator</th>
+<th class="head">purpose</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><a class="reference external" href="mailto:crds&#37;&#52;&#48;stsci&#46;edu">crds<span>&#64;</span>stsci<span>&#46;</span>edu</a></td>
+<td>mcmaster</td>
+<td>comm between INS and CRDS team, also accidental use</td>
+</tr>
+<tr class="row-odd"><td><a class="reference external" href="mailto:crds_team&#37;&#52;&#48;stsci&#46;edu">crds_team<span>&#64;</span>stsci<span>&#46;</span>edu</a></td>
+<td>mcmaster</td>
+<td>comm within CRDS delivery team, DSB, archive, pipelines</td>
+</tr>
+<tr class="row-even"><td><a class="reference external" href="mailto:crds_datamng&#37;&#52;&#48;stsci&#46;edu">crds_datamng<span>&#64;</span>stsci<span>&#46;</span>edu</a></td>
+<td>mcmaster</td>
+<td>common destination for affected datasets output</td>
+</tr>
+<tr class="row-odd"><td><a class="reference external" href="mailto:crds-servers&#37;&#52;&#48;stsci&#46;edu">crds-servers<span>&#64;</span>stsci<span>&#46;</span>edu</a></td>
+<td>jmiller</td>
+<td>little used,  new source address for affected datasets,  server details + news</td>
+</tr>
+<tr class="row-even"><td><a class="reference external" href="mailto:crds_hst_ops_reprocessing&#37;&#52;&#48;stsci&#46;edu">crds_hst_ops_reprocessing<span>&#64;</span>stsci<span>&#46;</span>edu</a></td>
+<td>jmiller</td>
+<td>affected datasets output list, hst ops</td>
+</tr>
+<tr class="row-odd"><td><a class="reference external" href="mailto:crds_hst_test_reprocessing&#37;&#52;&#48;stsci&#46;edu">crds_hst_test_reprocessing<span>&#64;</span>stsci<span>&#46;</span>edu</a></td>
+<td>jmiller</td>
+<td>affected datasets output list, hst test</td>
+</tr>
+<tr class="row-even"><td><a class="reference external" href="mailto:crds_jwst_ops_reprocessing&#37;&#52;&#48;stsci&#46;edu">crds_jwst_ops_reprocessing<span>&#64;</span>stsci<span>&#46;</span>edu</a></td>
+<td>jmiller</td>
+<td>affected datasets output list, jwst ops</td>
+</tr>
+<tr class="row-odd"><td><a class="reference external" href="mailto:crds_jwst_test_reprocessing&#37;&#52;&#48;stsci&#46;edu">crds_jwst_test_reprocessing<span>&#64;</span>stsci<span>&#46;</span>edu</a></td>
+<td>jmiller</td>
+<td>affected datasets output list, jwst test</td>
+</tr>
+</tbody>
+</table>
+<p>These are all closed lists.  Most critical are crds_team and crds_datamng.   The reprocessing lists are intended and/or used to drive
+automated systems so be careful with traffic on those.</p>
+</div>
 <div class="section" id="server-file-systems">
 <h1>Server File Systems<a class="headerlink" href="#server-file-systems" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="home-crds">
-<h2>/home/crds<a class="headerlink" href="#home-crds" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="cross-server-shared-home-home-crds">
+<h2>Cross-Server Shared Home (/home/crds)<a class="headerlink" href="#cross-server-shared-home-home-crds" title="Permalink to this headline">¶</a></h2>
 <p>The VMs and servers share a common /home/crds directory which has potential as a single point failure.  In particular,
 critical shell rc scripts (.setenv) are shared by all servers and must be updated with extreme care because
-any error instantly affects all 6 servers.  Consequently, .setenv should be kept as simple as reasonably
-possible.  /home/crds also houses rc_script.</p>
+any error instantly affects all 6 servers.</p>
 <p>/home/crds is useful for communicating information between VMs during setup and maintenance.</p>
+<p>The RC scripts are version controlled with the server source code in the directory &#8220;hosts&#8221; under the names dot_setenv
+and rc_script.</p>
+<div class="section" id="setenv">
+<h3>.setenv<a class="headerlink" href="#setenv" title="Permalink to this headline">¶</a></h3>
+<p>The CRDS user runs under /bin/tcsh and executes .setenv for CRDS-server specific initializations.   Note that
+$HOME/.setenv is shared across all CRDS servers and should be modified with extreme caution.   The environment
+variables defined to differentiate the 6 CRDS servers are,  for example for JWST DEV:</p>
+<div class="highlight-python"><div class="highlight"><pre>CRDS_PROJECT        jwst
+CRDS_USECASE        dev
+CRDS_SERVER         dljwstcrdsv1
+CRDS                /crds/data1/dljwstcrdsv1
+PATH                /crds/data1/dljwstcrdsv1/CRDS_server/host   /crds/data1/dljwstcrdsv1/crds_stacks/crds_11/bin
+CRDS_STACK          /crds/data1/dljwstcrdsv1/crds_stacks/crds_11
+CRDS_AFFECTED...    jmiller@stsci.edu eisenhamer@stsci.edu
+CRDS_IFS            /ifs/crds/jwst/dev
+CRDS_FILE_CACHE     /ifs/crds/jwst/dev/file_cache
+CRDS_SERVER_FILES   /ifs/crds/jwst/dev/server_files
+META_PREFIX         /crds/data1/dljwstcrdsv1/crds_stacks/crds_11
+</pre></div>
+</div>
+<p>Additional environment variables, particularly those related to server installation, are defined in
+${CRDS}/CRDS_server/env.csh.</p>
+<p>META_PREFIX is roughly equivalent to /usr/local,  the common value passed to &#8211;prefix in ./configure,  etc.,
+for building the server Python stack.</p>
+</div>
+<div class="section" id="alias">
+<h3>.alias<a class="headerlink" href="#alias" title="Permalink to this headline">¶</a></h3>
+<p>CRDS augments the standard .alias file with these aliases for moving around the file system:</p>
+<div class="highlight-python"><div class="highlight"><pre>#  Source code areas
+alias crds       &quot;cd ${CRDS}/CRDS&quot;
+alias server     &quot;cd ${CRDS}/CRDS_server&quot;
+alias stack      &quot;cd ${CRDS_STACK}&quot;
+alias installer &quot;cd ${CRDS}/crds_stacks/installer3/build&quot;
+
+# Server maintenance areas
+alias logs       &quot;cd ${CRDS}/server/logs&quot;
+alias backups    &quot;cd ${CRDS}/server/db_backups&quot;
+
+# CRDS code area
+alias libpython  &quot;cd ${CRDS}/python/lib/python&quot;
+
+# Server working data files areas
+alias deliveries &quot;cd ${CRDS_SERVER_FILES}/deliveries&quot;
+alias catalogs   &quot;cd ${CRDS_SERVER_FILES}/catalogs&quot;
+alias ingest     &quot;cd ${CRDS_SERVER_FILES}/ingest&quot;
+alias file_cache &quot;cd ${CRDS_FILE_CACHE}&quot;
+
+# Isilon and VM file systems
+alias ifs        &quot;cd ${CRDS_IFS}&quot;
+alias data1      &quot;cd ${CRDS}&quot;
+</pre></div>
+</div>
+</div>
+<div class="section" id="rc-script">
+<h3>rc_script<a class="headerlink" href="#rc-script" title="Permalink to this headline">¶</a></h3>
+<p>The /home/crds/rc_script is executed to restart the servers,  or shut them down,  whenever the server is rebooted.</p>
+</div>
 </div>
 <div class="section" id="server-static-file-storage">
 <h2>Server Static File Storage<a class="headerlink" href="#server-static-file-storage" title="Permalink to this headline">¶</a></h2>
@@ -277,123 +383,167 @@ a private VM-unique volume named after the host,  e.g.  /crds/data1.  This serve
 Files within this directory tree are logically executable or in some way secret,  sensitive with respect
 to server security.   Most files/subdirs are located in a subdirectory named after the host,
 e.g. /crds/data1/plhstcrdsv1.</p>
-<div class="section" id="server-runtime-directories">
-<h3>Server Runtime Directories<a class="headerlink" href="#server-runtime-directories" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="server-runtime-directory">
+<h3>server runtime directory<a class="headerlink" href="#server-runtime-directory" title="Permalink to this headline">¶</a></h3>
 <p>A number of subdirectories are used to store files related to running Apache, logging, or backups under
 e.g. /crds/data1/dlhstcrdsv1/server.</p>
-<div class="section" id="conf">
-<h4>conf<a class="headerlink" href="#conf" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="conf-subdirectory">
+<h4>conf subdirectory<a class="headerlink" href="#conf-subdirectory" title="Permalink to this headline">¶</a></h4>
 <p>Apache config files are installed here at e.g. /crds/data1/dlhstcrdsv1/server/conf.  Files ssl.conf and httpd.conf.</p>
 </div>
-<div class="section" id="logs">
-<h4>logs<a class="headerlink" href="#logs" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="logs-subdirectory">
+<h4>logs subdirectory<a class="headerlink" href="#logs-subdirectory" title="Permalink to this headline">¶</a></h4>
 <p>There are a number of Apache logs kept at e.g. /crds/data1/dlhstcrdsv1/server/logs.  These logs record requests to
 Apache and stderr output from Django views not visible to end users.</p>
 </div>
-<div class="section" id="db-backups">
-<h4>db_backups<a class="headerlink" href="#db-backups" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="db-backups-subdirectory">
+<h4>db_backups subdirectory<a class="headerlink" href="#db-backups-subdirectory" title="Permalink to this headline">¶</a></h4>
 <p>The output of the CRDS_server/tools/backup_server script is kept here in dated subdirectories,
 e.g. /crds/data1/dlhstcrdsv1/server/db_backups/2014-05-30-033327.  These contain a backup of the CRDS server database,
 catalog files, deliveries files, all mappings, the server CRDS cach config directory, and an VM rpm listing.
 For use with restore_server,  these files would need to be copied to differently named locations in $HOME/backups
 which only record the results of the last backup.</p>
 </div>
-<div class="section" id="wsgi-scripts">
-<h4>wsgi-scripts<a class="headerlink" href="#wsgi-scripts" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="wsgi-scripts-subdirectory">
+<h4>wsgi-scripts subdirectory<a class="headerlink" href="#wsgi-scripts-subdirectory" title="Permalink to this headline">¶</a></h4>
 <p>The mod_wsgi script which bridges from Apache to Django,  crds.wsgi,  is kept here,
 e.g. /crds/data1/dlhstcrdsv1/server/wsgi-scripts.  Potentially other django or non-django WSGI scripts
 would go here as well.</p>
 </div>
-<div class="section" id="run">
-<h4>run<a class="headerlink" href="#run" title="Permalink to this headline">¶</a></h4>
-<p>The running Apache process id is stored here.   The id of memcached should be stored here as well but isn&#8217;t.</p>
+<div class="section" id="run-subdirectory">
+<h4>run subdirectory<a class="headerlink" href="#run-subdirectory" title="Permalink to this headline">¶</a></h4>
+<p>The running Apache process id is stored here.   The id of memcached should be stored here as well but isn&#8217;t stored.</p>
 </div>
 </div>
-<div class="section" id="database-files">
-<h3>Database files<a class="headerlink" href="#database-files" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="database-directory">
+<h3>database directory<a class="headerlink" href="#database-directory" title="Permalink to this headline">¶</a></h3>
 <p>Files required to support operations with databases are stored in a top level static file system
 subdirectory,  e.g. /crds/data1/database.   These files are secret,  effectively mode 700, and maintained
 manually as part of database setup.  They&#8217;re referred to by site-specific database configurations.</p>
 </div>
-<div class="section" id="crds">
-<h3>CRDS<a class="headerlink" href="#crds" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="crds-client-source-directory">
+<h3>CRDS client source directory<a class="headerlink" href="#crds-client-source-directory" title="Permalink to this headline">¶</a></h3>
 <p>The checkout of the CRDS core library source code installed with the CRDS server is located in the static file tree
-under the subdirectory CRDS and visited using the alias &#8220;crds&#8221;.  e.g.  /crds/data1/plhstcrdsv1/CRDS</p>
+under the subdirectory CRDS and visited using the alias &#8220;crds&#8221;.  e.g.  /crds/data1/plhstcrdsv1/CRDS.  Typically
+the server uses the core library and utilities directly,  but the server is also responsible for testing the client
+JSONRPC services.</p>
 </div>
-<div class="section" id="crds-server">
-<h3>CRDS_server<a class="headerlink" href="#crds-server" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="crds-server-source-directory">
+<h3>CRDS_server source directory<a class="headerlink" href="#crds-server-source-directory" title="Permalink to this headline">¶</a></h3>
 <p>The checkout of the CRDS server source code is located in the static file tree under the subdirectory CRDS_server
 and visited using the alias &#8220;server&#8221;.  e.g. /crds/data1/plhstcrdsv1/CRDS_server</p>
-<div class="section" id="host">
-<h4>host<a class="headerlink" href="#host" title="Permalink to this headline">¶</a></h4>
-<p>The CRDS_server/host subdirectory is on the PATH.  It contains scripts related to cron jobs,  affected datasets
-reprocessing, stack building,  server utilities, etc.   e.g. /crds/data1/plhstcrdsv1/CRDS_server/host</p>
-</div>
-<div class="section" id="tools">
-<h4>tools<a class="headerlink" href="#tools" title="Permalink to this headline">¶</a></h4>
-<p>The CRDS_server/tools directory contains more complicated scripts related to server backup, restore, mirroring,
-consistency checking, server initialization, user and group maintenance, etc.   The tools directory is not on the
-PATH and contains more eclectic scripts developed in an unplanned manner,  basically capturing whatever I needed
-to do repeatedly or had to Google.   e.g. /crds/data1/plhstcrdsv1/CRDS_server/tools</p>
-</div>
-<div class="section" id="id1">
-<h4>servers<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
-<p>This directory contains the Apache and mod_wsgi configuration files.  e.g. /crds/data1/plhstcrdsv1/CRDS_server/servers</p>
-</div>
-<div class="section" id="sources">
-<h4>sources<a class="headerlink" href="#sources" title="Permalink to this headline">¶</a></h4>
-<p>This directory contains the Django server and application source code.   e.g. /crds/data1/plhstcrdsv1/CRDS_server/sources</p>
+<div class="section" id="sources-directory">
+<h4>sources directory<a class="headerlink" href="#sources-directory" title="Permalink to this headline">¶</a></h4>
+<p>This directory contains the Django server and application source code.</p>
+<p>e.g. /crds/data1/plhstcrdsv1/CRDS_server/sources</p>
 <ul>
 <li><dl class="first docutils">
-<dt><em>sources/configs</em> contains site specific django configuration and database configuration files.  The appropriate files</dt>
-<dd><p class="first last">are copied to sources/site_config.py and sources/crds_database.py at install time.   Those are then
+<dt><em>sources/configs</em></dt>
+<dd><p class="first last">contains site specific django configuration and database configuration files.  The appropriate files
+are copied to sources/site_config.py and sources/crds_database.py at install time.   Those are then
 imported into more generic configuration files sources/config.py and sources/settings.py.   The site
 specific files are intended to contain the minimal information required to differentiate servers.</p>
 </dd>
 </dl>
 </li>
-<li><p class="first"><em>sources/urls.py</em>     defines most of the site URLs for all applications.</p>
-</li>
-<li><p class="first"><em>sources/settings.py</em> fairly standard Django settings.py</p>
-</li>
-<li><p class="first"><em>sources/templates</em>  contains web template base classes</p>
-</li>
-<li><p class="first"><em>sources/static</em>     contains most CRDS static files,  particularly Javascript and CSS.</p>
-</li>
-<li><p class="first"><em>sources/interactive</em>  is the primary web application for CRDS browsing and file submission.</p>
-</li>
-<li><p class="first"><em>sources/jsonapi</em>     is the JSONRPC application which supports web services in the crds.client api.</p>
+<li><dl class="first docutils">
+<dt><em>sources/urls.py</em></dt>
+<dd><p class="first last">defines most of the site URLs for all applications.</p>
+</dd>
+</dl>
 </li>
 <li><dl class="first docutils">
-<dt><em>sources/jpoll</em>    application supports the Javascript logging + done polling system used for long running views,</dt>
-<dd><p class="first last">particularly file submissions which can exceed proxy timeouts and run too long to leave a human
+<dt><em>sources/settings.py</em></dt>
+<dd><p class="first last">fairly standard Django settings.py</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><em>sources/templates</em></dt>
+<dd><p class="first last">contains web template base classes.  many applications also contain a <em>templates</em> subdirectory.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><em>sources/static</em></dt>
+<dd><p class="first last">contains most CRDS static files,  particularly Javascript and CSS.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><em>sources/interactive</em></dt>
+<dd><p class="first last">is the primary web application for CRDS browsing and file submission.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><em>sources/jsonapi</em></dt>
+<dd><p class="first last">is the JSONRPC application which supports web services in the crds.client api.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><em>sources/jpoll</em></dt>
+<dd><p class="first last">application supports the Javascript logging + done polling system used for long running views,
+particularly file submissions which can exceed proxy timeouts and run too long to leave a human
 without info.</p>
 </dd>
 </dl>
 </li>
-<li><p class="first"><em>sources/locking</em>     application for database based locks used by CRDS web logins for exclusive access to an instrument.</p>
-</li>
-<li><p class="first"><em>sources/fileupload</em>  application supports the fancy file submission file upload dialogs for file submissions.</p>
+<li><dl class="first docutils">
+<dt><em>sources/locking</em></dt>
+<dd><p class="first last">application for database based locks used by CRDS web logins for exclusive access to an instrument.</p>
+</dd>
+</dl>
 </li>
 <li><dl class="first docutils">
-<dt><em>sources/stats</em>      application mostly defunct django-level request logging to database,  superceded by Apache</dt>
-<dd><p class="first last">logging.  Some parameter capture not present in current Apache configuration.</p>
+<dt><em>sources/fileupload</em></dt>
+<dd><p class="first last">application supports the fancy file submission file upload dialogs for file submissions.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><em>sources/stats</em></dt>
+<dd><p class="first last">application mostly defunct django-level request logging to database,  superceded by Apache
+logging.  Some parameter capture not present in current Apache configuration.</p>
 </dd>
 </dl>
 </li>
 </ul>
 </div>
+<div class="section" id="host-directory">
+<h4>host directory<a class="headerlink" href="#host-directory" title="Permalink to this headline">¶</a></h4>
+<p>The CRDS_server/host subdirectory is on the PATH.  It contains scripts related to cron jobs,  affected datasets
+reprocessing, stack building,  server utilities, etc.   e.g. /crds/data1/plhstcrdsv1/CRDS_server/host</p>
 </div>
-<div class="section" id="crds-stacks">
-<h3>crds_stacks<a class="headerlink" href="#crds-stacks" title="Permalink to this headline">¶</a></h3>
-<p>The crds_stacks subdirectory contains stock python stacks and source code.  The CRDS server Python stack is built
-from source contained in the installer3 subdirectory.  An automatic nightly build and reinstall of the stack occurs on the
-dev and test servers so it&#8217;s possible to upgrade all the non-ops servers by updating the installer3 repo.  The
-master copy of the CRDS server installer3 repo is contained in /eng/ssb/crds/installer3.   Independent checkouts
-of the repo are contained in the stacks file store for each VM.   e.g. /crds/data1/plhstcrdsv1/crds_stacks</p>
+<div class="section" id="tools-directory">
+<h4>tools directory<a class="headerlink" href="#tools-directory" title="Permalink to this headline">¶</a></h4>
+<p>The CRDS_server/tools directory contains more complicated scripts related to server backup, restore, mirroring,
+consistency checking, server initialization, user and group maintenance, etc.   The tools directory is not on the
+PATH and contains more eclectic scripts developed in an unplanned manner,  basically capturing whatever I needed
+to do repeatedly or had to Google.   e.g. /crds/data1/plhstcrdsv1/CRDS_server/tools</p>
 </div>
-<div class="section" id="monitor-reprocessing">
-<h3>monitor_reprocessing<a class="headerlink" href="#monitor-reprocessing" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="servers-directory">
+<h4>servers directory<a class="headerlink" href="#servers-directory" title="Permalink to this headline">¶</a></h4>
+<p>e.g. /crds/data1/plhstcrdsv1/CRDS_server/servers</p>
+<p>This directory contains the Apache and mod_wsgi configuration files which are copied by ./install to their CRDS
+server installation directories.</p>
+</div>
+</div>
+<div class="section" id="crds-stacks-directory">
+<h3>crds_stacks directory<a class="headerlink" href="#crds-stacks-directory" title="Permalink to this headline">¶</a></h3>
+<p>e.g. /crds/data1/plhstcrdsv1/crds_stacks</p>
+<p>The crds_stacks subdirectory contains mostly stock python stack binaries and source code,  supporting third party packages
+for the server application.  The CRDS server Python stack is built from source contained in the installer3 subdirectory.
+Binaries are output to parallel subdirectories,  e.g. crds_11.</p>
+<p>An automatic nightly build and reinstall of the stack occurs on the dev and test servers so it&#8217;s possible to upgrade all
+the non-ops servers by updating the central installer3 repo at /eng/ssb/crds/installer3.</p>
+<p>Independent checkouts of the repo are contained in the stacks file store for each VM. The purpose of individual VMs is
+to facilitate independent configuration and test of Linux, the Python stack, and the CRDS server on each distinct VM.
+The OPS servers are configured for manual updates.</p>
+</div>
+<div class="section" id="monitor-reprocessing-directory">
+<h3>monitor_reprocessing directory<a class="headerlink" href="#monitor-reprocessing-directory" title="Permalink to this headline">¶</a></h3>
 <p>Output from the monitor_reprocessing cron job is stored in dated subdirectories here.  Also the file old_context.txt
 which records the last known operational context against which changes are measured.  Changed old_context.txt will
 trigger an affected datasets calculation as will changing the operational context on the web site.</p>
@@ -411,15 +561,15 @@ trigger an affected datasets calculation as will changing the operational contex
 <div>/ifs/crds/&lt;obsevatory&gt;/&lt;use&gt;/server_files,    e.g. /ifs/crds/hst/ops/server_files.</div></blockquote>
 <p>Since this area is actively written as a consequence of users accessing the web site,  it is kept distinct from the
 code and files required to run the server.</p>
-<div class="section" id="catalog-directory">
-<h3>Catalog Directory<a class="headerlink" href="#catalog-directory" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="catalogs-subdirectory">
+<h3>catalogs subdirectory<a class="headerlink" href="#catalogs-subdirectory" title="Permalink to this headline">¶</a></h3>
 <p>Files submitted to the archive generate .cat file lists which are stored permanently in the catalogs directory.
 Any file in CRDS is also stored in the server file cache,  so given the .cat file list the delivery can be recreated
 by regenerating file links in the deliveries directory.  The catalogs directory is an internal CRDS server data store
 which records file lists from past deliveries.</p>
 </div>
-<div class="section" id="deliveries-directory">
-<h3>Deliveries Directory<a class="headerlink" href="#deliveries-directory" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="deliveries-subdirectory">
+<h3>deliveries subdirectory<a class="headerlink" href="#deliveries-subdirectory" title="Permalink to this headline">¶</a></h3>
 <p>The deliveries directory is cross-mounted between the CRDS server VM and CRDS-archive-pipeline machines,  not
 necessarily under the same path name.</p>
 <p>Files submitted to the archive are placed in the CRDS delivery directory along with a numbered catalog file which
@@ -432,12 +582,12 @@ of the .cat delivery file lists, to the permanent copy in the catalogs directory
 substantial I/O overheads associated with multi-gigabyte JWST references.  For catalogs,  linked or not,  like named
 file lists should have the same contents in catalogs and deliveries.</p>
 </div>
-<div class="section" id="uploads-directory">
-<h3>Uploads Directory<a class="headerlink" href="#uploads-directory" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="uploads-subdirectory">
+<h3>uploads subdirectory<a class="headerlink" href="#uploads-subdirectory" title="Permalink to this headline">¶</a></h3>
 <p>The uploads directory is the default Django file upload directory for simple file uploads.</p>
 </div>
-<div class="section" id="ingest-directory">
-<h3>Ingest Directory<a class="headerlink" href="#ingest-directory" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="ingest-subdirectory">
+<h3>ingest subdirectory<a class="headerlink" href="#ingest-subdirectory" title="Permalink to this headline">¶</a></h3>
 <p>The ingest directory tree contains per-submitter subdirectories which are written to by the Django-file-upload
 muli-file upload application used on file submission pages.  The user&#8217;s guide gives instructions enabling submitters
 to copy files directly into their per-user subdirectories as an upload bypass for telecommuters.  (This is a work
@@ -445,21 +595,21 @@ around for the situation in which a VPN user winds up transparently downloading 
 references submitted via the web site;  instead,  a submitter places the file directly into their own ingest
 directory keeping the file onsite,  then proceeds with the submission on the web server normally.)</p>
 </div>
-<div class="section" id="ingest-ssb-directory">
-<h3>Ingest SSB Directory<a class="headerlink" href="#ingest-ssb-directory" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="ingest-ssb-subdirectory">
+<h3>ingest_ssb subdirectory<a class="headerlink" href="#ingest-ssb-subdirectory" title="Permalink to this headline">¶</a></h3>
 <p>The ingest_ssb directory tree is the historical generation and/or drop-off point for the files generated by the
 jwst_gentools.   Ingested files are then submitted to the web site.   The server does not directly access this
 directory,  it shares space with it.</p>
 </div>
 </div>
-<div class="section" id="server-file-cache">
-<h2>Server File Cache<a class="headerlink" href="#server-file-cache" title="Permalink to this headline">¶</a></h2>
-<p>Each CRDS server (test or ops) has a full copy (~2T allocation) of all operational and historical (CRDS-only)
-reference files.   The dev servers have a smaller allocation which is generally linked to /grp/crds
-(synced from ops servers) rather than internally stored.  The Isilon CRDS cache storage (i.e. CRDS_PATH for servers)
-is located similarly to dynamic file storage:</p>
+<div class="section" id="server-file-private-cache">
+<h2>Server File Private Cache<a class="headerlink" href="#server-file-private-cache" title="Permalink to this headline">¶</a></h2>
+<p>The Isilon CRDS cache storage (i.e. CRDS_PATH for servers) is located similarly to dynamic file storage:</p>
 <blockquote>
 <div>e.g. /ifs/crds/jwst/test/file_cache</div></blockquote>
+<p>Each CRDS server (test or ops) has a full copy (~2T allocation) of all operational and historical (CRDS-only)
+reference files. The dev servers have a smaller allocation which is generally linked to /grp/crds
+(synced from ops servers) rather than internally stored.</p>
 <p>The server file cache config area is generally updated transparently by running cronjobs.   The server file_cache
 and delivery areas are updated as a result of file submissions and archive activity.  Once global Isilon archive storage
 becomes available, cache space can be reclaimed by symlinking the CRDS cache path to the global storage rather than
@@ -469,28 +619,16 @@ contain unconfirmed and unarchived files,  they are currently read protected fro
 <p>See the User&#8217;s manual in the ? on the web sites for more info on the CRDS cache.</p>
 </div>
 </div>
-<div class="section" id="rc-scripts">
-<h1>RC scripts<a class="headerlink" href="#rc-scripts" title="Permalink to this headline">¶</a></h1>
-<p>The RC scripts are kept with the server source code in the directory &#8220;hosts&#8221; under the names dot_setenv and
-rc_script.</p>
-<div class="section" id="setenv">
-<h2>.setenv<a class="headerlink" href="#setenv" title="Permalink to this headline">¶</a></h2>
-<p>The CRDS user runs under /bin/tcsh and executes .setenv for CRDS-server specific initializations.   Note that
-$HOME/.setenv is shared across all CRDS servers and should be modified with extreme caution.</p>
-</div>
-<div class="section" id="home-rc-script">
-<h2>$HOME/rc_script<a class="headerlink" href="#home-rc-script" title="Permalink to this headline">¶</a></h2>
-<p>The /home/crds/rc_script is executed to restart the servers,  or shut them down,  whenever the server is rebooted.</p>
-</div>
-</div>
 <div class="section" id="cron-jobs">
 <h1>Cron Jobs<a class="headerlink" href="#cron-jobs" title="Permalink to this headline">¶</a></h1>
 <p>Use shell command:</p>
-<div class="highlight-python"><pre>% crontab -l</pre>
+<div class="highlight-python"><div class="highlight"><pre>% crontab -l
+</pre></div>
 </div>
 <p>to dump the current crontab and observe the jobs.   Cronjobs currently produce .log files in the CRDS_server directory.</p>
 <p>To change the cronjobs modify ${CRDS}/CRDS_server/host/crontab and then do:</p>
-<div class="highlight-python"><pre>% crontab host/crontab</pre>
+<div class="highlight-python"><div class="highlight"><pre>% crontab ${CRDS}/CRDS_server/host/crontab
+</pre></div>
 </div>
 <p>Note that systems on the same subversion branch on which a crontab is modified and committed will automatically pick
 up and use the new crontab during the nightly cron job.</p>
@@ -506,8 +644,8 @@ currently update subversion although the OPS (and often TEST) servers are typica
 and test servers also restart.  Output from the nightly cron is sent to the MAILTO variable defined in the
 CRDS_server/host/crontab file,  currently <a class="reference external" href="mailto:jmiller&#37;&#52;&#48;stsci&#46;edu">jmiller<span>&#64;</span>stsci<span>&#46;</span>edu</a>.</p>
 </div>
-<div class="section" id="id2">
-<h2>monitor_reprocessing<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="monitor-reprocessing">
+<h2>monitor_reprocessing<a class="headerlink" href="#monitor-reprocessing" title="Permalink to this headline">¶</a></h2>
 <p>Every 5 minutes CRDS_server/host/monitor_reprocessing looks for changes in the CRDS operational context and
 does an &#8220;affected datasets&#8221; context-to-context bestrefs comparison when the context changes.   This generates
 an e-mail to the $CRDS_AFFECTED_DATASETS_RECIPIENTS addresses set up by the .setenv file.   bestrefs can require
@@ -530,99 +668,97 @@ Central Store file cache CRDS currently uses as default for OPUS 2014.3.   This 
 </div>
 <div class="section" id="maintenance-commands">
 <h1>Maintenance Commands<a class="headerlink" href="#maintenance-commands" title="Permalink to this headline">¶</a></h1>
-<p>Maintenance commands are typically run from the <strong>$CRDS/CRDS_server directory</strong>,  the root of the CRDS_server checkout.</p>
-<p>The default Python environment does not include the CRDS server packages directory.   Many of the shell scripts
-described below are either generated by the ${CRDS}/crds_server/install script or are dependent on scripts and
-config files that are generated.   Hence, this section will only make sense in a CRDS server environment which has
-been initialized at least once.</p>
+<p>Maintenance commands are typically run from the root of the CRDS_server checkout.   Changing to the CRDS_server source
+directory can be done like this:</p>
+<div class="highlight-python"><div class="highlight"><pre>% server # cd to the CRDS_server source code checkout
+% pwd
+/crds/data1/dljwstcrdsv1/CRDS_server
+</pre></div>
+</div>
+<p>From here on,  we&#8217;ll assume commands are executed from this directory.</p>
+<p>The default Python environment does not include the CRDS server packages directory.   Additional environment variables
+required to run the server and some scripts are sourced like this:</p>
+<div class="highlight-python"><div class="highlight"><pre>% source env.csh
+</pre></div>
+</div>
 <div class="section" id="installing-the-server-application">
 <h2>Installing the Server Application<a class="headerlink" href="#installing-the-server-application" title="Permalink to this headline">¶</a></h2>
-<p>Running the ./install script will perform many actions including regenerating the environment definition script
-<em>${CRDS}/CRDS_server/env.csh</em>.  Primarily ./install installs the <em>crds</em> client and <em>crds.server</em> packages into
+<p>Running the <em>./install</em> script will perform many actions including regenerating the environment definition script
+<em>env.csh</em>.  Primarily <em>./install</em> installs the <em>crds</em> (core + client) and <em>crds.server</em> packages into
 a server specific python directory which is added to PYTHONPATH automatically in <em>env.csh</em>.  In addition ./install
 instantiates some Apache configuration file templates and copies them to the appropriate installation directories.</p>
 <p>The install script is typically run like this:</p>
-<div class="highlight-python"><pre>% ./install [hst|jwst]  [django|dev|test|prod]  |&amp; tee install.&lt;observatory&gt;.&lt;use&gt;.err</pre>
+<div class="highlight-python"><div class="highlight"><pre>% ./install [hst|jwst]  [django|dev|test|prod]  |&amp; tee install.&lt;observatory&gt;.&lt;use&gt;.err
+</pre></div>
 </div>
 <p>For example:</p>
-<div class="highlight-python"><pre>% server   # alias to cd to server source directory
-% ./install hst dev  |&amp; tee install.hst.dev.err</pre>
+<div class="highlight-python"><div class="highlight"><pre>% ./install hst dev  |&amp; tee install.hst.dev.err
+</pre></div>
 </div>
 <p>Running ./install explicitly is required to generate <em>env.csh</em> for the first time.  Afterward,  env.csh essentially
 knows this server is for &#8220;hst dev&#8221;.</p>
 </div>
+<div class="section" id="crds-catalog-initialization">
+<h2>CRDS Catalog Initialization<a class="headerlink" href="#crds-catalog-initialization" title="Permalink to this headline">¶</a></h2>
+<p>Historically the CRDS server catalogs were initialized many times from existing CDBS and JWST references and
+the initial CRDS rules set.  <em>./init</em> is rarely used anymore but may still be useful for setting up a Django local
+test environment, dubbed the &#8220;django&#8221; usecase.</p>
+<p>For the most part the ./init script is tasked with installing the server&#8217;s initial copy of CRDS rules and initializing
+the CRDS file catalog (the crds.server.interactive.models Django database with 19000 CDBS references and CRDS rules):</p>
+<div class="highlight-python"><div class="highlight"><pre>% server   # alias to cd to server source directory
+% ./init [hst|jwst] [django|dev|test|ops]
+&lt;enter password for test user&gt;
+</pre></div>
+</div>
+<p><strong>NOTE:</strong>  At this stage <em>./init</em> should not be run on the OPS servers.   For VM-based servers it
+has effectively been superceded by <em>tools/restore_server</em> and <em>tools/mirror_server</em>.</p>
+</div>
 <div class="section" id="starting-and-stopping-the-server">
 <h2>Starting and Stopping the Server<a class="headerlink" href="#starting-and-stopping-the-server" title="Permalink to this headline">¶</a></h2>
 <p>The CRDS server can be started and stopped like this:</p>
-<div class="highlight-python"><pre>% server   # alias to cd to server source directory
-% ./run
-% ./stop</pre>
+<div class="highlight-python"><div class="highlight"><pre>% ./run
+% ./stop
+</pre></div>
 </div>
-</div>
-<div class="section" id="re-installing-the-crds-server">
-<h2>Re-installing the CRDS Server<a class="headerlink" href="#re-installing-the-crds-server" title="Permalink to this headline">¶</a></h2>
-<p>Once the CRDS server has been initialized, the server can be stopped, updated/re-installed, and retarted with
-the <em>rerun</em> command:</p>
-<div class="highlight-python"><pre>% ./rerun</pre>
-</div>
-<p>This process does not affect the server Python stack.</p>
-</div>
-<div class="section" id="running-server-tests">
-<h2>Running Server Tests<a class="headerlink" href="#running-server-tests" title="Permalink to this headline">¶</a></h2>
-<p>The CRDS server unit tests (<strong>NOT ADVISABLE FOR OPS</strong>) can be run like this:</p>
-<div class="highlight-python"><pre>% server   # alias to cd to server source directory
-% ./runtests</pre>
-</div>
-<p>additional parameters can be passed to runtests,  for example to select specific tests:</p>
-<div class="highlight-python"><pre>% ./runtests interactive.tests.Hst.test_index</pre>
-</div>
-<p>Runtests should not be executed on operational or in-test servers because it has side effects which interfere with
-server operation.   Runtests has been modified to switch to a backup port during execution,  but the version of
-code necessary will only be deployed with OPUS 2014.3 so it is not yet in operations.</p>
-<p>The server unit tests are ponderous.  Eventually you may <em>&lt;control-c&gt;</em> and leave behind a junk test
-database which blocks subsequent testing.  That can generally cleaned up,  with <strong>extreme caution</strong>,  as follows
-for e.g. hst dev:</p>
-<div class="highlight-python"><pre>% ./manage dbshell
-mysql&gt; drop database test_crds_hst_dev;</pre>
-</div>
-<p>It should be noted that the server unit tests typically do run on the dev and test servers in the nightly
-cronjob, generally making them available without waiting on the following day.</p>
-</div>
-<div class="section" id="crds-catalog-initializaton">
-<h2>CRDS catalog initializaton<a class="headerlink" href="#crds-catalog-initializaton" title="Permalink to this headline">¶</a></h2>
-<p>Historically the CRDS server catalogs were initialized many times from existing CDBS and JWST references and
-the initial CRDS rules set.  <em>./init</em> is rarely used anymore but may still be useful for setting up a Django local
-test environment, typically called a &#8220;dev&#8221; server except in CRDS the &#8220;dev&#8221; server is an actual VM so Django dev
-servers are referred to as &#8220;django&#8221; servers.</p>
-<p>For the most part the ./init script is tasked with installing the server&#8217;s initial copy of CRDS rules and initializing
-the CRDS file catalog (the crds.server.interactive.models Django database with 19000 CDBS references and CRDS rules):</p>
-<div class="highlight-python"><pre>% ./init [hst|jwst] [django|dev|test|ops]
-&lt;enter password for test user&gt;</pre>
-</div>
-<p><strong>NOTE:</strong>  At this stage <em>./init</em> should not be run on the OPS servers.   For operational servers it
-has effectively been superceded by <strong>tools/restore_server</strong> and <strong>tools/mirror_server</strong>.</p>
-</div>
-<div class="section" id="starting-the-server">
-<h2>Starting the server<a class="headerlink" href="#starting-the-server" title="Permalink to this headline">¶</a></h2>
 <p>The <em>./run</em> script starts Apache (many httpd processes) and memcached after which the CRDS server should definitely
 be abvailable on it&#8217;s private port (typically 8001).   The web proxy is provided by an independent system which
-is rarely-if-ever unavailable:</p>
-<div class="highlight-python"><pre>% ./run</pre>
-</div>
+is rarely-if-ever unavailable,  but which has historically had a random lag of about 1 minute to (by appearances)
+connect with the just started Apache.</p>
 </div>
 <div class="section" id="updating-and-restarting">
 <h2>Updating and Restarting<a class="headerlink" href="#updating-and-restarting" title="Permalink to this headline">¶</a></h2>
-<p>Performing a server update often revolves around stopping the server,  changing and reinstalling the Django
-application, and restarting the server:</p>
-<div class="highlight-python"><pre>% ./rerun</pre>
+<p>Performing a server update generally revolves around stopping the server,  changing and reinstalling the Django
+application, and restarting the server.   This is encapsulated in the <em>./rerun</em> script:</p>
+<div class="highlight-python"><div class="highlight"><pre>% ./rerun
+</pre></div>
 </div>
 <p>This works by sequentially invoking other more basic scripts: ./stop, ./install, ./run.</p>
 <p><em>./rerun</em> produces a log file of the voluminous install output as install.&lt;observatory&gt;.&lt;usecase&gt;.err.  If things
 aren&#8217;t working coherently,  check the install...err file to verify that no setup functions failed,  as might
-happen for a Python syntax error.</p>
+happen for a Python syntax error or database schema change.</p>
+<p><strong>NOTE:</strong>  rerunning the server is an integral part of taking the sever offline and switching to the hidden backup port.
+Consequently,  activities such as running tests and mirroring should also be viewed as reinstalling the Django
+application.   The reinstall is innocuous because any differences in application source code should be very tightly
+controlled, related to switching ports only.   However,  it&#8217;s still a significant hidden side effect to be aware of
+because it has obvious implications when performed on an dirty code base.</p>
 </div>
-<div class="section" id="running-server-self-tests">
-<h2>Running Server Self-tests<a class="headerlink" href="#running-server-self-tests" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="running-server-tests">
+<h2>Running Server Tests<a class="headerlink" href="#running-server-tests" title="Permalink to this headline">¶</a></h2>
+<p>The CRDS server unit tests (<strong>NOT ADVISABLE FOR OPS</strong>) can be run like this:</p>
+<div class="highlight-python"><div class="highlight"><pre>% ./runtests
+</pre></div>
+</div>
+<p>additional parameters can be passed to runtests,  for example to select specific tests:</p>
+<div class="highlight-python"><div class="highlight"><pre>% ./runtests interactive.tests.Hst.test_index
+</pre></div>
+</div>
+<p>Runtests should not be executed on operational or in-test servers because it has side effects which interfere with
+server operation.   Runtests has been modified to switch to a backup port during execution,  but the version of
+code necessary will only be deployed with OPUS 2014.3 so it is not yet in operations.</p>
+<p><strong>NOTE:</strong>    without special arrangements,  server self-tests should not be run on the operational servers.
+Self-tests are normally run on the dev and test servers during the nightly cron job at 3 am.</p>
+<p>It should be noted that the server unit tests typically do run on the dev and test servers in the nightly
+cronjob, generally making them available without waiting on the following day.</p>
 <p>The server self-tests exercise most but not all of the Django interactive view code,  JSONRPC code, and basic database
 interface to DADSOPS.   Although the interactive (web view) self tests run in a Django test database,  the JSONRPC
 tests simply ivoke the CRDS client routines to call to the server and verify results.   Hence,  the JSONRPC code
@@ -630,22 +766,21 @@ is effectively tested against a live server,  exercising it just like a normal u
 caching interface is not mocked during testing,  so memcached effects impact the live server.   Consequently,  for
 running tests on dev, test, or ops servers,  runtests moves the server to the &#8220;backup port&#8221; where it normally hides
 during server restoration or mirroring.   Self-tests are typically run like this:</p>
-<div class="highlight-python"><pre>% ./runtests   # (in second terminal window if using a Django dev local server)</pre>
-</div>
-<p><strong>NOTE:</strong>    without special arrangements,  server self-tests should not be run on the operational servers.
-Self-tests are normally run on the dev and test servers during the nightly cron job at 3 am.</p>
 </div>
 <div class="section" id="django-management-commands">
 <h2>Django Management Commands<a class="headerlink" href="#django-management-commands" title="Permalink to this headline">¶</a></h2>
 <p>Django has a manage.py module which is frequently referenced for server maintenance activities.   In CRDS this is
 wrapped as:</p>
-<div class="highlight-python"><pre>% ./manage &lt;additional parameters to manage.py&gt;</pre>
+<div class="highlight-python"><div class="highlight"><pre>% ./manage &lt;additional parameters to manage.py&gt;
+</pre></div>
 </div>
 </div>
 <div class="section" id="command-line-server-debug">
 <h2>Command Line Server Debug<a class="headerlink" href="#command-line-server-debug" title="Permalink to this headline">¶</a></h2>
-<p>An Ipython shell can be started in either of these equivalent ways:</p>
-<div class="highlight-python"><pre>% ./manage shell</pre>
+<p>An Ipython shell which runs in a context similar to the CRDS server can be started like this:</p>
+<div class="highlight-python"><div class="highlight"><pre>% ./manage shell
+In [1]:
+</pre></div>
 </div>
 <p>This shell can be useful for debugging and/or maintaining Django models, view code, JSONRPC routines, or
 the database interface to the DADSOPS dataset catalog database (HST).</p>
@@ -659,9 +794,17 @@ so the principle coupling to a running server would be the database and file sys
 <p>The CRDS reference and rules catalog is implemented as a Django model in crds.server.interactive.models.  Typically
 it is accessed by using the models module, classes, and functions.  Nevertheless,  the Django models can be accessed
 directly with SQL like this:</p>
-<div class="highlight-python"><pre>% ./manage dbshell  # to open a SQL prompt to the CRDS server database
+<div class="highlight-python"><div class="highlight"><pre>% ./manage dbshell  # to open a SQL prompt to the CRDS server database
 ...
-mysql&gt; ... SQL commands ...</pre>
+mysql&gt; ... SQL commands ...
+</pre></div>
+</div>
+<p>The server unit tests are ponderous.  Eventually you may <em>&lt;control-c&gt;</em> and leave behind a junk test
+database which blocks subsequent testing.  That can generally cleaned up,  with <strong>caution</strong>,  as follows
+for e.g. hst dev:</p>
+<div class="highlight-python"><div class="highlight"><pre>% ./manage dbshell
+mysql&gt; drop database test_crds_hst_dev;
+</pre></div>
 </div>
 <p><strong>NOTE</strong>:  the CRDS Catalog is in a Django database which is distinct from the DADSOPS dataset catalog that
 CRDS uses to find matching parameters and dataset ids.</p>
@@ -674,7 +817,8 @@ do not contain any references,  and in particular,  no transient references in t
 confirmation.   Nevertheless,  the backups are extremely useful and appear to be capable of restoring
 &#8220;yesterday&#8217;s quiescent server&#8221;.</p>
 <p>Making a backup is done as follows:</p>
-<div class="highlight-python"><pre>% tools/backup_server</pre>
+<div class="highlight-python"><div class="highlight"><pre>% tools/backup_server
+</pre></div>
 </div>
 <p>backup_server results in the generation of backup files which are placed in <strong>${CRDS}/server/db_backups</strong> in a dated
 subdirectory with dated names,  and also globally in ${HOME}/backups with generic names.   Both locations should be
@@ -686,7 +830,8 @@ ${CRDS}/server/db_backups are only visible on that VM.</p>
 <h2>Restoring Nightly Backups<a class="headerlink" href="#restoring-nightly-backups" title="Permalink to this headline">¶</a></h2>
 <p>A relatively recent addition is the tools/restore_server script.   It is quite simple to restore the nightly backup
 of a server:</p>
-<div class="highlight-python"><pre>% tools/restore_server</pre>
+<div class="highlight-python"><div class="highlight"><pre>% tools/restore_server
+</pre></div>
 </div>
 <p>Conceptually,  restore server reloads the server database and restores the delivery directories and catalogs,  and
 removes any reference or rules files orphaned by the database restoration,  those added to the cache since the backup
@@ -714,19 +859,22 @@ OPS VM,  which in all likelihood replaces OPS state with something inferior.   T
 will mirror the OPS server to itself by running <em>mirror_server</em> internally in order to revert OPS to its state at the
 time of the nightly backup.</p>
 <p>For example,  to copy the test server (hst-crds-test, tlhstcrdsv1) down to the dev server (hst-crds-dev, dlhstcrdsv1),
-perform these steps.  First, optionally, on the source server:</p>
-<div class="highlight-python"><pre># login tlhstcrdsv1
+perform these steps.</p>
+<p>First, optionally, on the source server:</p>
+<div class="highlight-python"><div class="highlight"><pre># login tlhstcrdsv1
 % server
-% tools/backup_server</pre>
+% tools/backup_server
+</pre></div>
 </div>
 <p>That puts required backup files in global (cross-server) ${HOME}/backups.  If this steps is omitted,  the files in
 ${HOME}/backups should correspond to the server state at the time of the last backup,  nominally 3 am.  If you&#8217;re trying
 to mirror a change on the test server that you just made,  then immediately backing up the test server is required so
 that the change is recorded in the current backup.</p>
 <p>Second, on the destination server:</p>
-<div class="highlight-python"><pre># login dlhstcrdsv1
+<div class="highlight-python"><div class="highlight"><pre># login dlhstcrdsv1
 % server
-% tools/mirror_server hst test https://hst-crds-test.stsci.edu |&amp; tee mirror_server.hst.test.err</pre>
+% tools/mirror_server hst test https://hst-crds-test.stsci.edu |&amp; tee mirror_server.hst.test.err
+</pre></div>
 </div>
 <p>where the parameters to mirror_server specify the <em>source</em> server and the destination is implicitly the
 server of the current login.</p>
@@ -755,7 +903,7 @@ to a backup port so that it is unavailable while it transitions through various 
     </div>
     <div class="footer">
         &copy; Copyright 2014, STScI.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>

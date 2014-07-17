@@ -1,0 +1,51 @@
+\select@language {english}
+\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}
+\contentsline {chapter}{\numberline {2}Servers}{3}{chapter.2}
+\contentsline {section}{\numberline {2.1}CRDS pseudo-user and group}{3}{section.2.1}
+\contentsline {section}{\numberline {2.2}Virtual Machines and URLs}{3}{section.2.2}
+\contentsline {chapter}{\numberline {3}Mailing Lists}{5}{chapter.3}
+\contentsline {chapter}{\numberline {4}Server File Systems}{7}{chapter.4}
+\contentsline {section}{\numberline {4.1}Cross-Server Shared Home (/home/crds)}{7}{section.4.1}
+\contentsline {subsection}{\numberline {4.1.1}.setenv}{7}{subsection.4.1.1}
+\contentsline {subsection}{\numberline {4.1.2}.alias}{7}{subsection.4.1.2}
+\contentsline {subsection}{\numberline {4.1.3}rc\_script}{8}{subsection.4.1.3}
+\contentsline {section}{\numberline {4.2}Server Static File Storage}{8}{section.4.2}
+\contentsline {subsection}{\numberline {4.2.1}server runtime directory}{8}{subsection.4.2.1}
+\contentsline {subsubsection}{conf subdirectory}{8}{subsubsection*.3}
+\contentsline {subsubsection}{logs subdirectory}{8}{subsubsection*.4}
+\contentsline {subsubsection}{db\_backups subdirectory}{9}{subsubsection*.5}
+\contentsline {subsubsection}{wsgi-scripts subdirectory}{9}{subsubsection*.6}
+\contentsline {subsubsection}{run subdirectory}{9}{subsubsection*.7}
+\contentsline {subsection}{\numberline {4.2.2}database directory}{9}{subsection.4.2.2}
+\contentsline {subsection}{\numberline {4.2.3}CRDS client source directory}{9}{subsection.4.2.3}
+\contentsline {subsection}{\numberline {4.2.4}CRDS\_server source directory}{9}{subsection.4.2.4}
+\contentsline {subsubsection}{sources directory}{9}{subsubsection*.8}
+\contentsline {subsubsection}{host directory}{10}{subsubsection*.9}
+\contentsline {subsubsection}{tools directory}{10}{subsubsection*.10}
+\contentsline {subsubsection}{servers directory}{10}{subsubsection*.11}
+\contentsline {subsection}{\numberline {4.2.5}crds\_stacks directory}{10}{subsection.4.2.5}
+\contentsline {subsection}{\numberline {4.2.6}monitor\_reprocessing directory}{11}{subsection.4.2.6}
+\contentsline {section}{\numberline {4.3}Server Dynamic File Storage}{11}{section.4.3}
+\contentsline {subsection}{\numberline {4.3.1}catalogs subdirectory}{11}{subsection.4.3.1}
+\contentsline {subsection}{\numberline {4.3.2}deliveries subdirectory}{11}{subsection.4.3.2}
+\contentsline {subsection}{\numberline {4.3.3}uploads subdirectory}{11}{subsection.4.3.3}
+\contentsline {subsection}{\numberline {4.3.4}ingest subdirectory}{12}{subsection.4.3.4}
+\contentsline {subsection}{\numberline {4.3.5}ingest\_ssb subdirectory}{12}{subsection.4.3.5}
+\contentsline {section}{\numberline {4.4}Server File Private Cache}{12}{section.4.4}
+\contentsline {chapter}{\numberline {5}Cron Jobs}{13}{chapter.5}
+\contentsline {section}{\numberline {5.1}nightly.cron.job}{13}{section.5.1}
+\contentsline {section}{\numberline {5.2}monitor\_reprocessing}{13}{section.5.2}
+\contentsline {section}{\numberline {5.3}clear\_expired\_locks}{13}{section.5.3}
+\contentsline {section}{\numberline {5.4}sync\_ops\_to\_grp}{14}{section.5.4}
+\contentsline {chapter}{\numberline {6}Maintenance Commands}{15}{chapter.6}
+\contentsline {section}{\numberline {6.1}Installing the Server Application}{15}{section.6.1}
+\contentsline {section}{\numberline {6.2}CRDS Catalog Initialization}{15}{section.6.2}
+\contentsline {section}{\numberline {6.3}Starting and Stopping the Server}{16}{section.6.3}
+\contentsline {section}{\numberline {6.4}Updating and Restarting}{16}{section.6.4}
+\contentsline {section}{\numberline {6.5}Running Server Tests}{16}{section.6.5}
+\contentsline {section}{\numberline {6.6}Django Management Commands}{17}{section.6.6}
+\contentsline {section}{\numberline {6.7}Command Line Server Debug}{17}{section.6.7}
+\contentsline {section}{\numberline {6.8}CRDS Catalog Database SQL Commands}{17}{section.6.8}
+\contentsline {section}{\numberline {6.9}Nightly Backup}{18}{section.6.9}
+\contentsline {section}{\numberline {6.10}Restoring Nightly Backups}{18}{section.6.10}
+\contentsline {section}{\numberline {6.11}Server Mirroring}{18}{section.6.11}

@@ -1,0 +1,27 @@
+\BOOKMARK [0][-]{chapter.1}{Introduction}{}
+\BOOKMARK [0][-]{chapter.2}{Servers}{}
+\BOOKMARK [1][-]{section.2.1}{CRDS pseudo-user and group}{chapter.2}
+\BOOKMARK [1][-]{section.2.2}{Virtual Machines and URLs}{chapter.2}
+\BOOKMARK [0][-]{chapter.3}{Mailing Lists}{}
+\BOOKMARK [0][-]{chapter.4}{Server File Systems}{}
+\BOOKMARK [1][-]{section.4.1}{Cross-Server Shared Home \(/home/crds\)}{chapter.4}
+\BOOKMARK [1][-]{section.4.2}{Server Static File Storage}{chapter.4}
+\BOOKMARK [1][-]{section.4.3}{Server Dynamic File Storage}{chapter.4}
+\BOOKMARK [1][-]{section.4.4}{Server File Private Cache}{chapter.4}
+\BOOKMARK [0][-]{chapter.5}{Cron Jobs}{}
+\BOOKMARK [1][-]{section.5.1}{nightly.cron.job}{chapter.5}
+\BOOKMARK [1][-]{section.5.2}{monitor\137reprocessing}{chapter.5}
+\BOOKMARK [1][-]{section.5.3}{clear\137expired\137locks}{chapter.5}
+\BOOKMARK [1][-]{section.5.4}{sync\137ops\137to\137grp}{chapter.5}
+\BOOKMARK [0][-]{chapter.6}{Maintenance Commands}{}
+\BOOKMARK [1][-]{section.6.1}{Installing the Server Application}{chapter.6}
+\BOOKMARK [1][-]{section.6.2}{CRDS Catalog Initialization}{chapter.6}
+\BOOKMARK [1][-]{section.6.3}{Starting and Stopping the Server}{chapter.6}
+\BOOKMARK [1][-]{section.6.4}{Updating and Restarting}{chapter.6}
+\BOOKMARK [1][-]{section.6.5}{Running Server Tests}{chapter.6}
+\BOOKMARK [1][-]{section.6.6}{Django Management Commands}{chapter.6}
+\BOOKMARK [1][-]{section.6.7}{Command Line Server Debug}{chapter.6}
+\BOOKMARK [1][-]{section.6.8}{CRDS Catalog Database SQL Commands}{chapter.6}
+\BOOKMARK [1][-]{section.6.9}{Nightly Backup}{chapter.6}
+\BOOKMARK [1][-]{section.6.10}{Restoring Nightly Backups}{chapter.6}
+\BOOKMARK [1][-]{section.6.11}{Server Mirroring}{chapter.6}

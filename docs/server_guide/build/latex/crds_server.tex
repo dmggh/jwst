@@ -3,6 +3,7 @@
 \documentclass[letterpaper,10pt,english]{sphinxmanual}
 \usepackage[utf8]{inputenc}
 \DeclareUnicodeCharacter{00A0}{\nobreakspace}
+\usepackage{cmap}
 \usepackage[T1]{fontenc}
 \usepackage{babel}
 \usepackage{times}
@@ -10,9 +11,6 @@
 \usepackage{longtable}
 \usepackage{sphinx}
 \usepackage{multirow}
-
-\usepackage{enumitem}
-\setlistdepth{15}
 
 \usepackage{amsmath}
 \DeclareUnicodeCharacter{00A0}{\nobreakspace}
@@ -60,7 +58,7 @@
 
 
 \title{CRDS Server Documentation}
-\date{July 16, 2014}
+\date{July 17, 2014}
 \release{1.1}
 \author{STScI}
 \newcommand{\sphinxlogo}{\includegraphics{stsci_logo.pdf}\par}
@@ -78,75 +76,81 @@
     \PYG@it{\PYG@bf{\PYG@ff{#1}}}}}}}
 \def\PYG#1#2{\PYG@reset\PYG@toks#1+\relax+\PYG@do{#2}}
 
-\def\PYG@tok@gd{\def\PYG@tc##1{\textcolor[rgb]{0.63,0.00,0.00}{##1}}}
-\def\PYG@tok@gu{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.50,0.00,0.50}{##1}}}
-\def\PYG@tok@gt{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.25,0.82}{##1}}}
-\def\PYG@tok@gs{\let\PYG@bf=\textbf}
-\def\PYG@tok@gr{\def\PYG@tc##1{\textcolor[rgb]{1.00,0.00,0.00}{##1}}}
-\def\PYG@tok@cm{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
-\def\PYG@tok@vg{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
-\def\PYG@tok@m{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
-\def\PYG@tok@mh{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
-\def\PYG@tok@cs{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}\def\PYG@bc##1{\colorbox[rgb]{1.00,0.94,0.94}{##1}}}
-\def\PYG@tok@ge{\let\PYG@it=\textit}
-\def\PYG@tok@vc{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
-\def\PYG@tok@il{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
-\def\PYG@tok@go{\def\PYG@tc##1{\textcolor[rgb]{0.19,0.19,0.19}{##1}}}
-\def\PYG@tok@cp{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@gi{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.63,0.00}{##1}}}
-\def\PYG@tok@gh{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
-\def\PYG@tok@ni{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.84,0.33,0.22}{##1}}}
-\def\PYG@tok@nl{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.13,0.44}{##1}}}
-\def\PYG@tok@nn{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.05,0.52,0.71}{##1}}}
-\def\PYG@tok@no{\def\PYG@tc##1{\textcolor[rgb]{0.38,0.68,0.84}{##1}}}
-\def\PYG@tok@na{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\def\PYG@tok@nb{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@nc{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.05,0.52,0.71}{##1}}}
-\def\PYG@tok@nd{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.33,0.33,0.33}{##1}}}
-\def\PYG@tok@ne{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@nf{\def\PYG@tc##1{\textcolor[rgb]{0.02,0.16,0.49}{##1}}}
-\def\PYG@tok@si{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.44,0.63,0.82}{##1}}}
-\def\PYG@tok@s2{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\def\PYG@tok@vi{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
-\def\PYG@tok@nt{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.02,0.16,0.45}{##1}}}
-\def\PYG@tok@nv{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
-\def\PYG@tok@s1{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\def\PYG@tok@gp{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.78,0.36,0.04}{##1}}}
-\def\PYG@tok@sh{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\def\PYG@tok@ow{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@sx{\def\PYG@tc##1{\textcolor[rgb]{0.78,0.36,0.04}{##1}}}
-\def\PYG@tok@bp{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@c1{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
-\def\PYG@tok@kc{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@c{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
-\def\PYG@tok@mf{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
-\def\PYG@tok@err{\def\PYG@bc##1{\fcolorbox[rgb]{1.00,0.00,0.00}{1,1,1}{##1}}}
-\def\PYG@tok@kd{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@ss{\def\PYG@tc##1{\textcolor[rgb]{0.32,0.47,0.09}{##1}}}
-\def\PYG@tok@sr{\def\PYG@tc##1{\textcolor[rgb]{0.14,0.33,0.53}{##1}}}
-\def\PYG@tok@mo{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
-\def\PYG@tok@mi{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
-\def\PYG@tok@kn{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@o{\def\PYG@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
-\def\PYG@tok@kr{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@s{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\def\PYG@tok@kp{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@w{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.73,0.73}{##1}}}
-\def\PYG@tok@kt{\def\PYG@tc##1{\textcolor[rgb]{0.56,0.13,0.00}{##1}}}
-\def\PYG@tok@sc{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\def\PYG@tok@sb{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\def\PYG@tok@k{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@se{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\def\PYG@tok@sd{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@gd\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.63,0.00,0.00}{##1}}}
+\expandafter\def\csname PYG@tok@gu\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.50,0.00,0.50}{##1}}}
+\expandafter\def\csname PYG@tok@gt\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.27,0.87}{##1}}}
+\expandafter\def\csname PYG@tok@gs\endcsname{\let\PYG@bf=\textbf}
+\expandafter\def\csname PYG@tok@gr\endcsname{\def\PYG@tc##1{\textcolor[rgb]{1.00,0.00,0.00}{##1}}}
+\expandafter\def\csname PYG@tok@cm\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
+\expandafter\def\csname PYG@tok@vg\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
+\expandafter\def\csname PYG@tok@m\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\expandafter\def\csname PYG@tok@mh\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\expandafter\def\csname PYG@tok@cs\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}\def\PYG@bc##1{\setlength{\fboxsep}{0pt}\colorbox[rgb]{1.00,0.94,0.94}{\strut ##1}}}
+\expandafter\def\csname PYG@tok@ge\endcsname{\let\PYG@it=\textit}
+\expandafter\def\csname PYG@tok@vc\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
+\expandafter\def\csname PYG@tok@il\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\expandafter\def\csname PYG@tok@go\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.20,0.20,0.20}{##1}}}
+\expandafter\def\csname PYG@tok@cp\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@gi\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.63,0.00}{##1}}}
+\expandafter\def\csname PYG@tok@gh\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
+\expandafter\def\csname PYG@tok@ni\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.84,0.33,0.22}{##1}}}
+\expandafter\def\csname PYG@tok@nl\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.13,0.44}{##1}}}
+\expandafter\def\csname PYG@tok@nn\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.05,0.52,0.71}{##1}}}
+\expandafter\def\csname PYG@tok@no\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.38,0.68,0.84}{##1}}}
+\expandafter\def\csname PYG@tok@na\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@nb\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@nc\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.05,0.52,0.71}{##1}}}
+\expandafter\def\csname PYG@tok@nd\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.33,0.33,0.33}{##1}}}
+\expandafter\def\csname PYG@tok@ne\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@nf\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.02,0.16,0.49}{##1}}}
+\expandafter\def\csname PYG@tok@si\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.44,0.63,0.82}{##1}}}
+\expandafter\def\csname PYG@tok@s2\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@vi\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
+\expandafter\def\csname PYG@tok@nt\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.02,0.16,0.45}{##1}}}
+\expandafter\def\csname PYG@tok@nv\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
+\expandafter\def\csname PYG@tok@s1\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@gp\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.78,0.36,0.04}{##1}}}
+\expandafter\def\csname PYG@tok@sh\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@ow\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@sx\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.78,0.36,0.04}{##1}}}
+\expandafter\def\csname PYG@tok@bp\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@c1\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
+\expandafter\def\csname PYG@tok@kc\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@c\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
+\expandafter\def\csname PYG@tok@mf\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\expandafter\def\csname PYG@tok@err\endcsname{\def\PYG@bc##1{\setlength{\fboxsep}{0pt}\fcolorbox[rgb]{1.00,0.00,0.00}{1,1,1}{\strut ##1}}}
+\expandafter\def\csname PYG@tok@kd\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@ss\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.32,0.47,0.09}{##1}}}
+\expandafter\def\csname PYG@tok@sr\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.14,0.33,0.53}{##1}}}
+\expandafter\def\csname PYG@tok@mo\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\expandafter\def\csname PYG@tok@mi\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\expandafter\def\csname PYG@tok@kn\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@o\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PYG@tok@kr\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@s\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@kp\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@w\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.73,0.73}{##1}}}
+\expandafter\def\csname PYG@tok@kt\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.56,0.13,0.00}{##1}}}
+\expandafter\def\csname PYG@tok@sc\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@sb\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@k\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@se\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@sd\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
 
 \def\PYGZbs{\char`\\}
 \def\PYGZus{\char`\_}
 \def\PYGZob{\char`\{}
 \def\PYGZcb{\char`\}}
 \def\PYGZca{\char`\^}
+\def\PYGZam{\char`\&}
+\def\PYGZlt{\char`\<}
+\def\PYGZgt{\char`\>}
 \def\PYGZsh{\char`\#}
 \def\PYGZpc{\char`\%}
 \def\PYGZdl{\char`\$}
+\def\PYGZhy{\char`\-}
+\def\PYGZsq{\char`\'}
+\def\PYGZdq{\char`\"}
 \def\PYGZti{\char`\~}
 % for compatibility with earlier versions
 \def\PYGZat{@}
@@ -169,7 +173,7 @@ This guide is intended to introduce the CRDS servers for the purposes of mainten
 Historical Institute contacts for the CRDS servers include:
 \begin{itemize}
 \item {} 
-Todd Miller:    yours truly,  primary CRDS and (sole) CRDS server application developer.
+Todd Miller:    primary CRDS and CRDS server application developer.
 
 \item {} 
 Patrick Taylor: web proxies, ssl support, and server rc/reboot script coordination
@@ -185,28 +189,27 @@ Thomas Walker:  initial VM creation, file systems, and Isilon storage setup.
 
 \section{CRDS pseudo-user and group}
 \label{server_guide:crds-pseudo-user-and-group}
-The CRDS servers run as the no-login user ``crds''.  The CRDS servers are maintained by getting sudo
-access to the crds user and the equivalent of ``su crds'' from a normal user account.   The CRDS
-crds\_server script contains the following:
+The CRDS servers run as the no-login user ``crds''.  The CRDS  crds\_server script contains the following:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-ssh -A -t \$1.stsci.edu /usr/bin/sudo /bin/su - crds
+\PYGZpc{} ssh \PYGZhy{}A \PYGZhy{}t \PYGZdl{}1.stsci.edu /usr/bin/sudo /bin/su \PYGZhy{} crds
 \end{Verbatim}
 
 and is invoked like this:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\% crds\_server plhstcrdsv1
-\# crds\_server \textless{}VM-hostname\textgreater{}
+\PYGZpc{} crds\PYGZus{}server plhstcrdsv1
+\PYGZsh{} crds\PYGZus{}server \PYGZlt{}VM\PYGZhy{}hostname\PYGZgt{}
 \end{Verbatim}
 
-The ssh first logs into your normal user account on the server VM, then su's you to CRDS.
+The ssh first logs into your normal user account on the server VM, then su's you to CRDS.   It is not possible
+to directly login to the crds user.
 
 Server maintainers need to get membership in group crdsoper and ``sudo su crds'' access on
 the appropriate server VMs.
 
 Members of DSB share the crdsoper group and use it to modify the CRDS server file delivery
-directory described below.
+directory described below or copy files directly to their ingest directories.
 
 
 \section{Virtual Machines and URLs}
@@ -217,18 +220,18 @@ there are 6 VMs and servers:  (hst, jwst) x (dev, test, ops):
 
 \begin{tabulary}{\linewidth}{|L|L|L|L|L|}
 \hline
-\textbf{
+\textsf{\relax 
 observatory
-} & \textbf{
+} & \textsf{\relax 
 use
-} & \textbf{
+} & \textsf{\relax 
 host/vm
-} & \textbf{
+} & \textsf{\relax 
 direct port
-} & \textbf{
+} & \textsf{\relax 
 url
-}\\\hline
-
+}\\
+\hline
 hst
  & 
 django
@@ -238,7 +241,7 @@ localhost
 8000
  & 
 \href{http://localhost:8000}{http://localhost:8000}
-\\\hline
+\\
 
 hst
  & 
@@ -249,7 +252,7 @@ dlhstcrdsv1
 8001
  & 
 \href{https://hst-crds-dev.stsci.edu}{https://hst-crds-dev.stsci.edu}
-\\\hline
+\\
 
 hst
  & 
@@ -260,7 +263,7 @@ tlhstcrdsv1
 8001
  & 
 \href{https://hst-crds-test.stsci.edu}{https://hst-crds-test.stsci.edu}
-\\\hline
+\\
 
 hst
  & 
@@ -271,7 +274,7 @@ plhstcrdsv1
 8001
  & 
 \href{https://hst-crds.stsci.edu}{https://hst-crds.stsci.edu}
-\\\hline
+\\
 
 jwst
  & 
@@ -282,7 +285,7 @@ localhost
 8000
  & 
 \href{http://localhost:8000}{http://localhost:8000}
-\\\hline
+\\
 
 jwst
  & 
@@ -293,7 +296,7 @@ dljwstcrdsv1
 8001
  & 
 \href{https://jwst-crds-dev.stsci.edu}{https://jwst-crds-dev.stsci.edu}
-\\\hline
+\\
 
 jwst
  & 
@@ -304,7 +307,7 @@ tljwstcrdsv1
 8001
  & 
 \href{https://jwst-crds-test.stsci.edu}{https://jwst-crds-test.stsci.edu}
-\\\hline
+\\
 
 jwst
  & 
@@ -315,8 +318,8 @@ pljwstcrdsv1
 8001
  & 
 \href{https://jwst-crds.stsci.edu}{https://jwst-crds.stsci.edu}
-\\\hline
-\end{tabulary}
+\\
+\hline\end{tabulary}
 
 
 For debug purposes the servers can be accessed by bypassing the proxy using VM-based URLs such
@@ -326,17 +329,157 @@ server URLs will be visible off site.
 See CRDS\_server/sources/site\_config.py to verify this information.
 
 
+\chapter{Mailing Lists}
+\label{server_guide:mailing-lists}
+The following CRDS mailing lists are defined on behalf of CRDS:
+
+\begin{tabulary}{\linewidth}{|L|L|L|}
+\hline
+\textsf{\relax 
+mailing list
+} & \textsf{\relax 
+moderator
+} & \textsf{\relax 
+purpose
+}\\
+\hline
+\href{mailto:crds@stsci.edu}{crds@stsci.edu}
+ & 
+mcmaster
+ & 
+comm between INS and CRDS team, also accidental use
+\\
+
+\href{mailto:crds\_team@stsci.edu}{crds\_team@stsci.edu}
+ & 
+mcmaster
+ & 
+comm within CRDS delivery team, DSB, archive, pipelines
+\\
+
+\href{mailto:crds\_datamng@stsci.edu}{crds\_datamng@stsci.edu}
+ & 
+mcmaster
+ & 
+common destination for affected datasets output
+\\
+
+\href{mailto:crds-servers@stsci.edu}{crds-servers@stsci.edu}
+ & 
+jmiller
+ & 
+little used,  new source address for affected datasets,  server details + news
+\\
+
+\href{mailto:crds\_hst\_ops\_reprocessing@stsci.edu}{crds\_hst\_ops\_reprocessing@stsci.edu}
+ & 
+jmiller
+ & 
+affected datasets output list, hst ops
+\\
+
+\href{mailto:crds\_hst\_test\_reprocessing@stsci.edu}{crds\_hst\_test\_reprocessing@stsci.edu}
+ & 
+jmiller
+ & 
+affected datasets output list, hst test
+\\
+
+\href{mailto:crds\_jwst\_ops\_reprocessing@stsci.edu}{crds\_jwst\_ops\_reprocessing@stsci.edu}
+ & 
+jmiller
+ & 
+affected datasets output list, jwst ops
+\\
+
+\href{mailto:crds\_jwst\_test\_reprocessing@stsci.edu}{crds\_jwst\_test\_reprocessing@stsci.edu}
+ & 
+jmiller
+ & 
+affected datasets output list, jwst test
+\\
+\hline\end{tabulary}
+
+
+These are all closed lists.  Most critical are crds\_team and crds\_datamng.   The reprocessing lists are intended and/or used to drive
+automated systems so be careful with traffic on those.
+
+
 \chapter{Server File Systems}
 \label{server_guide:server-file-systems}
 
-\section{/home/crds}
-\label{server_guide:home-crds}
+\section{Cross-Server Shared Home (/home/crds)}
+\label{server_guide:cross-server-shared-home-home-crds}
 The VMs and servers share a common /home/crds directory which has potential as a single point failure.  In particular,
 critical shell rc scripts (.setenv) are shared by all servers and must be updated with extreme care because
-any error instantly affects all 6 servers.  Consequently, .setenv should be kept as simple as reasonably
-possible.  /home/crds also houses rc\_script.
+any error instantly affects all 6 servers.
 
 /home/crds is useful for communicating information between VMs during setup and maintenance.
+
+The RC scripts are version controlled with the server source code in the directory ``hosts'' under the names dot\_setenv
+and rc\_script.
+
+
+\subsection{.setenv}
+\label{server_guide:setenv}
+The CRDS user runs under /bin/tcsh and executes .setenv for CRDS-server specific initializations.   Note that
+\$HOME/.setenv is shared across all CRDS servers and should be modified with extreme caution.   The environment
+variables defined to differentiate the 6 CRDS servers are,  for example for JWST DEV:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+CRDS\PYGZus{}PROJECT        jwst
+CRDS\PYGZus{}USECASE        dev
+CRDS\PYGZus{}SERVER         dljwstcrdsv1
+CRDS                /crds/data1/dljwstcrdsv1
+PATH                /crds/data1/dljwstcrdsv1/CRDS\PYGZus{}server/host   /crds/data1/dljwstcrdsv1/crds\PYGZus{}stacks/crds\PYGZus{}11/bin
+CRDS\PYGZus{}STACK          /crds/data1/dljwstcrdsv1/crds\PYGZus{}stacks/crds\PYGZus{}11
+CRDS\PYGZus{}AFFECTED...    jmiller@stsci.edu eisenhamer@stsci.edu
+CRDS\PYGZus{}IFS            /ifs/crds/jwst/dev
+CRDS\PYGZus{}FILE\PYGZus{}CACHE     /ifs/crds/jwst/dev/file\PYGZus{}cache
+CRDS\PYGZus{}SERVER\PYGZus{}FILES   /ifs/crds/jwst/dev/server\PYGZus{}files
+META\PYGZus{}PREFIX         /crds/data1/dljwstcrdsv1/crds\PYGZus{}stacks/crds\PYGZus{}11
+\end{Verbatim}
+
+Additional environment variables, particularly those related to server installation, are defined in
+\$\{CRDS\}/CRDS\_server/env.csh.
+
+META\_PREFIX is roughly equivalent to /usr/local,  the common value passed to --prefix in ./configure,  etc.,
+for building the server Python stack.
+
+
+\subsection{.alias}
+\label{server_guide:alias}
+CRDS augments the standard .alias file with these aliases for moving around the file system:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGZsh{}  Source code areas
+alias crds       \PYGZdq{}cd \PYGZdl{}\PYGZob{}CRDS\PYGZcb{}/CRDS\PYGZdq{}
+alias server     \PYGZdq{}cd \PYGZdl{}\PYGZob{}CRDS\PYGZcb{}/CRDS\PYGZus{}server\PYGZdq{}
+alias stack      \PYGZdq{}cd \PYGZdl{}\PYGZob{}CRDS\PYGZus{}STACK\PYGZcb{}\PYGZdq{}
+alias installer \PYGZdq{}cd \PYGZdl{}\PYGZob{}CRDS\PYGZcb{}/crds\PYGZus{}stacks/installer3/build\PYGZdq{}
+
+\PYGZsh{} Server maintenance areas
+alias logs       \PYGZdq{}cd \PYGZdl{}\PYGZob{}CRDS\PYGZcb{}/server/logs\PYGZdq{}
+alias backups    \PYGZdq{}cd \PYGZdl{}\PYGZob{}CRDS\PYGZcb{}/server/db\PYGZus{}backups\PYGZdq{}
+
+\PYGZsh{} CRDS code area
+alias libpython  \PYGZdq{}cd \PYGZdl{}\PYGZob{}CRDS\PYGZcb{}/python/lib/python\PYGZdq{}
+
+\PYGZsh{} Server working data files areas
+alias deliveries \PYGZdq{}cd \PYGZdl{}\PYGZob{}CRDS\PYGZus{}SERVER\PYGZus{}FILES\PYGZcb{}/deliveries\PYGZdq{}
+alias catalogs   \PYGZdq{}cd \PYGZdl{}\PYGZob{}CRDS\PYGZus{}SERVER\PYGZus{}FILES\PYGZcb{}/catalogs\PYGZdq{}
+alias ingest     \PYGZdq{}cd \PYGZdl{}\PYGZob{}CRDS\PYGZus{}SERVER\PYGZus{}FILES\PYGZcb{}/ingest\PYGZdq{}
+alias file\PYGZus{}cache \PYGZdq{}cd \PYGZdl{}\PYGZob{}CRDS\PYGZus{}FILE\PYGZus{}CACHE\PYGZcb{}\PYGZdq{}
+
+\PYGZsh{} Isilon and VM file systems
+alias ifs        \PYGZdq{}cd \PYGZdl{}\PYGZob{}CRDS\PYGZus{}IFS\PYGZcb{}\PYGZdq{}
+alias data1      \PYGZdq{}cd \PYGZdl{}\PYGZob{}CRDS\PYGZcb{}\PYGZdq{}
+\end{Verbatim}
+
+
+\subsection{rc\_script}
+\label{server_guide:rc-script}
+The /home/crds/rc\_script is executed to restart the servers,  or shut them down,  whenever the server is rebooted.
 
 
 \section{Server Static File Storage}
@@ -349,25 +492,25 @@ to server security.   Most files/subdirs are located in a subdirectory named aft
 e.g. /crds/data1/plhstcrdsv1.
 
 
-\subsection{Server Runtime Directories}
-\label{server_guide:server-runtime-directories}
+\subsection{server runtime directory}
+\label{server_guide:server-runtime-directory}
 A number of subdirectories are used to store files related to running Apache, logging, or backups under
 e.g. /crds/data1/dlhstcrdsv1/server.
 
 
-\subsubsection{conf}
-\label{server_guide:conf}
+\subsubsection{conf subdirectory}
+\label{server_guide:conf-subdirectory}
 Apache config files are installed here at e.g. /crds/data1/dlhstcrdsv1/server/conf.  Files ssl.conf and httpd.conf.
 
 
-\subsubsection{logs}
-\label{server_guide:logs}
+\subsubsection{logs subdirectory}
+\label{server_guide:logs-subdirectory}
 There are a number of Apache logs kept at e.g. /crds/data1/dlhstcrdsv1/server/logs.  These logs record requests to
 Apache and stderr output from Django views not visible to end users.
 
 
-\subsubsection{db\_backups}
-\label{server_guide:db-backups}
+\subsubsection{db\_backups subdirectory}
+\label{server_guide:db-backups-subdirectory}
 The output of the CRDS\_server/tools/backup\_server script is kept here in dated subdirectories,
 e.g. /crds/data1/dlhstcrdsv1/server/db\_backups/2014-05-30-033327.  These contain a backup of the CRDS server database,
 catalog files, deliveries files, all mappings, the server CRDS cach config directory, and an VM rpm listing.
@@ -375,101 +518,113 @@ For use with restore\_server,  these files would need to be copied to differentl
 which only record the results of the last backup.
 
 
-\subsubsection{wsgi-scripts}
-\label{server_guide:wsgi-scripts}
+\subsubsection{wsgi-scripts subdirectory}
+\label{server_guide:wsgi-scripts-subdirectory}
 The mod\_wsgi script which bridges from Apache to Django,  crds.wsgi,  is kept here,
 e.g. /crds/data1/dlhstcrdsv1/server/wsgi-scripts.  Potentially other django or non-django WSGI scripts
 would go here as well.
 
 
-\subsubsection{run}
-\label{server_guide:run}
-The running Apache process id is stored here.   The id of memcached should be stored here as well but isn't.
+\subsubsection{run subdirectory}
+\label{server_guide:run-subdirectory}
+The running Apache process id is stored here.   The id of memcached should be stored here as well but isn't stored.
 
 
-\subsection{Database files}
-\label{server_guide:database-files}
+\subsection{database directory}
+\label{server_guide:database-directory}
 Files required to support operations with databases are stored in a top level static file system
 subdirectory,  e.g. /crds/data1/database.   These files are secret,  effectively mode 700, and maintained
 manually as part of database setup.  They're referred to by site-specific database configurations.
 
 
-\subsection{CRDS}
-\label{server_guide:crds}
+\subsection{CRDS client source directory}
+\label{server_guide:crds-client-source-directory}
 The checkout of the CRDS core library source code installed with the CRDS server is located in the static file tree
-under the subdirectory CRDS and visited using the alias ``crds''.  e.g.  /crds/data1/plhstcrdsv1/CRDS
+under the subdirectory CRDS and visited using the alias ``crds''.  e.g.  /crds/data1/plhstcrdsv1/CRDS.  Typically
+the server uses the core library and utilities directly,  but the server is also responsible for testing the client
+JSONRPC services.
 
 
-\subsection{CRDS\_server}
-\label{server_guide:crds-server}
+\subsection{CRDS\_server source directory}
+\label{server_guide:crds-server-source-directory}
 The checkout of the CRDS server source code is located in the static file tree under the subdirectory CRDS\_server
 and visited using the alias ``server''.  e.g. /crds/data1/plhstcrdsv1/CRDS\_server
 
 
-\subsubsection{host}
-\label{server_guide:host}
-The CRDS\_server/host subdirectory is on the PATH.  It contains scripts related to cron jobs,  affected datasets
-reprocessing, stack building,  server utilities, etc.   e.g. /crds/data1/plhstcrdsv1/CRDS\_server/host
+\subsubsection{sources directory}
+\label{server_guide:sources-directory}
+This directory contains the Django server and application source code.
 
-
-\subsubsection{tools}
-\label{server_guide:tools}
-The CRDS\_server/tools directory contains more complicated scripts related to server backup, restore, mirroring,
-consistency checking, server initialization, user and group maintenance, etc.   The tools directory is not on the
-PATH and contains more eclectic scripts developed in an unplanned manner,  basically capturing whatever I needed
-to do repeatedly or had to Google.   e.g. /crds/data1/plhstcrdsv1/CRDS\_server/tools
-
-
-\subsubsection{servers}
-\label{server_guide:id1}
-This directory contains the Apache and mod\_wsgi configuration files.  e.g. /crds/data1/plhstcrdsv1/CRDS\_server/servers
-
-
-\subsubsection{sources}
-\label{server_guide:sources}
-This directory contains the Django server and application source code.   e.g. /crds/data1/plhstcrdsv1/CRDS\_server/sources
+e.g. /crds/data1/plhstcrdsv1/CRDS\_server/sources
 \begin{itemize}
 \item {} \begin{description}
-\item[{\emph{sources/configs} contains site specific django configuration and database configuration files.  The appropriate files}] \leavevmode
+\item[{\emph{sources/configs}}] \leavevmode
+contains site specific django configuration and database configuration files.  The appropriate files
 are copied to sources/site\_config.py and sources/crds\_database.py at install time.   Those are then
 imported into more generic configuration files sources/config.py and sources/settings.py.   The site
 specific files are intended to contain the minimal information required to differentiate servers.
 
 \end{description}
 
-\item {} 
-\emph{sources/urls.py}     defines most of the site URLs for all applications.
+\item {} \begin{description}
+\item[{\emph{sources/urls.py}}] \leavevmode
+defines most of the site URLs for all applications.
 
-\item {} 
-\emph{sources/settings.py} fairly standard Django settings.py
-
-\item {} 
-\emph{sources/templates}  contains web template base classes
-
-\item {} 
-\emph{sources/static}     contains most CRDS static files,  particularly Javascript and CSS.
-
-\item {} 
-\emph{sources/interactive}  is the primary web application for CRDS browsing and file submission.
-
-\item {} 
-\emph{sources/jsonapi}     is the JSONRPC application which supports web services in the crds.client api.
+\end{description}
 
 \item {} \begin{description}
-\item[{\emph{sources/jpoll}    application supports the Javascript logging + done polling system used for long running views,}] \leavevmode
+\item[{\emph{sources/settings.py}}] \leavevmode
+fairly standard Django settings.py
+
+\end{description}
+
+\item {} \begin{description}
+\item[{\emph{sources/templates}}] \leavevmode
+contains web template base classes.  many applications also contain a \emph{templates} subdirectory.
+
+\end{description}
+
+\item {} \begin{description}
+\item[{\emph{sources/static}}] \leavevmode
+contains most CRDS static files,  particularly Javascript and CSS.
+
+\end{description}
+
+\item {} \begin{description}
+\item[{\emph{sources/interactive}}] \leavevmode
+is the primary web application for CRDS browsing and file submission.
+
+\end{description}
+
+\item {} \begin{description}
+\item[{\emph{sources/jsonapi}}] \leavevmode
+is the JSONRPC application which supports web services in the crds.client api.
+
+\end{description}
+
+\item {} \begin{description}
+\item[{\emph{sources/jpoll}}] \leavevmode
+application supports the Javascript logging + done polling system used for long running views,
 particularly file submissions which can exceed proxy timeouts and run too long to leave a human
 without info.
 
 \end{description}
 
-\item {} 
-\emph{sources/locking}     application for database based locks used by CRDS web logins for exclusive access to an instrument.
+\item {} \begin{description}
+\item[{\emph{sources/locking}}] \leavevmode
+application for database based locks used by CRDS web logins for exclusive access to an instrument.
 
-\item {} 
-\emph{sources/fileupload}  application supports the fancy file submission file upload dialogs for file submissions.
+\end{description}
 
 \item {} \begin{description}
-\item[{\emph{sources/stats}      application mostly defunct django-level request logging to database,  superceded by Apache}] \leavevmode
+\item[{\emph{sources/fileupload}}] \leavevmode
+application supports the fancy file submission file upload dialogs for file submissions.
+
+\end{description}
+
+\item {} \begin{description}
+\item[{\emph{sources/stats}}] \leavevmode
+application mostly defunct django-level request logging to database,  superceded by Apache
 logging.  Some parameter capture not present in current Apache configuration.
 
 \end{description}
@@ -477,17 +632,46 @@ logging.  Some parameter capture not present in current Apache configuration.
 \end{itemize}
 
 
-\subsection{crds\_stacks}
-\label{server_guide:crds-stacks}
-The crds\_stacks subdirectory contains stock python stacks and source code.  The CRDS server Python stack is built
-from source contained in the installer3 subdirectory.  An automatic nightly build and reinstall of the stack occurs on the
-dev and test servers so it's possible to upgrade all the non-ops servers by updating the installer3 repo.  The
-master copy of the CRDS server installer3 repo is contained in /eng/ssb/crds/installer3.   Independent checkouts
-of the repo are contained in the stacks file store for each VM.   e.g. /crds/data1/plhstcrdsv1/crds\_stacks
+\subsubsection{host directory}
+\label{server_guide:host-directory}
+The CRDS\_server/host subdirectory is on the PATH.  It contains scripts related to cron jobs,  affected datasets
+reprocessing, stack building,  server utilities, etc.   e.g. /crds/data1/plhstcrdsv1/CRDS\_server/host
 
 
-\subsection{monitor\_reprocessing}
-\label{server_guide:monitor-reprocessing}
+\subsubsection{tools directory}
+\label{server_guide:tools-directory}
+The CRDS\_server/tools directory contains more complicated scripts related to server backup, restore, mirroring,
+consistency checking, server initialization, user and group maintenance, etc.   The tools directory is not on the
+PATH and contains more eclectic scripts developed in an unplanned manner,  basically capturing whatever I needed
+to do repeatedly or had to Google.   e.g. /crds/data1/plhstcrdsv1/CRDS\_server/tools
+
+
+\subsubsection{servers directory}
+\label{server_guide:servers-directory}
+e.g. /crds/data1/plhstcrdsv1/CRDS\_server/servers
+
+This directory contains the Apache and mod\_wsgi configuration files which are copied by ./install to their CRDS
+server installation directories.
+
+
+\subsection{crds\_stacks directory}
+\label{server_guide:crds-stacks-directory}
+e.g. /crds/data1/plhstcrdsv1/crds\_stacks
+
+The crds\_stacks subdirectory contains mostly stock python stack binaries and source code,  supporting third party packages
+for the server application.  The CRDS server Python stack is built from source contained in the installer3 subdirectory.
+Binaries are output to parallel subdirectories,  e.g. crds\_11.
+
+An automatic nightly build and reinstall of the stack occurs on the dev and test servers so it's possible to upgrade all
+the non-ops servers by updating the central installer3 repo at /eng/ssb/crds/installer3.
+
+Independent checkouts of the repo are contained in the stacks file store for each VM. The purpose of individual VMs is
+to facilitate independent configuration and test of Linux, the Python stack, and the CRDS server on each distinct VM.
+The OPS servers are configured for manual updates.
+
+
+\subsection{monitor\_reprocessing directory}
+\label{server_guide:monitor-reprocessing-directory}
 Output from the monitor\_reprocessing cron job is stored in dated subdirectories here.  Also the file old\_context.txt
 which records the last known operational context against which changes are measured.  Changed old\_context.txt will
 trigger an affected datasets calculation as will changing the operational context on the web site.
@@ -515,16 +699,16 @@ Since this area is actively written as a consequence of users accessing the web 
 code and files required to run the server.
 
 
-\subsection{Catalog Directory}
-\label{server_guide:catalog-directory}
+\subsection{catalogs subdirectory}
+\label{server_guide:catalogs-subdirectory}
 Files submitted to the archive generate .cat file lists which are stored permanently in the catalogs directory.
 Any file in CRDS is also stored in the server file cache,  so given the .cat file list the delivery can be recreated
 by regenerating file links in the deliveries directory.  The catalogs directory is an internal CRDS server data store
 which records file lists from past deliveries.
 
 
-\subsection{Deliveries Directory}
-\label{server_guide:deliveries-directory}
+\subsection{deliveries subdirectory}
+\label{server_guide:deliveries-subdirectory}
 The deliveries directory is cross-mounted between the CRDS server VM and CRDS-archive-pipeline machines,  not
 necessarily under the same path name.
 
@@ -539,13 +723,13 @@ substantial I/O overheads associated with multi-gigabyte JWST references.  For c
 file lists should have the same contents in catalogs and deliveries.
 
 
-\subsection{Uploads Directory}
-\label{server_guide:uploads-directory}
+\subsection{uploads subdirectory}
+\label{server_guide:uploads-subdirectory}
 The uploads directory is the default Django file upload directory for simple file uploads.
 
 
-\subsection{Ingest Directory}
-\label{server_guide:ingest-directory}
+\subsection{ingest subdirectory}
+\label{server_guide:ingest-subdirectory}
 The ingest directory tree contains per-submitter subdirectories which are written to by the Django-file-upload
 muli-file upload application used on file submission pages.  The user's guide gives instructions enabling submitters
 to copy files directly into their per-user subdirectories as an upload bypass for telecommuters.  (This is a work
@@ -554,23 +738,24 @@ references submitted via the web site;  instead,  a submitter places the file di
 directory keeping the file onsite,  then proceeds with the submission on the web server normally.)
 
 
-\subsection{Ingest SSB Directory}
-\label{server_guide:ingest-ssb-directory}
+\subsection{ingest\_ssb subdirectory}
+\label{server_guide:ingest-ssb-subdirectory}
 The ingest\_ssb directory tree is the historical generation and/or drop-off point for the files generated by the
 jwst\_gentools.   Ingested files are then submitted to the web site.   The server does not directly access this
 directory,  it shares space with it.
 
 
-\section{Server File Cache}
-\label{server_guide:server-file-cache}
-Each CRDS server (test or ops) has a full copy (\textasciitilde{}2T allocation) of all operational and historical (CRDS-only)
-reference files.   The dev servers have a smaller allocation which is generally linked to /grp/crds
-(synced from ops servers) rather than internally stored.  The Isilon CRDS cache storage (i.e. CRDS\_PATH for servers)
-is located similarly to dynamic file storage:
+\section{Server File Private Cache}
+\label{server_guide:server-file-private-cache}
+The Isilon CRDS cache storage (i.e. CRDS\_PATH for servers) is located similarly to dynamic file storage:
 \begin{quote}
 
 e.g. /ifs/crds/jwst/test/file\_cache
 \end{quote}
+
+Each CRDS server (test or ops) has a full copy (\textasciitilde{}2T allocation) of all operational and historical (CRDS-only)
+reference files. The dev servers have a smaller allocation which is generally linked to /grp/crds
+(synced from ops servers) rather than internally stored.
 
 The server file cache config area is generally updated transparently by running cronjobs.   The server file\_cache
 and delivery areas are updated as a result of file submissions and archive activity.  Once global Isilon archive storage
@@ -582,29 +767,12 @@ contain unconfirmed and unarchived files,  they are currently read protected fro
 See the User's manual in the ? on the web sites for more info on the CRDS cache.
 
 
-\chapter{RC scripts}
-\label{server_guide:rc-scripts}
-The RC scripts are kept with the server source code in the directory ``hosts'' under the names dot\_setenv and
-rc\_script.
-
-
-\section{.setenv}
-\label{server_guide:setenv}
-The CRDS user runs under /bin/tcsh and executes .setenv for CRDS-server specific initializations.   Note that
-\$HOME/.setenv is shared across all CRDS servers and should be modified with extreme caution.
-
-
-\section{\$HOME/rc\_script}
-\label{server_guide:home-rc-script}
-The /home/crds/rc\_script is executed to restart the servers,  or shut them down,  whenever the server is rebooted.
-
-
 \chapter{Cron Jobs}
 \label{server_guide:cron-jobs}
 Use shell command:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\% crontab -l
+\PYGZpc{} crontab \PYGZhy{}l
 \end{Verbatim}
 
 to dump the current crontab and observe the jobs.   Cronjobs currently produce .log files in the CRDS\_server directory.
@@ -612,7 +780,7 @@ to dump the current crontab and observe the jobs.   Cronjobs currently produce .
 To change the cronjobs modify \$\{CRDS\}/CRDS\_server/host/crontab and then do:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\% crontab host/crontab
+\PYGZpc{} crontab \PYGZdl{}\PYGZob{}CRDS\PYGZcb{}/CRDS\PYGZus{}server/host/crontab
 \end{Verbatim}
 
 Note that systems on the same subversion branch on which a crontab is modified and committed will automatically pick
@@ -634,7 +802,7 @@ CRDS\_server/host/crontab file,  currently \href{mailto:jmiller@stsci.edu}{jmill
 
 
 \section{monitor\_reprocessing}
-\label{server_guide:id2}
+\label{server_guide:monitor-reprocessing}
 Every 5 minutes CRDS\_server/host/monitor\_reprocessing looks for changes in the CRDS operational context and
 does an ``affected datasets'' context-to-context bestrefs comparison when the context changes.   This generates
 an e-mail to the \$CRDS\_AFFECTED\_DATASETS\_RECIPIENTS addresses set up by the .setenv file.   bestrefs can require
@@ -659,36 +827,65 @@ Central Store file cache CRDS currently uses as default for OPUS 2014.3.   This 
 
 \chapter{Maintenance Commands}
 \label{server_guide:maintenance-commands}
-Maintenance commands are typically run from the \textbf{\$CRDS/CRDS\_server directory},  the root of the CRDS\_server checkout.
+Maintenance commands are typically run from the root of the CRDS\_server checkout.   Changing to the CRDS\_server source
+directory can be done like this:
 
-The default Python environment does not include the CRDS server packages directory.   Many of the shell scripts
-described below are either generated by the \$\{CRDS\}/crds\_server/install script or are dependent on scripts and
-config files that are generated.   Hence, this section will only make sense in a CRDS server environment which has
-been initialized at least once.
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGZpc{} server \PYGZsh{} cd to the CRDS\PYGZus{}server source code checkout
+\PYGZpc{} pwd
+/crds/data1/dljwstcrdsv1/CRDS\PYGZus{}server
+\end{Verbatim}
+
+From here on,  we'll assume commands are executed from this directory.
+
+The default Python environment does not include the CRDS server packages directory.   Additional environment variables
+required to run the server and some scripts are sourced like this:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGZpc{} source env.csh
+\end{Verbatim}
 
 
 \section{Installing the Server Application}
 \label{server_guide:installing-the-server-application}
-Running the ./install script will perform many actions including regenerating the environment definition script
-\emph{\$\{CRDS\}/CRDS\_server/env.csh}.  Primarily ./install installs the \emph{crds} client and \emph{crds.server} packages into
+Running the \emph{./install} script will perform many actions including regenerating the environment definition script
+\emph{env.csh}.  Primarily \emph{./install} installs the \emph{crds} (core + client) and \emph{crds.server} packages into
 a server specific python directory which is added to PYTHONPATH automatically in \emph{env.csh}.  In addition ./install
 instantiates some Apache configuration file templates and copies them to the appropriate installation directories.
 
 The install script is typically run like this:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\% ./install [hst\textbar{}jwst]  [django\textbar{}dev\textbar{}test\textbar{}prod]  \textbar{}\& tee install.\textless{}observatory\textgreater{}.\textless{}use\textgreater{}.err
+\PYGZpc{} ./install [hst\textbar{}jwst]  [django\textbar{}dev\textbar{}test\textbar{}prod]  \textbar{}\PYGZam{} tee install.\PYGZlt{}observatory\PYGZgt{}.\PYGZlt{}use\PYGZgt{}.err
 \end{Verbatim}
 
 For example:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\% server   \# alias to cd to server source directory
-\% ./install hst dev  \textbar{}\& tee install.hst.dev.err
+\PYGZpc{} ./install hst dev  \textbar{}\PYGZam{} tee install.hst.dev.err
 \end{Verbatim}
 
 Running ./install explicitly is required to generate \emph{env.csh} for the first time.  Afterward,  env.csh essentially
 knows this server is for ``hst dev''.
+
+
+\section{CRDS Catalog Initialization}
+\label{server_guide:crds-catalog-initialization}
+Historically the CRDS server catalogs were initialized many times from existing CDBS and JWST references and
+the initial CRDS rules set.  \emph{./init} is rarely used anymore but may still be useful for setting up a Django local
+test environment, dubbed the ``django'' usecase.
+
+For the most part the ./init script is tasked with installing the server's initial copy of CRDS rules and initializing
+the CRDS file catalog (the crds.server.interactive.models Django database with 19000 CDBS references and CRDS rules):
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGZpc{} server   \PYGZsh{} alias to cd to server source directory
+\PYGZpc{} ./init [hst\textbar{}jwst] [django\textbar{}dev\textbar{}test\textbar{}ops]
+\PYGZlt{}enter password for test user\PYGZgt{}
+\end{Verbatim}
+
+\textbf{NOTE:}  At this stage \emph{./init} should not be run on the OPS servers.   For VM-based servers it
+has effectively been superceded by \emph{tools/restore\_server} and \emph{tools/mirror\_server}.
 
 
 \section{Starting and Stopping the Server}
@@ -696,22 +893,36 @@ knows this server is for ``hst dev''.
 The CRDS server can be started and stopped like this:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\% server   \# alias to cd to server source directory
-\% ./run
-\% ./stop
+\PYGZpc{} ./run
+\PYGZpc{} ./stop
 \end{Verbatim}
 
+The \emph{./run} script starts Apache (many httpd processes) and memcached after which the CRDS server should definitely
+be abvailable on it's private port (typically 8001).   The web proxy is provided by an independent system which
+is rarely-if-ever unavailable,  but which has historically had a random lag of about 1 minute to (by appearances)
+connect with the just started Apache.
 
-\section{Re-installing the CRDS Server}
-\label{server_guide:re-installing-the-crds-server}
-Once the CRDS server has been initialized, the server can be stopped, updated/re-installed, and retarted with
-the \emph{rerun} command:
+
+\section{Updating and Restarting}
+\label{server_guide:updating-and-restarting}
+Performing a server update generally revolves around stopping the server,  changing and reinstalling the Django
+application, and restarting the server.   This is encapsulated in the \emph{./rerun} script:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\% ./rerun
+\PYGZpc{} ./rerun
 \end{Verbatim}
 
-This process does not affect the server Python stack.
+This works by sequentially invoking other more basic scripts: ./stop, ./install, ./run.
+
+\emph{./rerun} produces a log file of the voluminous install output as install.\textless{}observatory\textgreater{}.\textless{}usecase\textgreater{}.err.  If things
+aren't working coherently,  check the install...err file to verify that no setup functions failed,  as might
+happen for a Python syntax error or database schema change.
+
+\textbf{NOTE:}  rerunning the server is an integral part of taking the sever offline and switching to the hidden backup port.
+Consequently,  activities such as running tests and mirroring should also be viewed as reinstalling the Django
+application.   The reinstall is innocuous because any differences in application source code should be very tightly
+controlled, related to switching ports only.   However,  it's still a significant hidden side effect to be aware of
+because it has obvious implications when performed on an dirty code base.
 
 
 \section{Running Server Tests}
@@ -719,81 +930,25 @@ This process does not affect the server Python stack.
 The CRDS server unit tests (\textbf{NOT ADVISABLE FOR OPS}) can be run like this:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\% server   \# alias to cd to server source directory
-\% ./runtests
+\PYGZpc{} ./runtests
 \end{Verbatim}
 
 additional parameters can be passed to runtests,  for example to select specific tests:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\% ./runtests interactive.tests.Hst.test\_index
+\PYGZpc{} ./runtests interactive.tests.Hst.test\PYGZus{}index
 \end{Verbatim}
 
 Runtests should not be executed on operational or in-test servers because it has side effects which interfere with
 server operation.   Runtests has been modified to switch to a backup port during execution,  but the version of
 code necessary will only be deployed with OPUS 2014.3 so it is not yet in operations.
 
-The server unit tests are ponderous.  Eventually you may \emph{\textless{}control-c\textgreater{}} and leave behind a junk test
-database which blocks subsequent testing.  That can generally cleaned up,  with \textbf{extreme caution},  as follows
-for e.g. hst dev:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\% ./manage dbshell
-mysql\textgreater{} drop database test\_crds\_hst\_dev;
-\end{Verbatim}
+\textbf{NOTE:}    without special arrangements,  server self-tests should not be run on the operational servers.
+Self-tests are normally run on the dev and test servers during the nightly cron job at 3 am.
 
 It should be noted that the server unit tests typically do run on the dev and test servers in the nightly
 cronjob, generally making them available without waiting on the following day.
 
-
-\section{CRDS catalog initializaton}
-\label{server_guide:crds-catalog-initializaton}
-Historically the CRDS server catalogs were initialized many times from existing CDBS and JWST references and
-the initial CRDS rules set.  \emph{./init} is rarely used anymore but may still be useful for setting up a Django local
-test environment, typically called a ``dev'' server except in CRDS the ``dev'' server is an actual VM so Django dev
-servers are referred to as ``django'' servers.
-
-For the most part the ./init script is tasked with installing the server's initial copy of CRDS rules and initializing
-the CRDS file catalog (the crds.server.interactive.models Django database with 19000 CDBS references and CRDS rules):
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\% ./init [hst\textbar{}jwst] [django\textbar{}dev\textbar{}test\textbar{}ops]
-\textless{}enter password for test user\textgreater{}
-\end{Verbatim}
-
-\textbf{NOTE:}  At this stage \emph{./init} should not be run on the OPS servers.   For operational servers it
-has effectively been superceded by \textbf{tools/restore\_server} and \textbf{tools/mirror\_server}.
-
-
-\section{Starting the server}
-\label{server_guide:starting-the-server}
-The \emph{./run} script starts Apache (many httpd processes) and memcached after which the CRDS server should definitely
-be abvailable on it's private port (typically 8001).   The web proxy is provided by an independent system which
-is rarely-if-ever unavailable:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\% ./run
-\end{Verbatim}
-
-
-\section{Updating and Restarting}
-\label{server_guide:updating-and-restarting}
-Performing a server update often revolves around stopping the server,  changing and reinstalling the Django
-application, and restarting the server:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\% ./rerun
-\end{Verbatim}
-
-This works by sequentially invoking other more basic scripts: ./stop, ./install, ./run.
-
-\emph{./rerun} produces a log file of the voluminous install output as install.\textless{}observatory\textgreater{}.\textless{}usecase\textgreater{}.err.  If things
-aren't working coherently,  check the install...err file to verify that no setup functions failed,  as might
-happen for a Python syntax error.
-
-
-\section{Running Server Self-tests}
-\label{server_guide:running-server-self-tests}
 The server self-tests exercise most but not all of the Django interactive view code,  JSONRPC code, and basic database
 interface to DADSOPS.   Although the interactive (web view) self tests run in a Django test database,  the JSONRPC
 tests simply ivoke the CRDS client routines to call to the server and verify results.   Hence,  the JSONRPC code
@@ -802,13 +957,6 @@ caching interface is not mocked during testing,  so memcached effects impact the
 running tests on dev, test, or ops servers,  runtests moves the server to the ``backup port'' where it normally hides
 during server restoration or mirroring.   Self-tests are typically run like this:
 
-\begin{Verbatim}[commandchars=\\\{\}]
-\% ./runtests   \# (in second terminal window if using a Django dev local server)
-\end{Verbatim}
-
-\textbf{NOTE:}    without special arrangements,  server self-tests should not be run on the operational servers.
-Self-tests are normally run on the dev and test servers during the nightly cron job at 3 am.
-
 
 \section{Django Management Commands}
 \label{server_guide:django-management-commands}
@@ -816,16 +964,17 @@ Django has a manage.py module which is frequently referenced for server maintena
 wrapped as:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\% ./manage \textless{}additional parameters to manage.py\textgreater{}
+\PYGZpc{} ./manage \PYGZlt{}additional parameters to manage.py\PYGZgt{}
 \end{Verbatim}
 
 
 \section{Command Line Server Debug}
 \label{server_guide:command-line-server-debug}
-An Ipython shell can be started in either of these equivalent ways:
+An Ipython shell which runs in a context similar to the CRDS server can be started like this:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\% ./manage shell
+\PYGZpc{} ./manage shell
+In [1]:
 \end{Verbatim}
 
 This shell can be useful for debugging and/or maintaining Django models, view code, JSONRPC routines, or
@@ -844,9 +993,18 @@ it is accessed by using the models module, classes, and functions.  Nevertheless
 directly with SQL like this:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\% ./manage dbshell  \# to open a SQL prompt to the CRDS server database
+\PYGZpc{} ./manage dbshell  \PYGZsh{} to open a SQL prompt to the CRDS server database
 ...
-mysql\textgreater{} ... SQL commands ...
+mysql\PYGZgt{} ... SQL commands ...
+\end{Verbatim}
+
+The server unit tests are ponderous.  Eventually you may \emph{\textless{}control-c\textgreater{}} and leave behind a junk test
+database which blocks subsequent testing.  That can generally cleaned up,  with \textbf{caution},  as follows
+for e.g. hst dev:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGZpc{} ./manage dbshell
+mysql\PYGZgt{} drop database test\PYGZus{}crds\PYGZus{}hst\PYGZus{}dev;
 \end{Verbatim}
 
 \textbf{NOTE}:  the CRDS Catalog is in a Django database which is distinct from the DADSOPS dataset catalog that
@@ -864,7 +1022,7 @@ confirmation.   Nevertheless,  the backups are extremely useful and appear to be
 Making a backup is done as follows:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\% tools/backup\_server
+\PYGZpc{} tools/backup\PYGZus{}server
 \end{Verbatim}
 
 backup\_server results in the generation of backup files which are placed in \textbf{\$\{CRDS\}/server/db\_backups} in a dated
@@ -880,7 +1038,7 @@ A relatively recent addition is the tools/restore\_server script.   It is quite 
 of a server:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\% tools/restore\_server
+\PYGZpc{} tools/restore\PYGZus{}server
 \end{Verbatim}
 
 Conceptually,  restore server reloads the server database and restores the delivery directories and catalogs,  and
@@ -918,12 +1076,14 @@ will mirror the OPS server to itself by running \emph{mirror\_server} internally
 time of the nightly backup.
 
 For example,  to copy the test server (hst-crds-test, tlhstcrdsv1) down to the dev server (hst-crds-dev, dlhstcrdsv1),
-perform these steps.  First, optionally, on the source server:
+perform these steps.
+
+First, optionally, on the source server:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\# login tlhstcrdsv1
-\% server
-\% tools/backup\_server
+\PYGZsh{} login tlhstcrdsv1
+\PYGZpc{} server
+\PYGZpc{} tools/backup\PYGZus{}server
 \end{Verbatim}
 
 That puts required backup files in global (cross-server) \$\{HOME\}/backups.  If this steps is omitted,  the files in
@@ -934,9 +1094,9 @@ that the change is recorded in the current backup.
 Second, on the destination server:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\# login dlhstcrdsv1
-\% server
-\% tools/mirror\_server hst test https://hst-crds-test.stsci.edu \textbar{}\& tee mirror\_server.hst.test.err
+\PYGZsh{} login dlhstcrdsv1
+\PYGZpc{} server
+\PYGZpc{} tools/mirror\PYGZus{}server hst test https://hst\PYGZhy{}crds\PYGZhy{}test.stsci.edu \textbar{}\PYGZam{} tee mirror\PYGZus{}server.hst.test.err
 \end{Verbatim}
 
 where the parameters to mirror\_server specify the \emph{source} server and the destination is implicitly the
