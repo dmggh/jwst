@@ -750,11 +750,11 @@ directory,  it shares space with it.
 The Isilon CRDS cache storage (i.e. CRDS\_PATH for servers) is located similarly to dynamic file storage:
 \begin{quote}
 
-e.g. /ifs/crds/jwst/test/file\_cache
+e.g. /ifs/crds/jwst/test/file\_cache/\{config,mappings,references\}/\{hst,jwst\}
 \end{quote}
 
 Each CRDS server (test or ops) has a full copy (\textasciitilde{}2T allocation) of all operational and historical (CRDS-only)
-reference files. The dev servers have a smaller allocation which is generally linked to /grp/crds
+reference files and rules. The dev servers have a smaller allocation which is generally linked to /grp/crds
 (synced from ops servers) rather than internally stored.
 
 The server file cache config area is generally updated transparently by running cronjobs.   The server file\_cache
