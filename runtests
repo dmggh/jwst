@@ -1,11 +1,12 @@
 #! /bin/tcsh
 
-# <observatory=hst|jwst> <server_mode=django|dev|test|prod>
+# usage: ./runtests <parameters to "manage.py test"...>
 
 cd ${CRDS}/CRDS_server
-source env.csh
+
 echo "Switching to backup port"
 tools/set_backup_url True  >& /dev/null
+source env.csh
 
 setenv LOG ${CRDS}/CRDS_server/runtests.${CRDS_PROJECT}.${CRDS_USECASE}.err
 
@@ -14,11 +15,8 @@ if ($# > 0) then
     echo "Using explicit tests " $1 $2 $3 $4 $5 $6 $7 $8 $9
     # subsequent parameters are apps to test
     python -u manage.py test $1 $2 $3 $4 $5 $6 $7 $8 $9 --verbosity=2 |& tee $LOG
-else if ($CRDS_PROJECT == "jwst") then
-    echo "Using implied JWST tests " ALL
-    python -u manage.py test --verbosity=2 |& tee $LOG
-else
-    echo "Using implied HST tests " ALL
+else 
+    echo "Using implied tests ALL"
     python -u manage.py test --verbosity=2 |& tee $LOG
 endif
 

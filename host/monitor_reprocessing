@@ -33,7 +33,7 @@ if ("$old_context" != "") then
     set new = `echo ${new} | cut -d'.' -f1 | sed 's/^0*//g'`
 
     if ($old < $new) then
-	affected_datasets $old_context $new_context fast
+	affected_datasets $old_context $new_context fast --optimize-tables
     else
 	echo "No change in context $new_context"
     endif

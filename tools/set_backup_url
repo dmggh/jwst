@@ -3,7 +3,7 @@
 
 # Command to switch Apache ports to hide server during system backup restores.
 
-usage("set_backup_mode <flag>", 1, 1)
+usage("set_backup_url <flag>", 1, 1)
 
 is_backup = (sys.argv[1].upper() in ["1","T","TRUE"])
 
