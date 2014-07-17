@@ -22,7 +22,7 @@ echo ---------------------------- mounts ------------------------
 mount
 
 echo "=========================================================="
-echo "Stack Build crds_11"
+echo "Stack Build"
 echo "=========================================================="
 host/build_stack >& build_stack.${ETAIL}
 tail -100 build_stack.${ETAIL}
@@ -30,7 +30,7 @@ tail -100 build_stack.${ETAIL}
 echo "==========================================================="
 echo "Server re-install and re-start"
 echo "==========================================================="
-./rerun ${CRDS_PROJECT} ${CRDS_USECASE} >& rerun.${ETAIL}
+./rerun >& rerun.${ETAIL}
 tail -100 rerun.${ETAIL}
 
 echo "============================================================"
