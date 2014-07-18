@@ -3,6 +3,7 @@
 \contentsline {chapter}{\numberline {2}Servers}{3}{chapter.2}
 \contentsline {section}{\numberline {2.1}CRDS pseudo-user and group}{3}{section.2.1}
 \contentsline {section}{\numberline {2.2}Virtual Machines and URLs}{3}{section.2.2}
+\contentsline {section}{\numberline {2.3}CRDS Client Configuration Scripts}{4}{section.2.3}
 \contentsline {chapter}{\numberline {3}Mailing Lists}{5}{chapter.3}
 \contentsline {chapter}{\numberline {4}Server File Systems}{7}{chapter.4}
 \contentsline {section}{\numberline {4.1}Cross-Server Shared Home (/home/crds)}{7}{section.4.1}
@@ -49,3 +50,9 @@
 \contentsline {section}{\numberline {6.9}Nightly Backup}{18}{section.6.9}
 \contentsline {section}{\numberline {6.10}Restoring Nightly Backups}{18}{section.6.10}
 \contentsline {section}{\numberline {6.11}Server Mirroring}{18}{section.6.11}
+\contentsline {chapter}{\numberline {7}Delivery Troubleshooting}{21}{chapter.7}
+\contentsline {section}{\numberline {7.1}Remedy by Backup}{21}{section.7.1}
+\contentsline {section}{\numberline {7.2}Rmap or Context Fix Required}{21}{section.7.2}
+\contentsline {section}{\numberline {7.3}Improper Reference File Constraint}{22}{section.7.3}
+\contentsline {section}{\numberline {7.4}Improper Reference Parameter Expansion}{22}{section.7.4}
+\contentsline {section}{\numberline {7.5}Table Row Change Warnings}{22}{section.7.5}

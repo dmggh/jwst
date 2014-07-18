@@ -3,7 +3,6 @@
 \documentclass[letterpaper,10pt,english]{sphinxmanual}
 \usepackage[utf8]{inputenc}
 \DeclareUnicodeCharacter{00A0}{\nobreakspace}
-\usepackage{cmap}
 \usepackage[T1]{fontenc}
 \usepackage{babel}
 \usepackage{times}
@@ -11,6 +10,9 @@
 \usepackage{longtable}
 \usepackage{sphinx}
 \usepackage{multirow}
+
+\usepackage{enumitem}
+\setlistdepth{15}
 
 \usepackage{amsmath}
 \DeclareUnicodeCharacter{00A0}{\nobreakspace}
@@ -58,7 +60,7 @@
 
 
 \title{CRDS Server Documentation}
-\date{July 17, 2014}
+\date{July 18, 2014}
 \release{1.1}
 \author{STScI}
 \newcommand{\sphinxlogo}{\includegraphics{stsci_logo.pdf}\par}
@@ -76,81 +78,75 @@
     \PYG@it{\PYG@bf{\PYG@ff{#1}}}}}}}
 \def\PYG#1#2{\PYG@reset\PYG@toks#1+\relax+\PYG@do{#2}}
 
-\expandafter\def\csname PYG@tok@gd\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.63,0.00,0.00}{##1}}}
-\expandafter\def\csname PYG@tok@gu\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.50,0.00,0.50}{##1}}}
-\expandafter\def\csname PYG@tok@gt\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.27,0.87}{##1}}}
-\expandafter\def\csname PYG@tok@gs\endcsname{\let\PYG@bf=\textbf}
-\expandafter\def\csname PYG@tok@gr\endcsname{\def\PYG@tc##1{\textcolor[rgb]{1.00,0.00,0.00}{##1}}}
-\expandafter\def\csname PYG@tok@cm\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
-\expandafter\def\csname PYG@tok@vg\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
-\expandafter\def\csname PYG@tok@m\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
-\expandafter\def\csname PYG@tok@mh\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
-\expandafter\def\csname PYG@tok@cs\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}\def\PYG@bc##1{\setlength{\fboxsep}{0pt}\colorbox[rgb]{1.00,0.94,0.94}{\strut ##1}}}
-\expandafter\def\csname PYG@tok@ge\endcsname{\let\PYG@it=\textit}
-\expandafter\def\csname PYG@tok@vc\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
-\expandafter\def\csname PYG@tok@il\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
-\expandafter\def\csname PYG@tok@go\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.20,0.20,0.20}{##1}}}
-\expandafter\def\csname PYG@tok@cp\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\expandafter\def\csname PYG@tok@gi\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.63,0.00}{##1}}}
-\expandafter\def\csname PYG@tok@gh\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
-\expandafter\def\csname PYG@tok@ni\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.84,0.33,0.22}{##1}}}
-\expandafter\def\csname PYG@tok@nl\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.13,0.44}{##1}}}
-\expandafter\def\csname PYG@tok@nn\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.05,0.52,0.71}{##1}}}
-\expandafter\def\csname PYG@tok@no\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.38,0.68,0.84}{##1}}}
-\expandafter\def\csname PYG@tok@na\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\expandafter\def\csname PYG@tok@nb\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\expandafter\def\csname PYG@tok@nc\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.05,0.52,0.71}{##1}}}
-\expandafter\def\csname PYG@tok@nd\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.33,0.33,0.33}{##1}}}
-\expandafter\def\csname PYG@tok@ne\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\expandafter\def\csname PYG@tok@nf\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.02,0.16,0.49}{##1}}}
-\expandafter\def\csname PYG@tok@si\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.44,0.63,0.82}{##1}}}
-\expandafter\def\csname PYG@tok@s2\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\expandafter\def\csname PYG@tok@vi\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
-\expandafter\def\csname PYG@tok@nt\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.02,0.16,0.45}{##1}}}
-\expandafter\def\csname PYG@tok@nv\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
-\expandafter\def\csname PYG@tok@s1\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\expandafter\def\csname PYG@tok@gp\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.78,0.36,0.04}{##1}}}
-\expandafter\def\csname PYG@tok@sh\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\expandafter\def\csname PYG@tok@ow\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\expandafter\def\csname PYG@tok@sx\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.78,0.36,0.04}{##1}}}
-\expandafter\def\csname PYG@tok@bp\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\expandafter\def\csname PYG@tok@c1\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
-\expandafter\def\csname PYG@tok@kc\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\expandafter\def\csname PYG@tok@c\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
-\expandafter\def\csname PYG@tok@mf\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
-\expandafter\def\csname PYG@tok@err\endcsname{\def\PYG@bc##1{\setlength{\fboxsep}{0pt}\fcolorbox[rgb]{1.00,0.00,0.00}{1,1,1}{\strut ##1}}}
-\expandafter\def\csname PYG@tok@kd\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\expandafter\def\csname PYG@tok@ss\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.32,0.47,0.09}{##1}}}
-\expandafter\def\csname PYG@tok@sr\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.14,0.33,0.53}{##1}}}
-\expandafter\def\csname PYG@tok@mo\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
-\expandafter\def\csname PYG@tok@mi\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
-\expandafter\def\csname PYG@tok@kn\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\expandafter\def\csname PYG@tok@o\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
-\expandafter\def\csname PYG@tok@kr\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\expandafter\def\csname PYG@tok@s\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\expandafter\def\csname PYG@tok@kp\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\expandafter\def\csname PYG@tok@w\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.73,0.73}{##1}}}
-\expandafter\def\csname PYG@tok@kt\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.56,0.13,0.00}{##1}}}
-\expandafter\def\csname PYG@tok@sc\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\expandafter\def\csname PYG@tok@sb\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\expandafter\def\csname PYG@tok@k\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\expandafter\def\csname PYG@tok@se\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\expandafter\def\csname PYG@tok@sd\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\def\PYG@tok@gd{\def\PYG@tc##1{\textcolor[rgb]{0.63,0.00,0.00}{##1}}}
+\def\PYG@tok@gu{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.50,0.00,0.50}{##1}}}
+\def\PYG@tok@gt{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.25,0.82}{##1}}}
+\def\PYG@tok@gs{\let\PYG@bf=\textbf}
+\def\PYG@tok@gr{\def\PYG@tc##1{\textcolor[rgb]{1.00,0.00,0.00}{##1}}}
+\def\PYG@tok@cm{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
+\def\PYG@tok@vg{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
+\def\PYG@tok@m{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\def\PYG@tok@mh{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\def\PYG@tok@cs{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}\def\PYG@bc##1{\colorbox[rgb]{1.00,0.94,0.94}{##1}}}
+\def\PYG@tok@ge{\let\PYG@it=\textit}
+\def\PYG@tok@vc{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
+\def\PYG@tok@il{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\def\PYG@tok@go{\def\PYG@tc##1{\textcolor[rgb]{0.19,0.19,0.19}{##1}}}
+\def\PYG@tok@cp{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\def\PYG@tok@gi{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.63,0.00}{##1}}}
+\def\PYG@tok@gh{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
+\def\PYG@tok@ni{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.84,0.33,0.22}{##1}}}
+\def\PYG@tok@nl{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.13,0.44}{##1}}}
+\def\PYG@tok@nn{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.05,0.52,0.71}{##1}}}
+\def\PYG@tok@no{\def\PYG@tc##1{\textcolor[rgb]{0.38,0.68,0.84}{##1}}}
+\def\PYG@tok@na{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\def\PYG@tok@nb{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\def\PYG@tok@nc{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.05,0.52,0.71}{##1}}}
+\def\PYG@tok@nd{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.33,0.33,0.33}{##1}}}
+\def\PYG@tok@ne{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\def\PYG@tok@nf{\def\PYG@tc##1{\textcolor[rgb]{0.02,0.16,0.49}{##1}}}
+\def\PYG@tok@si{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.44,0.63,0.82}{##1}}}
+\def\PYG@tok@s2{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\def\PYG@tok@vi{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
+\def\PYG@tok@nt{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.02,0.16,0.45}{##1}}}
+\def\PYG@tok@nv{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
+\def\PYG@tok@s1{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\def\PYG@tok@gp{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.78,0.36,0.04}{##1}}}
+\def\PYG@tok@sh{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\def\PYG@tok@ow{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\def\PYG@tok@sx{\def\PYG@tc##1{\textcolor[rgb]{0.78,0.36,0.04}{##1}}}
+\def\PYG@tok@bp{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\def\PYG@tok@c1{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
+\def\PYG@tok@kc{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\def\PYG@tok@c{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
+\def\PYG@tok@mf{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\def\PYG@tok@err{\def\PYG@bc##1{\fcolorbox[rgb]{1.00,0.00,0.00}{1,1,1}{##1}}}
+\def\PYG@tok@kd{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\def\PYG@tok@ss{\def\PYG@tc##1{\textcolor[rgb]{0.32,0.47,0.09}{##1}}}
+\def\PYG@tok@sr{\def\PYG@tc##1{\textcolor[rgb]{0.14,0.33,0.53}{##1}}}
+\def\PYG@tok@mo{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\def\PYG@tok@mi{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\def\PYG@tok@kn{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\def\PYG@tok@o{\def\PYG@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\def\PYG@tok@kr{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\def\PYG@tok@s{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\def\PYG@tok@kp{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\def\PYG@tok@w{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.73,0.73}{##1}}}
+\def\PYG@tok@kt{\def\PYG@tc##1{\textcolor[rgb]{0.56,0.13,0.00}{##1}}}
+\def\PYG@tok@sc{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\def\PYG@tok@sb{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\def\PYG@tok@k{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\def\PYG@tok@se{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\def\PYG@tok@sd{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
 
 \def\PYGZbs{\char`\\}
 \def\PYGZus{\char`\_}
 \def\PYGZob{\char`\{}
 \def\PYGZcb{\char`\}}
 \def\PYGZca{\char`\^}
-\def\PYGZam{\char`\&}
-\def\PYGZlt{\char`\<}
-\def\PYGZgt{\char`\>}
 \def\PYGZsh{\char`\#}
 \def\PYGZpc{\char`\%}
 \def\PYGZdl{\char`\$}
-\def\PYGZhy{\char`\-}
-\def\PYGZsq{\char`\'}
-\def\PYGZdq{\char`\"}
 \def\PYGZti{\char`\~}
 % for compatibility with earlier versions
 \def\PYGZat{@}
@@ -169,17 +165,25 @@
 \chapter{Introduction}
 \label{server_guide:introduction}\label{server_guide::doc}\label{server_guide:crds-server-guide}
 This guide is intended to introduce the CRDS servers for the purposes of maintenance and emergency backup for Todd.
+Additional documentation about using CRDS and the servers can be located on the servers under the question mark icon
+at the top right each page.
 
 Historical Institute contacts for the CRDS servers include:
 \begin{itemize}
 \item {} 
-Todd Miller:    primary CRDS and CRDS server application developer.
+Todd Miller:         primary CRDS and CRDS server application developer.
 
 \item {} 
-Patrick Taylor: web proxies, ssl support, and server rc/reboot script coordination
+Pey-Lian Lim:        intial JWST cloned references and rules, jwst\_gentools branch
 
 \item {} 
-Thomas Walker:  initial VM creation, file systems, and Isilon storage setup.
+Jonathan Eisenhamer  table differencing and reprocessing implications
+
+\item {} 
+Patrick Taylor:      web proxies, ssl support, and server rc/reboot script coordination
+
+\item {} 
+Thomas Walker:       initial VM creation, file systems, and Isilon storage setup.
 
 \end{itemize}
 
@@ -192,14 +196,14 @@ Thomas Walker:  initial VM creation, file systems, and Isilon storage setup.
 The CRDS servers run as the no-login user ``crds''.  The CRDS  crds\_server script contains the following:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZpc{} ssh \PYGZhy{}A \PYGZhy{}t \PYGZdl{}1.stsci.edu /usr/bin/sudo /bin/su \PYGZhy{} crds
+\% ssh -A -t \$1.stsci.edu /usr/bin/sudo /bin/su - crds
 \end{Verbatim}
 
 and is invoked like this:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZpc{} crds\PYGZus{}server plhstcrdsv1
-\PYGZsh{} crds\PYGZus{}server \PYGZlt{}VM\PYGZhy{}hostname\PYGZgt{}
+\% crds\_server plhstcrdsv1
+\# crds\_server \textless{}VM-hostname\textgreater{}
 \end{Verbatim}
 
 The ssh first logs into your normal user account on the server VM, then su's you to CRDS.   It is not possible
@@ -220,18 +224,18 @@ there are 6 VMs and servers:  (hst, jwst) x (dev, test, ops):
 
 \begin{tabulary}{\linewidth}{|L|L|L|L|L|}
 \hline
-\textsf{\relax 
+\textbf{
 observatory
-} & \textsf{\relax 
+} & \textbf{
 use
-} & \textsf{\relax 
+} & \textbf{
 host/vm
-} & \textsf{\relax 
+} & \textbf{
 direct port
-} & \textsf{\relax 
+} & \textbf{
 url
-}\\
-\hline
+}\\\hline
+
 hst
  & 
 django
@@ -241,7 +245,7 @@ localhost
 8000
  & 
 \href{http://localhost:8000}{http://localhost:8000}
-\\
+\\\hline
 
 hst
  & 
@@ -252,7 +256,7 @@ dlhstcrdsv1
 8001
  & 
 \href{https://hst-crds-dev.stsci.edu}{https://hst-crds-dev.stsci.edu}
-\\
+\\\hline
 
 hst
  & 
@@ -263,7 +267,7 @@ tlhstcrdsv1
 8001
  & 
 \href{https://hst-crds-test.stsci.edu}{https://hst-crds-test.stsci.edu}
-\\
+\\\hline
 
 hst
  & 
@@ -274,7 +278,7 @@ plhstcrdsv1
 8001
  & 
 \href{https://hst-crds.stsci.edu}{https://hst-crds.stsci.edu}
-\\
+\\\hline
 
 jwst
  & 
@@ -285,7 +289,7 @@ localhost
 8000
  & 
 \href{http://localhost:8000}{http://localhost:8000}
-\\
+\\\hline
 
 jwst
  & 
@@ -296,7 +300,7 @@ dljwstcrdsv1
 8001
  & 
 \href{https://jwst-crds-dev.stsci.edu}{https://jwst-crds-dev.stsci.edu}
-\\
+\\\hline
 
 jwst
  & 
@@ -307,7 +311,7 @@ tljwstcrdsv1
 8001
  & 
 \href{https://jwst-crds-test.stsci.edu}{https://jwst-crds-test.stsci.edu}
-\\
+\\\hline
 
 jwst
  & 
@@ -318,15 +322,147 @@ pljwstcrdsv1
 8001
  & 
 \href{https://jwst-crds.stsci.edu}{https://jwst-crds.stsci.edu}
-\\
-\hline\end{tabulary}
+\\\hline
+\end{tabulary}
 
 
 For debug purposes the servers can be accessed by bypassing the proxy using VM-based URLs such
 as \href{https://plhstcrdsv1.stsci.edu:8001/}{https://plhstcrdsv1.stsci.edu:8001/}.  These direct URLs are visible on site only.  Only the OPS
 server URLs will be visible off site.
 
-See CRDS\_server/sources/site\_config.py to verify this information.
+See CRDS\_server/sources/site\_config.py to verify server configuration.
+
+
+\section{CRDS Client Configuration Scripts}
+\label{server_guide:crds-client-configuration-scripts}
+Configuring the client to work with various CRDS servers can be accomplished using scripts define in the CRDS client
+under trunk/envs:
+
+\begin{tabulary}{\linewidth}{|L|L|L|L|}
+\hline
+\textbf{
+Script
+} & \textbf{
+CRDS\_SERVER\_URL
+} & \textbf{
+CRDS\_PATH
+} & \textbf{
+Purpose
+}\\\hline
+
+default
+ & 
+\href{https://crds-serverless-mode.stsci.edu}{https://crds-serverless-mode.stsci.edu}
+ & 
+readonly /grp/crds/cache
+ & 
+Default no env, serverless jwst ops
+\\\hline
+
+env-forwarded.csh
+ & 
+\href{https://localhost:8001}{https://localhost:8001}
+ & 
+\$HOME/crds\_cache\_forwarded
+ & 
+ssh port forwarded private server
+\\\hline
+
+env-local.csh
+ & 
+\href{https://localhost:8000}{https://localhost:8000}
+ & 
+\$HOME/crds\_cache\_local
+ & 
+Django development server
+\\\hline
+
+hst-crds-dev.csh
+ & 
+\href{https://hst-crds-dev.stsci.edu}{https://hst-crds-dev.stsci.edu}
+ & 
+\$HOME/crds\_cache\_dev
+ & 
+Connected hst dev local cache
+\\\hline
+
+hst-crds-test.csh
+ & 
+\href{https://hst-crds-test.stsci.edu}{https://hst-crds-test.stsci.edu}
+ & 
+\$HOME/crds\_cache\_test
+ & 
+Connected hst test local cache
+\\\hline
+
+hst-crds-ops.csh
+ & 
+\href{https://hst-crds.stsci.edu}{https://hst-crds.stsci.edu}
+ & 
+\$HOME/crds\_cache\_ops
+ & 
+Connected hst ops local cache
+\\\hline
+
+jwst-crds-dev.csh
+ & 
+\href{https://jwst-crds-dev.stsci.edu}{https://jwst-crds-dev.stsci.edu}
+ & 
+\$HOME/crds\_cache\_dev
+ & 
+Connected jwst dev local cache
+\\\hline
+
+jwst-crds-test.csh
+ & 
+\href{https://jwst-crds-test.stsci.edu}{https://jwst-crds-test.stsci.edu}
+ & 
+\$HOME/crds\_cache\_test
+ & 
+Connected jwst test local cache
+\\\hline
+
+jwst-crds-ops.csh
+ & 
+\href{https://jwst-crds.stsci.edu}{https://jwst-crds.stsci.edu}
+ & 
+\$HOME/crds\_cache\_ops
+ & 
+Connected jwst ops local cache
+\\\hline
+
+crds-readonly.csh
+ & 
+\href{https://crds-serverless-mode.stsci.edu}{https://crds-serverless-mode.stsci.edu}
+ & 
+readonly /grp/crds/cache
+ & 
+Disconnected, complete ops cache
+\\\hline
+
+hst-crds-readonly.csh
+ & 
+\href{https://hst-crds.stsci.edu}{https://hst-crds.stsci.edu}
+ & 
+readonly /grp/crds/hst
+ & 
+Connected, complete ops cache
+\\\hline
+
+jwst-crds-readonly.csh
+ & 
+\href{https://jwst-crds.stsci.edu}{https://jwst-crds.stsci.edu}
+ & 
+readonly /grp/crds/jwst
+ & 
+Connected, complete ops cache
+\\\hline
+\end{tabulary}
+
+
+At present only connected clients can resolve symbolic/date-based contexts other than -operational.
+
+Even without env settings,  many tools can guess the appropriate cache and ops server url based on files.
 
 
 \chapter{Mailing Lists}
@@ -335,70 +471,70 @@ The following CRDS mailing lists are defined on behalf of CRDS:
 
 \begin{tabulary}{\linewidth}{|L|L|L|}
 \hline
-\textsf{\relax 
+\textbf{
 mailing list
-} & \textsf{\relax 
+} & \textbf{
 moderator
-} & \textsf{\relax 
+} & \textbf{
 purpose
-}\\
-\hline
+}\\\hline
+
 \href{mailto:crds@stsci.edu}{crds@stsci.edu}
  & 
 mcmaster
  & 
 comm between INS and CRDS team, also accidental use
-\\
+\\\hline
 
 \href{mailto:crds\_team@stsci.edu}{crds\_team@stsci.edu}
  & 
 mcmaster
  & 
 comm within CRDS delivery team, DSB, archive, pipelines
-\\
+\\\hline
 
 \href{mailto:crds\_datamng@stsci.edu}{crds\_datamng@stsci.edu}
  & 
 mcmaster
  & 
 common destination for affected datasets output
-\\
+\\\hline
 
 \href{mailto:crds-servers@stsci.edu}{crds-servers@stsci.edu}
  & 
 jmiller
  & 
 little used,  new source address for affected datasets,  server details + news
-\\
+\\\hline
 
 \href{mailto:crds\_hst\_ops\_reprocessing@stsci.edu}{crds\_hst\_ops\_reprocessing@stsci.edu}
  & 
 jmiller
  & 
 affected datasets output list, hst ops
-\\
+\\\hline
 
 \href{mailto:crds\_hst\_test\_reprocessing@stsci.edu}{crds\_hst\_test\_reprocessing@stsci.edu}
  & 
 jmiller
  & 
 affected datasets output list, hst test
-\\
+\\\hline
 
 \href{mailto:crds\_jwst\_ops\_reprocessing@stsci.edu}{crds\_jwst\_ops\_reprocessing@stsci.edu}
  & 
 jmiller
  & 
 affected datasets output list, jwst ops
-\\
+\\\hline
 
 \href{mailto:crds\_jwst\_test\_reprocessing@stsci.edu}{crds\_jwst\_test\_reprocessing@stsci.edu}
  & 
 jmiller
  & 
 affected datasets output list, jwst test
-\\
-\hline\end{tabulary}
+\\\hline
+\end{tabulary}
 
 
 These are all closed lists.  Most critical are crds\_team and crds\_datamng.   The reprocessing lists are intended and/or used to drive
@@ -427,17 +563,17 @@ The CRDS user runs under /bin/tcsh and executes .setenv for CRDS-server specific
 variables defined to differentiate the 6 CRDS servers are,  for example for JWST DEV:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-CRDS\PYGZus{}PROJECT        jwst
-CRDS\PYGZus{}USECASE        dev
-CRDS\PYGZus{}SERVER         dljwstcrdsv1
+CRDS\_PROJECT        jwst
+CRDS\_USECASE        dev
+CRDS\_SERVER         dljwstcrdsv1
 CRDS                /crds/data1/dljwstcrdsv1
-PATH                /crds/data1/dljwstcrdsv1/CRDS\PYGZus{}server/host   /crds/data1/dljwstcrdsv1/crds\PYGZus{}stacks/crds\PYGZus{}11/bin
-CRDS\PYGZus{}STACK          /crds/data1/dljwstcrdsv1/crds\PYGZus{}stacks/crds\PYGZus{}11
-CRDS\PYGZus{}AFFECTED...    jmiller@stsci.edu eisenhamer@stsci.edu
-CRDS\PYGZus{}IFS            /ifs/crds/jwst/dev
-CRDS\PYGZus{}FILE\PYGZus{}CACHE     /ifs/crds/jwst/dev/file\PYGZus{}cache
-CRDS\PYGZus{}SERVER\PYGZus{}FILES   /ifs/crds/jwst/dev/server\PYGZus{}files
-META\PYGZus{}PREFIX         /crds/data1/dljwstcrdsv1/crds\PYGZus{}stacks/crds\PYGZus{}11
+PATH                /crds/data1/dljwstcrdsv1/CRDS\_server/host   /crds/data1/dljwstcrdsv1/crds\_stacks/crds\_11/bin
+CRDS\_STACK          /crds/data1/dljwstcrdsv1/crds\_stacks/crds\_11
+CRDS\_AFFECTED...    jmiller@stsci.edu eisenhamer@stsci.edu
+CRDS\_IFS            /ifs/crds/jwst/dev
+CRDS\_FILE\_CACHE     /ifs/crds/jwst/dev/file\_cache
+CRDS\_SERVER\_FILES   /ifs/crds/jwst/dev/server\_files
+META\_PREFIX         /crds/data1/dljwstcrdsv1/crds\_stacks/crds\_11
 \end{Verbatim}
 
 Additional environment variables, particularly those related to server installation, are defined in
@@ -452,28 +588,28 @@ for building the server Python stack.
 CRDS augments the standard .alias file with these aliases for moving around the file system:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZsh{}  Source code areas
-alias crds       \PYGZdq{}cd \PYGZdl{}\PYGZob{}CRDS\PYGZcb{}/CRDS\PYGZdq{}
-alias server     \PYGZdq{}cd \PYGZdl{}\PYGZob{}CRDS\PYGZcb{}/CRDS\PYGZus{}server\PYGZdq{}
-alias stack      \PYGZdq{}cd \PYGZdl{}\PYGZob{}CRDS\PYGZus{}STACK\PYGZcb{}\PYGZdq{}
-alias installer \PYGZdq{}cd \PYGZdl{}\PYGZob{}CRDS\PYGZcb{}/crds\PYGZus{}stacks/installer3/build\PYGZdq{}
+\#  Source code areas
+alias crds       "cd \$\PYGZob{}CRDS\PYGZcb{}/CRDS"
+alias server     "cd \$\PYGZob{}CRDS\PYGZcb{}/CRDS\_server"
+alias stack      "cd \$\PYGZob{}CRDS\_STACK\PYGZcb{}"
+alias installer "cd \$\PYGZob{}CRDS\PYGZcb{}/crds\_stacks/installer3/build"
 
-\PYGZsh{} Server maintenance areas
-alias logs       \PYGZdq{}cd \PYGZdl{}\PYGZob{}CRDS\PYGZcb{}/server/logs\PYGZdq{}
-alias backups    \PYGZdq{}cd \PYGZdl{}\PYGZob{}CRDS\PYGZcb{}/server/db\PYGZus{}backups\PYGZdq{}
+\# Server maintenance areas
+alias logs       "cd \$\PYGZob{}CRDS\PYGZcb{}/server/logs"
+alias backups    "cd \$\PYGZob{}CRDS\PYGZcb{}/server/db\_backups"
 
-\PYGZsh{} CRDS code area
-alias libpython  \PYGZdq{}cd \PYGZdl{}\PYGZob{}CRDS\PYGZcb{}/python/lib/python\PYGZdq{}
+\# CRDS code area
+alias libpython  "cd \$\PYGZob{}CRDS\PYGZcb{}/python/lib/python"
 
-\PYGZsh{} Server working data files areas
-alias deliveries \PYGZdq{}cd \PYGZdl{}\PYGZob{}CRDS\PYGZus{}SERVER\PYGZus{}FILES\PYGZcb{}/deliveries\PYGZdq{}
-alias catalogs   \PYGZdq{}cd \PYGZdl{}\PYGZob{}CRDS\PYGZus{}SERVER\PYGZus{}FILES\PYGZcb{}/catalogs\PYGZdq{}
-alias ingest     \PYGZdq{}cd \PYGZdl{}\PYGZob{}CRDS\PYGZus{}SERVER\PYGZus{}FILES\PYGZcb{}/ingest\PYGZdq{}
-alias file\PYGZus{}cache \PYGZdq{}cd \PYGZdl{}\PYGZob{}CRDS\PYGZus{}FILE\PYGZus{}CACHE\PYGZcb{}\PYGZdq{}
+\# Server working data files areas
+alias deliveries "cd \$\PYGZob{}CRDS\_SERVER\_FILES\PYGZcb{}/deliveries"
+alias catalogs   "cd \$\PYGZob{}CRDS\_SERVER\_FILES\PYGZcb{}/catalogs"
+alias ingest     "cd \$\PYGZob{}CRDS\_SERVER\_FILES\PYGZcb{}/ingest"
+alias file\_cache "cd \$\PYGZob{}CRDS\_FILE\_CACHE\PYGZcb{}"
 
-\PYGZsh{} Isilon and VM file systems
-alias ifs        \PYGZdq{}cd \PYGZdl{}\PYGZob{}CRDS\PYGZus{}IFS\PYGZcb{}\PYGZdq{}
-alias data1      \PYGZdq{}cd \PYGZdl{}\PYGZob{}CRDS\PYGZcb{}\PYGZdq{}
+\# Isilon and VM file systems
+alias ifs        "cd \$\PYGZob{}CRDS\_IFS\PYGZcb{}"
+alias data1      "cd \$\PYGZob{}CRDS\PYGZcb{}"
 \end{Verbatim}
 
 
@@ -772,7 +908,7 @@ See the User's manual in the ? on the web sites for more info on the CRDS cache.
 Use shell command:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZpc{} crontab \PYGZhy{}l
+\% crontab -l
 \end{Verbatim}
 
 to dump the current crontab and observe the jobs.   Cronjobs currently produce .log files in the CRDS\_server directory.
@@ -780,7 +916,7 @@ to dump the current crontab and observe the jobs.   Cronjobs currently produce .
 To change the cronjobs modify \$\{CRDS\}/CRDS\_server/host/crontab and then do:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZpc{} crontab \PYGZdl{}\PYGZob{}CRDS\PYGZcb{}/CRDS\PYGZus{}server/host/crontab
+\% crontab \$\PYGZob{}CRDS\PYGZcb{}/CRDS\_server/host/crontab
 \end{Verbatim}
 
 Note that systems on the same subversion branch on which a crontab is modified and committed will automatically pick
@@ -831,9 +967,9 @@ Maintenance commands are typically run from the root of the CRDS\_server checkou
 directory can be done like this:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZpc{} server \PYGZsh{} cd to the CRDS\PYGZus{}server source code checkout
-\PYGZpc{} pwd
-/crds/data1/dljwstcrdsv1/CRDS\PYGZus{}server
+\% server \# cd to the CRDS\_server source code checkout
+\% pwd
+/crds/data1/dljwstcrdsv1/CRDS\_server
 \end{Verbatim}
 
 From here on,  we'll assume commands are executed from this directory.
@@ -842,7 +978,7 @@ The default Python environment does not include the CRDS server packages directo
 required to run the server and some scripts are sourced like this:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZpc{} source env.csh
+\% source env.csh
 \end{Verbatim}
 
 
@@ -856,13 +992,13 @@ instantiates some Apache configuration file templates and copies them to the app
 The install script is typically run like this:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZpc{} ./install [hst\textbar{}jwst]  [django\textbar{}dev\textbar{}test\textbar{}prod]  \textbar{}\PYGZam{} tee install.\PYGZlt{}observatory\PYGZgt{}.\PYGZlt{}use\PYGZgt{}.err
+\% ./install [hst\textbar{}jwst]  [django\textbar{}dev\textbar{}test\textbar{}prod]  \textbar{}\& tee install.\textless{}observatory\textgreater{}.\textless{}use\textgreater{}.err
 \end{Verbatim}
 
 For example:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZpc{} ./install hst dev  \textbar{}\PYGZam{} tee install.hst.dev.err
+\% ./install hst dev  \textbar{}\& tee install.hst.dev.err
 \end{Verbatim}
 
 Running ./install explicitly is required to generate \emph{env.csh} for the first time.  Afterward,  env.csh essentially
@@ -879,9 +1015,9 @@ For the most part the ./init script is tasked with installing the server's initi
 the CRDS file catalog (the crds.server.interactive.models Django database with 19000 CDBS references and CRDS rules):
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZpc{} server   \PYGZsh{} alias to cd to server source directory
-\PYGZpc{} ./init [hst\textbar{}jwst] [django\textbar{}dev\textbar{}test\textbar{}ops]
-\PYGZlt{}enter password for test user\PYGZgt{}
+\% server   \# alias to cd to server source directory
+\% ./init [hst\textbar{}jwst] [django\textbar{}dev\textbar{}test\textbar{}ops]
+\textless{}enter password for test user\textgreater{}
 \end{Verbatim}
 
 \textbf{NOTE:}  At this stage \emph{./init} should not be run on the OPS servers.   For VM-based servers it
@@ -893,8 +1029,8 @@ has effectively been superceded by \emph{tools/restore\_server} and \emph{tools/
 The CRDS server can be started and stopped like this:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZpc{} ./run
-\PYGZpc{} ./stop
+\% ./run
+\% ./stop
 \end{Verbatim}
 
 The \emph{./run} script starts Apache (many httpd processes) and memcached after which the CRDS server should definitely
@@ -909,7 +1045,7 @@ Performing a server update generally revolves around stopping the server,  chang
 application, and restarting the server.   This is encapsulated in the \emph{./rerun} script:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZpc{} ./rerun
+\% ./rerun
 \end{Verbatim}
 
 This works by sequentially invoking other more basic scripts: ./stop, ./install, ./run.
@@ -930,13 +1066,13 @@ because it has obvious implications when performed on an dirty code base.
 The CRDS server unit tests (\textbf{NOT ADVISABLE FOR OPS}) can be run like this:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZpc{} ./runtests
+\% ./runtests
 \end{Verbatim}
 
 additional parameters can be passed to runtests,  for example to select specific tests:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZpc{} ./runtests interactive.tests.Hst.test\PYGZus{}index
+\% ./runtests interactive.tests.Hst.test\_index
 \end{Verbatim}
 
 Runtests should not be executed on operational or in-test servers because it has side effects which interfere with
@@ -964,7 +1100,7 @@ Django has a manage.py module which is frequently referenced for server maintena
 wrapped as:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZpc{} ./manage \PYGZlt{}additional parameters to manage.py\PYGZgt{}
+\% ./manage \textless{}additional parameters to manage.py\textgreater{}
 \end{Verbatim}
 
 
@@ -973,7 +1109,7 @@ wrapped as:
 An Ipython shell which runs in a context similar to the CRDS server can be started like this:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZpc{} ./manage shell
+\% ./manage shell
 In [1]:
 \end{Verbatim}
 
@@ -993,9 +1129,9 @@ it is accessed by using the models module, classes, and functions.  Nevertheless
 directly with SQL like this:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZpc{} ./manage dbshell  \PYGZsh{} to open a SQL prompt to the CRDS server database
+\% ./manage dbshell  \# to open a SQL prompt to the CRDS server database
 ...
-mysql\PYGZgt{} ... SQL commands ...
+mysql\textgreater{} ... SQL commands ...
 \end{Verbatim}
 
 The server unit tests are ponderous.  Eventually you may \emph{\textless{}control-c\textgreater{}} and leave behind a junk test
@@ -1003,8 +1139,8 @@ database which blocks subsequent testing.  That can generally cleaned up,  with 
 for e.g. hst dev:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZpc{} ./manage dbshell
-mysql\PYGZgt{} drop database test\PYGZus{}crds\PYGZus{}hst\PYGZus{}dev;
+\% ./manage dbshell
+mysql\textgreater{} drop database test\_crds\_hst\_dev;
 \end{Verbatim}
 
 \textbf{NOTE}:  the CRDS Catalog is in a Django database which is distinct from the DADSOPS dataset catalog that
@@ -1022,7 +1158,7 @@ confirmation.   Nevertheless,  the backups are extremely useful and appear to be
 Making a backup is done as follows:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZpc{} tools/backup\PYGZus{}server
+\% tools/backup\_server
 \end{Verbatim}
 
 backup\_server results in the generation of backup files which are placed in \textbf{\$\{CRDS\}/server/db\_backups} in a dated
@@ -1038,7 +1174,7 @@ A relatively recent addition is the tools/restore\_server script.   It is quite 
 of a server:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZpc{} tools/restore\PYGZus{}server
+\% tools/restore\_server
 \end{Verbatim}
 
 Conceptually,  restore server reloads the server database and restores the delivery directories and catalogs,  and
@@ -1081,9 +1217,9 @@ perform these steps.
 First, optionally, on the source server:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZsh{} login tlhstcrdsv1
-\PYGZpc{} server
-\PYGZpc{} tools/backup\PYGZus{}server
+\# login tlhstcrdsv1
+\% server
+\% tools/backup\_server
 \end{Verbatim}
 
 That puts required backup files in global (cross-server) \$\{HOME\}/backups.  If this steps is omitted,  the files in
@@ -1094,9 +1230,9 @@ that the change is recorded in the current backup.
 Second, on the destination server:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZsh{} login dlhstcrdsv1
-\PYGZpc{} server
-\PYGZpc{} tools/mirror\PYGZus{}server hst test https://hst\PYGZhy{}crds\PYGZhy{}test.stsci.edu \textbar{}\PYGZam{} tee mirror\PYGZus{}server.hst.test.err
+\# login dlhstcrdsv1
+\% server
+\% tools/mirror\_server hst test https://hst-crds-test.stsci.edu \textbar{}\& tee mirror\_server.hst.test.err
 \end{Verbatim}
 
 where the parameters to mirror\_server specify the \emph{source} server and the destination is implicitly the
@@ -1104,6 +1240,120 @@ server of the current login.
 
 Server mirroring requires the source server to be online and available.   The destination server is moved
 to a backup port so that it is unavailable while it transitions through various inconsistent states.
+
+
+\chapter{Delivery Troubleshooting}
+\label{server_guide:delivery-troubleshooting}
+This section discusses possible operational failure modes and how to handle them.   There are some comaratively simple
+problems which may be addressable on an emergency basis.   As a general rule,  for seemingly complex or uncertain
+procedures,  first mirror the OPS server to the DEV server,  then perfom the procedure on the DEV server,  then
+apply the proven procedure to the OPS server.   For improved certainty,  switch the DEV server to the OPS server
+source code branches (CRDS and CRDS\_server),  rerun,  and then perform the procedure on the DEV server.
+
+
+\section{Remedy by Backup}
+\label{server_guide:remedy-by-backup}
+For some failure modes it may be desirable to restore the server to the nightly backup for the previous day.  See
+\emph{restore\_server} above.
+
+\textbf{NOTE:}  requires server database and file store changes,  restart.
+
+This approach might be particularly effective for temporarily bypassing failed deliveries
+by one instrument so that others can proceed,  and also for cleaning up new or failed CRDS rules which are known to
+be non-viable.   If failed CRDS rules have already been transferred to the archive,  either removing them from the
+archive must be coordinated with DSB and the CRDS Archiving Pipeline,  or restore\_server should not be performed and
+the files should be Marked Bad in CRDS instead.   See the CRDS user's guide (on the server) for information about
+marking files as bad.
+
+
+\section{Rmap or Context Fix Required}
+\label{server_guide:rmap-or-context-fix-required}
+Potentially a best references assignment error could be detected which requires a rules fix.
+
+\textbf{NOTE:} should be possible without OPS server changes.
+
+The procedure for fixing rules should basically be:
+\begin{enumerate}
+\setcounter{enumi}{-1}
+\item {} 
+Mirror OPS to DEV server and work using the DEV server.
+
+\item {} 
+Sync or download a copy of the rmap file requiring changes.
+
+\item {} 
+Correct the rules and test locally using elevated verbosity.  --verbose or --verbosity=100 or something in between.
+
+\item {} 
+Upload the modified rmap using Submit Mappings and check ``Generate Context'' to create new instrument and pipeline
+mappings which include the new context.
+
+\item {} 
+DEV servers do not archive and rules are immediately sync'able and useable.   Sync to a local cache and test.
+
+\item {} 
+When satisfied that the DEV server is working,  repeat for the OPS server.  Very possibly the original fixed
+copy of the .rmap is directly submissible to OPS.
+
+\item {} 
+When the OPS systems have successfully archived the new rules,  test them by syncing and running bestrefs.
+The default readonly cache at /grp/crds/cache should sync within 15 minutes of archiving.
+
+\item {} 
+Inform \href{mailto:crds\_team@stsci.edu}{crds\_team@stsci.edu} that you think the new rules are working and should either receive a second
+opinion or be made operational by the pipeline,  basically Richard Spencer performing Set Context on the
+web site.
+
+\end{enumerate}
+
+Context fixes (imap's and pmap's) need to be performed manually,  typically without automatic renaming.   New Context
+files are still submitted using Submit Mappings,  but without file renaming or context generation.
+
+
+\section{Improper Reference File Constraint}
+\label{server_guide:improper-reference-file-constraint}
+Valid reference files may be rejected due to overly stringent or incorrect matching parameter constraints.
+
+\textbf{NOTE:} requires OPS server file updates, reinstall, and restsart.
+
+The synposis of the fix is to modify the appropriate .tpn and/or \_ld.tpn file in crds.hst.tpns and update and
+restart the server.
+
+It's possible that the reference file constraints defined in the CRDS observatory packages will be overly stringent
+causing the submission of a valid file to fail.   For HST,  reference constraints are defined in the crds/hst/tpns
+directory and define two phases of reference file symbolism.   The first phase,  defined by .tpn files for each
+instrument-specific type,  defines reference parameters as they appear in the reference file.  The second phase,
+defined by \_ld.tpn files,  define reference parameters as expanded in rmaps by rules in crds.hst.substitutions.
+In this scenario,  errors or missing values in the .tpn's need to be fixed.
+
+
+\section{Improper Reference Parameter Expansion}
+\label{server_guide:improper-reference-parameter-expansion}
+Valid reference files may be inserted into their corresponding .rmap incorrectly,  most probably identified
+by certify warnings about new match tuples in the updated .rmap.
+
+\textbf{NOTE:} requires OPS server file updates, reinstall, and restsart.
+
+The synposis for the fix is to modify substutions.dat in crds.hst,  reinstall the server, and restart.
+
+For HST, reference file matching parameters define where the reference is inserted into .rmaps.
+During the reference insertion process,  reference file parameters are expanded using context-sensitive expansion
+rules defined in crds/hst/substitutions.dat.  Deficiencies in those rules will result in references being added
+to the wrong rmap matching paths.   The short term fix would be to modify substitions.dat,  manually test the rmap
+update proces, the resulting rmap, and finally adjusted best references.
+
+
+\section{Table Row Change Warnings}
+\label{server_guide:table-row-change-warnings}
+Submission of a new table reference file may result in certify warnings due to comparison with the old version
+of the table and deletion of rows.
+
+\textbf{NOTE:}  make it clear warnings are approximate, tripwires, then verify file differences and confirm or cancel.
+
+It should be noted that the warnings are approximate and advisory,  not  definitive.   With that in mind,  verify with
+the submitters and/or reference developers that the noted differences are not a problem,  then proceed with
+confirmation or rejection.  Row modifications may be perceived by certify as deletions and additions rather than as
+replacements.
 
 
 

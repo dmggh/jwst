@@ -1,12 +1,16 @@
 Introduction
 ------------
 This guide is intended to introduce the CRDS servers for the purposes of maintenance and emergency backup for Todd.
+Additional documentation about using CRDS and the servers can be located on the servers under the question mark icon 
+at the top right each page.
 
 Historical Institute contacts for the CRDS servers include:
 
-    * Todd Miller:    primary CRDS and CRDS server application developer.
-    * Patrick Taylor: web proxies, ssl support, and server rc/reboot script coordination
-    * Thomas Walker:  initial VM creation, file systems, and Isilon storage setup.
+    * Todd Miller:         primary CRDS and CRDS server application developer.
+    * Pey-Lian Lim:        intial JWST cloned references and rules, jwst_gentools branch
+    * Jonathan Eisenhamer  table differencing and reprocessing implications
+    * Patrick Taylor:      web proxies, ssl support, and server rc/reboot script coordination
+    * Thomas Walker:       initial VM creation, file systems, and Isilon storage setup.
     
 Servers
 -------
@@ -56,7 +60,34 @@ For debug purposes the servers can be accessed by bypassing the proxy using VM-b
 as https://plhstcrdsv1.stsci.edu:8001/.  These direct URLs are visible on site only.  Only the OPS
 server URLs will be visible off site.
 
-See CRDS_server/sources/site_config.py to verify this information.
+See CRDS_server/sources/site_config.py to verify server configuration.
+
+CRDS Client Configuration Scripts
+.................................
+
+Configuring the client to work with various CRDS servers can be accomplished using scripts define in the CRDS client
+under trunk/envs:
+
+=======================   =======================================  ==============================  ==================================
+Script                    CRDS_SERVER_URL                          CRDS_PATH                       Purpose
+=======================   =======================================  ==============================  ==================================
+default                   https://crds-serverless-mode.stsci.edu   readonly /grp/crds/cache        Default no env, serverless jwst ops
+env-forwarded.csh         https://localhost:8001                   $HOME/crds_cache_forwarded      ssh port forwarded private server
+env-local.csh             https://localhost:8000                   $HOME/crds_cache_local          Django development server
+hst-crds-dev.csh          https://hst-crds-dev.stsci.edu           $HOME/crds_cache_dev            Connected hst dev local cache
+hst-crds-test.csh         https://hst-crds-test.stsci.edu          $HOME/crds_cache_test           Connected hst test local cache
+hst-crds-ops.csh          https://hst-crds.stsci.edu               $HOME/crds_cache_ops            Connected hst ops local cache
+jwst-crds-dev.csh         https://jwst-crds-dev.stsci.edu          $HOME/crds_cache_dev            Connected jwst dev local cache
+jwst-crds-test.csh        https://jwst-crds-test.stsci.edu         $HOME/crds_cache_test           Connected jwst test local cache
+jwst-crds-ops.csh         https://jwst-crds.stsci.edu              $HOME/crds_cache_ops            Connected jwst ops local cache
+crds-readonly.csh         https://crds-serverless-mode.stsci.edu   readonly /grp/crds/cache        Disconnected, complete ops cache
+hst-crds-readonly.csh     https://hst-crds.stsci.edu               readonly /grp/crds/hst          Connected, complete ops cache
+jwst-crds-readonly.csh    https://jwst-crds.stsci.edu              readonly /grp/crds/jwst         Connected, complete ops cache
+=======================   =======================================  ==============================  ==================================
+
+At present only connected clients can resolve symbolic/date-based contexts other than -operational.
+
+Even without env settings,  many tools can guess the appropriate cache and ops server url based on files.
 
 Mailing Lists
 -------------
@@ -697,4 +728,103 @@ server of the current login.
 
 Server mirroring requires the source server to be online and available.   The destination server is moved
 to a backup port so that it is unavailable while it transitions through various inconsistent states.
+
+Delivery Troubleshooting
+------------------------
+
+This section discusses possible operational failure modes and how to handle them.   There are some comaratively simple
+problems which may be addressable on an emergency basis.   As a general rule,  for seemingly complex or uncertain
+procedures,  first mirror the OPS server to the DEV server,  then perfom the procedure on the DEV server,  then
+apply the proven procedure to the OPS server.   For improved certainty,  switch the DEV server to the OPS server
+source code branches (CRDS and CRDS_server),  rerun,  and then perform the procedure on the DEV server.
+
+Remedy by Backup
+................
+
+For some failure modes it may be desirable to restore the server to the nightly backup for the previous day.  See
+*restore_server* above.   
+
+**NOTE:**  requires server database and file store changes,  restart.
+
+This approach might be particularly effective for temporarily bypassing failed deliveries
+by one instrument so that others can proceed,  and also for cleaning up new or failed CRDS rules which are known to
+be non-viable.   If failed CRDS rules have already been transferred to the archive,  either removing them from the
+archive must be coordinated with DSB and the CRDS Archiving Pipeline,  or restore_server should not be performed and
+the files should be Marked Bad in CRDS instead.   See the CRDS user's guide (on the server) for information about
+marking files as bad.
+
+Rmap or Context Fix Required
+............................
+
+Potentially a best references assignment error could be detected which requires a rules fix.   
+
+**NOTE:** should be possible without OPS server changes.
+
+The procedure for fixing rules should basically be:
+
+0.  Mirror OPS to DEV server and work using the DEV server.
+1.  Sync or download a copy of the rmap file requiring changes.
+2.  Correct the rules and test locally using elevated verbosity.  --verbose or --verbosity=100 or something in between.
+3.  Upload the modified rmap using Submit Mappings and check "Generate Context" to create new instrument and pipeline
+    mappings which include the new context.
+4.  DEV servers do not archive and rules are immediately sync'able and useable.   Sync to a local cache and test.
+5.  When satisfied that the DEV server is working,  repeat for the OPS server.  Very possibly the original fixed
+    copy of the .rmap is directly submissible to OPS.
+6.  When the OPS systems have successfully archived the new rules,  test them by syncing and running bestrefs.
+    The default readonly cache at /grp/crds/cache should sync within 15 minutes of archiving.
+7.  Inform crds_team@stsci.edu that you think the new rules are working and should either receive a second
+    opinion or be made operational by the pipeline,  basically Richard Spencer performing Set Context on the
+    web site.
+
+Context fixes (imap's and pmap's) need to be performed manually,  typically without automatic renaming.   New Context
+files are still submitted using Submit Mappings,  but without file renaming or context generation.
+
+Improper Reference File Constraint
+..................................
+
+Valid reference files may be rejected due to overly stringent or incorrect matching parameter constraints.
+
+**NOTE:** requires OPS server file updates, reinstall, and restsart.
+
+The synposis of the fix is to modify the appropriate .tpn and/or _ld.tpn file in crds.hst.tpns and update and
+restart the server.
+
+It's possible that the reference file constraints defined in the CRDS observatory packages will be overly stringent
+causing the submission of a valid file to fail.   For HST,  reference constraints are defined in the crds/hst/tpns
+directory and define two phases of reference file symbolism.   The first phase,  defined by .tpn files for each 
+instrument-specific type,  defines reference parameters as they appear in the reference file.  The second phase,
+defined by _ld.tpn files,  define reference parameters as expanded in rmaps by rules in crds.hst.substitutions.
+In this scenario,  errors or missing values in the .tpn's need to be fixed.
+
+Improper Reference Parameter Expansion
+......................................
+
+Valid reference files may be inserted into their corresponding .rmap incorrectly,  most probably identified
+by certify warnings about new match tuples in the updated .rmap.
+
+**NOTE:** requires OPS server file updates, reinstall, and restsart.
+
+The synposis for the fix is to modify substutions.dat in crds.hst,  reinstall the server, and restart.
+
+For HST, reference file matching parameters define where the reference is inserted into .rmaps.
+During the reference insertion process,  reference file parameters are expanded using context-sensitive expansion 
+rules defined in crds/hst/substitutions.dat.  Deficiencies in those rules will result in references being added 
+to the wrong rmap matching paths.   The short term fix would be to modify substitions.dat,  manually test the rmap
+update proces, the resulting rmap, and finally adjusted best references.
+
+Table Row Change Warnings
+.........................
+
+Submission of a new table reference file may result in certify warnings due to comparison with the old version
+of the table and deletion of rows.
+
+**NOTE:**  make it clear warnings are approximate, tripwires, then verify file differences and confirm or cancel.
+
+It should be noted that the warnings are approximate and advisory,  not  definitive.   With that in mind,  verify with 
+the submitters and/or reference developers that the noted differences are not a problem,  then proceed with 
+confirmation or rejection.  Row modifications may be perceived by certify as deletions and additions rather than as 
+replacements.
+
+
+
 

@@ -1,27 +1,34 @@
-\BOOKMARK [0][-]{chapter.1}{Introduction}{}
-\BOOKMARK [0][-]{chapter.2}{Servers}{}
-\BOOKMARK [1][-]{section.2.1}{CRDS pseudo-user and group}{chapter.2}
-\BOOKMARK [1][-]{section.2.2}{Virtual Machines and URLs}{chapter.2}
-\BOOKMARK [0][-]{chapter.3}{Mailing Lists}{}
-\BOOKMARK [0][-]{chapter.4}{Server File Systems}{}
-\BOOKMARK [1][-]{section.4.1}{Cross-Server Shared Home \(/home/crds\)}{chapter.4}
-\BOOKMARK [1][-]{section.4.2}{Server Static File Storage}{chapter.4}
-\BOOKMARK [1][-]{section.4.3}{Server Dynamic File Storage}{chapter.4}
-\BOOKMARK [1][-]{section.4.4}{Server File Private Cache}{chapter.4}
-\BOOKMARK [0][-]{chapter.5}{Cron Jobs}{}
-\BOOKMARK [1][-]{section.5.1}{nightly.cron.job}{chapter.5}
-\BOOKMARK [1][-]{section.5.2}{monitor\137reprocessing}{chapter.5}
-\BOOKMARK [1][-]{section.5.3}{clear\137expired\137locks}{chapter.5}
-\BOOKMARK [1][-]{section.5.4}{sync\137ops\137to\137grp}{chapter.5}
-\BOOKMARK [0][-]{chapter.6}{Maintenance Commands}{}
-\BOOKMARK [1][-]{section.6.1}{Installing the Server Application}{chapter.6}
-\BOOKMARK [1][-]{section.6.2}{CRDS Catalog Initialization}{chapter.6}
-\BOOKMARK [1][-]{section.6.3}{Starting and Stopping the Server}{chapter.6}
-\BOOKMARK [1][-]{section.6.4}{Updating and Restarting}{chapter.6}
-\BOOKMARK [1][-]{section.6.5}{Running Server Tests}{chapter.6}
-\BOOKMARK [1][-]{section.6.6}{Django Management Commands}{chapter.6}
-\BOOKMARK [1][-]{section.6.7}{Command Line Server Debug}{chapter.6}
-\BOOKMARK [1][-]{section.6.8}{CRDS Catalog Database SQL Commands}{chapter.6}
-\BOOKMARK [1][-]{section.6.9}{Nightly Backup}{chapter.6}
-\BOOKMARK [1][-]{section.6.10}{Restoring Nightly Backups}{chapter.6}
-\BOOKMARK [1][-]{section.6.11}{Server Mirroring}{chapter.6}
+\BOOKMARK [0][-]{chapter.1}{Introduction}{}% 1
+\BOOKMARK [0][-]{chapter.2}{Servers}{}% 2
+\BOOKMARK [1][-]{section.2.1}{CRDS pseudo-user and group}{chapter.2}% 3
+\BOOKMARK [1][-]{section.2.2}{Virtual Machines and URLs}{chapter.2}% 4
+\BOOKMARK [1][-]{section.2.3}{CRDS Client Configuration Scripts}{chapter.2}% 5
+\BOOKMARK [0][-]{chapter.3}{Mailing Lists}{}% 6
+\BOOKMARK [0][-]{chapter.4}{Server File Systems}{}% 7
+\BOOKMARK [1][-]{section.4.1}{Cross-Server Shared Home \(/home/crds\)}{chapter.4}% 8
+\BOOKMARK [1][-]{section.4.2}{Server Static File Storage}{chapter.4}% 9
+\BOOKMARK [1][-]{section.4.3}{Server Dynamic File Storage}{chapter.4}% 10
+\BOOKMARK [1][-]{section.4.4}{Server File Private Cache}{chapter.4}% 11
+\BOOKMARK [0][-]{chapter.5}{Cron Jobs}{}% 12
+\BOOKMARK [1][-]{section.5.1}{nightly.cron.job}{chapter.5}% 13
+\BOOKMARK [1][-]{section.5.2}{monitor\137reprocessing}{chapter.5}% 14
+\BOOKMARK [1][-]{section.5.3}{clear\137expired\137locks}{chapter.5}% 15
+\BOOKMARK [1][-]{section.5.4}{sync\137ops\137to\137grp}{chapter.5}% 16
+\BOOKMARK [0][-]{chapter.6}{Maintenance Commands}{}% 17
+\BOOKMARK [1][-]{section.6.1}{Installing the Server Application}{chapter.6}% 18
+\BOOKMARK [1][-]{section.6.2}{CRDS Catalog Initialization}{chapter.6}% 19
+\BOOKMARK [1][-]{section.6.3}{Starting and Stopping the Server}{chapter.6}% 20
+\BOOKMARK [1][-]{section.6.4}{Updating and Restarting}{chapter.6}% 21
+\BOOKMARK [1][-]{section.6.5}{Running Server Tests}{chapter.6}% 22
+\BOOKMARK [1][-]{section.6.6}{Django Management Commands}{chapter.6}% 23
+\BOOKMARK [1][-]{section.6.7}{Command Line Server Debug}{chapter.6}% 24
+\BOOKMARK [1][-]{section.6.8}{CRDS Catalog Database SQL Commands}{chapter.6}% 25
+\BOOKMARK [1][-]{section.6.9}{Nightly Backup}{chapter.6}% 26
+\BOOKMARK [1][-]{section.6.10}{Restoring Nightly Backups}{chapter.6}% 27
+\BOOKMARK [1][-]{section.6.11}{Server Mirroring}{chapter.6}% 28
+\BOOKMARK [0][-]{chapter.7}{Delivery Troubleshooting}{}% 29
+\BOOKMARK [1][-]{section.7.1}{Remedy by Backup}{chapter.7}% 30
+\BOOKMARK [1][-]{section.7.2}{Rmap or Context Fix Required}{chapter.7}% 31
+\BOOKMARK [1][-]{section.7.3}{Improper Reference File Constraint}{chapter.7}% 32
+\BOOKMARK [1][-]{section.7.4}{Improper Reference Parameter Expansion}{chapter.7}% 33
+\BOOKMARK [1][-]{section.7.5}{Table Row Change Warnings}{chapter.7}% 34
