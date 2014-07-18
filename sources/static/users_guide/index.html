@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -13,7 +15,7 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
+        URL_ROOT:    '',
         VERSION:     '1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -154,11 +156,21 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="rmap_syntax.html">About Mappings</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="rmap_syntax.html#naming">Naming</a></li>
-<li class="toctree-l2"><a class="reference internal" href="rmap_syntax.html#basic-structure">Basic Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rmap_syntax.html#basic-structure">Basic Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="rmap_syntax.html#header">header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rmap_syntax.html#selector">selector</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="rmap_syntax.html#pipeline-mappings-pmap">Pipeline Mappings (.pmap)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="rmap_syntax.html#instrument-mappings-imap">Instrument Mappings (.imap)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="rmap_syntax.html#reference-mappings-rmap">Reference Mappings (.rmap)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="rmap_syntax.html#parkeys">Parkeys</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rmap_syntax.html#reference-mappings-rmap">Reference Mappings (.rmap)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rmap_syntax.html#active-header-fields">Active Header Fields</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="rmap_syntax.html#required-parameters">Required Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rmap_syntax.html#logical-header-expressions">Logical Header Expressions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rmap_syntax.html#reffile-required">reffile_required</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rmap_syntax.html#rmap-relevance">rmap_relevance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rmap_syntax.html#parkey-relevance">parkey_relevance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rmap_syntax.html#hooks">hooks</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="rmap_syntax.html#selectors">Selectors</a><ul>
@@ -245,7 +257,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2012, STScI.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
     </div>
   </body>
 </html>
