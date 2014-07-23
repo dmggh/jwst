@@ -51,6 +51,8 @@
          'mlintab': 'acs_ref_data.acr_best_mlintab',
          'naxis1': 'acs_a_data.aca_numcols',
          'naxis2': 'acs_a_data.aca_numrows',
+         'numcols': 'acs_a_data.aca_numcols',
+         'numrows': 'acs_a_data.aca_numrows',
          'npolfile': 'acs_ref_data.acr_best_npolfile',
          'obsmode': 'acs_science.acs_obsmode',
          'obstype': 'acs_ref_data.acr_obstype',
