@@ -21,17 +21,19 @@ df -h /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}*
 echo ---------------------------- mounts ------------------------
 mount
 
-echo "=========================================================="
-echo "Stack Build"
-echo "=========================================================="
-host/build_stack >& build_stack.${ETAIL}
-tail -100 build_stack.${ETAIL}
+if ( "$CRDS_USECASE" != "ops" ) then
+    echo "=========================================================="
+    echo "Stack Build"
+    echo "=========================================================="
+    host/build_stack >& build_stack.${ETAIL}
+    tail -100 build_stack.${ETAIL}
 
-echo "==========================================================="
-echo "Server re-install and re-start"
-echo "==========================================================="
-./rerun >& rerun.${ETAIL}
-tail -100 rerun.${ETAIL}
+    echo "==========================================================="
+    echo "Server re-install and re-start"
+    echo "==========================================================="
+    ./rerun >& rerun.${ETAIL}
+    tail -100 rerun.${ETAIL}
+endif
 
 echo "============================================================"
 echo "Backing up server"
@@ -56,10 +58,11 @@ cd ${CRDS}/CRDS_server
 tools/orphan_files --verbose >& orphan_files.${ETAIL}
 tail -100 orphan_files.${ETAIL}
 
-echo "==========================================================="
-echo "Server self-test"
-echo "==========================================================="
-cd ${CRDS}/CRDS_server
-./runtests 
-tail -100 runtests.${ETAIL}
-
+if ( "$CRDS_USECASE" != "ops" ) then
+    echo "==========================================================="
+    echo "Server self-test"
+    echo "==========================================================="
+    cd ${CRDS}/CRDS_server
+    ./runtests 
+    tail -100 runtests.${ETAIL}
+endif
