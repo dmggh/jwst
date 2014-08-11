@@ -20,6 +20,7 @@
         <td align="right"><input type="text" name="filename" value="{{filename}}"/></td>
       </tr>
       
+      {% if is_authenticated %}
       <tr>
         <td class="label" width="50%">User:</td>
         <td align="right">
@@ -34,5 +35,7 @@
             </select>
         </td>
       </tr>
-
+      {% else %}
+        <input type="hidden" name="deliverer_user" value="*">
+      {% endif %}
       
