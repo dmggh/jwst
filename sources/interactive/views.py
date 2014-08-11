@@ -878,6 +878,36 @@ def clear_uploads(request, uploads):
 
 # ===========================================================================
 
+def get_recent_pmaps(last_n=10):
+    """Return a list of option tuples for rendering HTML to choose recent
+    pmaps (last 10). This defines what users will see for the context HTML 
+    drop-down menu.
+    """
+    files = models.FileBlob.objects.filter(name__endswith=".pmap")
+    pmaps = []
+    for file_ in files:
+        file_.thaw()
+        if file_.state == "uploaded":
+            continue
+        pmaps.append((file_.name, pmap_label(file_)))
+    return list(reversed(pmaps))[:last_n]
+    
+def pmap_label(blob):
+    """Return the text displayed to users selecting known pmaps."""
+    if isinstance(blob, basestring):
+        try:
+            blob = models.FileBlob.load(blob)
+        except LookupError:
+            return "FILE LOOKUP FAILED -- invalid context"
+    available = "" if blob.available else "*unavailable*" 
+    bad = "*bad*" if blob.is_bad_file else ""
+    #     blacklisted = "*blacklisted*" if blob.blacklisted else ""
+    #     rejected = "*rejected*" if blob.rejected else ""
+    return " ".join([blob.name, str(blob.delivery_date)[:16], available, bad])  #, blacklisted, rejected])
+
+
+# ===========================================================================
+
 @error_trap("bestrefs_index2.html")
 @log_view
 def bestrefs(request):
@@ -979,33 +1009,6 @@ def bestrefs_explore(request):
     else:
         return bestrefs_explore_post(request)
     
-def get_recent_pmaps(last_n=10):
-    """Return a list of option tuples for rendering HTML to choose recent
-    pmaps (last 10). This defines what users will see for the context HTML 
-    drop-down menu.
-    """
-    files = models.FileBlob.objects.filter(name__endswith=".pmap")
-    pmaps = []
-    for file_ in files:
-        file_.thaw()
-        if file_.state == "uploaded":
-            continue
-        pmaps.append((file_.name, pmap_label(file_)))
-    return list(reversed(pmaps))[:last_n]
-    
-def pmap_label(blob):
-    """Return the text displayed to users selecting known pmaps."""
-    if isinstance(blob, basestring):
-        try:
-            blob = models.FileBlob.load(blob)
-        except LookupError:
-            return "FILE LOOKUP FAILED -- invalid context"
-    available = "" if blob.available else "*unavailable*" 
-    bad = "*bad*" if blob.is_bad_file else ""
-    #     blacklisted = "*blacklisted*" if blob.blacklisted else ""
-    #     rejected = "*rejected*" if blob.rejected else ""
-    return " ".join([blob.name, str(blob.delivery_date)[:16], available, bad])  #, blacklisted, rejected])
-
 def bestrefs_explore_post(request):
     """View to get best reference dataset parameters."""
     context = get_recent_or_user_context(request)
@@ -1015,10 +1018,11 @@ def bestrefs_explore_post(request):
     for key, values in valid_values.items():
         if values == ["N/A"]:
             values = []
-        if values and "*" not in values:
-            values = values + ["*"]
-        if values and "N/A" not in values:
-            values = values + ["N/A"]
+        if "CORR" not in key:
+            if values and "*" not in values:
+                values = values + ["*"]
+            if values and "N/A" not in values:
+                values = values + ["N/A"]
         valid_values[key] = values
     dateobs, timeobs = timestamp.now().split()
     timeobs = timeobs.split(".")[0]

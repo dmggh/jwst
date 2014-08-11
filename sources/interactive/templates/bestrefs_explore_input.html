@@ -10,7 +10,11 @@
       <input type="hidden" name="instrument" value="{{instrument}}" />
       <h3>Enter Dataset Parameters</h3>
       <table width="100%">
+
+      {# repeated for-loop with "CORR in" and "CORR not in:" #}
+      
       {% for key, choices in valid_values %}
+        {% if "CORR" not in key %}
         <tr>
           <td width="25%" class="label">{{key}}:</td>
           <td width="25%">
@@ -25,17 +29,48 @@
             {% endif %}
           </td>
         </tr>
+        {% endif %}
       {% endfor %}
+
+      <tr><td> </td></tr>
+      <tr><td> </td></tr>
+
+      <tr>
+        <td width="25%" class="label">DATE-OBS:</td>
+        <td width="60%"><input type="text" name="DATE-OBS" value="{{dateobs}}" /> <span class="hint">e.g. 2011-01-01</span> <td/>
+      </tr>
+      <tr>
+        <td width="25%" class="label">TIME-OBS:</td>
+        <td width="60%"><input type="text" name="TIME-OBS" value="{{timeobs}}"/> <span class="hint">e.g. 12:00:00</span> </td>
+      </tr>
+      
+      <tr><td> </td></tr>
+      <tr><td> </td></tr>
+
+      {% for key, choices in valid_values %}
+        {% if "CORR" in key %}
         <tr>
-          <td width="25%" class="label">DATE-OBS:</td>
-          <td width="60%"><input type="text" name="DATE-OBS" value="{{dateobs}}" /> <span class="hint">e.g. 2011-01-01</span> <td/>
+          <td width="25%" class="label">{{key}}:</td>
+          <td width="25%">
+            {% if choices %}
+                <select name="{{key}}">
+                    {% for opt in choices %}
+                      <option>{{opt}}</option>
+                    {% endfor %} 
+                </select>
+            {% else %}
+                <input type='text' name='{{key}}' value="*" />
+            {% endif %}
+          </td>
         </tr>
-        <tr>
-          <td width="25%" class="label">TIME-OBS:</td>
-          <td width="60%"><input type="text" name="TIME-OBS" value="{{timeobs}}"/> <span class="hint">e.g. 12:00:00</span> </td>
-        </tr>
+        {% endif %}
+      {% endfor %}
+
+      <tr><td> </td></tr>
+      <tr><td> </td></tr>
+
       </table>
-      <p></p>
+
       <input type="submit" value="Get References" />
     </form>
 {% endblock column1 %}
