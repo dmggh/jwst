@@ -7,23 +7,23 @@
     running crds.bestrefs.   Best references can be assigned to HST dataset FITS files like this:
     
     <pre class="code" style="font-size: 1.2em;">
-    % python -m crds.bestrefs --update-bestrefs --files *.fits
-    
     % setenv iref, jref, etc. to  /grp/crds/cache/references/hst for processing.</pre>
         
+    % python -m crds.bestrefs --update-bestrefs --files *.fits
+    
     <p>For <b>Offsite use</b> (without ssh or VPN) you can create a personal copy of required rules and references
     and run crds.bestrefs like this:
     
     <pre class="code" style="font-size: 1.2em;">
     % setenv CRDS_PATH $HOME/crds_cache
     % setenv CRDS_SERVER_URL https://hst-crds.stsci.edu
-    
-    % python -m crds.bestrefs --update-bestrefs --files *.fits --sync-references=1
+    % setenv iref, jref, etc. to  ${CRDS_PATH}/references/hst for processing.
+        
+    % python -m crds.bestrefs --update-bestrefs --files *.fits --sync-references=1</pre>
 
-    % setenv iref, jref, etc. to  ${CRDS_PATH}/references/hst for processing.</pre>
-    
     <p>This sets up a personal cache containing the latest operational rules and server configuration
     information.  Adding --sync-references=1 downloads any required references to your CRDS cache automatically.
+    If you have another source of reference files,  syncing and using CRDS references is optional.
     
     <p><p> See <a href='{{ request.build_absolute_uri }}/static/users_guide/installation.html#setting-up-your-environment'>Setting Up Your Environment</a>
     or <a href='{{ request.build_absolute_uri }}/static/users_guide/command_line_tools.html'>Command Line Tools</a> for more information on configuring your
