@@ -256,7 +256,7 @@
       {% if observatory != "jwst" %}
       <tr>
         <td class="h4">
-            <input type="radio" name="dataset_mode" value="dataset_archive" />Catalog Dataset ID
+            <input type="radio" name="dataset_mode" value="dataset_archive" />Dataset ID
         </td>
         <td align="left">
             <input type="text" width="32" name="dataset_archive" id="dataset_archive"
@@ -276,20 +276,17 @@
 
 {% block help %}
     <p><b>Dataset Best References</b> determines the best reference files 
-    for an archived or uploaded dataset header, relative to the chosen CRDS context.
+    for an uploaded or cataloged dataset header.
     
     <p><p><b>Context</b> defines the version of rules that should be used to determine 
-    best references. The context file chosen defines the parameter choices which 
-    will be available as well as file selection rules.
-
-    {% if observatory != "jwst" %}
-    <p><p><b>Dataset</b> Cataloged dataset id specifies the name of a cataloged parameter set 
-    for which to determine best references.  If the dataset id names an association,  the results
-    returned are for the first member of the association.
-    {% endif %}
+    best references.
 
     <p><p><b>Upload FITS Header</b> loads reference matching parameters from a FITS file on your local system;   
-    the loaded matching parameters may be edited in the browser.
+    the loaded matching parameters may be edited in the browser.    {% if observatory != "jwst" %}
+
+    <p><p><b>Dataset ID</b> specifies the id of a cataloged parameter set for which to determine best references.  
+    If the dataset id names an association,  the results returned are for the first member of the association.
+    {% endif %}
 
 {% endblock help %}
 

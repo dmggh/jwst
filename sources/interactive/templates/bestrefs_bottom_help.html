@@ -1,38 +1,29 @@
-    <br/>
-
-    <p><p><b>NOTE:</b> This page is a <b>diagnostic aid</b> and <b>not for production data calibration.</b>
+    <p><b>NOTE:</b> This page is a <b>diagnostic aid</b> and <b>not for production data calibration.</b>
     
     {% if observatory|upper == "HST" %}
-    <p><p> For production use for HST,  the CRDS command line tools are used to update dataset headers.
+    For production use for HST,  the CRDS command line tools are used to update dataset headers.
     
-    <p><p><p><b>On-site at STScI</b> best references can be assigned to HST dataset FITS files like this:
+    <p><b>On-site at STScI</b> typically no file downloads or configuration are required for 
+    running crds.bestrefs.   Best references can be assigned to HST dataset FITS files like this:
     
     <pre class="code" style="font-size: 1.2em;">
-    # To update the headers of some dataset .fits files
-    % python -m crds.bestrefs --update-bestrefs --files *_raw.fits
+    % python -m crds.bestrefs --update-bestrefs --files *.fits
     
-    # setenv iref$, jref$, etc. to  /grp/crds/cache/references/hst for processing.
-    </pre>
-    
-    <p><p>On site at STScI,  typically no file downloads or configuration are required for running crds.bestrefs.
-    
-    <br/>
-    <p><p><p>For <b>Offsite use</b> (without ssh or VPN) you can create a personal copy of required rules and references
+    % setenv iref, jref, etc. to  /grp/crds/cache/references/hst for processing.</pre>
+        
+    <p>For <b>Offsite use</b> (without ssh or VPN) you can create a personal copy of required rules and references
     and run crds.bestrefs like this:
     
     <pre class="code" style="font-size: 1.2em;">
-    # For a small scale personal CRDS cache
     % setenv CRDS_PATH $HOME/crds_cache
     % setenv CRDS_SERVER_URL https://hst-crds.stsci.edu
     
-    # To download the CRDS rules for the current context to your cache
-    % python -m crds.sync --contexts hst-operational
-    
-    # Adding --sync-refernces=1 downloads any recommended files not already in your local cache.
-    % python -m crds.bestrefs --update-bestrefs --files *_raw.fits --sync-references=1 
+    % python -m crds.bestrefs --update-bestrefs --files *.fits --sync-references=1
 
-    # setenv iref$, jref$, etc. to  ${CRDS_PATH}/references/hst for processing.
-    </pre>
+    % setenv iref, jref, etc. to  ${CRDS_PATH}/references/hst for processing.</pre>
+    
+    <p>This sets up a personal cache containing the latest operational rules and server configuration
+    information.  Adding --sync-references=1 downloads any required references to your CRDS cache automatically.
     
     <p><p> See <a href='{{ request.build_absolute_uri }}/static/users_guide/installation.html#setting-up-your-environment'>Setting Up Your Environment</a>
     or <a href='{{ request.build_absolute_uri }}/static/users_guide/command_line_tools.html'>Command Line Tools</a> for more information on configuring your
@@ -42,7 +33,7 @@
 
     {% if observatory|upper == "JWST" %}
     
-    <p><p> For JWST, CRDS bestrefs are automatically invoked as part of running calibration steps.
+    For JWST, CRDS bestrefs are automatically invoked as part of running calibration steps.
     
     <p><p><b>On Site at STScI</b>, a default readonly file cache is available (/grp/crds/cache) and 
     hence no configuration or file downloads should be required.
@@ -51,14 +42,11 @@
     with settings like these:
     
     <pre class="code" >
-    % setenv CRDS_PATH $HOME/crds_cache   # For a small scale personal cache
-    
+    % setenv CRDS_PATH $HOME/crds_cache                         # small scale personal cache
     % setenv CRDS_SERVER_URL https://jwst-crds.stsci.edu
+    % ... run calibration steps ...</pre>
     
-    % ... run calibration steps ...
-    </pre>
-    
-    <p><p> See <a href='{{ request.build_absolute_uri }}/static/users_guide/installation.html#setting-up-your-environment'>Setting Up Your Environment</a>
+    <p> See <a href='{{ request.build_absolute_uri }}/static/users_guide/installation.html#setting-up-your-environment'>Setting Up Your Environment</a>
     for more information on configuring your environment.
 
     {% endif %}
