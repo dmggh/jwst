@@ -1,0 +1,5 @@
+#! /bin/tcsh
+
+echo =============================== bestrefs log summary for $* ================================
+grep -v "CRDS  : ERROR    instrument" $*
+
