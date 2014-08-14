@@ -33,7 +33,10 @@ if ("$old_context" != "") then
     set new = `echo ${new} | cut -d'.' -f1 | sed 's/^0*//g'`
 
     if ($old < $new) then
+	# output affected datasets e-mail
 	affected_datasets $old_context $new_context fast --optimize-tables
+	# capture catalog and results for future regressions.
+	capture $new_context
     else
 	echo "No change in context $new_context"
     endif

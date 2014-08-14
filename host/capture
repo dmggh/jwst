@@ -38,7 +38,7 @@ summarize_bestrefs_log update.err
 
 cd ${REGRESS}/crds_updated
 python -m crds.config --list |& tee verify_config.err
-crds_json_regress $* --dump-unique-errors --unique-errors-file _INSTRUMENT_verify_unique_err.ids >& verify.err
+crds_json_regress $* --dump-unique-errors --unique-errors-file INSTRUMENT_verify_unique_err.ids >& verify.err
 summarize_bestrefs_log verify.err
 
 find ${REGRESS} -type f | xargs gzip -f
