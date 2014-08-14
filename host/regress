@@ -13,7 +13,7 @@ echo "Running bestrefs regression using inputs from $REGRESS"
 cd $REGRESS/crds_updated
 gunzip *.gz
 python -m crds.list --config |& tee config.err
-crds_json_regress $* --dump-unique-errors -unique-errors-file INSTRUMENT_regress_unique_err.ids >& regress.err
+crds_json_regress $* --dump-unique-errors --unique-errors-file INSTRUMENT_regress_unique_err.ids >& regress.err
 summarize_bestrefs_log regress.err
 gzip -f *
 
