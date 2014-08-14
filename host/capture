@@ -9,11 +9,9 @@ endif
 
 setenv REGRESS $CRDS/regress/`echo $1 | cut -d'.' -f1`
 if ( -e ${REGRESS} ) then
-    echo -n "Regression $REGRESS already exists.  Overwrite (y/n)? "
-    if ( $< != "y" ) then
-	echo "Stopping regression."
-	exit -1
-    endif
+    echo "Regression $REGRESS already exists.  Stopping capture."
+    echo "Remove $REGRESS to capture current catalog."
+    exit 2
 endif
 
 echo "Capturing regression inputs and results to $REGRESS"
