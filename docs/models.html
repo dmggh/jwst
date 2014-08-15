@@ -1,0 +1,488 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.8.1: http://docutils.sourceforge.net/" />
+<title>Interactive Application Models</title>
+<style type="text/css">
+
+/*
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: html4css1.css 7056 2011-06-17 10:50:48Z milde $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+
+See http://docutils.sf.net/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+object[type="image/svg+xml"], object[type="application/x-shockwave-flash"] {
+  overflow: hidden;
+}
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin: 0 0 0.5em 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left, .figure.align-left, object.align-left {
+  clear: left ;
+  float: left ;
+  margin-right: 1em }
+
+img.align-right, .figure.align-right, object.align-right {
+  clear: right ;
+  float: right ;
+  margin-left: 1em }
+
+img.align-center, .figure.align-center, object.align-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.align-left {
+  text-align: left }
+
+.align-center {
+  clear: both ;
+  text-align: center }
+
+.align-right {
+  text-align: right }
+
+/* reset inner alignment in figures */
+div.align-right {
+  text-align: inherit }
+
+/* div.align-center * { */
+/*   text-align: left } */
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font: inherit }
+
+pre.literal-block, pre.doctest-block, pre.math {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document" id="interactive-application-models">
+<h1 class="title">Interactive Application Models</h1>
+
+<div class="section" id="overview">
+<h1>Overview</h1>
+<p>This document briefly outlines the models for the interactive aspect of the
+CRDS website (as opposed to JSON RPC services).  Strictly speaking the
+interactive models include the reference file catalog and context history
+databases, so the models are used widely by many applications but contained in
+the interactive application.  The models have seen considerable evolution over
+the course of CRDS development and re-development, and for performance
+optimization and database content defect analysis and repair.</p>
+</div>
+<div class="section" id="base-classes">
+<h1>Base Classes</h1>
+<p>The original CRDS models were derived from pyetc models which use a &quot;blob&quot;
+design to capture arbitrary simple parameters in a serialized dictionary stored
+as variable length text. As time went on, the performance disadvantages of
+blob's became evident, searching on blob parameters requires deserializing the
+entire database rather than simple SQL.</p>
+<div class="section" id="crdsmodel-models-model">
+<h2>CrdsModel(models.Model)</h2>
+<p>This is the fundamental model in the CRDS interactive application from which
+all other models are ultimately derived.  The CrdsModel is abstract, so it does
+not create an SQL table. The primary attribute of the CRDS model is a name
+field which is intended to be unique.   It also supports generic repr'ing
+and unicode'ing with attention to fields which should be included based
+on class-defined inclusion lists.   A key feature of CrdsModel is that all
+it's fields are directly represented in SQL.</p>
+<p>A small wart to CrdsModel is that not all derived models naturally support
+unique name fields.  In some cases name is unused.</p>
+</div>
+<div class="section" id="blobmodel-crdsmodel">
+<h2>BlobModel(CrdsModel)</h2>
+<p>The BlobModel was the original CRDS baseclass from which all other models were
+derived.  It's based (in spirit) on the pyetc modeldesign (circa 2011) but with
+support for some field type checking and/or awllowed value specification.  In
+short,  BlobModel's can have a mixture of Django and Blob fields.</p>
+<p>Key concepts for the BlobModel are &quot;freezing&quot; and &quot;thawing&quot;, the process of
+serializing and deserializing blob fields.  The save() method is overridden to
+freeze before executing SQL.</p>
+<p>One key advantage to the BlobModel is that all fields are effectively variable
+length with no need to modify the underlying SQL schema.  In addition it is
+possible to add fields to the BlobModel without modifying schema, and any
+provided default will be used records which have no value for the new field.
+Finally, adding fields to a BlobModel is very simple,  particularly for
+enumerations or unconstrained types,  requiring no knowledge of Django fields.</p>
+<p>The key disadavantage to BlobModels is poor performance in many use cases.  The
+original fast search design for BlobModels was by-name only, although filter
+was/(is?) supported for blob fields as well.  Filtering on blob fields can only
+be done by thawing each blob selected by non-blob fields like &quot;name&quot;.  In
+practice this is too slow for some cases, on the order of seconds.</p>
+<p>BlobModel is abstract so SQL tables are only created for subclasses.</p>
+<p>CrdsModel was factored out of BlobModel during the course of evolution.</p>
+<p><strong>NOTE:</strong> When adding new fields to a blob, existing records should be loaded
+and saved to store a true value for the new field.  This is necessary for
+SQL-lite database exports which cannot presume being interpreted by the CRDS
+Django models code.  Since this is a time consuming process, it's left as a
+maintenance activity rather than performed during dynamic SQL-lite database
+conversion.</p>
+<p><strong>NOTE:</strong> CRDS does not currently use Django forms so the interaction between
+BlobModel's and Django forms hasn't been explored.  Assume they don't work.</p>
+</div>
+</div>
+<div class="section" id="key-models">
+<h1>Key Models</h1>
+<div class="section" id="fileblob-blobmodel">
+<h2>FileBlob(BlobModel)</h2>
+<p>This is the central model in CRDS for recording all files.  It records both
+references and mappings, around 19k+ CRDS references for HST, and far fewer
+mappings.  Over HST mission life I'd expect/guess less than 25k files total so
+I'm not anticipating significant performance degradation from here out.</p>
+<p>FileBlob has been optimized to the point that ALL fields are now Django/SQL
+fields and the blob is a residual retained for potential &quot;emergency use&quot;.
+One potential mainenance acitivity would be to eliminate that unused (and
+potentially slow) functionality.</p>
+<div class="section" id="fileblob-repair-functionality">
+<h3>FileBlob Repair Functionality</h3>
+<p>As CRDS went into operations, it became necessary to check and repair the file
+catalog.  For various reasons.  The FileBlob model has defect detection and
+repair methods.  The repair functionality is very lightly tested and may only
+address project or situationally specific problems.</p>
+<p>For super users, the Browse Files service has two extra check boxes for
+detecting and displaying defective files.  These can be used to check for
+defects in a browser session.  Bad files only just displays the bad files.
+Show defects also displays the defect detection output which adds additional
+columns.</p>
+<p>See <em>Notes on Changing or Maintaing Models</em> for advice on how to use the repair
+features.</p>
+</div>
+</div>
+</div>
+<div class="section" id="crds-server-quirks-and-limitations">
+<h1>CRDS Server Quirks and Limitations</h1>
+<p>End-to-end, much CRDS functionality is coupled to the original 3-tiered concept
+for CRDS rules: pipeline, instrument, reference type.  This manifests in models
+with discrete fields representing observatory, instrument, filekind.</p>
+<p>Two things to point out here is that the 3-tiered rules structure may not be
+appropriate for representing all systems, particularly pysynphot references.
+Additionally,  observatory is generally defined by server and constant.</p>
+<p>The original hope of the &quot;observatory&quot; field was to potentially represent
+multiple observatories on one CRDS server.  That has major potential
+maintenance advantages, cutting the VM / server count in half from 6 to 3.  In
+practice, serving multiple projects/observatories from a common server
+significantly increases the risk of any changes since the server affects
+multiple projects.  It also affects server performance loads and database
+performance by increasing/doubling the table record counts.  Hence, the
+&quot;observatory&quot; field, while it is passed around extensively, is only partially
+implemented server-side.  Client side, the observatory field is fully
+implemented so that a single cache can support multiple projects; it remains
+necessary client side to explicitly select a server or define the observatory
+in some unambiguous way so that a default server can be selected.</p>
+</div>
+<div class="section" id="django-model-quirks">
+<h1>Django Model Quirks</h1>
+<p>I didn't study it in depth but believe the Django models don't subclass
+normally due to uncommon OOP techniques.  Consequently, some CRDS models have
+rather kludgy implementations.  Looking briefly I see this:</p>
+<blockquote>
+<p><a class="reference external" href="https://racingtadpole.com/blog/django-subclasses-reusability/">https://racingtadpole.com/blog/django-subclasses-reusability/</a></p>
+<p>&quot;The purpose of this post is simple: subclassing Django models does work,
+with a caveat: the usual object manager does not know the new post’s
+subclass.&quot;</p>
+</blockquote>
+<p>So this is an area of CRDS which could be &quot;improved&quot;, but as-is, works well
+enough.  Intricate package specific techniques are pretty much the same as
+hacks anyway from the perspective of readability.   The main issue might
+be &quot;well enough&quot; and currently unused generic Django features.</p>
+</div>
+<div class="section" id="django-admin-interface">
+<h1>Django Admin Interface</h1>
+<p>Quick model fixes can sometimes be performed using the web based Dango admin
+interface visible to server super users.  This is a convenient /
+straight-forward / fully-functional way to add users or groups for instance.</p>
+<p>The Admin interface for FileBlobs supports two custom methods for destroying
+selected FileBlobs and associated cache files, or for repairing selected files.
+The destroy FileBlob feature needs to be used with care because it is not fully
+integrated with other models or file system structures like</p>
+</div>
+<div class="section" id="notes-on-changing-or-maintaining-models">
+<h1>Notes on Changing or Maintaining Models</h1>
+<p>A reasonably safe process for modifying models on the operational server is the
+following:</p>
+<p>1. Mirror the ops server to the DEV server.  If TEST is needed for some reason,
+coordinate changes with the pipeline testing group on <a class="reference external" href="mailto:crds_team&#64;stsci.edu">crds_team&#64;stsci.edu</a> (or
+with Mike Swam and Matt McMaster).</p>
+<ol class="arabic simple" start="2">
+<li>Change the models code if appropriate.</li>
+</ol>
+<p>3. Use ./manage dbshell to execute any raw SQL statements (generally required
+to drop tables or columns or do low level inspections).</p>
+<p>4. Use ./manage shell to execute functions on the FileBlob table, particularly
+get_defects and repair_defects.  models.get_fileblob_map() is useful for
+getting a dictionary of the entire catalog of file models.</p>
+<ol class="arabic simple" start="5">
+<li>Re-install the server to update the models code and add any new tables.</li>
+<li>Run appropriate (or all using ./runtests) server regression tests.</li>
+</ol>
+<p>After carefully checking that models changes work, ./stop the OPS server and
+repeat the process on the OPS server.  An untried approach would be to
+mirror/promote an updated DEV or TEST database to the OPS server.  Presumably
+that's recoverable using an OPS server backup...  but actual file deletions may
+not be easily recoverable using mirroring until CRDS is fully using archived
+files rather than serving them itself.  The cron sync between the CRDS OPS
+servers and the global shared CRDS cache (currently /grp/crds/cache)
+intentionally does not purge stray files and could serve as a redundant source
+for lost files.</p>
+</div>
+</div>
+</body>
+</html>
+
