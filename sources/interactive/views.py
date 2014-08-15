@@ -1643,12 +1643,13 @@ def browsify_file(filename, browsed_file):
     try:
         browsifier = globals()["browsify_" + filetype]
         file_contents = browsifier(filename, browsed_file)
-    except:
+    except Exception, exc:
+        log.error("browsify_file failed: ", str(exc))
         file_contents = "<pre class='program'>Content display for '{}' not available</pre>".format(
             os.path.basename(filename))
     return file_contents
 
-def browsify_fits(browsed_file):
+def browsify_fits(filename, browsed_file):
     """Format a CRDS reference file for HTML display.   Return HTML lines.
     """
     ref_blob = models.FileBlob.load(os.path.basename(browsed_file))
