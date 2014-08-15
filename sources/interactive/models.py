@@ -402,14 +402,14 @@ def _active_files(context):
     pmap = rmap.get_cached_mapping(context)
     return set(pmap.mapping_names() + pmap.reference_names())
 
+@utils.cached
 def _all_activated_files():
     """Return the set of all files known to have ever been activated (used in operational context)."""
     all_files = set()
     for blob in get_context_history():
         if blob.state == "operational":
-            log.info("Loading active files from", repr(blob.context))
+            log.info("Loading active files from", repr(context))
             all_files = all_files.union(_active_files(blob.context))
-    
     return all_files
 
 def update_file_replacements(old_pmap, new_pmap, fileblob_map=None):
@@ -650,6 +650,243 @@ class BlobModel(CrdsModel):
 
 # ============================================================================
 
+# When last used,  the Mixin below was actually part of the FileBlob object.  It was removed to
+# a mixin to reduce clutter...  but testing/usage is correspondingly weaker and suspect.
+
+# The following three convenience functions were created at the time of the Mixin refactoring
+# to systematize use patterns I normally used on-the-fly at the "./manage shell" command line
+# working directly with the interactive.models module.
+
+# The set of checks and repairs are not guaranteed to be complete or correct,  review them
+# and run tests on mirrored catalogs before running them on the OPS server.
+
+def check_defects(fields=None, files=None, verify_checksum=False):
+    """Return a mapping { filename : (blob, defects), ...} corresponding to defects in the specified `fields` of 
+    `files`.  Only FileBlob's containing defects are returned.
+    
+    IFF verify_checksum is True,  check the sha1sum in the FileBlob versus the cached file contents.  Slow.
+    """
+    map = get_fileblob_map()
+    if files:
+        map = { name : blob for (name, blob) in map.items() if name in set(files) }
+    defect_map = { name :  (blob, blob.get_defects(fields=fields, verify_checksum=verify_checksum)) for (name, blob) in map.items() }
+    defect_map = { name : (blob, defects) for (name, (blob, defects)) in defect_map.items() if defects }
+    return defect_map
+
+def repair_defects(defect_map, verbose=True):
+    """Given a `defect_map` from check_defects(),  attempt to repair all the specified defects.
+    
+    Running check_defects() independently enables you to look it over before attempting any repairs.
+    
+    Return a repair_map of the form: { name : (blob, defects, repairs, failed), ... }.
+    """
+    repair_map = {}
+    for name in defect_map:
+        blob, defects = defect_map[name]
+        repairs, failed = blob.repair_defects(defects)
+        repair_map[name] = (blob, defects, repairs, failed)
+        if verbose:
+            for repair in repairs:
+                print name, repairs[repair]
+            for failure in failed:
+                print name, failed[failure]
+    return repair_map
+    
+def repair_defects_all(fields=None, files=None, verify_checksum=False, verbose=True):
+    """In one operation,  detect and repair defects,  returning a repair_map as in repair_defects().
+    
+    Consider running check_defects() and repair_defcts() independently,  inspecting the defects
+    manually before attempting repairs.
+    """
+    defect_map = check_defects(fields=fields, files=files, verify_checksum=verify_checksum)
+    return repair_defects(defect_map, verbose=verbose)
+
+class FileBlobRepairMixin(object):
+    """This mixin defines methods for checking and repairing the FileBlob catalog defined below.
+    
+    These are used solely for catalog maintenance,  not for providing operational functions.
+    
+    Use these functions with extreme caution,  trying any repairs on a mirrored database before
+    repeating the process on the OPS server.
+    
+    There's nothing sacred about these functions,  they were developed in response to real world
+    issues with the operational catalogs.   Review the check and repair for any field you wish to
+    repair carefully.
+    """
+    
+    bad_field_checks = {
+        "uploaded_as" : lambda self: not self.uploaded_as,
+        "blacklisted" : lambda self: self.blacklisted_by and not self.blacklisted,
+        "size" : lambda self: self.size == -1 or self.size != self.compute_size(),
+        "sha1sum" : lambda self: self.sha1sum == "none",
+        "delivery_date" : lambda self: self.delivery_date > self.activation_date and self.activation_date >= START_OF_CRDS,
+        "activation_date": lambda self: self.state in ["archived", "operational"] and \
+                                    self.activation_date == DEFAULT_ACTIVATION_DATE and self.name in _all_activated_files(),
+        "type" : lambda self: not self.type,
+        "observatory": lambda self: self.observatory not in OBSERVATORIES,
+        "instrument": lambda self:  (not self.name.endswith(".pmap")) and self.instrument not in INSTRUMENTS,
+        "filekind": lambda self:  (not self.name.endswith((".pmap",".imap"))) and self.filekind not in FILEKINDS,
+        "comment" : lambda self: not self.comment,
+        "description" : lambda self: not self.description,
+        "pedigree" : lambda self: self.type == "reference" and not self.pedigree and \
+            not re.match(r"\w+\.r[0-9][hd]", self.name),
+        "deliverer_user" : lambda self: not self.deliverer_user,
+        "deliverer_email" : lambda self: not self.deliverer_email,
+        "creator_name" : lambda self: not self.creator_name,
+        "mapping_name_field": lambda self: rmap.is_mapping(self.name) and not self.name == rmap.fetch_mapping(self.name).name,
+    }
+    
+    def get_defects(self, verify_checksum=False, fields=None):
+        """Check `self` and return a list of problems.   See therapist."""
+        self.thaw()
+        defects = []
+        for field in fields or self.bad_field_checks:
+            try:
+                if self.bad_field_checks[field](self):
+                    try:
+                        defects.append("BAD {} = '{}'".format(field, getattr(self, field)))
+                    except:
+                        defects.append("BAD {}".format(field))
+            except Exception, exc:
+                defects.append("BAD {} defect test failed: {}".format(field, str(exc)))
+        if verify_checksum and not self.checksum_ok:  # slow
+            defects.append("BAD sha1sum = '{}' vs. computed = '{}'".format(self.sha1sum, self.compute_checksum()))
+        return defects
+
+    @property
+    def has_defects(self):
+        return bool(len(self.get_defects()))
+    
+    def repair_defects(self, defects=None):
+        """Attempt to automatically fix list of `defects` in `self`."""
+        self.thaw()
+        if defects is None:
+            defects = self.get_defects()
+        repairs = {}
+        failed = {}
+        for defect in defects:
+            field = defect.split()[1]  # skip BAD
+            fixer = getattr(self, "repair_" + field, None)
+            if fixer:
+                try:
+                    old = getattr(self, field)
+                except:
+                    old = "undefined for this fixer"
+                try:
+                    rval = fixer()
+                    try:
+                        new = getattr(self, field)
+                    except:
+                        new = rval
+                    if old != new:
+                        repairs[field] = "REPAIRED '{}' from '{}' to '{}'".format(field, old, new)
+                    else:
+                        raise RuntimeError("no change from fixer")
+                except Exception, exc:
+                    failed[field] = "failed repairing '{}' from '{}' exception: '{}'".format(field, old, str(exc))
+            else:
+                failed[field] = "NO FIXER for '{}'.".format(field)
+        if repairs:
+            self.save()
+        return repairs, failed
+    
+    def repair_blacklisted(self):
+        """If the fileblob has blacklisted_by files,  then it should have it's blacklisted flag set True."""
+        self.blacklisted = len(self.blacklisted_by) > 0
+
+    def repair_mapping_name_field(self):
+        """Fix the mapping header name field to be consistent with the blob name name and path."""
+        mapping = rmap.fetch_mapping(self.name)
+        mapping.header["name"] = str(self.name)
+        mapping.write(self.pathname)
+        self.repair_size()
+        self.repair_sha1sum()
+        return self.name
+
+    def repair_uploaded_as(self):
+        frompath, topath = self.uploaded_as, None
+        if os.path.exists(self.pathname):
+            self.uploaded_as = os.path.basename(self.pathname)
+            return 
+        else:
+            return "failed repairing uploaded_as='{}'".format(frompath)
+
+    def repair_type(self):
+        self.type = "mapping" if rmap.is_mapping(self.name) else "reference"
+        
+    def repair_size(self):
+        self.size = self.compute_size()
+            
+    def repair_sha1sum(self):
+        self.sha1sum = self.compute_checksum()
+        
+    def repair_observatory(self):
+        self.observatory = utils.file_to_observatory(self.pathname)
+        
+    def repair_instrument(self):
+        self.instrument = utils.get_file_properties(utils.file_to_observatory(self.pathname), self.pathname)[0]
+        
+    def repair_filekind(self):
+        self.filekind = utils.get_file_properties(utils.file_to_observatory(self.pathname), self.pathname)[1]
+        
+    def repair_aperture(self):
+        self.set_fits_field("aperture", "APERTURE")
+        
+    def repair_useafter_date(self):
+        self.set_fits_field("useafter_date", "USEAFTER", timestamp.parse_date)
+
+    def repair_reference_file_type(self):
+        self.set_fits_field("reference_file_type", "REFTYPE")
+
+    def repair_pedigree(self):
+        self.set_fits_field("pedigree", "PEDIGREE")
+        if self.observatory == "jwst" and not self.pedigree:
+            log.warning("Using JWST default PEDIGREE of DUMMY.")
+            self.pedigree = "DUMMY"
+
+    def repair_comment(self):
+        self.set_fits_field("comment", "DESCRIP")
+
+    def repair_delivery_date(self):
+        delivery_date = [ audit.date for audit in AuditBlob.filter(filename=self.name) 
+                          if audit.action in ["mass import", "submit file", "batch submit"]][0]
+        self.delivery_date = delivery_date
+
+    if OBSERVATORY == "hst":
+        def repair_activation_date(self):
+            if self.type == "mapping":
+                for hist in reversed(get_context_history()):  # find earliest pmap which uses mapping
+                    pmap = rmap.get_cached_mapping(hist.context)
+                    if self.name in pmap.mapping_names():
+                        self.activation_date = hist.start_date
+                        break
+                return
+            name = self.name
+            with log.error_on_exception("Failed repairing HST activation date for", repr(name)):
+                if data_file.is_geis_data(name):
+                    name = data_file.get_conjugate(name)
+                from crds.server.interactive import database
+                info = database.get_reference_info(self.instrument, name)
+                self.activation_date = timestamp.parse_date(info["opus_load_date"])
+
+        def repair_useafter_date(self):
+            if self.type == "mapping":
+                return
+            name = self.name
+            with log.error_on_exception("Failed repairing HST useafter date for", repr(name)):
+                if data_file.is_geis_data(name):
+                    name = data_file.get_conjugate(name)
+                from crds.server.interactive import database
+                info = database.get_reference_info(self.instrument, name)
+                self.useafter_date = timestamp.parse_date(info["useafter_date"])
+
+        bad_field_checks["aperture"] = lambda self: self.aperture=="none" and self.type != "mapping" and self.instrument != "wfpc2"
+        bad_field_checks["useafter_date"] = lambda self: self.useafter_date in [self.delivery_date, DEFAULT_ACTIVATION_DATE] and self.type != "mapping"
+    elif OBSERVATORY == "jwst":
+        pass        
+
+# ============================================================================
+
 PEDIGREES = ["INFLIGHT", "GROUND", "DUMMY", "MODEL"]   # note: INFLIGHT include date
 CHANGE_LEVELS = ["SEVERE", "MODERATE", "TRIVIAL"]
 
@@ -691,7 +928,7 @@ class SimpleCharField(models.CharField):
             length = max(length, len(choice))
         return int(2**(math.ceil(math.log(length,2))+1))
 
-class FileBlob(BlobModel):
+class FileBlob(BlobModel, FileBlobRepairMixin):
     """Represents a delivered file,  either a reference or a mapping."""
 
     class Meta:
@@ -815,180 +1052,6 @@ class FileBlob(BlobModel):
             self.interpret_catalog_link()
         return self.state in config.CRDS_DISTRIBUTION_STATES # and not self.is_bad_file
     
-    bad_field_checks = {
-        "uploaded_as" : lambda self: not self.uploaded_as,
-        "blacklisted" : lambda self: self.blacklisted_by and not self.blacklisted,
-        "size" : lambda self: self.size == -1 or self.size != self.compute_size(),
-        "sha1sum" : lambda self: self.sha1sum == "none",
-        "delivery_date" : lambda self: self.delivery_date > self.activation_date and self.activation_date >= START_OF_CRDS,
-        "activation_date": lambda self: self.state in ["archived", "operational"] and \
-                                    self.activation_date == DEFAULT_ACTIVATION_DATE and self.name in _all_activated_files(),
-        "type" : lambda self: not self.type,
-        "observatory": lambda self: self.observatory not in OBSERVATORIES,
-        "instrument": lambda self:  (not self.name.endswith(".pmap")) and self.instrument not in INSTRUMENTS,
-        "filekind": lambda self:  (not self.name.endswith((".pmap",".imap"))) and self.filekind not in FILEKINDS,
-        "comment" : lambda self: not self.comment,
-        "description" : lambda self: not self.description,
-        "pedigree" : lambda self: self.type == "reference" and not self.pedigree and \
-            not re.match(r"\w+\.r[0-9][hd]", self.name),
-        "deliverer_user" : lambda self: not self.deliverer_user,
-        "deliverer_email" : lambda self: not self.deliverer_email,
-        "creator_name" : lambda self: not self.creator_name,
-        "mapping_name_field": lambda self: rmap.is_mapping(self.name) and not self.name == rmap.fetch_mapping(self.name).name,
-    }
-    
-    def get_defects(self, verify_checksum=False):
-        """Check `self` and return a list of problems.   See therapist."""
-        self.thaw()
-        defects = []
-        for field in self.bad_field_checks:
-            try:
-                if self.bad_field_checks[field](self):
-                    try:
-                        defects.append("BAD {} = '{}'".format(field, getattr(self, field)))
-                    except:
-                        defects.append("BAD {}".format(field))
-            except Exception, exc:
-                defects.append("BAD {} defect test failed: {}".format(field, str(exc)))
-        if verify_checksum and not self.checksum_ok:  # slow
-            defects.append("BAD sha1sum = '{}' vs. computed = '{}'".format(self.sha1sum, self.compute_checksum()))
-        return defects
-
-    @property
-    def has_defects(self):
-        return bool(len(self.get_defects()))
-    
-    def repair_defects(self, defects=None):
-        """Attempt to automatically fix list of `defects` in `self`."""
-        self.thaw()
-        if defects is None:
-            defects = self.get_defects()
-        repairs = {}
-        failed = {}
-        for defect in defects:
-            field = defect.split()[1]  # skip BAD
-            fixer = getattr(self, "repair_" + field, None)
-            if fixer:
-                try:
-                    old = getattr(self, field)
-                except:
-                    old = "undefined for this fixer"
-                try:
-                    rval = fixer()
-                    try:
-                        new = getattr(self, field)
-                    except:
-                        new = rval
-                    if old != new:
-                        repairs[field] = "REPAIRED '{}' from '{}' to '{}'".format(field, old, new)
-                    else:
-                        raise RuntimeError("no change from fixer")
-                except Exception, exc:
-                    failed[field] = "failed repairing '{}' from '{}' exception: '{}'".format(field, old, str(exc))
-            else:
-                failed[field] = "NO FIXER for '{}'.".format(field)
-        if repairs:
-            self.save()
-        return repairs, failed
-    
-    def repair_blacklisted(self):
-        """If the fileblob has blacklisted_by files,  then it should have it's blacklisted flag set True."""
-        self.blacklisted = len(self.blacklisted_by) > 0
-
-    def repair_mapping_name_field(self):
-        """Fix the mapping header name field to be consistent with the blob name name and path."""
-        mapping = rmap.fetch_mapping(self.name)
-        mapping.header["name"] = str(self.name)
-        mapping.write(self.pathname)
-        self.repair_size()
-        self.repair_sha1sum()
-        return self.name
-
-    def repair_uploaded_as(self):
-        frompath, topath = self.uploaded_as, None
-        if os.path.exists(self.pathname):
-            self.uploaded_as = os.path.basename(self.pathname)
-            return 
-        else:
-            return "failed repairing uploaded_as='{}'".format(frompath)
-
-    def repair_type(self):
-        self.type = "mapping" if rmap.is_mapping(self.name) else "reference"
-        
-    def repair_size(self):
-        self.size = self.compute_size()
-            
-    def repair_sha1sum(self):
-        self.sha1sum = self.compute_checksum()
-        
-    def repair_observatory(self):
-        self.observatory = utils.file_to_observatory(self.pathname)
-        
-    def repair_instrument(self):
-        self.instrument = utils.get_file_properties(utils.file_to_observatory(self.pathname), self.pathname)[0]
-        
-    def repair_filekind(self):
-        self.filekind = utils.get_file_properties(utils.file_to_observatory(self.pathname), self.pathname)[1]
-        
-    def repair_aperture(self):
-        self.set_fits_field("aperture", "APERTURE")
-        
-    def repair_useafter_date(self):
-        self.set_fits_field("useafter_date", "USEAFTER", timestamp.parse_date)
-
-    def repair_reference_file_type(self):
-        self.set_fits_field("reference_file_type", "REFTYPE")
-
-    def repair_pedigree(self):
-        self.set_fits_field("pedigree", "PEDIGREE")
-        if self.observatory == "jwst" and not self.pedigree:
-            log.warning("Using JWST default PEDIGREE of DUMMY.")
-            self.pedigree = "DUMMY"
-
-    def repair_comment(self):
-        self.set_fits_field("comment", "DESCRIP")
-
-    def repair_delivery_date(self):
-        delivery_date = [ audit.date for audit in AuditBlob.filter(filename=self.name) 
-                          if audit.action in ["mass import", "submit file", "batch submit"]][0]
-        self.delivery_date = delivery_date
-
-    if OBSERVATORY == "hst":
-
-        def repair_activation_date(self):
-            if self.type == "mapping":
-                for hist in reversed(get_context_history()):  # find earliest pmap which uses mapping
-                    pmap = rmap.get_cached_mapping(hist.context)
-                    if self.name in pmap.mapping_names():
-                        self.activation_date = hist.start_date
-                        break
-                return
-            name = self.name
-            with log.error_on_exception("Failed repairing HST activation date for", repr(name)):
-                if data_file.is_geis_data(name):
-                    name = data_file.get_conjugate(name)
-                from crds.server.interactive import database
-                info = database.get_reference_info(self.instrument, name)
-                self.activation_date = timestamp.parse_date(info["opus_load_date"])
-
-        def repair_useafter_date(self):
-            if self.type == "mapping":
-                return
-            name = self.name
-            with log.error_on_exception("Failed repairing HST useafter date for", repr(name)):
-                if data_file.is_geis_data(name):
-                    name = data_file.get_conjugate(name)
-                from crds.server.interactive import database
-                info = database.get_reference_info(self.instrument, name)
-                self.useafter_date = timestamp.parse_date(info["useafter_date"])
-
-        bad_field_checks["aperture"] = lambda self: self.aperture=="none" and self.type != "mapping" and self.instrument != "wfpc2"
-        bad_field_checks["useafter_date"] = lambda self: self.useafter_date in [self.delivery_date, DEFAULT_ACTIVATION_DATE] and self.type != "mapping"
-
-    elif OBSERVATORY == "jwst":
-        
-        pass        
-        
     @property
     def moniker(self):
         try:
