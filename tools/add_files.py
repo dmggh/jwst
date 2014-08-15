@@ -58,7 +58,7 @@ Does not move, rename, or deliver files.
         self.add_argument('-D', '--description', default="Initial mass file import")
         self.add_argument('-U', '--deliverer', default="crds",  help="Username of person adding these files.")
         self.add_argument('-E', '--deliverer-email', default="support@stsci.edu")
-        self.add_argument('-R', '--deliver', action='store_true',
+        self.add_argument('--deliver', action='store_true',
                           help="Generate file delivery lists and links for OPUS pickup of the added files.")
         self.add_argument('-P', '--replace', action='store_true',
                           help="Destroy and re-create existing FileBlobs for added files.")
