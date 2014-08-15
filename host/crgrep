@@ -1,9 +1,12 @@
 #! /bin/tcsh
+set dir=`dirname $0`
+cd $dir
+set dir=`pwd`
 crds
 ./clean
-pygrep . "$*"
-pygrep ../CRDS_server/sources "$*"
-pygrep ../CRDS_server/tools "$*"
-pygrep ../hst_gentools "$*"
-pygrep ../jwst_gentools "$*"
+$dir/pygrep . "$*"
+$dir/pygrep ../CRDS_server/sources "$*"
+$dir/pygrep ../CRDS_server/tools "$*"
+$dir/pygrep ../hst_gentools "$*"
+$dir/pygrep ../jwst_gentools "$*"
 
