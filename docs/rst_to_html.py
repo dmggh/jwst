@@ -7,8 +7,10 @@ from docutils.core import publish_string
 from crds import pysh
 
 HEAD_ADDITIONS = """
-<link rel="stylesheet" type="text/css" href="rst_to_html.css">
-"""
+<style>
+{}
+</style>
+""".format(open("rst_to_html.css").read())
 
 def rst_to_html(rst):
    html = publish_string(
