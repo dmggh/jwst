@@ -1,0 +1,22 @@
+#! /usr/bin/env python
+#-*-python-*-
+
+import sys
+
+from astropy.io import fits
+
+from crds.pysh import *
+from crds import timestamp
+
+usage("<FITS files...>", 1, help="""
+
+Add a timestamp (CRDSUNIQ) to each of the specified files for the
+purpose of rendering the file superficially different.  This supports
+CRDS file submission testing by making innocuous changes to existing
+references so they can be resubmitted as if they're new.
+
+""")
+
+for file in sys.argv[1:]:
+    fits.setval(file, "CRDSUNIQ", value=timestamp.now(), ext=0)
+
