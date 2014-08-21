@@ -895,8 +895,8 @@ FILE_STATUS_MAP = OrderedDict([
     ("delivered", "blue"),    # Delivered to downstream systems, pending archive
     ("submitted", "orange"),  # In found by pipeline poller
     ("archiving", "blue"),    # Being processed by pipeline poller
-    ("archived", "green"),    # Archived and in use.
-    ("operational", "darkgreen"), # In operational use in the pipeline.
+    ("archived", "darkgreen"),    # Archived and in use.
+    ("operational", "green"), # In operational use in the pipeline.
     ("cancelled", "red"),      # submission cancelled by submitter
     ("archiving-failed", "red"),   # delivery to archive failed in CRDS pipeline.
     ("bad", "red")  # blacklisted or rejected

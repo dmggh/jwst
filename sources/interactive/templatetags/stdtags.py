@@ -82,6 +82,13 @@ def seconds(value):  # handle str(datetime.datetime.now())
 
 @register.filter
 @stringfilter
+def days(value):  # handle str(datetime.datetime.now())
+    """Return only the date/day portion of a CRDS time."""
+    parts = value.split(" ")
+    return conditional_escape(parts[0])
+
+@register.filter
+@stringfilter
 def endswith(s, ending):
     return s.endswith(ending)
 

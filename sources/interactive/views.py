@@ -700,8 +700,11 @@ def del_locked_instrument(request):
 def index(request):
     """Return the top level page for all of interactive CRDS."""
     pars = get_context_table_parameters("operational")
-    return crds_render(request, "index.html", pars)
-
+    pars["history"], pars["history_tuples"] = get_context_history_variables(4)
+    pars["include_diff"] = False
+    response = crds_render(request, "index.html", pars)
+    response['Cache-Control'] = "no-cache"
+    return response
 # ===========================================================================
 
 @error_trap("base.html")
@@ -2273,14 +2276,17 @@ def display_context_history(request):
     response = crds_render(request, "display_context_history.html", {
             "history" : history,
             "history_tuples" : history_tuples,
+            "include_diff" : True,
         }, requires_pmaps=False)
     response['Cache-Control'] = "no-cache"
     return response
 
 #  @models.crds_cached  currently not cacheable due to datetime.datetime's
-def get_context_history_variables():
+def get_context_history_variables(last_n=None):
     """Return the data required to render the context history,  suitable for caching."""
     history = models.get_context_history(observatory=models.OBSERVATORY, state="operational")
+    if last_n is not None:
+        history = history[:last_n]
     # log.info("context_history:", history)
     context_blobs = { blob.name:blob for blob in models.FileBlob.filter(name__endswith=".pmap") }
     # log.info("context_blobs:", context_blobs)

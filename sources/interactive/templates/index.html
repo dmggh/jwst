@@ -3,12 +3,19 @@
 {% load stdtags %}
 
 {% block contents_top %}
+    <script type="text/javascript">
+        $("#contents").hide();
+    </script>
     <div class="body_panel">
+        
         <h3 style="margin-top: 0px;">Operational References</h3>
-        <script type="text/javascript">
-            $("#contents").hide();
-        </script>
-        {% include "context_table_body_include.html" %} 
+        {% include "context_table_body_include.html" %}
+    
+        <br/>
+        <h3 style="margin-top: 0px;">Context History <a href="/display_context_history" class="label" style="font-size: 0.8em;">(more)</a></h3>
+        {% include "context_history_include.html" %}        
+        <br/>
+        
     </div>
 {% endblock contents_top %}
 
@@ -21,9 +28,6 @@
         {% endif %}
     </div>
     <ol>
-        <li><a href="/display_context_history/">Context History</a></li>
-        <br/>
-        
         <li><a href="/bestrefs/">Dataset Best References</a> </li>
         <li><a href="/bestrefs_explore/">Explore Best References</a> </li>
         <br/>
