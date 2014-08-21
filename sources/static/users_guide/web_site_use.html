@@ -55,16 +55,15 @@
   <ul>
 <li><a class="reference internal" href="#">Using the CRDS Web Site</a><ul>
 <li><a class="reference internal" href="#operational-references">Operational References</a></li>
-<li><a class="reference internal" href="#open-services">Open Services</a><ul>
-<li><a class="reference internal" href="#context-history">Context History</a><ul>
+<li><a class="reference internal" href="#context-history-more">Context History (more)</a><ul>
 <li><a class="reference internal" href="#differencing-contexts">Differencing contexts</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#open-services">Open Services</a><ul>
 <li><a class="reference internal" href="#dataset-best-references">Dataset Best References</a><ul>
 <li><a class="reference internal" href="#context">Context</a></li>
 <li><a class="reference internal" href="#dataset">Dataset</a><ul>
 <li><a class="reference internal" href="#upload-fits-header">Upload FITS header</a></li>
-<li><a class="reference internal" href="#upload-dataset">Upload Dataset</a></li>
 <li><a class="reference internal" href="#archived-dataset">Archived Dataset</a></li>
 </ul>
 </li>
@@ -72,11 +71,6 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#explore-best-references">Explore Best References</a></li>
-<li><a class="reference internal" href="#difference-files">Difference Files</a><ul>
-<li><a class="reference internal" href="#mapping-differences">Mapping Differences</a></li>
-<li><a class="reference internal" href="#reference-differences">Reference Differences</a></li>
-</ul>
-</li>
 <li><a class="reference internal" href="#browse-database">Browse Database</a></li>
 <li><a class="reference internal" href="#recent-activity">Recent Activity</a></li>
 </ul>
@@ -170,20 +164,16 @@ active use for pipeline processing by default.</p>
 they apply to.   Each reference file link opens into a details browser for that reference
 file.</p>
 </div>
-<div class="section" id="open-services">
-<h2>Open Services<a class="headerlink" href="#open-services" title="Permalink to this headline">¶</a></h2>
-<p>The following functions are available for anyone with access to the CRDS web
-server and basically serve to distribute information about CRDS files and
-recommendations.   Initially,  the CRDS sites are only visible within the Institute.</p>
-<div class="section" id="context-history">
-<h3>Context History<a class="headerlink" href="#context-history" title="Permalink to this headline">¶</a></h3>
-<p>The <em>Context History</em> displays the record of CRDS contexts which were in operational use by
-the pipeline associated with a CRDS server.</p>
+<div class="section" id="context-history-more">
+<h2>Context History (more)<a class="headerlink" href="#context-history-more" title="Permalink to this headline">¶</a></h2>
+<p>The <em>Context History</em> displays the last 4 CRDS contexts which were in operational use by
+the pipeline associated with a CRDS server. Clicking on the <em>(more)</em> link will bring up
+the entire context history as a separate page as shown below:</p>
 <div class="figure">
 <a class="reference internal image-reference" href="_images/web_context_history.png"><img alt="History of CRDS operational contexts" src="_images/web_context_history.png" /></a>
 </div>
-<p>Clicking on a <em>context</em> link opens a a table of the historical references which were in use under
-that context:</p>
+<p>Clicking on a <em>context</em> link (the .pmap name) opens a page containing the Historical References
+for some point in the past,  similar to the Operational References display:</p>
 <div class="figure">
 <a class="reference internal image-reference" href="_images/web_context_table.png"><img alt="CRDS historical references display" src="_images/web_context_table.png" /></a>
 </div>
@@ -192,7 +182,7 @@ an instrument displays the reference types of that instrument.  Opening the pane
 displays particular reference files and matching parameters for that type.   Clicking on a particular
 reference file brings up the CRDS browser page with the known details for that reference.</p>
 <div class="section" id="differencing-contexts">
-<h4>Differencing contexts<a class="headerlink" href="#differencing-contexts" title="Permalink to this headline">¶</a></h4>
+<h3>Differencing contexts<a class="headerlink" href="#differencing-contexts" title="Permalink to this headline">¶</a></h3>
 <p>Click the <em>diff</em> checkbox for any two contexts in the history and then click the diff button
 at the top of the diff column.   This will display a difference page with an accorion panel
 for each file which differed between the two contexts:</p>
@@ -205,6 +195,11 @@ which were added, deleted, or replaced.   The textual differences show raw UNIX 
 two rules files.</p>
 </div>
 </div>
+<div class="section" id="open-services">
+<h2>Open Services<a class="headerlink" href="#open-services" title="Permalink to this headline">¶</a></h2>
+<p>The following functions are available for anyone with access to the CRDS web
+server and basically serve to distribute information about CRDS files and
+recommendations.   Initially,  the CRDS sites are only visible within the Institute.</p>
 <div class="section" id="dataset-best-references">
 <h3>Dataset Best References<a class="headerlink" href="#dataset-best-references" title="Permalink to this headline">¶</a></h3>
 <p>The <em>Dataset Best References</em> page supports determining the best references for
@@ -231,10 +226,6 @@ server where best references are computed based on dataset parameters.   This
 function is implemented in Javascript and reliant on HTML5;  it supports only
 parameters present in the FITS primary header.   It avoids uploading most of the
 dataset.   It is known to work in Firefox and Chrome but not IE or Safari-5.</p>
-</div>
-<div class="section" id="upload-dataset">
-<h5>Upload Dataset<a class="headerlink" href="#upload-dataset" title="Permalink to this headline">¶</a></h5>
-<p>A user&#8217;s dataset can be uploaded to the server for best references evaluation.</p>
 </div>
 <div class="section" id="archived-dataset">
 <h5>Archived Dataset<a class="headerlink" href="#archived-dataset" title="Permalink to this headline">¶</a></h5>
@@ -273,42 +264,6 @@ to best references selection.</p>
 <p>The entered parameters are evaluated with respect to the given pipeline context
 and best references are determined.   The results are similar or identical to
 the <em>Dataset Best References</em> results.</p>
-</div>
-<div class="section" id="difference-files">
-<h3>Difference Files<a class="headerlink" href="#difference-files" title="Permalink to this headline">¶</a></h3>
-<p>Difference Files can be used to compare two reference or mapping files.   Either
-the name of a file already in CRDS can be specified (known) or any file can be
-uploaded via the web (uploaded).</p>
-<div class="figure">
-<a class="reference internal image-reference" href="_images/web_difference.png"><img alt="file difference input" src="_images/web_difference.png" /></a>
-</div>
-<div class="section" id="mapping-differences">
-<h4>Mapping Differences<a class="headerlink" href="#mapping-differences" title="Permalink to this headline">¶</a></h4>
-<p>For mappings,  <em>Difference Files</em> displays two kinds of information:</p>
-<div class="figure">
-<a class="reference internal image-reference" href="_images/web_difference_summary.png"><img alt="file difference summary" src="_images/web_difference_summary.png" /></a>
-</div>
-<ul class="simple">
-<li>logical differences where CRDS analyzes the mappings and reports the
-parameter trail and effect of the difference (add, delete, replace).</li>
-</ul>
-<div class="figure">
-<a class="reference internal image-reference" href="_images/web_difference_logical.png"><img alt="file difference logical" src="_images/web_difference_logical.png" /></a>
-</div>
-<ul class="simple">
-<li>textual differences which show the context difference (diff -c) of the
-two mapping files.</li>
-</ul>
-<div class="figure">
-<a class="reference internal image-reference" href="_images/web_difference_text.png"><img alt="file difference textual" src="_images/web_difference_text.png" /></a>
-</div>
-</div>
-<div class="section" id="reference-differences">
-<h4>Reference Differences<a class="headerlink" href="#reference-differences" title="Permalink to this headline">¶</a></h4>
-<p>For references,  <em>Difference Files</em> is a thin wrapper around the pyfits
-script <em>fitsdiff</em>.   Potentially this is useful where a user doesn&#8217;t have access
-to pyfits or wants to compare existing reference files without downloading them.</p>
-</div>
 </div>
 <div class="section" id="browse-database">
 <h3>Browse Database<a class="headerlink" href="#browse-database" title="Permalink to this headline">¶</a></h3>
