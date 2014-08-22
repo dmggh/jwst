@@ -630,9 +630,11 @@ def lock_login_receiver(sender, **keys):
                               max_age=settings.CRDS_MAX_LOCK_AGE)
                 set_locked_instrument(request, instrument)
             except locks.ResourceLockedError:
+                django.contrib.auth.logout(request)
                 owner = locks.owner_of(name=instrument, type="instrument")
                 raise CrdsError("User '%s' has already locked instrument '%s'." % (owner, instrument))
             except Exception as exc:
+                django.contrib.auth.logout(request)
                 log.error("Untrapped login locking exception:", repr(exc), ":", str(exc))
                 raise
 
