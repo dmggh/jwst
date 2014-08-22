@@ -36,7 +36,7 @@ switch ($CRDS_SERVER)
 	    setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@stsci.edu   crds_datamng@stsci.edu"
        breaksw
        case tlhstcrdsv1:
-	    setenv CRDS_STACK ${CRDS}/crds_stacks/crds_11
+	    setenv CRDS_STACK ${CRDS}/crds_stacks/crds_12
             setenv CRDS_PROJECT hst
 	    setenv CRDS_USECASE test
 	    setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@stsci.edu   crds_datamng@stsci.edu"
