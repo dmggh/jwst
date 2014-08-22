@@ -284,7 +284,7 @@ p {
     position: absolute;
 }
 
-td {
+th, td {
     padding: 5px;
 }
 
