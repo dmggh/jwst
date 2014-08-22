@@ -44,7 +44,7 @@ class InteractiveBase(object):
         for map in mappings:
             pysh.sh("cp ${REAL_MAPPING_DIR}/${map} ${CRDS_PATH}/mappings/%s" % cls.observatory, 
                     raise_on_error=True) # , trace_commands=True)
-        cls.fake_database_files(mappings)
+        # cls.fake_database_files(mappings)
             
         # monkey-patch these since they're not encapsulated with functions.
         sconfig.CRDS_INGEST_DIR = os.path.join(CRDS_PATH, "ingest")
@@ -76,6 +76,7 @@ class InteractiveBase(object):
         except Exception, exc:
             print "failed user save:", str(exc)
         self.ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, str(self.user))
+        self.fake_database_files([self.pmap])
         models.set_default_context(self.pmap, skip_history=True)
         models.set_default_context(self.pmap, state="operational")
         utils.ensure_dir_exists(lconfig.locate_file("test.fits", self.observatory))
@@ -197,7 +198,6 @@ class InteractiveBase(object):
             dataset1 = "interactive/test_data/j8bt05njq_raw.fits"
         else:
             dataset1 = "interactive/test_data/jw00001001001_01101_00001_MIRIMAGE_uncal.fits"
-        # self.fake_database_files([self.pmap])
         self.login()
         response = self.client.post("/bestrefs/", {
             "pmap_mode" : "pmap_text",
@@ -330,7 +330,7 @@ class InteractiveBase(object):
 
     def test_create_contexts_post(self):
         self.login()
-        self.fake_database_files([self.pmap] + self.create_contexts_rmaps)
+        self.fake_database_files(self.create_contexts_rmaps)
         response = self.client.post("/create_contexts/", {
                 "pmap_mode" : "pmap_text",
                 "pmap_text" : self.pmap,
@@ -344,7 +344,6 @@ class InteractiveBase(object):
         self.assertTrue(self.add_1(rmap2) in response.content)
     
     def test_browse_file(self):
-        self.fake_database_files([self.pmap])
         response = self.client.get("/browse/" + self.pmap)
         self.assert_no_errors(response)
 
@@ -355,7 +354,6 @@ class InteractiveBase(object):
 
     def test_browse_db_post(self):
         self.login()
-        self.fake_database_files([self.pmap])
         response = self.client.post("/browse_db/", {
                 "observatory" : self.observatory,
                 "instrument" : "*",
