@@ -72,5 +72,5 @@ endif
 
 gzip affected_ids.txt
 
-mail -r crds@stsci.edu -a`pwd`/$bestrefs_err_file -a`pwd`/affected_ids.txt.gz -s "$subject" $CRDS_AFFECTED_DATASETS_RECIPIENTS </dev/null
+mail -r crds-servers@stsci.edu -a`pwd`/$bestrefs_err_file -a`pwd`/affected_ids.txt.gz -s "$subject" $CRDS_AFFECTED_DATASETS_RECIPIENTS </dev/null
 
