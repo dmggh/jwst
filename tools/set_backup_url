@@ -7,7 +7,7 @@ usage("set_backup_url <flag>", 1, 1)
 
 is_backup = (sys.argv[1].upper() in ["1","T","TRUE"])
 
-sh("perl -pi -e's/BACKUP_URL_SCHEME = (True|False|0|1)/BACKUP_URL_SCHEME = $is_backup/g' sources/configs/config.${CRDS_USECASE}.${CRDS_PROJECT}.py", trace_commands=True) 
+sh("perl -pi -e's/BACKUP_URL_SCHEME = (True|False|0|1)/BACKUP_URL_SCHEME = $is_backup/g' sources/configs/config.${CRDS_USECASE}.${CRDS_PROJECT}.py") #, trace_commands=True) 
 
-sh("./rerun >& /dev/null", trace_commands=True)
+sh("./rerun >& /dev/null") #, trace_commands=True)
 
