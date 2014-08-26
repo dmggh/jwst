@@ -5,4 +5,4 @@
 source ${HOME}/.setenv    # This is the login .setenv
 cd ${CRDS}/CRDS_server
 source env.csh
-
+mkdir -p ${CRDS_CRON}

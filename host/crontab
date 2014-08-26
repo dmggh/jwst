@@ -8,14 +8,14 @@ MAILTO=jmiller@stsci.edu
 5 3 * * *       source $HOME/cronenv.csh;      nightly.crds.job 
 
 # every 5 minutes, no e-mail
-*/5 * * * *     source $HOME/cronenv.csh;      monitor_reprocessing >& monitor_reprocessing.log
+*/5 * * * *     source $HOME/cronenv.csh;      monitor_reprocessing >& ${CRDS_CRON}/monitor_reprocessing.log
 
 # every 10 minutes, no e-mail
-*/10 * * * *  source $HOME/cronenv.csh;      sync_ops_to_grp >& sync_ops_to_grp.log
+*/10 * * * *  source $HOME/cronenv.csh;      sync_ops_to_grp >& ${CRDS_CRON}/sync_ops_to_grp.log
 
 # once a week, Friday night at midnight + 4 minutes, check cache sha1sums
 # don't do this on CRDS VM since it loads down the VM file buffer cache
-# 04 0 * * fri  source $HOME/cronenv.csh;      sync_ops_to_grp --check-sha1sum
+# 04 0 * * fri  source $HOME/cronenv.csh;      sync_ops_to_grp --check-sha1sum  >& ${CRDS_CRON}/sync_ops_to_grp.sha1sum.log
 
 # run at 2:15pm on the first of every month
 #   15 14 1 * *     $HOME/bin/monthly
