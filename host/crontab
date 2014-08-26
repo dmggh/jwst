@@ -10,9 +10,6 @@ MAILTO=jmiller@stsci.edu
 # every 5 minutes, no e-mail
 */5 * * * *     source $HOME/cronenv.csh;      monitor_reprocessing >& monitor_reprocessing.log
 
-# every 5 minutes, no e-mail
-*/5 * * * *     source $HOME/cronenv.csh;      clear_expired_locks  >& clear_expired_locks.log
-
 # every 10 minutes, no e-mail
 */10 * * * *  source $HOME/cronenv.csh;      sync_ops_to_grp >& sync_ops_to_grp.log
 

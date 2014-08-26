@@ -42,6 +42,17 @@ cd ${CRDS}/CRDS_server
 tools/backup_server >& backup.${ETAIL}
 
 echo "==========================================================="
+echo "Clearing session table"
+echo "==========================================================="
+cd ${CRDS}/CRDS_server
+./manage clearsessions
+
+echo "==========================================================="
+echo "Clearing expired locks"
+echo "==========================================================="
+clear_expired_locks  >& clear_expired_locks.${ETAIL}
+
+echo "==========================================================="
 echo "Server cache check"
 echo "==========================================================="
 cd ${CRDS}/CRDS_server
