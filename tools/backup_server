@@ -52,3 +52,7 @@ cd ${CRDS_PATH}
 tar zcf ${HOME}/backups/config.${TAIL}.tar.gz config
 tar zcf ${DATED_BACKUP_DIR}/config.${TAIL}.tar.gz config
 
+cd ${CRDS}
+tar zcf ${HOME}/backups/monitor_reprocessing.${TAIL}.tar.gz monitor_reprocessing
+tar zcf ${DATED_BACKUP_DIR}/monitor_reprocessing.${TAIL}.tar.gz monitor_reprocessing
+

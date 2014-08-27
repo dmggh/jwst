@@ -6,6 +6,9 @@ import base64
 import math
 import re
 import zlib
+import gzip
+import os.path
+import glob
 
 from jsonrpc import jsonrpc_method
 from jsonrpc.exceptions import Error
@@ -19,7 +22,7 @@ from crds.server.interactive.common import INSTRUMENT_RE, FIELD_RE
 import crds.server.config as config    # server parameters
 
 from crds.client import proxy
-from crds import rmap, utils, log, timestamp
+from crds import rmap, utils, log, timestamp, pysh
 import crds.config                     # generic client/server
 from crds.config import FILE_RE, check_filename
 
@@ -135,7 +138,7 @@ def check_known_file(filename):
     """Check that `filename` is known to CRDS, available, and/or not blacklisted."""
     check_filename(filename)
     blob = imodels.file_exists(filename)
-    if not blob:
+    if blob is None:
         raise UnknownFile("File '{0}' is not known to CRDS.", filename)
     if not blob.available: 
         raise UnavailableFile("File '{0}' is not yet available.", filename)
@@ -454,7 +457,7 @@ def get_url(request, context, filename):
     ctx = rmap.get_cached_mapping(context)
     return create_url(ctx.observatory, filename)
 
-@jsonrpc_method('get_file_info(observatory=String, filename=String)')   # secure
+@jsonrpc_method('get_file_info(observatory=Object, filename=String)')   # secure
 def get_file_info(request, observatory, filename):
     """Return the CRDS catalog info for a single `filename` of the specified `observatory`."""
     try:
@@ -611,6 +614,112 @@ def get_reference_url(request, context, reference):
     _blob = check_reference(reference)
     ctx = rmap.get_cached_mapping(context)
     return create_url(ctx.observatory, reference)
+
+# ===============================================================
+
+MAX_BESTREFS_ERR_LINES = 1000
+
+#
+# This service returns the precomputed results produced by the cronjob
+# monitor_reprocessing script as a JSON object/struct.
+#
+
+@jsonrpc_method('get_affected_datasets(observatory=String, old_context=Object, new_context=Object)')
+def get_affected_datasets(request, observatory, old_context, new_context):
+    observatory = check_observatory(observatory)   #  XXXX observatory ignored
+    reprocessing_dir = os.path.join(os.environ["CRDS"], "monitor_reprocessing")
+    old_serial_num = check_for_serial_num(old_context)
+    new_serial_num = check_for_serial_num(new_context)
+    old_serial_patt = "*[0-9]" if old_serial_num is None else old_serial_num
+    new_serial_patt = "[0-9]*" if new_serial_num is None else new_serial_num
+    dir_patt = "*" + old_serial_patt + "_" + new_serial_patt
+    transitions_glob = os.path.join(reprocessing_dir, dir_patt)
+    try:
+        computation_dir  = sorted(glob.glob(transitions_glob))[-1]
+    except IndexError as exc:
+        raise ValueError("No precomputed affected datasets results exist for old_context='{}' and new_context='{}'".format(old_context, new_context))
+    return compose_affected_datasets_response(observatory, computation_dir)
+
+def check_for_serial_num(context):
+    """Given an unvalidated context object,  produce the serial number for it or None.
+    Raise an exception if it's invalid.
+    """
+    if context is None:
+        return None
+    checked = check_context(context)
+    assert context.endswith(".pmap"), "context must be a .pmap"
+    return checked.split(".")[-2].split("_")[-1]
+
+@imodels.crds_cached
+def compose_affected_datasets_response(observatory, computation_dir):
+    """Given the output directory for an affected_datasets computation,
+    presumably run by monitor_reprocessing cron,  return a Struct of
+    results,  including the affected dataset ids.  
+    """
+    try:
+        ids_contents = get_compressed_file(os.path.join(computation_dir, "affected_ids.txt"))
+        affected_ids = ids_contents.splitlines(False)
+    except Exception as exc:
+        affected_ids = "FAILED: " + str(exc)
+
+    try:
+        dir_parts = computation_dir.split("_")
+        old_context, new_context = dir_parts[-2], dir_parts[-1]
+        old_context = observatory + "_" + old_context + ".pmap"
+        new_context = observatory + "_" + new_context + ".pmap"
+    except Exception as exc:
+        old_context = new_context = "FAILED: " + str(exc)
+
+    try:
+        status_file = os.path.join(computation_dir, "bestrefs.status")
+        bestrefs_status = int(open(status_file).read().strip())
+    except Exception, exc:
+        bestrefs_status = "FAILED: " + str(exc)
+
+    try:
+        bestrefs_err_contents = get_compressed_file(os.path.join(computation_dir, "bestrefs_err_truncated.txt"))
+    except Exception as exc:
+        try:
+            bestrefs_err_contents = get_compressed_file(os.path.join(computation_dir, "bestrefs_err.txt"))
+        except Exception as exc2:
+            bestrefs_err_contents = None
+    if bestrefs_err_contents is not None:
+        bestrefs_err_lines = bestrefs_err_contents.splitlines(False)
+        if len(bestrefs_err_lines) > MAX_BESTREFS_ERR_LINES:
+            bestrefs_err_lines = bestrefs_err_lines[:MAX_BESTREFS_ERR_LINES//2] + \
+                ["..."] + \
+                bestrefs_err_lines[-MAX_BESTREFS_ERR_LINES//2:]
+        bestrefs_err_summary = "\n".join(bestrefs_err_lines)
+    else:
+        bestrefs_err_summary = "FAILED: " + str(exc2)
+
+    try:
+        report_dir = computation_dir.split("/")[-1]
+    except Exception as exc:
+        report_dir = "FAILED: " + str(exc)
+
+    response = utils.Struct()
+    response.computation_dir = report_dir
+    response.observatory = observatory
+    response.affected_ids = affected_ids
+    response.bestrefs_status = bestrefs_status
+    response.old_context = old_context
+    response.new_context = new_context
+    response.bestrefs_err_summary = bestrefs_err_summary
+
+    return response
+
+def get_compressed_file(filepath):
+    """Return the contents of filepath which may or may not exist with a .gz decoration."""
+    if os.path.exists(filepath):
+        return open(filepath).read()
+    elif os.path.exists(filepath + ".gz"):
+        contents = gzip.open(filepath + ".gz", "rb").read()
+    else:
+        raise IOError("File not found: " + str(repr(filepath)))
+    return contents
+
+# ===============================================================
 
 #@jsonrpc_method('jsonapi.sayHello')
 #def whats_the_time(request, name='Lester'):

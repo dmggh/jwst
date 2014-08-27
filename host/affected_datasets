@@ -4,7 +4,7 @@ server
 source env.csh
 
 if ($#argv < 2) then
-    echo "usage: `basename $0` <old_context> <new_context> [fast]"
+    echo "usage: `basename $0` <old_context> <new_context> [fast] [mail] [official] [extra bestrefs switches...]"
     exit 1
 endif
 
@@ -18,6 +18,20 @@ else
     set switches = "--all-instruments"
 endif
 
+if ( $1 == "mail" ) then
+    shift;
+    set output_mail=1
+else
+    set output_mail=0
+endif
+
+if ( $1 == "official" ) then
+    shift;
+    set official=1
+else
+    set official=0
+endif
+
 set date = `datetag`
 set header = "CRDS $CRDS_PROJECT $CRDS_USECASE datasets affected $old_context --> $new_context on $date"
 
@@ -26,7 +40,11 @@ set old = `echo ${old_context} | cut -d'_' -f2`
 set old = `echo ${old} | cut -d'.' -f1`  
 set new = `echo ${new_context} | cut -d'_' -f2`
 set new = `echo ${new} | cut -d'.' -f1`
-set output_dir = "${CRDS}/monitor_reprocessing/`datetag`_${old}_${new}"
+if ( $official ) then
+    set output_dir="${CRDS}/monitor_reprocessing/`datetag`_${old}_${new}"
+else
+    set output_dir="`pwd`/`datetag`_${old}_${new}"
+endif
 mkdir -p $output_dir
 cd $output_dir
 
@@ -34,7 +52,7 @@ echo >bestrefs_err.txt
 (   echo "--------------------------------------------------------------------------------------------------------------"; \
     echo "$header"; \
     echo "--------------------------------------------------------------------------------------------------------------"; \
-    python -m crds.bestrefs --old-context $old_context --new-context $new_context --print-affected \
+    python -m crds.bestrefs --old-context $old_context --new-context $new_context \
 	--stats --print-update-counts --dump-unique-errors $switches $* >affected_ids.txt; \
     echo $status >bestrefs.status; \
 ) |& tee bestrefs_err.txt
@@ -61,16 +79,22 @@ set subject="${disposition}: $header : $affected_count affected"
 # When things go really badly, error logs can approach a gigabyte,  enough to gag thunderbird even if
 # the mailer will actually send the attachment.  So,  instead,  create a truncated error file.
 
+# truncated is a misnomer.   "snipped" would have been better.
+
 if (`wc -l bestrefs_err.txt | cut -d' ' -f1` < 400) then
-    set bestrefs_err_file="bestrefs_err.txt"
+    cp bestrefs_err.txt bestrefs_err_truncated.txt
 else
-    set bestrefs_err_file="bestrefs_err_truncated.txt"
     head -n 200 bestrefs_err.txt >bestrefs_err_truncated.txt
     echo ".... <snip> ...." >>bestrefs_err_truncated.txt
     tail -n 200 bestrefs_err.txt >>bestrefs_err_truncated.txt
 endif
 
+gzip bestrefs_err.txt
 gzip affected_ids.txt
 
-mail -r crds-servers@stsci.edu -a`pwd`/$bestrefs_err_file -a`pwd`/affected_ids.txt.gz -s "$subject" $CRDS_AFFECTED_DATASETS_RECIPIENTS </dev/null
+if ( $output_mail ) then
+    mail -r crds-servers@stsci.edu -a`pwd`/bestrefs_err_truncated.txt -a`pwd`/affected_ids.txt.gz -s "$subject" $CRDS_AFFECTED_DATASETS_RECIPIENTS </dev/null
+endif
+
+gzip bestrefs_err_truncated.txt
 

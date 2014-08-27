@@ -1290,7 +1290,7 @@ def file_exists(filename, observatory=OBSERVATORY):
     try:
         return FileBlob.load(filename)
     except Exception:
-        return False
+        return None
 
 def get_fileblob_map(observatory=OBSERVATORY, **keys):
     """Return a query set for all the file blobs belonging to observatory.   It's

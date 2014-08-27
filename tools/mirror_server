@@ -6,9 +6,12 @@ set observatory=$1
 set server_mode=$2
 set mirrored_server_url=$3
 
-set database_backup_file=${BACKUP_DIR}/backup.${observatory}.${server_mode}.mysql 
-set catalog_file=${BACKUP_DIR}/catalogs.${observatory}.${server_mode}.tar.gz
-set deliveries_file=${BACKUP_DIR}/deliveries.${observatory}.${server_mode}.txt
+set TAIL="${observatory}.${server_mode}"
+
+set database_backup_file=${BACKUP_DIR}/backup.${TAIL}.mysql 
+set catalog_file=${BACKUP_DIR}/catalogs.${TAIL}.tar.gz
+set deliveries_file=${BACKUP_DIR}/deliveries.${TAIL}.txt
+set monitor_reprocessing_file=${BACKUP_DIR}/monitor_reprocessing.${TAIL}.tar.gz
 
 echo "-----------------------------------------------------------"
 echo "Moving server ${CRDS_PROJECT} ${CRDS_USECASE} to backup URL"
@@ -72,6 +75,12 @@ echo "-----------------------------------------------------"
 cd ${CRDS}/CRDS_server
 tools/orphan_files
 
+echo "-----------------------------------------------------"
+echo "Copying monitor_reprocessing files from backup"
+echo "-----------------------------------------------------"
+cd ${CRDS}
+rm -rf monitor_reprocessing
+tar zxvf $monitor_reprocessing_file
 
 echo "-----------------------------------------------------"
 echo "Re-installing and restarting server ${CRDS_PROJECT} ${CRDS_USECASE}"
