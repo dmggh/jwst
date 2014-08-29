@@ -78,9 +78,13 @@ tools/orphan_files
 echo "-----------------------------------------------------"
 echo "Copying monitor_reprocessing files from backup"
 echo "-----------------------------------------------------"
-cd ${CRDS}
-rm -rf monitor_reprocessing
-tar zxvf $monitor_reprocessing_file
+if ( -e $monitor_reprocessing_file ) then
+    cd ${CRDS}
+    rm -rf monitor_reprocessing
+    tar zxvf $monitor_reprocessing_file
+else
+    echo "No monitor_reprocessing backup file,  skipping."
+endif
 
 echo "-----------------------------------------------------"
 echo "Re-installing and restarting server ${CRDS_PROJECT} ${CRDS_USECASE}"

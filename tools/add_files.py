@@ -12,7 +12,7 @@ from generated files.
 import os.path
 import traceback
 
-from crds import log, rmap
+from crds import log, rmap, pysh
 from crds.cmdline import Script
 
 import crds.server.config
@@ -64,7 +64,11 @@ Does not move, rename, or deliver files.
                           help="Destroy and re-create existing FileBlobs for added files.")
         self.add_argument('-A', '--allow-duplicates', action='store_true',
                           help="Don't abort file submission when sha1sum indicates a duplicate file.")
-                          
+        self.add_argument('-C', '--copy-to-cache', action='store_true',
+                          help="Copy the listed file to the CRDS cache prior to adding.")
+        self.add_argument('-X', '--set-contexts', action='store_true',
+                          help="Set the operational and edit contexts.")
+        
 
     # ------------------------------------------------------------------------------------------
     
@@ -81,7 +85,8 @@ Does not move, rename, or deliver files.
         added = self.add_files(self.files)
         if self.args.deliver and added:
             self.deliver_files(added)
-        self.set_default_contexts()
+        if self.args.set_contexts:
+            self.set_default_contexts()
         log.standard_status()
 
     def add_files(self, paths):
@@ -91,6 +96,14 @@ Does not move, rename, or deliver files.
         file_map = models.get_fileblob_map()
         added = []
         for path in paths:
+
+            if self.args.copy_to_cache:
+                cache_location = rmap.locate_file(os.path.basename(path), self.observatory)
+                if os.path.exists(cache_location) and not self.args.replace:
+                    log.warning("Skipping existing file", repr(path))
+                else:
+                    log.info("Installing", path, "in CRDS cache.")
+                    pysh.sh("cp ${path} ${cache_location}")
             
             file = os.path.basename(path)
             if file in file_map:
@@ -145,8 +158,8 @@ Does not move, rename, or deliver files.
         if context is None:
             context = self.choose_default_context()
         log.info("Setting default context to", repr(context))
-        models.set_default_context(context)    
-        models.set_default_context(context, state="operational")
+        models.set_default_context(context, description=self.args.description)
+        models.set_default_context(context, state="operational", description=self.args.description)
     
     def choose_default_context(self):
         contexts = sorted(rmap.list_mappings("*.pmap", observatory=self.observatory))
