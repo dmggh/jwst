@@ -1,0 +1,13 @@
+#! /bin/tcsh
+
+# This script is for blowing away trash files left around after a failed submission and restoring the database.
+# After a server restore, dud files may be sitting around in the cache,  but are not in the restored database.
+# This script purges the cache except for mappings and references in the database identified by crds.list.
+
+if ( $1 == "doit" ) then
+   set dryrun=""
+else
+   set dryrun="--dry-run"
+endif
+
+python -m crds.sync --contexts `python -m crds.list --all --mappings | grep pmap` ${dryrun} --purge-mappings --purge-references --verbose

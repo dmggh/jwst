@@ -68,7 +68,8 @@ Does not move, rename, or deliver files.
                           help="Copy the listed file to the CRDS cache prior to adding.")
         self.add_argument('-X', '--set-contexts', action='store_true',
                           help="Set the operational and edit contexts.")
-        
+        self.add_argument("-O", '--submission-action', default="add_files tool", choices=models.AUDITED_ACTIONS,
+                          help="Kind of submission you want this to look like,  mass imports don't show up as recent activity.")
 
     # ------------------------------------------------------------------------------------------
     
@@ -131,17 +132,12 @@ Does not move, rename, or deliver files.
                     allow_duplicates=self.args.allow_duplicates,
                     state=self.args.state, update_derivation=False)
                 models.mirror_filename_counters(self.observatory, path)
-                details = ""
                 added.append(path)
                 file_map[file] = blob
             except Exception, exc:
                 log.error("Add FAILED for", repr(path), ":", str(exc))
                 traceback.print_exc()
-                details = "add_files FAILED for %s: " %  path + repr(str(exc))
                 continue
-            models.AuditBlob.new(user=self.args.deliverer, action="mass import", affected_file=file, why=self.args.description, 
-                details=details, observatory=self.observatory, instrument=blob.instrument, filekind=blob.filekind)
-
         return added
 
     def deliver_files(self, paths):
@@ -149,7 +145,7 @@ Does not move, rename, or deliver files.
         files = [os.path.basename(file) for file in paths]
         log.info("Delivering:", paths)
         d = submit.Delivery(user=self.args.deliverer, delivered_files=files, 
-                            description=self.args.description, action="mass import", observatory=self.observatory)
+                            description=self.args.description, action=self.args.submission_action, observatory=self.observatory)
         with log.error_on_exception("File delivery failed."):
             d.deliver()
     
