@@ -408,7 +408,7 @@ def _all_activated_files():
     all_files = set()
     for blob in get_context_history():
         if blob.state == "operational":
-            log.info("Loading active files from", repr(context))
+            log.info("Loading active files from", repr(blob.context))
             all_files = all_files.union(_active_files(blob.context))
     return all_files
 
@@ -724,8 +724,10 @@ class FileBlobRepairMixin(object):
                                     self.activation_date == DEFAULT_ACTIVATION_DATE and self.name in _all_activated_files(),
         "type" : lambda self: not self.type,
         "observatory": lambda self: self.observatory not in OBSERVATORIES,
-        "instrument": lambda self:  (not self.name.endswith(".pmap")) and self.instrument not in INSTRUMENTS,
-        "filekind": lambda self:  (not self.name.endswith((".pmap",".imap"))) and self.filekind not in FILEKINDS,
+        "instrument": lambda self:  (((not self.name.endswith(".pmap")) and self.instrument not in INSTRUMENTS) or 
+                                     (self.name.endswith(".pmap") and self.instrument != "")),
+        "filekind": lambda self:  (((not self.name.endswith((".pmap",".imap"))) and self.filekind not in FILEKINDS) or
+                                   (self.name.endswith((".pmap",".imap")) and self.filekind != "")),
         "comment" : lambda self: not self.comment,
         "description" : lambda self: not self.description,
         "pedigree" : lambda self: self.type == "reference" and not self.pedigree and \
@@ -882,8 +884,16 @@ class FileBlobRepairMixin(object):
 
         bad_field_checks["aperture"] = lambda self: self.aperture=="none" and self.type != "mapping" and self.instrument != "wfpc2"
         bad_field_checks["useafter_date"] = lambda self: self.useafter_date in [self.delivery_date, DEFAULT_ACTIVATION_DATE] and self.type != "mapping"
-    elif OBSERVATORY == "jwst":
-        pass        
+
+    elif OBSERVATORY == "jwst":  #===========================================================
+
+        def repair_activation_date(self):
+            for hist in reversed(get_context_history()):  # find earliest pmap which uses mapping
+                pmap = rmap.get_cached_mapping(hist.context)
+                if self.name in pmap.mapping_names():
+                    self.activation_date = hist.start_date
+                    break
+                return
 
 # ============================================================================
 
