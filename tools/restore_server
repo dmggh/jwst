@@ -5,4 +5,6 @@
 
 cd ${CRDS}/CRDS_server
 source env.csh
+tools/set_backup_url True
+source env.csh
 tools/mirror_server ${CRDS_PROJECT} ${CRDS_USECASE} ${CRDS_SERVER_URL}
