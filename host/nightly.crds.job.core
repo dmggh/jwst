@@ -58,7 +58,7 @@ echo "==========================================================="
 echo "Server cache check"
 echo "==========================================================="
 cd ${CRDS}/CRDS_server
-python -m crds.certify  `python -m crds.list --all --mappings | grep pmap | sort | grep 0 | tail -1` --exist >& certify.${ETAIL}
+python -m crds.certify  `python -m crds.list --all --mappings | grep pmap | sort | grep 0 | tail -1` --exist >& ${CRDS_CRON}certify.${ETAIL}
 tail -100 ${CRDS_CRON}/certify.${ETAIL}
 
 python -m crds.sync --all --fetch-references --check-files >& ${CRDS_CRON}/sync.${ETAIL}
