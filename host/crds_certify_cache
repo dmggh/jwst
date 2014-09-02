@@ -1,0 +1,43 @@
+#! /bin/tcsh
+#   Run crds.certify on the OPS cache
+
+if  ( $#argv == 0 ) then
+    echo "usage: crds_check_contexts <last_n_contexts> [certify options...]"
+    echo ""
+    echo "Check the contents of your CRDS cache with crds.certify, no network required.  See also"
+    echo "crds_verify_shared_cache for more comprehensive checks by crds.sync which do require"
+    echo "a network connection to the CRDS server."\
+    echo ""
+    exit -1;
+else
+    set n_contexts=$1
+    shift;
+endif
+
+#
+# NOTE:  as of this writing,  changes to certification criteria are not required to be
+# backward compatible,  so,  what "certifies now",  may not "certify later".   Hence,
+# a blanket view of ERROR messages may include extraneous info not relevant to the
+# original ceritification of a mapping or reference,  or more importantly,  to the
+# existence of files in the cache.  It should also be noted that the existence check
+# performed here is bare bones,  and does not currently include file size or checksum
+# as can be done by the sync tool.   Nevertheless, this is a redundant check with a
+# somewhat simpler implementation than is found in the crds.sync tool,  and one which 
+# can be performed without a network connection.
+#
+
+echo "================================================================================================"
+echo "CRDS configuration"
+echo "================================================================================================"
+python -m crds.list --config
+
+echo "================================================================================================"
+echo "Determining contexts to check by examining cache..."
+echo "================================================================================================"
+set last_n_contexts=`python -m crds.list --cached-mappings | grep pmap | sort | grep -E '[0-9]' | tail -${n_contexts}`
+
+echo "================================================================================================"
+echo "Certifying contexts: ${last_n_contexts}"
+echo "================================================================================================"
+python -m crds.certify ${last_n_contexts} --stats --dump-unique-errors $*
+

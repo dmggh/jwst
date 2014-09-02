@@ -1,0 +1,33 @@
+#! /bin/tcsh
+
+# This script verifies the shared readonly cache using sha1sums.  It's intended
+# to be run as a cronjob weekly or less,  only on the DEV server since it will
+# saturate the VM file buffer cache and degrade CRDS server performance.
+
+server
+source env.csh
+
+if (("${CRDS_USECASE}" != "dev") && ("${CRDS_USECASE}" != "django")) then
+   echo "Skipping sync_verify_cache on ${CRDS_PROJECT} ${CRDS_USECASE} server."
+   exit 0
+endif
+
+setenv CRDS_PATH /grp/crds/${CRDS_PROJECT}
+setenv CRDS_SERVER_URL https://${CRDS_PROJECT}-crds.stsci.edu
+
+if ($#argv < 1) then
+    set cmd_params="--last 5 --check-sha1sum --fetch-references --readonly-cache --verbose"
+else
+    set cmd_params="$*"
+endif
+
+echo "================================================================================================="
+echo "CRDS Configuration for Verification on ${CRDS_USECASE} VM"
+echo "================================================================================================="
+python -m crds.list --config
+
+echo "================================================================================================="
+echo "Verifying cache using crds.sync"
+echo "================================================================================================="
+python -m crds.sync --verbose --stats  $cmd_params
+

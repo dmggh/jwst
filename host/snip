@@ -1,0 +1,27 @@
+#! /usr/bin/env python
+#-*-python-*-
+
+import sys
+
+from crds.pysh import *
+
+def main(snipped_log, nlines):
+    """If length snipped_log  > 2*nlines,  then print the first nlines, 
+    '... snipped ...',  and the last nlines.  Otherwise output snipped_log
+    as-is.
+    """
+    lines = open(snipped_log).read().splitlines()
+    if len(lines) // 2 < nlines:
+        output = lines
+    else:
+        output = lines[:nlines] + ["... snip ..."] + lines[-nlines]
+    print "\n".join(output)
+
+if __name__ == "__main__":
+   usage("<logfile> [pre-and-post-snip-lines]", 1, 2)
+   if len(sys.argv) == 2:
+       nlines = 100     
+   else:     
+       nlines = sys.argv[2]
+   main(sys.argv[1], nlines)
+

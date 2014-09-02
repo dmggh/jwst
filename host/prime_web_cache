@@ -1,0 +1,13 @@
+#! /usr/bin/env python
+import os
+
+from crds import pysh, heavy_client, log
+
+log.info("Priming web cache (nominally memcached) by pre-fetching pages.")
+
+log.info("Fetching index page")
+pysh.out_err("wget ${CRDS_SERVER_URL} -O-")
+
+log.info("Fetching server configuration")
+heavy_client.get_config_info(os.environ["CRDS_PROJECT"])
+
