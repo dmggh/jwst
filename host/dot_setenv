@@ -62,6 +62,7 @@ setenv CRDS_IFS /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}
 setenv CRDS_FILE_CACHE ${CRDS_IFS}/file_cache
 setenv CRDS_SERVER_FILES ${CRDS_IFS}/server_files
 setenv CRDS_CRON {$CRDS}/server/logs/cron
+setenv CRDS_LOG_TIME 1
 
 setenv PATH ${CRDS}/CRDS_server/host:${CRDS_STACK}/bin:/usr/kerberos/bin:/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin
 # /usr/stsci/Python-2.7.4/bin:
