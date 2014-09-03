@@ -1,8 +1,7 @@
 # use /bin/tcsh to run commands, no matter what /etc/passwd says
 SHELL=/bin/tcsh
 
-# mail any output to jmiller
-MAILTO=jmiller@stsci.edu crds-servers@stsci.edu
+MAILTO="crds-servers@stsci.edu"
 
 # run five minutes after 3 am, every day
 5 3 * * *       source $HOME/cronenv.csh;      nightly.crds.job 
@@ -28,9 +27,9 @@ MAILTO=jmiller@stsci.edu crds-servers@stsci.edu
 
 # runs ~ small hours,  every week,  e-mail
 # */5 * * * *    source $HOME/cronenv.csh;  crds_certify_cache 5           >& ${CRDS_CRON}/crds_certify_cache.log; snip ${CRDS_CRON}/crds_certify_cache.log 500
-0 12 * * tue     source $HOME/cronenv.csh;  crds_certify_cache 5 --exist   >& ${CRDS_CRON}/crds_certify_cache.log; snip ${CRDS_CRON}/crds_certify_cache.log 500
+0 12 * * sun     source $HOME/cronenv.csh;  crds_certify_cache 5 --exist   >& ${CRDS_CRON}/crds_certify_cache.log; snip ${CRDS_CRON}/crds_certify_cache.log 500
 
 # runs ~8 hours,  every week, e-mail
-# */5 * * * *     source $HOME/cronenv.csh;  crds_verify_cache --verbose --last 5 --check-sha1sum >& ${CRDS_CRON}/crds_verify_cache.log;  snip ${CRDS_CRON}/crds_verify_cache.log 500
-0 0 * * tue       source $HOME/cronenv.csh;  crds_verify_cache                                    >& ${CRDS_CRON}/crds_verify_cache.log;  snip ${CRDS_CRON}/crds_verify_cache.log 500
+# */5 * * * *    source $HOME/cronenv.csh;  crds_verify_cache --verbose --last 5 --check-sha1sum >& ${CRDS_CRON}/crds_verify_cache.log;  snip ${CRDS_CRON}/crds_verify_cache.log 500
+0 0 * * sun      source $HOME/cronenv.csh;  crds_verify_cache                                    >& ${CRDS_CRON}/crds_verify_cache.log;  snip ${CRDS_CRON}/crds_verify_cache.log 500
 
