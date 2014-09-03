@@ -1615,6 +1615,12 @@ def browse_known_file(request, filename):
         match_paths = [flatten(path) for path in match_paths]
     else:
         match_paths = []
+        
+    try:
+        tpn_text = utils.get_locator_module(blob.observatory).reference_name_to_tpn_text(filename)
+    except Exception, exc:
+        log.error("Failed loading constraints for", srepr(filename), ":", str(exc))
+        tpn_text = "Failed loading parameter constraints for " + srepr(filename)
 
     return crds_render(request, "browse_results.html", { 
              "fileblob" : blob,
@@ -1623,6 +1629,7 @@ def browse_known_file(request, filename):
              "used_by_files" : used_by_files,
              "match_paths" : match_paths,
              "file_contents": file_contents,
+             "tpn_text" : tpn_text,
              "browsed_file": filename,
              'prior_file_versions' : get_prior_file_versions(blob)
     })
