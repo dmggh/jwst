@@ -10,6 +10,9 @@ echo "==========================================================="
 echo "Stopping server"
 echo "==========================================================="
 ./stop  $CRDS_PROJECT $CRDS_USECASE
+./stop  $CRDS_PROJECT $CRDS_USECASE  >& /dev/null
+sleep 5
+
 
 echo "==========================================================="
 echo "Installing crds.server Python Django application"

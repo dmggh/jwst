@@ -3,20 +3,21 @@
 {% load stdtags %}
 
 {% block contents_top %}
+<div id="contents_top">
     <script type="text/javascript">
         $("#contents").hide();
     </script>
-    <div class="body_panel">
-        
+    <div id="operational_references_container" class="body_panel"> 
         <h3 style="margin-top: 0px;">Operational References</h3>
         {% include "context_table_body_include.html" %}
-    
-        <br/>
-        <h3 style="margin-top: 0px;">Context History <a href="/display_context_history" class="label" style="font-size: 0.8em;">(more)</a></h3>
-        {% include "context_history_include.html" %}        
-        <br/>
-        
     </div>
+    <div id="context_history_container" class="body_panel">
+      <br/>
+      <h3 style="margin-top: 0px;">Context History <a href="/display_context_history" class="label" style="font-size: 0.8em;">(more)</a></h3>
+      {% include "context_history_include.html" %}        
+      <br/>
+    </div>        
+</div>
 {% endblock contents_top %}
 
 {% block column1 %}
