@@ -7,16 +7,27 @@
 server
 source env.csh
 
-if (("${CRDS_USECASE}" != "dev") && ("${CRDS_USECASE}" != "django")) then
-   echo "Skipping sync_verify_cache on ${CRDS_PROJECT} ${CRDS_USECASE} server."
-   exit 0
+if ( $1 == "shared" ) then
+    shift;
+    if (("${CRDS_USECASE}" != "dev") && ("${CRDS_USECASE}" != "django")) then
+	echo "Skipping sync_verify_cache on ${CRDS_PROJECT} ${CRDS_USECASE} server."
+	exit 0
+    endif
+    echo "================================================================================================="
+    echo "Verifying global shared readonly cache."
+    setenv CRDS_PATH /grp/crds/${CRDS_PROJECT}
+    setenv CRDS_SERVER_URL https://${CRDS_PROJECT}-crds.stsci.edu
+else if ( $1 == "local" ) then
+    shift;
+    echo "================================================================================================="
+    echo "Verifying local cache."    
+else
+    echo "usage: crds_verify_cache [local|shared] [<extra sync parameters>]"
+    exit -1
 endif
 
-setenv CRDS_PATH /grp/crds/${CRDS_PROJECT}
-setenv CRDS_SERVER_URL https://${CRDS_PROJECT}-crds.stsci.edu
-
 if ($#argv < 1) then
-    set cmd_params="--last 5 --check-sha1sum --fetch-references --readonly-cache --verbose"
+    set cmd_params="--all --check-sha1sum --fetch-references --readonly-cache --verbose"
 else
     set cmd_params="$*"
 endif
