@@ -80,7 +80,7 @@ ADMIN_MEDIA_PREFIX = '/static/'
 
 # Make this unique, and don't share it with anybody.
 # SECRET_KEY = 'zae_r-rn0arv9c_z*b41_y2qzvqgs+082)ao#6^nxsp*qf(!16'
-SECRET_KEY = 'zaf_r-rn0brv9c#z*b41_y2qavqgs+08mmao#6^nxsp*qf(!99'
+SECRET_KEY = 'yy776654%lkjlkjads_04344n12090++88&6$6^nxsp*qf(!32'
 
 LOGIN_URL = "/login/"
 
