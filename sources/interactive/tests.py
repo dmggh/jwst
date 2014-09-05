@@ -1,4 +1,4 @@
-"""Unit tests to exercise the interactive portions of the CRDS server."""
+"""Unit tess to exercise the interactive portions of the CRDS server."""
 
 import sys
 import os
@@ -265,6 +265,18 @@ class InteractiveBase(object):
         self.assertNotIn("ERROR", response.content)
         self.assertEqual(response.content.count("OK"), 2)
 
+    def test_certify_post_fits_bad(self):
+        self.login()
+        self.fake_database_files([self.certify_post_fits_bad])
+        self.add_file_to_ingest_dir(self.certify_post_fits_bad)
+        response = self.client.post("/certify/", {
+            "pmap_mode": "pmap_edit",
+        }, follow=True)
+        # print "certify post FITS response:", response.content
+        self.assertIn("&#39;FOO&#39; is not one of", response.content)
+        self.assertIn("ERROR", response.content)
+        self.assertIn("s7g1700rl_dead_bad.fits  <span class=\'red\'>Failed.</span>", response.content)
+
     def test_certify_post_rmap_uploaded(self):
         self.login()
         self.add_file_to_ingest_dir(self.certify_rmap)
@@ -273,9 +285,21 @@ class InteractiveBase(object):
             "pmap_mode": "pmap_edit",
         }, follow=True)
         self.assert_no_errors(response)
-        self.assertTrue("ERROR", response.content)
-        self.assertTrue("Failed" not in response.content)
-        self.assertTrue(response.content.count("OK") == 2)
+        self.assertIn("ERROR", response.content)
+        self.assertNotIn("Failed", response.content)
+        self.assertEqual(response.content.count("OK"), 2)
+
+    def test_certify_post_rmap_bad(self):
+        self.login()
+        self.add_file_to_ingest_dir(self.certify_rmap_bad)
+        self.fake_database_files(self.certify_rmap_fits)
+        response = self.client.post("/certify/", {
+            "pmap_mode": "pmap_edit",
+            "compare_old_reference": "checked",
+            }, follow=True)
+        self.assertIn("<span class='orange'>WARNING</span>   Reversion", response.content)
+        self.assertIn("<span class='red'>ERROR</span>   File &#39;foo.fits&#39; is not known to CRDS.", response.content)
+        self.assertIn("Failed", response.content)
 
     def test_difference_get(self):
         response = self.client.get("/difference/")
@@ -646,6 +670,7 @@ if sconfig.observatory == "hst":
                                      "interactive/test_data/hst_cos.imap"]
 
         certify_rmap = "interactive/test_data/hst_cos_deadtab.rmap"
+        certify_rmap_bad = "interactive/test_data/hst_cos_deadtab_missing_foo.rmap"
         certify_rmap_fits = ["s7g1700ql_dead.fits", "interactive/test_data/s7g1700gl_dead.fits", 
                              "t9e1307kl_disp.fits", "u1t1616pl_disp.fits",
                              "s7g17013l_disp.fits", "v3g18194l_disp.fits",
@@ -654,6 +679,7 @@ if sconfig.observatory == "hst":
                              "u6s1320ql_disp.fits", "interactive/test_data/t2k1224el_disp.fits"]
 
         certify_post_fits = "interactive/test_data/s7g1700gl_dead.fits"
+        certify_post_fits_bad = "interactive/test_data/s7g1700rl_dead_bad.fits"
         
         submit_rmap = "interactive/test_data/hst_cos_deadtab_9999.rmap"
         submit_references = [

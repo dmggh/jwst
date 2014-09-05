@@ -4,8 +4,19 @@
 
 cd ${CRDS}/CRDS_server
 
-echo "Switching to backup port"
-tools/set_backup_url True  >& /dev/null
+if ( $1 == "live") then
+    shift;
+    set switch_port=0
+    echo "Testing on live server."
+else 
+    set switch_port=1
+    echo "Testing on offline server."
+endif
+
+if ($switch_port) then
+    tools/set_backup_url True
+endif
+
 source env.csh
 
 setenv LOG ${CRDS}/CRDS_server/runtests.${CRDS_PROJECT}.${CRDS_USECASE}.err
@@ -20,7 +31,7 @@ else
     python -u manage.py test --verbosity=2 |& tee $LOG
 endif
 
-cd ${CRDS}/CRDS_server
-echo "Switching from backup port back to nominal operating port."
-tools/set_backup_url False >& /dev/null
-
+if ($switch_port) then
+    cd ${CRDS}/CRDS_server
+    tools/set_backup_url False
+endif

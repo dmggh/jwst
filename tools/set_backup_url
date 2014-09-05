@@ -1,11 +1,21 @@
 #! /usr/bin/env pysh
 #-*-python-*-
+from __future__ import print_function
 
 # Command to switch Apache ports to hide server during system backup restores.
+
+import sys
 
 usage("set_backup_url <flag>", 1, 1)
 
 is_backup = (sys.argv[1].upper() in ["1","T","TRUE"])
+
+print("="*80, file=sys.stderr)
+if is_backup:
+    print("Switching to backup port, server offline.", file=sys.stderr)
+else:
+    print("Switching to nominal operating port, server online.", file=sys.stderr)
+print("="*80, file=sys.stderr)
 
 sh("perl -pi -e's/BACKUP_URL_SCHEME = (True|False|0|1)/BACKUP_URL_SCHEME = $is_backup/g' sources/configs/config.${CRDS_USECASE}.${CRDS_PROJECT}.py") #, trace_commands=True) 
 
