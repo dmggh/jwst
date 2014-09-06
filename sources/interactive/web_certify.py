@@ -75,7 +75,7 @@ def _captured_certify(original_name, uploaded_path, context=None, compare_old_re
         if filemap is None:
             filemap = models.get_fileblob_map(models.OBSERVATORY)
         with log.error_on_exception("Failed checking mapping '%s'" % original_name):
-            ctx = rmap.fetch_mapping(uploaded_path)
+            ctx = rmap.fetch_mapping(uploaded_path, ignore_checksum=True)
             # NOTE: There is some overlap between these checks and those crds.certify can do.
             # Checking for file existence this ways is faster than checking the file system.
             for filename in ctx.reference_names():
@@ -143,7 +143,7 @@ def get_blacklists(basename, certifypath, ignore_self=True, files=None):
     if rmap.is_mapping(basename):
         blacklisted_by = set()
         try:
-            mapping = rmap.fetch_mapping(certifypath)
+            mapping = rmap.fetch_mapping(certifypath, ignore_checksum=True)
         except Exception, exc:
             raise CrdsError("Error loading " + srepr(basename) + " : " + str(exc))
         if files is None:

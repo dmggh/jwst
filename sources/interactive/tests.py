@@ -1,3 +1,4 @@
+
 """Unit tess to exercise the interactive portions of the CRDS server."""
 
 import sys
@@ -285,7 +286,7 @@ class InteractiveBase(object):
             "pmap_mode": "pmap_edit",
         }, follow=True)
         self.assert_no_errors(response)
-        self.assertIn("ERROR", response.content)
+        self.assertNotIn("ERROR", response.content)
         self.assertNotIn("Failed", response.content)
         self.assertEqual(response.content.count("OK"), 2)
 
@@ -297,9 +298,14 @@ class InteractiveBase(object):
             "pmap_mode": "pmap_edit",
             "compare_old_reference": "checked",
             }, follow=True)
-        self.assertIn("<span class='orange'>WARNING</span>   Reversion", response.content)
-        self.assertIn("<span class='red'>ERROR</span>   File &#39;foo.fits&#39; is not known to CRDS.", response.content)
-        self.assertIn("Failed", response.content)
+        # self.assertTrue(response.content.count("ERROR") == 7)
+        self.assertTrue(response.content.count("WARNING") == 3)
+        self.assertIn("sha1sum", response.content)
+        self.assertIn("is not in", response.content)
+        self.assertIn("Reversion", response.content)
+        self.assertIn("Duplicate", response.content)
+        self.assertIn("added Match rule", response.content)
+        self.assertTrue(response.content.count("is not known") == 2)
 
     def test_difference_get(self):
         response = self.client.get("/difference/")
@@ -670,7 +676,7 @@ if sconfig.observatory == "hst":
                                      "interactive/test_data/hst_cos.imap"]
 
         certify_rmap = "interactive/test_data/hst_cos_deadtab.rmap"
-        certify_rmap_bad = "interactive/test_data/hst_cos_deadtab_missing_foo.rmap"
+        certify_rmap_bad = "interactive/test_data/hst_cos_deadtab_bad.rmap"
         certify_rmap_fits = ["s7g1700ql_dead.fits", "interactive/test_data/s7g1700gl_dead.fits", 
                              "t9e1307kl_disp.fits", "u1t1616pl_disp.fits",
                              "s7g17013l_disp.fits", "v3g18194l_disp.fits",

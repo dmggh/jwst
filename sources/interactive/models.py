@@ -13,7 +13,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core import cache
 
 # Create your models here.
-from crds import (timestamp, rmap, utils, refactor, log, data_file, uses, diff)
+from crds import (timestamp, rmap, utils, refactor, log, data_file, uses, diff, checksum)
 from crds import CrdsError
 
 from crds.server.config import observatory as OBSERVATORY
@@ -1266,6 +1266,8 @@ def add_crds_file(observatory, upload_name, permanent_location,
     "Make a database record for this file.  Track the action of creating it."""
     if rmap.is_mapping(permanent_location):
         log.verbose("Adding", repr(upload_name), "as", repr(permanent_location))
+        with log.warn_on_exception("Failed updating checksum on", repr(permanent_location)):
+            checksum.update_checksum(permanent_location)
         if update_derivation:
             derived_from = refactor.update_derivation(permanent_location)   # XXX mutate mapping file!
         else:  # ensure the name inside the mapping is consistent with permanent location.

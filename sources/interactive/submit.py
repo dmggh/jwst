@@ -45,7 +45,7 @@ import tempfile
 import shutil
 import glob
 
-from crds import log, rmap, utils, refactor, newcontext, checksum, CrdsError, diff
+from crds import log, rmap, utils, refactor, newcontext, CrdsError, diff
 
 from . import models, web_certify, web_difference, locks
 from .common import srepr
@@ -242,12 +242,6 @@ class FileSubmission(object):
         and blacklist checking, naming, upload, and record keeping.
         """
         self.push_status("Processing '{}'".format(original_name))
-        if rmap.is_mapping(original_name):
-            try:
-                checksum.update_checksum(upload_location)
-            except Exception, exc:
-                raise CrdsError("Error updating checksum: " + srepr(exc))
-        
         # Automatically 
         if self.auto_rename:
             permanent_name = self.auto_rename_file(original_name, upload_location)

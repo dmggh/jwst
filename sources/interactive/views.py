@@ -31,7 +31,7 @@ from django.contrib.auth.decorators import user_passes_test
 
 from astropy.io import fits as pyfits
 
-from crds import (rmap, utils, timestamp, uses, matches, checksum, log, config)
+from crds import (rmap, utils, timestamp, uses, matches, log, config)
 from crds import (data_file, pysh)
 from crds import CrdsError
 
@@ -443,9 +443,6 @@ def get_files(request):
             # this will fail for user-scp'ed ingests.  but... maybe file already writeable.
             with log.warn_on_exception("Failed setting file mode on", repr(file_)):
                 os.chmod(uploads[file_], 0660)
-            # this will fail if `file_` is not writeable.  but... maybe checksum already good.
-            with log.warn_on_exception("Failed updating checksum on", repr(file_)):
-                checksum.update_checksum(uploads[file_])
     if not uploads:
         raise CrdsError("No input files were specified.")
     return path, uploads
