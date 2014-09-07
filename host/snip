@@ -14,7 +14,7 @@ def main(snipped_log, nlines):
     if len(lines) // 2 < nlines:
         output = lines
     else:
-        output = lines[:nlines] + ["... snip ..."] + lines[-nlines]
+        output = lines[:nlines] + ["... snip ..."] + lines[-nlines:]
     print "\n".join(output)
 
 if __name__ == "__main__":
@@ -22,6 +22,6 @@ if __name__ == "__main__":
    if len(sys.argv) == 2:
        nlines = 100     
    else:     
-       nlines = sys.argv[2]
+       nlines = int(sys.argv[2])
    main(sys.argv[1], nlines)
 
