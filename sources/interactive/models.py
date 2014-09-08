@@ -13,7 +13,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core import cache
 
 # Create your models here.
-from crds import (timestamp, rmap, utils, refactor, log, data_file, uses, diff, checksum)
+from crds import (timestamp, rmap, utils, refactor, log, data_file, uses, diff, config, checksum)
 from crds import CrdsError
 
 from crds.server.config import observatory as OBSERVATORY
