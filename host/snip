@@ -37,8 +37,8 @@ def main(snipped_log, nlines):
     else:
         print "........................... No Errors       ........................................."
 
-        print "........................... Snipped Output  ........................................."
-        print "\n".join(snipped)
+    print "........................... Snipped Output  ........................................."
+    print "\n".join(snipped)
 
 if __name__ == "__main__":
    usage("<logfile> [pre-and-post-snip-lines]", 1, 2)
