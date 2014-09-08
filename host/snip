@@ -5,17 +5,40 @@ import sys
 
 from crds.pysh import *
 
+MAX_WARNINGS = 20
+MAX_ERRORS = 20
+
 def main(snipped_log, nlines):
     """If length snipped_log  > 2*nlines,  then print the first nlines, 
     '... snipped ...',  and the last nlines.  Otherwise output snipped_log
     as-is.
     """
     lines = open(snipped_log).read().splitlines()
+    warnings, errors = [], []
+    for line in lines:
+        if "WARNING" in line and len(warnings) < MAX_WARNINGS:
+            warnings.append(line)
+        if "ERROR" in line and len(errors) < MAX_ERRORS:
+            errors.append(line)
     if len(lines) // 2 < nlines:
-        output = lines
+        snipped = lines
     else:
-        output = lines[:nlines] + ["... snip ..."] + lines[-nlines:]
-    print "\n".join(output)
+        snipped = lines[:nlines] + ["... snip ..."] + lines[-nlines:]
+
+    if warnings:
+        print "........................... First {} Warnings .........................................".format(MAX_WARNINGS)
+        print "\n".join(warnings)
+    else:
+        print "........................... No Warnings     ........................................."
+
+    if errors:
+        print "........................... First {} Errors .........................................".format(MAX_ERRORS)
+        print "\n".join(errors)
+    else:
+        print "........................... No Errors       ........................................."
+
+        print "........................... Snipped Output  ........................................."
+        print "\n".join(snipped)
 
 if __name__ == "__main__":
    usage("<logfile> [pre-and-post-snip-lines]", 1, 2)
