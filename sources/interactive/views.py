@@ -266,12 +266,12 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
         "observatory" : models.OBSERVATORY,
              
         "instrument" : "acs",
-        "instruments" : models.INSTRUMENTS + ["*"],
+        "instruments" : ["*"] + models.INSTRUMENTS,
 
         "filekind" : "*",
         "filekinds" : models.FILEKIND_TEXT_DESCR,
 
-        "extensions" : ["*"] + models.EXTENSIONS,
+        "extensions" : [".pmap"] + ["*"] + sorted(set(models.EXTENSIONS)-set([".pmap"])),
         "users": ["*"] + usernames(),
 
         "status" : "*",
@@ -1007,6 +1007,7 @@ def bestrefs_explore(request):
     if request.method == "GET":
         return crds_render(request, "bestrefs_explore_index.html", {
                     "pmap_initial_mode" : "operational",
+                    "instruments" : models.INSTRUMENTS,
                 }, requires_pmaps=True)
     else:
         return bestrefs_explore_post(request)
