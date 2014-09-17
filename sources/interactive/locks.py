@@ -348,6 +348,7 @@ def verify_instrument_locked_files(user, locked_instrument, filepaths, observato
     """
     if locked_instrument is None:
         log.info("Operating in unlocked mode.")
+        return
     verify_locked(user=str(user), type="instrument", name=locked_instrument)
     for path in filepaths:
         instrument, _filekind = utils.get_file_properties(observatory, path)

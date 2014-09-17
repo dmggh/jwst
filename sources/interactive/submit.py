@@ -459,12 +459,13 @@ class FileSubmission(object):
             except Exception:
                 raise CrdsError("Can't determine instrument or file type for " + srepr(original_name) + " at " + 
                                 repr(uploaded_path))
-            if seen_instrument is None:
-                seen_instrument = instrument
-            else:
-                assert instrument == seen_instrument, \
-                    "More than one instrument submitted at '%s' : '%s' vs. '%s'." % \
-                    (original_name, seen_instrument, instrument)
+            if self.locked_instrument:
+                if seen_instrument is None:
+                    seen_instrument = instrument
+                else:
+                    assert instrument == seen_instrument, \
+                        "More than one instrument submitted at '%s' : '%s' vs. '%s'." % \
+                        (original_name, seen_instrument, instrument)
             if (instrument, filekind) not in groups:
                 groups[(instrument, filekind)] = {}
             groups[(instrument, filekind)][original_name] = uploaded_path 
