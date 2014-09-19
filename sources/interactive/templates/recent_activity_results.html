@@ -25,60 +25,73 @@
     {% endif %}
     
     <h3>Activity</h3>
-    <table border="1">
+    <table border="1" id="recent_activity_table" class="crds_data_table">
         <thead>
             <tr>
-                <th width="10%" align="center">Date</th>
-
+                <th>Date</th>
 		{% if is_superuser %}
-                   <th width="10%" align="center">Naming</th>
+                   <th>Naming</th>
 		{% else %}
-                   <th width="15%" align="center">Filename</th>
+                   <th>Filename</th>
 		{% endif %}
-
-                <th width="10%" align="center">Action</th>
-
+                <th>Action</th>
                 {% if is_authenticated %}
-                <th width="10%" align="center">User</th>
+                   <th>User</th>
                 {% endif %}
-
-                <th width="30%" align="center">Why</th>
-                <th width="20%" align="center">Details</th>
+                <th>Why</th>
+                <th>Details</th>
             </tr>
         </thead>
         <tbody>
             {% for activity in filtered_activities %}
             <tr>
-                <td align="center">{{activity.date|minutes}}</td>
-
-                {% if is_superuser %}
-                   <td align="center">File uploaded as {{fileblobs|lookup:activity.filename|lookup:"uploaded_as"|green}} was renamed to {{activity.filename|browse}}</td>
-                {% else %}
-                   <td align="center">{{activity.filename|browse}}</td>
-                {% endif %}
-
-                <td align="center">{{activity.action}}</td>
-
+                <td>{{activity.date|minutes}}</td>
+		{% if is_superuser %}
+                   <td>CRDS {{activity.filename|browse}} uploaded from {{fileblobs|lookup:activity.filename|lookup:"uploaded_as"|darkgreen}}</td>
+		{% else %}
+                   <td>{{activity.filename|browse}}</td>
+		{% endif %}
+                <td>{{activity.action}}</td>
                 {% if is_authenticated %}
-                <td align="center">{{activity.user}}</td>
+                   <td>{{activity.user}}</td>
                 {% endif %}
-
-                <td align="center">{{activity.why}}</td>
-                <td align="center">{{activity.details}}</td>
+                <td>{{activity.why}}</td>
+                <td>{{activity.details}}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+{% endblock contents %}
 
+{% block body_trailer %}
 <script type="text/javascript">
     $("#contents").hide();
-    $("#crds_delivery_table").dataTable({
-        "aaSorting" : ["desc"]
-    });
-    $("#crds_delivery_table").css({"class":"crds_data_table", "font-size":"0.8em"});
-    $(function () {
+    $(function() {
+        $("th").css({align : "center", color : "darkblue"});
+        var tables = $(".crds_data_table");
+        tables.each(function (index, table) {
+            $(table).hide();
+            $(table).css({"font-size":"0.8em"});
+            $(table).dataTable({
+                bAutoWidth : false,
+                aoColumns : [
+                   {sWidth : "10%"},
+                   {sWidth : "10%"},
+                   {sWidth : "10%"},
+                   {% if is_authenticated %}
+                   {sWidth : "6%"},
+                   {% endif %}
+                   {sWidth : "28%"},
+                   {sWidth : "35%"},
+                 ],
+                aLengthMenu : [[50, 500, 5000, -1], [50, 500, 5000, "All"]],
+                iDisplayLength : -1,                  
+            });
+            $(table).show();
+        });
+        $("td").css({"text-align" : "center"});
         $("#contents").show();
-    });
+    }); 
 </script>
+{% endblock body_trailer %}
 
-{% endblock contents %}

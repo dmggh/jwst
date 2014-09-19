@@ -37,11 +37,23 @@ def green(value):
     return format_html(u"<span class='{0}'>{1}</span>", "green", value)
 green.is_safe = True
 
+@register.filter(name='darkgreen')
+@stringfilter
+def darkgreen(value):
+    return format_html(u"<span class='{0}'>{1}</span>", "darkgreen", value)
+darkgreen.is_safe = True
+
 @register.filter(name='blue')
 @stringfilter
 def blue(value):
     return format_html(u"<span class='{0}'>{1}</span>", "blue", value)
 blue.is_safe = True
+
+@register.filter(name='darkblue')
+@stringfilter
+def darkblue(value):
+    return format_html(u"<span class='{0}'>{1}</span>", "darkblue", value)
+darkblue.is_safe = True
 
 @register.filter(name='red')
 @stringfilter

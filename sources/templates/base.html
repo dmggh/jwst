@@ -10,9 +10,9 @@
     
     <link type="text/css" rel="stylesheet" href="/static/style.css" />
     
-    <link  href="/static/jquery-ui-1.8.14/css/smoothness/jquery-ui-1.8.14.custom.css" rel="stylesheet">
-    <script src="/static/jquery-ui-1.8.14/js/jquery-1.7.1.min.js"></script>
-    <script src="/static/jquery-ui-1.8.14/js/jquery-ui-1.8.14.custom.min.js"></script>
+    <link  href="/static/jquery-ui-1.8.14/css/smoothness/jquery-ui-1.8.14.custom.css" rel="stylesheet" />
+    <script src="/static/jquery-ui-1.8.14/js/jquery-1.7.1.min.js" type="text/javascript"></script>
+    <script src="/static/jquery-ui-1.8.14/js/jquery-ui-1.8.14.custom.min.js" type="text/javascript"></script>
 
     <script src="/static/crds_utils.js" type="text/javascript" language="javascript"></script> 
       
@@ -35,8 +35,8 @@
     
         <div id="header_menu">
            <a href="/static/users_guide/index.html" class="tiny"><img src='/static/images/help_blue.png' alt='help' class="header_menu" /></a>
-           <a href="./" class="tiny" onClick="javascript:history.back(1);"><img src="/static/images/back-icon.png" alt='reset' class="header_menu" /></a>
-           <a href="./" class="tiny" onClick= "javascript:history.forward(1);"><img src="/static/images/forward-icon.png" alt='reset' class="header_menu" /></a>
+           <a href="./" class="tiny" onclick="javascript:history.back(1);"><img src="/static/images/back-icon.png" alt='reset' class="header_menu" /></a>
+           <a href="./" class="tiny" onclick= "javascript:history.forward(1);"><img src="/static/images/forward-icon.png" alt='reset' class="header_menu" /></a>
            <a href="/" class="tiny"><img src="/static/images/home.png" alt='home' class="header_menu" /></a>
            {# <a href="./" class="tiny"><img src="/static/images/undo.ico" alt='reset' height='24' width='24' /></a> #}
            {% if is_authenticated %}
