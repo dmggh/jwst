@@ -1777,6 +1777,7 @@ def recent_activity_post(request):
     return crds_render(request, "recent_activity_results.html", {
                 "filters": filters,
                 "filtered_activities" : filtered_activities,
+                "fileblobs" : models.get_fileblob_map(),
             })
 
 # ===========================================================================

@@ -143,7 +143,10 @@ def download_url(filename):
 @register.filter
 def lookup(d, key):
     if not isinstance(d, dict):
-        d = dict(tuple(d))
+        try:
+            d = dict(tuple(d))     # original approach
+        except:
+            return getattr(d, key)  # last ditch for incompatible objects 
     return d[key]
 
 @register.simple_tag

@@ -28,8 +28,14 @@
     <table border="1">
         <thead>
             <tr>
-                <th width="15%" align="center">Date</th>
-                <th width="15%" align="center">Filename</th>
+                <th width="10%" align="center">Date</th>
+
+		{% if is_superuser %}
+                   <th width="10%" align="center">Naming</th>
+		{% else %}
+                   <th width="15%" align="center">Filename</th>
+		{% endif %}
+
                 <th width="10%" align="center">Action</th>
 
                 {% if is_authenticated %}
@@ -44,7 +50,13 @@
             {% for activity in filtered_activities %}
             <tr>
                 <td align="center">{{activity.date|minutes}}</td>
-                <td align="center">{{activity.filename|browse}}</a></td>
+
+                {% if is_superuser %}
+                   <td align="center">File uploaded as {{fileblobs|lookup:activity.filename|lookup:"uploaded_as"|green}} was renamed to {{activity.filename|browse}}</td>
+                {% else %}
+                   <td align="center">{{activity.filename|browse}}</td>
+                {% endif %}
+
                 <td align="center">{{activity.action}}</td>
 
                 {% if is_authenticated %}
