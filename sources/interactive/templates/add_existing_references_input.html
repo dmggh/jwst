@@ -32,13 +32,13 @@
 {% block help %}
 
 <p><b>Add Existing References</b> generates a new context from the derivation context which adds the listed 
-references which must already exist in CRDS.   Enter file names separated by spaces or newlines.   NOTE: this 
-does not add references to CRDS,  they must already be in CRDS. It creates a new context which includes
-the specified references.
+references.   Enter file names separated by spaces or newlines.   
+
+<p><p><b>NOTE:</b> this does not ingest references into CRDS, it adds existing CRDS references to a set of rules.
 
 <p><p><b>Derive From Context</b> The name of the pipeline context which 
 will be recursively updated to add the reference files.
 
-<p><p><b>Description</b> information about why these files were deleted.
+<p><p><b>Description</b> information about why these files were added.
 
 {% endblock help %}
