@@ -1,10 +1,16 @@
 {% load stdtags %}
 
+<script src="/static/select_pmap.js" type="text/javascript"></script>
+
 {% accordion  "<span id='pmap_status'></span>" %}
 <table>
    <tr>
     <td><input type="radio" name="pmap_mode" value="pmap_edit" 
-                onchange='crds.select_pmap_onchange("pmap_edit");' {{pmap_edit_checked}} />Editing</td>
+                onchange='crds.select_pmap_onchange("pmap_edit");' 
+	       {% if pmap_operational_checked %}
+	          checked="checked"
+	       {% endif %}
+	       />Editing</td>
       <td align="right">
         <input type="hidden" name="pmap_edit" value="{{pmap_edit}}" />
         <p>{{edit_context_label|gray}}</p>
@@ -13,7 +19,11 @@
    </tr>
    <tr>
     <td><input type="radio" name="pmap_mode" value="pmap_operational" 
-                onchange='crds.select_pmap_onchange("pmap_operational");' {{pmap_operational_checked}} />Operational</td>
+                onchange='crds.select_pmap_onchange("pmap_operational");' 
+	       {% if pmap_operational_checked %}
+	          checked="checked"
+	       {% endif %}
+	       />Operational</td>
       <td align="right">
         <input type="hidden" name="pmap_operational" value="{{pmap_operational}}" />
         <p>{{operational_context_label|gray}}</p>
@@ -67,58 +77,3 @@ for the first submission.
 
 <div class="hidden" id="pmap_labels_json" >{{pmap_labels_json}}</div>
 
-<script type="text/javascript">
-    $( function () {
-        crds.validate_select_pmap = function () {
-            console.log("validating select_pmap.");
-            var pmap_mode = $("input[name='pmap_mode']:checked").val();
-            if ( pmap_mode == "pmap_text") {
-                var pmap = $("input[name='pmap_text']").val();
-                if (!/^.+.pmap$/.test(pmap) && $.trim(pmap)) {
-                    alert("Invalid .pmap name");
-                    return false;
-                };
-            };
-            var pmap_option;
-            if (pmap_mode == "pmap_text") {
-                pmap_option = pmap;
-                title = "User Specified";
-            } else if (pmap_mode == "pmap_edit") {
-                pmap_option = $("input[value='pmap_edit']").parent().next().children().val();
-                title = "Editing Context";
-            } else if (pmap_mode == "pmap_operational") {
-                pmap_option = $("input[value='pmap_operational']").parent().next().children().val();
-                title = "Operational Context";
-            } else if (pmap_mode == "pmap_menu") {
-                pmap_option = $("select[name='pmap_menu'] option:selected").val()
-                title = "Recent Context";
-            } else {
-                    console.log("Bad pmap_mode ", pmap_mode);
-            };
-    
-            var pmap_label;
-            if (pmap_option in crds.pmap_labels) {
-               pmap_label = crds.pmap_labels[pmap_option].replace("*bad*","<span class='error'>*bad*</span>");
-            } else {
-               pmap_label = pmap_option + " *unknown*";
-            };
-            var pmap_status = pmap_label + " (" + title + ")";
-            $("#pmap_status").html(pmap_status);
-            return true;
-        };
-        crds.close_pmap_accordion = function () {
-            $(".accordion").accordion({
-                active: false
-            });
-        };
-        crds.select_pmap_onchange = function (pmap_mode) {
-           crds.validate_select_pmap();
-           crds.close_pmap_accordion();
-           crds.set_radio("pmap_mode", pmap_mode);
-        };
-        crds.pmap_labels = JSON.parse($("#pmap_labels_json").text());
-        $("#pmap_labels_json").hide();  
-        crds.validate_select_pmap();
-    });
-    
-</script>
