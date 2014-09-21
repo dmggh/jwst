@@ -24,3 +24,5 @@ echo "Re-starting server"
 echo "==========================================================="
 ./run $CRDS_PROJECT $CRDS_USECASE
 
+source env.csh
+prime_web_cache

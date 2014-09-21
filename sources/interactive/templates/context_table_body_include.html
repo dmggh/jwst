@@ -11,7 +11,7 @@
         {% for iitem in pitem.1.selections %}
             {% accordion "<span class='blue'>" iitem.1.header.filekind "</span> ---- <span class='green'>"  iitem.1.text_descr "</span>" %}
                 <p><a href="/browse/{{iitem.1.header.name}}">{{iitem.1.header.name}}</a></p><br/>
-                <div class="rmap_tag hidden_text" mapping_name="{{iitem.1.header.name}}"></div>        
+                <div class="rmap_tag" mapping_name="{{iitem.1.header.name}}"></div>        
             {% endaccordion %}
         {% endfor %}
     {% endaccordion %}
