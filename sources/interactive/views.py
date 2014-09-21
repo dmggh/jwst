@@ -652,7 +652,7 @@ def lock_status(request):
     """AJAX view to return state of user lock."""
     status = locks.get_lock_status(type="instrument",
                                    user=str(request.user))
-    return HttpResponse(json.dumps(status), mimetype='application/json')
+    return HttpResponse(json.dumps(status), content_type='application/json')
         
 
 def instrument_lock_required(func):
@@ -785,8 +785,8 @@ def set_password(request):
 # Fileupload is a Django port of a jQuery project from here:
 # https://github.com/sigurdga/django-jquery-file-upload
 
-def response_mimetype(request):
-    """Return the mimetype string associated with `request`."""
+def response_content_type(request):
+    """Return the content_type string associated with `request`."""
     if "application/json" in request.META['HTTP_ACCEPT']:
         return "application/json"
     else:
@@ -794,9 +794,9 @@ def response_mimetype(request):
 
 class JSONResponse(HttpResponse):
     """JSON response class."""
-    def __init__(self, obj='', json_opts={}, mimetype="application/json", *args, **kwargs):
+    def __init__(self, obj='', json_opts={}, content_type="application/json", *args, **kwargs):
         content = json.dumps(obj, **json_opts)
-        super(JSONResponse, self).__init__(content, mimetype, *args, **kwargs)
+        super(JSONResponse, self).__init__(content, content_type, *args, **kwargs)
 
 @error_trap("base.html")
 @log_view
@@ -818,7 +818,7 @@ def upload_new(request, template="upload_new_input.html"):
         log.info("Linking", file_.temporary_file_path(), "to", ingest_path)
         os.link(file_.temporary_file_path(), ingest_path)
         data = [json_file_details(file_.name, file_.temporary_file_path())]
-        response = JSONResponse(data, {}, response_mimetype(request))
+        response = JSONResponse(data, {}, response_content_type(request))
         response['Content-Disposition'] = 'inline; filename=files.json'
         return response
 
@@ -846,7 +846,7 @@ def upload_list(request, _template="upload_new_input.html"):
         ingest_paths = []
         log.info("Failed globbing ingest files.")
     data = [ json_file_details(name, ingest_paths[name]) for name in ingest_paths ]
-    response = JSONResponse(data, {}, response_mimetype(request))
+    response = JSONResponse(data, {}, response_content_type(request))
     response['Content-Disposition'] = 'inline; filename=files.json'
     return response
 
@@ -857,7 +857,7 @@ def upload_delete(request, filename):
     """Manage AJAX file deletes for django-file-upload multifile upload interface."""
     _upload_delete(request, filename)
     if request.is_ajax():
-        response = JSONResponse(True, {}, response_mimetype(request))
+        response = JSONResponse(True, {}, response_content_type(request))
         response['Content-Disposition'] = 'inline; filename=files.json'
         return response
     else:
@@ -2330,7 +2330,7 @@ def context_table(request, mapping, recursive="10"):
     recursive = int(recursive)
     if request.is_ajax():
         datatables = get_rmap_datatable_parameters(mapping)
-        return HttpResponse(json.dumps(datatables), mimetype='application/json')
+        return HttpResponse(json.dumps(datatables), content_type='application/json')
     else:
         pars = get_context_table_parameters(mapping)
         return crds_render(request, "context_table.html", pars, requires_pmaps=False)

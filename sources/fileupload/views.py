@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 
 from django.conf import settings
 
-def response_mimetype(request):
+def response_content_type(request):
     if "application/json" in request.META['HTTP_ACCEPT']:
         return "application/json"
     else:
@@ -20,7 +20,7 @@ class PictureCreateView(CreateView):
         self.object = form.save()
         f = self.request.FILES.get('file')
         data = [{'name': f.name, 'url': settings.MEDIA_URL + "pictures/" + f.name.replace(" ", "_"), 'thumbnail_url': settings.MEDIA_URL + "pictures/" + f.name.replace(" ", "_"), 'delete_url': reverse('upload-delete', args=[self.object.id]), 'delete_type': "DELETE"}]
-        response = JSONResponse(data, {}, response_mimetype(self.request))
+        response = JSONResponse(data, {}, response_content_type(self.request))
         response['Content-Disposition'] = 'inline; filename=files.json'
         return response
 
@@ -36,7 +36,7 @@ class PictureDeleteView(DeleteView):
         self.object = self.get_object()
         self.object.delete()
         if request.is_ajax():
-            response = JSONResponse(True, {}, response_mimetype(self.request))
+            response = JSONResponse(True, {}, response_content_type(self.request))
             response['Content-Disposition'] = 'inline; filename=files.json'
             return response
         else:
@@ -44,6 +44,6 @@ class PictureDeleteView(DeleteView):
 
 class JSONResponse(HttpResponse):
     """JSON response class."""
-    def __init__(self,obj='',json_opts={},mimetype="application/json",*args,**kwargs):
+    def __init__(self,obj='',json_opts={},content_type="application/json",*args,**kwargs):
         content = simplejson.dumps(obj,**json_opts)
-        super(JSONResponse,self).__init__(content,mimetype,*args,**kwargs)
+        super(JSONResponse,self).__init__(content,content_type,*args,**kwargs)

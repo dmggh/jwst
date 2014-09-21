@@ -61,7 +61,7 @@ def open_channel(request):
     jdebug("jpoll: open_channel:", key)
     jmodels.ChannelModel.wipe_key(key)
     jmodels.ChannelModel.new(key)
-    return HttpResponse(json.dumps(key), mimetype='application/json')
+    return HttpResponse(json.dumps(key), content_type='application/json')
 
 @login_required
 def close_channel(request):
@@ -70,7 +70,7 @@ def close_channel(request):
     jdebug("jpoll: close_channel:", key)
     channel = get_channel(request)
     channel.wipe()
-    return HttpResponse(json.dumps(key), mimetype='application/json')
+    return HttpResponse(json.dumps(key), content_type='application/json')
 
 @login_required
 def pull_messages(request):
@@ -78,7 +78,7 @@ def pull_messages(request):
     channel = get_channel(request)
     messages = channel.pull()
     jdebug("jpoll: pulling messages for", repr(channel.key), "=", messages)
-    return HttpResponse(json.dumps(messages), mimetype='application/json')
+    return HttpResponse(json.dumps(messages), content_type='application/json')
 
 #---------------------------------------------------------------------------------------------
 # JPOLL Handler client functions
@@ -144,7 +144,7 @@ def test_worker(request):
         time.sleep(5)
     handler.done(0, "/jpoll/test_response/")
     time.sleep(10)
-    return HttpResponse("OK")   # json.dumps("OK"), mimetype='application/json')
+    return HttpResponse("OK")   # json.dumps("OK"), content_type='application/json')
 
 def test_response(request):
     return HttpResponse("yippee!  it worked!")
