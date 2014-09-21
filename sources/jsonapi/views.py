@@ -617,6 +617,22 @@ def get_reference_url(request, context, reference):
 
 # ===============================================================
 
+@jsonrpc_method('get_context_history(String)')  # secure
+def get_context_history(request, observatory):
+    observatory = check_observatory(observatory)
+    return _get_context_history(observatory)
+
+@imodels.crds_cached
+def _get_context_history(observatory):
+    """Cached core of get_context_history."""
+    history = imodels.get_context_history(observatory)
+    history_json = []
+    for era in history:
+        history_json.append((str(era.start_date).replace("T"," "), era.context))
+    return history_json
+
+# ===============================================================
+
 MAX_BESTREFS_ERR_LINES = 1000
 
 #
