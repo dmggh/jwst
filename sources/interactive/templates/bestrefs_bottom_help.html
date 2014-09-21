@@ -2,10 +2,12 @@
     
     {% if observatory|upper == "HST" %}
     For production use for HST,  the CRDS command line tools are used to update dataset headers.
-    
+    </p>
+
     <p><b>On-site at STScI</b> typically no file downloads or configuration are required for 
     running crds.bestrefs.   Best references can be assigned to HST dataset FITS files like this:
-    
+    </p>
+
     <pre class="code" style="font-size: 1.2em;">
     % setenv iref, jref, etc. to  /grp/crds/cache/references/hst for processing.
         
@@ -13,7 +15,7 @@
     
     <p>For <b>Offsite use</b> (without ssh or VPN) you can create a personal copy of required rules and references
     and run crds.bestrefs like this:
-    
+    </p>
     <pre class="code" style="font-size: 1.2em;">
     % setenv CRDS_PATH $HOME/crds_cache
     % setenv CRDS_SERVER_URL https://hst-crds.stsci.edu
@@ -24,23 +26,23 @@
     <p>This sets up a personal cache containing the latest operational rules and server configuration
     information.  Adding --sync-references=1 downloads any required references to your CRDS cache automatically.
     If you have another source of reference files,  syncing and using CRDS references is optional.
-    
-    <p><p> See <a href='{{ request.build_absolute_uri }}/static/users_guide/installation.html#setting-up-your-environment'>Setting Up Your Environment</a>
+    </p>
+    <p/><p> See <a href='{{ request.build_absolute_uri }}/static/users_guide/installation.html#setting-up-your-environment'>Setting Up Your Environment</a>
     or <a href='{{ request.build_absolute_uri }}/static/users_guide/command_line_tools.html'>Command Line Tools</a> for more information on configuring your
     environment and running crds.bestrefs.
-
+    </p>
     {% endif %}
 
     {% if observatory|upper == "JWST" %}
     
     For JWST, CRDS bestrefs are automatically invoked as part of running calibration steps.
     
-    <p><p><b>On Site at STScI</b>, a default readonly file cache is available (/grp/crds/cache) and 
+    <p/><p><b>On Site at STScI</b>, a default readonly file cache is available (/grp/crds/cache) and 
     hence no configuration or file downloads should be required.
-    
-    <p><p>For <b>Off Site</b> use without VPN or ssh, you can create a cache of required rules and references
+    </p>
+    <p/><p>For <b>Off Site</b> use without VPN or ssh, you can create a cache of required rules and references
     with settings like these:
-    
+    </p>
     <pre class="code" >
     % setenv CRDS_PATH $HOME/crds_cache                         # small scale personal cache
     % setenv CRDS_SERVER_URL https://jwst-crds.stsci.edu
@@ -48,7 +50,7 @@
     
     <p> See <a href='{{ request.build_absolute_uri }}/static/users_guide/installation.html#setting-up-your-environment'>Setting Up Your Environment</a>
     for more information on configuring your environment.
-
+    </p>
     {% endif %}
     
     

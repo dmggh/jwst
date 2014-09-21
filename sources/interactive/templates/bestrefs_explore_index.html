@@ -4,7 +4,7 @@
 
 <h2>Explore Best References</h2>
 
-<form action="/bestrefs_explore/" method="post""> {% csrf_token %}
+<form action="/bestrefs_explore/" method="post"> {% csrf_token %}
     <h3>Context:</h3>
     {% include "select_pmap.html" %}
     
@@ -22,13 +22,16 @@
     
     <p><b>Explore Best References</b> supports browsing over and manually selecting the 
     matching parameters for best references.
+    </p>
 
-    <p><p><b>Context</b> defines the version of the pipeline 
+    <p/><p><b>Context</b> defines the version of the pipeline 
     context used to determine the best reference files. The context chosen defines 
     available parameter choices and file selection rules.
+    </p>
 
-    <p><p><b>Instrument</b> defines the instrument for which parameter choices 
+    <p/><p><b>Instrument</b> defines the instrument for which parameter choices 
     will be displayed.
+    </p>
 
 {% endblock help %}
 

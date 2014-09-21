@@ -1,10 +1,10 @@
       <tr>
         <td class="label" width="50%">Status:</td>
         <td align="right">
-            <select name="status" />
+            <select name="status">
                 {% for stat in statuses %}
                     {% if stat == status %}
-                        <option selected>{{stat}}</option>
+                        <option selected="selected">{{stat}}</option>
                     {% else %}
                         <option>{{stat}}</option>
                     {% endif %}

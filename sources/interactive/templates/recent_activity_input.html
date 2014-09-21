@@ -2,17 +2,14 @@
 
 {% block column1 %}
 
-<form action="/recent_activity/" method="post""> {% csrf_token %}
+<form action="/recent_activity/" method="post" > {% csrf_token %}
     <h2>List Actions</h2>
     <h3>Filters</h3>
     <table>
-    
       {% include "action_options.html" %}
-      {% include "browse_options.html" %}
       {% include "extension_options.html" %}
-      
+      {% include "browse_options.html" %}      
     </table>
-      <br/>
     <input type="submit" value="Submit" />
 </form>
 
@@ -21,7 +18,8 @@
 {% block help %}
 
 <p><b>Recent Activity</b> Search the CRDS database for actions matching the
-filters you specify.  To ignore a field during search, set it to *.  
+filters you specify.  To ignore a field during search, set it to *.
+</p>
 
 {% endblock help %}
 

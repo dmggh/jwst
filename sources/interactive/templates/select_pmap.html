@@ -1,6 +1,6 @@
 {% load stdtags %}
 
-{% accordion  "<span name='pmap_status'></span>" %}
+{% accordion  "<span id='pmap_status'></span>" %}
 <table>
    <tr>
     <td><input type="radio" name="pmap_mode" value="pmap_edit" 
@@ -103,7 +103,7 @@ for the first submission.
                pmap_label = pmap_option + " *unknown*";
             };
             var pmap_status = pmap_label + " (" + title + ")";
-            $("span[name='pmap_status']").html(pmap_status);
+            $("#pmap_status").html(pmap_status);
             return true;
         };
         crds.close_pmap_accordion = function () {

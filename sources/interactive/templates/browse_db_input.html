@@ -2,7 +2,7 @@
 
 {% block column1 %}
 
-<form action="/browse_db/" method="post""> {% csrf_token %}
+<form action="/browse_db/" method="post"> {% csrf_token %}
     <h2>Browse Database</h2>
     <h3>Filters</h3>
     <table>
@@ -35,6 +35,7 @@
 <p><b>Browse Database</b> Searches the CRDS database for files matching the
 criteria you specify.   Filters restrict the search to files matching that value.
 To ignore a field during search, set it to *.
+</p>
     
 {% endblock help %}
 
