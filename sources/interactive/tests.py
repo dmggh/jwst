@@ -746,6 +746,7 @@ else:  # JWST
                                      "interactive/test_data/jwst_nircam_0000.imap"]
 
         certify_rmap = "interactive/test_data/jwst_miri_amplifier_0000.rmap"
+        certify_rmap_bad = "interactive/test_data/jwst_miri_photom_0666.rmap"
         certify_rmap_fits = ["jwst_miri_amplifier_0000.fits",
                              "jwst_miri_amplifier_0001.fits",
                              "jwst_miri_amplifier_0002.fits"]
