@@ -395,7 +395,7 @@ class FileSubmission(object):
         
         The intent of CRDS naming is to be able to infer time order from serial number.
         """
-        pattern_path = rmap.locate_file("*{}*{}*{}".format(instrument, filekind, extension), 
+        pattern_path = rmap.locate_file("*_{}_{}_*{}".format(instrument, filekind, extension), 
                                         self.observatory)
         existing = [os.path.basename(name) for name in sorted(glob.glob(pattern_path))]
         while True:
