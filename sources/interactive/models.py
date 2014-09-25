@@ -692,6 +692,7 @@ def repair_defects(defect_map, verbose=True):
                 print name, repairs[repair]
             for failure in failed:
                 print name, failed[failure]
+    clear_cache()
     return repair_map
     
 def repair_defects_all(fields=None, files=None, verify_checksum=False, verbose=True):
