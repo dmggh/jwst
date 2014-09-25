@@ -667,6 +667,8 @@ def check_defects(fields=None, files=None, verify_checksum=False):
     IFF verify_checksum is True,  check the sha1sum in the FileBlob versus the cached file contents.  Slow.
     """
     map = get_fileblob_map()
+    if isinstance(files, basestring):
+        files = rmap.list_mappings(files, OBSERVATORY) + rmap.list_references(files, OBSERVATORY)
     if files:
         map = { name : blob for (name, blob) in map.items() if name in set(files) }
     defect_map = { name :  (blob, blob.get_defects(fields=fields, verify_checksum=verify_checksum)) for (name, blob) in map.items() }
