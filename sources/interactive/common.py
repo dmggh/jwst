@@ -17,7 +17,7 @@ PERSON_RE = re.compile(complete_re(r"[A-Za-z_0-9\.@, \-]{0,128}"))
 
 DATASET_ID_RE = re.compile(complete_re(r"[A-Za-z0-9_:]{1,128}"))
 
-FITS_KEY_RE = re.compile(complete_re(r"[A-Z0-9_\-]{1,128}"))
+FITS_KEY_RE = re.compile(complete_re(r"[A-Z0-9_\-\.]{1,128}"))
 FITS_VAL_RE = re.compile(complete_re(r"[A-Za-z0-9_\- :\./\$]{0,256}"))
 
 LIST_GLOB_RE = re.compile(complete_re(r"[A-Za-z0-9_\.\*\+\(\)\-\[\]]{1,128}"))
