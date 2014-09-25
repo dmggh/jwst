@@ -69,13 +69,22 @@
     <br/>
 {% endblock column2 %}
 
-{% block bottom_help %}
+{% block contents_bottom %}
+    <div id="bestrefs_debug_output_container">
+    {% accordion  "Best References Debug Output" %}
+      <pre id="bestrefs_debug_output">
+{{bestrefs_debug_output}}
+      </pre>
+    {% endaccordion %}
+    </div>
+{% endblock contents_bottom %}
 
+{% block bottom_help %}
     <br/>
 
     <p><b class="red" >No match found.</b>  No best reference is defined for the given type. 
     CRDS did not rule the type as not applicable for this parameter set.
-    
+
     <p><p><b class="red">n/a</b>  The type is not applicable for the given matching parameters.
     
     <p><p><b class="red">parameter</b> A parameter was not valid (for that type).  CRDS did not

@@ -978,12 +978,12 @@ def bestrefs_results(request, pmap, header, dataset_name=""):
     """Render best reference recommendations under context `pmap` for
     critical parameters dictionary `header`.
     """
-    
     log.info("matching header:", header)
     
-    recommendations = rmap.get_best_references(pmap, header)
+    recommendations, bestrefs_debug_output = captured_bestrefs(pmap, header)
     
     # organize and format results for HTML display    
+    header.pop("REFTYPE", None)
     header_items = sorted(header.items())
     bestrefs_items = []
     for key, val in sorted(recommendations.items()):
@@ -996,7 +996,20 @@ def bestrefs_results(request, pmap, header, dataset_name=""):
             "dataset_name" : dataset_name,
             "header_items" : header_items,
             "bestrefs_items" : bestrefs_items,
+            "bestrefs_debug_output" : bestrefs_debug_output,
         })
+
+# XXXX non-reentrant,  not safe for threaded servers,  process model only.  
+# 99%,  it will work anyway.  Failing would depend on concurrent web bestrefs.
+@common.capture_output
+def captured_bestrefs(pmap, header):
+    """Run bestrefs in verbose mode capturing debug output.   
+    Return (bestrefs_dict,  captured_debug_output)
+    """
+    old = log.set_verbose(60)  # problem here.
+    recommendations = rmap.get_best_references(pmap, header)
+    log.set_verbose(old)
+    return recommendations
 
 # ===========================================================================
 
