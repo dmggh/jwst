@@ -372,8 +372,7 @@ def get_best_references(request, context, header, reftypes):
     context = check_context(context)
     header = check_header(header)
     reftypes = check_reftypes(reftypes)
-    conditioned = utils.condition_header(header)
-    return rmap.get_best_references(context, conditioned, include=reftypes)
+    return rmap.get_best_references(context, header, include=reftypes, condition=True)
 
 MAX_BESTREFS_PER_RPC = 1000
 
