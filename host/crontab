@@ -9,6 +9,9 @@ MAILTO="crds-servers@stsci.edu"
 # every 5 minutes, no e-mail
 */5 * * * *     source $HOME/cronenv.csh;      monitor_reprocessing >& ${CRDS_CRON}/monitor_reprocessing.log
 
+# every 5 minutes, no e-mail
+*/5 * * * *     source $HOME/cronenv.csh;      python -m crds.sync --last 1  >& ${CRDS_CRON}/server_cache_sync.log
+
 # every 10 minutes, no e-mail, only on the OPS server
 */10 * * * *  source $HOME/cronenv.csh;        sync_ops_to_grp >& ${CRDS_CRON}/sync_ops_to_grp.log
 
