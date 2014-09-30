@@ -13,8 +13,10 @@ source env.csh
 switch ($1)
   case start:
     ./run
+    crontab <host/crontab
     breaksw
   case stop:
+    crontab </dev/null
     ./stop
     breaksw
   case status:
