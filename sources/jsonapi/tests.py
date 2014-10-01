@@ -362,6 +362,9 @@ if server_config.observatory == "hst":
             
         def test_client_get_best_references_by_ids(self):
             bestrefs = client.get_best_references_by_ids(self.pmap, self.dataset_ids)
+
+        def test_get_context_history(self):
+            history = client.get_context_history(self.observatory)
             
 # ===========================================================================
 

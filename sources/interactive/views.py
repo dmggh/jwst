@@ -366,8 +366,9 @@ def squash_file_paths(response, uploaded_pairs, user):
         path = os.path.basename(path)
         response = response.replace(path, original_name)
     observatory = models.OBSERVATORY
-    response = response.replace(config.get_path("dummy.pmap", observatory) + "/", "")
-    response = response.replace(config.get_path("dummy.fits", observatory) + "/", "")
+    response = response.replace(config.get_crds_cfgpath(observatory) + "/", "")
+    response = response.replace(config.get_crds_mappath(observatory) + "/", "")
+    response = response.replace(config.get_crds_refpath(observatory) + "/", "")
     response = response.replace(sconfig.storage_path + "/server_files/ingest", "")
     response = response.replace(sconfig.install_root, "")
     response = response.replace(sconfig.storage_path, "")

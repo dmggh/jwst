@@ -80,13 +80,13 @@ class InteractiveBase(object):
         self.fake_database_files([self.pmap])
         models.set_default_context(self.pmap, skip_history=True)
         models.set_default_context(self.pmap, state="operational")
-        utils.ensure_dir_exists(lconfig.locate_file("test.fits", self.observatory))
-        utils.ensure_dir_exists(lconfig.locate_file(self.pmap, self.observatory))
+        utils.ensure_dir_exists(os.path.join(lconfig.get_crds_refpath(self.observatory), "test.fits"))
+        utils.ensure_dir_exists(os.path.join(lconfig.get_crds_mappath(self.observatory), "test.pmap"))
         self.ingested = False
         
     def tearDown(self):
         self.remove_files(self.delete_list)
-        pysh.sh("/bin/rm -rf " + lconfig.locate_file("test.fits", self.observatory), raise_on_error=True)  # , trace_commands=True)
+        # pysh.sh("/bin/rm -rf " + lconfig.locate_file("test.fits", self.observatory), raise_on_error=True)  # , trace_commands=True)
         pysh.sh("/bin/rm -f " + sconfig.CRDS_DELIVERY_DIR + "/*")
         pysh.sh("/bin/rm -f " + sconfig.CRDS_CATALOG_DIR + "/*")
         if self.ingested:
@@ -120,7 +120,8 @@ class InteractiveBase(object):
     def remove_files(self, files):
         for file in files:
             self.remove(file)
-            self.remove(rmap.locate_file(file, self.observatory))
+            if not file.endswith(".cat"):
+                self.remove(rmap.locate_file(file, self.observatory))
             self.remove(sconfig.CRDS_DELIVERY_DIR + "/" + file)
 
     @classmethod
