@@ -34,6 +34,8 @@ class InteractiveBase(object):
         log.info("Test CRDS_PATH", CRDS_PATH, "environ", os.environ["CRDS_PATH"], 
                  "REAL_MAPPING_DIR", REAL_MAPPING_DIR)
 
+        lconfig.set_crds_ref_subdir_mode("flat", cls.observatory)
+
         pysh.sh("rm -rf ${CRDS_PATH}", raise_on_error=True)  #, trace_commands=True)
         pysh.sh("mkdir -p ${CRDS_PATH}/ingest", raise_on_error=True)
         pysh.sh("mkdir -p ${CRDS_PATH}/deliveries", raise_on_error=True)
