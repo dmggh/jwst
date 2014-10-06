@@ -1628,12 +1628,13 @@ def browse_known_file(request, filename):
         match_paths = [flatten(path) for path in match_paths]
     else:
         match_paths = []
-        
-    try:
-        tpn_text = utils.get_locator_module(blob.observatory).reference_name_to_tpn_text(filename)
-    except Exception, exc:
-        log.error("Failed loading constraints for", srepr(filename), ":", str(exc))
-        tpn_text = ""
+    
+    tpn_text = ""
+    if not rmap.is_mapping(filename):
+        try:
+            tpn_text = utils.get_locator_module(blob.observatory).reference_name_to_tpn_text(filename)
+        except Exception, exc:
+            log.error("Failed loading constraints for", srepr(filename), ":", str(exc))
 
     return crds_render(request, "browse_results.html", { 
              "fileblob" : blob,
