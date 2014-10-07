@@ -697,8 +697,9 @@ if sconfig.observatory == "hst":
         ]
         locked_instrument = "cos"         
 
-        batch_submit_replace_references = ["interactive/test_data/s7g1700gj_dead.fits",
-                                           "interactive/test_data/aaaa.fits"]
+        batch_submit_replace_references = ["interactive/test_data/s7g1700hl_dead.fits",
+                                           "interactive/test_data/a7g1700al_dead.fits"]
+
 #        batch_submit_comparison_references = ["interactive/test_data/s7g1700gl_dead.fits",
 #                                              "interactive/test_data/t2k1224el_disp.fits"]
         batch_submit_insert_references = ["interactive/test_data/s7g1700gm_dead.fits"]
