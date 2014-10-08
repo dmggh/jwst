@@ -627,7 +627,7 @@ def _get_context_history(observatory):
     history = imodels.get_context_history(observatory)
     history_json = []
     for era in history:
-        history_json.append((str(era.start_date).replace("T"," "), era.context))
+        history_json.append((str(era.start_date).replace("T"," "), era.context, era.description))
     return history_json
 
 # ===============================================================
@@ -649,11 +649,15 @@ def get_affected_datasets(request, observatory, old_context, new_context):
     new_serial_patt = "[0-9]*" if new_serial_num is None else new_serial_num
     dir_patt = "*" + old_serial_patt + "_" + new_serial_patt
     transitions_glob = os.path.join(reprocessing_dir, dir_patt)
+    not_ready = "No precomputed affected datasets results exist for old_context='{}' and new_context='{}'".format(old_context, new_context)
     try:
         computation_dir  = sorted(glob.glob(transitions_glob))[-1]
     except IndexError as exc:
-        raise ValueError("No precomputed affected datasets results exist for old_context='{}' and new_context='{}'".format(old_context, new_context))
-    return compose_affected_datasets_response(observatory, computation_dir)
+        raise ValueError(not_ready)
+    response = compose_affected_datasets_response(observatory, computation_dir)
+    if isinstance(response.bestrefs_status, basestring) and "FAILED:" in response.bestrefs_status:
+        raise ValueError(not_ready)
+    return response
 
 def check_for_serial_num(context):
     """Given an unvalidated context object,  produce the serial number for it or None.
