@@ -702,7 +702,7 @@ if sconfig.observatory == "hst":
 
 #        batch_submit_comparison_references = ["interactive/test_data/s7g1700gl_dead.fits",
 #                                              "interactive/test_data/t2k1224el_disp.fits"]
-        batch_submit_insert_references = ["interactive/test_data/s7g1700gm_dead.fits"]
+        batch_submit_insert_references = ["interactive/test_data/s7g1700hl_dead.fits"]
         
         create_contexts_rmaps = ["hst_acs_biasfile.rmap", "hst_cos_deadtab.rmap"]
 
