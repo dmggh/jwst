@@ -96,5 +96,6 @@ if ( $output_mail ) then
     mail -r crds-servers@stsci.edu -a`pwd`/bestrefs_err_truncated.txt -a`pwd`/affected_ids.txt.gz -s "$subject" $CRDS_AFFECTED_DATASETS_RECIPIENTS </dev/null
 endif
 
-gzip bestrefs_err_truncated.txt
+ # XXXXX gzipped file serves as process completion marker in jsonapi.views
+gzip bestrefs_err_truncated.txt   
 
