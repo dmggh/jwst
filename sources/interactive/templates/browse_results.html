@@ -213,6 +213,16 @@
     {% endaccordion %}
 {% endif %}
 
+{% if ld_tpn_text %}
+    {% accordion "Parameter Constraints (_ld.tpn)" %}
+<div id="ld_tpn_text">
+<pre class="program">
+{{ld_tpn_text}}
+</pre>
+</div>
+    {% endaccordion %}
+{% endif %}
+
 <br/><br/>
 
 {% endblock contents %}
