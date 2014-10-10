@@ -1,0 +1,31 @@
+#! /usr/bin/env pysh
+#-*-python-*-
+
+usage("<files to pylint...>", 1)
+
+if "--verbose" in sys.argv:
+   sys.argv.remove("--verbose")
+   grep = []
+else:
+   grep = [
+      "Your code",
+      "|error"
+   ]
+
+omit = ",".join([
+   "trailing-whitespace",
+   "bad-continuation",
+   "bad-whitespace"
+])
+
+for file in sys.argv[1:]:
+    results = out_err("pylint --disable=${omit} ${file}")
+    for line in results.splitlines():
+       if grep:
+          for expr in grep:
+             if expr in line:
+                print file, ":", line
+                break
+       else:
+          print file, ":", line
+
