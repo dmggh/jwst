@@ -655,7 +655,7 @@ def get_affected_datasets(request, observatory, old_context, new_context):
     except IndexError as exc:
         raise ValueError(not_ready)
     response = compose_affected_datasets_response(observatory, computation_dir)
-    if isinstance(response.bestrefs_status, basestring) and "FAILED:" in response.bestrefs_status:
+    if isinstance(response["bestrefs_status"], basestring) and "FAILED:" in response["bestrefs_status"]:
         raise ValueError(not_ready)
     return response
 
