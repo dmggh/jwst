@@ -11,7 +11,7 @@ from unittest import TestCase
 import crds
 import crds.config
 
-from crds import pysh, rmap, selectors, log, pysh, heavy_client, timestamp
+from crds import pysh, rmap, selectors, log, pysh, heavy_client, timestamp, utils
 import crds.client as client
 import crds.server.config as server_config
 from crds.server.interactive import models as imodels
@@ -37,6 +37,9 @@ class ServiceApiBase(object):
     def tearDownClass(self, *args, **keys):
         for (key, val) in self.old_environ.items():
             os.environ[key] = val
+
+    def setUp(self):
+        utils.clear_function_caches()
 
     def get_header(self):
         return dict(self.header)
