@@ -6,6 +6,9 @@ MAILTO="crds-servers@stsci.edu"
 # run five minutes after 3 am, every day
 5 3 * * *       source $HOME/cronenv.csh;      nightly.crds.job 
 
+# every 1 minutes, e-mail
+# */1 * * * *     source $HOME/cronenv.csh;      query_affected_datasets # -i
+
 # every 5 minutes, no e-mail
 */5 * * * *     source $HOME/cronenv.csh;      monitor_reprocessing >& ${CRDS_CRON}/monitor_reprocessing.log
 
