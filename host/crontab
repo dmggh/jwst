@@ -20,7 +20,7 @@ MAILTO="crds-servers@stsci.edu"
 
 # every 4 hours, no e-mail, all servers
 # */5 * * * *  source $HOME/cronenv.csh;      (clear_web_cache; prime_web_cache) >& ${CRDS_CRON}/clear_web_cache.log
-* */4 * * *    source $HOME/cronenv.csh;      (clear_web_cache; prime_web_cache) >& ${CRDS_CRON}/clear_web_cache.log
+0 */4 * * *    source $HOME/cronenv.csh;      (clear_web_cache; prime_web_cache) >& ${CRDS_CRON}/clear_web_cache.log
 
 # run at 2:15pm on the first of every month
 #   15 14 1 * *     $HOME/bin/monthly
