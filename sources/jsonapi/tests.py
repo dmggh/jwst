@@ -151,18 +151,6 @@ class ServiceApiBase(object):
         bestrefs = self.getreferences(self.get_header(), reftypes=self.requested_types)
         self._check_bestrefs(bestrefs, self.requested_types) 
 
-    def test_getreferences_missing_date(self):
-        header = self.get_header()
-        del header[self.date_key]
-        with self.assertRaises(crds.CrdsLookupError):
-            bestrefs = self.getreferences(header)
-
-    def test_getreferences_bad_date(self):
-        header = self.get_header()
-        header[self.date_key] = "2012-1f-23"
-        with self.assertRaises(crds.CrdsLookupError):
-            bestrefs = self.getreferences(header)
-    
     def test_getreferences_bad_instrument(self):
         header = self.get_header()
         header[self.instr_key] = "foo"
@@ -279,6 +267,10 @@ class ServiceApiBase(object):
             assert isinstance(parkeys[instr], (list,tuple))
             for parkey in parkeys[instr]:
                 assert isinstance(parkey, str)
+
+    def test_get_context_history(self):
+        history = client.get_context_history(self.observatory)
+            
 # ===========================================================================
 # ===========================================================================
 
@@ -366,35 +358,47 @@ if server_config.observatory == "hst":
         def test_client_get_best_references_by_ids(self):
             bestrefs = client.get_best_references_by_ids(self.pmap, self.dataset_ids)
 
-        def test_get_context_history(self):
-            history = client.get_context_history(self.observatory)
-            
+        def test_getreferences_missing_date(self):
+            header = self.get_header()
+            del header[self.date_key]
+            with self.assertRaises(crds.CrdsLookupError):
+                bestrefs = self.getreferences(header)
+
+        def test_getreferences_bad_date(self):
+            header = self.get_header()
+            header[self.date_key] = "2012-1f-23"
+            with self.assertRaises(crds.CrdsLookupError):
+                bestrefs = self.getreferences(header)
+    
 # ===========================================================================
 
 if server_config.observatory == "jwst":
     print "testing jwst"
     class Jwst(ServiceApiBase, TestCase):
-        pmap = "jwst.pmap"
-        pmap_date = "jwst-2013-07-04T00:00:00"
-        imap = "jwst_miri.imap"
+        pmap = "jwst_0034.pmap"
+        pmap_date = "jwst-2014-09-26T00:00:00"
+        imap = "jwst_niriss_0009.imap"
 
         observatory = server_config.observatory
     
         header = {
-            "meta.instrument.type": "MIRI",
+            "meta.instrument.name": "NIRISS",
             "meta.observation.date": "2012-07-25T00:00:00",
-            "meta.instrument.detector" : "MIRIMAGE",
-            "meta.instrument.filter" : "F",
+            "meta.instrument.detector" : "NIRISS",
+            "meta.instrument.filter" : "CLEAR",
+            "meta.subarray.name" : "FULL",
         }
         
-        instr_key = "meta.instrument.type"
+        instr_key = "meta.instrument.name"
         date_key = "meta.observation.date"
         
-        requested_types = ["flat"]
+        requested_types = ["flat", "gain", "ipc", "linearity", "mask", 
+                           "photom", "readnoise", "saturation"]
         
-        test_reference = 'jwst_miri_flat_0001.fits'        
-        test_dataset = "interactive/test_data/jw00001001001_01101_00001_MIRIMAGE_uncal.fits"
-         
+        test_reference = 'jwst_miri_flat_0030.fits'        
+        # test_dataset = "interactive/test_data/jw00025001001_01107_00001_MIRIMAGE_uncal.fits"
+
+        test_dataset = "interactive/test_data/jw00034001001_01101_00001_NIRISS_uncal.fits" 
         context_date = "2050-01-01T12:00:00"
         context_date_obs = "jwst-2050-01-01T12:00:00"        
         context_date_instr = "jwst-miri-2050-01-01T12:00:00"
@@ -402,5 +406,22 @@ if server_config.observatory == "jwst":
 
         def expected_references(self):
             return {
-                    "flat" : "jwst_miri_flat_0001.fits",
-            }
+                # "dark" : "jwst_niriss_dark_0004.fits",
+                "flat" : "jwst_niriss_flat_0002.fits",
+                "gain" : "jwst_niriss_gain_0000.fits",
+                "ipc" : "jwst_niriss_ipc_0001.fits",
+                "linearity" : "jwst_niriss_linearity_0004.fits",
+                "mask" : "jwst_niriss_mask_0002.fits",
+                "photom" : "jwst_niriss_photom_0016.fits",
+                "readnoise" : "jwst_niriss_readnoise_0000.fits",
+                "saturation" : "jwst_niriss_saturation_0004.fits",
+                }
+        # {
+        #         "dark" : "jwst_miri_dark_0024.fits",
+        #         "flat" : "jwst_miri_flat_0030.fits",
+        #         "distortion" : "jwst_miri_distortion_0007.json",
+        #         "drizpars" : "jwst_miri_drizpars_0001.fits",
+        #         "gain" : "jwst_miri_gain_0002.fits",
+        #     }
+
+

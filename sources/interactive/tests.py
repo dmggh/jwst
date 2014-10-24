@@ -773,4 +773,5 @@ else:  # JWST
             "interactive/test_data/jwst_miri_0000.imap",
             "interactive/test_data/jwst_miri_amplifier_9999.rmap",
             ]
-
+        
+        certify_post_fits_bad = "interactive/test_data/jwst_miri_amplifier_bad.fits"

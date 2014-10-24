@@ -229,7 +229,10 @@ class CounterModel(CrdsModel):
         """
         if not args[-1]:
             return
-        existing_serial = int(args[-1])
+        try:
+            existing_serial = int(args[-1])
+        except Exception:
+            existing_serial = 0
         model = cls.get_or_create(*args[:-1])
         if model.counter <= existing_serial:
             model.counter = existing_serial
