@@ -2392,7 +2392,7 @@ def fix_meta_parameters(parameters):
     for the context display.
     """
     if isinstance(parameters, basestring):
-        return parameters.replace("META_","")
+        return parameters.replace("META.","")
     else:
         return tuple([fix_meta_parameters(par) for par in parameters])
     
