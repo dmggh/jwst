@@ -411,6 +411,7 @@ class InteractiveBase(object):
                 "change_level" : "SEVERE",
                 "description":" this is only a test.",
                 "compare_old_reference": True,
+                "auto_rename" : "checked",
                 }, follow=True)
         # print response
         self.assert_no_errors(response)
