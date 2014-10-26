@@ -53,6 +53,7 @@ class RepairScript(cmdline.ContextsScript):
             return mappings + references
 
     def check_defects(self, files):
+        log.info("Checking", len(files), "files for database model defects.")
         return models.check_defects(files=files, verify_checksum=self.args.model_checksum)
     
     def remove_ignored(self, defects):
@@ -70,6 +71,7 @@ class RepairScript(cmdline.ContextsScript):
         return cleaned
 
     def repair_defects(self, defects_map):
+        log.info("Repairing", len(defects_map), "files database model defects.")
 	return models.repair_defects(defects_map, verbose=log.get_verbose())
 
     def print_defects(self, defects_map):
