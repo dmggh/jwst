@@ -411,6 +411,7 @@ class InteractiveBase(object):
                 "change_level" : "SEVERE",
                 "description":" this is only a test.",
                 "compare_old_reference": True,
+                "auto_rename" : "checked",
                 }, follow=True)
         # print response
         self.assert_no_errors(response)
@@ -773,4 +774,5 @@ else:  # JWST
             "interactive/test_data/jwst_miri_0000.imap",
             "interactive/test_data/jwst_miri_amplifier_9999.rmap",
             ]
-
+        
+        certify_post_fits_bad = "interactive/test_data/jwst_miri_amplifier_bad.fits"
