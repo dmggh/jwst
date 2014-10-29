@@ -1,0 +1,12 @@
+#! /bin/csh
+
+# Script to shut down cron while rescheduling an automatic cron restart
+# at the specified future at-time.
+
+echo "Clearing crontab."
+crontab </dev/null
+
+echo "Scheduling cron restart for" $*
+at $* <<EOF
+   ( source $HOME/.setenv; cd $CRDS/CRDS_server; source env.csh;  crontab <host/crontab;  crontab -l) | mail -r crds-servers@stsci.edu -s "no_cron_til cron restart"  crds-servers@stsci.edu
+EOF
