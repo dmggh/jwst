@@ -1,32 +1,128 @@
+{% load stdtags %}
+
     <p><b>NOTE:</b> This page is a <b>diagnostic aid</b> and <b>not for production data calibration.</b>
     
-    {% if observatory|upper == "HST" %}
-    For production use for HST,  the CRDS command line tools are used to update dataset headers.
-    </p>
+    {% if observatory|upper == "HST" %} 
 
-    <p><b>On-site at STScI</b> typically no file downloads or configuration are required for 
-    running crds.bestrefs.   Best references can be assigned to HST dataset FITS files like this:
+      <br/><br/> For production use for HST, below are command line
+      instructions for determining and obtaining best reference files
+      for several common CRDS use cases.
     </p>
+    <br/>
 
-    <pre class="code" style="font-size: 1.2em;">
-    % setenv iref, jref, etc. to  /grp/crds/cache/references/hst for processing.
-        
-    % python -m crds.bestrefs --update-bestrefs --files *.fits</pre>
+    {% accordion "Shared (On-site) HST environment, Flat Cache" %}
+    <p class="darkred">
+      This configuration utilizes a readonly group cache which contains all
+      reference files represented in CRDS.
+      Although it can be defaulted, the explicit configuration is shown below:
+    </p>
+    <pre class="code darkblue">
+      setenv CRDS_SERVER_URL https://hst-crds.stsci.edu
+      setenv CRDS_PATH /grp/crds/cache
+    </pre>
+    <p class="darkred">
+      The current group shared cache is organized with a flat single
+      directory structure for all references.  Environment variables
+      are required to make CRDS cached references usable by
+      calibration software:
+    </p>
+    <pre class="code darkblue">
+      setenv iref  ${CRDS_PATH}/references/hst
+      setenv jref  ${CRDS_PATH}/references/hst
+      setenv oref  ${CRDS_PATH}/references/hst
+      setenv lref  ${CRDS_PATH}/references/hst
+      setenv nref  ${CRDS_PATH}/references/hst
+      setenv uref  ${CRDS_PATH}/references/hst
+    </pre>
+    <p class="darkred">
+      Once the environment is configured,  crds.bestrefs can be run like this on datasets to
+      assign best references to the dataset headers and fetch the reference files:
+    </p>
+    <pre class="code darkblue">
+      python -m crds.bestrefs --update-bestrefs --sync-references=1 --files *.fits
+    </pre>
+    <p class="darkred">
+      Since the group shared cache is readonly,  it cannot be reorganized by individual users.
+    </p>
+   {% endaccordion %}
+
+    {% accordion "Personal (Off-site) HST Environment, By-instrument Cache" %}
+    <p class="darkred">
+      The new default cache organization for reference caches
+      is organized with a subdirectory for each instrument.  To
+      configure CRDS for HST for a personal cache organized by
+      instrument:
+    </p>    
+    <pre class="code darkblue">
+      setenv CRDS_SERVER_URL https://hst-crds.stsci.edu
+      setenv CRDS_PATH $HOME/crds_cache
+    </pre>
+    <p class="darkred">
+      Environment variables are required to make the CRDS cache usable
+      by calibration software,  defined here organized  by instrument:
+    </p>
+    <pre class="code darkblue">
+      setenv iref  ${CRDS_PATH}/references/hst/iref
+      setenv jref  ${CRDS_PATH}/references/hst/jref
+      setenv oref  ${CRDS_PATH}/references/hst/oref
+      setenv lref  ${CRDS_PATH}/references/hst/lref
+      setenv nref  ${CRDS_PATH}/references/hst/nref
+      setenv uref  ${CRDS_PATH}/references/hst/uref
+    </pre>
+    <p class="darkred">
+      Once the environment is configured,  crds.bestrefs can be run like this on datasets to
+      assign best references to the dataset headers and fetch the reference files:
+    </p>
+    <pre class="code darkblue">
+      python -m crds.bestrefs --update-bestrefs --sync-references=1 --files *.fits    
+    </pre>
+    <p class="darkred">
+      To reorganize a flat CRDS Cache to one with instrument subdirectories like the
+      above:
+    </p>
+    <pre class="code darkblue">
+      python -m crds.sync --organize=instrument
+    </pre>
+    {% endaccordion %}
     
-    <p>For <b>Offsite use</b> (without ssh or VPN) you can create a personal copy of required rules and references
-    and run crds.bestrefs like this:
+    {% accordion "Personal (Off-site) HST Environment, Flat Cache" %}
+    <p class="darkred">
+      To configure CRDS for HST with a local/private/portable CRDS cache
+      organized in a flat single directory layout:
+    </p>    
+    <pre class="code darkblue">
+      setenv CRDS_SERVER_URL https://hst-crds.stsci.edu
+      setenv CRDS_PATH $HOME/crds_cache
+    </pre>
+    <p class="darkred">
+      Environment variables are required to make the CRDS cache usable
+      by calibration software,  shown here for the shared flat CRDS cache:
     </p>
-    <pre class="code" style="font-size: 1.2em;">
-    % setenv CRDS_PATH $HOME/crds_cache
-    % setenv CRDS_SERVER_URL https://hst-crds.stsci.edu
-    % setenv iref, jref, etc. to  ${CRDS_PATH}/references/hst for processing.
-        
-    % python -m crds.bestrefs --update-bestrefs --files *.fits --sync-references=1</pre>
+    <pre class="code darkblue">
+       setenv iref  ${CRDS_PATH}/references/hst
+       setenv jref  ${CRDS_PATH}/references/hst
+       setenv oref  ${CRDS_PATH}/references/hst
+       setenv lref  ${CRDS_PATH}/references/hst
+       setenv nref  ${CRDS_PATH}/references/hst
+       setenv uref  ${CRDS_PATH}/references/hst
+    </pre>
+    <p class="darkred">
+      Once the environment is configured,  crds.bestrefs can be run like this on datasets to
+      assign best references to the dataset headers and fetch the reference files:
+    </p>
+    <pre class="code darkblue">
+      python -m crds.bestrefs --update-bestrefs --sync-references=1 --files *.fits    
+    </pre>
+    <p class="darkred">
+      To reorganize files in a CRDS Cache which is organized by instrument into
+      the flat single directory structure above:
+    </p>
+    <pre class="code darkblue">
+      python -m crds.sync --organize=flat
+    </pre>
+    {% endaccordion %}
 
-    <p>This sets up a personal cache containing the latest operational rules and server configuration
-    information.  Adding --sync-references=1 downloads any required references to your CRDS cache automatically.
-    If you have another source of reference files,  syncing and using CRDS references is optional.
-    </p>
+    <br/>
     <p/><p> See <a href='{{ request.build_absolute_uri }}/static/users_guide/installation.html#setting-up-your-environment'>Setting Up Your Environment</a>
     or <a href='{{ request.build_absolute_uri }}/static/users_guide/command_line_tools.html'>Command Line Tools</a> for more information on configuring your
     environment and running crds.bestrefs.
