@@ -2241,12 +2241,12 @@ def set_default_context(request):
                 "context_map" : context_map,
                 "context_pmaps" : context_pmaps,
                 "context_types" : models.CONTEXT_TYPES,
+                "description" : get_default_description_for_set_context(),
             }, requires_pmaps=True)
     else:
         new_default = get_recent_or_user_context(request)
         context_type = validate(request, "context_type", models.CONTEXT_TYPES)
         description = validate(request, "description", common.DESCRIPTION_RE)
-
         old_default = update_default_context(new_default, description, context_type, str(request.user))
         
         return crds_render(request, "set_default_context_results.html", {
@@ -2254,6 +2254,23 @@ def set_default_context(request):
                     "old_default" :  old_default,
                     "context_type" : context_type,
                 })
+
+def get_default_description_for_set_context(new_context=None):
+    """Return the text of the description related to the transition from the current
+    operational context to `new_context`.  Return "" for anything hard.
+    """
+    if new_context is None:
+        new_context = models.get_default_context(observatory=models.OBSERVATORY, state="edit")
+    with log.error_on_exception("Can't find default description for transition to", srepr(new_context)):
+        mappings = rmap.list_mappings("*.pmap", observatory=models.OBSERVATORY)
+        old_context = models.get_default_context(observatory=models.OBSERVATORY, state="operational")
+        index = mappings.index(old_context)
+        if index+1 < len(mappings) and mappings[index+1] == new_context:
+            description = models.FileBlob.load(new_context).thaw().description
+        else:
+            description = ""
+        return description
+    return ""
 
 def get_context_pmaps(context_map):
     """Return a list of option tuples for rendering HTML to choose context
