@@ -156,14 +156,14 @@ precludes writing a parser for CRDS mappings in some other language.</p>
 <h2>Naming<a class="headerlink" href="#naming" title="Permalink to this headline">¶</a></h2>
 <p>The CRDS HST mapping prototypes which are generated from information scraped from
 the CDBS web site are named with the forms:</p>
-<div class="highlight-python"><pre>&lt;observatory&gt; .pmap                               .e.g. hst.pmap
-&lt;observatory&gt; _ &lt;instrument&gt; .imap                .e.g. hst_acs.imap
-&lt;observatory&gt; _ &lt;instrument&gt; _ &lt;filekind&gt; .rmap   .e.g. hst_acs_darkfile.rmap</pre>
+<div class="highlight-python"><pre>&lt;observatory&gt; .pmap                               e.g. hst.pmap
+&lt;observatory&gt; _ &lt;instrument&gt; .imap                e.g. hst_acs.imap
+&lt;observatory&gt; _ &lt;instrument&gt; _ &lt;filekind&gt; .rmap   e.g. hst_acs_darkfile.rmap</pre>
 </div>
 <p>The names of subsequent derived mappings include a version number:</p>
-<div class="highlight-python"><pre>&lt;observatory&gt; _ &lt;version&gt; .pmap                               .e.g. hst_00001.pmap
-&lt;observatory&gt; _ &lt;instrument&gt; _ &lt;version&gt; .imap                .e.g. hst_acs_00047.imap
-&lt;observatory&gt; _ &lt;instrument&gt; _ &lt;filekind&gt; _ &lt;version&gt; .rmap  .e.g. hst_acs_darkfile_00012.rmap</pre>
+<div class="highlight-python"><pre>&lt;observatory&gt; _ &lt;version&gt; .pmap                               e.g. hst_00001.pmap
+&lt;observatory&gt; _ &lt;instrument&gt; _ &lt;version&gt; .imap                e.g. hst_acs_00047.imap
+&lt;observatory&gt; _ &lt;instrument&gt; _ &lt;filekind&gt; _ &lt;version&gt; .rmap   e.g. hst_acs_darkfile_00012.rmap</pre>
 </div>
 </div>
 <div class="section" id="basic-structure">
@@ -543,7 +543,7 @@ actual dataset header values. For instance,  when an rmap header contains a
 <p>Here the value of G280_AMPS works like this:  first,   reference files listed
 under that match tuple define CCDAMP=G280_AMPS.   Second, datasets which should
 use those references define CCDAMP to a particular amplifier configuration,
-.e.g.  ABCD.   Hence,  the reference file specifies a set of applicable
+e.g.  ABCD.   Hence,  the reference file specifies a set of applicable
 amplifier configurations,  while the dataset specifies a particular
 configuration.   CRDS automatically expands substitutions into equivalent sets
 of match rules.</p>
