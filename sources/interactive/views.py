@@ -265,7 +265,7 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
     rdict = {   # standard template variables
         "observatory" : models.OBSERVATORY,
              
-        "instrument" : "acs",
+        "instrument" : "*",
         "instruments" : ["*"] + models.INSTRUMENTS,
 
         "filekind" : "*",
