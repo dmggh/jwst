@@ -107,7 +107,9 @@ def endswith(s, ending):
 @register.filter
 @stringfilter
 def file_exists(filename):
-    return os.path.exists(crds.locate_file(filename, config.observatory))
+    with log.error_on_exception("Failed determining file existence for", repr(filename)):
+        return os.path.exists(crds.locate_file(filename, config.observatory))
+    return False
 
 # ===========================================================================
 
