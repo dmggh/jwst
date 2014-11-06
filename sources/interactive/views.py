@@ -953,9 +953,13 @@ def bestrefs_post(request):
     else:
         raise ValueError("Bad dataset_mode " + srepr(dataset_mode))
 
+    log.info("Primitive Dataset Header:\n", log.PP(header))
+
     header = pmap.minimize_header(header)
     
     results = bestrefs_results(request, pmap, header, dataset_name)
+
+    log.info("Best Refs Results:", log.PP(results))
 
     return results
 

@@ -11,9 +11,8 @@ header = {
 
 selector = Match({
     ('MIRIMAG', 'ANY') : 'r7g1700gl_dead.fits',
-    ('MIRIMAGE', 'ANY') : 'cdbsx99876m.fits',
     ('MIRIMAGE', 'ANY') : 'jwst_miri_photom_dup_0000.fits',
-    ('MIRIMAGE', 'BAM!') : 'jwst_miri_photom_dup_0000.fits',
+    ('MIRIMAGE', 'ANY') : 'jwst_miri_photom_dup_0001.fits',
     ('MIRIMAGE', 'ANY') : 'r7g1700gl_dead.fits',
     ('MIRIFULONG', 'ANY') : 'jwst_miri_photom_made_up.fits',
     ('MIRIFUSHORT', 'ANY') : 'jwst_miri_photom_made_up3.fits',
