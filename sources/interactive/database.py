@@ -18,7 +18,7 @@ from crds.server import config as sconfig
 
 if models.OBSERVATORY == "hst":
     import crds.hst, crds.hst.locate
-    import crds.hst.parkeys as parkeys
+    from crds.hst import reftypes
 
 log.set_verbose(False)
 
@@ -237,10 +237,10 @@ def get_instrument_db_parkeys(instrument):
     filekinds of instrument.
     """
     dbkeys = set()
-    for filekind in parkeys.get_filekinds(instrument):
-        dbkeys = dbkeys.union(set(parkeys.get_db_parkeys(instrument, filekind)))
-        dbkeys = dbkeys.union(set(parkeys.get_extra_keys(instrument, filekind)))
-        switch = parkeys.get_reffile_switch(instrument, filekind)
+    for filekind in reftypes.get_filekinds(instrument):
+        dbkeys = dbkeys.union(set(reftypes.get_item(instrument, filekind, "parkey")))
+        dbkeys = dbkeys.union(set(reftypes.get_item(instrument, filekind, "extra_keys")))
+        switch = reftypes.get_item(instrument, filekind, "reffile_switch")
         if switch.lower() != "none":
             dbkeys.add(switch)
     log.info("Parkeys for", repr(instrument), "=", sorted(list(dbkeys)))
