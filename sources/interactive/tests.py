@@ -129,7 +129,7 @@ class InteractiveBase(object):
     @classmethod
     def fake_database_files(self, files, link=False):
         for filename in files:
-            # log.info("Faking database file", repr(filename))
+            log.info("Faking database file", repr(filename))
             name = os.path.basename(filename)
             source = os.path.abspath(filename)
             where = rmap.locate_file(name, self.observatory)
@@ -269,18 +269,6 @@ class InteractiveBase(object):
         self.assertNotIn("ERROR", response.content)
         self.assertEqual(response.content.count("OK"), 2)
 
-    def test_certify_post_fits_bad(self):
-        self.login()
-        self.fake_database_files([self.certify_post_fits_bad])
-        self.add_file_to_ingest_dir(self.certify_post_fits_bad)
-        response = self.client.post("/certify/", {
-            "pmap_mode": "pmap_edit",
-        }, follow=True)
-        # print "certify post FITS response:", response.content
-        self.assertIn("&#39;FOO&#39; is not one of", response.content)
-        self.assertIn("ERROR", response.content)
-        self.assertIn("s7g1700rl_dead_bad.fits  <span class=\'red\'>Failed.</span>", response.content)
-
     def test_certify_post_rmap_uploaded(self):
         self.login()
         self.add_file_to_ingest_dir(self.certify_rmap)
@@ -292,23 +280,6 @@ class InteractiveBase(object):
         self.assertNotIn("ERROR", response.content)
         self.assertNotIn("Failed", response.content)
         self.assertEqual(response.content.count("OK"), 2)
-
-    def test_certify_post_rmap_bad(self):
-        self.login()
-        self.add_file_to_ingest_dir(self.certify_rmap_bad)
-        self.fake_database_files(self.certify_rmap_fits)
-        response = self.client.post("/certify/", {
-            "pmap_mode": "pmap_edit",
-            "compare_old_reference": "checked",
-            }, follow=True)
-        # self.assertTrue(response.content.count("ERROR") == 7)
-        self.assertTrue(response.content.count("WARNING") == 3)
-        self.assertIn("sha1sum", response.content)
-        self.assertIn("is not in", response.content)
-        self.assertIn("Reversion", response.content)
-        self.assertIn("Duplicate", response.content)
-        self.assertIn("added Match rule", response.content)
-        self.assertTrue(response.content.count("is not known") == 2)
 
     def test_difference_get(self):
         response = self.client.get("/difference/")
@@ -711,6 +682,36 @@ if sconfig.observatory == "hst":
             "interactive/test_data/hst_acs_darkfile2.rmap",
             "interactive/test_data/hst_acs2.imap",
             ]
+
+        def test_certify_post_rmap_bad(self):
+            self.login()
+            self.add_file_to_ingest_dir(self.certify_rmap_bad)
+            self.fake_database_files(self.certify_rmap_fits)
+            response = self.client.post("/certify/", {
+                    "pmap_mode": "pmap_edit",
+                    "compare_old_reference": "checked",
+                    }, follow=True)
+            # self.assertTrue(response.content.count("ERROR") == 7)
+            self.assertTrue(response.content.count("WARNING") == 5)
+            self.assertIn("sha1sum", response.content)
+            self.assertIn("is not in", response.content)
+            self.assertIn("Reversion", response.content)
+            self.assertIn("Duplicate", response.content)
+            self.assertIn("added Match rule", response.content)
+            self.assertTrue(response.content.count("is not known") == 2)
+            
+        def test_certify_post_fits_bad(self):
+            self.login()
+            self.fake_database_files([self.certify_post_fits_bad])
+            self.add_file_to_ingest_dir(self.certify_post_fits_bad)
+            response = self.client.post("/certify/", {
+                    "pmap_mode": "pmap_edit",
+                    }, follow=True)
+            # print "certify post FITS response:", response.content
+            self.assertIn("&#39;FOO&#39; is not one of", response.content)
+            self.assertIn("ERROR", response.content)
+            self.assertIn("s7g1700rl_dead_bad.fits  <span class=\'red\'>Failed.</span>", response.content)
+            
 else:  # JWST
     
     class Jwst(InteractiveBase, TransactionTestCase):
@@ -771,8 +772,38 @@ else:  # JWST
                                  "jwst_miri_photom_0000.rmap"]
 
         blacklist_files = [
-            "interactive/test_data/jwst_miri_0000.imap",
+            "interactive/test_data/jwst_miri_6666.imap",
             "interactive/test_data/jwst_miri_amplifier_9999.rmap",
             ]
         
         certify_post_fits_bad = "interactive/test_data/jwst_miri_amplifier_bad.fits"
+
+        def test_certify_post_rmap_bad(self):
+            self.login()
+            self.add_file_to_ingest_dir(self.certify_rmap_bad)
+            self.fake_database_files(self.certify_rmap_fits)
+            response = self.client.post("/certify/", {
+                    "pmap_mode": "pmap_edit",
+                    "compare_old_reference": "checked",
+                    }, follow=True)
+            self.assertTrue(response.content.count("ERROR") == 2)
+            self.assertTrue(response.content.count("WARNING") == 3)
+            self.assertIn("sha1sum", response.content)
+            self.assertIn("is not in", response.content)
+            self.assertIn("Reversion", response.content)
+            self.assertIn("Duplicate", response.content)
+            self.assertIn("added Match rule", response.content)
+            self.assertTrue(response.content.count("is not known") == 2)
+            
+        def test_certify_post_fits_bad(self):
+            self.login()
+            self.fake_database_files([self.certify_post_fits_bad])
+            self.add_file_to_ingest_dir(self.certify_post_fits_bad)
+            response = self.client.post("/certify/", {
+                    "pmap_mode": "pmap_edit",
+                    }, follow=True)
+            # print "certify post FITS response:", response.content
+            # self.assertIn("&#39;FOO&#39; is not one of", response.content)
+            # self.assertIn("ERROR", response.content)
+            # self.assertIn("s7g1700rl_dead_bad.fits  <span class=\'red\'>Failed.</span>", response.content)
+            
