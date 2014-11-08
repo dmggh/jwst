@@ -691,8 +691,8 @@ if sconfig.observatory == "hst":
                     "pmap_mode": "pmap_edit",
                     "compare_old_reference": "checked",
                     }, follow=True)
-            # self.assertTrue(response.content.count("ERROR") == 7)
-            self.assertTrue(response.content.count("WARNING") == 5)
+            self.assertTrue(response.content.count("ERROR") == 4)
+            self.assertTrue(response.content.count("WARNING") == 3)
             self.assertIn("sha1sum", response.content)
             self.assertIn("is not in", response.content)
             self.assertIn("Reversion", response.content)

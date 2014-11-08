@@ -55,14 +55,16 @@ clear_expired_locks  >& ${CRDS_CRON}/clear_expired_locks.${ETAIL}
 tail -100 ${CRDS_CRON}/clear_expired_locks.${ETAIL}
 
 echo "==========================================================="
-echo "Server cache check"
+echo "Server cache certify check, last 5 contexts"
 echo "==========================================================="
-cd ${CRDS}/CRDS_server
-python -m crds.certify  `python -m crds.list --all --mappings | grep pmap | sort | grep 0 | tail -1` --exist >& ${CRDS_CRON}/certify.${ETAIL}
-tail -100 ${CRDS_CRON}/certify.${ETAIL}
+crds_certify_cache 5 --exist >& ${CRDS_CRON}/crds_certify_cache.${ETAIL}
+snip ${CRDS_CRON}/crds_certify_cache.${ETAIL}
 
-python -m crds.sync --all --fetch-references --check-files >& ${CRDS_CRON}/sync.${ETAIL}
-tail -100 ${CRDS_CRON}/sync.${ETAIL}
+echo "==========================================================="
+echo "Server cache verify check,  no sha1sum"
+echo "==========================================================="
+crds_verify_cache local --all --verbose --stats --dump-unique-errors >& ${CRDS_CRON}/crds_verify_cache.${ETAIL}
+snip ${CRDS_CRON}/crds_verify_cache.${ETAIL}
 
 echo "==========================================================="
 echo "Server orphan files check"
