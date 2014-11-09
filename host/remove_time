@@ -1,0 +1,19 @@
+#! /usr/bin/env python
+#-*-python-*-
+from __future__ import print_function
+
+import sys
+import re
+
+# [2014-11-07 23:03:15,733]
+
+def remove_time(file):
+    for line in file:
+    	print(re.sub(r"(.*)\[\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d,\d\d\d\](.*)", r"\1\2", line), end="")
+
+if __name__ == "__main__":
+     if len(sys.argv) == 1:
+         remove_time(sys.stdin)
+     else:
+         remove_time(open(sys.argv[1]))
+
