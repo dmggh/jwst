@@ -772,8 +772,8 @@ else:  # JWST
                                  "jwst_miri_photom_0000.rmap"]
 
         blacklist_files = [
-            "interactive/test_data/jwst_miri_6666.imap",
             "interactive/test_data/jwst_miri_amplifier_9999.rmap",
+            "interactive/test_data/jwst_miri_6666.imap",
             ]
         
         certify_post_fits_bad = "interactive/test_data/jwst_miri_amplifier_bad.fits"
