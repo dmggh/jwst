@@ -1,0 +1,25 @@
+#! /usr/bin/env pysh
+#-*-python-*-
+
+import pyfits
+from crds import pysh
+
+pysh.usage("<filename> <keyword> [<value> [<extension>]]", 2, 4)
+
+if len(sys.argv) == 3:
+   filename, keyword = sys.argv[1:]
+   value, extension = None, None
+elif len(sys.argv) == 4:
+   filename, keyword, value = sys.argv[1:]
+   extension = None
+else:
+   filename, keyword, value, extension = sys.argv[1:]
+
+if value is None:
+   try:
+      print keyword, "=", pyfits.getval(filename, keyword=keyword)
+   except:
+      print "keyword", repr(keyword), "not found in", repr(filename)
+else:
+   pyfits.setval(filename, keyword=keyword, value=value, ext=extension)
+

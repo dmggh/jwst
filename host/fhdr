@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+#-*-python-*-
 
 import sys
 import optparse
@@ -6,44 +7,44 @@ import optparse
 import astropy.io.fits as pyfits
 
 def dump_header(fname, extensions=[0], verbose=False):
-	if extensions == "all":
-		extensions = range(len(pyfits.open(fname)))
-	for x in extensions:
-		hdr = pyfits.getheader(fname, ext=x)
-		for r, val in hdr.items():
-			if verbose:
-				print "[" + str(x) + "]:",
-			print r, "=", val
+    if extensions == "all":
+        extensions = range(len(pyfits.open(fname)))
+    for x in extensions:
+        hdr = pyfits.getheader(fname, ext=x)
+        for r, val in hdr.items():
+            if verbose:
+                print fname, "[" + str(x) + "]:",
+            print r, "=", val
 
 def main():
-	parser = optparse.OptionParser(
-		usage="usage: %prog [options] <fits_files...>")
-	parser.add_option("-e","--extensions",dest="extensions",
-			  help="comma seperated FITS extensions to select",
-			  metavar="EXTENSIONS", default="0")
-	parser.add_option("-v","--verbose",dest="verbose",
-			  help="show file and extension on each line.",
-			  action="store_true",
-			  default=False)			  
-	parser.add_option("-a","--all",dest="all_extensions",
-			  help="show file and extension on each line.",
-			  action="store_true",
-			  default=False)			  
-	options, args = parser.parse_args()
+    parser = optparse.OptionParser(
+        usage="usage: %prog [options] <fits_files...>")
+    parser.add_option("-e","--extensions",dest="extensions",
+                      help="comma seperated FITS extensions to select",
+                      metavar="EXTENSIONS", default="0")
+    parser.add_option("-v","--verbose",dest="verbose",
+                      help="show file and extension on each line.",
+                      action="store_true",
+                      default=False)              
+    parser.add_option("-a","--all",dest="all_extensions",
+                      help="show file and extension on each line.",
+                      action="store_true",
+                      default=False)              
+    options, args = parser.parse_args()
 
-	try:
-		extensions = [int(x) for x in options.extensions.split(",")]
-	except:
-		if options.extensions[0] == "a":
-			extensions = "all"
+    try:
+        extensions = [int(x) for x in options.extensions.split(",")]
+    except:
+        if options.extensions[0] == "a":
+            extensions = "all"
 
-	if options.all_extensions:
-		extensions = "all"
+    if options.all_extensions:
+        extensions = "all"
 
-	verbose = options.verbose or (len(extensions) + len(args) > 2)
+    verbose = options.verbose or (len(extensions) + len(args) > 2)
 
-	for fname in args:
-		dump_header(fname, extensions, verbose=verbose)
+    for fname in args:
+        dump_header(fname, extensions, verbose=verbose)
 
 if __name__ == "__main__":
-	main()
+    main()
