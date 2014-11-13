@@ -93,7 +93,7 @@ def textual_diff(file1_orig, file2_orig, file1_path=None, file2_path=None):
         file2_path = rmap.locate_mapping(file2_orig)
     file1_path = config.check_path(file1_path)
     file2_path = config.check_path(file2_path)
-    diffs = pysh.out("diff -b -u -FUseAfter ${file1_path} ${file2_path}")  # secured
+    diffs = pysh.out("diff -b -u -FUseAfter ${file1_path} ${file2_path}", raise_on_error=False)  # secured
     diffs = diffs.replace(file1_path, file1_orig)
     diffs = diffs.replace(file2_path, file2_orig)
     return diffs
