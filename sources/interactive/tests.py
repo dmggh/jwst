@@ -17,6 +17,8 @@ from crds.server.interactive import models, locks
 
 from django.contrib.auth.models import User
 
+# pysh.set_debug(True) # XXXXX set False for production unit test use, True for development.
+
 class InteractiveBase(object):
 
     @classmethod
@@ -24,17 +26,26 @@ class InteractiveBase(object):
         
         log.info("Setting up tests:", cls.__name__)
                 
+        global CRDS_PATH, TEST_MAPPING_DIR, REAL_MAPPING_DIR
+
         # The results of locate_file will change when CRDS_PATH is redefined below.
         # Remember the real one here.
         REAL_MAPPING_DIR = os.path.dirname(rmap.locate_file("foo.pmap", cls.observatory))
-        cached_pmap = rmap.get_cached_mapping(cls.pmap)        
-        
-        # Set up test server tree
-        CRDS_PATH = os.environ["CRDS_PATH"] = sconfig.install_root + "/test"
-        log.info("Test CRDS_PATH", CRDS_PATH, "environ", os.environ["CRDS_PATH"], 
-                 "REAL_MAPPING_DIR", REAL_MAPPING_DIR)
 
+        # Must cache before CRDS_PATH changes to test cache.
+        cls._cached_mapping_names = []
+        for mapping in cls.cached_contexts:
+            cls._cached_mapping_names.extend(rmap.load_mapping(mapping).mapping_names())
+        cls._cached_mapping_names = sorted(set(cls._cached_mapping_names))
+
+        # Set up test server tree and CRDS test cache
         lconfig.set_crds_ref_subdir_mode("flat", cls.observatory)
+
+        CRDS_PATH = os.environ["CRDS_PATH"] = sconfig.install_root + "/test"
+        TEST_MAPPING_DIR = os.path.dirname(lconfig.locate_file("test.pmap", cls.observatory))
+
+        log.info("Test CRDS_PATH", CRDS_PATH, "environ", os.environ["CRDS_PATH"], 
+                 "REAL_MAPPING_DIR", REAL_MAPPING_DIR, "TEST_MAPPING_DIR", TEST_MAPPING_DIR)
 
         pysh.sh("rm -rf ${CRDS_PATH}", raise_on_error=True)  #, trace_commands=True)
         pysh.sh("mkdir -p ${CRDS_PATH}/ingest", raise_on_error=True)
@@ -43,12 +54,6 @@ class InteractiveBase(object):
         pysh.sh("mkdir -p ${CRDS_PATH}/references/%s" % cls.observatory, raise_on_error=True)
         pysh.sh("mkdir -p ${CRDS_PATH}/mappings/%s" % cls.observatory, raise_on_error=True)
 
-        mappings = cached_pmap.mapping_names()
-        for map in mappings:
-            pysh.sh("cp ${REAL_MAPPING_DIR}/${map} ${CRDS_PATH}/mappings/%s" % cls.observatory, 
-                    raise_on_error=True) # , trace_commands=True)
-        # cls.fake_database_files(mappings)
-            
         # monkey-patch these since they're not encapsulated with functions.
         sconfig.CRDS_INGEST_DIR = os.path.join(CRDS_PATH, "ingest")
         sconfig.CRDS_DELIVERY_DIR = os.path.join(CRDS_PATH, "deliveries")
@@ -58,9 +63,16 @@ class InteractiveBase(object):
         settings.CRDS_LOCK_ACQUIRE_TIMEOUT = 0.5  # Don't waste time during tests with SQLite
 
     @classmethod
+    def copy_test_mappings(cls):
+        mappings = "{" + ",".join(cls._cached_mapping_names) + "}"
+        pysh.sh("cp -f ${REAL_MAPPING_DIR}/${mappings} ${CRDS_PATH}/mappings/%s" % cls.observatory, 
+                raise_on_error=True) # , trace_commands=True)
+
+    @classmethod
     def tearDownClass(self):
+        # pysh.sh("rm -rf ${CRDS_PATH}")
         os.environ["CRDS_PATH"] = sconfig.install_root
-        
+
     def runTest(self, *args, **keys):
         pass
     
@@ -70,6 +82,7 @@ class InteractiveBase(object):
     }
     
     def setUp(self): 
+        self.copy_test_mappings()
         self.user = User.objects.create_user('homer', 'homer@simpson.net', self.passwords["homer"])
         self.user2 = User.objects.create_user('bozo', 'bozo@godaddy.com', self.passwords["bozo"])
         self.user.is_superuser = True
@@ -94,6 +107,11 @@ class InteractiveBase(object):
         if self.ingested:
             pysh.sh("/bin/rm -rf " + self.ingest_path, raise_on_error=True) # , trace_commands=True)
         locks.release_all()
+            
+    def post(self, *args, **keys):
+        response = self.client.post(*args, **keys)
+        log.info("RESPONSE:\n", response.content)
+        return response
 
     def login(self, username="homer", locked_instrument=None, status=302):
         instrument = locked_instrument if locked_instrument else self.locked_instrument
@@ -132,9 +150,9 @@ class InteractiveBase(object):
             log.info("Faking database file", repr(filename))
             name = os.path.basename(filename)
             source = os.path.abspath(filename)
-            where = rmap.locate_file(name, self.observatory)
+            where = lconfig.relocate_file(filename, self.observatory)
             if link:
-                with log.error_on_exception("Symlinking", repr(source), "failed."):
+                with log.error_on_exception("Symlinking", repr(source), "to", repr(where), "failed."):
                     log.info("Symlinking fake file", repr(source), "to", repr(where))
                     os.symlink(source, where)
             models.add_crds_file(
@@ -624,6 +642,7 @@ if sconfig.observatory == "hst":
         
         observatory = "hst"
         pmap = "hst.pmap"
+        cached_contexts = [pmap]
         
         new_context = "interactive/test_data/hst_0027.pmap"
         
@@ -722,6 +741,8 @@ else:  # JWST
         observatory = "jwst"
         pmap = "jwst_0000.pmap"
         
+        cached_contexts = [pmap, "jwst_0003.pmap"]
+
         new_context = "interactive/test_data/jwst_0027.pmap"
         
         delete_list = [
@@ -753,9 +774,14 @@ else:  # JWST
 
         certify_rmap = "interactive/test_data/jwst_miri_amplifier_0000.rmap"
         certify_rmap_bad = "interactive/test_data/jwst_miri_photom_0666.rmap"
-        certify_rmap_fits = ["jwst_miri_amplifier_0000.fits",
-                             "jwst_miri_amplifier_0001.fits",
-                             "jwst_miri_amplifier_0002.fits"]
+        certify_rmap_fits = ["interactive/test_data/jwst_miri_amplifier_0000.fits",
+                             "interactive/test_data/jwst_miri_amplifier_0001.fits",
+                             "interactive/test_data/jwst_miri_amplifier_0002.fits",
+                             "interactive/test_data/jwst_miri_photom_0000.fits",
+                             "interactive/test_data/jwst_miri_photom_8888.fits",
+                             "interactive/test_data/jwst_miri_photom_8889.fits",
+                             "interactive/test_data/jwst_0003.pmap",
+                             ]
         certify_post_fits = "interactive/test_data/jwst_miri_amplifier_0001.fits"
 
         submit_rmap = "interactive/test_data/jwst_miri_amplifier_9999.rmap"
@@ -781,19 +807,20 @@ else:  # JWST
         def test_certify_post_rmap_bad(self):
             self.login()
             self.add_file_to_ingest_dir(self.certify_rmap_bad)
-            self.fake_database_files(self.certify_rmap_fits)
-            response = self.client.post("/certify/", {
-                    "pmap_mode": "pmap_edit",
+            self.fake_database_files(self.certify_rmap_fits, link=True)
+            response = self.post("/certify/", {
+                    "pmap_mode": "pmap_text",
+                    "pmap_text": "jwst_0003.pmap",
                     "compare_old_reference": "checked",
                     }, follow=True)
             self.assertTrue(response.content.count("ERROR") == 2)
             self.assertTrue(response.content.count("WARNING") == 3)
             self.assertIn("sha1sum", response.content)
-            self.assertIn("is not in", response.content)
+            # self.assertIn("is not in", response.content)
             self.assertIn("Reversion", response.content)
             self.assertIn("Duplicate", response.content)
             self.assertIn("added Match rule", response.content)
-            self.assertTrue(response.content.count("is not known") == 2)
+            self.assertTrue(response.content.count("is not known") == 1)
             
         def test_certify_post_fits_bad(self):
             self.login()

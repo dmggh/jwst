@@ -3,17 +3,16 @@ header = {
     'filekind' : 'PHOTOM',
     'instrument' : 'MIRI',
     'mapping' : 'REFERENCE',
-    'name' : 'jwst_miri_photom_0000.rmap',
+    'name' : 'jwst_miri_photom_0666.rmap',
     'observatory' : 'JWST',
     'parkey' : (('META.INSTRUMENT.DETECTOR', 'META.INSTRUMENT.FILTER'),),
-    'sha1sum' : '196c88d3e70255b0ed143cc159a20a50bb2cab75',
+    'sha1sum' : '52662b7ca3cbb5d4c2f1b28e3b4a0a5e75ab59d1',
 }
 
 selector = Match({
-    ('MIRIMAG', 'ANY') : 'r7g1700gl_dead.fits',
-    ('MIRIMAGE', 'ANY') : 'jwst_miri_photom_dup_0000.fits',
-    ('MIRIMAGE', 'ANY') : 'jwst_miri_photom_dup_0001.fits',
-    ('MIRIMAGE', 'ANY') : 'r7g1700gl_dead.fits',
-    ('MIRIFULONG', 'ANY') : 'jwst_miri_photom_made_up.fits',
-    ('MIRIFUSHORT', 'ANY') : 'jwst_miri_photom_made_up3.fits',
+    ('MIRIFULONG', 'ANY') : 'jwst_miri_photom_8887.fits',  # non-existing file
+    ('MIRIFUMED', 'ANY') : 'jwst_miri_photom_8888.fits',   # bad detector
+    ('MIRIFUSHORT', 'ANY') : 'jwst_miri_photom_0000.fits', # reversion
+    ('MIRIMAGE', 'ANY') : 'jwst_miri_photom_8889.fits',
+    ('MIRIMAGE', 'ANY') : 'jwst_miri_photom_8889.fits',   # duplicate rule
 })
