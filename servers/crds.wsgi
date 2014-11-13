@@ -1,9 +1,11 @@
+#-*-python-*-
+
 import os
 import sys
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'crds.server.settings'
 
-import django.core.handlers.wsgi
+from django.core.wsgi import get_wsgi_application
 
 '''
 def application(environ, start_response):
@@ -18,8 +20,8 @@ def application(environ, start_response):
 '''
 
 try:
-	application = django.core.handlers.wsgi.WSGIHandler()
+    application = get_wsgi_application()
 except Exception, exc:
-       sys.stderr.write("Error in CRDS wsgi handler: " + repr(exc) + " :: " + str(exc))
-       raise
+    sys.stderr.write("Error in CRDS wsgi handler: " + repr(exc) + " :: " + str(exc))
+    raise
 

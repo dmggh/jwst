@@ -2,7 +2,7 @@ from fileupload.models import Picture
 from django.views.generic import CreateView, DeleteView
 
 from django.http import HttpResponse, HttpResponseRedirect
-from django.utils import simplejson
+import json
 from django.core.urlresolvers import reverse
 
 from django.conf import settings
@@ -45,5 +45,5 @@ class PictureDeleteView(DeleteView):
 class JSONResponse(HttpResponse):
     """JSON response class."""
     def __init__(self,obj='',json_opts={},content_type="application/json",*args,**kwargs):
-        content = simplejson.dumps(obj,**json_opts)
+        content = json.dumps(obj,**json_opts)
         super(JSONResponse,self).__init__(content,content_type,*args,**kwargs)

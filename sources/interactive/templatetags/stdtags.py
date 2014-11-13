@@ -25,53 +25,45 @@ register = template.Library()
 # Inline styles might be better than classes.   At least these filters isolate
 # that...
 
-@register.filter(name='gray')
+@register.filter(name='gray', is_safe=True)
 @stringfilter
 def gray(value):
     return format_html(u"<span class='{0}'>{1}</span>", "gray", value)
-gray.is_safe = True
 
-@register.filter(name='green')
+@register.filter(name='green', is_safe=True)
 @stringfilter
 def green(value):
     return format_html(u"<span class='{0}'>{1}</span>", "green", value)
-green.is_safe = True
 
-@register.filter(name='darkgreen')
+@register.filter(name='darkgreen', is_safe=True)
 @stringfilter
 def darkgreen(value):
     return format_html(u"<span class='{0}'>{1}</span>", "darkgreen", value)
-darkgreen.is_safe = True
 
-@register.filter(name='blue')
+@register.filter(name='blue', is_safe=True)
 @stringfilter
 def blue(value):
     return format_html(u"<span class='{0}'>{1}</span>", "blue", value)
-blue.is_safe = True
 
-@register.filter(name='darkblue')
+@register.filter(name='darkblue', is_safe=True)
 @stringfilter
 def darkblue(value):
     return format_html(u"<span class='{0}'>{1}</span>", "darkblue", value)
-darkblue.is_safe = True
 
-@register.filter(name='red')
+@register.filter(name='red', is_safe=True)
 @stringfilter
 def red(value):
     return format_html(u"<span class='{0}'>{1}</span>", "red", value)
-red.is_safe = True
 
-@register.filter(name='yellow')
+@register.filter(name='yellow', is_safe=True)
 @stringfilter
 def yellow(value):
     return format_html(u"<span class='{0}'>{1}</span>", "yellow", value)
-yellow.is_safe = True
 
-@register.filter(name='orange')
+@register.filter(name='orange', is_safe=True)
 @stringfilter
 def orange(value):
     return format_html(u"<span class='{0}'>{1}</span>", "orange", value)
-orange.is_safe = True
 
 # ===========================================================================
 
@@ -113,11 +105,10 @@ def file_exists(filename):
 
 # ===========================================================================
 
-@register.filter
+@register.filter(is_safe=True)
 @stringfilter
 def browse(name):  # handle str(datetime.datetime.now())
     return format_html("<a href='/browse/{0}'>{1}</a>", name, name)
-browse.is_safe = True
 
 @register.filter
 @stringfilter
@@ -150,8 +141,6 @@ def download_url(filename):
     except Exception:
         return conditional_escape(filename)
 
-#     return mark_safe(url)
-# download.is_safe = True
 
 # Filter for accessing dictionary using variable
 @register.filter
