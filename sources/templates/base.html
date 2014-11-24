@@ -3,7 +3,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
-    <title>{{observatory|upper}} Calibration Reference Data System (CRDS)</title>
+    <title>{{header_title}}</title>
 
     {% block head_additions %} 
     {% endblock %}
@@ -27,35 +27,51 @@
 
     <div id="title" class="body_panel">
         <div id="page_header">
-        <h1>{{observatory|upper}} Calibration Reference Data System (CRDS) 
-	  {% if server_usecase != "ops" %}
-	  <span class='green tiny'>({{server_usecase}})</span> 
-	  {% endif %}
-	</h1>
+            <h1>{{header_title}}
+	           {% if server_usecase != "ops" %}
+	              <span class='green tiny'>({{server_usecase}})</span> 
+	           {% endif %}
+	        </h1>
         </div>
     
         <div id="header_menu">
+           
            <a href="/static/users_guide/index.html" class="tiny"><img src='/static/images/help_blue.png' alt='help' class="header_menu" /></a>
            <a href="./" class="tiny" onclick="javascript:history.back(1);"><img src="/static/images/back-icon.png" alt='reset' class="header_menu" /></a>
            <a href="./" class="tiny" onclick= "javascript:history.forward(1);"><img src="/static/images/forward-icon.png" alt='reset' class="header_menu" /></a>
            <a href="/" class="tiny"><img src="/static/images/home.png" alt='home' class="header_menu" /></a>
+           
            {# <a href="./" class="tiny"><img src="/static/images/undo.ico" alt='reset' height='24' width='24' /></a> #}
+           
            {% if is_authenticated %}
                 <a href="/logout/" class="tiny"><img src="/static/images/exit.png" alt='logout' class="header_menu"
                     onclick='return confirm("Really logout?  Any unconfirmed file submissions will be cancelled.");' /></a>
            {% else %}
-                <a href="/login/?next={{current_path}}" class="tiny"><img src="/static/images/log_in.png" alt='login' class="header_menu" /></a>          
-           {% endif %}
+                <a href="/login/?next={{current_path}}" class="tiny"><img src="/static/images/log_in.png" alt='login' class="header_menu" /></a>
+            {%endif %}
+            
+           <select id="subsystem" onchange="return crds.select_subsystem(this.value);" style="font-size: 0.75em;" >
+                <option value="cal">Calibration References</option>
+                <option value="pht">Synphot References</option>
+                <option value="cfg">System Configuration</option>
+           </select>
+
            {% if locked_instrument %}
                <p><span class='locked_instrument'>{{locked_instrument}}</span>  <span class='lock_timer'> </span></p>
            {% endif %}
+
         </div>
+
         <div style="clear:both;">
         </div>
     </div>
     
     <div id="contents">
-        <script type="text/javascript">$("#contents").hide();</script>
+        
+        <script type="text/javascript">
+            $("#contents").hide();
+        </script>
+        
         {% block contents %}
  
 	    {% block contents_top %}{% endblock contents_top %}
@@ -102,8 +118,10 @@
         
         <br/>
 
-	<script type="text/javascript">$("#contents").show();</script>
-
+    	<script type="text/javascript">
+            $("#contents").show();
+        </script>
+    
     </div>
     
     {% if locked_instrument %}

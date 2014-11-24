@@ -30,7 +30,8 @@ urlpatterns = patterns('',
     
     # url(r'^json/(?P<method>[a-zA-Z0-9_.]+)$', jsonrpc_site.dispatch), # for HTTP GET only, also omissible,  XSS safe??
     
-    url(r'^$', 'crds.server.interactive.views.index'),          
+    url(r'^$', 'crds.server.interactive.views.index'),
+    url(r'^set_session/$', 'crds.server.interactive.views.set_session'),
     
     url(r'^login/$', 'crds.server.interactive.views.login'),          
     url(r'^logout/$', 'crds.server.interactive.views.logout'),

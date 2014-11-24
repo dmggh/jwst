@@ -185,6 +185,27 @@ crds.html_escape = function (text) {
     return text.replace(/[\"&'\/<>]/g, function (a) { return chr[a]; });
 };
 
+// restricted session variables may be set
+crds.set_session = function(variable, value, reload) {
+    console.log("set_session: " + variable + " = " + value);
+    $.ajax({
+        url: "set_session",
+        context: document.body,
+        data : {
+           "variable" : variable,
+           "value" : value,
+           }
+    }).done(function() {
+        if (reload) {
+            location.reload();
+        };
+    });
+};
+
+crds.select_subsystem = function(value) {
+    crds.set_session("subsystem", value, true);
+};
+
 $(function() {
     // tune jquery-ui accordions to be closed at start.
     $( ".accordion" ).accordion({
