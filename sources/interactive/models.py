@@ -27,44 +27,6 @@ observatory_module = utils.get_object("crds." + OBSERVATORY)
 
 # ============================================================================
 
-SUBSYSTEM = "cal"   # default subsystem,  migrate to site configs if it ever changes.
-
-OBSERVATORIES = [
-    "hst",
-    "jwst"
-]
-
-SUBSYSTEMS = [
-    "cal",   # calibration
-    "pht",   # synphot
-    "cfg",   # 
-]
-
-PERSONALITIES = {
-    ("hst", "cal") : "hst",
-    ("jwst", "cal") : "jwst",
-}
-
-INV_PERSONALITIES = utils.invert_dict(PERSONALITIES)
-
-def parameters_to_personality(observatory, subsystem):
-    """Given subsystem definition parameters,  return the personality string,
-    typically the hyphen joined concatenation of them all.
-    """
-    key = (observatory, subsystem)
-    return PERSONALITIES.get(key, "-".join(key))
-
-def personality_to_parameters(personality):
-    """Return the dict of parameters used to construct `personality`."""
-    key = personality_to_key(personality)
-    return utils.Struct(zip(("observatory","subsystem"), key))
-
-def personality_to_key(personality):
-    """Given a personality string,  return the tuple of parameters which was used to create it."""
-    return INV_PERSONALITIES.get(personality, tuple(personality.split("_")))
-
-# ============================================================================
-
 CRDS_CACHE = cache.get_cache("crds_cache")
 
 def crds_cached(f):

@@ -55,26 +55,6 @@ log.remove_console_handler()
 
 # ===========================================================================
 
-def validate(request, variable, pattern, default=None):
-    """Check a `variable` from `request`,  ensuring that it meets the
-    check_value() conditions specified by `pattern`.  Use GET or POST
-    depending on request type.
-    """
-    value = get_variable(request, variable)
-    if value is None:
-        if default is not None:
-            return default
-        else:
-            raise FieldError("Undefined parameter " + repr(variable))
-    return check_value(value, pattern, "Invalid value " + srepr(value) + " for " + srepr(variable))
-
-def get_variable(request, variable):
-    """Return `variable` wherever it is defined in request, GET or POST."""
-    return (request.session.get(variable, None) or 
-            request.COOKIES.get(variable, None) or
-            request.method == "POST" and request.POST.get(variable, None) or 
-            request.method == "GET" and request.GET.get(variable, None))
-
 def check_value(value, pattern, msg):
     """Ensure that `value` satisifies the conditions implied by `pattern`,
     otherwise raise a FieldError containing `msg`.
@@ -100,13 +80,26 @@ def check_value(value, pattern, msg):
     return value
 
 
-TRUTHY_VALS = ["1", "checked", "selected", "true", "True", "TRUE","on"]
-FALSY_VALS = ["0", "unchecked", "unselected", "false", "False", "FALSE", "off"]
-BOOL_VALS = TRUTHY_VALS + FALSY_VALS
+def validate(request, variable, pattern):
+    """Check a `variable` from `request`,  ensuring that it meets the
+    check_value() conditions specified by `pattern`.  Use GET or POST
+    depending on request type.
+    """
+    variables = request.GET if request.method == "GET" else request.POST
+    try:
+        value = str(variables[variable]).strip()
+    except:
+        raise FieldError("Undefined parameter " + repr(variable))
+    return check_value(value, pattern, "Invalid value " + srepr(value) + " for " + srepr(variable))
+
+def get_or_post(request, variable):
+    """Return `variable` wherever it is defined in request, GET or POST."""
+    return (variable in request.POST and request.POST[variable]) or \
+           (variable in request.GET  and request.GET[variable])
 
 def checkbox(request, variable):
     """Return the boolean value of checkbox `variable` with <input> in standard idiom."""
-    return True if get_variable(request, variable) in TRUTHY_VALS else False
+    return bool(get_or_post(request, variable))
 
 # ===========================================================================
 
@@ -269,17 +262,11 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
     locked = get_locked_instrument(request)
     locked = locked if locked else ""
     
-    personality = Personality.from_request(request)
-
-    if request.session is None or request.session.get("observatory", None):
-        request.session["observatory"] = personality.observatory
-    
     rdict = {   # standard template variables
-        "observatory" : personality.observatory,
-        "header_title" : personality.header_title,
-        
+        "observatory" : models.OBSERVATORY,
+             
         "instrument" : "*",
-        "instruments" : ["*"] + personality.instruments + ["none"],
+        "instruments" : ["*"] + models.INSTRUMENTS,
 
         "filekind" : "*",
         "filekinds" : models.FILEKIND_TEXT_DESCR,
@@ -302,9 +289,9 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
         "username" : str(request.user),
 
         "auto_rename" : False,
-        "server_usecase" :  personality.server_usecase,
+        "server_usecase" :  sconfig.server_usecase.lower(),
     }
-        
+    
     # echo escaped inputs.
     for key, value in request.GET.items():
         rdict[key] = safestring.mark_for_escaping(value)
@@ -528,11 +515,9 @@ def log_view(func):
             log.info("GET:",   repr(request.GET))
         if request.POST:
             log.info("POST:",  repr(request.POST))
-        # if request.COOKIES:
-        #    log.info("COOKIES:", repr(request.COOKIES), stdout=None)
-        # if request.session:
-        #     log.info("SESSION:", request.session.session_key, "expires", request.session.get_expiry_date(), 
-        #              repr(request.session))
+#        if request.COOKIES:
+#            log.info("COOKIES:", repr(request.COOKIES), stdout=None)
+        # log.info("SESSION:", request.session.session_key, "expires", request.session.get_expiry_date())
         if request.FILES:
             log.info("FILES:", repr(request.FILES))
         # log.info("OUTPUT:")
@@ -713,27 +698,13 @@ def del_locked_instrument(request):
 @error_trap("base.html")
 @log_view
 def index(request):
-    """Return the observatory, subsystem level page for all of interactive CRDS."""
-    personality = Personality.from_request(request)
-    pars = get_context_table_parameters(personality.observatory + "-" + "operational")
+    """Return the top level page for all of interactive CRDS."""
+    pars = get_context_table_parameters("operational")
     pars["history"], pars["history_tuples"] = get_context_history_variables(4)
     pars["include_diff"] = False
     response = crds_render(request, "index.html", pars)
     response['Cache-Control'] = "no-cache"
     return response
-
-@error_trap("base.html")
-@log_view
-def set_session(request):
-    variable = validate(request, "variable", r"\w{1,64}")
-    if variable == "subsystem":
-        value = validate(request, "value", models.SUBSYSTEMS)
-        request.session["subsystem"] = value
-        resp_obj = {}
-    else:
-        raise CrdsError("Invalid session variable " + models.srepr(variable))
-    return HttpResponse(json.dumps(resp_obj), content_type='application/json')
-        
 # ===========================================================================
 
 @error_trap("base.html")
@@ -761,53 +732,17 @@ def render_repeatable_result(request, template, rdict, jpoll_handler=None):
     return HttpResponseRedirect(result.repeatable_url)   # secure
 
 # ===========================================================================
-
-class Personality(utils.Struct):
-    
-    # maybe relocate this to client observatory packages once stabler.
-    subsystem_title = {
-        "cal" : "Calibration References (CRDS)",
-        "pht" : "Photometry References (CRDS)",
-        "cfg" : "System Configurations (CRDS)",
-    }
-    
-    def __init__(self, *args, **keys):
-        
-        super(Personality, self).__init__(*args, **keys)
-        
-        observatory = keys.get("observatory")
-        subsystem = keys.get("subsystem")
-        
-        self.obs_pkg_name = observatory if subsystem == "cal" else observatory + subsystem 
-        self.server_usecase = sconfig.server_usecase.lower()
-        self.header_title = self.observatory.upper() + " " + self.subsystem_title[self.subsystem]
-        self.obs_pkg = utils.get_observatory_package(self.obs_pkg_name)
-        self.instruments = self.obs_pkg.INSTRUMENTS[:]
-
-    @classmethod
-    def from_request(cls, request):
-        with log.error_on_exception("Failed Personality determination, defaulting."):
-            observatory = validate(request, "observatory", models.OBSERVATORIES, models.OBSERVATORY)
-            subsystem = validate(request, "subsystem", models.SUBSYSTEMS, models.SUBSYSTEM)
-            request.session["observatory"] = observatory
-            request.session["subsystem"] = subsystem
-            return cls(observatory=observatory, subsystem=subsystem)
-        request.session["observatory"] = observatory
-        request.session["subsystem"] = "cal"
-        return cls(observatory=models.OBSERVATORY, subsystem="cal")
-    
-    def todict(self):
-        return dict(self)
-    
-# ===========================================================================
-
 from django.contrib.auth.views import login as django_login
 
 # @profile("login.stats")
 @error_trap("base.html")
 def login(request):
     """CRDS login view function,  sets and tests session cookie."""
-    return django_login(request, "login.html", extra_context=Personality.from_request(request).todict())
+    extras = dict(
+        observatory = models.OBSERVATORY,
+        instruments = models.INSTRUMENTS + ["none"],
+        server_usecase = sconfig.server_usecase.lower())
+    return django_login(request, "login.html", extra_context=extras)
 
 def logout(request):
     """View to get rid of authentication state and become nobody again."""
@@ -2393,13 +2328,13 @@ def display_context_history(request):
     return response
 
 #  @models.crds_cached  currently not cacheable due to datetime.datetime's
-def get_context_history_variables(last_n=None, observatory=models.OBSERVATORY):
+def get_context_history_variables(last_n=None):
     """Return the data required to render the context history,  suitable for caching."""
-    history = models.get_context_history(observatory=observatory, state="operational")
+    history = models.get_context_history(observatory=models.OBSERVATORY, state="operational")
     if last_n is not None:
         history = history[:last_n]
     # log.info("context_history:", history)
-    context_blobs = { blob.name:blob for blob in models.FileBlob.filter(observatory=observatory, name__endswith=".pmap") }
+    context_blobs = { blob.name:blob for blob in models.FileBlob.filter(name__endswith=".pmap") }
     # log.info("context_blobs:", context_blobs)
     history_tuples = [ (hist, context_blobs[hist.context]) for hist in history ]
     return history, history_tuples
@@ -2467,10 +2402,8 @@ def get_rmap_datatable_parameters(mapping):
 
 def get_mapping_dict(mapping):
     """Given mapping spec `mapping`,  return the dictionary representation."""
-    if "-" in mapping:
-        observatory, state = mapping.split("-")
-        if re.match(complete_re(r"operational|edit"), state):
-            mapping = models.get_default_context(state=state, observatory=observatory)
+    if re.match(complete_re(r"operational|edit"), mapping):
+        mapping = models.get_default_context(state=mapping)
     is_mapping(mapping)
     loaded_mapping = rmap.get_cached_mapping(mapping)
     return mapping, loaded_mapping.todict()
