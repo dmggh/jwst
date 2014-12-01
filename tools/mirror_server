@@ -98,6 +98,11 @@ cd ${CRDS}/CRDS_server
 tools/set_backup_url False
 
 echo "-----------------------------------------------------------"
+echo "Resetting last context state of affected datasets client."
+echo "-----------------------------------------------------------"
+query_affected_datasets --reset
+
+echo "-----------------------------------------------------------"
 echo "Restarting cron activities."
 echo "-----------------------------------------------------------"
 cd ${CRDS}/CRDS_server
