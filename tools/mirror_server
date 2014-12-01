@@ -14,6 +14,11 @@ set deliveries_file=${BACKUP_DIR}/deliveries.${TAIL}.txt
 set monitor_reprocessing_file=${BACKUP_DIR}/monitor_reprocessing.${TAIL}.tar.gz
 
 echo "-----------------------------------------------------------"
+echo "Shutting down cron activities."""
+echo "-----------------------------------------------------------"
+crontab </dev/null
+
+echo "-----------------------------------------------------------"
 echo "Moving server ${CRDS_PROJECT} ${CRDS_USECASE} to backup URL"
 echo "-----------------------------------------------------------"
 cd ${CRDS}/CRDS_server
@@ -91,4 +96,10 @@ echo "Re-installing and restarting server ${CRDS_PROJECT} ${CRDS_USECASE}"
 echo "-----------------------------------------------------"
 cd ${CRDS}/CRDS_server
 tools/set_backup_url False
+
+echo "-----------------------------------------------------------"
+echo "Restarting cron activities."
+echo "-----------------------------------------------------------"
+cd ${CRDS}/CRDS_server
+crontab <host/crontab
 
