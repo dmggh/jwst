@@ -1,0 +1,8 @@
+#! /bin/tcsh
+
+if ($CRDS_PROJECT != "hst") then
+   exit -1
+endif
+
+query_affected_datasets $*
+
