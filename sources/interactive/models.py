@@ -1522,7 +1522,7 @@ class RepeatableResultBlob(BlobModel):
     def parameters(self):
         """return garbage-can dict of page template parameters"""
         if not hasattr(self, "_parameters"):
-            self._parameters = common.Struct(json_ext.loads(self.parameters_enc))
+            self._parameters = utils.Struct(json_ext.loads(self.parameters_enc))
         return self._parameters
 
     @classmethod   # kludgy,  not confident about Django __setattr__, __setitem__

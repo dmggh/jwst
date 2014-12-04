@@ -181,7 +181,7 @@ class DB(object):
                       for table in self.get_instrument_tables(instrument)
                       for col in self.get_columns(table)])
 
-    def make_dicts(self, table, col_list=None, ordered=False, where="", dataset=None, lowercase=True):
+    def make_dicts(self, table, col_list=None, ordered=False, where="", dataset=None):
         if dataset is not None:
             all_cols = self.get_columns(table)
             for col in all_cols:
@@ -197,7 +197,8 @@ class DB(object):
             col_names = "*"
 
         for row in self.execute("SELECT %s FROM %s %s" % (col_names, table, where)):
-            items = zip(col_list, [str(x).lower() for x in row] if lowercase else row)
+            undefined_and_lowercase = [str(x).lower() if x is not None else "undefined" for x in row]
+            items = zip(col_list, undefined_and_lowercase)
             kind = OrderedDict if ordered else dict
             yield kind(items)
 
@@ -336,7 +337,7 @@ def scan_tables(instr):
 
 # ---------------------------------------------------------------------------------------------
 
-class HeaderGenerator(common.Struct):
+class HeaderGenerator(utils.Struct):
     def __init__(self, instrument, catalog_db, header_to_db_map):
         self.instrument = instrument.lower()
         self.catalog_db = catalog_db
@@ -364,7 +365,7 @@ class HeaderGenerator(common.Struct):
         return hdrs
 
     def condition_header(self, hdr):
-        return { key:utils.condition_value(hdr[key]) for key in hdr }
+        return { key:utils.condition_value(hdr[key]) if hdr[key] is not None else "undefined" for key in hdr }
 
     def fix_hdr(self, hdr):
         return hdr
