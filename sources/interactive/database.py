@@ -197,7 +197,7 @@ class DB(object):
             col_names = "*"
 
         for row in self.execute("SELECT %s FROM %s %s" % (col_names, table, where)):
-            undefined_and_lowercase = [str(x).lower() if x is not None else "undefined" for x in row]
+            undefined_and_lowercase = [str(x).lower() if x is not None else "UNDEFINED" for x in row]
             items = zip(col_list, undefined_and_lowercase)
             kind = OrderedDict if ordered else dict
             yield kind(items)
@@ -365,7 +365,7 @@ class HeaderGenerator(utils.Struct):
         return hdrs
 
     def condition_header(self, hdr):
-        return { key:utils.condition_value(hdr[key]) if hdr[key] is not None else "undefined" for key in hdr }
+        return { key:utils.condition_value(hdr[key]) if hdr[key] is not None else "UNDEFINED" for key in hdr }
 
     def fix_hdr(self, hdr):
         return hdr
