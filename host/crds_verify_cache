@@ -33,7 +33,7 @@ else
 endif
 
 echo "================================================================================================="
-echo "CRDS Configuration for Verification on ${CRDS_USECASE} VM"
+echo "CRDS Configuration for Cache Verification on ${CRDS_USECASE} VM"
 echo "================================================================================================="
 python -m crds.list --config
 
