@@ -3,8 +3,7 @@
     <script type="text/javascript">
         $(function() {
             $("#diff_button").css({"font-weight":"bold"});
-            $("table tr td:last-child").attr("class", "diff");
-            crds.diff_selected_files = function () {
+g            crds.diff_selected_files = function () {
                 var selected = $("input:checked");
                 if (selected.length != 2) {
                     alert("Select exactly two files to difference.");

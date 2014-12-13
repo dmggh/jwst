@@ -309,3 +309,20 @@ table {
 td.diff {
     text-align: center;
 }
+
+.center {
+    text-align: center;
+}
+
+.left {
+    text-align: left;
+}
+
+.right {
+    text-align: right;
+}
+
+.bold {
+    font-weight: bold;
+}
+
