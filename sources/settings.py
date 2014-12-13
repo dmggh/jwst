@@ -212,9 +212,3 @@ if DEBUG_EXTRAS:
         'ENABLE_STACKTRACES' : True,
         }
 
-    #
-    # File : settings.py
-    #
-    TEST_RUNNER = 'crds.server.profiling.DjangoTestSuiteRunnerWithProfile'
-    TEST_PROFILE = 'crds_unittests.stats'
-

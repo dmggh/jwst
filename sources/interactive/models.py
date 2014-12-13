@@ -930,19 +930,17 @@ assert len(FILE_STATES) >= len(ALL_STATES),  "Uncategorized state in FileBlob st
 DEFAULT_ACTIVATION_DATE =  datetime.datetime(2050, 1, 1, 0, 0)
 START_OF_CRDS = datetime.datetime(2013, 8, 1, 0, 0)
 
-class SimpleCharField(models.CharField):
-    def __init__(self, choice_list, help_text, default):
-        models.CharField.__init__(self, 
-            max_length=self.max_length(choice_list),
-            choices = zip(choice_list, choice_list),
-            help_text = help_text,
-            default = default)
-    
-    def max_length(self, choice_list):
-        length = 0
-        for choice in choice_list:
-            length = max(length, len(choice))
-        return int(2**(math.ceil(math.log(length,2))+1))
+def SimpleCharField(choice_list, help_text, default):
+    """CharField with automatic field sizing using next power-of-2 of max length + simplified choice spec."""
+    length = 0
+    for choice in choice_list:
+        length = max(length, len(choice))
+    max_length = int(2**(math.ceil(math.log(length,2))+1))    
+    return models.CharField( 
+        max_length=max_length,
+        choices = zip(choice_list, choice_list),
+        help_text = help_text,
+        default = default)
 
 class FileBlob(BlobModel, FileBlobRepairMixin):
     """Represents a delivered file,  either a reference or a mapping."""
