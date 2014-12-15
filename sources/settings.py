@@ -6,12 +6,6 @@ from crds.server.crds_database import DATABASES
 
 TEMPLATE_DEBUG = DEBUG
 
-ADMINS = (
-    ('Todd Miller', 'jmiller@stsci.edu'),
-)
-
-MANAGERS = ADMINS
-
 ALLOWED_HOSTS = ['*']
 
 USE_X_FORWARDED_HOST = True
@@ -84,17 +78,6 @@ SECRET_KEY = 'yy776654%lkjlkjads_04344n12090++88&6$6^nxsp*qf(!32'
 
 LOGIN_URL = "/login/"
 
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
-)
-
-#TEMPLATE_CONTEXT_PROCESSORS = [
-#    'django.contrib.messages.context_processors.messages',
-#]
-
 FILE_UPLOAD_HANDLERS = ( 
     # submit_file view logic *requires* temporary files, not memory files.
     # "django.core.files.uploadhandler.MemoryFileUploadHandler",
@@ -125,7 +108,8 @@ SESSION_SAVE_EVERY_REQUEST = False         # reset expiry every view
 MIDDLEWARE_CLASSES = (
     # must precede middleware which assumes CSRF already dealt with
     'django.middleware.csrf.CsrfViewMiddleware',
-    
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
