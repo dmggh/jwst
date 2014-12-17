@@ -723,7 +723,7 @@ class FileBlobRepairMixin(object):
     bad_field_checks = {
         "uploaded_as" : lambda self: not self.uploaded_as,
         "blacklisted" : lambda self: self.blacklisted_by and not self.blacklisted,
-        "size" : lambda self: self.size == -1 or self.size != self.compute_size(),
+        "size" : lambda self: self.size in [-1, 0] or self.size != self.compute_size(),
         "sha1sum" : lambda self: self.sha1sum == "none",
         "delivery_date" : lambda self: self.delivery_date > self.activation_date and self.activation_date >= START_OF_CRDS,
         "activation_date": lambda self: self.state in ["archived", "operational"] and \
@@ -1392,7 +1392,7 @@ class AuditBlob(BlobModel):
         db_table = TABLE_PREFIX + "_actions" # rename SQL table from interactive_fileblob
         
     user = models.CharField(max_length=64, default="", help_text="user who performed this action")
-    date = models.CharField(max_length=26, default="", help_text="unique name of this model.")
+    date = models.CharField(max_length=26, default="", help_text="date of this action")
     action = SimpleCharField( AUDITED_ACTIONS, "name of action performed", "" )
     filename = models.CharField(max_length=64, default="", help_text="unique name of this model.")
     observatory = models.CharField(max_length=8, default=OBSERVATORY, help_text="observatory this action applied to.")
