@@ -146,6 +146,8 @@ def purge_delivered_file(filepath, *args, **keys):
 def main():
     if "--verbose" in sys.argv:
         log.set_verbose()
+    import django
+    django.setup()
     check_files()
     check_catalog_files()
     log.standard_status()

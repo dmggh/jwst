@@ -245,7 +245,7 @@ esac
 ### install the python packages that we use
 ###
 
-pip uninstall -y crds
+rm -rf $CRDS_INSTALL_DIR/python/lib/python/crds*
 
 #  INSTALL CORE CRDS CLIENT LIBRARY
 (cp save_version ../CRDS;  cd ../CRDS; ./install --home $install_dir/python)
