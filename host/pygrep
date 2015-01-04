@@ -10,9 +10,9 @@ else
     set web=0
 endif
 
-find $dir  -name '*.py' | xargs grep "$*"
+find $dir  -name '*.py' | xargs grep -i "$*"
 if ( "$web" == "1" ) then
-    find $dir  -name '*.html' | xargs grep "$*"
-    find $dir  -name '*.js' | xargs grep "$*"
+    find $dir  -name '*.html' | xargs grep -i "$*"
+    find $dir  -name '*.js' | xargs grep -i "$*"
 endif
 
