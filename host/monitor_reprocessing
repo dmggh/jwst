@@ -34,7 +34,7 @@ if ("$old_context" != "") then
 
     if ($old < $new) then
 	# output affected datasets e-mail
-	affected_datasets $old_context $new_context fast mail official --optimize-tables --print-affected
+	affected_datasets $old_context $new_context fast mail official --print-affected
 	clear_web_cache
 	# capture catalog and results for future regressions.
 	capture $new_context
