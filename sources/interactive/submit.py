@@ -58,7 +58,11 @@ from django.contrib.auth.models import User
 
 def file_exists_somehow(filename):
     """Return True IFF `filepath` really exists or CRDS thinks it does."""
-    filepath = rmap.locate_file(filename, sconfig.observatory)
+    try:
+        filepath = rmap.locate_file(filename, sconfig.observatory)
+    except IOError:
+        raise CrdsError("Cannot locate file", srepr(filename), 
+                        "in cache.  Must identify instrument in name.   Consider Auto-Rename.")
     return os.path.exists(filepath) or \
         models.FileBlob.exists(os.path.basename(filepath))
 
@@ -246,10 +250,14 @@ class FileSubmission(object):
         if self.auto_rename:
             permanent_name = self.auto_rename_file(original_name, upload_location)
         else:
-            if file_exists_somehow(original_name):
-                raise CrdsError("File " + srepr(original_name) + " already exists.") 
-            else:
-                permanent_name = os.path.basename(original_name)   
+            try:
+                if file_exists_somehow(original_name):
+                    raise CrdsError("File " + srepr(original_name) + " already exists.") 
+                else:
+                    permanent_name = os.path.basename(original_name)   
+            except IOError:
+                raise CrdsError("File", srepr(original_name), 
+                                "cannot be located in cache. Name must identify instrument.")
     
         # CRDS keeps all new files in a standard layout.  Existing files in /grp/cdbs
         # are currently referenced by standard symlinks in the CRDS server file tree.
