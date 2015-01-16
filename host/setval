@@ -1,7 +1,7 @@
 #! /usr/bin/env pysh
 #-*-python-*-
 
-import pyfits
+from astropy.io import fits
 from crds import pysh
 
 pysh.usage("<filename> <keyword> [<value> [<extension>]]", 2, 4)
@@ -17,9 +17,9 @@ else:
 
 if value is None:
    try:
-      print keyword, "=", pyfits.getval(filename, keyword=keyword)
+      print keyword, "=", fits.getval(filename, keyword=keyword)
    except:
       print "keyword", repr(keyword), "not found in", repr(filename)
 else:
-   pyfits.setval(filename, keyword=keyword, value=value, ext=extension)
+   fits.setval(filename, keyword=keyword, value=value, ext=extension)
 

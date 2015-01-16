@@ -8,14 +8,14 @@
         $("#contents").hide();
     </script>
     <div id="operational_references_container" class="body_panel"> 
-        <h3 style="margin-top: 0px;">Operational References</h3>
+        <br/>
+        <h3 style="margin-top: 0px;">Operational References <span style="font-size: 0.7em;" class="gray">(under context {{pmap.header.name|browse}})</span></h3>
         {% include "context_table_body_include.html" %}
     </div>
     <div id="context_history_container" class="body_panel">
       <br/>
       <h3 style="margin-top: 0px;">Context History <a href="/display_context_history" class="label" style="font-size: 0.8em;">(more)</a></h3>
       {% include "context_history_include.html" %}        
-      <br/>
     </div>        
 </div>
 {% endblock contents_top %}

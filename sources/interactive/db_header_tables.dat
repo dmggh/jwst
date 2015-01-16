@@ -42,6 +42,7 @@
          'glincorr': 'acs_ref_data.acr_best_glincorr',
          'idctab': 'acs_ref_data.acr_best_idctab',
          'imphttab': 'acs_ref_data.acr_best_imphttab',
+         'lrfwave' : 'acs_science.acs_lrfwave',
          'ltv1': 'acs_chip.acc_ltv1',
          'ltv2': 'acs_chip.acc_ltv2',
          'mdriztab': 'acs_ref_data.acr_best_mdriztab',

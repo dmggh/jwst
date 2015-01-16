@@ -3,7 +3,7 @@ import sys
 import os
 import pdb
 
-from django.core.management import execute_from_command_line
+import django
 
 if "--pdb" in sys.argv:
     PDB = True
@@ -14,6 +14,9 @@ else:
 
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "crds.server.settings")
+
+    django.setup()
+    from django.core.management import execute_from_command_line
 
     if PDB:
         pdb.runctx("execute_from_command_line(sys.argv)", locals(), globals())

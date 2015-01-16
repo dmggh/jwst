@@ -291,6 +291,11 @@ th, td {
     padding: 5px;
 }
 
+.ctx {
+    border: 1px solid lightgray;
+    border-radius: 16 px;
+}
+
 .locked_instrument {
     font-size: 0.8em;
     font-weight: bold;
@@ -309,3 +314,20 @@ table {
 td.diff {
     text-align: center;
 }
+
+.center {
+    text-align: center;
+}
+
+.left {
+    text-align: left;
+}
+
+.right {
+    text-align: right;
+}
+
+.bold {
+    font-weight: bold;
+}
+

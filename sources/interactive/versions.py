@@ -19,7 +19,6 @@ MODULE_LIST = (
     'pyodbc',
     'jsonrpc',
     
-    'pyfits',
     'astropy',
     'jwst_lib.models',
     

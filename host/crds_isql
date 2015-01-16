@@ -1,0 +1,7 @@
+#! /bin/sh
+
+# Raw ISQL access to DADSOPS_REP database used to define CRDS matching headers for HST.
+
+read DSN PWORD < /crds/data1/database/crds.dat
+
+isql -v $DSN crds $PWORD
