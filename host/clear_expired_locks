@@ -7,6 +7,8 @@ cd ${CRDS_INSTALL_DIR}/CRDS_server
 source env.csh
 
 python <<EOF
+import django
+django.setup()
 from crds.server.interactive import locks
 locks.clear_expired_locks()
 EOF
