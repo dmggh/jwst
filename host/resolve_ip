@@ -1,0 +1,79 @@
+#! /usr/bin/env python
+#-*-python-*-
+
+"""This script converts numerical IP addresses to symbolic host names in files or filtering stdin.
+
+It's used for converting log files into a more human sensible form.
+
+It can be called like this:
+
+    cat xfor_request_log | resolve_ip
+
+Or this:
+
+    resolve_ip xfor_request_log ...
+
+NOTE:  not all IP addresses are permanent. In particular,  those assigned with DHCP may be temporary
+and the hostname translation can vary over time.   Consequently,  these translations cannot be assumed
+to be 100% reliable.   log-to-log output comparisons should eventually reveal which IP addresses are
+relatively stable and which shift around.
+"""
+
+
+
+from __future__ import print_function
+
+import sys
+import re
+import pprint
+
+from crds import pysh
+
+# Output from "host" command
+# Host 84.252.167.30.in-addr.arpa. not found: 3(NXDOMAIN)
+# 84.252.167.130.in-addr.arpa domain name pointer dlhstcrdsv1.stsci.edu.
+
+# Sample CRDS log output
+# [28/Jan/2015:08:25:02 -0500] 130.167.201.57 (130.167.252.84) "POST /json/list_mappings/10842d42-a6f1-11e4-b742-005056bd447b/ HTTP/1.1" 2177
+
+HOSTNAMES = {}
+
+IP_RE = re.compile(r"(\d+\.\d+\.\d+\.\d+)")
+
+def hostname(ip_address):
+    """Determine the hostname associated with a numerical IP address."""
+    try:
+        return HOSTNAMES[ip_address]
+    except KeyError:
+        host_out = pysh.out("host ${ip_address}")
+        resolution = ip_address
+        if "domain name pointer" in host_out:
+            resolution = host_out.split()[-1][:-1]
+        HOSTNAMES[ip_address] = resolution
+        return resolution
+
+def convert_group_0(match):
+    """Return hostname(group 0) of an re match object for use in sub()."""
+    return hostname(match.groups()[0])
+
+def resolve_ips(line):
+    return IP_RE.sub(convert_group_0, line)
+
+def process_file(file_in):
+    for line in file_in:
+        print(resolve_ips(line), end="")
+
+def main():
+    if len(sys.argv) > 1:
+        for fname in sys.argv[1:]:
+            process_file(open(fname))
+    else:
+        process_file(sys.stdin)
+
+    print()
+    print("Hosts:")
+    pprint.pprint(HOSTNAMES)
+
+if __name__ == "__main__":
+    main()
+
