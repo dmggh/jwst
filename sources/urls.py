@@ -40,6 +40,7 @@ urlpatterns = patterns('',
     url(r'^bestrefs/$', 'crds.server.interactive.views.bestrefs'),          
     url(r'^bestrefs_explore/$', 'crds.server.interactive.views.bestrefs_explore'),          
     url(r'^bestrefs_explore_compute/$', 'crds.server.interactive.views.bestrefs_explore_compute'), 
+    url(r'^docs/(?P<page>[A-Za-z0-9_.]+)/$', 'crds.server.interactive.views.docs'),
     
     url(r'^mark_bad/$',    'crds.server.interactive.views.mark_bad'),          
     
