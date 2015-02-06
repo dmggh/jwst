@@ -732,6 +732,16 @@ def render_repeatable_result(request, template, rdict, jpoll_handler=None):
     return HttpResponseRedirect(result.repeatable_url)   # secure
 
 # ===========================================================================
+
+@error_trap("base.html")
+@log_view
+def docs(request, page):
+    """Render the specified documentation template.  Munge it up a little with the secret .crds suffix to
+    keep clever people from rendering arbitrary templates found somewhere in the Django ecosphere.
+    """
+    return crds_render(request, page + ".crds.html")
+
+# ===========================================================================
 from django.contrib.auth.views import login as django_login
 
 # @profile("login.stats")
