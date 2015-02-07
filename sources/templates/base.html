@@ -56,36 +56,41 @@
     
     <div id="contents">
         <script type="text/javascript">$("#contents").hide();</script>
+        
         {% block contents %}
  
 	    {% block contents_top %}{% endblock contents_top %}
-
-            <div id="both_columns" class="body_panel">
+        
+        <div id="both_columns" class="body_panel">
             
-                <div id="column1">
-                    {% block column1 %}
-                    {% endblock column1 %}
-                </div>
-                
-                <div id="column2">
-                    {% block column2 %}
-                        <br/><br/>
-                        {% if error_message %}
-                            <div class="error">
-                                {{error_message}}
-                            </div>
-                            <br/>
-                        {% endif %}
-                        <div class="help">
-                            {% block help %}
-                            {% endblock help %}
-                        </div>
-                    {% endblock column2 %}
-                </div>
-            
-                <div style="clear: both;"></div>
+          {% block contents_both %} 
 
+          <div id="column1">
+            {% block column1 %}
+            {% endblock column1 %}
+          </div>
+          
+          <div id="column2">
+            {% block column2 %}
+            <br/><br/>
+            {% if error_message %}
+            <div class="error">
+              {{error_message}}
             </div>
+            <br/>
+            {% endif %}
+            <div class="help">
+              {% block help %}
+              {% endblock help %}
+            </div>
+            {% endblock column2 %}
+          </div>
+          
+          {% endblock contents_both %}
+          
+          <div style="clear: both;"></div>
+          
+        </div>
             
 	    {% block contents_bottom %}{% endblock contents_bottom %}
  
