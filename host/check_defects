@@ -36,6 +36,8 @@ class RepairScript(cmdline.ContextsScript):
         
     def main(self):
         """Repair files."""
+        import django
+        django.setup()
         files = self.determine_files()
         defects = self.check_defects(files)
         defects = self.remove_ignored(defects)
