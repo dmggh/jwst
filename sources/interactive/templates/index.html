@@ -2,7 +2,7 @@
 
 {% load stdtags %}
 
-{% block column1 %}
+{% block contents_both %}
     <div class="title_bar">
         {% if is_authenticated %}
             <h3>Open Services</h3>
@@ -10,16 +10,15 @@
             <h3>Services</h3>
         {% endif %}
     </div>
+
     <ol>
-        <li><a href="/docs/cmdline_bestrefs/"><nobr>Obtain Best Reference Files: using the command line</nobr></a></li>
-        <li><a href="/bestrefs/"><nobr>Obtain Best Reference Files: Dataset ID or FITS Header Upload</nobr></a></li>
-        <li><a href="/bestrefs_explore/"><nobr>Explore Best Reference Files: Instrument Parameters</nobr></a></li>
+        <li><a href="/docs/cmdline_bestrefs/">Obtain Best Reference Files: using the command line</a></li>
+        <li><a href="/bestrefs/">Obtain Best Reference Files: Dataset ID or FITS Header Upload</a></li>
+        <li><a href="/bestrefs_explore/">Explore Best Reference Files: Instrument Parameters</a></li>
         <li><a href="/browse_db/">Browse Database</a></li>
         <li><a href="/recent_activity/">Recent Activity</a></li>
     </ol>
-{% endblock column1 %}
 
-{% block column2 %}
     {% if is_authenticated %}
         <div class="title_bar">
             <h3>Restricted Services  <span class='locked_instrument'>{{locked_instrument}}</span>  </h3>
@@ -63,7 +62,7 @@
           </ol>
         {% endif %}
     {% endif %}
-{% endblock column2 %}
+{% endblock contents_both %}
 
 
 {% block contents_bottom %}
