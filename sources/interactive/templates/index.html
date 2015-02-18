@@ -2,68 +2,76 @@
 
 {% load stdtags %}
 
-{% block contents_both %}
+{% block column1 %}
     <div class="title_bar">
-        {% if is_authenticated %}
-            <h3>Open Services</h3>
-        {% else %}
-            <h3>Services</h3>
-        {% endif %}
+      <h3>Obtain Best Reference Files</h3>
     </div>
-
     <ol>
-        <li><a href="/docs/cmdline_bestrefs/">Obtain Best Reference Files: using the command line</a></li>
-        <li><a href="/bestrefs/">Obtain Best Reference Files: Dataset ID or FITS Header Upload</a></li>
-        <li><a href="/bestrefs_explore/">Explore Best Reference Files: Instrument Parameters</a></li>
-        <li><a href="/browse_db/">Browse Database</a></li>
-        <li><a href="/recent_activity/">Recent Activity</a></li>
+      <li><a href="/docs/cmdline_bestrefs/">Using the Command Line</a></li>
+      <li><a href="/bestrefs/">From Dataset ID or FITS Header Upload</a></li>
+      <li><a href="/bestrefs_explore/">Exploring with Instrument Parameters</a></li>
     </ol>
+    
+    <div class="title_bar">
+      <h3>Reference File Database Services  
+      </h3>
+    </div>
+    <ol>
+      <li><a href="/browse_db/">Browse Database</a></li>
+      <li><a href="/recent_activity/">Recent Activity</a></li>
+    </ol>
+{% endblock column1 %}        
+
+{% block column2 %}
 
     {% if is_authenticated %}
-        <div class="title_bar">
-            <h3>Restricted Services  <span class='locked_instrument'>{{locked_instrument}}</span>  </h3>
-        </div>
-        <ol>
-            <li><a href="/certify/">Certify Files</a></li>
-            <li><a href="/difference/">Difference Files</a></li>
-            <li><a href="/delivery_status/">Delivery Status</a></li>
-            <br/>
-            {% if user|in_group:"file_submission" %}
-                {% if locked_instrument %}
-                    <li><a href="/batch_submit_references/">Batch Submit References</a></li>
-                    <li><a href="/submit/reference/">Submit References</a></li>
-                    <li><a href="/submit/mapping/">Submit Mappings</a></li>
-		    <br/>
-                {% endif %}
-                <li><a href="/mark_bad/">Mark Files Bad</a></li>
-                <li><a href="/set_default_context/">Set Context</a></li>
-                <li><a href="/set_password/">Change Password</a></li>
-            {% endif %}
-        </ol>
-        
-    	{% if is_superuser %}
-           <div class="title_bar">
-	     <h3>Super User Services</h3>
-          </div>
-          <ol>
-            <li><a href="/version_info/">Server Version Info</a></li>
-            <li><a href="/admin/">Admin</a></li>
-            <br>
-	    {% if locked_instrument %}
-                <li><a href="/delete/reference/">Delete References (UNCONFIRMED)</a></li>
-                <li><a href="/add_existing/reference/">Add References (UNCONFIRMED)</a></li>
-                <li><a href="/create_contexts/">Create Contexts (UNCONFIRMED)</a></li>
-            {% else %}
-                <li><a href="/batch_submit_references/">Batch Submit References (UNLOCKED)</a></li>
-                <li><a href="/submit/reference/">Submit References (UNLOCKED)</a></li>
-                <li><a href="/submit/mapping/">Submit Mappings (UNLOCKED)</a></li>
-	    {% endif  %}
-            <br/>
-          </ol>
-        {% endif %}
-    {% endif %}
-{% endblock contents_both %}
 
+      <div class="title_bar">
+        <h3>Restricted Services
+          {% if is_authenticated %}
+          <span class='locked_instrument'>{{locked_instrument}}</span>  
+          {% endif %}
+        </h3>
+      </div>
+      <ol>
+        <li><a href="/certify/">Certify Files</a></li>
+        <li><a href="/difference/">Difference Files</a></li>
+        <li><a href="/delivery_status/">Delivery Status</a></li>
+        <li><a href="/set_password/">Change Password</a></li>
+        {% if user|in_group:"file_submission" and locked_instrument %}
+        <br/>
+        <li><a href="/batch_submit_references/">Batch Submit References</a></li>
+        <li><a href="/submit/reference/">Submit References</a></li>
+        <li><a href="/submit/mapping/">Submit Mappings</a></li>
+        <li><a href="/mark_bad/">Mark Files Bad</a></li>
+        <li><a href="/set_default_context/">Set Context</a></li>
+        {% endif %}
+      </ol>
+      
+      {% if is_superuser %}
+      <div class="title_bar">
+	    <h3>Super User Services</h3>
+      </div>
+      <ol>
+        <li><a href="/version_info/">Server Version Info</a></li>
+        <li><a href="/admin/">Admin</a></li>
+        <br>
+	    {% if locked_instrument %}
+        <li><a href="/delete/reference/">Delete References (UNCONFIRMED)</a></li>
+        <li><a href="/add_existing/reference/">Add References (UNCONFIRMED)</a></li>
+        <li><a href="/create_contexts/">Create Contexts (UNCONFIRMED)</a></li>
+        {% else %}
+        <li><a href="/batch_submit_references/">Batch Submit References (UNLOCKED)</a></li>
+        <li><a href="/submit/reference/">Submit References (UNLOCKED)</a></li>
+        <li><a href="/submit/mapping/">Submit Mappings (UNLOCKED)</a></li>
+	    {% endif  %}
+        <br/>
+      </ol>
+      {% endif %}
+
+      {% endif %}
+
+{% endblock column2 %}
 
 {% block contents_bottom %}
 <div id="contents_top">
