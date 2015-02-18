@@ -14,13 +14,9 @@
 
       <h3>Overview</h3>
 
-      <p>For assigning best references to multiple datasets,  CRDS uses
-      command line tools which are included with the Ureka
-      software distribution.
-      </p>
-      
-      <p>
-        This page documents configuring and using CRDS for common use cases.
+      <p>For assigning best references to multiple datasets, CRDS uses command
+      line tools which are included with the Ureka software distribution. This
+      page documents configuring and using CRDS for common use cases.
       </p>
 
       <p>There are four high level aspects of working with references:</p>
@@ -45,10 +41,11 @@
 
       {% if observatory|upper == "HST" %} 
       <p>Once configured,  running the <em>crds.bestrefs</em> program to
-        populate dataset headers with best references can be
-        performed like this:
+        populate dataset headers with best references can be run like this:
       </p>
-      <pre>% python -m crds.bestrefs --update-bestrefs --sync-references=1 --files *.fits</pre>
+      <div class="code">
+        <pre>% python -m crds.bestrefs --update-bestrefs --sync-references=1 --files *.fits</pre>
+      </div>
       <p>crds.bestrefs will both populate dataset headers and download the
         recommended references to your CRDS cache.  Used in this mode of
         operation crds.bestrefs is primarily applicable to HST,  the JWST
