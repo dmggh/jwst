@@ -38,13 +38,15 @@
         <li><a href="/difference/">Difference Files</a></li>
         <li><a href="/delivery_status/">Delivery Status</a></li>
         <li><a href="/set_password/">Change Password</a></li>
+        {% if user|in_group:"file_submission" %}
+        <li><a href="/set_default_context/">Set Context</a></li>
+        {% endif %}
         {% if user|in_group:"file_submission" and locked_instrument %}
         <br/>
         <li><a href="/batch_submit_references/">Batch Submit References</a></li>
         <li><a href="/submit/reference/">Submit References</a></li>
         <li><a href="/submit/mapping/">Submit Mappings</a></li>
         <li><a href="/mark_bad/">Mark Files Bad</a></li>
-        <li><a href="/set_default_context/">Set Context</a></li>
         {% endif %}
       </ol>
       
