@@ -1035,7 +1035,23 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
     
     aperture = models.CharField(
         max_length=80, blank=True, default="none", help_text="from APERTURE keyword of reference file.",)
+
     
+    
+    # ===============================
+
+    @property
+    def activation_date_str(self):
+        return timestamp.format_date(self.activation_date).split(".")[0]
+
+    @property
+    def delivery_date_str(self):
+        return timestamp.format_date(self.delivery_date).split(".")[0]
+
+    @property
+    def useafter_date_str(self):
+        return timestamp.format_date(self.useafter_date).split(".")[0]
+
     # ===============================
 
     @property

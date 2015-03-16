@@ -2397,16 +2397,28 @@ def get_context_table_parameters(pmap):
         return {}
     
 
+CATALOG_FIELDS = (
+    ("activation_date_str", "Activation Date"),
+)
+
 @models.crds_cached
-def get_rmap_datatable_parameters(mapping):
+def get_rmap_datatable_parameters(mapping, catalog_fields=CATALOG_FIELDS):
     """Return the datatables dictionary corresponding to `rmap_name`."""
     mapping_name, rmap_dict = get_mapping_dict(mapping)
     assert is_rmap(mapping_name), "mapping must be an .rmap"
-    header = fix_meta_parameters(rmap_dict["parameters"]) + \
-        (html.input("", type='submit', id='diff_button', value='diff'),)
-    rows = [row[:-1] + ("<a href='/browse/{0}'>{1}</a>".format(row[-1], row[-1]), 
-                        "<input type='checkbox' value='{0}' />".format(row[-1]),)
-            for row in rmap_dict["selections"]]
+    fixed = fix_meta_parameters(rmap_dict["parameters"])
+    header = (fixed[:-1] + 
+              tuple(field[1] for field in catalog_fields) + 
+              (fixed[-1],) +
+              (html.input("", type='submit', id='diff_button', value='diff'),))
+    fileblobs = models.get_fileblob_map()
+    rows = []
+    for row in rmap_dict["selections"]:
+        extended_row = row[:-1]
+        extended_row += tuple(getattr(fileblobs[row[-1]], field[0]) for field in catalog_fields)
+        extended_row += ("<a href='/browse/{0}'>{1}</a>".format(row[-1], row[-1]),                      
+                         "<input type='checkbox' value='{0}' />".format(row[-1]),)   
+        rows.append(extended_row)
     datatables = to_datatables(header, rows)
     return datatables
 
@@ -2417,6 +2429,8 @@ def get_mapping_dict(mapping):
     is_mapping(mapping)
     loaded_mapping = rmap.get_cached_mapping(mapping)
     return mapping, loaded_mapping.todict()
+
+
 
 def fix_meta_parameters(parameters):
     """Harmless web-hack for JWST,  ditch the wordy META. prefix on every parameter just
