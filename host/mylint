@@ -14,7 +14,7 @@ else:
 
 omit = ",".join([
    "trailing-whitespace",
-   "bad-continuation",
+   # "bad-continuation",
    "bad-whitespace"
 ])
 

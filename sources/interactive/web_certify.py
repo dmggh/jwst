@@ -66,10 +66,9 @@ def captured_certify(original_name, uploaded_path, check_references=True, filema
 def _captured_certify(original_name, uploaded_path, context=None, compare_old_reference=False, check_references=False, 
                       filemap=None):
     """Run  crds.certify_files on `uploaded_path` and capture it's stdout/stderr."""
-    certify.certify_files([uploaded_path], context=context, dump_provenance=True, check_references=False, 
-                          is_mapping=rmap.is_mapping(original_name), trap_exceptions=True, 
-                          compare_old_reference=compare_old_reference,
-                          observatory=models.OBSERVATORY)
+    certify.certify_file(uploaded_path, context=context, dump_provenance=True, check_references=False, 
+                         original_name=original_name, trap_exceptions=True, 
+                         compare_old_reference=compare_old_reference, observatory=models.OBSERVATORY)
 
     if check_references and rmap.is_mapping(original_name):
         if filemap is None:
@@ -87,30 +86,30 @@ def _captured_certify(original_name, uploaded_path, context=None, compare_old_re
                     if filemap[filename].rejected:
                         log.warning("File '%s' is rejected." % filename)
 
-def do_certify_file(basename, certifypath, check_references=False, filemap=None, context=None):
+def do_certify_file(original_name, certifypath, check_references=False, filemap=None, context=None):
     """Run un-trapped components of crds.certify and re-raise any exception
     as a CrdsError which will be displayed as a form error on the submission
     page.
     
-    basename is the name of the file on the user's system,  hopefully with a
+    original_name is the name of the file on the user's system,  hopefully with a
     sane extension.   certifypath is a fully qualified path,  but sometimes
     with a temporary filename which is total garbage.
     """
-    config.check_filename(basename)
+    config.check_filename(original_name)
     try:
-        certify.certify_files([certifypath], check_references=None,
-            trap_exceptions=False, is_mapping = rmap.is_mapping(basename),
+        certify.certify_file(certifypath, check_references=None,
+            trap_exceptions=False, original_name=original_name,
             context=context, observatory=models.OBSERVATORY)
     except Exception, exc:
-        raise CrdsError("Certifying " + srepr(basename) + ": " + str(exc))
+        raise CrdsError("Certifying " + srepr(original_name) + ": " + str(exc))
 
-    if check_references and rmap.is_mapping(basename):
+    if check_references and rmap.is_mapping(original_name):
         if filemap is None:
             filemap = models.get_fileblob_map(models.OBSERVATORY)
         ctx = rmap.fetch_mapping(certifypath)
         for ref in ctx.reference_names():
             assert ref in filemap, \
-                "Reference " + srepr(ref) + " in " + srepr(basename) + " is not known to CRDS."
+                "Reference " + srepr(ref) + " in " + srepr(original_name) + " is not known to CRDS."
 
 def get_blacklist_file_list(upload_tuples, all_files):
     """Return the mapping of blacklist status and blacklisted_by list for the
@@ -135,17 +134,17 @@ def get_blacklist_file_list(upload_tuples, all_files):
         blacklist_results[original_name] = (blacklist_status, blacklisted_by)
     return blacklist_results
 
-def get_blacklists(basename, certifypath, ignore_self=True, files=None):
-    """Return a list of the files referenced by `basename` which are
+def get_blacklists(original_name, certifypath, ignore_self=True, files=None):
+    """Return a list of the files referenced by `original_name` which are
     blacklisted.
     """
-    basename = str(basename)
-    if rmap.is_mapping(basename):
+    original_name = str(original_name)
+    if rmap.is_mapping(original_name):
         blacklisted_by = set()
         try:
             mapping = rmap.fetch_mapping(certifypath, ignore_checksum=True)
         except Exception, exc:
-            raise CrdsError("Error loading " + srepr(basename) + " : " + str(exc))
+            raise CrdsError("Error loading " + srepr(original_name) + " : " + str(exc))
         if files is None:
             files = models.get_fileblob_map(mapping.observatory)
         
@@ -154,7 +153,7 @@ def get_blacklists(basename, certifypath, ignore_self=True, files=None):
             if ignore_self and child == os.path.basename(certifypath): 
                 continue
             if child not in files:   # Unknown file,  what to do?
-                log.error("get_blacklists for", repr(basename), "missing file", repr(child))
+                log.error("get_blacklists for", repr(original_name), "missing file", repr(child))
                 continue   # XXXX TODO blacklist instead?
             if files[child].blacklisted:
                 blacklisted_by.add(child)
