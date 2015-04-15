@@ -2399,6 +2399,7 @@ def get_context_table_parameters(pmap):
 
 CATALOG_FIELDS = (
     ("activation_date_str", "Activation Date"),
+    # ("uploaded_as", "Submitted As"),
 )
 
 @models.crds_cached
