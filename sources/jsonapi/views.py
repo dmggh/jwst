@@ -428,6 +428,10 @@ def get_mapping_names(request, context):
 @jsonrpc_method('get_reference_names(context=String)') # secure
 def get_reference_names(request, context):
     context = check_context(context)
+    return _get_reference_names(context)
+
+@imodels.crds_cached
+def _get_reference_names(context):
     ctx = rmap.get_cached_mapping(context)
     return ctx.reference_names()
 
