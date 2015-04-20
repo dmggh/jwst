@@ -11,4 +11,7 @@ pysh.out_err("wget ${CRDS_SERVER_URL} -O-")
 log.info("Fetching server configuration")
 heavy_client.get_config_info(os.environ["CRDS_PROJECT"])
 
-list.ListScript("crds.list --all --references --mappings --verbose")
+
+list.ListScript("crds.list --all --references --mappings --verbosity=70")()
+
+
