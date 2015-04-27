@@ -18,6 +18,8 @@ from crds.cmdline import Script
 import crds.server.config
 from crds.server.interactive import models, submit
 
+import django
+
 def hack_sqlite3_performance():
     """These pragmas make a huge difference on Fedora 15.  Mac OS-X seems to
     have good performance (perhaps these are already turned on) by default.
@@ -79,6 +81,8 @@ Does not move, rename, or deliver files.
         final locations,  suitable for recreating the CRDS database from a CRDS file
         cache.
         """
+        django.setup()
+
         if "sqlite" in crds.server.config.dbtype:
             hack_sqlite3_performance()
         if self.args.deliver:

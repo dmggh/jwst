@@ -7,7 +7,12 @@ from crds import timestamp, log
 
 from crds.server.interactive import models
 
+import django
+
 def main(context, datestr):
+    
+    django.setup()
+
     date = timestamp.parse_date(datestr)
     for hist in  models.ContextHistoryModel.objects.filter(context=context):
         hist.start_date = date

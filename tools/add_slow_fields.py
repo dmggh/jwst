@@ -11,6 +11,8 @@ from crds import (rmap, log)
 from crds.server.interactive import (models, submit)
 from crds.rmap import locate_file
 
+import django
+
 def add_slow_fields(files):
     """Add the slow fields to the fileblobs for the basenames listed in `files`."""
     file_map = models.get_fileblob_map()
@@ -33,6 +35,7 @@ def hack_sqlite3_performance():
     cursor.execute('PRAGMA synchronous=OFF')
 
 def main(files):   
+    django.setup()
     if "sqlite" in crds.server.config.dbtype:
         hack_sqlite3_performance()
     add_slow_fields(files)
