@@ -29,18 +29,21 @@ drop database test_crds_${CRDS_PROJECT}_${CRDS_USECASE};
 EOF
 
 cd sources
+
+setenv TEST_CMD "python -u manage.py test --verbosity=2 --with-coverage --cover-erase --cover-html --cover-package=crds -cover-branches --cover-html-dir=$CRDS/CRDS_server/coverage"
+
+
 if ($# > 0) then
     # subsequent parameters are apps to test
     echo "================================================================================"
     echo "Running tests $*"
     echo "================================================================================"
-    python -u manage.py test $* --verbosity=2 |& tee $LOG
 else 
     echo "================================================================================"
     echo "Running implied tests ALL"
     echo "================================================================================"
-    python -u manage.py test --verbosity=2 |& tee $LOG
 endif
+$TEST_CMD $* |& tee $LOG
 
 if ($switch_port) then
     cd ${CRDS}/CRDS_server

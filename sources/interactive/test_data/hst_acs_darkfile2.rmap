@@ -14,7 +14,7 @@ header = {
     'reffile_required' : 'YES',
     'reffile_switch' : 'DARKCORR',
     'rmap_relevance' : '(DARKCORR != "OMIT")',
-    'sha1sum' : 'ad78032956d61dd5769f59e8032f611157078993',
+    'sha1sum' : 'f35ffcdeb2e5aa2f166abab80939dcf8e5fc2ec7',
 }
 
 selector = Match({
@@ -1317,9 +1317,6 @@ selector = Match({
         '2007-01-22 00:40:16' : 'r1u1415jj_drk.fits',
         '2007-01-26 00:07:36' : 'r1u1415lj_drk.fits',
     }),
-    ('HRC', 'C', 2.0) : UseAfter({
-        '2002-03-26 00:00:00' : 'm3t1633tj_drk.fits',
-    }),
     ('HRC', 'C', '1.0|2.0|4.0|8.0') : UseAfter({
         '2003-11-06 15:11:06' : 'nc113178j_drk.fits',
         '2003-11-08 10:46:23' : 'nc11317cj_drk.fits',
@@ -1334,6 +1331,9 @@ selector = Match({
         '2003-11-18 01:18:56' : 'nc11317jj_drk.fits',
         '2003-11-19 02:54:23' : 'nc11317lj_drk.fits',
         '2003-11-20 01:51:33' : 'nc11317ij_drk.fits',
+    }),
+    ('HRC', 'C', 2.0) : UseAfter({
+        '2002-03-26 00:00:00' : 'm3t1633tj_drk.fits',
     }),
     ('SBC', 'N/A', 'N/A') : UseAfter({
         '1991-01-01 00:00:00' : 'k9c13373j_drk.fits',
