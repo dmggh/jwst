@@ -130,6 +130,7 @@ class CrdsModel(models.Model):
     unicode_list = ["name"]
     repr_list = ["name"]
     model_fields = ["name"]
+    model_titles = ["Name"]
 
     @property
     def fields(self):
@@ -495,6 +496,7 @@ class BlobModel(CrdsModel):
         abstract = True    # Collapse model inheritance for flat SQL tables
 
     model_fields = CrdsModel.model_fields + ["blob"]  # field directly in database
+    model_titles = CrdsModel.model_titles + ["Blob"]
     
     blob_fields = {}  # field in database as part of blob
     exclude_from_info = ["blob"]    # not included in self.info()
@@ -948,15 +950,32 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
     class Meta:
         db_table = TABLE_PREFIX + "_catalog" # rename SQL table from interactive_fileblob
     
+    # attribute names of model data
     model_fields = BlobModel.model_fields + \
         ["state", "blacklisted", "rejected", "observatory", "instrument", "filekind", 
          "type", "derived_from", "sha1sum", "delivery_date", "activation_date", "useafter_date",
          "change_level", "pedigree", "reference_file_type", "size", "uploaded_as", "creator_name",
          "deliverer_user", "deliverer_email", "description", "catalog_link",
          "replaced_by_filename", "comment", "aperture"]
-
-    repr_list = unicode_list = ["id", "name", "type", "instrument", "filekind", "state", "blacklisted", "rejected", "change_level", "available"]
+    
+    # corresponding table column titles
+    model_titles = BlobModel.model_titles + \
+        ["State", "Blacklisted", "Rejected", "Observatory", "Instrument", "Filekind", 
+         "Type", "Derived From", "Sha1sum", "Delivery Date", "Activation Date", "Useafter Date",
+         "Change Level", "Pedigree", "File Type", "Size", "Upload As", "Creator Name",
+         "Deliverer", "Deliverer Email", "Description", "Catalog Link",
+         "Replaced By", "Comment", "Aperture"]
+    
+    # table fields and titles for use in web displays which combine mappings with catalog
+    fusion_fields = [ field.replace("_date", "_date_str") for field in model_fields ]
+    fusion_items = tuple(item for item in zip(fusion_fields, model_titles) 
+                         if item[0] not in ["name", "blob"])
+    
+    repr_list = unicode_list = ["id", "name", "type", "instrument", "filekind", "state", 
+                                "blacklisted", "rejected", "change_level", "available"]
         
+    # -------------------------------------------------------------------------------------------------------------
+    
     exclude_from_info = BlobModel.exclude_from_info + \
         ["pathname","creator","deliverer", "deliverer_email","catalog_link"]
 

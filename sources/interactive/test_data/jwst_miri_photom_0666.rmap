@@ -6,21 +6,13 @@ header = {
     'name' : 'jwst_miri_photom_0666.rmap',
     'observatory' : 'JWST',
     'parkey' : (('META.INSTRUMENT.DETECTOR', 'META.INSTRUMENT.FILTER'),),
-    'sha1sum' : 'b1d062d467dddf161a0b7767818e2135815701f6',
+    'sha1sum' : '52662b7ca3cbb5d4c2f1b28e3b4a0a5e75ab59d1',
 }
 
-comment = """
+selector = Match({
     ('MIRIFULONG', 'ANY') : 'jwst_miri_photom_8887.fits',  # non-existing file
     ('MIRIFUMED', 'ANY') : 'jwst_miri_photom_8888.fits',   # bad detector
     ('MIRIFUSHORT', 'ANY') : 'jwst_miri_photom_0000.fits', # reversion
     ('MIRIMAGE', 'ANY') : 'jwst_miri_photom_8889.fits',
     ('MIRIMAGE', 'ANY') : 'jwst_miri_photom_8889.fits',   # duplicate rule
-"""
-
-selector = Match({
-    ('MIRIFULONG', 'ANY') : 'jwst_miri_photom_8887.fits',
-    ('MIRIFUMED', 'ANY') : 'jwst_miri_photom_8888.fits',
-    ('MIRIFUSHORT', 'ANY') : 'jwst_miri_photom_0000.fits',
-    ('MIRIMAGE', 'ANY') : 'jwst_miri_photom_8889.fits',
-    ('MIRIMAGE', 'ANY') : 'jwst_miri_photom_8889.fits',
 })

@@ -40,6 +40,7 @@ from .templatetags import stdtags
 from .models import FieldError, MissingInputError
 from .common import capture_output, srepr, profile, complete_re
 from . import common
+from . import catalog_fusion
 
 from crds.server.jpoll import views as jpoll_views
 from crds.server.jsonapi import views as jsonapi_views
@@ -2368,6 +2369,10 @@ def edit_context_history(request, history_id):
 
 # ============================================================================
 
+CATALOG_FIELDS = (
+    ("activation_date_str", "Activation Date"),
+)
+
 @error_trap("base.html")
 @log_view
 def context_table(request, mapping, recursive="10"):
@@ -2376,7 +2381,8 @@ def context_table(request, mapping, recursive="10"):
     """
     recursive = int(recursive)
     if request.is_ajax():
-        datatables = get_rmap_datatable_parameters(mapping)
+        header, rows = catalog_fusion.get_rmap_web_parameters(mapping, CATALOG_FIELDS)
+        datatables = to_datatables(header, rows)
         return HttpResponse(json.dumps(datatables), content_type='application/json')
     else:
         pars = get_context_table_parameters(mapping)
@@ -2386,7 +2392,7 @@ def context_table(request, mapping, recursive="10"):
 def get_context_table_parameters(pmap):
     """Return the parameters required to display a context table for `pmap`."""
     try:
-        pmap_name, pmap_dict = get_mapping_dict(pmap)
+        pmap_name, pmap_dict = catalog_fusion.get_mapping_dict(pmap)
         assert is_pmap(pmap_name), "mapping must be a .pmap"
         return {
             "pmap" : pmap_dict,
@@ -2395,53 +2401,7 @@ def get_context_table_parameters(pmap):
     except Exception, exc:
         log.error("Failure in get_context_table_parameters:", str(exc))
         return {}
-    
 
-CATALOG_FIELDS = (
-    ("activation_date_str", "Activation Date"),
-    # ("uploaded_as", "Submitted As"),
-)
-
-@models.crds_cached
-def get_rmap_datatable_parameters(mapping, catalog_fields=CATALOG_FIELDS):
-    """Return the datatables dictionary corresponding to `rmap_name`."""
-    mapping_name, rmap_dict = get_mapping_dict(mapping)
-    assert is_rmap(mapping_name), "mapping must be an .rmap"
-    fixed = fix_meta_parameters(rmap_dict["parameters"])
-    header = (fixed[:-1] + 
-              tuple(field[1] for field in catalog_fields) + 
-              (fixed[-1],) +
-              (html.input("", type='submit', id='diff_button', value='diff'),))
-    fileblobs = models.get_fileblob_map()
-    rows = []
-    for row in rmap_dict["selections"]:
-        extended_row = row[:-1]
-        extended_row += tuple(getattr(fileblobs[row[-1]], field[0]) for field in catalog_fields)
-        extended_row += ("<a href='/browse/{0}'>{1}</a>".format(row[-1], row[-1]),                      
-                         "<input type='checkbox' value='{0}' />".format(row[-1]),)   
-        rows.append(extended_row)
-    datatables = to_datatables(header, rows)
-    return datatables
-
-def get_mapping_dict(mapping):
-    """Given mapping spec `mapping`,  return the dictionary representation."""
-    if re.match(complete_re(r"operational|edit"), mapping):
-        mapping = models.get_default_context(state=mapping)
-    is_mapping(mapping)
-    loaded_mapping = rmap.get_cached_mapping(mapping)
-    return mapping, loaded_mapping.todict()
-
-
-
-def fix_meta_parameters(parameters):
-    """Harmless web-hack for JWST,  ditch the wordy META. prefix on every parameter just
-    for the context display.
-    """
-    if isinstance(parameters, basestring):
-        return parameters.replace("META.","")
-    else:
-        return tuple([fix_meta_parameters(par) for par in parameters])
-    
 if sconfig.DEBUG:
     
     @capture_output
