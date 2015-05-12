@@ -40,7 +40,7 @@ def crds_cached(f):
         key = utils.str_checksum(raw_key)
         val = retrieve_cache(key)
         if val is not None:
-            log.verbose("crds_cached", f.func_name, raw_key, key, "HIT")
+            log.info("crds_cached", f.func_name, raw_key, key, "HIT")
         else:
             val = f(*args, **keys)
             log.info("crds_cached", f.func_name, raw_key, key, "MISS")
