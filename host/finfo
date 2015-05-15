@@ -2,5 +2,7 @@
 
 import pyfits, sys
 
-pyfits.info(sys.argv[1])
+from astropy.io import fits
+
+fits.info(sys.argv[1])
 
