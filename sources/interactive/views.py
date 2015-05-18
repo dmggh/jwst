@@ -1789,6 +1789,8 @@ def recent_activity_post(request):
         request, "filename", r"[A-Za-z0-9_.\*]+")
     user = validate(
         request, "deliverer_user", r"[A-Za-z0-9_.\*]+")
+    if filename != "*":
+        action = observatory = instrument = filekind = extension = user = "*"
     filters = {}
     for var in ["action", "instrument", "filekind", "extension", "user"]:
         value = locals()[var].strip()
@@ -1883,6 +1885,9 @@ def browse_db_post(request):
     select_bad_files = checkbox(request, "select_bad_files")
     show_defects = checkbox(request, "show_defects")
     
+    if filename != "*":
+        observatory = instrument = filekind = extension = deliverer_user = status =  "*"
+
     filters = {}
     for var in ["instrument", "filekind", "extension",
                 "filename", "deliverer_user", "status"]:
