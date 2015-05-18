@@ -247,7 +247,7 @@ def crds_render_html(request, template, dict_=None, requires_pmaps=False):
     html_str = loaded_template.render(context)
     # Remove file paths and fix temporary names with client side names
     uploaded_pairs = rdict.get("uploaded_file_names", get_uploaded_filepaths(request))
-    html_str = squash_file_paths(html_str, uploaded_pairs, str(request.user))
+    html_str = squash_file_paths(html_str, uploaded_pairs)
     return html_str
 
 def get_rendering_dict(request, dict_=None, requires_pmaps=False):
@@ -353,7 +353,7 @@ def get_pmap_template_vars(dict_):
         }
 
             
-def squash_file_paths(response, uploaded_pairs, user):
+def squash_file_paths(response, uploaded_pairs):
     """Fix filepath leakage here as a brevity and security issue.   Uploaded file
     temporary names or paths are replaced with the client-side original name.  CRDS
     file tree paths of various kinds are replaced with the empty string.
@@ -2279,8 +2279,8 @@ def get_default_description_for_set_context(new_context=None):
     with log.error_on_exception("Can't find default description for transition to", srepr(new_context)):
         mappings = rmap.list_mappings("*.pmap", observatory=models.OBSERVATORY)
         old_context = models.get_default_context(observatory=models.OBSERVATORY, state="operational")
-        index = mappings.index(old_context)
-        if index+1 < len(mappings) and mappings[index+1] == new_context:
+        ith = mappings.index(old_context)
+        if ith+1 < len(mappings) and mappings[ith+1] == new_context:
             description = models.FileBlob.load(new_context).thaw().description
         else:
             description = ""
@@ -2311,7 +2311,7 @@ def update_default_context(new_default, description, context_type, user):
     pmap_names = pmap.mapping_names() + pmap.reference_names()
     bad_files = []
     with log.error_on_exception("Bad file check failed"):
-        bad_files = [ name for name in pmap_names if (name in blobs and blobs[name].rejected) ]
+        bad_files = [ name for name in pmap_names if name in blobs and blobs[name].rejected ]
     if bad_files and context_type == "operational":
         raise CrdsError("Context " + srepr(new_default) + 
                         " contains known bad files and cannot be made the default (last 4 of " + 
@@ -2355,6 +2355,7 @@ def get_context_history_variables(last_n=None):
 @log_view
 @group_required("edit_context_history")
 def edit_context_history(request, history_id):
+    """Privileged page supporting replacing the context table description field."""
     if request.method == "GET":
         return crds_render(request, "edit_context_history.html", dict(
             context_history=models.ContextHistoryModel.objects.get(id=int(history_id)),
@@ -2431,6 +2432,6 @@ if sconfig.DEBUG:
         else:
             command = str(request.POST["command"].strip())
             mode = validate(request, "mode", "exec|eval")
-            result, output = runit(mode, command)
+            result, output = runit(mode, command)   # @capture_output adds tuple format + output string
             return crds_render(request, "command_result.html", dict(command_result=result, command_output=output))
     

@@ -14,8 +14,9 @@ else:
 
 omit = ",".join([
    "trailing-whitespace",
+   "bad-whitespace",
    # "bad-continuation",
-   "bad-whitespace"
+   # "missing-docstring",
 ])
 
 for file in sys.argv[1:]:
