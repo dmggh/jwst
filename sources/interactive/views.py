@@ -40,6 +40,7 @@ from .templatetags import stdtags
 from .models import FieldError, MissingInputError
 from .common import capture_output, srepr, profile, complete_re
 from . import common
+from . import catalog_fusion
 
 from crds.server.jpoll import views as jpoll_views
 from crds.server.jsonapi import views as jsonapi_views
@@ -246,7 +247,7 @@ def crds_render_html(request, template, dict_=None, requires_pmaps=False):
     html_str = loaded_template.render(context)
     # Remove file paths and fix temporary names with client side names
     uploaded_pairs = rdict.get("uploaded_file_names", get_uploaded_filepaths(request))
-    html_str = squash_file_paths(html_str, uploaded_pairs, str(request.user))
+    html_str = squash_file_paths(html_str, uploaded_pairs)
     return html_str
 
 def get_rendering_dict(request, dict_=None, requires_pmaps=False):
@@ -352,7 +353,7 @@ def get_pmap_template_vars(dict_):
         }
 
             
-def squash_file_paths(response, uploaded_pairs, user):
+def squash_file_paths(response, uploaded_pairs):
     """Fix filepath leakage here as a brevity and security issue.   Uploaded file
     temporary names or paths are replaced with the client-side original name.  CRDS
     file tree paths of various kinds are replaced with the empty string.
@@ -2278,8 +2279,8 @@ def get_default_description_for_set_context(new_context=None):
     with log.error_on_exception("Can't find default description for transition to", srepr(new_context)):
         mappings = rmap.list_mappings("*.pmap", observatory=models.OBSERVATORY)
         old_context = models.get_default_context(observatory=models.OBSERVATORY, state="operational")
-        index = mappings.index(old_context)
-        if index+1 < len(mappings) and mappings[index+1] == new_context:
+        ith = mappings.index(old_context)
+        if ith+1 < len(mappings) and mappings[ith+1] == new_context:
             description = models.FileBlob.load(new_context).thaw().description
         else:
             description = ""
@@ -2310,7 +2311,7 @@ def update_default_context(new_default, description, context_type, user):
     pmap_names = pmap.mapping_names() + pmap.reference_names()
     bad_files = []
     with log.error_on_exception("Bad file check failed"):
-        bad_files = [ name for name in pmap_names if (name in blobs and blobs[name].rejected) ]
+        bad_files = [ name for name in pmap_names if name in blobs and blobs[name].rejected ]
     if bad_files and context_type == "operational":
         raise CrdsError("Context " + srepr(new_default) + 
                         " contains known bad files and cannot be made the default (last 4 of " + 
@@ -2354,6 +2355,7 @@ def get_context_history_variables(last_n=None):
 @log_view
 @group_required("edit_context_history")
 def edit_context_history(request, history_id):
+    """Privileged page supporting replacing the context table description field."""
     if request.method == "GET":
         return crds_render(request, "edit_context_history.html", dict(
             context_history=models.ContextHistoryModel.objects.get(id=int(history_id)),
@@ -2368,6 +2370,10 @@ def edit_context_history(request, history_id):
 
 # ============================================================================
 
+CATALOG_FIELDS = (
+    ("activation_date_str", "Activation Date"),
+)
+
 @error_trap("base.html")
 @log_view
 def context_table(request, mapping, recursive="10"):
@@ -2376,7 +2382,8 @@ def context_table(request, mapping, recursive="10"):
     """
     recursive = int(recursive)
     if request.is_ajax():
-        datatables = get_rmap_datatable_parameters(mapping)
+        header, rows = catalog_fusion.get_rmap_web_parameters(mapping, CATALOG_FIELDS)
+        datatables = to_datatables(header, rows)
         return HttpResponse(json.dumps(datatables), content_type='application/json')
     else:
         pars = get_context_table_parameters(mapping)
@@ -2386,7 +2393,7 @@ def context_table(request, mapping, recursive="10"):
 def get_context_table_parameters(pmap):
     """Return the parameters required to display a context table for `pmap`."""
     try:
-        pmap_name, pmap_dict = get_mapping_dict(pmap)
+        pmap_name, pmap_dict = catalog_fusion.get_mapping_dict(pmap)
         assert is_pmap(pmap_name), "mapping must be a .pmap"
         return {
             "pmap" : pmap_dict,
@@ -2395,53 +2402,7 @@ def get_context_table_parameters(pmap):
     except Exception, exc:
         log.error("Failure in get_context_table_parameters:", str(exc))
         return {}
-    
 
-CATALOG_FIELDS = (
-    ("activation_date_str", "Activation Date"),
-    # ("uploaded_as", "Submitted As"),
-)
-
-@models.crds_cached
-def get_rmap_datatable_parameters(mapping, catalog_fields=CATALOG_FIELDS):
-    """Return the datatables dictionary corresponding to `rmap_name`."""
-    mapping_name, rmap_dict = get_mapping_dict(mapping)
-    assert is_rmap(mapping_name), "mapping must be an .rmap"
-    fixed = fix_meta_parameters(rmap_dict["parameters"])
-    header = (fixed[:-1] + 
-              tuple(field[1] for field in catalog_fields) + 
-              (fixed[-1],) +
-              (html.input("", type='submit', id='diff_button', value='diff'),))
-    fileblobs = models.get_fileblob_map()
-    rows = []
-    for row in rmap_dict["selections"]:
-        extended_row = row[:-1]
-        extended_row += tuple(getattr(fileblobs[row[-1]], field[0]) for field in catalog_fields)
-        extended_row += ("<a href='/browse/{0}'>{1}</a>".format(row[-1], row[-1]),                      
-                         "<input type='checkbox' value='{0}' />".format(row[-1]),)   
-        rows.append(extended_row)
-    datatables = to_datatables(header, rows)
-    return datatables
-
-def get_mapping_dict(mapping):
-    """Given mapping spec `mapping`,  return the dictionary representation."""
-    if re.match(complete_re(r"operational|edit"), mapping):
-        mapping = models.get_default_context(state=mapping)
-    is_mapping(mapping)
-    loaded_mapping = rmap.get_cached_mapping(mapping)
-    return mapping, loaded_mapping.todict()
-
-
-
-def fix_meta_parameters(parameters):
-    """Harmless web-hack for JWST,  ditch the wordy META. prefix on every parameter just
-    for the context display.
-    """
-    if isinstance(parameters, basestring):
-        return parameters.replace("META.","")
-    else:
-        return tuple([fix_meta_parameters(par) for par in parameters])
-    
 if sconfig.DEBUG:
     
     @capture_output
@@ -2471,6 +2432,6 @@ if sconfig.DEBUG:
         else:
             command = str(request.POST["command"].strip())
             mode = validate(request, "mode", "exec|eval")
-            result, output = runit(mode, command)
+            result, output = runit(mode, command)   # @capture_output adds tuple format + output string
             return crds_render(request, "command_result.html", dict(command_result=result, command_output=output))
     

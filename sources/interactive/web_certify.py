@@ -98,7 +98,7 @@ def do_certify_file(original_name, certifypath, check_references=False, filemap=
     config.check_filename(original_name)
     try:
         certify.certify_file(certifypath, check_references=None,
-            trap_exceptions="test", original_name=original_name,
+            trap_exceptions=False, original_name=original_name,
             context=context, observatory=models.OBSERVATORY)
     except Exception, exc:
         raise CrdsError("Certifying " + srepr(original_name) + ": " + str(exc))
