@@ -21,6 +21,7 @@ from django.template import loader, RequestContext
 from django.shortcuts import redirect
 from django.http import HttpResponse, HttpResponseRedirect
 import django.utils.safestring as safestring
+import django.utils
 from django.utils.html import format_html, format_html_join
 from django.core.urlresolvers import reverse
 
@@ -101,6 +102,11 @@ def get_or_post(request, variable):
 def checkbox(request, variable):
     """Return the boolean value of checkbox `variable` with <input> in standard idiom."""
     return bool(get_or_post(request, variable))
+
+def parse_date(datestr):
+    """Validate a `datestr` form input and return it as a datetime."""
+    assert len(datestr) < 100,  "Date input string is too long."
+    return "*" if datestr in ["*", ""] else timestamp.parse_date(datestr)
 
 # ===========================================================================
 
@@ -1775,27 +1781,29 @@ def recent_activity(request):
 
 def recent_activity_post(request):
     """View fragment handling recent_activity POST case."""
-    action = validate(
-        request, "action", models.AUDITED_ACTIONS+[r"\*"])
-    observatory = validate(
-        request, "observatory", models.OBSERVATORIES+[r"\*"])
-    instrument = validate(
-        request, "instrument", models.INSTRUMENTS+[r"\*"])
-    filekind = validate(
-        request, "filekind", models.FILEKINDS+[r"\*"])
-    extension = validate(
-        request, "extension", models.EXTENSIONS+[r"\*"])
-    filename = validate(
-        request, "filename", r"[A-Za-z0-9_.\*]+")
-    user = validate(
-        request, "deliverer_user", r"[A-Za-z0-9_.\*]+")
+    action = validate(request, "action", models.AUDITED_ACTIONS+[r"\*"])
+    observatory = validate(request, "observatory", models.OBSERVATORIES+[r"\*"])
+    instrument = validate(request, "instrument", models.INSTRUMENTS+[r"\*"])
+    filekind = validate(request, "filekind", models.FILEKINDS+[r"\*"])
+    extension = validate(request, "extension", models.EXTENSIONS+[r"\*"])
+    filename = validate(request, "filename", r"[A-Za-z0-9_.\*]+")
+    user = validate(request, "deliverer_user", r"[A-Za-z0-9_.\*]+")
+    start_date = validate(request, "start_date", parse_date)
+    stop_date = validate(request, "stop_date", parse_date)
+
+    assert stop_date >= start_date,  "Stop date precedes start date,  no matches possible."
+
     if filename != "*":
-        action = observatory = instrument = filekind = extension = user = "*"
+        action = observatory = instrument = filekind = extension = user = start_date = stop_date = "*"
     filters = {}
     for var in ["action", "instrument", "filekind", "extension", "user"]:
         value = locals()[var].strip()
         if value not in ["*",""]:
             filters[var] = value
+    if start_date != "*":
+        filters["date__gte"] = start_date
+    if stop_date != "*":
+        filters["date__lte"] = stop_date
     filtered_activities = models.AuditBlob.filter(**filters)[::-1]
     
     # Skip .cat files since they're not deliverable files and don't currently browse.
@@ -1807,9 +1815,14 @@ def recent_activity_post(request):
     # Skip mass import actions by default since for HST there are 14k+ of them
     if action == "*":
         filtered_activities = [blob for blob in filtered_activities if blob.action != "mass import"]
+
+    if start_date != "*":
+        filters["start_date"] = filters.pop("date__gte")
+    if stop_date != "*":
+        filters["stop_date"] = filters.pop("date__lte")
     
     return crds_render(request, "recent_activity_results.html", {
-                "filters": filters,
+                "filters": sorted(filters.items()),
                 "filtered_activities" : filtered_activities,
                 "fileblobs" : models.get_fileblob_map(),
             })

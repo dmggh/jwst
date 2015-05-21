@@ -13,10 +13,10 @@
                 <th>Filter</th>
                 <th>Value</th>
             </tr>
-            {% for filter_name, filter_value in filters.items %}
+            {% for filter_name, filter_value in filters %}
             <tr>
                 <td>{{filter_name}}</td>
-                <td>{{filter_value}}</td>
+                <td style="color: darkblue;">{{filter_value}}</td>
             </tr>
             {% endfor %}
        </table>
