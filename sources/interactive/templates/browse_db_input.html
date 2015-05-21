@@ -9,6 +9,7 @@
         {% include "browse_options.html" %}
         {% include "status_options.html" %}
         {% include "extension_options.html" %}
+        {% include "date_input.html" %}
         {% if is_superuser %}
           <tr>
             <td class="label" width="50%">Bad Files Only (slow):</td>
@@ -27,6 +28,8 @@
     <br/>
     <input type="submit" value="Submit" />
 </form>
+
+{% include "date_input_js.html" %}
 
 {% endblock column1 %}
 

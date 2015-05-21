@@ -6,25 +6,10 @@
 
     <h2>Recent Activity</h2>
 
-    <h3>Filters</h3>
-    {% if filters %}
-       <table>
-            <tr>
-                <th>Filter</th>
-                <th>Value</th>
-            </tr>
-            {% for filter_name, filter_value in filters %}
-            <tr>
-                <td>{{filter_name}}</td>
-                <td style="color: darkblue;">{{filter_value}}</td>
-            </tr>
-            {% endfor %}
-       </table>
-    {% else %}
-       <p>No filters.</p>
-    {% endif %}
+    {% include "filters_include.html" %}
     
-    <h3>Activity</h3>
+    <br/>
+
     <table border="1" id="recent_activity_table" class="crds_data_table">
         <thead>
             <tr>

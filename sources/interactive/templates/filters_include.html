@@ -1,0 +1,18 @@
+{% load stdtags %}
+
+{% accordion "Filters" %}
+    {% if filters %}
+       <table border="1">
+       <tr><th>filter</th><th>value</th></tr>
+        {% for filter_name, filter_value in filters %}
+        <tr>
+            <td>{{filter_name}}</td>
+            <td>{{filter_value}}</td>
+        </tr>
+        {% endfor %}
+       </table>
+    {% else %}
+       <p>No filters.</p>
+    {% endif %}
+{% endaccordion %}
+ 

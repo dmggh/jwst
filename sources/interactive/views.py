@@ -1790,8 +1790,9 @@ def recent_activity_post(request):
     user = validate(request, "deliverer_user", r"[A-Za-z0-9_.\*]+")
     start_date = validate(request, "start_date", parse_date)
     stop_date = validate(request, "stop_date", parse_date)
-
-    assert stop_date >= start_date,  "Stop date precedes start date,  no matches possible."
+    
+    if "*" not in [start_date, stop_date]:
+        assert stop_date >= start_date,  "Stop date precedes start date,  no matches possible."
 
     if filename != "*":
         action = observatory = instrument = filekind = extension = user = start_date = stop_date = "*"
@@ -1817,9 +1818,9 @@ def recent_activity_post(request):
         filtered_activities = [blob for blob in filtered_activities if blob.action != "mass import"]
 
     if start_date != "*":
-        filters["start_date"] = filters.pop("date__gte")
+        filters["start_date"] = timestamp.format_date(filters.pop("date__gte"))
     if stop_date != "*":
-        filters["stop_date"] = filters.pop("date__lte")
+        filters["stop_date"] = timestamp.format_date(filters.pop("date__lte"))
     
     return crds_render(request, "recent_activity_results.html", {
                 "filters": sorted(filters.items()),
@@ -1881,25 +1882,24 @@ def browse_db(request):
 
 def browse_db_post(request):
     """View fragment handling browse_db POST case."""
-    observatory = validate(
-        request, "observatory", models.OBSERVATORIES+[r"\*"])
-    instrument = validate(
-        request, "instrument", models.INSTRUMENTS+[r"\*"])
-    filekind = validate(
-        request, "filekind", models.FILEKINDS+[r"\*"])
-    extension = validate(
-        request, "extension", models.EXTENSIONS+[r"\*"])
-    filename = validate(
-        request, "filename", complete_re(config.FILE_RE_STR + r"|" + complete_re(r"\*")))
-    deliverer_user = validate(
-        request, "deliverer_user", [r"\*"] + usernames())
-    status = validate(
-        request, "status",  complete_re(r"[A-Za-z0-9_.\*]+"))
+    observatory = validate(request, "observatory", models.OBSERVATORIES+[r"\*"])
+    instrument = validate(request, "instrument", models.INSTRUMENTS+[r"\*"])
+    filekind = validate(request, "filekind", models.FILEKINDS+[r"\*"])
+    extension = validate(request, "extension", models.EXTENSIONS+[r"\*"])
+    filename = validate(request, "filename", complete_re(config.FILE_RE_STR + r"|" + complete_re(r"\*")))
+    deliverer_user = validate(request, "deliverer_user", [r"\*"] + usernames())
+    status = validate(request, "status",  complete_re(r"[A-Za-z0-9_.\*]+"))
+    start_date = validate(request, "start_date", parse_date)
+    stop_date = validate(request, "stop_date", parse_date)
+
     select_bad_files = checkbox(request, "select_bad_files")
     show_defects = checkbox(request, "show_defects")
-    
+
+    if "*" not in [start_date, stop_date]:
+        assert stop_date >= start_date,  "Stop date precedes start date,  no matches possible."
+
     if filename != "*":
-        observatory = instrument = filekind = extension = deliverer_user = status =  "*"
+        observatory = instrument = filekind = extension = deliverer_user = status = start_date = stop_date = "*"
 
     filters = {}
     for var in ["instrument", "filekind", "extension",
@@ -1907,14 +1907,23 @@ def browse_db_post(request):
         value = locals()[var].strip()
         if value not in ["*",""]:
             filters[var] = value
+    if start_date != "*":
+        filters["delivery_date__gte"] = start_date
+    if stop_date != "*":
+        filters["delivery_date__lte"] = stop_date
             
     table_json = cached_browse_table(tuple(sorted(filters.items())),
                                      select_bad_files=select_bad_files,
                                      show_defects=show_defects, 
                                      authenticated=request.user.is_authenticated())
+
+    if start_date != "*":
+        filters["delivery_date_start"] = timestamp.format_date(filters.pop("delivery_date__gte"))
+    if stop_date != "*":
+        filters["delivery_date_stop"] = timestamp.format_date(filters.pop("delivery_date__lte"))
     
     return crds_render(request, "browse_db_results.html", {
-            "filters": filters,
+            "filters": sorted(filters.items()),
             # "filtered_db" : filtered_db,
             "table_json" : table_json,
             "observatory" : observatory,
@@ -2024,7 +2033,7 @@ def brokered_get(_request, filename):
     download might be owned by the archive (TBD) or it might be handled
     directly by CRDS Apache,  or possibly by servers better optimized than Apache.
     
-    From a protocol standpoint,  redirecting is superior to asking for the URL
+    From protocol standpoint,  redirecting is superior to asking for the URL
     and then fetching it sice it cuts out the return trip to client.  The CRDS 
     /get/<filename> URL is fixed and mapped to this broker.   The broker then
     determines and redirects to the actual download URL.

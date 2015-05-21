@@ -5,23 +5,10 @@
 {% block contents %}
 
 <h2>Browse Database</h2>
-{% accordion "Filters" %}
-    {% if filters %}
-       <table border="1">
-       <tr><th>filter</th><th>value</th></tr>
-        {% for filter_name, filter_value in filters.items %}
-        <tr>
-            <td>{{filter_name}}</td>
-            <td>{{filter_value}}</td>
-        </tr>
-        {% endfor %}
-       </table>
-    {% else %}
-       <p>No filters.</p>
-    {% endif %}
-{% endaccordion %}
 
-<h3>Database Entries</h3>
+{% include "filters_include.html" %}
+
+<br/>
 
 {% include "diff_col_header.html" %}
     <table id="crds_db_table"></table>
