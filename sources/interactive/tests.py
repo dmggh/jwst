@@ -337,6 +337,8 @@ class InteractiveBase(object):
                 "extension" : "*",
                 "filename" : "*",
                 "deliverer_user" : "*",
+                "start_date": "*",
+                "stop_date": "*",
             })
         self.assert_no_errors(response)
 
@@ -384,6 +386,8 @@ class InteractiveBase(object):
                 "filename": self.pmap,
                 "deliverer_user": "*",
                 "status":"*",
+                "start_date": "*",
+                "stop_date": "*",
             })
         # print response
         self.assert_no_errors(response)
