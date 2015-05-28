@@ -26,6 +26,7 @@ from __future__ import print_function
 import sys
 import re
 import pprint
+from collections import Counter
 
 from crds import pysh
 
@@ -37,11 +38,13 @@ from crds import pysh
 # [28/Jan/2015:08:25:02 -0500] 130.167.201.57 (130.167.252.84) "POST /json/list_mappings/10842d42-a6f1-11e4-b742-005056bd447b/ HTTP/1.1" 2177
 
 HOSTNAMES = {}
+IPCOUNTS = Counter()
 
 IP_RE = re.compile(r"(\d+\.\d+\.\d+\.\d+)")
 
 def hostname(ip_address):
     """Determine the hostname associated with a numerical IP address."""
+    IPCOUNTS[ip_address] += 1
     try:
         return HOSTNAMES[ip_address]
     except KeyError:
@@ -72,7 +75,9 @@ def main():
 
     print()
     print("Hosts:")
-    pprint.pprint(HOSTNAMES)
+    access_tuples = ((IPCOUNTS[ip_address], ip_address, HOSTNAMES[ip_address]) for ip_address in HOSTNAMES)
+    for atup in reversed(sorted(access_tuples)):
+        print("{0:>10d} {1:>16s} {2:>s}".format(*atup))
 
 if __name__ == "__main__":
     main()
