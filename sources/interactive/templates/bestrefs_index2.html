@@ -25,7 +25,7 @@
 	{% endif %}
         </td>
         <td align="left" id="dataset_local_input_td">
-            <input type='file' id='dataset_local' onchange='set_contents(this);' />  {# see also set_radio_clear_fits() above #}
+            <input type='file' id='dataset_local' onchange='crds.set_header_contents(this);' />  {# see also set_radio_clear_fits() above #}
         </td>
       </tr>
       {% if is_authenticated %}
