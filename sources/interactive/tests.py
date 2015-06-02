@@ -426,7 +426,17 @@ class InteractiveBase(object):
                 "auto_rename" : "checked",
             }, follow=True)
         return response
-    
+
+    def test_batch_submit_truncated(self):
+        self.login()
+        response = self._batch_submit_insert(self.batch_submit_truncated_references)
+        assert "File may have been truncated" in response.content, \
+            "Expected file truncation warning not present"
+        # doesn't guarantee same message but any WARNING will trigger top level notice
+        assert "WARNING" in response.content, \
+            "No warning in response,  truncation may be overlooked."
+        log.info("truncated:", response.content)
+
     def _assert_normal_bsr_insert(self, response):
         # print response
         self.assert_no_errors(response)
@@ -699,6 +709,8 @@ if sconfig.observatory == "hst":
 #                                              "interactive/test_data/t2k1224el_disp.fits"]
         batch_submit_insert_references = ["interactive/test_data/s7g1700hl_dead.fits"]
         
+        batch_submit_truncated_references = ["interactive/test_data/hst_truncated.fits"] 
+
         create_contexts_rmaps = ["hst_acs_biasfile.rmap", "hst_cos_deadtab.rmap"]
 
         blacklist_files = [  # order critical, dependencies must be added first.
@@ -797,6 +809,8 @@ else:  # JWST
                                            "interactive/test_data/jwst_miri_photom_9999.fits"]
         batch_submit_insert_references = ["interactive/test_data/jwst_miri_amplifier_9998.fits",
                                           "interactive/test_data/jwst_miri_photom_9998.fits"]
+
+        batch_submit_truncated_references = ["interactive/test_data/jwst_truncated.fits"]
         
         create_contexts_rmaps = ["jwst_miri_amplifier_0000.rmap", 
                                  "jwst_miri_photom_0000.rmap"]
