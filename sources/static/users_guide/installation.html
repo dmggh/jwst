@@ -54,6 +54,7 @@
 <li><a class="reference internal" href="#">Package Overview</a></li>
 <li><a class="reference internal" href="#installation">Installation</a><ul>
 <li><a class="reference internal" href="#installation-via-ureka">Installation via Ureka</a></li>
+<li><a class="reference internal" href="#pip-installation">Pip Installation</a></li>
 <li><a class="reference internal" href="#installing-from-source">Installing from Source</a><ul>
 <li><a class="reference internal" href="#subversion-checkout">Subversion Checkout</a></li>
 <li><a class="reference internal" href="#run-the-install-script">Run the Install Script</a></li>
@@ -254,10 +255,20 @@ provided by STScI.   Most people install CRDS as part of Ureka which is found he
 <blockquote>
 <div><a class="reference external" href="http://ssb.stsci.edu/ureka/">http://ssb.stsci.edu/ureka/</a></div></blockquote>
 <p>Follow the instructions for installing Ureka and afterward you should be able to do the following:</p>
-<blockquote>
-<div>% python -m crds.list &#8211;version
-CRDS  : INFO     crds version 1.1.1 revision 1784M</div></blockquote>
+<div class="highlight-python"><div class="highlight"><pre>% python -m crds.list --version
+CRDS  : INFO     crds version 1.1.1 revision 1784M
+</pre></div>
+</div>
 <p>and get similar output reflecting your installed CRDS version.</p>
+</div>
+<div class="section" id="pip-installation">
+<h2>Pip Installation<a class="headerlink" href="#pip-installation" title="Permalink to this headline">¶</a></h2>
+<p>It&#8217;s possible to install and update CRDS using Python&#8217;s pip system like this:</p>
+<div class="highlight-python"><div class="highlight"><pre>% pip install crds
+</pre></div>
+</div>
+<p>Because of the dependencies required by CRDS such as numpy and astropy,  installing via Ureka is preferred
+and will provide a system closer or identical to the one in pipeline use.</p>
 </div>
 <div class="section" id="installing-from-source">
 <h2>Installing from Source<a class="headerlink" href="#installing-from-source" title="Permalink to this headline">¶</a></h2>
