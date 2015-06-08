@@ -1,6 +1,7 @@
 """This module support dumping the CRDS database as a SQLite3 file so that it
 can be distributed.
 """
+import tempfile
 
 from crds import pysh, config
 from crds.server.crds_database import DATABASES
@@ -16,5 +17,9 @@ def dump_sqlite_db(observatory):
     prefix = "crds_" + observatory + "_"
     tables = " ".join([prefix + table for table in ["catalog", "context_history"]])
     db_path = config.get_sqlite3_db_path(observatory)
-    pysh.sh("convert_db -u'${user}' -p'${password}' --host='${host}' --port=$port --databases ${database} --tables ${tables} | sqlite3 ${db_path}")  # secured.
+    temp_file = tempfile.NamedTemporaryFile(delete=False)
+    temp_path = temp_file.name
+    temp_file.close()
+    pysh.sh("convert_db -u'${user}' -p'${password}' --host='${host}' --port=$port --databases ${database} --tables ${tables} | sqlite3 ${temp_path}")  # secured.
+    pysh.sh("mv ${temp_path} ${db_path}") # secured.
     return db_path

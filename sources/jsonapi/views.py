@@ -15,8 +15,9 @@ from jsonrpc.exceptions import Error
 
 from django.utils import html
 
+from . import crds_db
 from crds.server.interactive import models as imodels
-from crds.server.interactive import versions, database, crds_db
+from crds.server.interactive import versions, database
 from crds.server.interactive.common import DATASET_ID_RE, FITS_KEY_RE, FITS_VAL_RE, LIST_GLOB_RE
 from crds.server.interactive.common import INSTRUMENT_RE, FIELD_RE
 import crds.server.config as config    # server parameters
