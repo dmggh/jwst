@@ -102,22 +102,28 @@
       </tbody>
     </table>
  
+    <div id="bestrefs_diagnostics_disclaimer" sytle="color: darkgray;">
+    <br/><br/><br/>
+    {% include "bestrefs_bottom_help.html" %}
+    </div>
+
     <br/>
+
 {% endblock column2 %}
 
 {% block contents_bottom %}
     <div id="bestrefs_debug_output_container">
+      <br/>
     {% accordion  "Best References Debug Output" %}
       <pre id="bestrefs_debug_output">
-{{bestrefs_debug_output}}
+{{bestrefs_debug_output.strip}}
       </pre>
     {% endaccordion %}
     </div>
 {% endblock contents_bottom %}
 
 {% block bottom_help %}
-    <br/>
-
+    
     <p><b class="red" >No match found.</b>  No best reference is defined for the given type. 
     CRDS did not rule the type as not applicable for this parameter set.
 

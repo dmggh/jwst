@@ -4,12 +4,15 @@
 
 cd `dirname $0`
 
+source env.csh
+
 # (cd ../CRDS; svn update)
 
 echo "==========================================================="
 echo "Stopping server"
 echo "==========================================================="
 ./stop  $CRDS_PROJECT $CRDS_USECASE
+sleep 5
 ./stop  $CRDS_PROJECT $CRDS_USECASE  >& /dev/null
 sleep 5
 
@@ -24,6 +27,7 @@ echo "Re-starting server"
 echo "==========================================================="
 ./run $CRDS_PROJECT $CRDS_USECASE
 
-sleep 10
-source env.csh
-prime_web_cache
+if ($CRDS_USECASE != "dev") then
+    sleep 10
+    prime_web_cache
+endif
