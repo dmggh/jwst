@@ -1,0 +1,26 @@
+#! /bin/tcsh
+
+#  XXXX DANGEROUS XXXX
+
+# This script is used to symlink reference files from /grp/crds/cache to the embedded
+# server file cache on the CRDS DEV servers,  avoiding a large allocation of storage 
+# which would otherwise be required for development.   This is slightly dangerous, 
+# because if the CRDS DEV server manages to mutate the files in /grp/crds/cache,  on site
+# end users can potentially be exposed to the results.  However,  it avoids another copy
+# of 1.5T+ files so it is necessary,  and the files are all chmod'ed readonly.
+
+if ($CRDS_USECASE != "dev") then
+   echo "Only run this on DEV servers."
+   exit -1;
+endif
+
+# cd $CRDS_PATH/references/$CRDS_PROJECT
+cd /ifs/crds/$CRDS_PROJECT/dev/file_cache/references/$CRDS_PROJECT
+
+echo "Symlinking replacement references at `pwd`"
+rm -rf *
+
+foreach file (`ls -1 /grp/crds/cache/references/$CRDS_PROJECT/*`)
+    ln -s $file .
+end
+
