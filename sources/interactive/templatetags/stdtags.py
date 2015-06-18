@@ -100,7 +100,7 @@ def endswith(s, ending):
 @stringfilter
 def file_exists(filename):
     with log.error_on_exception("Failed determining file existence for", repr(filename)):
-        return os.path.exists(crds.locate_file(filename, config.observatory))
+        return (not rmap.is_special_value(filename)) and os.path.exists(crds.locate_file(filename, config.observatory))
     return False
 
 # ===========================================================================

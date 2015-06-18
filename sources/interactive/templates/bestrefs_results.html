@@ -4,6 +4,10 @@
 
 {% block column1 %}
     <h2>Best References {{dataset_name|gray}}</h2>
+
+    <h3>Context For New References</h3>
+    <p>{{context_name|gray}}</p>
+
     <h3>Input Parameters</h3>
     <table width="100%">
 
@@ -46,26 +50,58 @@
 {% block column2 %}
     <br/>
     <br/>
-    <br/>
-    <h3>Recommended Files</h3>
-    <table width="100%">    
+    <h3>Best Reference Results</h3>
+    <table class="bestrefs_table" style="width:100%;"<>
+      <thead class="bestrefs_header">
+        <tr>
+          <th class="bestrefs_header">Type</th>
+          {% if old_bestrefs_items %}
+             <th class="bestrefs_header">Old</th>
+          {% endif %}
+          <th class="bestrefs_header">New</th>
+          <th class="bestrefs_header">Status</th>
+          <th class="bestrefs_header">Download</th>
+        </tr>
+      </thead>
+      <tbody>
       {% for reftype, fname in bestrefs_items %}
         <tr>
-          <td class="label" width="30%">{{reftype}}:</td>
+          <td class="bestrefs_header" width="30%">
+            {{reftype}}
+          </td>
+          {% if old_bestrefs_items %}
+             {% if old_bestrefs_items|lookup:reftype|file_exists %}
+                 <td class="bestrefs_data" width="20%">
+                   {{old_bestrefs_items|lookup:reftype|browse}}
+                 </td> 
+             {% else %}
+                 <td class="bestrefs_data error" width="60%">{{old_bestrefs_items|lookup:reftype}}</td>
+             {% endif %}
+          {% endif %}
           {% if fname|file_exists %}
-            <td width="20%">
+            <td class="bestrefs_data" width="20%">
                  {{fname|browse}}
             </td>
-            <td width="20%">
-                 <a href='{{fname|download_url}}'>download</a>
-            </td>
           {% else %}
-            <td class="error" width="60%">{{fname}}</td>
+            <td class="bestrefs_data error" width="60%">{{fname}}</td>
+          {% endif %}
+          <td class="bestrefs_data">
+            {% if fname != old_bestrefs_items|lookup:reftype  %}
+               <span class="darkgreen">updated</updated>
+            {% else %}
+               <span>--</span>
+            {% endif %}
+          </td>
+          {% if fname|file_exists %}
+            <td class="bestrefs_data" width="20%">
+                 <a href='{{fname|download_url}}'>download-new</a>
+            </td>
           {% endif %}
         </tr>
       {% endfor %}
+      </tbody>
     </table>
-    
+ 
     <br/>
 {% endblock column2 %}
 

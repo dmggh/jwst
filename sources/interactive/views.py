@@ -357,7 +357,6 @@ def get_pmap_template_vars(dict_):
         "pmaps" : recent_pmaps,
         "pmap_labels_json" : pmap_labels_json,
         }
-
             
 def squash_file_paths(response, uploaded_pairs):
     """Fix filepath leakage here as a brevity and security issue.   Uploaded file
@@ -972,8 +971,6 @@ def bestrefs_post(request):
 
     log.info("Primitive Dataset Header:\n", log.PP(header))
 
-    header = pmap.minimize_header(header)
-    
     results = bestrefs_results(request, pmap, header, dataset_name)
 
     log.info("Best Refs Results:", log.PP(results))
@@ -1001,25 +998,39 @@ def bestrefs_results(request, pmap, header, dataset_name=""):
     critical parameters dictionary `header`.
     """
     log.info("matching header:", header)
-    
-    recommendations, bestrefs_debug_output = captured_bestrefs(pmap, header)
-    
+    header_min = pmap.minimize_header(header)
+    recommendations, bestrefs_debug_output = captured_bestrefs(pmap, header_min)
+    old_recommendations = {}
+    with log.error_on_exception("Failed fetching old bestrefs"):
+        header = { key.upper() : val.lower() for (key,val) in header.items() }
+        old_recommendations = pmap.get_old_references(header)
     # organize and format results for HTML display    
-    header.pop("REFTYPE", None)
-    header_items = sorted(header.items())
-    bestrefs_items = []
-    for key, val in sorted(recommendations.items()):
-        if isinstance(val, basestring) and val.startswith("NOT FOUND"):
-            val = val[len("NOT FOUND"):]
-        bestrefs_items.append((key.upper, val))
-        
+    header_min.pop("REFTYPE", None)
+    header_items = sorted(header_min.items())
+    bestrefs_items = get_bestrefs_items(recommendations)
+    old_bestrefs_items = get_bestrefs_items(old_recommendations)
     return crds_render(request, "bestrefs_results.html", {
             "observatory" : pmap.observatory,
+            "context_name" : str(pmap.basename),
             "dataset_name" : dataset_name,
             "header_items" : header_items,
             "bestrefs_items" : bestrefs_items,
+            "old_bestrefs_items" : old_bestrefs_items,
             "bestrefs_debug_output" : bestrefs_debug_output,
         })
+
+def get_bestrefs_items(recommendations):
+    bestrefs_items = []
+    for key, val in sorted(recommendations.items()):
+        if isinstance(val, basestring) and val.startswith("NOT FOUND"):
+            val = val[len("NOT FOUND "):].strip()
+        match = re.match(r"^(.ref\$)(.*)$", val)
+        if match:
+            val = match.group(2)
+        if val.startswith("crds://"):
+            val = val[len("crds://"):]
+        bestrefs_items.append((key.upper(), val.lower()))
+    return bestrefs_items
 
 # XXXX non-reentrant,  not safe for threaded servers,  process model only.  
 # 99%,  it will work anyway.  Failing would depend on concurrent web bestrefs.

@@ -302,7 +302,7 @@ th, td {
     color:#008000;
 }
 
-.ui-accordion-content{ 
+.ui-accordion-content { 
     zoom: 1; 
 } 
 
@@ -329,5 +329,18 @@ td.diff {
 
 .bold {
     font-weight: bold;
+}
+
+.bestrefs_table .bestrefs_header {
+    border: 1px solid black;
+    border-radius: 4px;
+    padding: 4px;
+    font-weight: normal;
+    color:  darkblue;
+}
+
+.bestrefs_data {
+    padding: 4px;
+    padding-left: 8px;
 }
 
