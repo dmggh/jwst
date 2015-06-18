@@ -6,10 +6,16 @@
     {% accordion  "<span class='blue'>" pitem.0 "</span>" %}
         <p><a href="/browse/{{pitem.1.header.name}}">{{pitem.1.header.name}}</a></p><br/>
         {% for iitem in pitem.1.selections %}
-            {% accordion "<span class='blue'>" iitem.1.header.filekind "</span> ---- <span class='green'>"  iitem.1.text_descr "</span>" %}
-                <p><a href="/browse/{{iitem.1.header.name}}">{{iitem.1.header.name}}</a></p><br/>
-                <div class="rmap_tag" mapping_name="{{iitem.1.header.name}}"></div>        
-            {% endaccordion %}
+            {% if iitem.1.name != "N/A" %}
+               {% accordion "<span class='blue'>" iitem.0 "</span> ---- <span class='green'>"  iitem.1.text_descr "</span>" %}
+                   <p><a href="/browse/{{iitem.1.header.name}}">{{iitem.1.header.name}}</a></p><br/>
+                   <div class="rmap_tag" mapping_name="{{iitem.1.header.name}}"></div>
+               {% endaccordion %}
+            {% else %}
+               {% accordion "<span class='gray'>" iitem.0 "</span> ---- <span class='gray'>"  iitem.1.text_descr "</span>" %}
+                   <p class="error">{{iitem.1.name}}</p>
+               {% endaccordion %}
+            {% endif %}
         {% endfor %}
     {% endaccordion %}
 {% endfor %}

@@ -62,11 +62,12 @@ def get_fused_rmap_parameters(mapping, catalog_fields=models.FileBlob.fusion_ite
     header = header[:-1] + tuple(field[1].upper() for field in catalog_fields) + (header[-1],)
     # For each file row, insert catalog field values prior to filename value in tuple
     fileblobs = models.get_fileblob_map()
+    fileblobs["N/A"] = fileblobs["n/a"] = fileblobs["TEMP_N/A"] = fileblobs["temp_n/a"] = None
     rows = []
     for row in rmap_dict["selections"]:
         filename = row[-1]
         extended_row = (row[:-1] + 
-                        tuple(getattr(fileblobs[filename], field[0]) for field in catalog_fields) + 
+                        tuple(getattr(fileblobs[filename], field[0], "--") for field in catalog_fields) + 
                         (filename,))
         rows.append(extended_row)
     return header, rows
