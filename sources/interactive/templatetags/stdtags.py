@@ -99,6 +99,8 @@ def endswith(s, ending):
 @register.filter
 @stringfilter
 def file_exists(filename):
+    if filename.lower() in ["undefined", "n/a", "no match found."]:
+        return False
     with log.error_on_exception("Failed determining file existence for", repr(filename)):
         return (not rmap.is_special_value(filename)) and os.path.exists(crds.locate_file(filename, config.observatory))
     return False

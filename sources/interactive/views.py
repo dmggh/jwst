@@ -1009,15 +1009,18 @@ def bestrefs_results(request, pmap, header, dataset_name=""):
     header_items = sorted(header_min.items())
     bestrefs_items = get_bestrefs_items(recommendations)
     old_bestrefs_items = get_bestrefs_items(old_recommendations)
-    return crds_render(request, "bestrefs_results.html", {
-            "observatory" : pmap.observatory,
-            "context_name" : str(pmap.basename),
-            "dataset_name" : dataset_name,
-            "header_items" : header_items,
-            "bestrefs_items" : bestrefs_items,
-            "old_bestrefs_items" : old_bestrefs_items,
-            "bestrefs_debug_output" : bestrefs_debug_output,
-        })
+    defined = { key:val for (key,val) in old_bestrefs_items if val.lower() != "undefined" }
+    pars = {
+        "observatory" : pmap.observatory,
+        "context_name" : str(pmap.basename),
+        "dataset_name" : dataset_name,
+        "header_items" : header_items,
+        "bestrefs_items" : bestrefs_items,
+        "bestrefs_debug_output" : bestrefs_debug_output,
+        }
+    if defined:
+        pars["old_bestrefs_items"] = old_bestrefs_items
+    return crds_render(request, "bestrefs_results.html", pars)
 
 def get_bestrefs_items(recommendations):
     bestrefs_items = []
