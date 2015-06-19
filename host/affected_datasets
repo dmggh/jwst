@@ -33,7 +33,7 @@ else
 endif
 
 set date = `datetag`
-set header = "CRDS $CRDS_PROJECT $CRDS_USECASE datasets affected $old_context --> $new_context on $date"
+set header = "CRDS $CRDS_PROJECT $CRDS_USECASE datasets affected $old_context --> $new_context"
 
 # rip out the ints so csh < works,  e.g. hst_0200.pmap --> 0200
 set old = `echo ${old_context} | cut -d'_' -f2`
@@ -50,10 +50,10 @@ cd $output_dir
 
 echo >bestrefs_err.txt
 (   echo "--------------------------------------------------------------------------------------------------------------"; \
-    echo "$header"; \
+    echo "$header on $date"; \
     echo "--------------------------------------------------------------------------------------------------------------"; \
     python -m crds.bestrefs --old-context $old_context --new-context $new_context \
-	--stats --print-update-counts --dump-unique-errors $switches $* >affected_ids.txt; \
+	--stats --print-update-counts --dump-unique-errors --print-affected $switches $* >affected_ids.txt; \
     echo $status >bestrefs.status; \
 ) |& tee bestrefs_err.txt
 
