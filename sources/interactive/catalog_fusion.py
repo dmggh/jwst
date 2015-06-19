@@ -5,7 +5,7 @@ corresponding files.
 import re
 
 from crds.server.interactive import models, html
-from crds import config, rmap
+from crds import config, rmap, selectors
 
 #
 # catalog fields are an item list mapping FileBlob attributes to web page column labels
@@ -32,13 +32,25 @@ def webify_parameters(header, rows):
     fixed_header = fix_meta_parameters(header)
     web_header = fixed_header + (html.input("", type='submit', id='diff_button', value='diff'),)
     web_rows = []
-    # extend each row,  replacing filename with link,  extending with diff checkbox
+    # extend each row,  replacing filename with link,  adding trailing diff checkbox
     for row in rows:
         filename = row[-1]
-        web_row = row[:-1] + ("<a href='/browse/{0}'>{1}</a>".format(filename, filename),                      
-                              "<input type='checkbox' value='{0}' />".format(filename),)
+        if filename.upper() != "N/A":
+            web_row = row[:-1] + ("<a href='/browse/{0}'>{1}</a>".format(filename, filename),                      
+                                  "<input type='checkbox' value='{0}' />".format(filename),)
+        else:
+            web_row = row[:-1] + ('<span class="darkgray">N/A</span>', "")
         web_rows.append(web_row)
     return web_header, web_rows
+
+def webify_matching_keys(keys):
+    """Break the common case of or-bar separated globs into a comma separated string.
+    Leave fancy forms of values alone.  Like raw regexes, relational exprs, and BETWEEN.
+    """
+    webified = []
+    for key in keys:
+        webified.append(", ".join(key.split("|")) if not selectors.esoteric_key(key) else key)
+    return tuple(webified)
 
 def fix_meta_parameters(parameters):
     """Web-hack for JWST,  ditch the wordy META. prefix on every parameter just
@@ -66,7 +78,7 @@ def get_fused_rmap_parameters(mapping, catalog_fields=models.FileBlob.fusion_ite
     rows = []
     for row in rmap_dict["selections"]:
         filename = row[-1]
-        extended_row = (row[:-1] + 
+        extended_row = (webify_matching_keys(row[:-1]) + 
                         tuple(getattr(fileblobs[filename], field[0], "--") for field in catalog_fields) + 
                         (filename,))
         rows.append(extended_row)

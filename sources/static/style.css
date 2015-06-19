@@ -113,8 +113,11 @@ label, .label, .label2 {
     color:  darkblue;
 }
 
-.gray {
+.gray .grey {
   color: gray;
+}
+.darkgray .darkgrey {
+  color: darkgray;
 }
 .green {
   color: green;
