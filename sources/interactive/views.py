@@ -2422,7 +2422,7 @@ def context_table(request, mapping, recursive="10"):
     context display *or* the JSON representation of a .rmap context display.
     """
     recursive = int(recursive)
-    if request.is_ajax():
+    if mapping.endswith(".rmap"):
         header, rows = catalog_fusion.get_rmap_web_parameters(mapping, CATALOG_FIELDS)
         datatables = to_datatables(header, rows)
         return HttpResponse(json.dumps(datatables), content_type='application/json')
