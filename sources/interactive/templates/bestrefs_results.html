@@ -56,9 +56,9 @@
         <tr>
           {% if old_bestrefs_items %}
              <th class="bestrefs_header">Type</th>
-             <th class="bestrefs_header">Old</th>
-             <th class="bestrefs_header">New</th>
-             <th class="bestrefs_header">Status</th>
+             <th class="bestrefs_header">Old Reference</th>
+             <th class="bestrefs_header">New Reference</th>
+             <th class="bestrefs_header">Changed</th>
              <th class="bestrefs_header">Download</th>
           {% else %}
              <th class="bestrefs_header">Type</th>
@@ -92,9 +92,9 @@
           {% if old_bestrefs_items %}
           <td class="bestrefs_data">
             {% if fname != old_bestrefs_items|lookup:reftype  %}
-               <span class="darkgreen">updated</updated>
+               <span class="green">yes</updated>
             {% else %}
-               <span>--</span>
+               <span class="darkgray">no</span>
             {% endif %}
           </td>
           {% endif %}
