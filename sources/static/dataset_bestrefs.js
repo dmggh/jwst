@@ -44,24 +44,37 @@ crds.process_fits_header_string = function (file) {
 
 crds.set_header_textarea = function(file,  header_val) {
         // replace the file element with a text area containing header lines
+		console.log("set_header_textarea", file, header_val);
         if (!header_val) {
 				return crds.set_radio_clear_fits("dataset_uploaded");
-        };
-		$("#dataset_local_textarea").text(header_val);
-		$("#dataset_name").val(file.name);
-		$("#dataset_local_file_td").html($('<input type="file" id="dataset_local_file" onchange="crds.set_header_contents(this);" />'));
-        crds.set_radio("dataset_mode", "dataset_local");
-        crds.clear_info_box();
+        } else {
+				crds.set_radio("dataset_mode", "dataset_local");
+				$("#dataset_local_textarea").text(header_val);
+				$("#dataset_name").val(file.name);
+				$("#dataset_local_file").replaceWith(
+						'<input type="file" id="dataset_local_file" onchange="crds.set_header_contents(this);" />'
+						);
+				$("#dataset_local_file").on("change", function () {
+								return crds.set_header_contents($("#dataset_local_file")[0]);
+						});
+				crds.clear_info_box();
+		};
 };
       
 crds.set_radio_clear_fits = function(mode) {
 		console.log("crds.set_radio_clear_fits " +  mode);
-		crds.set_radio("dataset_mode", mode);
 		if (mode != "dataset_local") {
 				$("#dataset_name").val("");
 				$("#dataset_local_file").val("");
 				$("#dataset_local_textarea").val("");
 		};
+		// if (mode != "dataset_archive") {
+		// 		$("#dataset_archive").val("");
+		// };
+		// if (mode != "dataset_uploaded") {
+		// 		$("#dataset_uploaded").val("")
+		// };
+		crds.set_radio("dataset_mode", mode);
 };
 
 function validate(evt) {
