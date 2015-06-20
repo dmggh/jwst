@@ -37,24 +37,19 @@ crds.process_fits_header_string = function (file) {
 						for (key in hdr) {
 								hdr_string += key + " " + hdr[key].value + "\n";
 						};
-						crds.replace_input_with_header(file, hdr_string);
+						crds.set_header_textarea(file, hdr_string);
 				});
 		return fits;
 };
 
-crds.replace_input_with_header = function(file,  header_val) {
+crds.set_header_textarea = function(file,  header_val) {
         // replace the file element with a text area containing header lines
         if (!header_val) {
-				file.value = "";
-				crds.set_radio("dataset_mode","dataset_uploaded");
-				return;
+				return crds.set_radio_clear_fits("dataset_uploaded");
         };
-        var header_textarea = $("<textarea name='dataset_local' rows='5' cols='40'>").text(header_val);
-		var dataset_name = $("<input type='hidden' name='dataset_name'/>").val(file.name);
-        $("#dataset_local").after(header_textarea);
-        header_textarea.after(dataset_name);
-        $("#dataset_local").remove();
-        $(file).val(file.name);
+		$("#dataset_local_textarea").text(header_val);
+		$("#dataset_name").val(file.name);
+		$("#dataset_local_file_td").html($('<input type="file" id="dataset_local_file" onchange="crds.set_header_contents(this);" />'));
         crds.set_radio("dataset_mode", "dataset_local");
         crds.clear_info_box();
 };
@@ -63,8 +58,9 @@ crds.set_radio_clear_fits = function(mode) {
 		console.log("crds.set_radio_clear_fits " +  mode);
 		crds.set_radio("dataset_mode", mode);
 		if (mode != "dataset_local") {
-				var input = $("<input type='file' id='dataset_local' onchange='set_header_contents(this);'>Upload FITS Header");
-				$("#dataset_local_input_td").html(input);
+				$("#dataset_name").val("");
+				$("#dataset_local_file").val("");
+				$("#dataset_local_textarea").val("");
 		};
 };
 
