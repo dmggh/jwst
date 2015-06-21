@@ -927,12 +927,12 @@ def pmap_label(blob):
 
 # ===========================================================================
 
-@error_trap("bestrefs_index2.html")
+@error_trap("bestrefs_dataset.input.html")
 @log_view
 def bestrefs(request):
     """View to get the instrument context for best references."""
     if request.method == "GET":
-        return crds_render(request, "bestrefs_index2.html", 
+        return crds_render(request, "bestrefs_dataset_input.html", 
                 {
                  "pmap_initial_mode" : "operational",
                 }, requires_pmaps=True)
