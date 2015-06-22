@@ -9,7 +9,7 @@
             <td class="table_header">component</td>
             <td class="table_header">version</td>
             <td class="table_header">revision</td>
-            <td class="table_header">branch</td>
+            <td class="table_header">svn_url</td>
             <td class="table_header">file</td>            
         </tr>
         {% for component in version_info %}
@@ -17,7 +17,7 @@
             <td>{{component.0}}</td>
             <td>{{component.1.str}}</td>
             <td>{{component.1.rev}}</td>
-            <td>{{component.1.branch}}</td>
+            <td>{{component.1.svnurl}}</td>
             <td>{{component.1.file}}</td>
          </tr>
         {% endfor %}
