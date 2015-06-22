@@ -1,14 +1,16 @@
 crds.set_header_contents = function (input) {
-        
+		// console.log("set_header_contents", input);
 		var file = input.files[0];
+		if (file) {
 		
-		crds.set_info_box({text: "Loading FITS header... " + file.name });                                   
-		crds.append_info_box({text: "This may take a while for large files.", css:{color:"darkblue"}});
-		
-		crds.process_file_header_string(file);
+				crds.set_info_box({text: "Loading FITS header... " + file.name });                                   
+				crds.append_info_box({text: "This may take a while for large files.", css:{color:"darkblue"}});
+				crds.process_file_header_string(file);
+		};
 };
 
 crds.process_file_header_string = function (file) {
+		//console.log("process_file_header_string", file);
 		if (/.fits$/.test(file.name)) {
             	return crds.process_fits_header_string(file);
 		} else {
@@ -18,6 +20,7 @@ crds.process_file_header_string = function (file) {
 };
 
 crds.process_fits_header_string = function (file) {
+		// console.log("process_fits_header_string", file);
 		var fits = new astro.FITS(file, function(fits) { 
 						var hdr = new Object();
 						for (var i in fits.hdus) {
@@ -43,41 +46,31 @@ crds.process_fits_header_string = function (file) {
 };
 
 crds.set_header_textarea = function(file,  header_val) {
-        // replace the file element with a text area containing header lines
-		console.log("set_header_textarea", file, header_val);
-        if (!header_val) {
-				return crds.set_radio_clear_fits("dataset_uploaded");
-        } else {
-				crds.set_radio("dataset_mode", "dataset_local");
-				$("#dataset_local_textarea").text(header_val);
-				$("#dataset_name").val(file.name);
-				$("#dataset_local_file").replaceWith(
-						'<input type="file" id="dataset_local_file" onchange="crds.set_header_contents(this);" />'
-						);
-				$("#dataset_local_file").on("change", function () {
-								return crds.set_header_contents($("#dataset_local_file")[0]);
-						});
-				crds.clear_info_box();
-		};
+		// console.log("set_header_textarea", file, header_val);
+		$("#dataset_local_textarea").val(header_val);
+		$("#dataset_name").val(file.name);		
+		crds.clear_info_box();
+		crds.set_radio_clear_fits("dataset_local");
 };
       
 crds.set_radio_clear_fits = function(mode) {
-		console.log("crds.set_radio_clear_fits " +  mode);
+		// console.log("crds.set_radio_clear_fits " +  mode);
 		if (mode != "dataset_local") {
 				$("#dataset_name").val("");
 				$("#dataset_local_file").val("");
 				$("#dataset_local_textarea").val("");
 		};
-		// if (mode != "dataset_archive") {
-		// 		$("#dataset_archive").val("");
-		// };
-		// if (mode != "dataset_uploaded") {
-		// 		$("#dataset_uploaded").val("")
-		// };
+		if (mode != "dataset_archive") {
+		 		$("#dataset_archive").val("");
+		};
+		if (mode != "dataset_uploaded") {
+		 		$("#dataset_uploaded").val("");
+		};
 		crds.set_radio("dataset_mode", mode);
 };
 
 function validate(evt) {
+		// console.log("dataset_bestrefs crds.validate()", evt);
         if (!crds.validate_select_pmap()) {
 				return false;
         }
