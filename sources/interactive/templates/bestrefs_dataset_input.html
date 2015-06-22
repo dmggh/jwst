@@ -54,9 +54,11 @@
             <input type="radio" name="dataset_mode" value="dataset_archive" />Dataset ID
         </td>
         <td align="left">
-            <input type="text" width="32" name="dataset_archive" id="dataset_archive"
-                    value="{{dataset_archive}}" 
-                    onchange="crds.set_radio_clear_fits('dataset_archive');" />
+          <input type="text" width="32" name="dataset_archive"
+                 id="dataset_archive"
+                 class="black"
+                 value="{{dataset_archive}}" 
+                 onchange="crds.set_radio_clear_fits('dataset_archive');" />
             <span class="hint">.e.g. I9ZF01010</span>
         </td>
       </tr>
