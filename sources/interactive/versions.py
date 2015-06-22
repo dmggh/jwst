@@ -37,7 +37,7 @@ def get_all_versions( mods = MODULE_LIST ):
     v_dict['python'] = {
         'str'   : sys.version.split(' ')[0],
         'rev'   : '',
-        'svnurl': '',
+        'branch': '',
         'file'  : sys.prefix
     }
 
@@ -84,15 +84,15 @@ def get_version(modname):
     try:
         mod = dynamic_import("%s.svn_version" % modname)
         svnrev = mod.__svn_version__
-        svnurl = mod.__full_svn_info__ .split('URL: ')[1].split('\n')[0]
+        svnbranch = mod.__full_svn_info__ .split('URL: ')[1].split('\n')[0].split("server/")[-1]
     except Exception:
         svnrev = ''
-        svnurl = ''
+        svnbranch = ''
 
     vers = {
         'str'   : ans,
         'rev'   : svnrev,
-        'svnurl': svnurl,
+        'branch': svnbranch,
         'file'  : filename
         }
     return vers
