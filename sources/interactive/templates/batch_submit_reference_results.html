@@ -11,8 +11,10 @@
 
     {% include "certify_include.html" %}
     
+    {% if diff_results %}
     <h3>Differences</h3>
     {% include "difference_include.html" %}
+    {% endif %}
 
     {% include "collision_explain.html" %}
     

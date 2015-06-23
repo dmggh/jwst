@@ -149,7 +149,10 @@ class InteractiveBase(object):
         for filename in files:
             log.info("Faking database file", repr(filename))
             name = os.path.basename(filename)
-            source = os.path.abspath(filename)
+            if not os.path.dirname(filename):
+                source = os.path.abspath(os.getcwd() + "/interactive/test_data/" + filename)
+            else:
+                source = os.path.abspath(filename)
             where = lconfig.relocate_file(filename, self.observatory)
             if link:
                 with log.error_on_exception("Symlinking", repr(source), "to", repr(where), "failed."):
@@ -417,7 +420,7 @@ class InteractiveBase(object):
         if references is None:
             references = self.batch_submit_insert_references
         self.add_files_to_ingest_dir(references)
-        self.fake_database_files(self.certify_rmap_fits)
+        self.fake_database_files(references, link=True)
         response = self.client.post("/batch_submit_references/", {
                 "pmap_mode" : "pmap_edit",
                 "creator" : "bozo",
@@ -435,7 +438,7 @@ class InteractiveBase(object):
         # doesn't guarantee same message but any WARNING will trigger top level notice
         assert "WARNING" in response.content, \
             "No warning in response,  truncation may be overlooked."
-        log.info("truncated:", response.content)
+        # log.info("truncated:", response.content)
 
     def _assert_normal_bsr_insert(self, response):
         # print response
@@ -510,7 +513,7 @@ class InteractiveBase(object):
         self.assert_no_errors(response)
 
     def _submit_references_post(self):
-        self.fake_database_files(self.submit_references)
+        self.fake_database_files(self.submit_references, link=True)
         self.add_files_to_ingest_dir(self.submit_references)
         response = self.client.post("/submit/reference/", {
             "observatory" : self.observatory,
@@ -538,7 +541,7 @@ class InteractiveBase(object):
         self.assert_no_errors(response, msg="cancelled by submitter")
     
     def _submit_mappings_post(self, generate_contexts):
-        self.fake_database_files(self.submit_references)
+        self.fake_database_files(self.submit_references, link=True)
         self.add_file_to_ingest_dir(self.submit_rmap)
         rmap2 = self.add_1(self.submit_rmap)
         context = {
@@ -625,7 +628,7 @@ class InteractiveBase(object):
     def test_set_context_post(self):
         self.login()
         self.install_files([self.new_context])
-        self.fake_database_files([self.new_context])
+        self.fake_database_files([self.new_context], link=True)
         new_context = os.path.basename(self.new_context)
         response = self.client.post("/set_default_context/", {
             "context_type" : "operational",
