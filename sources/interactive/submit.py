@@ -933,7 +933,10 @@ class Delivery(object):
         """
         assert operation in ["I","D"], "Invalid delivery operation " + srepr(operation)
         delivery_id = models.CounterModel.next(self.observatory, "delivery_id")
-        catalog = "_".join(["opus", str(delivery_id), operation.lower()]) + ".cat"
+        if self.observatory == "hst":
+            catalog = "_".join(["opus", str(delivery_id), operation.lower()]) + ".cat"
+        else:
+            catalog = "jwst_" + str(delivery_id) + ".cat"
         catpath = os.path.join(sconfig.CRDS_CATALOG_DIR, catalog)
         utils.ensure_dir_exists(catpath)
         cat = open(catpath, "w")
