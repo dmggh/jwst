@@ -5,21 +5,16 @@
 {% block contents %}
     
     <h2>Submit {{crds_filetype|capfirst}} File</h2>
-    {% if error_messages %}
-         <h3 class="error">Submission Failed.</h3>
-    {% else %}
-        
-        {% include "certify_include.html" %}
-        
-        {% include "collision_explain.html" %}
+
+    {% include "certify_include.html" %}
     
-        <br/>
+    {% include "collision_explain.html" %}
     
-        {% include "confirm.html" %}
+    <br/>
     
-        <br/>
-    {% endif %}
+    {% include "confirm.html" %}
     
+    <br/>
 
 {% endblock contents %}
 

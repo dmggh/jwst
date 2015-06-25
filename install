@@ -245,7 +245,10 @@ esac
 ### install the python packages that we use
 ###
 
-rm -rf $CRDS_INSTALL_DIR/python/lib/python/crds*
+if [ "$CRDS_USECASE" != "django" ]
+then
+    rm -rf $CRDS_INSTALL_DIR/python/lib/python/crds*
+fi
 
 #  INSTALL CORE CRDS CLIENT LIBRARY
 (cp save_version ../CRDS;  cd ../CRDS; ./install --home $install_dir/python)

@@ -21,13 +21,13 @@ df -h /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}*
 echo ---------------------------- mounts ------------------------
 mount
 
+echo "=========================================================="
+echo "Stack Build"
+echo "=========================================================="
+host/build_stack >& ${CRDS_CRON}/build_stack.${ETAIL}
+tail -100 ${CRDS_CRON}/build_stack.${ETAIL}
+    
 if ( "$CRDS_USECASE" != "ops" ) then
-#     echo "=========================================================="
-#     echo "Stack Build"
-#     echo "=========================================================="
-#     host/build_stack >& ${CRDS_CRON}/build_stack.${ETAIL}
-#     tail -100 ${CRDS_CRON}/build_stack.${ETAIL}
-
     echo "==========================================================="
     echo "Server re-install and re-start"
     echo "==========================================================="

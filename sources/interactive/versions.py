@@ -84,7 +84,9 @@ def get_version(modname):
     try:
         mod = dynamic_import("%s.svn_version" % modname)
         svnrev = mod.__svn_version__
-        svnurl = mod.__full_svn_info__ .split('URL: ')[1].split('\n')[0]
+        svnurl = mod.__full_svn_info__ .split('URL: ')[1].split('\n')[0].split("/")[-1]
+        if not svnurl:
+            svnurl = "trunk"
     except Exception:
         svnrev = ''
         svnurl = ''

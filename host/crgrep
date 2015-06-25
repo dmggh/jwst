@@ -6,8 +6,7 @@ crds
 ./clean
 
 $dir/pygrep . $*
-$dir/pygrep ../CRDS_server/sources $*
-$dir/pygrep ../CRDS_server/tools $*
-$dir/pygrep ../hst_gentools $*
-$dir/pygrep ../jwst_gentools $*
+$dir/pygrep ../CRDS_server $*
+# $dir/pygrep ../hst_gentools $*
+# $dir/pygrep ../jwst_gentools $*
 

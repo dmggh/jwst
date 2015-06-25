@@ -30,7 +30,11 @@ EOF
 
 cd sources
 
-setenv TEST_CMD "python -u manage.py test --verbosity=2 --with-coverage --cover-erase --cover-html --cover-package=crds -cover-branches --cover-html-dir=$CRDS/CRDS_server/coverage"
+
+# setenv TEST_CMD "python -u manage.py test --verbosity=2 --with-coverage --cover-erase --cover-html --cover-package=crds -cover-branches --cover-html-dir=$CRDS/CRDS_server/coverage"
+
+# Removed coverage switches due to incompatibility with django-1.8.2
+setenv TEST_CMD "python -u manage.py test --verbosity=2"
 
 
 if ($# > 0) then

@@ -576,6 +576,10 @@ class BatchReferenceSubmission(FileSubmission):
         reference_disposition, reference_certs = web_certify.certify_file_list(self.uploaded_files.items(), 
             context=comparison_context, compare_old_reference=self.compare_old_reference, push_status=self.push_status)
     
+        if reference_disposition == "bad files":
+            self.cleanup_failed_submission()
+            return (reference_disposition, {}, {}, reference_certs, [], {}, [])
+        
         # Refactor with temporary rmap files and references to support detecting 
         # problems with refactoring prior to generating official names.
         old_rmaps = self.bsr_temporary_refactor()
@@ -588,15 +592,16 @@ class BatchReferenceSubmission(FileSubmission):
         
         rmap_disposition, rmap_certs = self.certify_new_mapping_list(new_mappings_map, context=comparison_context)
         
+        if rmap_disposition == "bad files":
+            self.cleanup_failed_submission()
+            return (rmap_disposition, new_references_map, new_mappings_map, reference_certs, rmap_certs, {}, [])
+
         collision_list = self.get_collision_list(new_mappings_map.values())
         
         diff_results = self.mass_differences(new_mappings_map)
         
         disposition = rmap_disposition or reference_disposition
 
-        if disposition == "bad files":
-            self.cleanup_failed_submission()
-        
         return (disposition, new_references_map, new_mappings_map, reference_certs, rmap_certs, 
                 diff_results, collision_list)
 
@@ -715,6 +720,10 @@ class SimpleFileSubmission(FileSubmission):
             self.uploaded_files.items(), context=self.pmap_name, compare_old_reference=self.compare_old_reference,
             push_status=self.push_status)
         
+        if disposition == "bad files":
+            self.cleanup_failed_submission()
+            return (disposition, certify_results, {}, [], [])
+        
         # Add the files to the CRDS database as "uploaded",  pending certification and confirmation.
         new_file_map = self.submit_file_list("submit_files")
         
@@ -726,9 +735,6 @@ class SimpleFileSubmission(FileSubmission):
         else:
             context_rmaps = []
 
-        if disposition == "bad files":
-            self.cleanup_failed_submission()
-        
         return disposition, certify_results, new_file_map, collision_list, context_rmaps
 
     def restrict_genre(self, crds_filetype, generate_contexts):
@@ -927,7 +933,10 @@ class Delivery(object):
         """
         assert operation in ["I","D"], "Invalid delivery operation " + srepr(operation)
         delivery_id = models.CounterModel.next(self.observatory, "delivery_id")
-        catalog = "_".join(["opus", str(delivery_id), operation.lower()]) + ".cat"
+        if self.observatory == "hst":
+            catalog = "_".join(["opus", str(delivery_id), operation.lower()]) + ".cat"
+        else:
+            catalog = "jwst_" + str(delivery_id) + ".cat"
         catpath = os.path.join(sconfig.CRDS_CATALOG_DIR, catalog)
         utils.ensure_dir_exists(catpath)
         cat = open(catpath, "w")

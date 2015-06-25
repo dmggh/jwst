@@ -1,0 +1,158 @@
+SIMPLE  =                    T / Fits standard                                  BITPIX  =                   16 / Bits per pixel                                 NAXIS   =                    0 / Number of axes                                 EXTEND  =                    T / File may contain extensions                    ORIGIN  = 'NOAO-IRAF FITS Image Kernel July 2003' / FITS file originator        IRAF-TLM= '2010-01-29T14:33:49' / Time of last modification                     NEXTEND =                    1 /                                                DATE    = '2009-06-03T10:31:08' / Creation UTC (CCCC-MM-DD) date of FITS header FILENAME= 'u1t1616pl_disp.fits'                                                 FILETYPE= 'DISPERSION RELATION REFERENCE TABLE' /                               VCALCOS = '2.0     '                                                            PEDIGREE= 'INFLIGHT 28/07/2009 29/07/2009'                                      USEAFTER= 'July 28 2009 00:00:00'                                               DESCRIP = 'NUV Dispersion relation reference file from on-orbit data----------' OBSTYPE = 'SPECTROSCOPIC'      /                                                INSTRUME= 'COS     '           /                                                DETECTOR= 'NUV     '           /                                                COSCOORD= 'USER    '                                                            COMMENT = "Reference file created by C. Oliveira"                               HISTORY See COS ISR 2010-05 for info on how file was created;                   HISTORY table 4 of the ISR contains rootnames of the exposures                  HISTORY used to produce reference file.                                         HISTORY Which is available at: http://www.stsci.edu/hst/cos/documents/isr       HISTORY nuv_smov_1_disp.fits renamed to u1t1616pl_disp.fits on Jan 29 2010      END                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             XTENSION= 'BINTABLE'           /binary table extension                          BITPIX  =                    8 /array data type                                 NAXIS   =                    2 /number of array dimensions                      NAXIS1  =                   60 /length of dimension 1                           NAXIS2  =                  441                                                  PCOUNT  =                    0 /number of group parameters                      GCOUNT  =                    1 /number of groups                                TFIELDS =                    8                                                  COMMENT                                                                         COMMENT  *** End of mandatory fields ***                                        COMMENT                                                                         COMMENT                                                                         COMMENT  *** End of mandatory fields ***                                        COMMENT                                                                         COMMENT                                                                         COMMENT  *** End of mandatory fields ***                                        COMMENT                                                                         COMMENT                                                                         COMMENT  *** Column names ***                                                   COMMENT                                                                         COMMENT                                                                         COMMENT  *** Column names ***                                                   COMMENT                                                                         COMMENT                                                                         COMMENT  *** Column names ***                                                   COMMENT                                                                         TTYPE1  = 'SEGMENT '           /                                                COMMENT                                                                         COMMENT  *** Column formats ***                                                 COMMENT                                                                         COMMENT                                                                         COMMENT  *** Column formats ***                                                 COMMENT                                                                         COMMENT                                                                         COMMENT  *** Column formats ***                                                 COMMENT                                                                         TFORM1  = '4A      '           /                                                TDISP1  = 'A4      '           /                                                TTYPE2  = 'OPT_ELEM '          /                                                TFORM2  = '5A      '           /                                                TDISP2  = 'A8      '           /                                                TTYPE3  = 'APERTURE '          /                                                TFORM3  = '3A      '           /                                                TDISP3  = 'A4      '           /                                                TTYPE4  = 'CENWAVE '           /                                                TFORM4  = 'J       '           /                                                TUNIT4  = 'angstrom'           /                                                TDISP4  = 'I5      '           /                                                TTYPE5  = 'NELEM   '           /                                                TFORM5  = 'J       '           /                                                TDISP5  = 'I5      '           /                                                TTYPE6  = 'COEFF   '           /                                                TFORM6  = '4D      '           /                                                TDISP6  = 'G25.15  '           /                                                TTYPE7  = 'D_TV03  '           /difference in WCA-PSA compare to 2003 TV data   TFORM7  = 'E       '           /                                                TDISP7  = 'G12.6   '           /                                                TFORM8  = 'E       '           /                                                TTYPE8  = 'D       '           /                                                END                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             NUVAG185MPSA  l   @›Ãï!Ê?£IÒ •  ¾‘ˆê`   €       ÁYG®Á‰™šNUVBG185MPSA  l   @a¶F´
+?¢ÈÊ0 ¾Žë    €       ÁE™šÁrNUVCG185MPSA  l   @Ÿ^
+\?¢+)8Û  ¾‡1HÀ   €       Á\)Á=h	NUVAG185MBOA  l   @›Ãï!Ê?£IÒ •  ¾‘ˆê`   €       ÁYG®ÀÂNUVBG185MBOA  l   @a¶F´
+?¢ÈÊ0 ¾Žë    €       ÁE™šÀC33NUVCG185MBOA  l   @Ÿ^
+\?¢+)8Û  ¾‡1HÀ   €       Á\)½áG®NUVAG185MWCA  l   @›Â$‘Â?£8´ÿ ¾Œ5|à   €       €   €   NUVBG185MWCA  l   @`9ðîäD?¢»R²Ã  ¾ŽýxÀ   €       €   €   NUVCG185MWCA  l   @Ÿ4_Þ°I?¢'UI@ ¾¶À   €       €   €   NUVAG185MPSA     @šwmS=?£t:(¼à ¾ÃÃ    €       Á‘
+=ÁÎïNUVBG185MPSA     @œævbÒÜ?¢òÊ£ ¾‰Gà   €       ÁpzáÁµMNUVCG185MPSA     @ÃD¢*Íº?¢a¾º@ ¾…@‹€   €       ÁG®ÁœŸ¾NUVAG185MBOA     @šwmS=?£t:(¼à ¾ÃÃ    €       Á‘
+=Á(öNUVBG185MBOA     @œævbÒÜ?¢òÊ£ ¾‰Gà   €       ÁpzáÀ§
+=NUVCG185MBOA     @ÃD¢*Íº?¢a¾º@ ¾…@‹€   €       ÁG®Àp¤NUVAG185MWCA     @štœCÏ†?£aëçEð ¾Šô    €       €   €   NUVBG185MWCA     @œÁQÛÆ;?¢îŽÒ{ ¾ŠB‰à   €       €   €   NUVCG185MWCA     @Á‰&Çdw?¢e#ßöà ¾‘¤‰    €       €   €   NUVAG185MPSA  :   @›^Ö«"š?£Z ©™À ¾‹žÌ€   €       Á†{Á™±ÄNUVBG185MPSA  :   @œ¢ˆ+‚ìñ?¢Ú·p  ¾ƒœÀ   €       Á`záÁÍNUVCG185MPSA  :   @žJïzè
+c?¢MXÔâ  ¾ˆÁ:À   €       Á;…Áe=NUVAG185MBOA  :   @›^Ö«"š?£Z ©™À ¾‹žÌ€   €       Á†{ÀÊáHNUVBG185MBOA  :   @œ¢ˆ+‚ìñ?¢Ú·p  ¾ƒœÀ   €       Á`záÀXõÃNUVCG185MBOA  :   @žJïzè
+c?¢MXÔâ  ¾ˆÁ:À   €       Á;…¿ñë…NUVAG185MWCA  :   @› ¿“OS?£G¯ùÒ  ¾‚·ZÀ   €       €   €   NUVBG185MWCA  :   @œ ©à?¢Ü)Ð ¾Ž¯@`   €       €   €   NUVCG185MWCA  :   @žIZÙLžz?¢JJ(z€ ¾M…€   €       €   €   NUVAG185MPSA  Z   @›AY‹Y?£Gúå˜ ¾ˆpNà   €       ÁpõÃÁ-NUVBG185MPSA  Z   @éeK8?¢ÇbO7À ¾„ã€   €       ÁN¸RÁr{NUVCG185MPSA  Z   @žÆm“¶›Å?¢:­ïÐ ¾‹{v`   €       Á!G®Á6œxNUVAG185MBOA  Z   @›AY‹Y?£Gúå˜ ¾ˆpNà   €       ÁpõÃÀŸ\)NUVBG185MBOA  Z   @éeK8?¢ÇbO7À ¾„ã€   €       ÁN¸RÀ £×NUVCG185MBOA  Z   @žÆm“¶›Å?¢:­ïÐ ¾‹{v`   €       Á!G®?E¸NUVAG185MWCA  Z   @›ÙOþo?£?¬.° ¾‰˜"    €       €   €   NUVBG185MWCA  Z   @!¼ ”@?¢ÄÇu@@ ¾‹S€   €       €   €   NUVCG185MWCA  Z   @žÅS‡2N?¢3ÉKN@ ¾›±À   €       €   €   NUVAG185MPSA     @œç|vZ°?£3²[°@ ¾‹FŸ€   €       Áo33Á2ÊNUVBG185MPSA     @ºŠnRcŸ?¢µ©ÿß ¾ŠÇÁà   €       ÁF\ÁsúNUVCG185MPSA     @Ÿ^ÓÈn—?¢Š*TÐ ¾Š„Ö`   €       Á,ÌÍÁK›¦NUVAG185MBOA     @œç|vZ°?£3²[°@ ¾‹FŸ€   €       Áo33ÀvffNUVBG185MBOA     @ºŠnRcŸ?¢µ©ÿß ¾ŠÇÁà   €       ÁF\¿˜QìNUVCG185MBOA     @Ÿ^ÓÈn—?¢Š*TÐ ¾Š„Ö`   €       Á,ÌÍ?p£×NUVAG185MWCA     @œç9Ž@?£˜Ž` ¾Åÿà   €       €   €   NUVBG185MWCA     @¸ëµÌv8?¢©!U7À ¾‹—€   €       €   €   NUVCG185MWCA     @Ÿ]ˆÛ€·?¢~M7  ¾‘vHà   €       €   €   NUVAG185MPSA  ¡   @œ ˆ0SÆ?£áì ¾†÷sà   €       ÁTzáÁžØENUVBG185MPSA  ¡   @ž:õkÊ½&?¢¢)÷&€ ¾³    €       Á,QìÁ‰ÿNUVCG185MPSA  ¡   @ŸÝMjÐ™?¢4´Ù ¾ŠÍÍà   €       ÁÌÍÁ^ŽòNUVAG185MBOA  ¡   @œ ˆ0SÆ?£áì ¾†÷sà   €       ÁTzáÀ>¸RNUVBG185MBOA  ¡   @ž:õkÊ½&?¢¢)÷&€ ¾³    €       Á,Qì¾Ç®NUVCG185MBOA  ¡   @ŸÝMjÐ™?¢4´Ù ¾ŠÍÍà   €       ÁÌÍ@,(öNUVAG185MWCA  ¡   @œž?½Z?£ˆÒÙà ¾ŠËL@   €       €   €   NUVBG185MWCA  ¡   @ž9uu%Ö?¢—\•ð ¾ŒÿT    €       €   €   NUVCG185MWCA  ¡   @ŸÜ?OFzÜ?¡û?I[  ¾‹ÐHÀ   €       €   €   NUVAG185MPSA  Â   @(â´Žªf?£	Á%° ¾ˆP4    €       ÁYÂÁŸ@ONUVBG185MPSA  Â   @žÁ÷PVØ?¢‘ÜXX` ¾‘¦'    €       Á3×
+Á‡VÖNUVCG185MPSA  Â   @ 1!uÅ®ò?¡ïÐ¤° ¾y6    €       Á®ÁiNUVAG185MBOA  Â   @(â´Žªf?£	Á%° ¾ˆP4    €       ÁYÂÀ
+=NUVBG185MBOA  Â   @žÁ÷PVØ?¢‘ÜXX` ¾‘¦'    €       Á3×
+?#×
+NUVCG185MBOA  Â   @ 1!uÅ®ò?¡ïÐ¤° ¾y6    €       Á®@0£×NUVAG185MWCA  Â   @&õ6ðð?£p÷¯ð ¾ŽQ     €       €   €   NUVBG185MWCA  Â   @žÀ„sÙù?¢€:o€ ¾Š5õ    €       €   €   NUVCG185MWCA  Â   @ 0‰êFˆÆ?¡ñVdŒÀ ¾”Hs@   €       €   €   NUVAG185MPSA  ú   @šš– ?£tÉo  ¾‚dÀÀ   €       Á–=qÁù©*NUVBG185MPSA  ú   @›¤?„Tq?£ QÐ ¾‚€Ü`   €       Á‚ÌÍÁÜÁòNUVCG185MPSA  ú   @PB‘²:?¢tçPM ¾…2äà   €       Á`ÌÍÁÂþúNUVAG185MBOA  ú   @šš– ?£tÉo  ¾‚dÀÀ   €       Á–=qÁáHNUVBG185MBOA  ú   @›¤?„Tq?£ QÐ ¾‚€Ü`   €       Á‚ÌÍÀž{NUVCG185MBOA  ú   @PB‘²:?¢tçPM ¾…2äà   €       Á`ÌÍÀ×
+NUVAG185MWCA  ú   @™þTðsÄ¾?£aÆÝž8 ¾dL@   €       €   €   NUVBG185MWCA  ú   @›¡íI #?¢ór›£  ¾¯¹À   €       €   €   NUVCG185MWCA  ú   @N@i·™4?¢v1ª4@ ¾DËÀ   €       €   €   NUVAG185MPSA  +   @šÀ<ˆßQZ?£e™¸™Ð ¾ÀL`   €       Á‡¸ÁÊNUVBG185MPSA  +   @œa3fAÓ?¢è˜Œ ¾ˆSZà   €       ÁpzáÁº¨öNUVCG185MPSA  +   @ž
+‹R;l­?¢W­"-` ¾†P¥@   €       Á>áHÁ˜2aNUVAG185MBOA  +   @šÀ<ˆßQZ?£e™¸™Ð ¾ÀL`   €       Á‡¸ÀÍ¸NUVBG185MBOA  +   @œa3fAÓ?¢è˜Œ ¾ˆSZà   €       ÁpzáÀ‹×
+NUVCG185MBOA  +   @ž
+‹R;l­?¢W­"-` ¾†P¥@   €       Á>áH¿\)NUVAG185MWCA  +   @š½È/ÝQ?£]{‘P ¾°]`   €       €   €   NUVBG185MWCA  +   @œ_@7Û¦?¢ÕjÒ%  ¾€n´À   €       €   €   NUVCG185MWCA  +   @žÿòÁ@?¢HùBÀ` ¾„w@   €       €   €   NUVAG185MPSA  H   @›6quDT?£SÝ–p ¾Š0W    €       Á{
+=Á–¢4NUVBG185MPSA  H   @œÕúMï¹‡?¢×:µà ¾ˆžò@   €       ÁY™šÁ‚lWNUVCG185MPSA  H   @ž}¦Íã­?¢D|ì ¾‰o¦à   €       Á0(öÁPôNUVAG185MBOA  H   @›6quDT?£SÝ–p ¾Š0W    €       Á{
+=À¾¸RNUVBG185MBOA  H   @œÕúMï¹‡?¢×:µà ¾ˆžò@   €       ÁY™šÀZ=qNUVCG185MBOA  H   @ž}¦Íã­?¢D|ì ¾‰o¦à   €       Á0(ö¿0£×NUVAG185MWCA  H   @›4E]#^m?£F¦1,° ¾‡ø&    €       €   €   NUVBG185MWCA  H   @œÔ(ÏõÍ?¢Ñmp À ¾Ùþ€   €       €   €   NUVCG185MWCA  H   @ž|¥H)?¢O5l)  ¾•o×    €       €   €   NUVAG185MPSA  b   @›¦•›å5²?£>\~r0 ¾‚q›    €       ÁV=qÁf¦LNUVBG185MPSA  b   @D³ºß…?¢È=jEp ¾Šõ    €       Á1™šÁ=†ŽNUVCG185MPSA  b   @žêºWIé?¢4×€ ¾ŒuÙ    €       ÁG®Á¿)NUVAG185MBOA  b   @›¦•›å5²?£>\~r0 ¾‚q›    €       ÁV=qÀŒÌÍNUVBG185MBOA  b   @D³ºß…?¢È=jEp ¾Šõ    €       Á1™š¿øQìNUVCG185MBOA  b   @žêºWIé?¢4×€ ¾ŒuÙ    €       ÁG®>ð£×NUVAG185MWCA  b   @›¤—³?£Ae|3  ¾‘—Là   €       €   €   NUVBG185MWCA  b   @C5)nÌ?¢³œ? ¾ágà   €       €   €   NUVCG185MWCA  b   @žé•$É?¢/Ìe  ¾Òî    €       €   €   NUVAG185MPSA  y   @›ÿ×:›áÞ?£-[˜° ¾ƒaD    €       ÁNáHÁ›Ã,NUVBG185MPSA  y   @œÎF´þ?¢³ŠŽ>P ¾…1`   €       Á'33Á…NUVCG185MPSA  y   @ŸAˆr‚'¼?¢×ù<` ¾ˆj‡@   €       Àû×
+Á\˜ÈNUVAG185MBOA  y   @›ÿ×:›áÞ?£-[˜° ¾ƒaD    €       ÁNáHÀŽ¸RNUVBG185MBOA  y   @œÎF´þ?¢³ŠŽ>P ¾…1`   €       Á'33¿Ýp¤NUVCG185MBOA  y   @ŸAˆr‚'¼?¢×ù<` ¾ˆj‡@   €       Àû×
+?8QìNUVAG185MWCA  y   @›ýúÖ}s?£.E³ ¾‹à   €       €   €   NUVBG185MWCA  y   @›gÕ[Ø¡?¢®œap ¾‰7½    €       €   €   NUVCG185MWCA  y   @Ÿ@bì/?¢öRo ¾Œâ¡à   €       €   €   NUVAG185MPSA  •   @œn9nþ­?£Ìr­  ¾xeL    €       ÁH£×Á)_NUVBG185MPSA  •   @ž	½k;?¢¥V»»  ¾ˆ/‰À   €       ÁQìÁKäNUVCG185MPSA  •   @Ÿ¬Ï\x¤¦?¢	º¥€ ¾Š^µ    €       ÀäzáÁ6NUVAG185MBOA  •   @œn9nþ­?£Ìr­  ¾xeL    €       ÁH£×Àk…NUVBG185MBOA  •   @ž	½k;?¢¥V»»  ¾ˆ/‰À   €       ÁQì¿
+=qNUVCG185MBOA  •   @Ÿ¬Ï\x¤¦?¢	º¥€ ¾Š^µ    €       Àäzá@  NUVAG185MWCA  •   @œlphä%Ò?£]LÑÀ ¾‹\€   €       €   €   NUVBG185MWCA  •   @ž_, ?¢©œØ  ¾’Oâ    €       €   €   NUVCG185MWCA  •   @Ÿ«îîrca?¢­  ¾Ž°>à   €       €   €   NUVAG185MPSA  ³   @œèŸc_è?£ë h  ¾„>/À   €       Á8£×ÁšñvNUVBG185MPSA  ³   @žîÄËþ?¢ž ü€ ¾’ø€   €       ÁzáÁ‚«7NUVCG185MPSA  ³   @ ¡P;ðé?¡ö©çÑ€ ¾ˆ$]    €       ÀÕÂÁR2ÊNUVAG185MBOA  ³   @œèŸc_è?£ë h  ¾„>/À   €       Á8£×ÀL(öNUVBG185MBOA  ³   @žîÄËþ?¢ž ü€ ¾’ø€   €       Ázá½#×
+NUVCG185MBOA  ³   @ ¡P;ðé?¡ö©çÑ€ ¾ˆ$]    €       ÀÕÂ@6ffNUVAG185MWCA  ³   @œæyÒäÓ?£ë‘“0 ¾‡ƒY    €       €   €   NUVBG185MWCA  ³   @ž€Ü©ÈC?¢‘g]€ ¾‘ˆá€   €       €   €   NUVCG185MWCA  ³   @ ;ñA^Õ?¡÷ìc©€ ¾‘öV€   €       €   €   NUVAG185MPSA  Ú   @Œ Õâ?¢ü|S! ¾ŠÍ<à   €       Á<(öÁ­SNUVBG185MPSA  Ú   @Ÿ$r
+½y$?¢u;Çã° ¾…Ò¸    €       ÁffÁ—ðNUVCG185MPSA  Ú   @ a‰*<@?¡Û¸¶  ¾Š“À   €       Àµ¸Ám+jNUVAG185MBOA  Ú   @Œ Õâ?¢ü|S! ¾ŠÍ<à   €       Á<(öÀë…NUVBG185MBOA  Ú   @Ÿ$r
+½y$?¢u;Çã° ¾…Ò¸    €       Áff?
+=NUVCG185MBOA  Ú   @ a‰*<@?¡Û¸¶  ¾Š“À   €       Àµ¸@ˆ£×NUVAG185MWCA  Ú   @‹"xu“?¢éi@’À ¾{Ñµ    €       €   €   NUVBG185MWCA  Ú   @Ÿ#HÔ­ÁÆ?¢p£·Å€ ¾Œ¤u    €       €   €   NUVCG185MWCA  Ú   @ a-I¯zÆ?¡ÙN!‹  ¾’²u    €       €   €   NUVAG225MPSA  Š   @ ++—8UÇ?¢ŠCÍÐ ¾‹Kä`   €       ÀÎ¸R?0£×NUVBG225MPSA  Š   @ ñ÷bÊ²‘?¡û¹iá0 ¾"½    €       ÀAG®@záHNUVCG225MPSA  Š   @¡»]_ì÷?¡WëÎí@ ¾”<À   €       ¿}p¤ÁÎbNNUVAG225MBOA  Š   @ ++—8UÇ?¢ŠCÍÐ ¾‹Kä`   €       ÀÎ¸R?0£×NUVBG225MBOA  Š   @ ñ÷bÊ²‘?¡û¹iá0 ¾"½    €       ÀAG®@záHNUVCG225MBOA  Š   @¡»]_ì÷?¡WëÎí@ ¾”<À   €       ¿}p¤@È  NUVAG225MWCA  Š   @ *ÎÉ{G<?¢„¬±xÀ ¾‘+‡@   €       €   €   NUVBG225MWCA  Š   @ ñÄi®D?¡÷y>€ ¾’ê€   €       €   €   NUVCG225MWCA  Š   @¡»lû2?¡Cmå#° ¾ŽX8    €       €   €   NUVAG225MPSA  ©   @ iŽÛkë?¢°ÂV  ¾’¥)à   €       ÀÁë…?¢\NUVBG225MPSA  ©   @¡/eøµ¿?¡ìfþà ¾’    €       ÀS×
+@p¤NUVCG225MPSA  ©   @¡÷»Ï+Nh?¡9¿P  ¾‘/`   €       >W
+=Á®ûçNUVAG225MBOA  ©   @ iŽÛkë?¢°ÂV  ¾’¥)à   €       ÀÁë…?¢\NUVBG225MBOA  ©   @¡/eøµ¿?¡ìfþà ¾’    €       ÀS×
+@p¤NUVCG225MBOA  ©   @¡÷»Ï+Nh?¡9¿P  ¾‘/`   €       >W
+=A   NUVAG225MWCA  ©   @ iOŽQMf?¢kðÇK  ¾ŽiÀ   €       €   €   NUVBG225MWCA  ©   @¡/LÞÃN8?¡Þ?™ï` ¾‘h    €       €   €   NUVCG225MWCA  ©   @¡÷Ävpæò?¡8Eä@ ¾“À   €       €   €   NUVAG225MPSA  ¹   @ Œ#ó½Î&?¢tÓìL  ¾“Ã´    €       Àƒ×
+@õÃNUVBG225MPSA  ¹   @¡QnÂ]a?¡ÛwäÂ€ ¾ñ=€   €       ¿áG®@—
+=NUVCG225MPSA  ¹   @¢$Í‡K?¡(¤#«` ¾NÔ    €       ?´záÁªß;NUVAG225MBOA  ¹   @ Œ#ó½Î&?¢tÓìL  ¾“Ã´    €       Àƒ×
+@õÃNUVBG225MBOA  ¹   @¡QnÂ]a?¡ÛwäÂ€ ¾ñ=€   €       ¿áG®@—
+=NUVCG225MBOA  ¹   @¢$Í‡K?¡(¤#«` ¾NÔ    €       ?´záA=qNUVAG225MWCA  ¹   @ Œ
+ÿ?¢S9‰«à ¾‚¨@   €       €   €   NUVBG225MWCA  ¹   @¡Q{ªW¸0?¡ÉÈTa  ¾>    €       €   €   NUVCG225MWCA  ¹   @¢RÂ;uá?¡#5Â€ ¾’€=€   €       €   €   NUVAG225MPSA  Ê   @ ®!³Èd?¢XëQˆ0 ¾‹Ûo    €       ÀW®@W
+=NUVBG225MPSA  Ê   @¡rÕÆp$2?¡ÄÑtc  ¾Š¿:    €       ¿¼(ö@¶ffNUVCG225MPSA  Ê   @¢9Þ-¸‹»?¡­u€ ¾‘¼Š€   €       ?Y™šÁÀPNUVAG225MBOA  Ê   @ ®!³Èd?¢XëQˆ0 ¾‹Ûo    €       ÀW®@W
+=NUVBG225MBOA  Ê   @¡rÕÆp$2?¡ÄÑtc  ¾Š¿:    €       ¿¼(ö@¶ffNUVCG225MBOA  Ê   @¢9Þ-¸‹»?¡­u€ ¾‘¼Š€   €       ?Y™šAQìNUVAG225MWCA  Ê   @ ­ã~¨W*?¢O” ¾ŠâWà   €       €   €   NUVBG225MWCA  Ê   @¡rËN¼á?¡À|_P ¾w}`   €       €   €   NUVCG225MWCA  Ê   @¢:¼­d7?¡-ÃnÀ ¾“A‘@   €       €   €   NUVAG225MPSA  Ü   @ ÓÂV Å®?¢K’ÞÜà ¾‹›F@   €       À‡
+=@j=qNUVBG225MPSA  Ü   @¡—Øù¡?¡¾eˆ1€ ¾1Î€   €       ¿¡G®Á½PNUVCG225MPSA  Ü   @¢^>&2¾?¡
+B}  ¾ù    €       ?ð£×Áº—NUVAG225MBOA  Ü   @ ÓÂV Å®?¢K’ÞÜà ¾‹›F@   €       À‡
+=@j=qNUVBG225MBOA  Ü   @¡—Øù¡?¡¾eˆ1€ ¾1Î€   €       ¿¡G®@Ò\NUVCG225MBOA  Ü   @¢^>&2¾?¡
+B}  ¾ù    €       ?ð£×A((öNUVAG225MWCA  Ü   @ Ó˜Ã+?¢7%¦l ¾„§à   €       €   €   NUVBG225MWCA  Ü   @¡—ÕCtÔ?¡¸¦7¨€ ¾“ÆW€   €       €   €   NUVCG225MWCA  Ü   @¢^a§¤Ž-?¡I¤Ú  ¾“Ò¥à   €       €   €   NUVAG225MPSA  ë   @ òî}ÌO`?¢;ÆŸ€0 ¾€¿    €       À6ff@u¸NUVBG225MPSA  ë   @¡¶*Bse?¡®ioJ  ¾5à   €       ¿ƒ×
+ÁžéyNUVCG225MPSA  ë   @¢|Wÿ°1? úù%á` ¾Ž)=@   €       ?ÈõÃÁ‡(öNUVAG225MBOA  ë   @ òî}ÌO`?¢;ÆŸ€0 ¾€¿    €       À6ff@u¸NUVBG225MBOA  ë   @¡¶*Bse?¡®ioJ  ¾5à   €       ¿ƒ×
+@ÜÌÍNUVCG225MBOA  ë   @¢|Wÿ°1? úù%á` ¾Ž)=@   €       ?ÈõÃAë…NUVAG225MWCA  ë   @ ò½
+@®?¢;8ïÛ  ¾CHÀ   €       €   €   NUVBG225MWCA  ë   @¡¶“ç.?¡¤{³Ü` ¾º£    €       €   €   NUVCG225MWCA  ë   @¢|ˆ	i? ôªºà ¾•Å    €       €   €   NUVAG225MPSA  	   @¡£H·©•?¢1ãY©  ¾?¬À   €       Àë…@’áHNUVBG225MPSA  	   @¡ß”c"&?¡›÷¶p ¾°g    €       =uÂÁ™È´NUVCG225MPSA  	   @¢¤oö? ë#Qì€ ¾<€   €       @>{ÁyïžNUVAG225MBOA  	   @¡£H·©•?¢1ãY©  ¾?¬À   €       Àë…@’áHNUVBG225MBOA  	   @¡ß”c"&?¡›÷¶p ¾°g    €       =uÂ@äÌÍNUVCG225MBOA  	   @¢¤oö? ë#Qì€ ¾<€   €       @>{A*¸RNUVAG225MWCA  	   @¡~ßS9?¢/>èq€ ¾1Ž€   €       €   €   NUVBG225MWCA  	   @¡ß¡ý?¡˜/ÎùÀ ¾’Š@   €       €   €   NUVCG225MWCA  	   @¢¤Ò;Hs? æHf` ¾“ž    €       €   €   NUVAG225MPSA  	   @¡EtÙWP?¢%	ßÐ ¾%À`   €       À.{@”ÌÍNUVBG225MPSA  	   @¢¹B‘¶?¡‹›±k€ ¾)    €       ?£×
+Á“ÐåNUVCG225MPSA  	   @¢Ì Fh2? Ì^$ð ¾‡6    €       @c×
+Á{ÂNUVAG225MBOA  	   @¡EtÙWP?¢%	ßÐ ¾%À`   €       À.{@”ÌÍNUVBG225MBOA  	   @¢¹B‘¶?¡‹›±k€ ¾)    €       ?£×
+AQìNUVCG225MBOA  	   @¢Ì Fh2? Ì^$ð ¾‡6    €       @c×
+A-ë…NUVAG225MWCA  	   @¡EgÀyWÕ?¢[*à ¾ƒòª@   €       €   €   NUVBG225MWCA  	   @¢ÓÞ¤ô?¡Mé  ¾–®    €       €   €   NUVCG225MWCA  	   @¢Ì0éM„¸? ÞÀ‰ð  ¾—õà   €       €   €   NUVAG225MPSA  	#   @¡`yÆïf¼?¢.ª÷` ¾†ï@   €       ¿Ü(ö@¶¸RNUVBG225MPSA  	#   @¢"0?'\^?¡Š=h¼  ¾“çD    €       ?fffÁ¨9XNUVCG225MPSA  	#   @¢åøž¨d²? Êˆ•c  ¾=:    €       @n{ÁžOßNUVAG225MBOA  	#   @¡`yÆïf¼?¢.ª÷` ¾†ï@   €       ¿Ü(ö@¶¸RNUVBG225MBOA  	#   @¢"0?'\^?¡Š=h¼  ¾“çD    €       ?fffA(öNUVCG225MBOA  	#   @¢åøž¨d²? Êˆ•c  ¾=:    €       @n{A:¸RNUVAG225MWCA  	#   @¡`iÂ¤Ž‰?¢c‘  ¾Uî`   €       €   €   NUVBG225MWCA  	#   @¢"\"nd?¡…»|Gà ¾•ä8    €       €   €   NUVCG225MWCA  	#   @¢æNé®»? ÃÇ•ö  ¾’1‰à   €       €   €   NUVAG225MPSA  	5   @¡‰°w/u?¢WË* ¾ŠÙ+à   €       ¿ºáHÁ¢í‘NUVBG225MPSA  	5   @¢JÊÌp@]?¡o™(9à ¾0F    €       ?ÌÌÍÁ˜¸RNUVCG225MPSA  	5   @£¯|d¤? »I…Ç  ¾‘½¸à   €       @œÌÍÁ~¸RNUVAG225MBOA  	5   @¡‰°w/u?¢WË* ¾ŠÙ+à   €       ¿ºáH@À  NUVBG225MBOA  	5   @¢JÊÌp@]?¡o™(9à ¾0F    €       ?ÌÌÍA×
+NUVCG225MBOA  	5   @£¯|d¤? »I…Ç  ¾‘½¸à   €       @œÌÍA9G®NUVAG225MWCA  	5   @¡‰¨ÃñåÏ?¡ÿôà ¾‹zÂ@   €       €   €   NUVBG225MWCA  	5   @¢Jö~îKñ?¡lQb` ¾”•    €       €   €   NUVCG225MWCA  	5   @£a.@ ? ±¢â@@ ¾’¼¿À   €       €   €   NUVAG225MPSA  	E   @¡¨¶økö?¡ýo&þ° ¾<‚    €       ¿hõÃÁ¹%NUVBG225MPSA  	E   @¢iKRÿ0?¡b†š_  ¾É¡    €       @
+=Á£‡NUVCG225MPSA  	E   @£+µ_ƒ„? bÞ° ¾u	…@   €       @­p¤Á„C–NUVAG225MBOA  	E   @¡¨¶økö?¡ýo&þ° ¾<‚    €       ¿hõÃ@ÔÌÍNUVBG225MBOA  	E   @¢iKRÿ0?¡b†š_  ¾É¡    €       @
+=A\NUVCG225MBOA  	E   @£+µ_ƒ„? bÞ° ¾u	…@   €       @­p¤AYG®NUVAG225MWCA  	E   @¡¨»[ ÝÎ?¡ú¹à ¾‘¥d    €       €   €   NUVBG225MWCA  	E   @¢i}™Æêk?¡_0Và ¾“t)    €       €   €   NUVCG225MWCA  	E   @£+ës{? ¯¤X8€ ¾–EÇ€   €       €   €   NUVAG225MPSA  	V   @¡ËMV‰»?¡ïJÆöà ¾Œû@   €       ?¸RÁ²´9NUVBG225MPSA  	V   @¢‹>ZÕyu?¡Yøüj` ¾’ú    €       @Aë…Á¢çmNUVCG225MPSA  	V   @£Lëlqk? “â›–0 ¾WS    €       @ÀQìÁ‚¸RNUVAG225MBOA  	V   @¡ËMV‰»?¡ïJÆöà ¾Œû@   €       ?¸R@üÌÍNUVBG225MBOA  	V   @¢‹>ZÕyu?¡Yøüj` ¾’ú    €       @Aë…A+\)NUVCG225MBOA  	V   @£Lëlqk? “â›–0 ¾WS    €       @ÀQìA_®NUVAG225MWCA  	V   @¡ËhåŒ^–?¡â£Î,@ ¾ŠA§€   €       €   €   NUVBG225MWCA  	V   @¢‹znä;:?¡^9…sÀ ¾™kŒ@   €       €   €   NUVCG225MWCA  	V   @£MF­’S ? ¤‡@  ¾™˜À    €       €   €   NUVAG225MPSA  	j   @¡ô}|Œ
+Ñ?¡ãñ~¢@ ¾‘]À   €       ?O\)ÁáHNUVBG225MPSA  	j   @¢³¾å ?¡Cò-€à ¾‘nÿ    €       @^{ÁyïžNUVCG225MPSA  	j   @£t„Æ:Íf? ÑJKà ¾•4    €       @ÖffÁ6MÓNUVAG225MBOA  	j   @¡ô}|Œ
+Ñ?¡ãñ~¢@ ¾‘]À   €       ?O\)A(öNUVBG225MBOA  	j   @¢³¾å ?¡Cò-€à ¾‘nÿ    €       @^{A.=qNUVCG225MBOA  	j   @£t„Æ:Íf? ÑJKà ¾•4    €       @ÖffApÌÍNUVAG225MWCA  	j   @¡ôžè_·?¡Õž5m€ ¾Œ©%    €       €   €   NUVBG225MWCA  	j   @¢´§Ë3®?¡G]8\@ ¾—ö£À   €       €   €   NUVCG225MWCA  	j   @£uÞù‹¤? )šÈà ¾‘á·    €       €   €   NUVAG285MPSA  
+‡   @£ùF'Q‰Ü?¦o·  ¾”4I    €       Àz=qBÞNUVBG285MPSA  
+‡   @¤å¤H£f‡?¥X¤èÀ ¾üñ@   €       ¿°£×Bê´NUVCG285MPSA  
+‡   @¥ÔÊcº´×?¤ƒ@â®@ ¾H£€   €       @
+=qBòÖ‡NUVAG285MBOA  
+‡   @£ùF'Q‰Ü?¦o·  ¾”4I    €       Àz=q@N¸RNUVBG285MBOA  
+‡   @¤å¤H£f‡?¥X¤èÀ ¾üñ@   €       ¿°£×@¾{NUVCG285MBOA  
+‡   @¥ÔÊcº´×?¤ƒ@â®@ ¾H£€   €       @
+=qAõÃNUVAG285MWCA  
+‡   @£ù!5?0??¥ôG™>0 ¾ˆ\    €       €   €   NUVBG285MWCA  
+‡   @¤å¢Ø1„?¥Uâ‡à ¾”ø    €       €   €   NUVCG285MWCA  
+‡   @¥ÔýÒRfh?¤ŠHkO  ¾™ö0`   €       €   €   NUVAG285MPSA  
+Ÿ   @¤&ˆXž†è?¥ü—¬ÏÀ ¾‘´0@   €       À\)Â¦éNUVBG285MPSA  
+Ÿ   @¥"C{X¾?¥QB|@ ¾–,ƒÀ   €       ¿\(öÂ.NUVCG285MPSA  
+Ÿ   @¦ l’§‰Ç?¤{³è  ¾•Crà   €       ?ê=qÁè©üNUVAG285MBOA  
+Ÿ   @¤&ˆXž†è?¥ü—¬ÏÀ ¾‘´0@   €       À\)@æ¸RNUVBG285MBOA  
+Ÿ   @¥"C{X¾?¥QB|@ ¾–,ƒÀ   €       ¿\(öA®NUVCG285MBOA  
+Ÿ   @¦ l’§‰Ç?¤{³è  ¾•Crà   €       ?ê=qA_\)NUVAG285MWCA  
+Ÿ   @¤&D5úÑ?¥÷_"  ¾”]à   €       €   €   NUVBG285MWCA  
+Ÿ   @¥¡Jm?¥F¿ Zà ¾–”%    €       €   €   NUVCG285MWCA  
+Ÿ   @¦ Ÿ²Ž?¤t°À)  ¾—›×    €       €   €   NUVAG285MPSA  ˆ   @¦‚àÛ£»?¥:§½µ ¾˜à   €       @JáHÁ°™šNUVBG285MPSA  ˆ   @¦èØ¦Ã¥­?¤ziZ@ ¾‘"¥À   €       @£×
+Á¹jNUVCG285MPSA  ˆ   @§Í² $³?£œÞ¤æà ¾”ÿ™    €       A™šÁŒ7LNUVAG285MBOA  ˆ   @¦‚àÛ£»?¥:§½µ ¾˜à   €       @JáHAJ¸RNUVBG285MBOA  ˆ   @¦èØ¦Ã¥­?¤ziZ@ ¾‘"¥À   €       @£×
+Av{NUVCG285MBOA  ˆ   @§Í² $³?£œÞ¤æà ¾”ÿ™    €       A™šA™G®NUVAG285MWCA  ˆ   @¦ÏiÑ$?¥3AŸG@ ¾c¸À   €       €   €   NUVBG285MWCA  ˆ   @¦éYÇÑ"X?¤=Ç°À ¾šµO@   €       €   €   NUVCG285MWCA  ˆ   @§ÎrE-%?£Ž<~=  ¾‘MÃ    €       €   €   NUVAG285MPSA     @§ IŸÒøl?¤×‰°Wà ¾”(    €       @Ë33Á¢hsNUVBG285MPSA     @§ÞÛË”–N?¤¢ à ¾–ìc    €       AáHÁ‹®NUVCG285MPSA     @¨¾Tµ9ôy?£#Îñ€ ¾”K€   €       A:ffAÀ(öNUVAG285MBOA     @§ IŸÒøl?¤×‰°Wà ¾”(    €       @Ë33A…¸NUVBG285MBOA     @§ÞÛË”–N?¤¢ à ¾–ìc    €       AáHA ¸RNUVCG285MBOA     @¨¾Tµ9ôy?£#Îñ€ ¾”K€   €       A:ffAÀ(öNUVAG285MWCA     @§ á
+³ÇU?¤ÈÝU)  ¾’äV`   €       €   €   NUVBG285MWCA     @§ß™=a¼?¤¸Aw€ ¾ž@ˆ€   €       €   €   NUVCG285MWCA     @¨¿?ôY”}?£1õ±ú@ ¾¡â‚à   €       €   €   NUVAG285MPSA  
+M   @£ƒøën›!?¦4OÂà ¾2½    €       À õÃÁùjNUVBG285MPSA  
+M   @¤r';±:œ?¥‹èÔ·à ¾’ËÈ    €       ÀG®ÁéùÛNUVCG285MPSA  
+M   @¥cg™„mU?¤¾-©À ¾’×V@   €       ¾³33ÁÅ£×NUVAG285MBOA  
+M   @£ƒøën›!?¦4OÂà ¾2½    €       À õÃ@O\)NUVBG285MBOA  
+M   @¤r';±:œ?¥‹èÔ·à ¾’ËÈ    €       ÀG®@¼záNUVCG285MBOA  
+M   @¥cg™„mU?¤¾-©À ¾’×V@   €       ¾³33A
+ffNUVAG285MWCA  
+M   @£ƒlVƒ5?¦0,é  ¾“–`   €       €   €   NUVBG285MWCA  
+M   @¤qÏ9‘?¥“€7•` ¾œ²ê    €       €   €   NUVCG285MWCA  
+M   @¥cW·6Ÿ?¤´©ÿ@ ¾•?ïÀ   €       €   €   NUVAG285MPSA  
+t   @£Ð“–ï¦?¦²ŒË` ¾’Å´    €       ÀÛ…ÁæXNUVBG285MPSA  
+t   @¤½‘ØlP?¥kŽš  ¾’‰å`   €       Àk…ÁÔ›¦NUVCG285MPSA  
+t   @¥­yÚ±ÕJ?¤”’V“  ¾úÚ    €       ¿Ó33Á¹¾wNUVAG285MBOA  
+t   @£Ð“–ï¦?¦²ŒË` ¾’Å´    €       ÀÛ…@‘ë…NUVBG285MBOA  
+t   @¤½‘ØlP?¥kŽš  ¾’‰å`   €       Àk…@äÌÍNUVCG285MBOA  
+t   @¥­yÚ±ÕJ?¤”’V“  ¾úÚ    €       ¿Ó33A%¸NUVAG285MWCA  
+t   @£Ð6œ—h?¦ðP` ¾—N/    €       €   €   NUVBG285MWCA  
+t   @¤½GêgZÈ?¥dã2@ ¾”PpÀ   €       €   €   NUVCG285MWCA  
+t   @¥­e¤óþ¬?¤’/Z×` ¾“G¨    €       €   €   NUVAG285MPSA  
+•   @¤¡öGa€?¦Á!  ¾’€ `   €       À¢=qÁïMÓNUVBG285MPSA  
+•   @¥vÁº`Û?¥^€ø5  ¾˜ÑJ`   €       À$záÁÑPNUVCG285MPSA  
+•   @¥ñr.tÄ?¤d)ˆ  ¾”–x    €       ¼õÂÁÃ%NUVAG285MBOA  
+•   @¤¡öGa€?¦Á!  ¾’€ `   €       À¢=q@¨õÃNUVBG285MBOA  
+•   @¥vÁº`Û?¥^€ø5  ¾˜ÑJ`   €       À$záAë…NUVCG285MBOA  
+•   @¥ñr.tÄ?¤d)ˆ  ¾”–x    €       ¼õÂA7×
+NUVAG285MWCA  
+•   @¤Eb€„ƒ?¥ôÎ~@ ¾úÀ   €       €   €   NUVBG285MWCA  
+•   @¥W-"²Å?¥N@1
+à ¾—u    €       €   €   NUVCG285MWCA  
+•   @¥ñ/óªûï?¤z,^` ¾—Õ!    €       €   €   NUVAG285MPSA  £   @¦:›ø˜Å¾?¥?®¹û  ¾š„`   €       ?ë…ÂÓøNUVBG285MPSA  £   @§ÇÉÓ?¤eQn¦À ¾’¶Y@   €       @¼(öÂÎÙNUVCG285MPSA  £   @¨ Í÷X£Ê?£ˆ¬”  ¾™l    €       A¸ÂNUVAG285MBOA  £   @¦:›ø˜Å¾?¥?®¹û  ¾š„`   €       ?ë…AHQìNUVBG285MBOA  £   @§ÇÉÓ?¤eQn¦À ¾’¶Y@   €       @¼(öA‚áHNUVCG285MBOA  £   @¨ Í÷X£Ê?£ˆ¬”  ¾™l    €       A¸A¸NUVAG285MWCA  £   @¦;ÖA¾N?¥^ë[° ¾…KÈ    €       €   €   NUVBG285MWCA  £   @§‰Ø@&³?¤cˆCe€ ¾—Æš€   €       €   €   NUVCG285MWCA  £   @¨•@s?£xàõe  ¾––à   €       €   €   NUVAG285MPSA  Ê   @¦Š±¾?¥–²³  ¾”žÌ`   €       @†ffÁ¼‡+NUVBG285MPSA  Ê   @§kŒ}ÖÑò?¤E3ã  ¾–„    €       @Å¸Á¦;dNUVCG285MPSA  Ê   @¨M’6 !k?£^k÷U  ¾–T*à   €       AÂÁ‰÷ÏNUVAG285MBOA  Ê   @¦Š±¾?¥–²³  ¾”žÌ`   €       @†ffAië…NUVBG285MBOA  Ê   @§kŒ}ÖÑò?¤E3ã  ¾–„    €       @Å¸AƒÂNUVCG285MBOA  Ê   @¨M’6 !k?£^k÷U  ¾–T*à   €       AÂA¨ffNUVAG285MWCA  Ê   @¦‹Ž‘%÷?¥€m  ¾Kà   €       €   €   NUVBG285MWCA  Ê   @§l˜,ù)?¤AXQ€ ¾™A®€   €       €   €   NUVCG285MWCA  Ê   @¨Ne“¾K?£Y_à ¾›Tj    €       €   €   NUVAG285MPSA  ñ   @¦Ý"u~V?¤è¶+à ¾”šT    €       @¸  Á¬¾wNUVBG285MPSA  ñ   @§¼ik§æ?¤»L` ¾‘-3    €       Aë…Á PNUVCG285MPSA  ñ   @¨œª©öWq?£'Úøb` ¾¾    €       AR\A½33NUVAG285MBOA  ñ   @¦Ý"u~V?¤è¶+à ¾”šT    €       @¸  Al(öNUVBG285MBOA  ñ   @§¼ik§æ?¤»L` ¾‘-3    €       Aë…A“¸NUVCG285MBOA  ñ   @¨œª©öWq?£'Úøb` ¾¾    €       AR\A½33NUVAG285MWCA  ñ   @¦Ý¹"0æø?¤Ú¯‰ï  ¾’º    €       €   €   NUVBG285MWCA  ñ   @§½2Y6Ãl?¤mfØ  ¾’¹(    €       €   €   NUVCG285MWCA  ñ   @¨ªèˆÏÃ?£(Èš  ¾–ky`   €       €   €   NUVAG285MPSA  
+9   @£XìI~?¦C§—< ¾ñà   €       ÀÐ£×ÁóÀƒNUVBG285MPSA  
+9   @¤GÇ©'!Ð?¥“¢â  ¾ŒþÀÀ   €       À£×
+Áå™šNUVCG285MPSA  
+9   @¥9Ä©’.‰?¤Î}C€ ¾‘Öî€   €       ¿Ã×
+ÁÄ¸RNUVAG285MBOA  
+9   @£XìI~?¦C§—< ¾ñà   €       ÀÐ£×@aë…NUVBG285MBOA  
+9   @¤GÇ©'!Ð?¥“¢â  ¾ŒþÀÀ   €       À£×
+@¦ffNUVCG285MBOA  
+9   @¥9Ä©’.‰?¤Î}C€ ¾‘Öî€   €       ¿Ã×
+A®NUVAG285MWCA  
+9   @£Xd2IÄ?¦<á7«à ¾“Ô    €       €   €   NUVBG285MWCA  
+9   @¤Gq.FìY?¥—- 1à ¾•ØN    €       €   €   NUVCG285MWCA  
+9   @¥9¶fDX?¤Æ¥  ¾”¦Úà   €       €   €   NUVAG285MPSA  
+a   @£ª(¬Í™?¦*e2€ ¾ÐÍ€   €       À¤ÌÍÁÏÌÍNUVBG285MPSA  
+a   @¤—Å6ä3V?¥xuY¬À ¾‘³S@   €       À4záÁ¹5?NUVCG285MPSA  
+a   @¥ˆO2Ïïf?¤¬îêË  ¾’	5    €       >æffÁ¯¼jNUVAG285MBOA  
+a   @£ª(¬Í™?¦*e2€ ¾ÐÍ€   €       À¤ÌÍ@ŠáHNUVBG285MBOA  
+a   @¤—Å6ä3V?¥xuY¬À ¾‘³S@   €       À4zá@Ü(öNUVCG285MBOA  
+a   @¥ˆO2Ïïf?¤¬îêË  ¾’	5    €       >æffA'\)NUVAG285MWCA  
+a   @£©É>D#¼?¦ þ…w€ ¾“<ˆ€   €       €   €   NUVBG285MWCA  
+a   @¤—šîhì?¥uXà ¾”õ'    €       €   €   NUVCG285MWCA  
+a   @¥ˆv&Ñ?¤˜²!  ¾É^à   €       €   €   NUVAG285MPSA  
+³   @¤P›¼yHá?¥÷×=Bà ¾–=    €       À‚=qÂ{NUVBG285MPSA  
+³   @¥;VuV?¥8’ý+  ¾’6Tà   €       ¿LÌÍÁî“NUVCG285MPSA  
+³   @¦)›–åÂ?¤`k` ¾‘{    €       @záÁðXNUVAG285MBOA  
+³   @¤P›¼yHá?¥÷×=Bà ¾–=    €       À‚=q@¹™šNUVBG285MBOA  
+³   @¥;VuV?¥8’ý+  ¾’6Tà   €       ¿LÌÍAÂNUVCG285MBOA  
+³   @¦)›–åÂ?¤`k` ¾‘{    €       @záA=G®NUVAG285MWCA  
+³   @¤PlL÷?¥ÝÔ®0 ¾%#    €       €   €   NUVBG285MWCA  
+³   @¥;Œc5ƒ3?¥2tæà ¾•™    €       €   €   NUVCG285MWCA  
+³   @¦)V4 “?¤PÞ#@ ¾ßèÀ   €       €   €   NUVAG285MPSA  "   @¥69´Î".?¥•Ü¸]  ¾’Ó£    €       =LÌÍÁÏzáNUVBG285MPSA  "   @¦Iƒ¶Ã?¤Ò` ¾öõ@   €       @@  Á´“NUVCG285MPSA  "   @§ey¼V>?£óÛ;0 ¾Žô	    €       @Åp¤Á“ë…NUVAG285MBOA  "   @¥69´Î".?¥•Ü¸]  ¾’Ó£    €       =LÌÍA%ë…NUVBG285MBOA  "   @¦Iƒ¶Ã?¤Ò` ¾öõ@   €       @@  AUë…NUVCG285MBOA  "   @§ey¼V>?£óÛ;0 ¾Žô	    €       @Åp¤A‰G®NUVAG285MWCA  "   @¥6Kð÷i?¥ˆeÛQ  ¾`.à   €       €   €   NUVBG285MWCA  "   @¦‘RÞê¦?¤ÍyÃK€ ¾’N´€   €       €   €   NUVCG285MWCA  "   @§Û:æä?£üNÇÀ ¾™r8@   €       €   €   NUVAG285MPSA  ´   @¦_.gÕá?¥ÇBà ¾“}=    €       @^¸RÁ·‡+NUVBG285MPSA  ´   @§@Ï/É¶÷?¤aÒÂí@ ¾™èÀ   €       @Ç
+=Á¥OßNUVCG285MPSA  ´   @¨#ÒÙ\ô?£næ¿€ ¾”jâ€   €       A (öA¨\NUVAG285MBOA  ´   @¦_.gÕá?¥ÇBà ¾“}=    €       @^¸RAX(öNUVBG285MBOA  ´   @§@Ï/É¶÷?¤aÒÂí@ ¾™èÀ   €       @Ç
+=A‡×
+NUVCG285MBOA  ´   @¨#ÒÙ\ô?£næ¿€ ¾”jâ€   €       A (öA¨\NUVAG285MWCA  ´   @¦_‹’ú)]?¥!9¹À ¾•ßF@   €       €   €   NUVBG285MWCA  ´   @§Asmp‹+?¤E·®V  ¾‘¹ª    €       €   €   NUVCG285MWCA  ´   @¨$¥(y%Ê?£dRy“€ ¾•Xl€   €       €   €   NUVAG285MPSA  Û   @¦­×\zÊÌ?¤û1˜  ¾“jh    €       @ˆ£×Â!:^NUVBG285MPSA  Û   @§ŽO_@“?¤1 [¦  ¾“ÉÙ`   €       @ç\)ÂÀƒNUVCG285MPSA  Û   @¨oTpsÅ–?£B‰[¬  ¾’ÓÓà   €       A5ÂA¼ÌÍNUVAG285MBOA  Û   @¦­×\zÊÌ?¤û1˜  ¾“jh    €       @ˆ£×Ag
+=NUVBG285MBOA  Û   @§ŽO_@“?¤1 [¦  ¾“ÉÙ`   €       @ç\)AŽ(öNUVCG285MBOA  Û   @¨oTpsÅ–?£B‰[¬  ¾’ÓÓà   €       A5ÂA¼ÌÍNUVAG285MWCA  Û   @¦®Pÿt…?¤í¢“
+€ ¾‘Âõ€   €       €   €   NUVBG285MWCA  Û   @§Ž®ÞB¦?¤-'sË  ¾—´`   €       €   €   NUVCG285MWCA  Û   @¨pL«À?£(bsäð ¾‹0¶    €       €   €   NUVAG285MPSA     @§&Ij˜?¤Ã_  ¾’õê    €       @º\Á£ñªNUVBG285MPSA     @¨#PìÇ+?£í·UÀ ¾T€   €       AÂÁ”?}NUVCG285MPSA     @¨â·XªeÜ?£ß+¸  ¾–tH    €       AT  AÀQìNUVAG285MBOA     @§&Ij˜?¤Ã_  ¾’õê    €       @º\A×
+NUVBG285MBOA     @¨#PìÇ+?£í·UÀ ¾T€   €       AÂA¡p¤NUVCG285MBOA     @¨â·XªeÜ?£ß+¸  ¾–tH    €       AT  AÀQìNUVAG285MWCA     @§&äf­©l?¤¹ì.×  ¾’õ)    €       €   €   NUVBG285MWCA     @¨ýï„Ã=?£â)Ïz@ ¾‘ç…À   €       €   €   NUVCG285MWCA     @¨ãÈ™Mw?£Ðümà ¾š    €       €   €   NUVAG230LPSA  
+K   @•˜ò7‘°?ÚbÂj6  ¾è‡r€   €       ÂRë…Âë…NUVBG230LPSA  
+K   @£"Ð‘ËæK?Øÿ¡ÄÂÌ ¾•€i    €       ÂEQìÂNUVCG230LPSA  
+K   @œš_áö?É!ÒMý` ¾½\‚    €       Â<
+=Áè  NUVAG230LBOA  
+K   @•˜ò7‘°?ÚbÂj6  ¾è‡r€   €       ÂRë…Âë…NUVBG230LBOA  
+K   @£"Ð‘ËæK?Øÿ¡ÄÂÌ ¾•€i    €       ÂEQìÁþ(öNUVCG230LBOA  
+K   @œš_áö?É!ÒMý` ¾½\‚    €       Â<
+=Áè  NUVAG230LWCA  
+K   @”ÙôR:Ð?Ù´7¯Z  ¾Ú4S    €       €   €   NUVBG230LWCA  
+K   @¢ý *bà?Øù
+…÷à ¾¥ê €   €       €   €   NUVCG230LWCA  
+K   @›áøY;Ù±?ÈßÀ§l@ ¾£O'€   €       €   €   NUVAG230LPSA  ¸   @›`:\ý?ØÛ®ê  >ÀˆŸ    €       ÂGáHÂffNUVBG230LPSA  ¸   @¦â¼iªð?Øô”¡”`>M_`   €       Â>
+=Â/‰7NUVCG230LPSA  ¸   @žé’—ÌŽ?ÈéVÒc° ¾¤ý¸    €       Â4ÂÁêffNUVAG230LBOA  ¸   @›`:\ý?ØÛ®ê  >ÀˆŸ    €       ÂGáHÂffNUVBG230LBOA  ¸   @¦â¼iªð?Øô”¡”`>M_`   €       Â>
+=Áù33NUVCG230LBOA  ¸   @žé’—ÌŽ?ÈéVÒc° ¾¤ý¸    €       Â4ÂÁêffNUVAG230LWCA  ¸   @š¿7H3jX?Øøk	>ý ¾qY `   €       €   €   NUVBG230LWCA  ¸   @¥äLh³&í?Øö·×X ¾®n    €       €   €   NUVCG230LWCA  ¸   @žÈ{-üè?ÈÇío9ð ¾”¤@   €       €   €   NUVAG230LPSA      @ dE3íÅÞ?Ù	@¯Gt ¾–—D`   €       ÂD¸ÂõÃNUVBG230LPSA      @¨æÛŸ?'‘?ØìÆ[T\ >•f"à   €       Â9ÌÍÁìzáNUVCG230LPSA      @ ã]£i­Ð?ÈÈ˜·€& ¾p~}    €       Â1…Áß\)NUVAG230LBOA      @ dE3íÅÞ?Ù	@¯Gt ¾–—D`   €       ÂD¸ÂzáNUVBG230LBOA      @¨æÛŸ?'‘?ØìÆ[T\ >•f"à   €       Â9ÌÍÁìzáNUVCG230LBOA      @ ã]£i­Ð?ÈÈ˜·€& ¾p~}    €       Â1…Áß\)NUVAG230LWCA      @ >”ÉWC?Ø÷<±6Ù€>i'6`   €       €   €   NUVBG230LWCA      @¨Â‰pm?Øúî§C  ¾½™z    €       €   €   NUVCG230LWCA      @ ÒdÈš?ÈÅÆtí ¾š[Ëà   €       €   €   NUVAG230LPSA  †   @šN´<P&?ÙšýÀ ¾¦?í    €       ÂI=qÂÌÍNUVBG230LPSA  †   @¥’B‘‰Qx?ØöAÎ >ˆSáÀ   €       Â>p¤Â$%ãNUVCG230LPSA  †   @žuü™7¬?È²¿YÊø >Ÿ–«à   €       Â5=qÁåG®NUVAG230LBOA  †   @šN´<P&?ÙšýÀ ¾¦?í    €       ÂI=qÂÌÍNUVBG230LBOA  †   @¥’B‘‰Qx?ØöAÎ >ˆSáÀ   €       Â>p¤ÁôzáNUVCG230LBOA  †   @žuü™7¬?È²¿YÊø >Ÿ–«à   €       Â5=qÁåG®NUVAG230LWCA  †   @™ÐèÆ¼ 	?Ùâ8Y ¾Œ4î    €       €   €   NUVBG230LWCA  †   @¥mÏà"ò?Øø›Ú˜ ¾­N    €       €   €   NUVCG230LWCA  †   @žR¦ Y?ÈÂÏxæ4 ¾ŠrN`   €       €   €                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       

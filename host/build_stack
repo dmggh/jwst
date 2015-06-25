@@ -4,6 +4,7 @@ setenv CRDS_STACK ${CRDS}/crds_stacks/crds_15
 setenv META_PREFIX ${CRDS_STACK}
 
 rm -rf ${CRDS_STACK}
+mkdir ${CRDS_STACK}
 cd ${CRDS}/crds_stacks/installer3
 
 cd build
@@ -18,6 +19,7 @@ rehash
 ../src/pull_local
 
 rm -rf ${CRDS_STACK}
+mkdir ${CRDS_STACK}
 ./meta clean >& /dev/null
 ./meta install @crds  |& tee ${CRDS_STACK}/crds.err
 ./meta clean >& /dev/null
