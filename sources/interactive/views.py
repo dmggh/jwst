@@ -1131,10 +1131,13 @@ def certify_post(request):
 
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
-    _disposition, certify_results = web_certify.certify_file_list(uploaded_files.items(), context=comparison_context, 
+    disposition, certify_results = web_certify.certify_file_list(uploaded_files.items(), context=comparison_context, 
         compare_old_reference=compare_old_reference, push_status=jpoll_handler.write)
 
-    blacklist_results = web_certify.get_blacklist_file_list(uploaded_files.items(), all_files=all_files)
+    if disposition != "bad files":
+        blacklist_results = web_certify.get_blacklist_file_list(uploaded_files.items(), all_files=all_files)
+    else:
+        blacklist_results = []
 
     return render_repeatable_result(request, "certify_results.html", {
              "certify_results":certify_results,

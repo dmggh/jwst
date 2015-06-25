@@ -19,13 +19,15 @@ from django.contrib.auth.models import User
 
 # pysh.set_debug(True) # XXXXX set False for production unit test use, True for development.
 
-class InteractiveBase(object):
+class InteractiveBase(TransactionTestCase):
 
     @classmethod
-    def setUpClass(cls, *args, **keys):
+    def setUpClass(cls):
         
         log.info("Setting up tests:", cls.__name__)
-                
+
+        super(InteractiveBase, cls).setUpClass()
+
         global CRDS_PATH, TEST_MAPPING_DIR, REAL_MAPPING_DIR
 
         # The results of locate_file will change when CRDS_PATH is redefined below.
@@ -63,25 +65,23 @@ class InteractiveBase(object):
         settings.CRDS_LOCK_ACQUIRE_TIMEOUT = 0.5  # Don't waste time during tests with SQLite
 
     @classmethod
+    def tearDownClass(cls):
+        super(InteractiveBase, cls).tearDownClass()
+        os.environ["CRDS_PATH"] = sconfig.install_root
+
+    @classmethod
     def copy_test_mappings(cls):
         mappings = "{" + ",".join(cls._cached_mapping_names) + "}"
         pysh.sh("cp -f ${REAL_MAPPING_DIR}/${mappings} ${CRDS_PATH}/mappings/%s" % cls.observatory, 
                 raise_on_error=True) # , trace_commands=True)
 
-    @classmethod
-    def tearDownClass(self):
-        # pysh.sh("rm -rf ${CRDS_PATH}")
-        os.environ["CRDS_PATH"] = sconfig.install_root
-
-    def runTest(self, *args, **keys):
-        pass
-    
     passwords = {
         "homer" : "simposon",
         "bozo" : "the clown",
     }
     
     def setUp(self): 
+        super(InteractiveBase, self).setUp()
         self.copy_test_mappings()
         self.user = User.objects.create_user('homer', 'homer@simpson.net', self.passwords["homer"])
         self.user2 = User.objects.create_user('bozo', 'bozo@godaddy.com', self.passwords["bozo"])
@@ -100,6 +100,7 @@ class InteractiveBase(object):
         self.ingested = False
         
     def tearDown(self):
+        super(InteractiveBase, self).tearDown()
         self.remove_files(self.delete_list)
         # pysh.sh("/bin/rm -rf " + lconfig.locate_file("test.fits", self.observatory), raise_on_error=True)  # , trace_commands=True)
         pysh.sh("/bin/rm -f " + sconfig.CRDS_DELIVERY_DIR + "/*")
@@ -652,11 +653,8 @@ class InteractiveBase(object):
 
 if sconfig.observatory == "hst":
     
-    class Hst(InteractiveBase, TransactionTestCase):
+    class Hst(InteractiveBase):
 
-        def __init__(self, *args, **keys):
-            super(Hst, self).__init__(*args, **keys)
-        
         observatory = "hst"
         pmap = "hst.pmap"
         cached_contexts = [pmap]
@@ -752,10 +750,7 @@ if sconfig.observatory == "hst":
             
 else:  # JWST
     
-    class Jwst(InteractiveBase, TransactionTestCase):
-
-        def __init__(self, *args, **keys):
-            super(Jwst, self).__init__(*args, **keys)
+    class Jwst(InteractiveBase):
 
         observatory = "jwst"
         pmap = "jwst_0000.pmap"
