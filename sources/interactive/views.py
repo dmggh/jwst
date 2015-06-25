@@ -1913,7 +1913,7 @@ def browse_db_post(request):
         assert stop_date >= start_date,  "Stop date precedes start date,  no matches possible."
 
     if filename != "*":
-        observatory = instrument = filekind = extension = deliverer_user = status = start_date = stop_date = "*"
+        instrument = filekind = extension = deliverer_user = status = start_date = stop_date = "*"
 
     filters = {}
     for var in ["instrument", "filekind", "extension",
@@ -1940,7 +1940,7 @@ def browse_db_post(request):
             "filters": sorted(filters.items()),
             # "filtered_db" : filtered_db,
             "table_json" : table_json,
-            # "observatory" : observatory,
+            "observatory" : observatory,
             })
 
 @models.crds_cached
