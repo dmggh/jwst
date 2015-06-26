@@ -413,8 +413,8 @@ class InteractiveBase(TransactionTestCase):
         # print response
         self.assert_no_errors(response)
         self.assertIn("Confirm or Cancel", response.content)
-        self.assertIn("replace", response.content)
-        self.assertNotIn("insert", response.content)
+        self.assertIn("<td> replace", response.content)
+        self.assertNotIn("<td> insert", response.content)
         # self.assertIn("Reversion at", response.content)
 
     def _batch_submit_insert(self, references=None):
