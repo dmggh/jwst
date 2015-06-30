@@ -562,6 +562,8 @@ def get_server_info(request):
         "edit_context" : imodels.get_default_context(config.observatory),
         "operational_context" : imodels.get_default_context(config.observatory, state="operational"),
         "bad_files" : " ".join(imodels.get_bad_files(config.observatory)),
+        # "bad_files" : imodels.get_bad_files(config.observatory),
+        "mappings" : list_mappings(None, None, "*map"),
         "observatory" : config.observatory,
         "crds_version" : version_info,
         "max_headers_per_rpc" : MAX_HEADERS_PER_RPC,
