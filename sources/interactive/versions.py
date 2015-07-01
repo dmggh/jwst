@@ -21,6 +21,7 @@ MODULE_LIST = (
     
     'astropy',
     'jwst_lib.models',
+    'pyasdf',
     
     'parsley',
     'yaml'
