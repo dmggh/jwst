@@ -472,18 +472,34 @@ class ContextHistoryModel(CrdsModel):
         super(ContextHistoryModel, self).__init__(*args, **keys)
         
 def get_context_history(observatory=OBSERVATORY, state="operational"):
-    """Return the history of the specified context,  in reverse order of start date."""
+    """Return the history models of the specified context,  in reverse order of start date."""
     return [o for o in ContextHistoryModel.objects.filter(state=state).reverse() if o.observatory == observatory]
     # return [o for o in ContextHistoryModel.objects.all().reverse()]
 
-def get_context_by_date(date, observatory=OBSERVATORY):
-    """Return the history of the specified context,  in reverse order of start date."""
-    dt = timestamp.parse_date(date)
+@crds_cached
+def get_context_history_tuples(observatory=OBSERVATORY):
+    """Return the history for `observatory` in list of tuples form."""
     history = get_context_history(observatory)
+    history_tuples = []
+    for era in history:
+        history_tuples.append((str(era.start_date).replace("T"," "), era.context, era.description))
+    return history_tuples
+
+def get_context_by_date(date, observatory=OBSERVATORY):
+    """Return the name of the context associated with date for `observatory`."""
+    history = get_context_history_tuples(observatory)
+    return search_history(history, date)
+
+def search_history(history, date):
+    """Search a context `history` tuple list for the context corresponding to `date`.
+    
+    History should be sorted as from get_context_history_tuples().
+    """
+    dt = timestamp.reformat_date(date)
     i = 0
-    while  i < len(history) and dt < history[i].start_date:
+    while  i < len(history) and dt < history[i][0]:
         i += 1
-    return str(history[i].context)
+    return str(history[i][1])
 
 # ============================================================================
 

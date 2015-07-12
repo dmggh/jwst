@@ -562,6 +562,9 @@ def get_server_info(request):
         "edit_context" : imodels.get_default_context(config.observatory),
         "operational_context" : imodels.get_default_context(config.observatory, state="operational"),
         "bad_files" : " ".join(imodels.get_bad_files(config.observatory)),
+        # "bad_files" : imodels.get_bad_files(config.observatory),
+        "mappings" : list_mappings(None, None, "*map"),
+        "context_history" : imodels.get_context_history_tuples(config.observatory),
         "observatory" : config.observatory,
         "crds_version" : version_info,
         "max_headers_per_rpc" : MAX_HEADERS_PER_RPC,
@@ -624,16 +627,7 @@ def get_reference_url(request, context, reference):
 @jsonrpc_method('get_context_history(String)')  # secure
 def get_context_history(request, observatory):
     observatory = check_observatory(observatory)
-    return _get_context_history(observatory)
-
-@imodels.crds_cached
-def _get_context_history(observatory):
-    """Cached core of get_context_history."""
-    history = imodels.get_context_history(observatory)
-    history_json = []
-    for era in history:
-        history_json.append((str(era.start_date).replace("T"," "), era.context, era.description))
-    return history_json
+    return imodels.get_context_history_tuples(observatory)
 
 # ===============================================================
 
