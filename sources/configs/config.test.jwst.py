@@ -54,3 +54,5 @@ CRDS_MAPPING_URL   = CRDS_URL + "get/"
 CRDS_UNCHECKED_REFERENCE_URL = CRDS_URL + "unchecked_get/references/" + observatory + "/"
 CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/mappings/" + observatory + "/"
 
+FORCE_REMOTE_MODE = False
+

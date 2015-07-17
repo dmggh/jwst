@@ -57,3 +57,5 @@ CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/mappings/" + observator
 # CRDS_UNCHECKED_REFERENCE_URL = "https://archive.stsci.edu/missions/hst/public/references/"
 # CRDS_UNCHECKED_MAPPING_URL   = "https://archive.stsci.edu/missions/hst/public/references/"
 
+FORCE_REMOTE_MODE = False
+
