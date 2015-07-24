@@ -134,6 +134,12 @@ class InvalidFileList(EncError):
 
 class InvalidFieldList(EncError):
     """Not a list of database field names."""
+    
+class UnpushableContextKind(EncError):
+    """The specified context kind is invalid for pushing from client to server."""
+    
+class InvalidKey(EncError):
+    """The specified authentication key has an invalid format or bad value."""
 
 def check_known_file(filename):
     """Check that `filename` is known to CRDS, available, and/or not blacklisted."""
@@ -324,6 +330,16 @@ def check_field_list(fields):
             if not isinstance(name, basestring) or not FIELD_RE.match(name):
                 raise InvalidFileList("Expected list of fields or None.")
     return fields
+
+def check_context_kind(kind):
+    if kind not in ["operational"]:
+        raise UnpushableContextKind("The specified context kind is invalid.")
+    return kind
+
+def check_authentication_key(key):
+    if not re.match("\w+", key):
+        raise InvalidKey("The specified key is invalid.")
+    return key
 
 # ===========================================================================
 
@@ -629,6 +645,17 @@ def get_reference_url(request, context, reference):
 def get_context_history(request, observatory):
     observatory = check_observatory(observatory)
     return imodels.get_context_history_tuples(observatory)
+
+# ===============================================================
+
+@jsonrpc_method('push_context(String, String, String, String)')
+def push_context(request, observatory, kind, key, context):
+    observatory = check_observatory(observatory)
+    kind = check_context_kind(kind)
+    context = check_context(context, observatory)
+    key = check_key(key)
+    imodels.push_context(observatory, kind, key, context)
+    return None
 
 # ===============================================================
 
