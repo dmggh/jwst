@@ -90,27 +90,29 @@
     {% if is_authenticated %}
     <div id="remote_contexts_container" class="body_panel"> 
         <br/>
-        <h3 style="margin-top: 0px;">Actual Pipeline Contexts</h3>
-        <table>
+        <h3 style="margin-top: 0px;">Remote Contexts</h3>
+        <table style="background-color: #EEEEEE;">
           <theader>
             <tr>
-              <th>Pipeline</th>
-              <th>Commanded Context</th>
-              <th>Actual Context</th>
-              <th>Status</th>
+              <th class="center bold label ctx">Pipeline</th>
+              <th class="center bold label ctx">Server Context</th>
+              <th class="center bold label ctx">Remote Context</th>
+              <th class="center bold label ctx">Status</th>
             </tr>
           </theader>
           <tbody>
             {% for remote in remote_contexts %}
             <tr>
-              <td>{{remote.name}}</td>
-              <td>{{pmap}}</td>
-              <td>{{remote.context}}</td>
-              {% if pmap == remote.context %}
-              <span class="green">synced</span>
-              {% else %}
-              <span class="red">out of date</span>
-              {% endif %}
+              <td class="center ctx">{{remote.name}}</td>
+              <td class="center ctx">{{pmap_operational}}</td>
+              <td class="center ctx">{{remote.context}}</td>
+              <td class="center ctx">
+                {% if pmap_operational == remote.context %}
+                <span class="green">synced</span>
+                {% else %}
+                <span class="red">out of date</span>
+                {% endif %}
+              </td>
             </tr>
             {% endfor %}
           </tbody>

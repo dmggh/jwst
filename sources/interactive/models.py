@@ -1604,7 +1604,7 @@ class RemoteContextModel(CrdsModel):
     class Meta:
         db_table = TABLE_PREFIX + "_remote_context" # rename SQL table
         
-    repr_list = unicode_list = ["id", "name", "observatory", "kind", "key", "context"]
+    repr_list = unicode_list = ["id", "name", "observatory", "kind", "context"]
     
     observatory = models.CharField(max_length=32,
         help_text = "Observatory this context applies to.", default="none")
