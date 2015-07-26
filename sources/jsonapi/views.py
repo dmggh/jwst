@@ -336,8 +336,8 @@ def check_context_kind(kind):
         raise UnpushableContextKind("The specified context kind is invalid.")
     return kind
 
-def check_authentication_key(key):
-    if not re.match("\w+", key):
+def check_key(key):
+    if not re.match(r"\w+", key):
         raise InvalidKey("The specified key is invalid.")
     return key
 

@@ -1594,7 +1594,7 @@ class RepeatableResultBlob(BlobModel):
 
 # ============================================================================
 
-class RemoteContext(CrdsModel):
+class RemoteContextModel(CrdsModel):
     """A model for storing the values of remote actual contexts pushed from priviledged sites.
     These are distinct from the server-side Set Context default context value since the remote
     site must successfully sync before there is a match.
@@ -1625,7 +1625,7 @@ class RemoteContext(CrdsModel):
         self.name = name
         self.observatory = observatory
         self.kind = kind
-        self.key = uuid.uuid4()
+        self.key = str(uuid.uuid4())
         self.context = context
         self.save()
         return self
@@ -1634,11 +1634,11 @@ def push_context(observatory, kind, key, context):
     """Update the context value for the specified observatory and kind for the remote
     site identified by key.
     """
-    assert re.match(r"^\w+\.pmap$"), \
+    assert re.match(r"^\w+\.pmap$", context), \
         "Pushed context is not a valid .pmap name."
     assert file_exists(context), \
         "Pushed context file does not exist in CRDS."
-    model = RemoteContext.get(observatory=observatory, kind=kind, key=key)        
+    model = RemoteContextModel.objects.get(observatory=observatory, kind=kind, key=key)
     model.context = context
     model.save()
 

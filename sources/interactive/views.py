@@ -708,9 +708,14 @@ def index(request):
     pars = get_context_table_parameters("operational")
     pars["history"], pars["history_tuples"] = get_context_history_variables(4)
     pars["include_diff"] = False
+    pars["remote_contexts"] = models.RemoteContextModel.objects.all()
     response = crds_render(request, "index.html", pars)
+    # The following is necessary because the index page doesn't change suffiently between context
+    # switches to invalidate browser caches.  It's a performance issue since every part of the index
+    # page reloads even when no updates are occuring.
     response['Cache-Control'] = "no-cache"
     return response
+
 # ===========================================================================
 
 @error_trap("base.html")

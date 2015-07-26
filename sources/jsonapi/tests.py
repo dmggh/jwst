@@ -1,12 +1,16 @@
 """These tests exercise the functions in the CRDS client API.
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+
 import sys
 import os
 import os.path
 import re
 
 # from django.test import TestCase
-from unittest import TestCase
+from django.test import TransactionTestCase
 
 import crds
 import crds.config
@@ -271,13 +275,25 @@ class ServiceApiBase(object):
     def test_get_context_history(self):
         history = client.get_context_history(self.observatory)
             
+    def test_push_context(self):
+        model_name = self.observatory + "-test-operational-echo"
+        remote = imodels.RemoteContextModel.new(model_name, self.observatory, "operational", self.pmap)
+        key = str(remote.key)
+        assert remote.context == self.pmap and remote.observatory == self.observatory and remote.kind == "operational", \
+            "Remote context initial state is incorrect"
+        client.push_context(self.observatory,"operational", key, self.pmap1)
+        remote = imodels.RemoteContextModel.objects.get(name=model_name)
+        assert remote.context == self.pmap1 and remote.observatory == self.observatory and remote.kind == "operational" and key == str(remote.key), \
+            "Remote context final state is incorrect"
+
 # ===========================================================================
 # ===========================================================================
 
 if server_config.observatory == "hst":
-    print "testing hst"
-    class Hst(ServiceApiBase, TestCase):
+    print("testing hst")
+    class Hst(ServiceApiBase, TransactionTestCase):
         pmap = "hst.pmap"
+        pmap1 = "hst_0001.pmap"
         pmap_date = "hst-2013-07-04T00:00:00"
         imap = "hst_wfc3.imap"
         
@@ -373,9 +389,10 @@ if server_config.observatory == "hst":
 # ===========================================================================
 
 if server_config.observatory == "jwst":
-    print "testing jwst"
-    class Jwst(ServiceApiBase, TestCase):
+    print("testing jwst")
+    class Jwst(ServiceApiBase, TransactionTestCase):
         pmap = "jwst_0034.pmap"
+        pmap1 = "jwst_0001.pmap"
         pmap_date = "jwst-2014-09-26T00:00:00"
         imap = "jwst_niriss_0009.imap"
 
