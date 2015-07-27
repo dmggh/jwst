@@ -856,7 +856,7 @@ class FileBlobRepairMixin(object):
         self.filekind = utils.get_file_properties(utils.file_to_observatory(self.pathname), self.pathname)[1]
         
     def repair_aperture(self):
-        self.set_fits_field("aperture", "APERTURE")
+        self.set_fits_field("aperture", self.aperture_keyword)  # aperture_keyword from FileBlobModel multiple inheritance
         
     def repair_useafter_date(self):
         self.set_fits_field("useafter_date", "USEAFTER", timestamp.parse_date)
@@ -1124,12 +1124,19 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
         except:
             return "FileBlob-" + str(self.id)
 
+    @property
+    def aperture_keyword(self):
+        return {
+            "hst" : "APERTURE",
+            "jwst" : "META.APERTURE.NAME",
+            }
+
     def init_FITS_fields(self):
         self.set_fits_field("pedigree", "PEDIGREE")
         self.set_fits_field("reference_file_type", "REFTYPE")
         self.set_fits_field("useafter_date", "USEAFTER", timestamp.parse_date)
         self.set_fits_field("comment", "DESCRIP")
-        self.set_fits_field("aperture", "APERTURE")
+        self.set_fits_field("aperture", self.aperture_keyword)
  
     def set_fits_field(self, model_field, fitskey, sanitizer=lambda x: x):
         filename = self.uploaded_as or self.name
