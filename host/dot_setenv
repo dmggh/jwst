@@ -13,6 +13,9 @@ setenv  CRDS_SERVER `uname -n | cut -d'.' -f1`
 
 # CRDS and CRDS_STACK,  same pattern,  different dirs,  override below as needed
 setenv CRDS /crds/data1/${CRDS_SERVER}
+setenv XDG_CONFIG_HOME $CRDS/xdg_config
+mkdir -p $XDG_CONFIG_HOME/astropy
+
 setenv URP_TYPE crds
 
 switch ($CRDS_SERVER)
@@ -43,7 +46,7 @@ switch ($CRDS_SERVER)
        breaksw
 
        case pljwstcrdsv1:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_14
+        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_15
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE ops
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
