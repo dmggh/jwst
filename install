@@ -3,6 +3,8 @@
 # This install script is heavily based on the PyETC install script
 # CRDS is intended to use the same LAMP stack as pyetc, with emphasis on Python
 
+rm env.*
+
 source ./make_env # $1 $2 $3 $4 $5
 
 # This is required in production environments which don't include Django in
