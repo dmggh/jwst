@@ -6,6 +6,7 @@ import re
 import datetime
 from collections import OrderedDict
 import math
+import uuid
 
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
@@ -856,7 +857,7 @@ class FileBlobRepairMixin(object):
         self.filekind = utils.get_file_properties(utils.file_to_observatory(self.pathname), self.pathname)[1]
         
     def repair_aperture(self):
-        self.set_fits_field("aperture", "APERTURE")
+        self.set_fits_field("aperture", self.aperture_keyword)  # aperture_keyword from FileBlobModel multiple inheritance
         
     def repair_useafter_date(self):
         self.set_fits_field("useafter_date", "USEAFTER", timestamp.parse_date)
@@ -1124,12 +1125,19 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
         except:
             return "FileBlob-" + str(self.id)
 
+    @property
+    def aperture_keyword(self):
+        return {
+            "hst" : "APERTURE",
+            "jwst" : "META.APERTURE.NAME",
+            }
+
     def init_FITS_fields(self):
         self.set_fits_field("pedigree", "PEDIGREE")
         self.set_fits_field("reference_file_type", "REFTYPE")
         self.set_fits_field("useafter_date", "USEAFTER", timestamp.parse_date)
         self.set_fits_field("comment", "DESCRIP")
-        self.set_fits_field("aperture", "APERTURE")
+        self.set_fits_field("aperture", self.aperture_keyword)
  
     def set_fits_field(self, model_field, fitskey, sanitizer=lambda x: x):
         filename = self.uploaded_as or self.name
@@ -1588,6 +1596,58 @@ class RepeatableResultBlob(BlobModel):
     def repeatable_url(self):
         "Return the URL which can be used to display this persistent result."
         return "/display_result/" + str(self.id)
+
+# =============================================================================
+
+# ============================================================================
+
+class RemoteContextModel(CrdsModel):
+    """A model for storing the values of remote actual contexts pushed from priviledged sites.
+    These are distinct from the server-side Set Context default context value since the remote
+    site must successfully sync before there is a match.
+    
+    The remote cache is identified by it's key.
+    """
+    class Meta:
+        db_table = TABLE_PREFIX + "_remote_context" # rename SQL table
+        
+    repr_list = unicode_list = ["id", "name", "observatory", "kind", "context"]
+    
+    observatory = models.CharField(max_length=32,
+        help_text = "Observatory this context applies to.", default="none")
+
+    kind = models.CharField(max_length=64,
+        help_text = "operational, edit, etc.", default="none")
+
+    key = models.CharField(max_length=128,
+        help_text = "Observatory this context applies to.", default="none")
+
+    context = models.CharField(max_length=64,
+        help_text = "Name of context in use by remote cache.", default="none")
+
+
+    @classmethod
+    def new(cls, name, observatory, kind, context):
+        self = cls()
+        self.name = name
+        self.observatory = observatory
+        self.kind = kind
+        self.key = str(uuid.uuid4())
+        self.context = context
+        self.save()
+        return self
+
+def push_context(observatory, kind, key, context):
+    """Update the context value for the specified observatory and kind for the remote
+    site identified by key.
+    """
+    assert re.match(r"^\w+\.pmap$", context), \
+        "Pushed context is not a valid .pmap name."
+    assert file_exists(context), \
+        "Pushed context file does not exist in CRDS."
+    model = RemoteContextModel.objects.get(observatory=observatory, kind=kind, key=key)
+    model.context = context
+    model.save()
 
 # =============================================================================
 

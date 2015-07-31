@@ -85,6 +85,41 @@
         <h3 style="margin-top: 0px;">Operational References <span style="font-size: 0.7em;" class="gray">(under context {{pmap.header.name|browse}})</span></h3>
         {% include "context_table_body_include.html" %}
     </div>
+
+
+    {% if is_authenticated %}
+    <div id="remote_contexts_container" class="body_panel"> 
+        <br/>
+        <h3 style="margin-top: 0px;">Remote Contexts</h3>
+        <table style="background-color: #EEEEEE;">
+          <theader>
+            <tr>
+              <th class="center bold label ctx">Pipeline</th>
+              <th class="center bold label ctx">Server Context</th>
+              <th class="center bold label ctx">Remote Context</th>
+              <th class="center bold label ctx">Status</th>
+            </tr>
+          </theader>
+          <tbody>
+            {% for remote in remote_contexts %}
+            <tr>
+              <td class="center ctx">{{remote.name}}</td>
+              <td class="center ctx">{{pmap_operational}}</td>
+              <td class="center ctx">{{remote.context}}</td>
+              <td class="center ctx">
+                {% if pmap_operational == remote.context %}
+                <span class="green">synced</span>
+                {% else %}
+                <span class="red">out of date</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
+    {% endif %}
+
     <div id="context_history_container" class="body_panel">
       <br/>
       <h3 style="margin-top: 0px;">Context History <a href="/display_context_history" class="label" style="font-size: 0.8em;">(more)</a></h3>

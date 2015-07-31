@@ -13,6 +13,9 @@ setenv  CRDS_SERVER `uname -n | cut -d'.' -f1`
 
 # CRDS and CRDS_STACK,  same pattern,  different dirs,  override below as needed
 setenv CRDS /crds/data1/${CRDS_SERVER}
+setenv XDG_CONFIG_HOME $CRDS/xdg_config
+mkdir -p $XDG_CONFIG_HOME/astropy
+
 setenv URP_TYPE crds
 
 switch ($CRDS_SERVER)
