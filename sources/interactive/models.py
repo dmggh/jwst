@@ -1130,7 +1130,7 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
         return {
             "hst" : "APERTURE",
             "jwst" : "META.APERTURE.NAME",
-            }
+            }[OBSERVATORY]
 
     def init_FITS_fields(self):
         self.set_fits_field("pedigree", "PEDIGREE")
