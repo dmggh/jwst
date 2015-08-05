@@ -141,6 +141,9 @@ class UnpushableContextKind(EncError):
 class InvalidKey(EncError):
     """The specified authentication key has an invalid format or bad value."""
 
+class InvalidPipelineName(EncError):
+    """The specified remote pipeline has an invalid format or bad value."""
+
 def check_known_file(filename):
     """Check that `filename` is known to CRDS, available, and/or not blacklisted."""
     check_filename(filename)
@@ -340,6 +343,11 @@ def check_key(key):
     if not re.match(r"\w+", key):
         raise InvalidKey("The specified key is invalid.")
     return key
+
+def check_pipeline_name(pipeline):
+    if not re.match(r"\w+", pipeline):
+        raise InvalidPipelineName("The specified pipeline name is invalid.")
+    return pipeline
 
 # ===========================================================================
 
@@ -641,24 +649,6 @@ def get_reference_url(request, context, reference):
 
 # ===============================================================
 
-@jsonrpc_method('get_context_history(String)')  # secure
-def get_context_history(request, observatory):
-    observatory = check_observatory(observatory)
-    return imodels.get_context_history_tuples(observatory)
-
-# ===============================================================
-
-@jsonrpc_method('push_context(String, String, String, String)')
-def push_context(request, observatory, kind, key, context):
-    observatory = check_observatory(observatory)
-    kind = check_context_kind(kind)
-    context = check_context(context, observatory)
-    key = check_key(key)
-    imodels.push_context(observatory, kind, key, context)
-    return None
-
-# ===============================================================
-
 MAX_BESTREFS_ERR_LINES = 1000
 
 #
@@ -764,6 +754,28 @@ def get_compressed_file(filepath):
     else:
         raise IOError("File not found: " + str(repr(filepath)))
     return contents
+
+# ===============================================================
+
+@jsonrpc_method('get_context_history(String)')  # secure
+def get_context_history(request, observatory):
+    observatory = check_observatory(observatory)
+    return imodels.get_context_history_tuples(observatory)
+
+@jsonrpc_method('push_remote_context(String, String, String, String)')
+def push_remote_context(request, observatory, kind, key, context):
+    observatory = check_observatory(observatory)
+    kind = check_context_kind(kind)
+    context = check_context(context, observatory)
+    key = check_key(key)
+    imodels.push_remote_context(observatory, kind, key, context)
+    return None
+
+@jsonrpc_method('get_remote_context(String, String)')
+def get_remote_context(request, observatory, pipeline_name):
+    observatory = check_observatory(observatory)
+    pipeline_name = check_pipeline_name(pipeline_name)
+    return imodels.get_remote_context(observatory, pipeline_name)
 
 # ===============================================================
 
