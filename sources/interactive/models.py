@@ -1637,7 +1637,7 @@ class RemoteContextModel(CrdsModel):
         self.save()
         return self
 
-def push_context(observatory, kind, key, context):
+def push_remote_context(observatory, kind, key, context):
     """Update the context value for the specified observatory and kind for the remote
     site identified by key.
     """
@@ -1648,6 +1648,11 @@ def push_context(observatory, kind, key, context):
     model = RemoteContextModel.objects.get(observatory=observatory, kind=kind, key=key)
     model.context = context
     model.save()
+
+def get_remote_context(observatory, pipeline_name):
+    """Get the context value for the specified remote pipeline."""
+    model = RemoteContextModel.objects.get(observatory=observatory, name=pipeline_name)
+    return model.context
 
 # =============================================================================
 
