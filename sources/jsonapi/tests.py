@@ -281,7 +281,7 @@ class ServiceApiBase(object):
         key = str(remote.key)
         assert remote.context == self.pmap and remote.observatory == self.observatory and remote.kind == "operational", \
             "Remote context initial state is incorrect"
-        client.push_context(self.observatory,"operational", key, self.pmap1)
+        client.push_remote_context(self.observatory,"operational", key, self.pmap1)
         remote = imodels.RemoteContextModel.objects.get(name=model_name)
         assert remote.context == self.pmap1 and remote.observatory == self.observatory and remote.kind == "operational" and key == str(remote.key), \
             "Remote context final state is incorrect"
