@@ -17,7 +17,7 @@ endif
 echo Syncing ${CRDS_SERVER} to ${CRDS_PATH}
 python -m crds.list --config
 
-cron_sync --all --fetch-references --check-files --verbose --stats  $*
+cron_sync --all --fetch-references --check-files --verbose --stats  --push-context $CRDS_GRP_CACHE_KEY $*
 # add --check-sha1sum to be *really* sure
 # add --purge-mappings, --purge-references to remove bogus files, use --dry-run --verbose to predict
 
