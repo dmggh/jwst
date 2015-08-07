@@ -12,6 +12,9 @@ PACKAGES = [
     'crds.server.jpoll',
     'crds.server.jpoll.templatetags',
     'crds.server.stats',
+
+    'crds.server.hst',
+    'crds.server.jwst',
     
     'crds.server.fileupload',
     'crds.server.fileupload.templatetags',
@@ -24,6 +27,9 @@ PACKAGES = [
 
 PACKAGE_DIR = {
     'crds.server':'.',
+    
+    'crds.server.hst' : './hst', 
+    'crds.server.jwst' : './jwst',     
     
     'crds.server.jsonapi':'./jsonapi',
     'crds.server.jsonapi.templatetags':'./jsonapi/templatetags',
