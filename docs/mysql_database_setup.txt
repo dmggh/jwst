@@ -1,0 +1,72 @@
+On dljwstcrdsv1 (GOLDTST) and jwstcrds user:
+
+mysql> show databases;
++---------------------+
+| Database            |
++---------------------+
+| information_schema  |
+| crds_jwst_dev       |
+| crds_jwst_test      |
+| test_crds_jwst_dev  |
+| test_crds_jwst_test |
++---------------------+
+5 rows in set (0.00 sec)
+
+mysql> show grants
+    -> ;
++-------------------------------------------------------------------------------------------------------------------+
+| Grants for jwstcrds@%.stsci.edu
+|
++-------------------------------------------------------------------------------------------------------------------+
+| GRANT USAGE ON *.* TO 'jwstcrds'@'%.stsci.edu' IDENTIFIED BY PASSWORD
+'*B355AFDFE695EA94C5C97CF878562259500DEED5' |
+| GRANT ALL PRIVILEGES ON `crds\_jwst\_dev`.* TO 'jwstcrds'@'%.stsci.edu'
+|
+| GRANT ALL PRIVILEGES ON `crds\_jwst\_test`.* TO 'jwstcrds'@'%.stsci.edu'
+|
+| GRANT ALL PRIVILEGES ON `test\_crds\_jwst\_dev`.* TO 'jwstcrds'@'%.stsci.edu'
+|
+| GRANT ALL PRIVILEGES ON `test\_crds\_jwst\_test`.* TO
+'jwstcrds'@'%.stsci.edu'                                    |
+| GRANT ALL PRIVILEGES ON `test\_crds\_jwst\_%`.* TO 'jwstcrds'@'%.stsci.edu'
+|
+| GRANT ALL PRIVILEGES ON `crds\_jwst\_%`.* TO 'jwstcrds'@'%.stsci.edu'
+|
++-------------------------------------------------------------------------------------------------------------------+
+7 rows in set (0.00 sec)
+
+
+On dlhstcrdsv1 (GOLDTST) and hstcrds user:
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| crds_hst_dev       |
+| crds_hst_test      |
++--------------------+
+3 rows in set (0.00 sec)
+
+mysql> show grants;
++------------------------------------------------------------------------------------------------------------------+
+| Grants for hstcrds@%.stsci.edu
+|
++------------------------------------------------------------------------------------------------------------------+
+| GRANT USAGE ON *.* TO 'hstcrds'@'%.stsci.edu' IDENTIFIED BY PASSWORD
+'*7384E50C761F399B196ADC0565A0C9617766BC03' |
+| GRANT ALL PRIVILEGES ON `crds\_hst\_dev`.* TO 'hstcrds'@'%.stsci.edu'
+|
+| GRANT ALL PRIVILEGES ON `test\_crds\_hst\_test`.* TO 'hstcrds'@'%.stsci.edu'
+|
+| GRANT ALL PRIVILEGES ON `test\_crds\_hst\_dev`.* TO 'hstcrds'@'%.stsci.edu'
+|
+| GRANT ALL PRIVILEGES ON `crds\_hst\_test`.* TO 'hstcrds'@'%.stsci.edu'
+|
+| GRANT ALL PRIVILEGES ON `test\_crds\_hst\_%`.* TO 'hstcrds'@'%.stsci.edu'
+|
+| GRANT ALL PRIVILEGES ON `crds\_hst\_%`.* TO 'hstcrds'@'%.stsci.edu'
+|
++------------------------------------------------------------------------------------------------------------------+
+7 rows in set (0.00 sec)
+
