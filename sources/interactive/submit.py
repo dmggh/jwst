@@ -412,8 +412,7 @@ class FileSubmission(object):
                 log.info("New name", repr(name), "is already in the cache.  Regenerating name.")
                 continue
             if existing and diff.newer(existing[-1], name):
-                log.info("Existing name", repr(existing[-1]), "looks newer than", repr(name), ".  Regenerating name.")
-                continue
+                log.warning("Existing name", repr(existing[-1]), "looks newer than", repr(name), ".")
             try:
                 models.FileBlob.load(name)
             except LookupError:
