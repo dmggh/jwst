@@ -17,9 +17,12 @@ endif
 echo Syncing ${CRDS_SERVER} to ${CRDS_PATH}
 python -m crds.list --config
 
-cron_sync --all --fetch-references --check-files --verbose --stats  --push-context $CRDS_GRP_CACHE_KEY $*
+cron_sync --all --fetch-references --check-files --verbose --stats  --push-context $CRDS_GRP_CACHE_KEY $* 
 # add --check-sha1sum to be *really* sure
 # add --purge-mappings, --purge-references to remove bogus files, use --dry-run --verbose to predict
+
+echo Syncing CRDS sqlite3 database file.
+cron_sync --fetch-sqlite-db
 
 echo "Setting file permissions"
 chmod 444 ${CRDS_PATH}/mappings/${CRDS_PROJECT}/* >& /dev/null
