@@ -97,6 +97,7 @@
 <li><a class="reference internal" href="#relational-expressions">Relational Expressions</a></li>
 <li><a class="reference internal" href="#between">Between</a></li>
 <li><a class="reference internal" href="#n-a">N/A</a></li>
+<li><a class="reference internal" href="#not-expressions">NOT Expressions</a></li>
 <li><a class="reference internal" href="#substitution-parameters">Substitution Parameters</a></li>
 <li><a class="reference internal" href="#match-weighting">Match Weighting</a></li>
 </ul>
@@ -572,9 +573,10 @@ equivalent to:</p>
 <h4>N/A<a class="headerlink" href="#n-a" title="Permalink to this headline">¶</a></h4>
 <p>Some rmaps have match tuple values of &#8220;N/A&#8221;,  or Not Applicable.
 A value of N/A is matched as a special version of &#8220;*&#8221;, matching anything,  but
-not affecting the &#8220;weight&#8221; of the match.</p>
-<blockquote>
-<div>(&#8216;HRC&#8217;, &#8216;N/A&#8217;) :  &#8220;some_file.fits&#8221;</div></blockquote>
+not affecting the &#8220;weight&#8221; of the match:</p>
+<div class="highlight-python"><div class="highlight"><pre>(&#39;HRC&#39;, &#39;N/A&#39;) :  &quot;some_file.fits&quot;
+</pre></div>
+</div>
 <p>There are a couple uses for N/A parameters.    First,  sometimes a parameter is
 irrelevant in the context of the other parameters.   So for an rmap which covers
 multiple instrument modes,  a parameter may not apply to all modes. Second,
@@ -582,6 +584,16 @@ sometimes a parameter is relevant to custom lookup code,  but is not used by the
 match directly.  In this second case,   the &#8220;N/A&#8221; parameter may be used by custom
 header preconditioning code to assist in mutating the other parameter values
 that <em>are</em> used in the match.</p>
+</div>
+<div class="section" id="not-expressions">
+<h4>NOT Expressions<a class="headerlink" href="#not-expressions" title="Permalink to this headline">¶</a></h4>
+<p>It&#8217;s possible to match the negation of match expressions by pre-pending &#8220;NOT &#8221;
+to the unnegated expression.   For example:</p>
+<div class="highlight-python"><div class="highlight"><pre>(&#39;not HRC&#39;, &#39;N/A&#39;) :  &quot;not_some_file.fits&quot;
+</pre></div>
+</div>
+<p>The weight of a negated expression is the opposite of unnegated weight of the
+expression: -1 -&gt; 1, 1 -&gt; -1, 0 -&gt; 0.</p>
 </div>
 <div class="section" id="substitution-parameters">
 <h4>Substitution Parameters<a class="headerlink" href="#substitution-parameters" title="Permalink to this headline">¶</a></h4>
