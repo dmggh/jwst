@@ -55,8 +55,7 @@ class GetService(object):
         log.verbose("returning:", formatted)
         return formatted
 
-    def get_response(self, parameters):
-        param_str = self.format_parameters(parameters)
+    def get_response(self, param_str):
         url = self.service_url if not param_str else self.service_url + "?" + param_str
         return urlopen(url)
 
