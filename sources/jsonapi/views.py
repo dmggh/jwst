@@ -30,8 +30,9 @@ from crds.config import FILE_RE, check_filename
 
 # ===========================================================================
 
-log.add_stream_handler(sys.stderr)
-log.remove_console_handler()
+if config.DEBUG:
+    log.add_stream_handler(sys.stderr)
+    log.remove_console_handler()
 
 # =============================================================================
 
