@@ -691,7 +691,7 @@ to get all matching headers.
 
 """
 
-def get_dataset_headers_by_id(dataset_ids, observatory="hst", datasets_since=None):
+def get_dataset_headers_by_id(dataset_ids, observatory="hst", datasets_since=None, context=None):
     """Based on a list of `dataset_ids`,  return the corresponding DADSOPS bestrefs matching parameters."""
 
     if datasets_since is None:

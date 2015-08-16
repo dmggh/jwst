@@ -18,7 +18,7 @@ from django.utils import html
 
 from . import crds_db
 from crds.server.interactive import models as imodels
-from crds.server.interactive import versions, database
+from crds.server.interactive import versions
 from crds.server.interactive.common import DATASET_ID_RE, FITS_KEY_RE, FITS_VAL_RE, LIST_GLOB_RE
 from crds.server.interactive.common import INSTRUMENT_RE, FIELD_RE
 import crds.server.config as config    # server parameters
@@ -417,6 +417,7 @@ def get_best_references_by_ids(request, context, dataset_ids, reftypes):
     pmap = rmap.get_cached_mapping(context)
     if not len(dataset_ids) <= MAX_BESTREFS_PER_RPC:
         raise InvalidDatasetIds("Get best references by ids limited to <= '{0}' datasets per call.", MAX_BESTREFS_PER_RPC)
+    database = utils.get_object("crds.server", pmap.observatory, "database")
     headers = database.get_simplified_dataset_headers_by_id(dataset_ids=dataset_ids, observatory=pmap.observatory)
     log.info("Headers for", repr(dataset_ids), "=", headers)
     result = { "headers" : headers }
@@ -545,9 +546,9 @@ def get_dataset_headers_by_id(request, context, dataset_ids, datasets_since):
 
     assert len(dataset_ids) <= MAX_HEADERS_PER_RPC, \
            "Too many ids.   More than {} datasets specified.".format(MAX_HEADERS_PER_RPC)
-
+    database = utils.get_object("crds.server", pmap.observatory, "database")
     return database.get_dataset_headers_by_id(dataset_ids=dataset_ids, observatory=pmap.observatory, 
-                                              datasets_since=datasets_since)
+                                              datasets_since=datasets_since, context=context)
 
 @jsonrpc_method('get_dataset_headers_by_instrument(context=String, instrument=Array, datasets_since=Object)')  # secure
 def get_dataset_headers_by_instrument(request, context, instrument, datasets_since=None):
@@ -560,6 +561,7 @@ def get_dataset_ids(request, context, instrument, datasets_since=None):
     instrument = check_instrument(instrument)
     pmap = rmap.get_cached_mapping(context)
     datasets_since = check_datasets_since(datasets_since)
+    database = utils.get_object("crds.server" pmap.observatory, "database")
     return database.get_dataset_ids(instrument, observatory=pmap.observatory, 
                                     datasets_since=datasets_since)
 
