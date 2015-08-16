@@ -838,6 +838,20 @@ def get_synthetic_dataset_headers_by_id(dataset_ids, observatory="hst", datasets
     headers = { did : source_headers[src_id] for (did, (src_id, typ, ctype)) in id_map.items() if src_id in source_headers }
     return headers
 
+def get_simplified_dataset_headers_by_id(dataset_ids, observatory="hst", datasets_since=None):
+    header_map = get_synthetic_dataset_headers_by_id(dataset_ids, observatory, datasets_since)
+    sorted_ids = sorted(header_map.keys())
+    simplified_map = {}
+    for did in dataset_ids:
+        try:
+            simplified_map[did] = header_map[did]
+        except KeyError:
+            try:
+                containing = [did2 for did2 in sorted_ids if did in did2]
+                simplified_map[did] = header_map[containing[0]]
+            except KeyError:
+                continue
+    return simplified_map
 
 # This is a table of the assoc_member.asm_member_type correspondence rules
 # where keys are assumed to be "unrepresented" types and values are assumed

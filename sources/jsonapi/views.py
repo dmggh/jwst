@@ -2,6 +2,7 @@
 
 from __future__ import division
 
+import sys
 import base64
 import math
 import re
@@ -26,6 +27,11 @@ from crds.client import proxy
 from crds import rmap, utils, log, timestamp, pysh
 import crds.config                     # generic client/server
 from crds.config import FILE_RE, check_filename
+
+# ===========================================================================
+
+log.add_stream_handler(sys.stderr)
+log.remove_console_handler()
 
 # =============================================================================
 
@@ -401,6 +407,7 @@ def get_best_references(request, context, header, reftypes):
 
 MAX_BESTREFS_PER_RPC = 1000
 
+
 @jsonrpc_method('get_best_references_by_ids(context=String, dataset_ids=Array, reftypes=Array)')   # secure
 def get_best_references_by_ids(request, context, dataset_ids, reftypes):
     context = check_context(context)
@@ -409,8 +416,9 @@ def get_best_references_by_ids(request, context, dataset_ids, reftypes):
     pmap = rmap.get_cached_mapping(context)
     if not len(dataset_ids) <= MAX_BESTREFS_PER_RPC:
         raise InvalidDatasetIds("Get best references by ids limited to <= '{0}' datasets per call.", MAX_BESTREFS_PER_RPC)
-    headers = database.get_dataset_headers_by_id(dataset_ids=dataset_ids, observatory=pmap.observatory)
-    result = {}
+    headers = database.get_simplified_dataset_headers_by_id(dataset_ids=dataset_ids, observatory=pmap.observatory)
+    log.info("Headers for", repr(dataset_ids), "=", headers)
+    result = { "headers" : headers }
     for dataset_id in dataset_ids:
         try:
             header = headers[dataset_id]
