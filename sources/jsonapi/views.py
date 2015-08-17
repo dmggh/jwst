@@ -356,6 +356,22 @@ def check_pipeline_name(pipeline):
         raise InvalidPipelineName("The specified pipeline name is invalid.")
     return pipeline
 
+BOOL_TRANS = {
+        "True": True,
+        "TRUE": True,
+        "true": True,
+        True: True,
+        "False": False,
+        "FALSE": False,
+        "false": False,
+        False: False,
+        "nil": False,
+        }
+
+def check_boolean(flag):
+    """Verify boolean input value and return Python bool."""
+    assert flag in BOOL_TRANS, "Invalid boolean value."
+    return BOOL_TRANS[flag]
 # ===========================================================================
 
 @jsonrpc_method('list_mappings(observatory=String, glob_pattern=String)')   # secure
@@ -409,18 +425,19 @@ def get_best_references(request, context, header, reftypes):
 MAX_BESTREFS_PER_RPC = 1000
 
 
-@jsonrpc_method('get_best_references_by_ids(context=String, dataset_ids=Array, reftypes=Array)')   # secure
-def get_best_references_by_ids(request, context, dataset_ids, reftypes):
+@jsonrpc_method('get_best_references_by_ids(context=String, dataset_ids=Array, reftypes=Array, include_headers=Boolean)')   # secure
+def get_best_references_by_ids(request, context, dataset_ids, reftypes, include_headers):
     context = check_context(context)
     dataset_ids = check_dataset_ids(dataset_ids)
     reftypes = check_reftypes(reftypes)
+    include_headers = check_boolean(include_headers)
     pmap = rmap.get_cached_mapping(context)
-    if not len(dataset_ids) <= MAX_BESTREFS_PER_RPC:
+    if len(dataset_ids) > MAX_BESTREFS_PER_RPC:
         raise InvalidDatasetIds("Get best references by ids limited to <= '{0}' datasets per call.", MAX_BESTREFS_PER_RPC)
     database = utils.get_object("crds.server", pmap.observatory, "database")
     headers = database.get_simplified_dataset_headers_by_id(dataset_ids=dataset_ids, observatory=pmap.observatory)
     log.info("Headers for", repr(dataset_ids), "=", headers)
-    result = { "headers" : headers }
+    result = { "headers" : headers } if include_headers else {}
     for dataset_id in dataset_ids:
         try:
             header = headers[dataset_id]
@@ -561,7 +578,7 @@ def get_dataset_ids(request, context, instrument, datasets_since=None):
     instrument = check_instrument(instrument)
     pmap = rmap.get_cached_mapping(context)
     datasets_since = check_datasets_since(datasets_since)
-    database = utils.get_object("crds.server" pmap.observatory, "database")
+    database = utils.get_object("crds.server", pmap.observatory, "database")
     return database.get_dataset_ids(instrument, observatory=pmap.observatory, 
                                     datasets_since=datasets_since)
 

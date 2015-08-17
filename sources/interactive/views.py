@@ -36,7 +36,7 @@ from crds import (rmap, utils, timestamp, uses, matches, log, config)
 from crds import (data_file, pysh)
 from crds import CrdsError
 
-from . import (models, database, web_certify, web_difference, submit, versions, locks, html)
+from . import (models, web_certify, web_difference, submit, versions, locks, html)
 from .templatetags import stdtags
 from .models import FieldError, MissingInputError
 from .common import capture_output, srepr, profile, complete_re
