@@ -52,11 +52,6 @@ HERE = os.path.dirname(__file__) or "./"
 
 # ===========================================================================
 
-log.add_stream_handler(sys.stderr)
-log.remove_console_handler()
-
-# ===========================================================================
-
 def check_value(value, pattern, msg):
     """Ensure that `value` satisifies the conditions implied by `pattern`,
     otherwise raise a FieldError containing `msg`.

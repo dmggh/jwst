@@ -13,6 +13,8 @@ import glob
 
 from jsonrpc import jsonrpc_method
 from jsonrpc.exceptions import Error
+from jsonrpc._json import dumps
+from jsonrpc.site import jsonrpc_site
 
 from django.utils import html
 
@@ -29,15 +31,6 @@ import crds.config                     # generic client/server
 from crds.config import FILE_RE, check_filename
 
 # ===========================================================================
-
-if config.DEBUG:
-    log.add_stream_handler(sys.stderr)
-    log.remove_console_handler()
-
-# =============================================================================
-
-from jsonrpc._json import dumps
-from jsonrpc.site import jsonrpc_site
 
 def get_jsonrpc_template_vars():
     """Return the dictionary of template variables required to instantiate

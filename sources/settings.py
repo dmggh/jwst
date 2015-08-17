@@ -1,6 +1,15 @@
 # Django settings for crds project.
 import os.path
 
+# ===========================================================================
+
+import sys
+from crds import log
+log.add_stream_handler(sys.stderr)
+log.remove_console_handler()
+
+# ===========================================================================
+
 from crds.server.config import install_dir, DEBUG, DEBUG_EXTRAS, FILE_UPLOAD_TEMP_DIR, crds_server_dir
 from crds.server.crds_database import DATABASES
 
