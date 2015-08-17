@@ -1,0 +1,75 @@
+#! /usr/bin/env python
+#-*-python-*-
+
+"""This module is a command line tool for dumping and setting reference and dataset file
+keywords.   It's quick and dirty,  vetted for setting up test cases not general purpose work.
+"""
+
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+
+import os
+import sys
+
+from crds import cmdline, data_file, log
+
+# ==============================================================================================================
+    
+class HeaderScript(cmdline.Script):
+    """Command line script to manage header keyword values.   Alpha,  used for preparing test cases."""
+    
+    description = """Sets or gets the header values in common file formats and the JWST Data Model."""
+    
+    epilog = """
+
+    Example keyword get:
+
+    % header --get-keys APERTURE --files f1.fits f2.fits
+
+    Example keyword set:
+ 
+    % header --set-keys APERTURE=FOO --files f1.fits
+    """
+    
+    def add_args(self):
+        """Add diff-specific command line parameters."""
+        self.add_argument("-g", "--get-keys", metavar="KEYWORDS", nargs="*",
+                          help="Fetch the value of the specified header keywords.")
+        self.add_argument("-s", "--set-keys", metavar="KEYVALS", nargs="*", 
+                          help="Set the values of the specified KEY=VALUE pairs.")
+        self.add_argument("-f", "--files", metavar="FILES", nargs="+",
+                          help="The files to be operated on.")
+        self.add_argument("-p", "--show-path", action="store_true",
+                          help="Include file path in log output.")
+
+    locate_file = cmdline.Script.locate_file_outside_cache
+
+    def main(self):
+        """Top level entry point for running script after init."""
+        if self.args.get_keys:
+            self.get_keys()
+        if self.args.set_keys:
+            self.set_keys()
+
+    def set_keys(self):
+        """Set the key=value pairs defined on the command line for the --files."""
+        for filepath in self.files:
+            for keyval in self.args.set_keys:
+                try:
+                    key, value = keyval.split("=")
+                except Exception:
+                    log.error("Invalid key=value pair:", repr(keyval))
+                data_file.setval(filepath, key, value)
+            
+    def get_keys(self):
+        """Get the keyword values for keys defined on the command line for --files."""
+        for filepath in self.files:
+            for key in self.args.get_keys:
+                value = data_file.getval(filepath, key)
+                if not self.args.show_path:
+                    filepath = os.path.basename(filepath)
+                print("{}[{}] = {}".format(filepath, repr(key), repr(value)))
+
+if __name__ == "__main__":
+    sys.exit(HeaderScript()())
