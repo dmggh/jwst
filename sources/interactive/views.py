@@ -958,7 +958,8 @@ def bestrefs_post(request):
         dataset_name = validate(request, "dataset_archive", common.DATASET_ID_RE)
         try:
             # If dataset is an association,  it will return multiple headers,  just show one.
-            headers = database.get_synthetic_dataset_headers_by_id([dataset_name], pmap.observatory)
+            headers = jsonapi_views.call_context_function(
+                context, "database.get_simplified_dataset_headers_by_id", context, [dataset_name])
             first = sorted(headers.keys())[0]
             header = headers[first]
             if isinstance(header, basestring):
