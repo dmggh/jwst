@@ -10,7 +10,6 @@ from django.test import TransactionTestCase, TestCase
 
 from crds import log
 from crds.server import config as sconfig
-from crds.server.interactive import database as db
 
 class DatabaseBase(object):
 
@@ -39,28 +38,28 @@ class DatabaseBase(object):
             assert not isinstance(headers[source], str), \
                 "Header fetch failed for " + repr(source) + " : " + repr(headers[source])
 
-    def get_dataset_headers_by_instrument(self, instr):
-        headers = db.get_dataset_headers_by_instrument(instr, self.observatory)
+    def get_dataset_headers_by_instrument(self, instr, datasets_since="1990-01-01T00:00:00"):   # with T default date
+        headers = db.get_dataset_headers_by_instrument(instr, datasets_since)
         self.check_headers(headers)
 
         # log.info("get_headers_by_instrument('{}')".format(instr), "->", len(headers))
 
-    def get_dataset_ids(self, instr):
-        ids = db.get_dataset_ids(instr, self.observatory)
+    def get_dataset_ids(self, instr, datasets_since="1990-01-01T00:00:00"):   # swith space default date
+        ids = db.get_dataset_ids(instr, datasets_since=datasets_since)
 
-    def get_dataset_headers_by_id(self, instr):
-        ids = db.get_dataset_ids(instr, self.observatory)
-        headers = db.get_dataset_headers_by_id(ids[:100], self.observatory)
+    def get_dataset_headers_by_id(self, instr, datasets_since="1990-01-01T00:00:00"):
+        ids = db.get_dataset_ids(instrument=instr,  datasets_since=datasets_since)
+        headers = db.get_dataset_headers_by_id(self.pmap, ids[:100])
         self.check_headers(headers)
 
 if sconfig.observatory == "hst":
     
+    from crds.server.hst import database as db
+    
     class Hst(DatabaseBase, TestCase):
 
-        def __init__(self, *args, **keys):
-            super(Hst, self).__init__(*args, **keys)
-        
         observatory = "hst"
+        pmap = "hst_0355.pmap"
         
         # ACS -----------------------------------------------
 
@@ -130,9 +129,9 @@ if sconfig.observatory == "hst":
 
 else:  # JWST
     
+    from crds.server.jwst import database as db
+
     class Jwst(InteractiveBase, TransactionTestCase):
 
-        def __init__(self, *args, **keys):
-            super(Jwst, self).__init__(*args, **keys)
-
         observatory = "jwst"
+        pmap = "jwst_0063.pmap"
