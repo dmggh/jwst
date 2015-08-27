@@ -59,6 +59,19 @@ def _check_context(context):
 
 # ---------------------------------------------------------------------------------------------------------
 
+DETECTOR_TO_INSTRUMENT = {
+    "GUIDER" : "FGS", # 1,2
+
+    "NIS" : "NIRISS",
+
+    "NRCA" : "NIRCAM",  # 1,2,3,4,LONG
+    "NRCB" : "NIRCAM",  # 1,2,3,4,LONG
+
+    "NRS" : "NIRSPEC",  # 1,2
+
+    "MIRI" : "MIRI", # LONG,SHORT,IMAGE
+}
+
 def get_dataset_headers_by_id(context, dataset_ids):
     """Based on a list of `dataset_ids`,  return { dataset_id: { param_name : param_value, ... }, ...} where
     the set of param_names is determined by `context` with respect to the instruments 
@@ -71,8 +84,8 @@ def get_dataset_headers_by_id(context, dataset_ids):
 
     ids_by_instrument = defaultdict(list)
     for dataset in dataset_ids:
-        for instrument in jwst.INSTRUMENTS:
-            if instrument.upper() in dataset.upper():
+        for detector, instrument in DETECTOR_TO_INSTRUMENT.items():
+            if detector.upper() in dataset.upper():
                 ids_by_instrument[instrument].append(dataset)
                 break
         else:
@@ -80,12 +93,13 @@ def get_dataset_headers_by_id(context, dataset_ids):
 
     pmap =  rmap.get_cached_mapping(context)
     
-    matching_parnames = { 
-        instr : pmap.get_imap(instr).get_required_parkeys() for instr in ids_by_instrument 
+    matching_params = { 
+        instr : list(set(pmap.get_imap(instr).get_required_parkeys())-set(["REFTYPE"])) 
+        for instr in ids_by_instrument 
         }
     
     headers = dict()
-    for insr, dataset_ds in ids_by_instrument.items():
+    for instr, dataset_ids in ids_by_instrument.items():
         instr_headers = parameter_interface.get_dataset_headers_by_id(dataset_ids, matching_params[instr])
         headers.update(instr_headers)
 
