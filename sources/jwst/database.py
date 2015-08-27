@@ -11,12 +11,12 @@ import pyodbc
 from django.utils import html
 
 import crds
-from crds import rmap, log, utils, timestamp, config
+from crds import rmap, log, utils, timestamp, config, jwst
 from crds.server.interactive import models, common
 from crds.server.interactive import views as iviews
 from crds.server import config as sconfig
 
-from crds.server.jwst import parameter_interface as db
+from crds.server.jwst import parameter_interface
 
 HERE = os.path.dirname(__file__) or "."
 
@@ -64,27 +64,29 @@ def get_dataset_headers_by_id(context, dataset_ids):
     the set of param_names is determined by `context` with respect to the instruments 
     implicitly defined in `dataset_ids`.
     """
-
     _check_context(context)
 
     for did in dataset_ids:
         _check_dataset_id(did)
 
-    id_to_instr = db.get_dataset_headers_by_id(dataset_ids, matching_parameters=["META.INSTRUMENT.NAME"])
-
-
     ids_by_instrument = defaultdict(list)
-    for dataset, pars in id_to_instr.items():
-        instr = pars.get("META.INSTRUMENT.NAME", pars.get("meta.instrument.name"))
-        ids_by_instrument[instr].append(dataset)
+    for dataset in dataset_ids:
+        for instrument in jwst.INSTRUMENTS:
+            if instrument.upper() in dataset.upper():
+                ids_by_instrument[instrument].append(dataset)
+                break
+        else:
+            log.warning("No instrument name found for dataset:", repr(dataset))
 
     pmap =  rmap.get_cached_mapping(context)
     
-    matching_parnames = { instr : pmap.get_imap(instr).get_required_parkeys() for instr in ids_by_instrument }
+    matching_parnames = { 
+        instr : pmap.get_imap(instr).get_required_parkeys() for instr in ids_by_instrument 
+        }
     
     headers = dict()
     for insr, dataset_ds in ids_by_instrument.items():
-        instr_headers = db.get_dataset_headers_by_id(dataset_ids, matching_params[instr])
+        instr_headers = parameter_interface.get_dataset_headers_by_id(dataset_ids, matching_params[instr])
         headers.update(instr_headers)
 
     return headers
@@ -141,13 +143,11 @@ def compound_id(assoc, member):
     return assoc.upper() + ":" + member.upper()
 
 # ---------------------------------------------------------------------------------------------------------
+
 def get_dataset_ids(instrument, datasets_since=None):
     """Return a list of the known dataset ids for `instrument`."""
     if datasets_since is None:
         datasets_since = "1900-01-01 00:00:00"
-
     _check_instrument(instrument)
     _check_date(datasets_since)
-
-    return XXXXX
-
+    return parameter_interface.get_dataset_ids(instrument, datasets_since)
