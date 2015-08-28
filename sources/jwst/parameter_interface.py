@@ -33,6 +33,7 @@ datasets = BatchStringListService("datasets")
 
 def get_dataset_ids(instrument, datasets_since=None):
     """Fetch all the dataset ids for `instrument` with observation dates >= `datasets_since`."""
+    instrument = instrument.upper()
     if datasets_since:
         datasets_since = datasets_since.replace(" ","T").split(".")[0]
     expected_count = datasets_count(instrument=instrument, minDate=datasets_since)
@@ -61,12 +62,15 @@ def get_header_block(dataset_ids, matching_parameters):
 
 def get_dataset_headers_by_id(dataset_ids, matching_parameters):
     """Fetch the `matching_parameters for the specified `dataset_ids."""
+    dataset_ids = [ did.upper() for did in dataset_ids ]
+    matching_parameters = [ par.upper() for par in matching_parameters ]
     max_headers = max_header_block_size()
     total_headers = {}
     for i in range(0, len(dataset_ids), max_headers):
         results = get_header_block(
             dataset_ids[i:min(i+max_headers, len(dataset_ids))], matching_parameters)
         total_headers.update(results)
+    total_headers = { did.upper() : header for (did, header) in total_headers.items() }
     for did in dataset_ids:
         if did not in total_headers:
             total_headers[did] = "NOT FOUND no match found in query"

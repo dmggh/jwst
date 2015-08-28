@@ -54,8 +54,18 @@ def _check_filename(filename):
 
 def _check_context(context):
     """Raise an exception if `context` is not a valid CRDS .pmap"""
-    _safe_assert(iviews.is_pmap, "Invalid context " + repr(context))
+    _safe_assert(iviews.is_pmap(context), "Invalid context " + repr(context))
     return context.lower()
+
+# ---------------------------------------------------------------------------------------------------------
+
+def get_dataset_ids(instrument, datasets_since=None):
+    """Return a list of the known dataset ids for `instrument`."""
+    if datasets_since is None:
+        datasets_since = "1900-01-01 00:00:00"
+    _check_instrument(instrument)
+    _check_date(datasets_since)
+    return parameter_interface.get_dataset_ids(instrument, datasets_since)
 
 # ---------------------------------------------------------------------------------------------------------
 
@@ -82,11 +92,12 @@ def get_dataset_headers_by_id(context, dataset_ids):
     for did in dataset_ids:
         _check_dataset_id(did)
 
+    dataset_ids = [ dataset.upper() for dataset in dataset_ids ]
     ids_by_instrument = defaultdict(list)
     for dataset in dataset_ids:
         for detector, instrument in DETECTOR_TO_INSTRUMENT.items():
             if detector.upper() in dataset.upper():
-                ids_by_instrument[instrument].append(dataset)
+                ids_by_instrument[instrument].append(str(dataset))
                 break
         else:
             log.warning("No instrument name found for dataset:", repr(dataset))
@@ -94,13 +105,13 @@ def get_dataset_headers_by_id(context, dataset_ids):
     pmap =  rmap.get_cached_mapping(context)
     
     matching_params = { 
-        instr : list(set(pmap.get_imap(instr).get_required_parkeys())-set(["REFTYPE"])) 
+        instr : list((set(pmap.get_imap(instr).get_required_parkeys())-set(["REFTYPE"]))|set(["META.INSTRUMENT.NAME"])) 
         for instr in ids_by_instrument 
         }
     
     headers = dict()
-    for instr, dataset_ids in ids_by_instrument.items():
-        instr_headers = parameter_interface.get_dataset_headers_by_id(dataset_ids, matching_params[instr])
+    for instr, dids in ids_by_instrument.items():
+        instr_headers = parameter_interface.get_dataset_headers_by_id(dids, matching_params[instr])
         headers.update(instr_headers)
 
     return headers
@@ -156,12 +167,3 @@ def compound_id(assoc, member):
     """Constructs a CRDS compound id from an association ID and a member ID."""
     return assoc.upper() + ":" + member.upper()
 
-# ---------------------------------------------------------------------------------------------------------
-
-def get_dataset_ids(instrument, datasets_since=None):
-    """Return a list of the known dataset ids for `instrument`."""
-    if datasets_since is None:
-        datasets_since = "1900-01-01 00:00:00"
-    _check_instrument(instrument)
-    _check_date(datasets_since)
-    return parameter_interface.get_dataset_ids(instrument, datasets_since)
