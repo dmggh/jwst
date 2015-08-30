@@ -126,44 +126,17 @@ class InvalidDatasetIdError(RuntimeError):
 
 # ---------------------------------------------------------------------------------------------------------
 
+
+
 def get_synthetic_dataset_headers_by_id(context, dataset_ids):
     """Leverage the association table to provide headers for member ids which don't
     successfully join through all an instrument's tables.  Use headers for ids which do 
     join through all tables as surrogates for ids which don't,  based on member type patterns.
 
     Return { dataset_id : { matching_parameters}, err_id : "NOT FOUND ..."}
+
+    NOTE: function included as place holder for same functionality actually used in HST not
+    currently needed for JWST.
     """
-    id_map = get_synthetic_id_map([did.upper() for did in dataset_ids])
-    source_ids = [did[0] for did in sorted(list(set(id_map.values())))]
-    source_headers = get_dataset_headers_by_id(context, source_ids)
-    headers = { did : source_headers[src_id] for (did, (src_id, typ, ctype)) in id_map.items() if src_id in source_headers }
-    return headers
-
-def partition_dataset_ids(dataset_ids):
-    """Split an incoming list of dataset_ids into association and member ids.
-
-    Ids can be of form:    
-           <assoc>0
-           <member>[^0]
-           <assoc>0:<member>[^0]
-           
-    Returns ([<assoc>0, ...],  [<member>, ...])
-    """
-    dataset_ids = [did.upper() for did in dataset_ids]
-    assocs, members = set(), set()
-    for did in dataset_ids:
-        if ":" in did:
-            assoc, member = did.split(":")
-            assocs.add(assoc)
-            members.add(member)
-        else:
-            if did.endswith("0"):
-                assocs.add(did)
-            else:
-                members.add(did)
-    return list(assocs), list(members)
-
-def compound_id(assoc, member):
-    """Constructs a CRDS compound id from an association ID and a member ID."""
-    return assoc.upper() + ":" + member.upper()
+    return get_dataset_headers_by_id(context, dataset_ids)
 

@@ -453,6 +453,7 @@ def get_simplified_dataset_headers_by_id(context, dataset_ids):
     as compound IDs.  Simple ID inputs result in simple ID outputs,  not compound IDs.   Compound ID
     inputs still result in compound ID outputs.
     """
+    dataset_ids = [ did.upper() for did in dataset_ids ]
     header_map = call_context_function(context, "database.get_synthetic_dataset_headers_by_id", context, dataset_ids)
     sorted_ids = sorted(header_map.keys())
     simplified_map = {}

@@ -45,6 +45,7 @@ def get_dataset_ids(instrument, datasets_since=None):
         batch += 1
         total_ids += result
         log.verbose("get_dataset_ids:", len(result), "/", len(total_ids), "/", expected_count)
+    total_ids = [ did.upper() for did in total_ids ]
     return total_ids
 
 # ================================================================================================== 

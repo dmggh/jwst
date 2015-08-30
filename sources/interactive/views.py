@@ -927,7 +927,7 @@ def pmap_label(blob):
 
 # ===========================================================================
 
-@error_trap("bestrefs_dataset.input.html")
+@error_trap("bestrefs_dataset_input.html")
 @log_view
 def bestrefs(request):
     """View to get the instrument context for best references."""
@@ -958,8 +958,7 @@ def bestrefs_post(request):
         dataset_name = validate(request, "dataset_archive", common.DATASET_ID_RE)
         try:
             # If dataset is an association,  it will return multiple headers,  just show one.
-            headers = jsonapi_views.call_context_function(
-                context, "database.get_simplified_dataset_headers_by_id", context, [dataset_name])
+            headers = jsonapi_views.get_simplified_dataset_headers_by_id(context, [dataset_name])
             first = sorted(headers.keys())[0]
             header = headers[first]
             if isinstance(header, basestring):

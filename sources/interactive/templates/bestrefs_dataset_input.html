@@ -17,12 +17,7 @@
     <table>
       <tr>
         <td class="h4">
-	{% if observatory == "jwst" and not is_authenticated %}
-	    {# suppress radio button for anonymous JWST #}
-            <input type="hidden" name="dataset_mode" value="dataset_local" checked="checked" />Upload FITS Header
-	{% else %}
             <input type="radio" name="dataset_mode" value="dataset_local" checked="checked" />Upload FITS Header
-	{% endif %}
         </td>
         <td>
           {# see also set_radio_clear_fits() above #}
@@ -48,21 +43,24 @@
         </td> 
       </tr>
       {% endif %}
-      {% if observatory != "jwst" %}
       <tr>
         <td class="h4">
             <input type="radio" name="dataset_mode" value="dataset_archive" />Dataset ID
         </td>
         <td align="left">
-          <input type="text" width="32" name="dataset_archive"
+          <br/>
+          <input type="text" size="50" name="dataset_archive"
                  id="dataset_archive"
                  class="black"
                  value="{{dataset_archive}}" 
                  onchange="crds.set_radio_clear_fits('dataset_archive');" />
-            <span class="hint">.e.g. I9ZF01010</span>
+          {% if observatory == "jwst" %}
+            <p class="hint">e.g. ASSOCIATION:jw00001001001_01101_01333.MIRIMAGE</p>
+          {% else %}
+            <p class="hint">.e.g. I9ZF01010</p>
+          {% endif %}
         </td>
       </tr>
-      {% endif %}
     </table>
     
     <br/>
@@ -84,11 +82,10 @@
     the loaded matching parameters may be edited in the browser.    
     </p>
 
-    {% if observatory != "jwst" %}
     <p/><p><b>Dataset ID</b> specifies the id of a cataloged parameter set for which to determine best references.  
-    If the dataset id names an association,  the results returned are for the first member of the association.
+    If the dataset id names an association,  the results returned are from a
+    single undefined member.  Use a specific member id for more specific results.
     </p>
-    {% endif %}
 
 {% endblock help %}
 
