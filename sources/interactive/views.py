@@ -1001,9 +1001,9 @@ def bestrefs_results(request, pmap, header, dataset_name=""):
     header_min = pmap.minimize_header(header)
     recommendations, bestrefs_debug_output = captured_bestrefs(pmap, header_min)
     old_recommendations = {}
-    with log.error_on_exception("Failed fetching old bestrefs"):
-        header = { key.upper() : val.lower() for (key,val) in header.items() }
-        old_recommendations = pmap.get_old_references(header)
+    # with log.error_on_exception("Failed fetching old bestrefs"):
+    #    header = { key.upper() : val.lower() for (key,val) in header.items() }
+    #    old_recommendations = pmap.get_old_references(header)
     # organize and format results for HTML display    
     header_min.pop("REFTYPE", None)
     header_items = sorted(header_min.items())
