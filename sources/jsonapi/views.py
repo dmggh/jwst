@@ -417,6 +417,7 @@ def get_best_references(request, context, header, reftypes):
 
 MAX_BESTREFS_PER_RPC = 1000
 
+# ===========================================================================================================
 
 @jsonrpc_method('get_best_references_by_ids(context=String, dataset_ids=Array, reftypes=Array, include_headers=Boolean)')   # secure
 def get_best_references_by_ids(request, context, dataset_ids, reftypes, include_headers):
@@ -424,13 +425,15 @@ def get_best_references_by_ids(request, context, dataset_ids, reftypes, include_
     dataset_ids = check_dataset_ids(dataset_ids)
     reftypes = check_reftypes(reftypes)
     include_headers = check_boolean(include_headers)
-    pmap = rmap.get_cached_mapping(context)
+
     if len(dataset_ids) > MAX_BESTREFS_PER_RPC:
         raise InvalidDatasetIds("Get best references by ids limited to <= '{0}' datasets per call.", MAX_BESTREFS_PER_RPC)
-    database = utils.get_object("crds.server", pmap.observatory, "database")
-    headers = database.get_simplified_dataset_headers_by_id(dataset_ids=dataset_ids, observatory=pmap.observatory)
-    log.info("Headers for", repr(dataset_ids), "=", headers)
+
+    headers = get_simplified_dataset_headers_by_id(context, dataset_ids)
+
+    log.verbose("Headers for", repr(dataset_ids), "=", headers)
     result = { "headers" : headers } if include_headers else {}
+
     for dataset_id in dataset_ids:
         try:
             header = headers[dataset_id]
@@ -442,6 +445,30 @@ def get_best_references_by_ids(request, context, dataset_ids, reftypes, include_
         except Exception as exc:
             result[dataset_id] = (False, "FAILED: " + str(exc))
     return result
+
+def get_simplified_dataset_headers_by_id(context, dataset_ids):
+    """Simplified dataset headers first computes synthetic dataset headers,  and then maps the
+    resulting uniform compound dataset ids back onto the original dataset ID input set,  taking
+    the first member of any association as the definitive member rather than returning all members
+    as compound IDs.  Simple ID inputs result in simple ID outputs,  not compound IDs.   Compound ID
+    inputs still result in compound ID outputs.
+    """
+    dataset_ids = [ did.upper() for did in dataset_ids ]
+    header_map = call_context_function(context, "database.get_synthetic_dataset_headers_by_id", context, dataset_ids)
+    sorted_ids = sorted(header_map.keys())
+    simplified_map = {}
+    for did in dataset_ids:
+        try:
+            simplified_map[did] = header_map[did]
+        except KeyError:
+            try:
+                containing = [did2 for did2 in sorted_ids if did in did2]
+                simplified_map[did] = header_map[containing[0]]
+            except KeyError:
+                continue
+    return simplified_map
+
+# ===========================================================================================================
 
 @jsonrpc_method('get_best_references_by_header_map(context=String, headers=Object, reftypes=Array)') # secure
 def get_best_references_by_header_map(request, context, headers, reftypes):  
@@ -511,7 +538,7 @@ def get_file_info(request, observatory, filename):
     try:
         observatory = check_observatory(observatory)
     except InvalidObservatoryError:   # originally this worked on context, not observatory,  now both.
-        observatory = check_context(observatory).observatory  # load mapping and fetch observ.
+        observatory = rmap.get_cached_mapping(check_context(observatory)).observatory  # load mapping and fetch observ.
     blob = check_known_file(filename)
     blob.thaw()
     return blob.info
@@ -547,33 +574,30 @@ def get_file_info_map(request, observatory, files, fields):
 
 MAX_HEADERS_PER_RPC = 5000
 
-@jsonrpc_method('get_dataset_headers_by_id(context=String, dataset_ids=Array, datasets_since=Object)')   #secure
-def get_dataset_headers_by_id(request, context, dataset_ids, datasets_since):
+# ===============================================================
+
+def call_context_function(context, func_name, *args, **keys):
+    """Based on `context`,  load an observtory specific version of `func_name`
+    and call it with the remaining positional and keyword parameters.
+    """
+    pmap = rmap.get_cached_mapping(context)
+    func = utils.get_object("crds.server", pmap.observatory, func_name)
+    return func(*args, **keys)
+
+@jsonrpc_method('get_dataset_headers_by_id(context=String, dataset_ids=Array)') # secure
+def get_dataset_headers_by_id(request, context, dataset_ids):
     context = check_context(context)
     dataset_ids = check_dataset_ids(dataset_ids)
-    datasets_since = check_datasets_since(datasets_since)
-    pmap = rmap.get_cached_mapping(context)
-
     assert len(dataset_ids) <= MAX_HEADERS_PER_RPC, \
            "Too many ids.   More than {} datasets specified.".format(MAX_HEADERS_PER_RPC)
-    database = utils.get_object("crds.server", pmap.observatory, "database")
-    return database.get_dataset_headers_by_id(dataset_ids=dataset_ids, observatory=pmap.observatory, 
-                                              datasets_since=datasets_since, context=context)
-
-@jsonrpc_method('get_dataset_headers_by_instrument(context=String, instrument=Array, datasets_since=Object)')  # secure
-def get_dataset_headers_by_instrument(request, context, instrument, datasets_since=None):
-    raise RuntimeError("get_dataset_headers_by_instrument() is no longer directly supported by CRDS servers.  Upgrade your CRDS client.")
-
+    return call_context_function(context, "database.get_dataset_headers_by_id", context, dataset_ids)
 
 @jsonrpc_method('get_dataset_ids(context=String, instrument=String, datasets_since=Object)')   # secure
 def get_dataset_ids(request, context, instrument, datasets_since=None):
     context = check_context(context)
     instrument = check_instrument(instrument)
-    pmap = rmap.get_cached_mapping(context)
     datasets_since = check_datasets_since(datasets_since)
-    database = utils.get_object("crds.server", pmap.observatory, "database")
-    return database.get_dataset_ids(instrument, observatory=pmap.observatory, 
-                                    datasets_since=datasets_since)
+    return call_context_function(context, "database.get_dataset_ids", instrument, datasets_since)
 
 # ===============================================================
 
@@ -613,8 +637,11 @@ def get_server_info(request):
         "context_history" : imodels.get_context_history_tuples(config.observatory),
         "observatory" : config.observatory,
         "crds_version" : version_info,
+
+        # These define client:server limits,  not server:archive-web-service limits
         "max_headers_per_rpc" : MAX_HEADERS_PER_RPC,
         "max_bestrefs_per_rpc" : MAX_BESTREFS_PER_RPC,
+
         "reference_url": {
             "checked" : {
                 config.observatory : config.CRDS_REFERENCE_URL,
@@ -623,6 +650,7 @@ def get_server_info(request):
                 config.observatory : config.CRDS_UNCHECKED_REFERENCE_URL,
                 },
             },
+
         "mapping_url": {
             "checked" : {
                 config.observatory : config.CRDS_MAPPING_URL,

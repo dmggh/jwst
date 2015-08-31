@@ -927,7 +927,7 @@ def pmap_label(blob):
 
 # ===========================================================================
 
-@error_trap("bestrefs_dataset.input.html")
+@error_trap("bestrefs_dataset_input.html")
 @log_view
 def bestrefs(request):
     """View to get the instrument context for best references."""
@@ -958,7 +958,7 @@ def bestrefs_post(request):
         dataset_name = validate(request, "dataset_archive", common.DATASET_ID_RE)
         try:
             # If dataset is an association,  it will return multiple headers,  just show one.
-            headers = database.get_synthetic_dataset_headers_by_id([dataset_name], pmap.observatory)
+            headers = jsonapi_views.get_simplified_dataset_headers_by_id(context, [dataset_name])
             first = sorted(headers.keys())[0]
             header = headers[first]
             if isinstance(header, basestring):
@@ -1001,9 +1001,9 @@ def bestrefs_results(request, pmap, header, dataset_name=""):
     header_min = pmap.minimize_header(header)
     recommendations, bestrefs_debug_output = captured_bestrefs(pmap, header_min)
     old_recommendations = {}
-    with log.error_on_exception("Failed fetching old bestrefs"):
-        header = { key.upper() : val.lower() for (key,val) in header.items() }
-        old_recommendations = pmap.get_old_references(header)
+    # with log.error_on_exception("Failed fetching old bestrefs"):
+    #    header = { key.upper() : val.lower() for (key,val) in header.items() }
+    #    old_recommendations = pmap.get_old_references(header)
     # organize and format results for HTML display    
     header_min.pop("REFTYPE", None)
     header_items = sorted(header_min.items())

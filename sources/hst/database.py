@@ -16,11 +16,8 @@ from crds import rmap, log, utils, timestamp, config
 from crds.server.interactive import models, common
 from crds.server import config as sconfig
 
-if models.OBSERVATORY == "hst":
-    import crds.hst, crds.hst.locate
-    from crds.hst import reftypes
-
-log.set_verbose(False)
+import crds.hst, crds.hst.locate
+from crds.hst import reftypes
 
 HERE = os.path.dirname(__file__) or "."
 HEADER_TABLES = HERE + "/db_header_tables.dat"
@@ -637,7 +634,7 @@ def _check_filename(filename):
     _safe_assert(config.FILE_RE.match(filename), "Invalid file name " + repr(filename))
     
 # ---------------------------------------------------------------------------------------------------------
-def get_dataset_headers_by_instrument(instrument, observatory="hst", datasets_since=None):
+def get_dataset_headers_by_instrument(instrument, datasets_since=None):
     """Get the header for a particular dataset,  nominally in a context where
     one only cares about a small list of specific datasets.
     """
@@ -645,7 +642,6 @@ def get_dataset_headers_by_instrument(instrument, observatory="hst", datasets_si
         datasets_since = "1900-01-01 00:00:00"
     init_db()
     _check_instrument(instrument)
-    _check_observatory(observatory)
     _check_date(datasets_since)
     try:
         igen = get_instrument_gen(instrument)
@@ -691,14 +687,10 @@ to get all matching headers.
 
 """
 
-def get_dataset_headers_by_id(dataset_ids, observatory="hst", datasets_since=None, context=None):
+def get_dataset_headers_by_id(context, dataset_ids):
     """Based on a list of `dataset_ids`,  return the corresponding DADSOPS bestrefs matching parameters."""
 
-    if datasets_since is None:
-        datasets_since = "1900-01-01 00:00:00"
-
-    _check_observatory(observatory)
-    _check_date(datasets_since)
+    # _check_context(context)
 
     for did in dataset_ids:
         _check_dataset_id(did)
@@ -717,11 +709,10 @@ def get_dataset_headers_by_id(dataset_ids, observatory="hst", datasets_since=Non
     for instrument, products in by_instrument.items():
         try:
             igen = get_instrument_gen(instrument)
-            extra_clauses = tuple([ igen.get_expstart_clause(datasets_since) ] if datasets_since else [])
             assoc_clauses, unassoc_clauses = dataset_ids_clauses(dataset_ids, igen)
             headers = igen.get_headers(
-                unassoc_extra_clauses = unassoc_clauses + extra_clauses, 
-                assoc_extra_clauses = assoc_clauses + extra_clauses)
+                unassoc_extra_clauses = unassoc_clauses,
+                assoc_extra_clauses = assoc_clauses)
         except Exception, exc:
             raise RuntimeError("Error accessing catalog for instrument " + repr(instrument) + ":" + str(exc))
         all_headers.update(headers)
@@ -825,7 +816,7 @@ def dataset_ids_clauses(dataset_ids, igen): # assoc_field, unassoc_field):
 
 # ---------------------------------------------------------------------------------------------------------
 
-def get_synthetic_dataset_headers_by_id(dataset_ids, observatory="hst", datasets_since=None):
+def get_synthetic_dataset_headers_by_id(context, dataset_ids):
     """Leverage the association table to provide headers for member ids which don't
     successfully join through all an instrument's tables.  Use headers for ids which do 
     join through all tables as surrogates for ids which don't,  based on member type patterns.
@@ -834,24 +825,9 @@ def get_synthetic_dataset_headers_by_id(dataset_ids, observatory="hst", datasets
     """
     id_map = get_synthetic_id_map([did.upper() for did in dataset_ids])
     source_ids = [did[0] for did in sorted(list(set(id_map.values())))]
-    source_headers = get_dataset_headers_by_id(source_ids, observatory, datasets_since)
+    source_headers = get_dataset_headers_by_id(context, source_ids)
     headers = { did : source_headers[src_id] for (did, (src_id, typ, ctype)) in id_map.items() if src_id in source_headers }
     return headers
-
-def get_simplified_dataset_headers_by_id(dataset_ids, observatory="hst", datasets_since=None):
-    header_map = get_synthetic_dataset_headers_by_id(dataset_ids, observatory, datasets_since)
-    sorted_ids = sorted(header_map.keys())
-    simplified_map = {}
-    for did in dataset_ids:
-        try:
-            simplified_map[did] = header_map[did]
-        except KeyError:
-            try:
-                containing = [did2 for did2 in sorted_ids if did in did2]
-                simplified_map[did] = header_map[containing[0]]
-            except KeyError:
-                continue
-    return simplified_map
 
 # This is a table of the assoc_member.asm_member_type correspondence rules
 # where keys are assumed to be "unrepresented" types and values are assumed
@@ -975,13 +951,13 @@ def compound_id(assoc, member):
     return assoc.upper() + ":" + member.upper()
 
 # ---------------------------------------------------------------------------------------------------------
-def get_dataset_ids(instrument, observatory="hst", datasets_since=None):
+def get_dataset_ids(instrument, datasets_since=None):
     """Return a list of the known dataset ids for `instrument`."""
+
     if datasets_since is None:
         datasets_since = "1900-01-01 00:00:00"
 
     _check_instrument(instrument)
-    _check_observatory(observatory)
     _check_date(datasets_since)
 
     init_db()
