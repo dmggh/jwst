@@ -584,10 +584,11 @@ def call_context_function(context, func_name, *args, **keys):
     func = utils.get_object("crds.server", pmap.observatory, func_name)
     return func(*args, **keys)
 
-@jsonrpc_method('get_dataset_headers_by_id(context=String, dataset_ids=Array)') # secure
-def get_dataset_headers_by_id(request, context, dataset_ids):
+@jsonrpc_method('get_dataset_headers_by_id(context=String, dataset_ids=Array, datasets_since=String)') # secure
+def get_dataset_headers_by_id(request, context, dataset_ids, datasets_since):
     context = check_context(context)
     dataset_ids = check_dataset_ids(dataset_ids)
+    datasets_since = check_datasets_since(datasets_since)   # IGNORED
     assert len(dataset_ids) <= MAX_HEADERS_PER_RPC, \
            "Too many ids.   More than {} datasets specified.".format(MAX_HEADERS_PER_RPC)
     return call_context_function(context, "database.get_dataset_headers_by_id", context, dataset_ids)
