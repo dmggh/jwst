@@ -286,6 +286,32 @@ class ServiceApiBase(object):
         assert remote.context == self.pmap1 and remote.observatory == self.observatory and remote.kind == "operational" and key == str(remote.key), \
             "Remote context final state is incorrect"
 
+    def test_client_get_best_references_by_ids(self):
+        bestrefs = client.get_best_references_by_ids(self.pmap, self.dataset_ids)
+
+        # File counts below are trip-wires with a shaky rational basis,  don't
+        # loose sleep if the actual value deviates from the provided range,  just
+        # take note and update.
+    def test_client_get_mapping_names(self):
+        mappings = client.get_mapping_names(self.pmap)
+        self.failUnless(50 < len(mappings) < 200)
+        
+    def test_client_get_reference_names(self):
+        references = client.get_reference_names(self.pmap)
+        self.failUnless(11775 < len(references) < 30000)
+        
+    def test_getreferences_missing_date(self):
+        header = self.get_header()
+        del header[self.date_key]
+        with self.assertRaises(crds.CrdsLookupError):
+            bestrefs = self.getreferences(header)
+
+    def test_getreferences_bad_date(self):
+        header = self.get_header()
+        header[self.date_key] = "2012-1f-23"
+        with self.assertRaises(crds.CrdsLookupError):
+            bestrefs = self.getreferences(header)
+            
 # ===========================================================================
 # ===========================================================================
 
@@ -360,32 +386,6 @@ if server_config.observatory == "hst":
             with self.assertRaises(crds.CrdsLookupError):
                 bestrefs = self.getreferences(header, context=self.pmap)
 
-        # File counts below are trip-wires with a shaky rational basis,  don't
-        # loose sleep if the actual value deviates from the provided range,  just
-        # take note and update.
-        def test_client_get_mapping_names(self):
-            mappings = client.get_mapping_names(self.pmap)
-            self.failUnless(100 < len(mappings) < 200)
-    
-        def test_client_get_reference_names(self):
-            references = client.get_reference_names(self.pmap)
-            self.failUnless(11775 < len(references) < 30000)
-            
-        def test_client_get_best_references_by_ids(self):
-            bestrefs = client.get_best_references_by_ids(self.pmap, self.dataset_ids)
-
-        def test_getreferences_missing_date(self):
-            header = self.get_header()
-            del header[self.date_key]
-            with self.assertRaises(crds.CrdsLookupError):
-                bestrefs = self.getreferences(header)
-
-        def test_getreferences_bad_date(self):
-            header = self.get_header()
-            header[self.date_key] = "2012-1f-23"
-            with self.assertRaises(crds.CrdsLookupError):
-                bestrefs = self.getreferences(header)
-    
 # ===========================================================================
 
 if server_config.observatory == "jwst":
@@ -420,6 +420,8 @@ if server_config.observatory == "jwst":
         context_date_obs = "jwst-2050-01-01T12:00:00"        
         context_date_instr = "jwst-miri-2050-01-01T12:00:00"
         context_date_filekind = "jwst-miri-flat-2050-01-01T12:00:00"
+
+        dataset_ids = ["ASSOCIATION:jw00001001001_01101_01333.MIRIMAGE"]
 
         def expected_references(self):
             return {

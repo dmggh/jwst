@@ -214,10 +214,22 @@ class InteractiveBase(TransactionTestCase):
     
     # XXX Implement bestrefs tests
     def test_bestrefs_post_archive_dataset(self):
-        pass
+        response = self.client.post("/bestrefs/", {
+            "pmap_mode" : "pmap_text",
+            "pmap_text" : self.pmap,
+            "dataset_mode" : "dataset_archive",
+            "dataset_archive" : self.archive_dataset_id,
+            })  
+        self.assert_no_errors(response)
     
     def test_bestrefs_post_default_context(self):
-        pass
+        response = self.client.post("/bestrefs/", {
+            "pmap_mode" : "pmap_edit",
+            "pmap_edit" : self.pmap,
+            "dataset_mode" : "dataset_archive",
+            "dataset_archive" : self.archive_dataset_id, 
+            })  
+        self.assert_no_errors(response)
     
     def test_bestrefs_post_uploaded_dataset(self):
         if self.observatory == "hst":
@@ -719,6 +731,8 @@ if sconfig.observatory == "hst":
             "interactive/test_data/hst_acs2.imap",
             ]
 
+        archive_dataset_id = "I9ZF01010"
+
         def test_certify_post_rmap_bad(self):
             self.login()
             self.add_file_to_ingest_dir(self.certify_rmap_bad)
@@ -818,6 +832,8 @@ else:  # JWST
             "interactive/test_data/jwst_miri_6666.imap",
             ]
         
+        archive_dataset_id = "ASSOCIATION:jw00001001001_01101_01333.MIRIMAGE"
+
         certify_post_fits_bad = "interactive/test_data/jwst_miri_amplifier_bad.fits"
 
         def test_certify_post_rmap_bad(self):
