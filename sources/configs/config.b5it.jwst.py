@@ -1,11 +1,11 @@
 debug = DEBUG = False
 DEBUG_EXTRAS = False
 
-HOST = 
+HOST = "iljwdmsbcrdsv1"
 PROXY = "jwst-crds-b5it"
 observatory = 'jwst'
 server_usecase ="b5it"
-CRDS_SERVER_IP = "130.167.252.81"   ###  TBD
+CRDS_SERVER_IP = "130.167.252.144"   ###  TBD
 port = 8001
 
 # This is a VM-related storage partition used as server space
@@ -34,7 +34,7 @@ CRDS_DISTRIBUTION_STATES =  [ "archived", "operational", "delivered", "submitted
 # assigns more user-friendly URLs based on standard ports 443.
 # Server backup restorate occurs on an alternate port
 
-BACKUP_URL_SCHEME = False
+BACKUP_URL_SCHEME = True
 
 if BACKUP_URL_SCHEME:
     port += 1  # need backup port elsewhere
