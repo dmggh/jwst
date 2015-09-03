@@ -1,0 +1,287 @@
+========
+Overview
+========
+
+These notes describe initializing a CRDS server VM and server.
+
+===========
+Setup Steps
+===========
+
+
+------------------------
+Initial resource request
+------------------------
+Setting up a CRDS server involves several different activities:
+
+1. Virtual machine setup
+2. Server file system setup (Isilon storage)
+3. Database setup
+4. SSL and proxy setup
+
+For setting up the build 5 and build 6 I&T servers I made a request like this
+one:
+
+The CRDS server VM for JWST operations,  pljwstcrdsv1.stsci.edu, needs to be
+cloned with customizations to support two new frozen server VMs for JWST
+build-5 and build-6 I&T.
+
+Suggested proxy + host names:    (Fine to change with global substitution)
+
+        proxy     internal hostname / https port
+    -------------------- -------------------------------
+    jwst-crds-b5it.stsci.edu            --> il5jwstcrdsv1.stsci.edu:8001
+    jwst-crds-b6it.stsci.edu            --> il6jwstcrdsv1.stsci.edu:8001
+
+Logins:
+
+    Either direct login and password for crds
+            -or-
+    Login for jmiller + sudo to crds,  more sudo users coming later
+
+File permissions/ownership:
+
+    user      crds
+    group   crdsoper
+
+    with g+s
+
+Storage:
+
+    50G of host-specifc storage (each) mounted at:
+         /crds/data1                         (same path,  one volume per
+         server)
+
+    50G isolated (preferred) or shared-across-VMs /home storage:
+         /home/crds       (if isolated file system, clone from networked/shared
+         pljwstcrdsv1:/home/crds)
+
+    2.5T of Isilon storage mounted at:
+         /ifs/crds/jwst/b5it              (il5jwstcrdsv1 only)
+         /ifs/crds/jwst/b6it              (il6jwstcrdsv1 only)
+
+For database support the servers need:
+
+    user:
+            jwstcrds
+
+     server:  MySQL
+
+        TANOPS (preferred, formal I&T)  or GOLDTST
+
+    databases:
+            crds_jwst_b5it
+            crds_jwst_b6it
+            test_crds_jwst_b5it
+            test_crds_jwst_b6it
+
+    grants:
+            GRANT USAGE ON *.* TO 'jwstcrds'@'il5jwstcrdsv1.stsci.edu'
+            IDENTIFIED BY PASSWORD 'XXX'
+            GRANT ALL PRIVILEGES ON `crds\_jwst_b5it`.* TO '
+            jwstcrds'@'il5jwstcrdsv1.stsci.edu'
+            GRANT ALL PRIVILEGES ON `test\_crds\_jwst_b5it`.* TO
+            'jwstcrds'@'il5jwstcrdsv1.stsci.edu'
+
+            GRANT USAGE ON *.* TO 'jwstcrds'@'il6jwstcrdsv1.stsci.edu'
+            IDENTIFIED BY PASSWORD 'XXX'
+            GRANT ALL PRIVILEGES ON `test\_crds\_jwst_b6it`.* TO
+            'jwstcrds'@'il6jwstcrdsv1.stsci.edu'
+            GRANT ALL PRIVILEGES ON `crds\_jwst_b6it`.* TO '
+            jwstcrds'@'il6jwstcrdsv1.stsci.edu'
+
+Setup aspects I'm assuming will clone:
+
+     System RC/service script for starting/stopping CRDS during VM updates &
+     reboots
+
+            /etc/init.d/crds
+
+     SSL certificate setup
+
+     Apache conf magic
+            /crds/data1/<hostname>/server/conf
+                    lrwxrwxrwx 1 crds crdsoper   21 Aug 20 03:05 magic ->
+            /etc/httpd/conf/magic
+                    -rw-r--r-- 1 crds crdsoper 9940 Aug 20 03:05 httpd.conf
+                    -rw-r--r-- 1 crds crdsoper 9830 Aug 20 03:05 ssl.conf
+            (I'm guessing /etc/httpd/conf/magic needs setup or will clone)
+
+Please let me know ASAP if you need more information to proceed with cloning.
+
+===============
+Follow-on Steps
+===============
+
+---------------
+Source checkout
+---------------
+
+Two source directories need to be set up on the CRDS server,  the client source
+and the server source.
+
+% cd /crds/data1/<hostname>
+% svn co https://aeon.stsci.edu/ssb/svn/crds/trunk CRDS
+% svn co  https://aeon.stsci.edu/ssb/svn/crds_server/trunk CRDS_server
+
+e.g. <hostname> == iljwdmsbcrdsv1
+
+---------------
+VM .setenv
+---------------
+
+If there is no CRDS .setenv installed,  do e.g.:
+
+% cp /crds/data1/pljwstcrdsv1/CRDS_server/host/dot_setenv $HOME/.setenv
+% cp /crds/data1/pljwstcrdsv1/CRDS_server/host/dot_alias $HOME/.alias
+
+In any case,  a section for the new VM(s) needs to be added to $HOME/.setenv,  e.g.:
+
+       case pljwstcrdsv1:
+        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_16
+        setenv CRDS_PROJECT jwst
+        setenv CRDS_USECASE b5it
+        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
+        setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
+       breaksw
+
+Logout and log back in and typing the alias "server" should now take you to the
+CRDS_server checkout from above.
+
+After adding the new section,  copy the .setenv back to
+/crds/data1/<hostname>/CRDS_server/docs/dot_setenv and commit to subversion.
+
+--------------------------
+Create Server Config Files
+--------------------------
+
+Every CRDS server is customized by two files defined in the
+CRDS_server/sources/configs directory.  Copy existing config files
+from another observatory and/or use case to the new use case and edit
+the contents to customize for the new server.
+
+% server
+% cd sources/configs
+% cp config.ops.jwst.py config.b5it.jwst.py    
+% cp database.ops.jwst.py database.b5it.jwst.py
+
+Edit/customize the new b5it files and add them to subversion.   The required
+facts come from discussions with ITSD during the initial resource setup.
+
+-----------------------
+CRDS Server Stack Build
+-----------------------
+
+The CRDS server runs on a custom Python stack built from source.  To rebuild
+the Python stack,  do:
+
+% mkdir /crds/data1/<hostname>/crds_stacks
+% cd /crds/data1/<hostname>/crds_stacks
+% cp -r /eng/ssb/crds/installer3 .
+% server
+% host/build_stack |& tee build_stack.16.err
+
+16 is the stack's version number hard wired in both .setenv and build_stack.
+
+During normal maintenance,  the stack being built is one version ahead of the 
+stack the OPS server is running on.  The OPS server stack should  be static
+as released.   The DEV and TEST server stacks should be both building and
+running at 1+ the value of the OPS server.   (Optionally,  the TEST server
+stack can be frozen at the released value.)
+
+------------------------
+CRDS Server Installation
+------------------------
+
+The CRDS source code is installed independently of the Python stack to a
+different directory.   Once the .setenv and .alias files are installed,
+and you've logged back in,  you should be able to install the CRDS server
+as follows:
+
+% server
+% ./install jwst b5it
+
+This installs a JWST server for the b5it use case.
+
+This results in a server setup with an empty database.   Early server
+initializations were continued using the "init" script.   Later server 
+initializations have been performed by cloning the database and server file
+area of the operational server using the server mirroring tool:
+
+% server
+% tools/mirror_server jwst ops https://jwst-crds.stsci.edu |& tee mirror_server.jwst.ops.err
+
+Mirroring the server as above will restore the database backup of the OPS server to
+the local B5IT server and make the server file system as consistent as possible.
+Missing rules or references in the local server's file cache are downloaded
+from the specified source (OPS) server.  Undelivered files from OPS are placed in the 
+delivery area.
+
+----------------------
+Starting up the Server
+----------------------
+
+The server is nominally started as follows from the server source directory:
+
+% ./run jwst b5it
+
+This starts both the Apache server and memcached.
+
+-------------------
+Stopping the Server
+-------------------
+
+The server is nominally stopped as follows from the server source directory:
+
+% ./stop jwst b5it
+
+This stops both the Apache server and memcached.
+
+
+-------------------
+Cycling the Server
+-------------------
+
+The common practice of stopping, re-installing, and restarting
+the CRDS server is done as follows from the server source directory:
+
+% ./rerun
+
+The observatory and use case do not have to be specified with ./rerun.
+
+-------------------------
+Running server unit tests
+-------------------------
+
+The server unit tests can be run as follows:
+
+% ./runtests
+
+The observatory and use case do not have to be specified with ./runtests.
+
+runtests nominally produces an output file like "runtests.jwst.b5it.err" in
+addition to console output.
+
+runtests takes the server offline by switching to a backup port (8002?) unless
+the "live" parameter is specified.  when tests havec completed runtests 
+restores the server to it's normal port.  killing tests with <control-c>
+can result in the server staying configured for the backup port.  Examine
+and fix using "svn diff" and/or "svn revert -R" and ./rerun.
+
+
+-------------------------
+Running slow tests
+-------------------------
+
+The database interfaces with the archive take a while to run exhaustively.
+
+There is a separate CRDS_server/slow_tests directory with the file
+test_database.py which is run outside the scope of runtests above as follows:
+
+% server
+% source env.csh
+% cd slow_tests
+% python test_database.py
+
+
+
