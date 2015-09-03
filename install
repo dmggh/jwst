@@ -106,6 +106,7 @@ mod_wsgi)
 	mv ssl.tmp $install_dir/server/conf/ssl.conf
 	cp servers/*.wsgi $install_dir/server/wsgi-scripts
 	rm -f $install_dir/lib/mod_wsgi.so
+	mkdir -p $install_dir/lib
 	ln -s ${CRDS_STACK}/lib/mod_wsgi.so $install_dir/lib
    
 	apache_version=`/usr/sbin/httpd -v | sed -n 's?Server version: Apache/??p'`
