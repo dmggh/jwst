@@ -69,10 +69,11 @@ def get_dataset_ids(instrument, datasets_since=None):
 
 # ---------------------------------------------------------------------------------------------------------
 
-DETECTOR_TO_INSTRUMENT = {
+DETECTOR_TO_INSTRUMENT = {   # XXXX non-invertible
     "GUIDER" : "FGS", # 1,2
 
     "NIS" : "NIRISS",
+    "NIRISS" : "NIRISS",
 
     "NRCA" : "NIRCAM",  # 1,2,3,4,LONG
     "NRCB" : "NIRCAM",  # 1,2,3,4,LONG
@@ -92,6 +93,7 @@ def get_dataset_headers_by_id(context, dataset_ids):
     for did in dataset_ids:
         _check_dataset_id(did)
 
+    headers = dict()
     dataset_ids = [ dataset.upper() for dataset in dataset_ids ]
     ids_by_instrument = defaultdict(list)
     for dataset in dataset_ids:
@@ -101,6 +103,7 @@ def get_dataset_headers_by_id(context, dataset_ids):
                 break
         else:
             log.warning("No instrument name found for dataset:", repr(dataset))
+            headers[dataset.upper()] = "NOT FOUND No instrument name found for dataset"
 
     pmap =  rmap.get_cached_mapping(context)
     
@@ -109,7 +112,6 @@ def get_dataset_headers_by_id(context, dataset_ids):
         for instr in ids_by_instrument 
         }
     
-    headers = dict()
     for instr, dids in ids_by_instrument.items():
         instr_headers = parameter_interface.get_dataset_headers_by_id(dids, matching_params[instr])
         headers.update(instr_headers)

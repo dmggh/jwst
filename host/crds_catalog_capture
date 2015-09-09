@@ -19,7 +19,7 @@ if "--no-update" in sys.argv:
     update = ""
     log.info("--no-update specified, saving catalog bestrefs as-is.")
 else:
-    update = "--update-pickle"
+    update = "--update-pickle --update-bestrefs"
     log.info("--no-update not specified, replacing catalog bestrefs with CRDS bestrefs for " + repr(sys.argv[1]))
 
 if "--strict" in sys.argv:
