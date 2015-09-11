@@ -47,7 +47,11 @@ class GetService(object):
     def __call__(self, **named_parameters):
         log.verbose(self.kind, repr(self.service_url), "with", repr(named_parameters))
         formatted_parameters = self.format_parameters(named_parameters)
-        response = self.get_response(formatted_parameters)
+        try:
+            response = self.get_response(formatted_parameters)
+        except Exception:
+            raise ServiceError("Network open failed calling service '{}' at '{}'".format(
+                    self.service_name, self.base_url))
         log.verbose("responded:", repr(response))
         result = self.get_and_decode_result(response)
         log.verbose("decoded:", repr(result))
