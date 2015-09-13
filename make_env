@@ -35,7 +35,7 @@ python ${SERVER_SOURCES}/sh_config.py install_dir CRDS_PATH server_files port PY
  CRDS_URL CRDS_CATALOG_DIR CRDS_DELIVERY_DIR FILE_UPLOAD_TEMP_DIR CRDS_INGEST_DIR CRDS_ARCHIVE_CACHE_DIR apachemod > make_env.tmp
 . ./make_env.tmp
 
-PYTHONPATH=$install_dir/python/lib/python/crds/server:$install_dir/python/lib/python:$PYTHONPATH
+PYTHONPATH=$install_dir/python/lib/python/crds/server:$install_dir/python/lib/python
 export PYTHONPATH
 
 PATH=$install_dir/python/bin:$install_dir/bin:$PATH
