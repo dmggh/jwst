@@ -298,20 +298,8 @@ class ServiceApiBase(object):
         
     def test_client_get_reference_names(self):
         references = client.get_reference_names(self.pmap)
-        self.failUnless(11775 < len(references) < 30000)
+        self.failUnless(self.min_reference_count < len(references))
         
-    def test_getreferences_missing_date(self):
-        header = self.get_header()
-        del header[self.date_key]
-        with self.assertRaises(crds.CrdsLookupError):
-            bestrefs = self.getreferences(header)
-
-    def test_getreferences_bad_date(self):
-        header = self.get_header()
-        header[self.date_key] = "2012-1f-23"
-        with self.assertRaises(crds.CrdsLookupError):
-            bestrefs = self.getreferences(header)
-            
 # ===========================================================================
 # ===========================================================================
 
@@ -322,7 +310,8 @@ if server_config.observatory == "hst":
         pmap1 = "hst_0001.pmap"
         pmap_date = "hst-2013-07-04T00:00:00"
         imap = "hst_wfc3.imap"
-        
+        min_reference_count = 30000
+
         observatory = server_config.observatory
         
         instr_key = "INSTRUME"
@@ -386,6 +375,18 @@ if server_config.observatory == "hst":
             with self.assertRaises(crds.CrdsLookupError):
                 bestrefs = self.getreferences(header, context=self.pmap)
 
+        def test_getreferences_missing_date(self):
+            header = self.get_header()
+            del header[self.date_key]
+            with self.assertRaises(crds.CrdsLookupError):
+                bestrefs = self.getreferences(header)
+
+        def test_getreferences_bad_date(self):
+            header = self.get_header()
+            header[self.date_key] = "2012-1f-23"
+            with self.assertRaises(crds.CrdsLookupError):
+                bestrefs = self.getreferences(header)
+            
 # ===========================================================================
 
 if server_config.observatory == "jwst":
@@ -395,6 +396,7 @@ if server_config.observatory == "jwst":
         pmap1 = "jwst_0001.pmap"
         pmap_date = "jwst-2014-09-26T00:00:00"
         imap = "jwst_niriss_0009.imap"
+        min_reference_count = 5
 
         observatory = server_config.observatory
     
