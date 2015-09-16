@@ -290,7 +290,7 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
 
         "username" : str(request.user),
 
-        "auto_rename" : False,
+        "auto_rename" : models.OBSERVATORY == "jwst",
         "server_usecase" :  sconfig.server_usecase.lower(),
     }
     
