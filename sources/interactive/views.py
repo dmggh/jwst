@@ -768,7 +768,6 @@ def logout(request):
 @error_trap("set_password.html")
 @log_view
 @login_required
-@group_required("file_submission")
 def set_password(request):
     """Support changing a user's own password."""
     if request.method == "POST":
