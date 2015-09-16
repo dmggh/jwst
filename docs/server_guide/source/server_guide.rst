@@ -43,18 +43,20 @@ The CRDS servers exist on virtual machines,  run Apache servers and Django via m
 are backed by memcached as a memory caching optimization for frequent traffic.  Currently
 there are 6 VMs and servers:  (hst, jwst) x (dev, test, ops):
 
-===========   ============   =============  ===========     ================================
+===========   ============   ==============  ===========     ================================
 observatory   use            host/vm        direct port     url
-===========   ============   =============  ===========     ================================
-hst           django         localhost      8000            http://localhost:8000
-hst           dev            dlhstcrdsv1    8001            https://hst-crds-dev.stsci.edu
-hst           test           tlhstcrdsv1    8001            https://hst-crds-test.stsci.edu
-hst           ops            plhstcrdsv1    8001            https://hst-crds.stsci.edu
-jwst          django         localhost      8000            http://localhost:8000
-jwst          dev            dljwstcrdsv1   8001            https://jwst-crds-dev.stsci.edu
-jwst          test           tljwstcrdsv1   8001            https://jwst-crds-test.stsci.edu
-jwst          ops            pljwstcrdsv1   8001            https://jwst-crds.stsci.edu
-===========   ============   =============  ===========     ================================
+===========   ============   ==============  ===========     ================================
+hst           django         localhost       8000            http://localhost:8000
+hst           dev            dlhstcrdsv1     8001            https://hst-crds-dev.stsci.edu
+hst           test           tlhstcrdsv1     8001            https://hst-crds-test.stsci.edu
+hst           ops            plhstcrdsv1     8001            https://hst-crds.stsci.edu
+jwst          django         localhost       8000            http://localhost:8000
+jwst          dev            dljwstcrdsv1    8001            https://jwst-crds-dev.stsci.edu
+jwst          test           tljwstcrdsv1    8001            https://jwst-crds-test.stsci.edu
+jwst          ops            pljwstcrdsv1    8001            https://jwst-crds.stsci.edu
+jwst          b5it           iljwdmsbcrdsv1  8001            https://jwst-crds-b5it.stsci.edu
+jwst          b6it           iljwdmsacrdsv1  8001            https://jwst-crds-b6it.stsci.edu
+===========   ============   ==============  ===========     ================================
 
 For debug purposes the servers can be accessed by bypassing the proxy using VM-based URLs such
 as https://plhstcrdsv1.stsci.edu:8001/.  These direct URLs are visible on site only.  Only the OPS
@@ -80,6 +82,8 @@ hst-crds-ops.csh          https://hst-crds.stsci.edu               $HOME/crds_ca
 jwst-crds-dev.csh         https://jwst-crds-dev.stsci.edu          $HOME/crds_cache_dev            Connected jwst dev local cache
 jwst-crds-test.csh        https://jwst-crds-test.stsci.edu         $HOME/crds_cache_test           Connected jwst test local cache
 jwst-crds-ops.csh         https://jwst-crds.stsci.edu              $HOME/crds_cache_ops            Connected jwst ops local cache
+jwst-crds-b5it.csh        https://jwst-crds-b5it.stsci.edu         $HOME/crds_cache_ops            Connected jwst b5it local cache
+jwst-crds-b6it.csh        https://jwst-crds-b6it.stsci.edu         $HOME/crds_cache_ops            Connected jwst b6it local cache
 crds-readonly.csh         https://crds-serverless-mode.stsci.edu   readonly /grp/crds/cache        Disconnected, complete ops cache
 hst-crds-readonly.csh     https://hst-crds.stsci.edu               readonly /grp/crds/hst          Connected, complete ops cache
 jwst-crds-readonly.csh    https://jwst-crds.stsci.edu              readonly /grp/crds/jwst         Connected, complete ops cache
@@ -125,6 +129,11 @@ any error instantly affects all 6 servers.
 
 The RC scripts are version controlled with the server source code in the directory "hosts" under the names dot_setenv 
 and rc_script.
+
+LATER NOTE:  After a single point failure resulted from concurrently using two
+different versions of astropy,  the /home file systems of all VMs were
+isolated.   /eng/ssb/crds is used as a shared location, most notably for
+storing backup files which can be mirrored between servers.
 
 .setenv
 +++++++
