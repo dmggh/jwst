@@ -2,7 +2,7 @@ from crds.server.jwst import restful
 from crds.server import config
 from crds import log
 
-BASE_URL = "http://jwdmsdevvm4:8888/crds"
+BASE_URL = config.ARCHIVE_PARAMETER_SERVICE_URL
 
 # ================================================================================================== 
 
