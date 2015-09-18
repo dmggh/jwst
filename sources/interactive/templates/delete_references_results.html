@@ -4,24 +4,28 @@
 
 {% block contents %}
 
-    <h2>Deleted References</h2>
-        
-    {% include "select_pmap_results.html" %}
+    <h2>Delete References Results</h2>
     
+    <h3>Starting Context</h3>
+    <p>{{pmap|browse}}</p>
+
     <h3>Deleted Files</h3>
-    {% for reference in deleted_files %}
-        <p>{{reference|browse}}</p>
+    {% for fname in deleted_files %}
+    <p>{{fname|browse}}</p>
     {% endfor %}
 
-    <h3>Generated Mappings</h3>
-    {% for item in context_map %}
-        <p>{{item.0|browse}} --> {{item.1|browse}}</p>
-    {% endfor %}
-
-    <br/>
+    {% include "certify_include.html" %}
     
+    {% if diff_results %}
+    <h3>Differences</h3>
+    {% include "difference_include.html" %}
+    {% endif %}
+
     {% include "collision_explain.html" %}
     
-    {% include "home_button_trailer.html" %}
+    <br/>
+    
+    {% include "confirm.html" %}
 
 {% endblock contents %}
+

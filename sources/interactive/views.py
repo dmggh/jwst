@@ -1278,6 +1278,8 @@ def submit_confirm(request):
         new_file_map = sorted(new_file_map.items() + context_map.items())
         generated_files = sorted([(old, new) for (old, new) in new_file_map if old not in result.uploaded_basenames])
         uploaded_files = [(old, new) for (old, new) in new_file_map if (old, new) not in generated_files]
+        added_files = getattr(result, "added_files", [])
+        deleted_files = getattr(result, "deleted_files", [])
         
         # rmaps specified for context generation but not uploaded or generated
         context_rmaps = [filename for filename in result.context_rmaps 
@@ -1288,6 +1290,8 @@ def submit_confirm(request):
             pmap = result.pmap,
             original_pmap = result.original_pmap,
             uploaded_files=uploaded_files,
+            added_files=added_files,
+            deleted_files=deleted_files,
             context_rmaps=context_rmaps,
             generated_files=generated_files,
             new_file_map=new_file_map,
@@ -1315,7 +1319,6 @@ def submit_confirm(request):
 
 @error_trap("delete_references_input.html")
 @log_view
-@superuser_login_required
 @instrument_lock_required
 def delete_references(request):
     """View to return batch submit reference form or process POST."""
@@ -1334,52 +1337,50 @@ def delete_references_post(request):
     deleted_files = validate(request, "deleted_files", is_known_file_list)
     uploaded_files = { fname:rmap.locate_file(fname, models.OBSERVATORY) for fname in deleted_files }
 
+    locked_instrument = get_locked_instrument(request)    
+    jpoll_handler = jpoll_views.get_jpoll_handler(request)
+
     pmap = rmap.get_cached_mapping(pmap_name)
     pmap_references = pmap.reference_names()
     for deleted in deleted_files:
         assert deleted in pmap_references, "File " + repr(deleted) + " does not appear in context " + repr(pmap.name)
     
-    locked_instrument = get_locked_instrument(request)
-    
     drs = submit.DeleteReferenceSubmission(pmap_name, uploaded_files, description, 
-        user=request.user, locked_instrument=locked_instrument)
-    disposition, new_mappings_map, _mapping_certs, _mapping_diffs, collision_list = drs.submit()
-    
-    new_files = new_mappings_map.values()   # the new rmaps map
-    final_pmap, context_map, collision_list = submit.submit_confirm_core( 
-           True, "delete references", description, new_files, new_files, 
-           str(request.user),  pmap_name, pmap_mode, locked_instrument, related_files=deleted_files)
-
-    context_map.update(new_mappings_map)
-    
-    for file_ in deleted_files:
-        models.AuditBlob.new(str(request.user), "delete references", file_, description, 
-                             details = repr(deleted_files + [final_pmap]))
-        
-    models.clear_cache()
+        user=request.user, locked_instrument=locked_instrument, status_channel=jpoll_handler)
+    disposition, new_mappings_map, mapping_certs, mapping_diffs, collision_list = drs.submit()
     
     del_results = {
-                "pmap" : final_pmap,
-                "original_pmap" : pmap_name,
+                "pmap" : pmap_name,
                 "pmap_mode" : pmap_mode,
-                
-                "deleted_files" : deleted_files,
 
-                "context_map" : sorted(context_map.items()),
+                "new_file_map" : new_mappings_map,
+                "uploaded_basenames" : [],
+                "deleted_files" : deleted_files,
                 "submission_kind" : "delete references",
+                "title" : "Delete References",
                 "description" : description,
-                "context_rmaps" : sorted(new_mappings_map.values()),                 
+                "context_rmaps" : sorted(new_mappings_map.values()), 
+                
+                "certify_results" : mapping_certs,
+                "diff_results" : mapping_diffs,
+                
                 "collision_list" : collision_list,
+                
+                "should_still_be_locked" : locked_instrument,
+                "requires_locking" : True,
+                "lock_datestr" : locks.get_lock_datestr(locked_instrument, type="instrument", user=str(request.user)),
+
+                "more_submits" : "/delete/reference/",
                 "disposition": disposition,                
             }
     
-    return render_repeatable_result(request, "delete_references_results.html", del_results)
+    return render_repeatable_result(request, "delete_references_results.html", del_results,
+                                    jpoll_handler=jpoll_handler)
 
 # ===========================================================================
 
 @error_trap("add_existing_references_input.html")
 @log_view
-@superuser_login_required
 @instrument_lock_required
 def add_existing_references(request):
     """This view supports adding references which are already in CRDS to a context
@@ -1400,6 +1401,9 @@ def add_existing_references_post(request):
     added_files = validate(request, "added_files", is_known_file_list)
     uploaded_files = { fname:rmap.locate_file(fname, models.OBSERVATORY) for fname in added_files }
 
+    locked_instrument = get_locked_instrument(request)
+    jpoll_handler = jpoll_views.get_jpoll_handler(request)
+    
     pmap = rmap.get_cached_mapping(pmap_name)
     pmap_references = pmap.reference_names()
     for added in added_files:
@@ -1407,41 +1411,38 @@ def add_existing_references_post(request):
         blob = models.FileBlob.load(added)
         assert not blob.rejected and not blob.blacklisted,  "File " + repr(added) + " is bad or contains bad files."
     
-    locked_instrument = get_locked_instrument(request)
-    
     ars = submit.AddExistingReferenceSubmission(pmap_name, uploaded_files, description, 
-                                                user=request.user, locked_instrument=locked_instrument)
-    disposition, new_mappings_map, _mapping_certs, _mapping_diffs, collision_list = ars.submit()
-    
-    new_files = new_mappings_map.values()   # the new rmaps map
-    final_pmap, context_map, collision_list = submit.submit_confirm_core( 
-           True, "add references", description, new_files, new_files, 
-           str(request.user),  pmap_name, pmap_mode, locked_instrument, related_files=added_files)
-
-    context_map.update(new_mappings_map)
-    
-    for file_ in added_files:
-        models.AuditBlob.new(str(request.user), "add references", file_, description, 
-                             details = repr(added_files + [final_pmap]))
-        
-    models.clear_cache()
+                                                user=request.user, locked_instrument=locked_instrument,
+                                                status_channel=jpoll_handler)
+    disposition, new_mappings_map, mapping_certs, mapping_diffs, collision_list = ars.submit()
     
     add_results = {
-                "pmap" : final_pmap,
-                "original_pmap" : pmap_name,
+                "pmap" : pmap_name,
                 "pmap_mode" : pmap_mode,
-                
-                "added_files" : added_files,
 
-                "context_map" : sorted(context_map.items()),
-                "submission_kind" : "add existing references",
+                "new_file_map" : new_mappings_map,
+                "uploaded_basenames" : [],
+                "added_files" : added_files,
+                "submission_kind" : "add references",
+                "title" : "Add Existing References",
                 "description" : description,
-                "context_rmaps" : sorted(new_mappings_map.values()),                 
+                "context_rmaps" : sorted(new_mappings_map.values()), 
+                
+                "certify_results" : mapping_certs,
+                "diff_results" : mapping_diffs,
+                
                 "collision_list" : collision_list,
+                
+                "should_still_be_locked" : locked_instrument,
+                "requires_locking" : True,
+                "lock_datestr" : locks.get_lock_datestr(locked_instrument, type="instrument", user=str(request.user)),
+
+                "more_submits" : "/delete/reference/",
                 "disposition": disposition,                
             }
     
-    return render_repeatable_result(request, "add_existing_references_results.html", add_results)
+    return render_repeatable_result(request, "add_existing_references_results.html", add_results,
+                                    jpoll_handler=jpoll_handler)
 
 # ===========================================================================
 

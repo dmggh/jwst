@@ -9,10 +9,9 @@
     
     <form method="post" action="/delete/reference/" enctype="multipart/form-data"
           id="delete_references_form" class="jpoll_ajax_html_form"
-    	  {# onsubmit="return crds.validate_and_confirm_file_delete(this);"  #}
-          >  {% csrf_token %}
+    	  onsubmit="return crds.validate_and_confirm_add_delete(this);" >  {% csrf_token %}
 
-      <h3>Deleted Files</h3>
+      <h3>Deleted Files:</h3>
       <textarea name="deleted_files" cols="50" rows="4" >{{deleted_files}}</textarea>
 
       <h3>Derive From Context:</h3>
@@ -24,7 +23,7 @@
 
       <br/>
       <br/>
-      <input type="submit" value="Submit References" > <b class="red">WARNING:</b> no confirmation step.  Double-check.
+      <input type="submit" value="Submit References" >
     </form>
 
 {% endblock column1 %}
@@ -32,8 +31,8 @@
 {% block help %}
 
 <p><b>Delete References</b> generates a new context from the derivation context which omits the listed references.   
-Enter file names separated by spaces or newlines.   NOTE: this does not remove references from CRDS.   It creates
-a new context which does not contain the references.
+Enter file names separated by spaces or newlines.   NOTE: this does not remove
+references from CRDS entirely.   It creates a new context which omits the references.
 
 <p><p><b>Derive From Context</b> The name of the pipeline context which 
 will be recursively updated to delete the reference files.

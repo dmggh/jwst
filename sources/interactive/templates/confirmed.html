@@ -39,6 +39,20 @@
                 </table>
             {% endif %}
             
+            {% if deleted_files %}
+                <h3>Deleted Files</h3>
+                {% for file in deleted_files %}
+                <p>{{file|browse}}</p>
+                {% endfor %}
+            {% endif %}
+            
+            {% if added_files %}
+                <h3>Added Files</h3>
+                {% for file in added_files %}
+                <p>{{file|browse}}</p>
+                {% endfor %}
+            {% endif %}
+            
             {% if context_rmaps %}
                 <h3>Rmaps Added To Contexts</h3>
                 <table>

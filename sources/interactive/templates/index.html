@@ -47,6 +47,8 @@
         <li><a href="/submit/reference/">Submit References</a></li>
         <li><a href="/submit/mapping/">Submit Mappings</a></li>
         <li><a href="/mark_bad/">Mark Files Bad</a></li>
+        <li><a href="/add_existing/reference/">Add References</a></li>
+        <li><a href="/delete/reference/">Delete References</a></li>
         {% endif %}
       </ol>
       
@@ -58,16 +60,13 @@
         <li><a href="/version_info/">Server Version Info</a></li>
         <li><a href="/admin/">Admin</a></li>
         <br>
-	    {% if locked_instrument %}
-        <li><a href="/delete/reference/">Delete References (UNCONFIRMED)</a></li>
-        <li><a href="/add_existing/reference/">Add References (UNCONFIRMED)</a></li>
-        {% else %}
+	    {% if not locked_instrument %}
         <li><a href="/batch_submit_references/">Batch Submit References (UNLOCKED)</a></li>
         <li><a href="/submit/reference/">Submit References (UNLOCKED)</a></li>
         <li><a href="/submit/mapping/">Submit Mappings (UNLOCKED)</a></li>
         <li><a href="/create_contexts/">Create Contexts (UNCONFIRMED)</a></li>
+        <li><a href="/mark_bad/">Mark Files Bad (UNLOCKED)</a></li>
 	    {% endif  %}
-        <li><a href="/mark_bad/">Mark Files Bad</a></li>
         <br/>
       </ol>
       {% endif %}

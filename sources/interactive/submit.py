@@ -530,7 +530,7 @@ class FileSubmission(object):
             rmap_replacement_map[old_rmap] = new_rmap
             new_rmap_path = rmap.locate_mapping(new_rmap)
             old_rmap_path = rmap.locate_mapping(old_rmap)
-            self.push_status("Generating new rmap '{}' from '{}' with added files.".format(new_rmap, old_rmap))
+            self.push_status("Generating new rmap '{}' from '{}'.".format(new_rmap, old_rmap))
             # refactor inserting references.
             self.__class__.modify_rmaps_function(old_rmap_path, new_rmap_path, these_ref_paths)
             # Submit the new rmap with added references

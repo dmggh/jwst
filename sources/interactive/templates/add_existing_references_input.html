@@ -9,10 +9,9 @@
     
     <form method="post" action="/add_existing/reference/" enctype="multipart/form-data"
           id="add_existing_references_form" class="jpoll_ajax_html_form"
-    	  {# onsubmit="return crds.validate_and_confirm_file_delete(this);"  #}
-          >  {% csrf_token %}
+    	  onsubmit="return crds.validate_and_confirm_add_delete(this);">  {% csrf_token %}
 
-      <h3>Added Files</h3>
+      <h3>Added Files:</h3>
       <textarea name="added_files" cols="50" rows="4" >{{added_files}}</textarea>
 
       <h3>Derive From Context:</h3>
@@ -24,7 +23,7 @@
 
       <br/>
       <br/>
-      <input type="submit" value="Add References" > <b class="red">WARNING:</b> no confirmation step.  Double-check.
+      <input type="submit" value="Add References" > 
     </form>
 
 {% endblock column1 %}
@@ -32,7 +31,7 @@
 {% block help %}
 
 <p><b>Add Existing References</b> generates a new context from the derivation context which adds the listed 
-references.   Enter file names separated by spaces or newlines.   
+references.   Enter file names of existing references separated by spaces or newlines.
 
 <p><p><b>NOTE:</b> this does not ingest references into CRDS, it adds existing CRDS references to a set of rules.
 

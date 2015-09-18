@@ -131,6 +131,29 @@ crds.validate_and_confirm_file_submit = function(form) {
     return true;
 };
 
+crds.validate_and_confirm_add_delete = function(form) {
+    console.log("Validating add delete");
+    if (!crds.validate_select_pmap()) {
+        return false;
+    };
+    console.log("Validating description.");
+    if (!$("#description").val()) {
+        alert("Did you add a Description?");
+        return false;
+    };
+    crds.set_info_box({text: "Processing files on the server now."});
+    crds.append_info_box({
+        text: "This may take several minutes depending on how many files you submitted and how.",
+        css: {color: "darkblue"},
+    });
+    
+    $("input[type='submit']").hide();
+    
+    crds.setup_status_display("Add/Delete Status");
+    
+    return true;
+};
+
 crds.format_table = function (header_cols, body_rows) {
     var header = crds.tag("thead",
                           crds.tag("tr",
