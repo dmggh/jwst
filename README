@@ -15,20 +15,30 @@ There 4 CRDS server "use cases".
 django    Django/SQLite django server
 dev  Apache/VM/Isilon/MySQL/Proxy/mod_wsgi development server
 test   Apache/VM/Isilon/MySQL/Proxy/mod_wsgi pipeline test server
-prod   Apache/VM/Isilon/MySQL/Proxy/mod_wsgi pipeline production server
+ops   Apache/VM/Isilon/MySQL/Proxy/mod_wsgi pipeline production server
+
+JWST uniquely has an additional two usecases:
+
+b5it  build 5 frozen i&t server
+b6it  build 6 frozen i&t server
 
 # Install the code as indicated by the appropriate config file from
 # sources/configs/config.<observatory>.<server_kind>
-./install [hst|jwst]  [django|dev|test|prod]
+./install [hst|jwst]  [django|dev|test|ops|b5it|b6it]
 
 # Possibly re-run install if the first run failed due to missing packages
-./install [hst|jwst]  [django|dev|test|prod]
+./install [hst|jwst]  [django|dev|test|ops|b5it|b6it]
 
 # Initilize the CRDS catalog with existing reference files, deliver initial
 # set of mappings.   Generally this is no longer done,  except maybe for private Django dev-server installations.
 # Enter system passwords.
-./init [hst|jwst] [django|dev|test|prod]
+
+./init [hst|jwst] [django|dev|test|ops|b5it|b6it]
 <enter password for test user>
+
+XXXX NOTE: the process of running ./init is now obsolete, the servers are mature and server
+state is maintained in the database and file system.  mirroring servers from OPS to a 
+lower level use case is now the preferred method of setting up new servers.
 
 2. Procedure for starting the sever:
 
@@ -36,7 +46,7 @@ prod   Apache/VM/Isilon/MySQL/Proxy/mod_wsgi pipeline production server
 
 3. Procedure for update not affecting the database:
 
-% ./rerun [hst|jwst] [django|dev|test|prod]
+% ./rerun [hst|jwst] [django|dev|test|ops|b5it|b6it]
 
 4. Procedure for running a command line / ipython environment for debug
 
@@ -44,8 +54,8 @@ prod   Apache/VM/Isilon/MySQL/Proxy/mod_wsgi pipeline production server
 
 5. Procedure for running HST server self-tests.
 
-% ./run hst django
-% ./runtest hst django   (2nd terminal)
+% ./rerun
+% ./runtest (2nd terminal)
 
 or 
 
@@ -63,6 +73,23 @@ e.g.
 % ./manage dbbackup  # to create a django-dbbackup server database backup
 % ./manage dbrestore <backup file>   # to revert to an older version of the database
 
+Typically dbbackup and restore are done by wrapper scripts in the tools directory:
+
+tools/backup_server
+tools/restore_server
+
+which implicitly use save sets for the current server.  the tools scripts also include
+aspects of the server from the file system in addition to the database.   The 1T+ file
+caches are not backed up,  if needed they are mirrored from another system or sync'ed
+from the archive (once available).
+
+tools/backup_server and tools/restore_server maintain backup files in two locations:
+
+* there is a private dated location (currently under $CRDS/...) containing multiple backups.
+
+* there is a shared undated location (currently under /eng/ssb/crds/...) containing the last
+backup for each server which is used to facilitate mirroring.
+
 
 8. Mirroring
 
@@ -77,7 +104,7 @@ First,  on the source server:
 % server
 % tools/backup_server
 
-That puts required backup files in global ~/backups
+That puts required backup files in the shared /eng/ssb/crds/...
 
 Second,  on the destination server:
 
@@ -87,4 +114,10 @@ Second,  on the destination server:
 
 where the parameters to mirror_server specify the *source* server and the destination is
 implicitly the server of the current login.
+
+If the state of the mirrored server has changed since the nightly backup,  manually running the
+tools/backup_server script is required prior to mirroring in order to capture and mirror the latest
+state.
+
+If no state change has occurred since the nightly backup,  the source server backup step can be skipped.
 
