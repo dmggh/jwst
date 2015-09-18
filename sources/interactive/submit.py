@@ -45,7 +45,7 @@ import tempfile
 import shutil
 import glob
 
-from crds import log, rmap, utils, refactor, newcontext, CrdsError, diff
+from crds import log, rmap, utils, refactor, newcontext, CrdsError, diff, config
 
 from . import models, web_certify, web_difference, locks
 from .common import srepr
@@ -170,6 +170,10 @@ class FileSubmission(object):
     def upload_names(self):
         return self.uploaded_files.keys()
 
+    @property
+    def obs_locate(self):
+        return utils.get_locator_module(self.observatory)
+
     def __repr__(self):
         fields = [a + "=" + repr(getattr(self, a)) for a in ["pmap_name", "user_name", "upload_names", "description"]]
         return self.__class__.__name__ + "(" + ", ".join(fields) + ")"
@@ -252,7 +256,7 @@ class FileSubmission(object):
         else:
             try:
                 if file_exists_somehow(original_name):
-                    raise CrdsError("File " + srepr(original_name) + " already exists.") 
+                    raise CrdsError("File named " + srepr(original_name) + " already exists.") 
                 else:
                     permanent_name = os.path.basename(original_name)   
             except IOError:
@@ -483,6 +487,9 @@ class FileSubmission(object):
         for uploaded in self.uploaded_files:
             assert not rmap.is_mapping(uploaded), \
                 "Non-reference-file's cannot be submitted in a batch submission: " + srepr(uploaded)
+            if not self.auto_rename:
+                assert config.is_valid_reference_name(uploaded), \
+                    "Only CRDS-style and CDBS-style names can be accepted without renaming."
     
     def modify_and_add_rmaps(self, old_rmaps, cached_references):
         """Generate and submit official rmaps correspending to `old_rmaps` in 
@@ -738,17 +745,22 @@ class SimpleFileSubmission(FileSubmission):
 
     def restrict_genre(self, crds_filetype, generate_contexts):
         """Ensure all `uploaded_files` tuples correspond to the genre specified by crds_filetype:  
-        mapping or reference.   If generate_contexts is True,  only .rmaps may be submitted.
+        mapping or reference.   If generate_contexts is True,  only .rmaps may be submitted.   If
+        auto-rename is turned off,  additional naming constraints are applied here.
         """
         for uploaded in self.uploaded_files:
             if generate_contexts:
                 assert uploaded.endswith(".rmap"), "Only .rmaps may be submitted if Generate Contexts is selected."
             if crds_filetype == "mapping":
-                if not rmap.is_mapping(uploaded):
-                    raise CrdsError("Can't submit non-mapping file: '%s' using this page." % uploaded)
+                if not self.auto_rename:   # ad hoc rules names cannot be added.  decompose has asserts.
+                    self.obs_locate.decompose_newstyle_name(uploaded)
+                    if not config.is_valid_mapping_name(uploaded):
+                        raise CrdsError("Can't submit references or badly named mapping '%s' using this page." % uploaded)
             else:
-                if rmap.is_mapping(uploaded):
+                if config.is_mapping(uploaded):
                     raise CrdsError("Can't submit mapping file: '%s' using this page." % uploaded)
+                if not self.auto_rename and not config.is_valid_reference_name(uploaded):
+                    raise CrdsError("Invalid reference name", repr(uploaded), "unless auto-renaming is used.")
 
 # ------------------------------------------------------------------------------------------------
         
