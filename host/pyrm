@@ -1,12 +1,15 @@
 #! /usr/bin/env pysh
 #-*-python-*-
+from __future__  import print_function
+
 
 def dynamic_import(package):
     """imports a module specified by string `package` which is
     not known until runtime.   Returns a module/package.
     """
-    exec "import " + package + " as m" in locals(), locals()
-    return m
+    namespace = {}
+    exec("import " + package + " as m", namespace, namespace)
+    return namespace["m"]
 
 def find_shortest_module_path(modpath):
     parts = modpath.split("/")
@@ -29,9 +32,9 @@ def main():
     for modname in sys.argv[1:]:
         module = dynamic_import(modname)
         path = find_shortest_module_path(module.__file__)
-        ans = raw_input("Remove " + repr(path) + " (yes/no)? ")
+        ans = input("Remove " + repr(path) + " (yes/no)? ")
         if ans.lower().startswith("y"):
-            print "Removing", path
+            print("Removing", path)
             sh("rm -rf ${path}")
 
 

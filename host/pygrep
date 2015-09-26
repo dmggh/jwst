@@ -10,9 +10,16 @@ else
     set web=0
 endif
 
+if ( "$1" == "--ignore-case" ) then
+    set ignore_case=-i
+    shift;
+else
+    set ignore_case=""
+endif
+
 find $dir  -name '*.py' | xargs grep -i "$*"
 if ( "$web" == "1" ) then
-    find $dir  -name '*.html' | xargs grep -i "$*"
-    find $dir  -name '*.js' | xargs grep -i "$*"
+    find $dir  -name '*.html' | xargs grep $ignore_case "$*"
+    find $dir  -name '*.js' | xargs grep $ignore_case "$*"
 endif
 
