@@ -2,6 +2,9 @@
 #-*-python-*-
 from __future__  import print_function
 
+if sys.version_info < (3,0,0):
+    input = raw_input
+
 
 def dynamic_import(package):
     """imports a module specified by string `package` which is
