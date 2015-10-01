@@ -846,11 +846,10 @@ the other example xxx...
 
 XXXXX Is the terminology for this "pipeline recipe selection"?
 
-
-
-
-
-
-
+XXXXX You may also be thinking of software version tracking (ours + packages)
+as metadata associated with a series of pipeline contexts and captured
+as a "reference file" or custom mapping.  (Although strictly speaking a
+context can be used with multiple versions of s/w so it may be a limited
+weasel-wordy association.)
 
 
