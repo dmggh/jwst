@@ -1,0 +1,568 @@
+The Calibration Reference Data System
+
+Perry Greenfield
+Todd Miller
+
+Abstract
+
+We describe a software architecture and implementation for using rules to
+determine which calibration files are appropriate for use in calibrating a
+given observation. This new system replaces what had been previously used for
+the Hubble Space Telescope (HST) calibration pipelines, a system called the
+Calibration Database System (CDBS), and will be used for the James Webb Space
+Telescope (JWST) calibration pipelines. The approach used for this can be
+easily generalized for use in similar applications that need a rules-based
+system for selecting the appropriate file for a given case; we give some
+examples of such generalizations that will likely be used for JWST. The core
+functionality of the Calibration Reference Data System is available under an
+Open Source license.
+
+Introduction
+
+When running automatic calibration pipelines one important capability needed is
+the ability to identify automatically the appropriate calibration files that
+should be used when calibrating the data. The kinds of calibration files are
+typically numerous, and there may be many that have to be applied to a specific
+dataset. Examples are dark current, bias, flat field, photometric, and
+geometric distortions, among many others. Typically calibration files depend on
+particular observing modes or parameters, or may be time variable.
+
+Prior Solution
+
+The system that was used for the Hubble Space Telescope (HST) was called the
+Calibration Database System (CDBS). It was used successfully for many
+years. The experience with it revealed that there were some limitations that
+proved to constrain its capabilities, and as a result, a newer system that
+removed these constraints was sought. We will briefly describe the design of
+CDBS at a high level and the constraints that it posed. This provides the
+necessary background for discussing the design goals of CRDS.
+
+The basic design of CDBS was centered around a database that contained
+information on each reference file (the standard STScI term for files used to
+calibrate data whether they be flat fields, darks, or file containing
+appropriate parameters to use in calibration). Typically the database contained
+information about the relevant observational parameters (mostly instrument mode
+settings and date of applicability). At the highest level, the basic approach
+was to run a program for each new dataset being processed (or reprocessed as
+the case may be) that essentially performed a query on the database for each
+type of reference file needed. The result of the query was a specific reference
+filename that would then be set as the value of a particular keyword in the
+dataset's header for use by the calibration pipeline.
+
+The calibration pipelines retrieved the names of the appropriate reference
+files from the data set's header, and used those to open that reference file
+for use in calibration. The reference files were kept in a standard location in
+the pipeline processing system. The program that updated the headers with the
+selected references files was called "bestref."
+
+In reality, there was much more to CDBS than what has been briefly
+described. The system handled the addition of new reference files, first by
+validating the files met certain requirements, and then the archiving of those
+submitted files. The process for submitting new files involved a good number of
+manual steps and checks. One goal of the replacement system was to streamline
+the submission process somewhat.
+
+Furthermore, there were occasions for which standard SQL queries were
+insufficient for achieving the desired selection results. In such cases,
+software was run to generate custom queries to get around such limitations.
+
+CDBS was used for 24 years of HST's operation. During that period, upgrades and
+enhancements were made to how it worked, but for the most part, the design did
+not change in any major way.
+
+Limitations in CDBS
+
+Twenty four years provides a long time to learn about what could be
+improved. This section highlights what issues proved the most problematic in
+using CDBS.
+
+1). Difficulty testing new reference files. The use of a database essentially
+limited the system to one set of rules for selecting reference files. Once a
+reference file was delivered to the system, effectively the rules for selection
+were modified in the operation system immediately. There were occasions when
+reference files were deemed to have passed functional testing (i.e., they
+performed the correct calibraiton for the designated cases), but were submitted
+with incorrect information about which modes or dates that they should be used
+for. As a result, the operational pipeline would only discover that there was a
+problem when processing real data, thus resulting in dealing with correcting
+misprocessed data (or in some cases, failure to even process). Problems in the
+operational pipeline are significant disruptions. In the last few years, a test
+version of the database was created so that tests could be performed, but that
+introduces synchronization and management issues to make sure what is being
+tested corresponds to the previous operational version. Furthermore, if
+multiple deliveries are in progress from different instruments, it introduces a
+coordination issue to make sure they are either all completed together or in
+sequence, which can prove constraining to the needs of each instrument as far
+as testing goes.
+
+2) Difficulty in undoing mistakes. A delivery of a file with mistaken
+parameters could be difficult to undo. No reference file could be removed from
+the database for various reasons. In a number of cases, particularly if the
+date that it was targeted for was incorrect, it could seriously corrupt the
+selection logic. To take the most common error case: Files often had a
+"useafter" date associated with them that indicated that it should be used for
+a date after the specified one *if no other file had a later date that was
+still before the date of the observation*. If one submitted a file intended to
+be used for data after 2000-01-01 but mistakenly provided
+1999-01-01. Correcting that may require resubmitting the file that should be
+used for that date and after such that its useafter date is 1999-01-02 (or more
+likely one second after the mistaken entry). There are other cases where one
+mistaken submission may require a series of resubmissions of already submitted
+files to correct for the effect of the wrong submission. This makes the
+potential effects of mistakes serious and thus requires extreme care in
+submission.
+
+3) Difficulty in supporting remote usage. Using the bestref facility remotely
+requires providing a web service so that remote processing can get the most up
+to date recommendations on the best reference file to use. There is one serious
+drawback in this though. Frequently the versions of the calibration software in
+the operations pipeline have not yet been publically released, and there are
+times when the latest reference files require the latest software. Such a web
+service has the potential of recommending reference files that either are
+inappropriate for previous versions of the calibration pipeline software, or
+simply will not work with previous versions. As a result, this service was not
+provided.
+
+4) Difficulty in allowing customized variants of selection rules. Sometimes
+observers or teams have specialized calibration files that they wish to
+substitute in place of the standard ones. There was no simple way of allowing a
+team to run a customized version of CDBS to support this. The entrenched
+sofware requirements were too numerous (when one develops a system to run in
+only one environment, dependencies on that environment easily become entrenched
+in the system). Even if no customization was desired, it makes running the
+calibration pipeline remotely at another institution very difficult since there
+is no simple way to get the the most recent recommendations.
+
+5) Difficulty in providing remote pipelines a consistent bestref
+environment. There are times observers *do not* want changing references files
+if they wish comparison to previously computed results. They want the same
+rules applied, even if they aren't the very best version.
+
+6) Difficulty in understanding what the effective rules are. The exact
+selection rules are embodied in a database with a history of transactions for
+which many superceed previous ones. One really only knows the net effect by
+running queries on the database for specific cases, even when something quite
+simple could summarize what is desired for the current situation. The net
+effect of this is that people do not really understand what the rules are, and
+that they are not what was intended. Finding mistakes in this situation can be
+quite difficult. And once found, can be difficult to rectify.
+
+7) Difficulty in adding new kinds of selection rules. The database schema
+effectively constrains what kinds of rules can be used. More complex rules
+either lead to horrendously complex queries, or custom software to generate
+custom queries. The use of the custom sofware/queries ends up making the system
+even more opaque.
+
+The Crux of a Different Approach
+
+It became apparent that many of the limitations ultimately came down to the
+dependence on a database as the repository for the selection rules. This has a
+number of drawbacks in this particlar application:
+
+1) Databases are effectively one state systems. Yes, one can deal with multiple
+states but usually at great complexity.
+2) Databases do not make it simple to distribute software since installing,
+administering and maintaining a database elsewhere is a major task, and keeping
+them synchronized to the master copy is yet a greater complexity
+3) Once established, changing the structure of database is difficult,
+particularly with a systems used in operations.
+
+Is it in fact necessary to use a database to hold the rules? In reviewing all
+the previous and anticipated cases for HST and JWST, it did not appear that a
+database was necessary for selection rules, and that a simpler and more
+flexible approach could be chosen. Indeed, all that appears to be needed is to
+encompass a version of the rules in a simple text file. In doing so there are a
+number of immediate benefits:
+
+1) the rules are explicit
+2) multiple versions of these rules may exist without conflict, and used in
+different contexts simultaneously without confusion.
+3) these rule files may be easily distributed so that remote users can run the
+"bestref" functionality remotely without needing to install or administer
+complex software.
+4) the rules are easily customized, even by hand if necessary if users wish to.
+
+High level organization of CRDS
+
+The software for CRDS can be considered to be in one of three categories:
+
+1) supporting the bestref functionality
+2) supporting submitting new reference files and all the issues that go with
+that
+3) providing utilities for making CRDS useful in operations, for instrument
+scientists that must generate and monitor reference files, and end users.
+
+Each of these will be described in a separate section. Since most of the design
+is centered around the first category, most of the description will be centered
+around that.
+
+Bestref Functionality
+
+Design
+
+The system is centered around rules files that describe (for one version) that
+describe entirely how reference files should be selected for a single type of
+reference file. In a general sense, the file consists of a header of sorts that
+describes information about what kind of reference file that it is applied to,
+what the relevant information from the data set is needed to make that
+selection, and other bookkeeping information. Following that header are the
+rules. Generally these are nested sets of criteria that are used to
+successively narrow down the selection until a single result is determined. It
+is important to understand that there is no intrinsic limit to what structures
+can be supported. If more complex cases arise, new structures can be added to
+the library to support these. The following lists existing and possible kinds
+of selections structures. Those that already are supported are marked with an
+'*'. The ones that are not supported are intended to illustrate possible
+extensions that are not purely hypothetical. The following examples of files
+will illustrate specifically these structures.
+
+a) matching on sets of discrete parameter values. That is, the item associated
+with this specific set of parameters is selected if the parameter values are
+matched exactly. An item may be a file name, or a nested set of rules that will
+be evaluated in turn.
+b) matching on a sequence of dates. This corresponds to the useafter mechanism
+in CDBS. Normally these items will be sorted in date/time order, and the
+date/time of the observation is used to select the appropriate item in the list
+c) matching software version requirements. This structure indicates selection
+based on versions of the software which item should be selected. It may use
+specific versions, or relative (e.g., any version before or up to the specified
+version, or any version after the specified version).
+d) getting bracketing files. This is useful if some sort of interpolation
+between reference files is desired, in which case a pair of results is
+returned.
+e) matching on ranges of non-descrete values. For example, this may select a
+file if an observational parameter is in the specified range. Normally, this
+would be a one-dimensional selection, though even more complex multidimensional
+volumes could be constructed if need be.
+
+xxx example 1 (highlighting a & b)
+xxx example 2 adding c
+xxx example 3 illustrating d
+
+The system is based on these files (which we refer to rmap files since they
+indicate the mapping to reference files) but also involves a hierarchy of
+related files that are called context files. Essensially context files are also
+text files that define a group of related files that are to be used
+together. Instrument context files collect all the rmap files for that
+instrument. This file effectively defines the versions of all the rmap files
+for each reference file types that comprise the version of recommendations in
+effect for that instrument. In the example of the instrument context file
+below, one can see that each distinct rmap file has a unique name. If anything
+is changed in an rmap file, it gets a new name
+
+xxx example of instrument context file
+
+Likewise, there is a pipeline context files that lists the instrument context
+files that define the versions in effect for the pipeline being run. As with
+rmap files, instrument context files all have unique names. Any change of
+content results in a new name for an instrument context file. Finally, the same
+is true for pipeline context files. The net result is that a pipeline context
+file deterministically identifies all the rules in use for a pipeline. 
+
+Note that one can run any number of pipeline environments, and each may use a
+completely different pipeline context if need be, each of which will have some
+sort of different rules for how reference files are selected.
+
+xxx example of pipeline context file
+
+This hierarchy is designed to match that for JWST. It would not take a lot of
+effort to generalized this to N levels, perhaps a different N for different
+branches of the hierarchy [xxx is this true Todd?].   
+
+Practicality and Restrictions of this design
+
+This approach assumes that the number of matching rules is reasonable for a
+text file (e.g., fewer than 10,000 lines or so). It also assumes that the
+number of versions of such files is reasonably bound (again, not more than a
+few thousand). The most likely driver for the number of rules files versions is
+the addition or modification of new reference files as a function of. This has
+been the case for HST, where it is not uncommon to generate new dark files for
+every day. For a mission that may last a decade or more we are looking at
+approximately 3-4 thousand if updated daily. In fact, HST updates the
+configuration more infrequently (e.g., once a week even if there is a reference
+file for each day).
+
+In cases where updates are much more frequent, and the the system that uses
+them must be reconfigured after each update, CRDS may not be practical. This
+may be the case where new calibration files are obtained every few minutes and
+automatically turned into reference files for immediate use by a calibration
+pipeline.
+
+Language independence
+
+This implementation has been done completely in Python. Although the rmap files
+have a Python flavor to them (arguably it is more of a JSON flavor), nothing
+requires this functionality to be performed in Python. To date Python has
+proven fast enough to generate the bestref functionaly, even for recomputing it
+for large numbers of exposures, as is needed to determine which data sets must
+be reprocessed as a result of changes to the configuration.
+
+Adding and updating reference files, rmaps and contexts
+
+While the design of the system is very much centered around how reference file
+recommendations are made, that is hardly the only important aspect of the
+system. How does one submit new files and ensure the integrity of the system as
+the content evolves?
+
+One of the important goals for CRDS was to streamline the process of submitting
+new files while ensuring that files are well checked before committed, at least
+for common use cases for new Reference files. A completely manual approach is
+outlined here before addressing more automatic schemes. For the time being, the
+details of how files are actually submitted is deferred to the next section
+
+Supposing one or more new references files of a specific type for a specific
+instrument are ready to be tested and used in the operations system/:
+
+1) submit each of the reference files (with validation of each file being part
+of the submission process). This is expected to generate unique names for each
+of the submitted reference files
+2) edit the rmap for that reference file type to include the necessary changes
+to use these (most likely either a replacement of older versions or the
+addition of time-variable ones).
+3) submit the updated rmap file (again with implied validation for correctness)
+and again, generating a new, unique rmap file name that represents the version
+of the file in the system that has the desired changes.
+4) edit the instrument context file to use the new version of the rmap file.
+5) submit the updated instrument context file (with validation and generating a
+new, unique name)
+6) edit the pipeline context file to use the new version of the instrument
+context file.
+7) submit the updated pipeline context file (with validation and generating a
+new, unique name)
+
+At this point the new reference files can be used in an operational
+context. Normally, it is expected that they will be tested on a test version of
+the operations system by at least running the standard regression test suite
+using the new configuration, perhaps with specific tests for the purpose of
+testing the new reference files in use. These tests can be performed simply by
+specifying a different pipeline context than the one currently being used in
+operations, and without impacting the operations behavior.
+
+When tests have been suitably passed, then the operations system can be updated
+to use the new context. Should tests indicate that the new context has
+problems, it can simply be ignored and never used. Presumably corrections will
+be made to the reference files and the corresponding rules to generate a new,
+correct context.
+
+Since any number of context can exist, one can have several in testing
+simultaneously. If that is the case, one still needs to be careful in
+determining if different contexts need merging of information (as could happen
+if different instruments are submitting new files independently).
+
+In any case, if the operations system does end up using an incorrect pipeline
+context, reversion to a previously good one is quite simple (something that
+could be quite tricky in CDBS).
+
+Streamlined updates
+
+While this multistep update process may be necessary in more complex cases, the
+great majority of reference file submissions fall into one of two categories:
+1) the replacement of existing references files (e.g., a better flat field) or
+the addition of a reference file for a previously unsupported mode; or 2) the
+addition of time-dependent references files to address data for specific time
+ranges.
+
+In either of these cases, it is quite useful to streamline the process to
+effectively make it one step. Namely by the fact of submitting the reference
+files, automatically updating and submitting the appropriate rmap to use it,
+and in turn, making the corresponding updates and submissions to the context
+files. As a result of these submissions, the user then is given all the
+relevant names for the new reference files, rmap, and context files, most
+importantly the pipeline context file. For this to work properly, the user must
+indicate which pipeline context they are basing the changes on. Normally this
+is the last one. [???]
+
+Reference File submission details
+
+The machinery for submitting reference files is an interactive web-based
+system. The ability to submit files or make changes requires user
+validation. Figure xxx shows a screenshot of the home page of the CRDS
+system. The submission capabilities are indicated in the xxx links in
+xxx. Figure xxx shows the submisson web page for updates for reference
+files. This examples is for xxx.
+
+The user identifies the local files designated as the files to replace existing
+ones. When all the updates have been identified, the submit button [or
+whatever] is clicked, and CRDS will then validate each of the reference
+files. If they all pass validation, the user will be presented the results of
+the results that will be produced (e.g., the new filenames for the reference
+files, rmaps and context files, and other summary information). An example of a
+successful validation is shown in Figure xxx. At this point the user confirms
+the submission after which they will be assigned unique names, added to the
+CRDS database of reference files, sent to the STScI archive for archiving, and
+placed in the disk-based repository of reference files. If the validation
+doesn't pass, the results indicate what the problem is so the user may make the
+necessary corrections. Figure xxx shows such a summary of problems.
+
+The subsequent updates to rmap and context files also are validated, primarily
+to ensure the syntax is correct.
+
+Reference File Validattion
+
+This is handled by using the tools that the JWST pipeline use to validate the
+reference files. These are based on data models that use JSON Schema (ref xxx)
+to define the mandatory aspects of the data expected, including all the
+expected data elements (whether arrays or tables), the allowable dimensionality
+and datatype, and required metadata.
+
+The required metadata includes information on who made the reference file, how
+the reference file was made and related information (CRDS will also add
+standard metadata related to the submission aspsects, such as when the file was
+submitted.)
+
+Utilities
+
+Utilities are generally targeted to one or more of three classes of users:
+Operations, Instrument Scientists (i.e., those that must create and maintain
+reference files), and general users. Some utilities are useful for only one of
+these classes of users whereas others may be more broadly useful. We will
+organize this section by this class of users. Where a utility has other uses we
+will indicate that.
+
+Operations
+
+Affected files utility: Given a list of datasets, determine which ones have
+been affected by a change in a pipeline context. Normally it is expected that
+the relevant selection parameters for each data set is contained in a database
+to avoid having to examine the contents of each dataset. This utility needs to
+run in a reasonable amount of time since it may have to do this comparison for
+hundreds of thousands of datasets. The inputs to the utility is a text list of
+data sets, and the two pipeline contexts being compared. The results of this
+can be used to determine which data sets must be reprocessed to take advantage
+of any improved reference files.
+
+This functionality may also be used by general users or instrument scientists.
+
+Active reference files in a context: List all reference files used in a
+pipeline context. This indciates what files may be needed to process the
+data. (possibly useful for other classes of users)
+
+Inverse mapping: Which rmaps and contexts use a specific reference file (e.g.,
+if one finds that one was defective, identify all the pipeline contexts that
+used that file so that users may be notified)?
+
+Instrument Scientists
+
+Difference in rules between two contexts: Summarize what has changed in the
+rules between two pipeline or instrument contexts. This allows instrument
+scientists to quickly identify the changes made.
+
+General users
+
+Compare retrieved data with current pipeline context: A user has downloaded
+data and wishes to see what data may need to be re-retrieved since the
+reference files it used are not the currently recommended ones. A variant on
+this is to update the headers of the files with the newly recommended files
+(though for the JWST pipelines, this isn't normally necessary). This typically
+will be run remotely and thus need network access to the CRDS server.
+
+Technical implementation details
+
+All the software (aside from a limited amount of web interface tools) is
+written in Python. The bestref functionality uses the following Python
+libraries (i.e., what isn't part of the Python Standard Library
+distribution). It was originally written to use Python 2, but has since been
+updated to use Python 3 [xxx does it work with both?] 
+
+- xxxx
+- xxx
+
+The web-based functionality uses the Django framework and the MySQL database
+backend. The additional following libraries are used.
+
+- xxx
+- xxx
+
+A significant issue exists with the uploading of large data files through the
+web interface. This is due to the limitations of the HTTP protocol that often
+result in web and proxy servers timing out on requests that take a long time to
+complete. One improvement that is necessary to support very large file
+submissions is xxx.
+
+Reference files in FITS, JSON, and ASDF format are supported.
+
+Enabling pipeline flexibility
+
+CRDS was designed to allow running the JWST calibration pipelines remotely much
+more easily. HST users could always rerun pipelines at their home institutions,
+but it was considerably more painful to do since they had to determine what
+reference files their data sets required and retrieve them from the archive
+before they could run the pipeline. Even the first task was made more
+complicated by the fact that there was no reliable way to find the current best
+reference files.
+
+For JWST, CRDS will provide a web service that can be accessed
+remotely. Furthermore, the JWST calibration pipelines have been designed to
+make the request directly to CRDS to determine which reference files to use and
+download the file if it is not available locally. This means anyone can run the
+pipeline remotely and be assured that the right reference files will be used,
+and retrieved if necessary.
+
+In fact, the bestref functionality has been designed to work entirely locally
+if all the necessary context and rmap files are available locally. And the
+normal mode of operation is to cache all the files for that functionality even
+if running remotely. Once these files are downloaded, the only necessary
+internet connection is to check if the context used locally is the current one
+being used for JWST operational pipelines. Otherwise, it is entirely possible
+to run this functionality entirely locally. The bestref functionality is very
+portable and easy to distribute with with the calibration pipeline software.
+
+Another aspect of the pipeline flexibility is that this also allows users to
+control the reference file rules. For example, there are cases for which users
+prefer to continue using the same reference files as for previous data that has
+been calibrated remotely in preference to using slightly better reference
+files, but introducing an inconsistency in processing the different data
+sets. Users may be able to specify a specific pipeline context instead of the
+current context.
+
+Finally, users may edit the rules files directly to replace STScI supplied
+reference files with their own ones, or even to add a custom step to the
+pipeline with an entirely new set of rules and reference files.
+
+Use for HST
+
+Although CRDS was designed for use with JWST, it was desired to upgrade the HST
+system to use it as well. The advantage for JWST is that CRDS would be heavily
+tested in an operational environment. The bestref machinery is essentially
+identical, but different in application since HST pipelines populate the data
+set's header with the reference files to be used rather than the calibration
+pipeline using the service.
+
+The major challenge for HST was in translating the effective rules that existed
+in the database into rmap files and ensuring that CRDS was producing the same
+results. This was done by doing the recommended comparison for every data set
+in the HST archive. The generation of the rmaps was automated since the target
+was constantly changing for HST because of continual reference file
+updates. The cycle of generating rmaps and making the reference file comparison
+for all datasets was repeated many times until CRDS went operational. This was
+further complicate by the fact that the database that contained the CDBS best
+references was not reliable. The differences that arose had to be further
+tested with the operations bestref facility (which requires using actual
+datasets thus is much slower).
+
+This testing uncovered a number of yet undiscovered problems with the CDBS
+recommendations, which were then fixed in both.
+
+The two systems were run in parallel for many months with the results being
+compared, first with CDBS used for the actual results, then switching to CRDS
+as the primary system. CDBS has since been disabled.
+
+Other Applications
+
+It is important to realize that this system has a wider range of application
+than just for selecting appropriate reference files. It can act as a selector
+many uses so long as the number of selections is not enormous, and the set of
+selection parameter is reasonably consistent and bounded for all data
+sets. Other uses are already envisioned for JWST. For example, it will be used
+to determine which calibration pipeline to run based. So rather than supplying
+a reference file to use, it will supply the pipeline to execute. And I forget
+the other example xxx...
+
+
+
+
+
+
+
+
+
