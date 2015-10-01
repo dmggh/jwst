@@ -345,13 +345,38 @@ selector = Match({
 
 xxx example 2 adding c
 
-selector = VersionSelector({
-         "1.1" : "jwst_miri_spec_0001.json",
-         "1.4" : "jwst_miri_spec_0002.json",
-         ...
+selector = SelectVersion({
+   '<3.1':    'jwst_miri_flat_0065.fits',
+   '<5':      'jwst_miri_flat_0073.fits',
+   'default': 'jwst_miri_flat_123.fits',
 })
 
 xxx example 3 illustrating d
+
+selector = Bracket({
+    1.2: "cref_flatfield_120.fits",
+    1.5: "cref_flatfield_124.fits",
+    5.0: "cref_flatfield_137.fits",
+})
+
+Here, a parameter value of 1.3 returns the value:
+
+('cref_flatfield_120.fits', 'cref_flatfield_124.fits')
+
+xxxx example 4 illustrating e
+
+selector = Match({
+    ('WFC', 'N/A', 'BETWEEN 1220 1530', 'FR782N') :  "hst_wfc3_flatfile_0027.fits",
+    ('WFC', 'N/A', 'BETWEEN 1530 1690', 'FR782N') :  "hst_wfc3_flatfile_0028.fits",
+    ...
+})
+
+Here a wavelength of 1300 (between 1220 and 1530) results in the partial match
+of 'hst_wfc3_flatfile_0027.fits' and eliminates "hst_wfc3_flatfile_0028.fits"
+as a candidate.   Since BETWEEN can be used in an arbitrary Match parameter
+slot,  potentially multiple times,  volumes can be described, and also
+described in concert with other types of match syntax for other parameters
+such as or-globs or regexes.
 
 XXXXXXX I think the capabilities of (e) are actually folded into Match()
 described in (a),  where each individual parameter of a match case can use
@@ -363,20 +388,14 @@ XXXX I documented all this stuff here:
 
 XXXX   https://jwst-crds.stsci.edu/static/users_guide/rmap_syntax.html#selectors
 
-XXXX Let me know if you want me to pare it down, but you probably have better
-judgement on what is worth mentioning.  By far the most common match syntax
-used is the literal-value-or-glob, including the degenerate case of a single
-literal value.  Unlike CDBS which had discrete rows for every combination of
-discrete parameter values, CRDS summarizes the combinatorial explosion of
-parameter possibilities into a single concise multi-parameter expression by
-virtue of the matching syntax.  It is far more comprehensible to look at one
-multi-parameter match expression with or-globs than it is to scan 60 or 100
-simple rows in the CDBS database.  A secondary important case used in CRDS is
-the "weightless" N/A match value which means "ignore this parameter for this
-match case and give higher weight (preference) to other cases which do actually
-match."  A final case which has been used in some instances in CRDS is the
-"between" expression.  For example, "between" has been used to match wavelength
-ranges to the single wavelength of an observation for ACS DFLTFILE.
+XXXX By far the most common match syntax used is the literal-value-or-glob,
+including the degenerate case of a single literal value.  Unlike CDBS which had
+discrete rows for every combination of discrete parameter values, CRDS
+summarizes the combinatorial explosion of parameter possibilities into a single
+concise multi-parameter expression by virtue of the matching syntax.  It is far
+more comprehensible to look at one multi-parameter match expression with
+or-globs than it is to scan 60 or 100 simple rows in the CDBS database.
+Another common match expression is N/A.  BETWEEN has also been used.
 
 The system is based on these files (which we refer to rmap files since they
 indicate the mapping to reference files) but also involves a hierarchy of
