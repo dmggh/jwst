@@ -715,14 +715,12 @@ def index(request):
 
 @error_trap("base.html")
 @log_view
-@login_required
 def display_result(request, results_id):
     """Render the repeatable result with `results_id`.  Handle the /display_result/ URL."""
-    results_id = int(results_id)
     try:
-        result = models.RepeatableResultBlob.get(results_id)
+        result = models.RepeatableResultBlob.load(results_id)
     except Exception, exc:
-        raise CrdsError("Error loading result " + str(results_id) + " : " + str(exc))
+        raise CrdsError("Error loading result", results_id, ":", str(exc))
     pars = result.parameters
     pars["results_id"] = results_id  # needed to implement "disposition", confirmed or cancelled.
     return crds_render(request, result.page_template, pars)

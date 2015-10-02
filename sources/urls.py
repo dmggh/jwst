@@ -8,7 +8,7 @@ import crds.server.jsonapi.views
 import crds.server.interactive.views
 
 from crds.server import settings, config
-
+from crds.server.interactive.common import UUID_RE_STR
 from crds.config import FILE_RE_STR
 
 # XXX Cached views must be completely defined by the URL
@@ -89,7 +89,7 @@ urlpatterns = patterns('',
     url(r'^display_context_history/$', 
         crds.server.interactive.views.display_context_history),
                          
-    url(r'^display_result/(?P<results_id>\d+)$', 
+    url(r'^display_result/(?P<results_id>{0})$'.format(UUID_RE_STR), 
         'crds.server.interactive.views.display_result'),
                        
     url(r'^edit_context_history/(?P<history_id>\d+)/{0}/$'.format(FILE_RE_STR), 

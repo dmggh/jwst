@@ -1553,8 +1553,10 @@ class RepeatableResultBlob(BlobModel):
     class Meta:
         db_table = TABLE_PREFIX + "_results" # rename SQL table
         
-    repr_list = unicode_list = ["id","page_template"]
+    repr_list = unicode_list = ["id","name", "page_template"]
 
+    unicode_list = ["id", "name", "page_template"]
+    
     blob_fields = dict(
         # User supplied fields
         parameters_enc = BlobField(
@@ -1563,11 +1565,10 @@ class RepeatableResultBlob(BlobModel):
             r"\w+\.html", "HTML template which will be rendered using parameter dictionary", ""),
     )
 
-    unicode_list = ["id", "page_template"]
-    
     @classmethod
     def new(cls, page_template, parameters):
         self = cls()
+        self.name= uuid.uuid4()
         self.page_template = page_template
         if "disposition" not in parameters:
             parameters["disposition"] = ""  # confirm/cancelled has happened (not)
@@ -1575,6 +1576,10 @@ class RepeatableResultBlob(BlobModel):
         self.save()
         return self
     
+    @property
+    def uuid(self):
+        return self.name
+
     @property
     def parameters(self):
         """return garbage-can dict of page template parameters"""
@@ -1595,7 +1600,7 @@ class RepeatableResultBlob(BlobModel):
     @property
     def repeatable_url(self):
         "Return the URL which can be used to display this persistent result."
-        return "/display_result/" + str(self.id)
+        return "/display_result/" + str(self.uuid)
 
 # =============================================================================
 

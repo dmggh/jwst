@@ -25,6 +25,9 @@ LIST_GLOB_RE = re.compile(complete_re(r"[A-Za-z0-9_\.\*\+\(\)\-\[\]]{1,128}"))
 INSTRUMENT_RE = re.compile(complete_re(r"[A-Za-z0-9_]{1,64}"))
 FIELD_RE = re.compile(complete_re(r"[A-Za-z0-9_]{1,64}"))
 
+UUID_RE_STR = r"[A-Za-z0-9]{8}\-[A-Za-z0-9]{4}\-[A-Za-z0-9]{4}\-[A-Za-z0-9]{4}\-[A-Za-z0-9]{12}"
+UUID_RE = re.compile(complete_re(UUID_RE_STR))
+
 # ===================================================================
 
 def capture_output(func):
