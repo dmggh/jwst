@@ -1,0 +1,4 @@
+#! /bin/sh
+
+python -u ../sources/manage.py test
+
