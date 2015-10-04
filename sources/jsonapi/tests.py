@@ -310,7 +310,7 @@ if server_config.observatory == "hst":
         pmap1 = "hst_0001.pmap"
         pmap_date = "hst-2013-07-04T00:00:00"
         imap = "hst_wfc3.imap"
-        min_reference_count = 20000
+        min_reference_count = 14000
 
         observatory = server_config.observatory
         
