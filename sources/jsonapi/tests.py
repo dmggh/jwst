@@ -299,7 +299,7 @@ class ServiceApiBase(object):
     def test_client_get_reference_names(self):
         references = client.get_reference_names(self.pmap)
         self.failUnless(self.min_reference_count < len(references))
-        
+
 # ===========================================================================
 # ===========================================================================
 
@@ -310,7 +310,7 @@ if server_config.observatory == "hst":
         pmap1 = "hst_0001.pmap"
         pmap_date = "hst-2013-07-04T00:00:00"
         imap = "hst_wfc3.imap"
-        min_reference_count = 30000
+        min_reference_count = 20000
 
         observatory = server_config.observatory
         
