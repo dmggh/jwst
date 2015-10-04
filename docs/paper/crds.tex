@@ -472,10 +472,9 @@ volumes could be constructed if need be.
 
 \subsection{Examples}
 
-xxx example 1 (highlighting a \& b)
+Figure~\ref{fig:example1} illustrates use of the first two items. Essentially two different configurations are supported, and for each there are three possible choices of reference files that depend on the date of the observation. For example, if the date of the observation for the configuration {\tt (\textquotesingle MIRIFULONG\textquotesingle , \textquotesingle FAST\textquotesingle , \textquotesingle FULL\textquotesingle )} is 2015-04-02, the second choice will be used resulting in the return of {\tt jwst\_miri\_dark\_0032.fits} as the recommended reference file.
 
 \begin{figure*}
-\centering
 \begin{verbatim}
 selector = Match({
     ('MIRIFULONG', 'FAST', 'FULL') : UseAfter({
@@ -493,12 +492,13 @@ selector = Match({
         ...
 })
 \end{verbatim}
-\caption{xxx}
+\caption{Example showing basic parameter matching rules coupled with date dependency.}
+\label{fig:example1}
 \end{figure*}
 
+Figure~\ref{fig:example2} shows the use of the software selection mechanism. In this case if the software version is less than 3.1 (using the typical version semantics) then the first file will be chosen, if less than 5 the second will be chosen, otherwise the last file will be used.
 
-xxx example 2 adding c
-\begin{figure}
+\begin{figure*}
 \begin{verbatim}
 selector = SelectVersion({
    '<3.1':    'jwst_miri_flat_0065.fits',
@@ -506,11 +506,16 @@ selector = SelectVersion({
    'default': 'jwst_miri_flat_123.fits',
 })
 \end{verbatim}
-\end{figure}
+\caption{Example showing use of the software version selection mechanism.}
+\label{fig:example2}
+\end{figure*}
 
-xxx example 3 illustrating d
+Figure~\ref{fig:example3} shows how two reference files may be selected
+that bracket the particular parameter. Here if the parameter has a value 
+of 3.2, then the pair of images 
+(\texttt{cref\_flatfield\_124.fits}, \texttt{cref\_flatfield\_137.fits}) will be returned
 
-\begin{figure}
+\begin{figure*}
 \begin{verbatim}
 selector = Bracket({
     1.2: "cref_flatfield_120.fits",
@@ -518,17 +523,21 @@ selector = Bracket({
     5.0: "cref_flatfield_137.fits",
 })
 \end{verbatim}
-\end{figure}
+\caption{Example showing bracketing selection.}
+\label{fig:example3}
+\end{figure*}
 
-Here, a parameter value of 1.3 returns the value:
+Figure~\ref{fig:example4} shows how a
+wavelength of 1300 (between 1220 and 1530) results in the partial match 
+of \texttt{hst\_wfc3\_flatfile\_0027.fits} and eliminates 
+\texttt{hst\_wfc3\_flatfile\_0028.fits}
+of as a candidate.   Since \texttt{BETWEEN}
+can be used in an arbitrary Match parameter
+slot,  potentially multiple times,  volumes can be described, and also
+described in concert with other types of match syntax for other parameters
+such as wildcard matching or regular expressions.
 
-
-\begin{verbatim}
-('cref_flatfield_120.fits', 'cref_flatfield_124.fits')
-\end{verbatim}
-
-xxxx example 4 illustrating e
-
+\begin{figure*}
 \begin{verbatim}
 selector = Match({
     ('WFC', 'N/A', 'BETWEEN 1220 1530', 'FR782N') :  "hst_wfc3_flatfile_0027.fits",
@@ -536,40 +545,21 @@ selector = Match({
     ...
 })
 \end{verbatim}
+\caption{An example showing matching specified ranges.}
+\label{fig:example4}
+\end{figure*}
 
-Here a wavelength of 1300 (between 1220 and 1530) results in the partial match
-of 
+[xxx need headers included and explained since examples have unnamed
+parameters that won't make any sense unless put in context]
 
-\begin{verbatim}
-'hst_wfc3_flatfile_0027.fits' and eliminates 
-"hst_wfc3_flatfile_0028.fits"
-\end{verbatim}
+[xxx insert full description of syntax used]
 
-as a candidate.   Since BETWEEN can be used in an arbitrary Match parameter
-slot,  potentially multiple times,  volumes can be described, and also
-described in concert with other types of match syntax for other parameters
-such as wildcard matching or regular expressions.
+[xxx somewhere put in explanation of safety features preventing hand
+mangling of rules files and configuration]
 
-XXXXXXX I think the capabilities of (e) are actually folded into Match()
-described in (a),  where each individual parameter of a match case can use
-one of several match syntaxes.   Further,  there is no requirement that the
-match expressions of the same parameter use the same method across all cases,
-and indeed it is common to use N/A which is a specialized kind of match.
-
-\begin{verbatim}
-XXXX I documented all this stuff here:
-
-XXXX   https://jwst-crds.stsci.edu/static/users_guide/rmap_syntax.html#selectors
-\end{verbatim}
-
-XXXX By far the most common match syntax used is the literal-value-or-glob,
-including the degenerate case of a single literal value.  Unlike CDBS which had
-discrete rows for every combination of discrete parameter values, CRDS
-summarizes the combinatorial explosion of parameter possibilities into a single
-concise multi-parameter expression by virtue of the matching syntax.  It is far
-more comprehensible to look at one multi-parameter match expression with
-or-globs than it is to scan 60 or 100 simple rows in the CDBS database.
-Another common match expression is N/A.  BETWEEN has also been used.
+Full documentation of the syntax and semantics of all the rmap and
+context files is available on the web 
+\footnote{\texttt{https://jwst-crds.stsci.edu/static/users\_guide/rmap\_syntax.html\#selectors}}
 
 \subsection{Hierarchical Organization}
 
@@ -586,7 +576,7 @@ effect for that instrument. In the example of the instrument context file
 below, one can see that each distinct rmap file has a unique name. If anything
 is changed in an rmap file, it gets a new name
 
-xxx example of instrument context file
+[xxx need example of instrument context file]
 
 Likewise, there is a pipeline context file that lists the instrument context
 files that define the versions in effect for the pipeline being run. As with
@@ -599,7 +589,7 @@ Note that one can run any number of pipeline environments, and each may use a
 completely different pipeline context if need be, each of which will have some
 sort of different rules for how reference files are selected.
 
-xxx example of pipeline context file
+[xxx need example of pipeline context file]
 
 This hierarchy is designed to match that for JWST and as such is currently
 designed around the current levels of hierarchy. It is a possible generalization
@@ -749,52 +739,70 @@ the submission.  Finally, it includes delivery of the files to the archive.
 
 The machinery for submitting reference files is an interactive web-based
 system. The ability to submit files or make changes requires user
-validation. Figure xxx shows a screen shot of the home page of the CRDS
-system, which is visible to the public. The submission capabilities 
-are indicated in the xxx links in
-xxx. Figure xxx shows the submission web page for updates for reference
-files. This examples is for xxx.
+validation. Figure~\ref{fig:publichome} 
+shows a screen shot of the home page of the CRDS
+system, which is visible to the public. 
+
+File submission is limited to authenticated users. The home page for
+authentic pages is shown in Figure~\ref{fig:authenticatedhome}.
+The fully automatic
+standard process is dubbed ``Batch Reference Submission'' 
+in reference to submission of a pile of files for one instrument,
+multiple types,  and automatic certification and rules updates.
+
+Figure~\ref{fig:batchsubmission} shows the starting page for submitting
+a batch set of files using the streamlined system.
+
+Figure~\ref{fig:goodsubmissionreview} shows the results of a successfully validated batch  submission request.
+
+Figure~\ref{fig:failedsubmission} shows the results of an unsuccessfully validated batch submission request showing what went wrong.
+
+Figure~\ref{fig:confirmedsubmission} shows the results of a successfully completed submission request.
+
 
 \begin{figure*}[ht!]
 \centering
 \includegraphics[width=180mm]{JWST_Public_Home_Page.png}
 \caption{JWST CRDS Public Home Page}
+\label{fig:publichome}
 \end{figure*}
 
 \begin{figure*}[ht!]
 \centering
 \includegraphics[width=180mm]{JWST_Authenticated_Home.png}
-\caption{JWST CRDS Authenticated User Home Page}
+\caption{JWST Authenticated Users Home Page}
+\label{fig:authenticatedhome}
 \end{figure*}
 
 \begin{figure*}[ht!]
 \centering
 \includegraphics[width=180mm]{JWST_Batch_File_Submission.png}
 \caption{JWST Batch File Submission Page}
+\label{fig:batchsubmission}
 \end{figure*}
 
 \begin{figure*}[ht!]
 \centering
 \includegraphics[width=180mm]{JWST_Good_Submission_Review_Page_(after_confirmation).png}
 \caption{JWST Good Submission Example}
+\label{fig:goodsubmissionreview}
 \end{figure*}
 
 \begin{figure*}[ht!]
 \centering
 \includegraphics[width=180mm]{JWST_Failed_Submission_DM_schema_violation.png}
 \caption{JWST failed submission example}
+\label{fig:failedsubmission}
 \end{figure*}
 
 \begin{figure*}[ht!]
 \centering
 \includegraphics[width=180mm]{JWST_Submission_Confirmed.png}
 \caption{JWST submission confirmed example}
+\label{fig:confirmedsubmission}
 \end{figure*}
 
-File submission is limited to authenticated users. The fully automatic
-standard process is dubbed "Batch Reference
-Submission" in reference to submission of a pile of files for one instrument,
-multiple types,  and automatic certification and rules updates.
+
 
 The user identifies the local files designated as the files to replace existing
 ones. When all the updates have been identified, the submit button [or
