@@ -1,5 +1,6 @@
 #! /usr/bin/env pysh
 #-*-python-*-
+from __future__ import print_function
 
 from astropy.io import fits
 from crds import pysh
@@ -18,9 +19,9 @@ else:
 
 if value is None:
    try:
-      print keyword, "=", fits.getval(filename, keyword=keyword)
+      print(keyword, "=", fits.getval(filename, keyword=keyword))
    except:
-      print "keyword", repr(keyword), "not found in", repr(filename)
+      print("keyword", repr(keyword), "not found in", repr(filename))
 else:
    fits.setval(filename, keyword=keyword, value=value, ext=extension)
 
