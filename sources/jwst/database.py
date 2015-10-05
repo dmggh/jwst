@@ -114,6 +114,9 @@ def get_dataset_headers_by_id(context, dataset_ids):
     
     for instr, dids in ids_by_instrument.items():
         instr_headers = parameter_interface.get_dataset_headers_by_id(dids, matching_params[instr])
+        # for (key, header) in instr_headers.items():
+        #     if "META.INSTRUMENT.TYPE" not in header:
+        #         header["META.INSTRUMENT.TYPE"] = header["META.INSTRUMENT.NAME"]
         headers.update(instr_headers)
 
     return headers
