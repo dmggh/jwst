@@ -65,6 +65,9 @@
 
 \usepackage{caption}
 
+\usepackage{draftwatermark}
+\SetWatermarkText{DRAFT}
+\SetWatermarkScale{1}
 \lstset{
   basicstyle=\ttfamily,
   showstringspaces=false,
@@ -918,7 +921,7 @@ In any case, if the operations system does end up using an incorrect pipeline
 context, reversion to a previously good one is quite simple (something that
 could be quite tricky in CDBS).
 
-In the context of HST (see section xxx), reversion to prior sets of 
+In the context of HST (see section~\ref{sec:HST}), reversion to prior sets of 
 rules has been used to
 support pipeline regression testing and coordinate CRDS with available
 historical system states of the rest of the pipeline.
@@ -974,15 +977,6 @@ standard process is dubbed ``Batch Reference Submission''
 in reference to submission of a pile of files for one instrument,
 multiple types,  and automatic certification and rules updates.
 
-Figure~\ref{fig:batchsubmission} shows the starting page for submitting
-a batch set of files using the streamlined system.
-
-Figure~\ref{fig:goodsubmissionreview} shows the results of a successfully validated batch  submission request.
-
-Figure~\ref{fig:failedsubmission} shows the results of an unsuccessfully validated batch submission request showing what went wrong.
-
-Figure~\ref{fig:confirmedsubmission} shows the results of a successfully completed submission request.
-
 
 \begin{figure*}[ht!]
 \centering
@@ -1028,18 +1022,29 @@ Figure~\ref{fig:confirmedsubmission} shows the results of a successfully complet
 
 
 
-The user identifies the local files designated as the files to replace existing
-ones. When all the updates have been identified, the submit button [or
+The authenticated user begains a batch submission of files on the batch
+submission page (Figure~\ref{fig:batchsubmission}) 
+by identifying the local files designated as the 
+files to replace existing ones (note, the local file names are not the 
+names the files will have when ingested into CRDS). 
+When all the updates have been identified, the submit button [or
 whatever] is clicked, and CRDS will then validate each of the reference
 files. If they all pass validation, the user will be presented the results of
 the results that will be produced (e.g., the new filenames for the reference
 files, rmaps and context files, and other summary information). An example of a
-successful validation is shown in Figure xxx. At this point the user confirms
+successful validation is shown in Figure~\ref{fig:goodsubmissionreview}.
+At this point the user confirms
 the submission after which they will be assigned unique names, added to the
 CRDS database of reference files, sent to the STScI archive for archiving, and
-placed in the disk-based repository of reference files. If the validation
+placed in the disk-based repository of reference files. When the submission
+process completes, the user is presented with a summary page, shown in
+Figure~\ref{confirmedsubmission}
+
+
+If the validation
 doesn't pass, the results indicate what the problem is so the user may make the
-necessary corrections. Figure xxx shows such a summary of problems.
+necessary corrections. Figure~\ref{fig:failedsubmission}
+shows such a summary of problems.
 
 The subsequent updates to rmap and context files also are validated, primarily
 to ensure the syntax is correct.
@@ -1047,7 +1052,8 @@ to ensure the syntax is correct.
 \subsection{Reference File Validation}
 
 This is handled by using the tools that the JWST pipeline use to validate the
-reference files. These are based on data models that use JSON Schema (ref xxx)
+reference files. These are based on data models that use JSON Schema
+(\citealt{JSONSchemaCore, JSONSchemaValidation, JSONHyperSchema, JSONSchemaGuide})
 to define the mandatory aspects of the data expected, including all the
 expected data elements (whether arrays or tables), the allowable dimensionality
 and datatype, and required metadata.
@@ -1076,7 +1082,6 @@ started making edits (this normally would not happen with streamlined submission
 processes, but only when users are making submissions for individual components
 thus raising the possibility they are bypassing subsequent changes).
 
-\item other cases? xxx
 \end{enumerate}
 
 \section{Utilities}
@@ -1262,7 +1267,9 @@ of other potentially failing groups. However, it is relatively
 easy for submission system to warn the user regarding excessively large 
 submission requests with suggestions that the submission be partitioned.
 
-Reference files in FITS, JSON, and ASDF format are supported.
+Reference files in FITS 
+(\citealt{2010FITS}), JSON (\citealt{JSON}), and ASDF (\citealt{2015ASDF})
+format are supported.
 
 Another improvement planned is the ability to return values other than
 filenames or tuples of filenames. A common use of reference files for HST 
@@ -1316,6 +1323,7 @@ reference files with their own ones, or even to add a custom step to the
 pipeline with an entirely new set of rules and reference files.
 
 \section{Use for HST}
+\label{sec:HST}
 
 Although CRDS was designed for use with JWST, it was desired to upgrade the HST
 system to use it as well. The advantage for JWST is that CRDS would be heavily
@@ -1379,10 +1387,6 @@ and all the configuration, administration , and security issues providing a
 server entails.
 
 
-
-
-
-
 \section{Acknowledgments}
 
 This work was supported by the JWST mission, a joint effort of NASA,
@@ -1391,8 +1395,7 @@ of Universities for Research in Astronomy, and by the HST mission xxx
 The implementation was aided by
 Jonathan Eisenhamer, and the integration into the operations system by Michael
 Swam. Testing from the instrument scientist perspective was carried out by Rosa
-Diaz and Matthew McMaster. Motivations for the work were provided by the weekly
-Science Software Branch Donut meeting.
+Diaz and Matthew McMaster.
 
 %% The Appendices part is started with the command \appendix;
 %% appendix sections are then done as normal sections
