@@ -149,7 +149,7 @@
 
 \author[stsci]{Perry~Greenfield}
 \ead{perry@stsci.edu}
-\author[stsci]{J.~Miller}
+\author[stsci]{Todd~Miller}
 
 \cortext[cor1]{Corresponding author}
 \address[stsci]{Space Telescope Science Institute, 3700 San Martin Drive, Baltimore, MD 21218, USA}
@@ -176,10 +176,8 @@ Open Source license.
 %% MSC codes here, in the form: \MSC code \sep code
 %% or \MSC[2008] code \sep code (2000 is the default)
 
-FITS \sep
-File formats \sep
-Standards \sep
-World Coordinate System
+Calibration \sep
+Pipelines \sep
 
 \end{keyword}
 
@@ -471,12 +469,63 @@ would be a one-dimensional selection, though even more complex multidimensional
 volumes could be constructed if need be.
 \end{enumerate}
 
+\subsection{Rules Framework}
+
+All the files that define the rules for how reference files are selected
+use the same organization and syntax.
+A simple syntax is used that consists of expected variables set to simple, 
+possibly nested, datastructures. Each file is expected to have a header 
+and selector defined. The header contains information about the intended 
+use of the file, history, information to validate the integrity of the file,
+and other similar items. Most important, the header identifies the exposure
+parameters that are to be used in the selection process. The selector 
+contains the specifics on the rules themselves.
+
 \subsection{Examples}
 
-Figure~\ref{fig:example1} illustrates use of the first two items. Essentially two different configurations are supported, and for each there are three possible choices of reference files that depend on the date of the observation. For example, if the date of the observation for the configuration {\tt (\textquotesingle MIRIFULONG\textquotesingle , \textquotesingle FAST\textquotesingle , \textquotesingle FULL\textquotesingle )} is 2015-04-02, the second choice will be used resulting in the return of {\tt jwst\_miri\_dark\_0032.fits} as the recommended reference file.
+Figure~\ref{fig:example1} illustrates use of the first two items. First note the contents
+of the header. It shows what previous rmap file it was derived from, that it is defining
+the rules for the selection of reference files (since this syntax is also used for
+the selection of other kinds of files), what kind of reference file is being selected, information about the telescope and instrument, and what the name of the file is. 
+The {\tt parkey} attribute defines the parameters to use for the selection. In the
+case of JWST, the parameters map to FITS header keywords, but are referred through
+nested object-oriented scheme; the mapping to specific keywords is handled by a special
+library interface that is part of the calibration pipeline. In this specific example,
+This is the rules file for selecting the JWST MIRI instrument dark files, based on 
+the specific detector, read pattern, and subarray configuration, along with the 
+observation date.
+
+The header permits attributes that allow specialized handling of the metadata 
+the dataset, including indicating when parameters are relevant or not (e.g., only 
+care about its value if the value of another parameter is given as specified), 
+how to handle cases where no match is found, and hooks to allow special preprocessing
+of parameter values. See the documentation for details on these cases. 
+\footnote{\url{https://jwst-crds.stsci.edu/static/users\_guide/rmap_syntax.html\#active-header-fields}}
+Most of these special features were added to handle the existing complexitites present in the CDBS rule system; we expect these will be used far less for JWST.
+
+The selector part of the file indicates that a match is first performed on the 
+three specified parameters. There are two supported configurations in this example.
+If one matches, then the date is used to determine which of the following three files
+should be used.
+For example, if the date of the observation for the configuration {\tt (\textquotesingle 
+MIRIFULONG\textquotesingle , \textquotesingle FAST\textquotesingle , 
+\textquotesingle FULL\textquotesingle )} is 2015-04-02, the second choice 
+will be used resulting in the return of {\tt jwst\_miri\_dark\_0032.fits} 
+as the recommended dark reference file.
 
 \begin{figure*}
 \begin{verbatim}
+header = {
+    'derived_from' : 'jwst_miri_dark_0007.rmap',
+    'filekind' : 'DARK',
+    'instrument' : 'MIRI',
+    'mapping' : 'REFERENCE',
+    'name' : 'jwst_miri_dark_0009.rmap',
+    'observatory' : 'JWST',
+    'parkey' : (('META.INSTRUMENT.DETECTOR', 'META.EXPOSURE.READPATT', 'META.SUBARRAY.NAME'),),
+    'sha1sum' : 'bd99f4960096de9ad39a9ce506d5ff985847c4a3',
+}
+
 selector = Match({
     ('MIRIFULONG', 'FAST', 'FULL') : UseAfter({
         '2015-01-27 12:05:34' 'jwst_miri_dark_0029.fits',
@@ -497,7 +546,7 @@ selector = Match({
 \label{fig:example1}
 \end{figure*}
 
-Figure~\ref{fig:example2} shows the use of the software selection mechanism. In this case if the software version is less than 3.1 (using the typical version semantics) then the first file will be chosen, if less than 5 the second will be chosen, otherwise the last file will be used.
+Figure~\ref{fig:example2} shows the use of the software selection mechanism (for brevity, the header is omitted in this and subsequent examples). In this case if the software version is less than 3.1 (using the typical version semantics) then the first file will be chosen, if less than 5 the second will be chosen, otherwise the last file will be used.
 
 \begin{figure*}
 \begin{verbatim}
@@ -550,17 +599,112 @@ selector = Match({
 \label{fig:example4}
 \end{figure*}
 
-[xxx need headers included and explained since examples have unnamed
-parameters that won't make any sense unless put in context]
+\subsection{Suppported Selectors and Features}
 
-[xxx insert full description of syntax used]
+This section more systematically describes existing selector mechanisms. 
+First is is necessary to understand how the supplied parameters (specified
+in the header parkey attribute) are used with selectors. If selectors are 
+nested, each layer removes one or more parameters from the list leaving 
+the rest for lower nestings. For example, if parkey is as specified in
+Figure~\ref{fig:example1}, then 4 parameters are available. The Match 
+selector is requesting 3 since all of its keys have a tuple of 3 items,
+that leaves only the date parameter for subsequent selectors.
+In all cases, the selector expects to be provided an argument that is the 
+appropriate type (e.g., if time). 
 
-[xxx somewhere put in explanation of safety features preventing hand
-mangling of rules files and configuration]
+Selectors may return a single filename, a tuple of filenames,
+``Not Applicable'' (which basically implies that no file is
+needed for this specific case, i.e., no such calibration need be 
+performed) or ``OMIT'' (Currently unused).
+
+\subsubsection{Match}
+This selector finds which tuple of parameters matches the supplied tuple
+of values for those parameters. This is a very flexible selector, and 
+many options are provided for its use. (If only one parameteter is being,
+matched, the tuple can be replaced by a simple string.)
+
+In the simple case, matches are required to be exact. However, to avoid
+rules from having to specify large numbers of combinations where no
+distinctions are being made, a number of mechanisms have been provided
+to make rules much more concise.
+
+\begin{description}
+\item[lists of allowable alternatives:] Allowable values for parameteters
+may be supplied as an \textquotesingle OR\textquotesingle 
+list using {\tt |} as a separator. For example:
+\texttt {({\ttfamily"}filter1{\ttfamily"}
+| {\ttfamily"}filter2{\ttfamily"},...)} will allow either value to match the first
+parameter.
+\item[Wild Cards:] Using an {\tt \*} in a string applies familiar wildcard 
+matching rules to the supplied string. For example 
+\texttt {({\ttfamily"}F*122{\ttfamily"})} will
+match any value starting with {\tt F} and ending with {\tt 122}
+\item[Regular Expressions:] This allows matching true regular expressions,
+allowing for more complex matching rules than simple wildcards permit.
+\item[Literal Expressions:] A literal expression is bracketed with curly
+braces {\tt \{ \}} and allows inclusion of special characters without 
+special interpretation by CRDS, such as {\tt | and \*}.
+\item[Relational Expressions:] Relational expressions are braketed by {\tt \#}.
+These do numerical comparisons on the supplied parameter value to determine
+a match. Supported comparison operators are: 
+\texttt {\textgreater, \textgreater =, \textless, \textless =, == and or}. 
+For example \texttt {({\ttfamily"}\# >=1 and <37\",)} 
+will match any number equal to or 
+greater than 1 and less than 37.
+\item[Between:] This is simply a more convenient way of expressing a range
+than using relational expressions. E.g., equivalent to the previous example
+is: \texttt{{\ttfamily"}between 1 37{\ttfamily"}}. It is inclusive of the first number.
+\item[N/A:] This is equivalent to using a wildcard for the value, but with 
+the difference of how weighting is used (discussed below). This does not
+affect the weight of the match.
+\item[NOT Expressions:] A negation of a match. 
+\texttt {{\ttfamily"}not HRC{\ttfamily"}} 
+is a match if the value does not match {\tt HRC}.
+\item[Substitutions:] A shorthand notation that needs better explanation 
+than is in the documenation [I couldn't understatnd it as written xxx]
+\end{description}
+
+With all these match options it is possible to write multiple items that 
+match a given case. In order to allow effective defaults for general cases
+while allowing specific cases to override the general case, special rule
+for disambiguation in these situations have been developed. The basic idea
+is that more specific matches take precedence over more general matches.
+For example, if one item lists as its matching value a wildcard, and another
+gives a specific value for the same parameter, the specific match takes
+precedence. The precedence is handled by determining the generality of the
+match. Use of wildcards or regular expressions increase the generality index,
+while use of N/A does not. [I found the explanation of Match weighting
+unclear, and it suggests the oppposite, a couple examples would help a lot
+ xxx].
+
+If after using these precedence rules, there are still multiple matches,
+an error results. 
+
+\subsubsection{UseAfter}
+This expects an ordered sequence of date/time values as part of the rules.
+This selector finds the greates date/time value that is less than or equal
+to the supplied date/time.
+
+\subsubsection{SelectVersion}
+This is essentially a special case of relational matches that understands
+the semantics of software versions (e.g., that 1.2 > 1.1.10).
+
+\subsubsection{ClosestTime}
+This selector selects the item with the closest time.
+
+\subsubsection{GeometricallyNearest}
+This selector selects the item where the ratio of the parameter to that
+in the list of choices is closest to 1. For example, 4 would match 10 
+instead of 1 since 10/4 is closer to 1 than 4/1.
+
+\subsubsection{Bracket}
+This selector finds the two items for which one is next greater in value,
+and the one that is next least in value (as illustrated in
+Figure~\ref{fig:example3}).
 
 Full documentation of the syntax and semantics of all the rmap and
 context files is available on the web 
-\footnote{\texttt{https://jwst-crds.stsci.edu/static/users\_guide/rmap\_syntax.html\#selectors}}
+\footnote{\url{https://jwst-crds.stsci.edu/static/users\_guide/rmap\_syntax.html\#selectors}}
 
 \subsection{Hierarchical Organization}
 
@@ -577,7 +721,44 @@ effect for that instrument. In the example of the instrument context file
 below, one can see that each distinct rmap file has a unique name. If anything
 is changed in an rmap file, it gets a new name
 
-[xxx need example of instrument context file]
+Figure~\ref{fig:example_instrument_context}
+
+\begin{figure*}
+\begin{verbatim}
+header = {
+    'derived_from' : 'jwst_nircam_0015.imap',
+    'instrument' : 'NIRCAM',
+    'mapping' : 'INSTRUMENT',
+    'name' : 'jwst_nircam_0016.imap',
+    'observatory' : 'JWST',
+    'parkey' : ('REFTYPE',),
+    'sha1sum' : '0fd29b57f226f8c53bf3dfa7564eccd4e3fc56bf',
+}
+
+selector = {
+    'DARK' : 'jwst_nircam_dark_0003.rmap',
+    'DISTORTION' : 'N/A',
+    'DRIZPARS' : 'jwst_nircam_drizpars_0000.rmap',
+    'FLAT' : 'jwst_nircam_flat_0000.rmap',
+    'GAIN' : 'jwst_nircam_gain_0001.rmap',
+    'IPC' : 'jwst_nircam_ipc_0000.rmap',
+    'LASTFRAME' : 'N/A',
+    'LINEARITY' : 'jwst_nircam_linearity_0003.rmap',
+    'MASK' : 'jwst_nircam_mask_0002.rmap',
+    'PHOTOM' : 'jwst_nircam_photom_0002.rmap',
+    'READNOISE' : 'jwst_nircam_readnoise_0001.rmap',
+    'REGIONS' : 'N/A',
+    'RESET' : 'N/A',
+    'SATURATION' : 'jwst_nircam_saturation_0002.rmap',
+    'SPECWCS' : 'N/A',
+    'SUPERBIAS' : 'jwst_nircam_superbias_0003.rmap',
+    'WCSREGIONS' : 'N/A',
+}
+\end{verbatim}
+\caption{An example of an instrument contex file (.imap)}
+\label{fig:example_instrument_context}
+\end{figure*}
+
 
 Likewise, there is a pipeline context file that lists the instrument context
 files that define the versions in effect for the pipeline being run. As with
@@ -590,13 +771,55 @@ Note that one can run any number of pipeline environments, and each may use a
 completely different pipeline context if need be, each of which will have some
 sort of different rules for how reference files are selected.
 
-[xxx need example of pipeline context file]
+Figure~\ref{fig:example_pipeline_context} shows an example of such a pipeline context file.
+It is used to select the appropriate instrument context file to use.
+
+\begin{figure*}
+\begin{verbatim}
+header = {
+    'derived_from' : 'jwst_0068.pmap',
+    'description' : 'Hand edited to support updated .imaps for N/A',
+    'mapping' : 'PIPELINE',
+    'name' : 'jwst_0069.pmap',
+    'observatory' : 'JWST',
+    'parkey' : ('META.INSTRUMENT.NAME',),
+    'sha1sum' : '691d78053ef710f31bfd8f5bea8ffdc3c1dec1aa',
+}
+
+selector = {
+    'FGS' : 'jwst_fgs_0016.imap',
+    'MIRI' : 'jwst_miri_0043.imap',
+    'NIRCAM' : 'jwst_nircam_0016.imap',
+    'NIRISS' : 'jwst_niriss_0024.imap',
+    'NIRSPEC' : 'jwst_nirspec_0026.imap',
+}
+\end{verbatim}
+\caption{An example of a pipeline context file (.pmap)}
+\label{fig:example_pipeline_context}
+\end{figure*}
+
 
 This hierarchy is designed to match that for JWST and as such is currently
 designed around the current levels of hierarchy. It is a possible generalization
 that would allow it to deal with arbitrary levels of heirarchy, perhaps
 different in number depending on the branch taken. Achieving that would
 take significant modifications but is possible. 
+
+\subsection{Ensuring integrity of the configuration}
+
+Since all the rules involve simple text files, one possible corruption of the
+integrity of the system is if someone edits or otherwise changes the
+contents of one of the files. As a protection against that, all the files
+involved contain a SHA1SUM checksum on the contents 
+(\citealt{sha1ref}).
+CRDS when loading the
+files compares the the computed SHA1SUM against what is contained in the 
+file header. If they do not match, an error is raised.
+
+To allow flexibility in usage by remote users of the pipeline, one can
+invoke CRDS so that this check is overridden, allowing users to hand edit 
+such files with their local customizations. But with the operational systems,
+these checks are always performed.
 
 \subsection{Practicality and Restrictions of this design}
 
@@ -1040,6 +1263,19 @@ easy for submission system to warn the user regarding excessively large
 submission requests with suggestions that the submission be partitioned.
 
 Reference files in FITS, JSON, and ASDF format are supported.
+
+Another improvement planned is the ability to return values other than
+filenames or tuples of filenames. A common use of reference files for HST 
+was to provide a table of parameter to be used by the calibration 
+pipeline to tune processing to the configurations. Often the real need
+of the pipeline was just a handful of parameter values. Often this resulted
+in a dual layer lookup system. CDBS would select a table (though sometimes
+there was only one reference file for all cases), and then the calibration
+pipeline would select a specific row in the table that matched an additional
+set of selection parameters. This could be greately simplified if the 
+rmap itself bypassed reference files entirely and effectively embedded
+the parameter values as what is returned. In this manner, it relieves 
+the calibration pipeline of embedding its own matching system in its code.
 
 \section{Enabling pipeline flexibility}
 
