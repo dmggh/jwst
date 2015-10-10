@@ -1227,13 +1227,13 @@ def submit_confirm(request):
     generation mechanisms.
     """
     button = validate(request, "button", "confirm|cancel|timeout")
-    results_id = validate(request, "results_id", complete_re(r"\d+"))
+    results_id = validate(request, "results_id", common.UUID_RE)
     locked_instrument = get_locked_instrument(request)
 
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
     
     try:
-        rmodel = models.RepeatableResultBlob.get(int(results_id))
+        rmodel = models.RepeatableResultBlob.load(results_id)
         result = rmodel.parameters
     except Exception, exc:
         raise CrdsError("Error fetching result: " + results_id + " : " + str(exc))

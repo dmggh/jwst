@@ -1588,8 +1588,8 @@ class RepeatableResultBlob(BlobModel):
         return self._parameters
 
     @classmethod   # kludgy,  not confident about Django __setattr__, __setitem__
-    def set_parameter(cls, result_id, name, value):
-        result = cls.get(id=int(result_id))
+    def set_parameter(cls, results_id, name, value):
+        result = cls.load(results_id)
         result.set_par(name, value)
         result.save()
         
