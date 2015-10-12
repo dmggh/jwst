@@ -458,15 +458,17 @@ class InteractiveBase(TransactionTestCase):
         self.assertNotIn("replace", response.content)
     
     def _confirm(self, id=1):
+        blob = models.RepeatableResultBlob.get(id)
         response = self.client.post("/submit_confirm/", {
-                "results_id" : str(id),
+                "results_id" : str(blob.name),
                 "button" : "confirm",
             }, follow=True)
         return response
 
     def _cancel(self, id=1):
+        blob = models.RepeatableResultBlob.get(id)
         response = self.client.post("/submit_confirm/", {
-                "results_id" : str(id),
+                "results_id" : str(blob.name),
                 "button" : "cancel",
             }, follow=True)
         return response
