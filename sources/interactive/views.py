@@ -421,8 +421,8 @@ def handle_upload_delete(must_delete, orig, path):
 
 def get_uploaded_file(request, formvar):
     """Return the DJango UploadedFile associated with `request` and `formvar`,
-    raising an exception if it's original name does not end with one of
-    `legal_exts` file extensions.   Handles <input type='file'>, part 1.
+    screening the original filename for legality.  Handles 
+    <input type='file'>, part 1.
     """
     assert request.user.is_authenticated(), \
         "file uploads are only available for authenticated users."
