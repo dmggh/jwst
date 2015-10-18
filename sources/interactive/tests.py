@@ -92,7 +92,7 @@ class InteractiveBase(TransactionTestCase):
         except Exception, exc:
             print "failed user save:", str(exc)
         self.ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, str(self.user))
-        self.fake_database_files([self.pmap])
+        self.fake_database_files([self.pmap, self.pmap2])
         models.set_default_context(self.pmap, skip_history=True)
         models.set_default_context(self.pmap, state="operational")
         utils.ensure_dir_exists(os.path.join(lconfig.get_crds_refpath(self.observatory), "test.fits"))
@@ -216,7 +216,7 @@ class InteractiveBase(TransactionTestCase):
     def test_bestrefs_post_archive_dataset(self):
         response = self.client.post("/bestrefs/", {
             "pmap_mode" : "pmap_text",
-            "pmap_text" : self.pmap,
+            "pmap_text" : self.pmap2,
             "dataset_mode" : "dataset_archive",
             "dataset_archive" : self.archive_dataset_id,
             })  
@@ -225,7 +225,7 @@ class InteractiveBase(TransactionTestCase):
     def test_bestrefs_post_default_context(self):
         response = self.client.post("/bestrefs/", {
             "pmap_mode" : "pmap_edit",
-            "pmap_edit" : self.pmap,
+            "pmap_edit" : self.pmap2,
             "dataset_mode" : "dataset_archive",
             "dataset_archive" : self.archive_dataset_id, 
             })  
@@ -239,7 +239,7 @@ class InteractiveBase(TransactionTestCase):
         self.login()
         response = self.client.post("/bestrefs/", {
             "pmap_mode" : "pmap_text",
-            "pmap_text" : self.pmap,
+            "pmap_text" : self.pmap2,
             "dataset_mode" : "dataset_uploaded",
             "dataset_uploaded" : open(dataset1),
             })  
@@ -667,8 +667,8 @@ if sconfig.observatory == "hst":
     class Hst(InteractiveBase):
 
         observatory = "hst"
-        pmap = "hst.pmap"
-        cached_contexts = [pmap]
+        pmap = pmap2 = "hst.pmap"
+        cached_contexts = [pmap, pmap2]
         
         new_context = "interactive/test_data/hst_0027.pmap"
         
@@ -767,8 +767,9 @@ else:  # JWST
 
         observatory = "jwst"
         pmap = "jwst_0000.pmap"
-        
-        cached_contexts = [pmap, "jwst_0003.pmap"]
+        pmap2 = "jwst_0082.pmap"
+
+        cached_contexts = [pmap, "jwst_0003.pmap", pmap2]
 
         new_context = "interactive/test_data/jwst_0027.pmap"
         
