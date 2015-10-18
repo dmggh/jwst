@@ -16,7 +16,7 @@ DESCRIPTION_RE = re.compile(complete_re(r"[A-Za-z0-9._\s/,#=\-\+\*!]{0,20000}"))
 PERSON_RE = re.compile(complete_re(r"[A-Za-z_0-9\.@, \-]{0,128}"))
 
 DATASET_ID_PART = r"[A-Za-z0-9_\.\+\-]{1,128}"
-DATASET_ID_RE = re.compile(complete_re(DATASET_ID_PART + ":" + DATASET_ID_PART))
+DATASET_ID_RE = re.compile(complete_re(DATASET_ID_PART + "(:" + DATASET_ID_PART+")?"))
 
 FITS_KEY_RE = re.compile(complete_re(r"[A-Za-z0-9_\-\.]{1,256}"))
 FITS_VAL_RE = re.compile(complete_re(r".{0,256}"))
