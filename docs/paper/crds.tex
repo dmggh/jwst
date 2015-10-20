@@ -161,13 +161,16 @@
 %% Text of abstract
 
 We describe a software architecture and implementation for using rules to
-determine which calibration files are appropriate for use in calibrating a
-given observation. This new system replaces what had been previously used for
-the Hubble Space Telescope (HST) calibration pipelines, a system called the
-Calibration Database System (CDBS), and will be used for the James Webb Space
-Telescope (JWST) calibration pipelines, and is currently being used for HST calibration pipelines. . The approach used for this can be
+determine which calibration files are appropriate for calibrating a
+given observation. This new system, the Calibration Reference Data System
+(CRDS), replaces what had been previously used for
+the Hubble Space Telescope (HST) calibration pipelines, 
+the Calibration Database System (CDBS). 
+CRDS will be used for the James Webb Space
+Telescope (JWST) calibration pipelines, and is currently
+being used for HST calibration pipelines. CRDS can be
 easily generalized for use in similar applications that need a rules-based
-system for selecting the appropriate file for a given case; we give some
+system for selecting the appropriate item for a given dataset; we give some
 examples of such generalizations that will likely be used for JWST. The core
 functionality of the Calibration Reference Data System is available under an
 Open Source license.
@@ -205,7 +208,7 @@ When running automatic calibration pipelines one important capability needed is
 the ability to identify automatically the appropriate calibration files that
 should be used when calibrating the data. The kinds of calibration files are
 typically numerous, and there may be many that have to be applied to a specific
-dataset. Examples are dark current, bias, flat field, photometric, and
+dataset. Examples include dark current, bias, flat field, photometric, and
 geometric distortions, among many others. Typically calibration files depend on
 particular observing modes or parameters, or may be time variable.
 Calibration files also differ across instruments both in purpose and specific 
@@ -217,7 +220,7 @@ The system that was used for the Hubble Space Telescope (HST) was called the
 Calibration Database System (CDBS,  
 \citealt{1994Cox,1997Lubow,1998Cox,1997hstinternal,2004Swam}). It was used successfully for many years (with some design changes documented in the 
 cited references). The experience with it revealed that there were some limitations that
-proved to constrain its capabilities, and as a result, a newer system that
+proved to constrain its capabilities, and as a result a newer system that
 removed these constraints was sought. We will briefly describe the design of
 CDBS at a high level and the constraints that it posed. This provides the
 necessary background for discussing the design goals of CRDS.
@@ -249,22 +252,22 @@ the submission process somewhat.
 
 The most critical aspect of the validation requirements for reference files
 concerned the keyword values used to match datasets to the appropriate
-references.  Unlike dataset parameter keywords which describe a specific
+references.  Unlike dataset parameter keywords that describe a specific
 instrument configuration for one observation, reference file keywords
-circumscribe range of parameter values for which the reference applies.  In
-CDBS, ranges of parameter values were often represented by intermediate values
-which expand into the discrete values used to define specific instrument
-configurations.  As part of submitting reference files, the intermediate values
-were combinatorially exploded into database rows which represented each
-possible application of a reference to some discrete instrument parameter
-configuration.  As an example, a dataset APERTURE keyword would describe the
+circumscribe range of parameter values for which the reference file applies.
+In CDBS, ranges of parameter values were often represented by special values
+that expand into the discrete values used to define specific instrument
+configurations.  As part of submitting reference files, these special values
+were combinatorially exploded into multiple database rows that represented each
+possible combination of parameter values intended to match to the specified
+reference file.  As an example, a dataset APERTURE keyword would describe the
 specific aperture an instrument was configured to use for one observation. In
 contrast, the same APERTURE keyword specified in a reference file would
 describe, indirectly, the combined set of different specific APERTUREs that
-reference file was capable of supporting.  When multiple parameters were used
+reference file was intended to be used for.  When multiple parameters were used
 to match datasets to references, the number of distinct rows in the CDBS
 database was equal to the product of the number of specific values supported by
-a particular reference for each parameter.
+a particular reference file for each parameter.
 
 Furthermore, there were occasions for which standard SQL queries were
 insufficient for achieving the desired selection results. In such cases,
@@ -281,7 +284,8 @@ improved. This section highlights what issues proved the most problematic in
 using CDBS.
 
 \begin{enumerate}
-\item Difficulty testing new reference files. The use of a database essentially
+\item \textbf{Difficulty testing new reference files.} 
+The use of a database essentially
 limited the system to one set of rules for selecting reference files. Once a
 reference file was delivered to the system, effectively the rules for selection
 were modified in the operation system immediately. There were occasions when
@@ -289,9 +293,10 @@ reference files were deemed to have passed functional testing (i.e., they
 performed the correct calibration for the designated cases), but were submitted
 with incorrect information about which modes or dates that they should be used
 for. As a result, the operational pipeline would only discover that there was a
-problem when processing real data, thus resulting in dealing with correcting
-mis-processed data (or in some cases, failure to even process). Problems in the
-operational pipeline are significant disruptions. In the last few years, a test
+problem when processing real data, thus resulting in having to deal with correcting
+mis-processed data (or in some cases, the failure to even process). Problems in the
+operational pipeline are significant disruptions requiring significant work
+to correct. In the last few years a test
 version of the database was created so that tests could be performed, but that
 introduces synchronization and management issues to make sure what is being
 tested corresponds to the previous operational version. Furthermore, if
@@ -300,14 +305,15 @@ coordination issue to make sure they are either all completed together or in
 sequence, which can prove constraining to the needs of each instrument as far
 as testing goes.
 
-\item Difficulty in undoing mistakes. A delivery of a file with mistaken
+\item \textbf{Difficulty in undoing mistakes.}
+A delivery of a file with mistaken
 parameters could be difficult to undo. No reference file could be removed from
 the database for various reasons. In a number of cases, particularly if the
 date that it was targeted for was incorrect, it could seriously corrupt the
 selection logic. To take the most common error case: Files often had a
 ``useafter'' date associated with them that indicated that it should be used for
-a date after the specified one *if no other file had a later date that was
-still before the date of the observation*. If one submitted a file intended to
+a date after the specified one \textit{if no other file had a later date that was
+still before the date of the observation}. If one submitted a file intended to
 be used for data after 2000-01-01 but mistakenly provided
 1999-01-01 then two new file submissions are required to correct the problem.
 One to resubmit the new file with the correct date; the second to resubmit the file
@@ -322,7 +328,7 @@ reference files intended for each of the other possible parameter values must
 be resubmitted. This makes the potential effects of mistakes serious and thus
 requires extreme care in submission.
 
-\item Difficulty in supporting remote usage by astronomers. 
+\item \textbf{Difficulty in supporting remote usage by astronomers.} 
 Using the bestref facility remotely
 requires providing a web service so that remote processing can get the most up
 to date recommendations on the best reference file to use. There is one serious
@@ -334,7 +340,8 @@ inappropriate for previous versions of the calibration pipeline software, or
 simply will not work with previous versions. As a result, this service was not
 provided.
 
-\item Difficulty in allowing customized variants of selection rules. Sometimes
+\item \textbf{Difficulty in allowing customized variants of selection rules.}
+Sometimes
 observers or teams have specialized calibration files that they wish to
 substitute in place of the standard ones. There was no simple way of allowing a
 team to run a customized version of CDBS to support this. The entrenched
@@ -342,26 +349,29 @@ software requirements were too numerous (when one develops a system to run in
 only one environment, dependencies on that environment easily become entrenched
 in the system). Even if no customization was desired, it makes running the
 calibration pipeline remotely at another institution very difficult since there
-is no simple way to get the the most recent recommendations.
+is no simple way to get the most recent recommendations.
 
-\item Difficulty in providing remote pipelines a consistent bestref
-environment. There are times observers *do not* want changing references files
-if they wish comparison to previously computed results. They want the same
+\item \textbf{Difficulty in providing remote pipelines a consistent bestref
+environment.}
+There are times observers \textit{do not} want changing references files
+if they wish comparisons to previously computed results. They want the same
 rules applied, even if they aren't the very best version.
 As a ``single state'' database expressing only the current best reference
 assignment rules, reproducing historical results in CDBS was difficult or
 impossible.
 
-\item Difficulty in understanding what the effective rules are. The exact
+\item \textbf{Difficulty in understanding what the effective rules are.}
+The exact
 selection rules are embodied in a database with a history of transactions for
 which many supersede previous ones. One really only knows the net effect by
 running queries on the database for specific cases, even when something quite
 simple could summarize what is desired for the current situation. The net
 effect of this is that people do not really understand what the rules are, and
 that they are not what was intended. Finding mistakes in this situation can be
-quite difficult. And once found, can be difficult to rectify.
+quite difficult. And once found, they can be difficult to rectify.
 
-\item Difficulty in adding new kinds of selection rules. The database schema
+\item \textbf{Difficulty in adding new kinds of selection rules.} 
+The database schema
 effectively constrains what kinds of rules can be used. More complex rules
 either lead to horrendously complex queries, or custom software to generate
 custom queries. The use of the custom software/queries ends up making the system
@@ -376,50 +386,52 @@ number of drawbacks in this particular application:
 
 \begin{enumerate}
 \item Databases are effectively one state systems. Yes, one can deal with
-multiple states but usually at great complexity.
+multiple states but usually with significantly added complexity.
 \item Databases do not make it simple to distribute software since installing,
 administering and maintaining a database elsewhere is a major task, and keeping
-them synchronized to the master copy is yet a greater complexity
+them synchronized to the master copy is yet a greater complexity.
 \item Once established, changing the structure of database is difficult,
 particularly with a systems used in operations.
 \end{enumerate}
 
 Is it in fact necessary to use a database to hold the rules? In reviewing all
-the previous and anticipated cases for HST and JWST, it did not appear that a
+the previous and anticipated cases for HST and JWST it did not appear that a
 database was necessary for selection rules, and that a simpler and more
 flexible approach could be chosen. Indeed, all that appears to be needed is to
 encompass a version of the rules in a simple text file. In doing so there are a
 number of immediate benefits:
 
 \begin{enumerate}
-\item the rules are explicit
-\item multiple versions of these rules may exist without conflict, and used in
+\item The rules are explicit.
+\item Multiple versions of these rules may exist without conflict, and used in
 different contexts simultaneously without confusion.
-\item these rule files may be easily distributed so that remote users can run the
+\item These rule files may be easily distributed so that remote users can run the
 ``bestref'' functionality remotely without needing to install or administer
 complex software.
-\item the rules are easily customized, even by hand if necessary if
+\item The rules are easily customized, even by hand if necessary if
 users wish to.
 \end{enumerate}
 
-\section{High level organization of CRDS}
+\section{High-Level Organization of CRDS}
 
-The software for CRDS can be considered to be in one of three categories:
+The software for the Calibration Reference Data System (CRDS) 
+can be considered to be in one of three categories:
 
 \begin{enumerate}
-\item supporting the bestref functionality
-\item supporting submitting new reference files and all the issues that
-go with that
+\item Supporting the bestref functionality.
+\item Supporting the submittion of new reference files and all the issues that
+go with that.
 \item Supporting format, semantic, and parameter constraint checking for both
-references and rules files.  Capability to detect typos, duplicate lines, and
-grammatical errors in rules files.   Capability to analyze basic properties
+references and rules files.  Having the capability to detect typos, duplicate 
+lines, and grammatical errors in rules files. 
+Having the capability to analyze basic properties
 such duplicate or deleted rows,  by pseudo-mode, for supported tables files.
-\item providing utilities for making CRDS useful in operations, for instrument
-scientists that must generate and monitor reference files, and end users.
+\item Providing utilities for making CRDS useful in: operations; for instrument
+scientists that must generate and monitor reference files; and end users.
 \end{enumerate}
 
 Each of these will be described in a separate section. Since most of the design
-is centered around the first category, most of the description will be centered
+is centered around the first category, most of the description will be concentrated
 around that.
 
 \section{Bestref Functionality}
@@ -436,37 +448,41 @@ rules. Generally these are nested sets of criteria that are used to
 successively narrow down the selection until a single result is determined. It
 is important to understand that there is no intrinsic limit to what structures
 can be supported. If more complex cases arise, new structures can be added to
-the library to support these. The following lists existing and possible kinds
-of selections structures. Those that already are supported are marked with an
-`*'. The ones that are not supported are intended to illustrate possible
-extensions that are not purely hypothetical. The following examples of files
-will illustrate specifically these structures.
+the library to support these. The following lists existing selection mechanisms. 
+Examples of files will illustrate specifically these structures.
 
 \begin{enumerate}
-\item matching on sets of discrete parameter values. That is, the item associated
+\item \textbf{Matching on sets of discrete parameter values.}
+That is, the item associated
 with this specific set of parameters is selected if the parameter values are
 matched according to one of several matching approaches. An item may be a file
 name, or a nested set of rules that will be evaluated in turn.  
-There are a number of different parameter match types, literal, or-glob,
-pure regex, between, not, relational, etc.  In the case of multiple parameters,
+There are a number of different parameter match types: exact, enumerated
+list, wildcards,
+pure regex expression, range specification, exclusion test, comparison, etc.  
+In the case of multiple parameters,
 each parameter is matched across all match cases using a process of elimination
 (winnowing) which successively narrows the possible match cases.
 
-\item matching on a sequence of dates. This corresponds to the useafter mechanism
+\item \textbf{Matching on a sequence of dates.}
+This corresponds to the useafter mechanism
 in CDBS. Normally these items will be sorted in date/time order, and the
 date/time of the observation is used to select the appropriate item in the list
 using a binary search.
 
-\item matching software version requirements. This structure indicates selection
+\item \textbf{Matching software version requirements.} 
+This structure indicates selection
 based on versions of the software which item should be selected. It may use
 specific versions, or relative (e.g., any version before or up to the specified
 version, or any version after the specified version).
 
-\item getting bracketing files. This is useful if some sort of interpolation
+\item \textbf{Identifying bracketing files.}
+This is useful if some sort of interpolation
 between reference files is desired, in which case a pair of results is
 returned.
 
-\item matching on ranges of non-discrete values. For example, this may select a
+\item \textbf{Matching on ranges of non-discrete values.}
+For example, this may select a
 file if an observational parameter is in the specified range. Normally, this
 would be a one-dimensional selection, though even more complex multidimensional
 volumes could be constructed if need be.
@@ -477,7 +493,7 @@ volumes could be constructed if need be.
 All the files that define the rules for how reference files are selected
 use the same organization and syntax.
 A simple syntax is used that consists of expected variables set to simple, 
-possibly nested, datastructures. Each file is expected to have a header 
+possibly nested, data structures. Each file is expected to have a header 
 and selector defined. The header contains information about the intended 
 use of the file, history, information to validate the integrity of the file,
 and other similar items. Most important, the header identifies the exposure
@@ -491,7 +507,7 @@ of the header. It shows what previous rmap file it was derived from, that it is 
 the rules for the selection of reference files (since this syntax is also used for
 the selection of other kinds of files), what kind of reference file is being selected, information about the telescope and instrument, and what the name of the file is. 
 The {\tt parkey} attribute defines the parameters to use for the selection. In the
-case of JWST, the parameters map to FITS header keywords, but are referred through
+case of JWST, the parameters map to FITS header keywords, but are referred through a
 nested object-oriented scheme; the mapping to specific keywords is handled by a special
 library interface that is part of the calibration pipeline. In this specific example,
 This is the rules file for selecting the JWST MIRI instrument dark files, based on 
@@ -502,7 +518,7 @@ The header permits attributes that allow specialized handling of the metadata
 the dataset, including indicating when parameters are relevant or not (e.g., only 
 care about its value if the value of another parameter is given as specified), 
 how to handle cases where no match is found, and hooks to allow special preprocessing
-of parameter values. See the documentation for details on these cases. 
+of parameter values. See the documentation for details on these cases.
 \footnote{\url{https://jwst-crds.stsci.edu/static/users\_guide/rmap_syntax.html\#active-header-fields}}
 Most of these special features were added to handle the existing complexitites present in the CDBS rule system; we expect these will be used far less for JWST.
 
@@ -608,12 +624,12 @@ This section more systematically describes existing selector mechanisms.
 First is is necessary to understand how the supplied parameters (specified
 in the header parkey attribute) are used with selectors. If selectors are 
 nested, each layer removes one or more parameters from the list leaving 
-the rest for lower nestings. For example, if parkey is as specified in
+the rest for lower nestings. For example, if \texttt{parkey} is as specified in
 Figure~\ref{fig:example1}, then 4 parameters are available. The Match 
 selector is requesting 3 since all of its keys have a tuple of 3 items,
 that leaves only the date parameter for subsequent selectors.
 In all cases, the selector expects to be provided an argument that is the 
-appropriate type (e.g., if time). 
+appropriate type (e.g., time for UseAfter). 
 
 Selectors may return a single filename, a tuple of filenames,
 ``Not Applicable'' (which basically implies that no file is
@@ -633,8 +649,8 @@ to make rules much more concise.
 
 \begin{description}
 \item[lists of allowable alternatives:] Allowable values for parameteters
-may be supplied as an \textquotesingle OR\textquotesingle 
-list using {\tt |} as a separator. For example:
+may be supplied as an \textquotesingle OR\textquotesingle
+{\tt }list using {\tt |} as a separator. For example:
 \texttt {({\ttfamily"}filter1{\ttfamily"}
 | {\ttfamily"}filter2{\ttfamily"},...)} will allow either value to match the first
 parameter.
@@ -651,20 +667,23 @@ special interpretation by CRDS, such as {\tt | and \*}.
 These do numerical comparisons on the supplied parameter value to determine
 a match. Supported comparison operators are: 
 \texttt {\textgreater, \textgreater =, \textless, \textless =, == and or}. 
-For example \texttt {({\ttfamily"}\# >=1 and <37\",)} 
+For example \texttt {({\ttfamily"}\# >=1 and <37",)} 
 will match any number equal to or 
 greater than 1 and less than 37.
 \item[Between:] This is simply a more convenient way of expressing a range
 than using relational expressions. E.g., equivalent to the previous example
 is: \texttt{{\ttfamily"}between 1 37{\ttfamily"}}. It is inclusive of the first number.
 \item[N/A:] This is equivalent to using a wildcard for the value, but with 
-the difference of how weighting is used (discussed below). This does not
-affect the weight of the match.
+the difference of how weighting is used (discussed below). 
 \item[NOT Expressions:] A negation of a match. 
 \texttt {{\ttfamily"}not HRC{\ttfamily"}} 
 is a match if the value does not match {\tt HRC}.
-\item[Substitutions:] A shorthand notation that needs better explanation 
-than is in the documenation [I couldn't understatnd it as written xxx]
+\item[Substitutions:] Substitutions can be defined in the header. Essentially
+they result in the replacement of a string in a rules file with a different
+string. This is useful in the case the string is complex and must be entered
+in many different rules (e.g., it is a combination of many different 
+allowable values), or it is more mnemonic to those that must maintain
+the rules than the actual header values are.
 \end{description}
 
 With all these match options it is possible to write multiple items that 
@@ -674,14 +693,14 @@ for disambiguation in these situations have been developed. The basic idea
 is that more specific matches take precedence over more general matches.
 For example, if one item lists as its matching value a wildcard, and another
 gives a specific value for the same parameter, the specific match takes
-precedence. The precedence is handled by determining the generality of the
-match. Use of wildcards or regular expressions increase the generality index,
-while use of N/A does not. [I found the explanation of Match weighting
-unclear, and it suggests the oppposite, a couple examples would help a lot
- xxx].
+precedence. The precedence is handled by determining the specificity of the
+match. Use of specific values, wildcards, or regular expressions increase
+the specificity index, while use of N/A does not. If multiple rules match,
+the one with the highest specificity index is selected
 
-If after using these precedence rules, there are still multiple matches,
-an error results. 
+If after using these precedence rules, there are still multiple matches and 
+if the USEAFTER parameter is used, the most appropriate USEAFTER entry is
+chosesn. If not, an error results.
 
 \subsubsection{UseAfter}
 This expects an ordered sequence of date/time values as part of the rules.
@@ -690,7 +709,7 @@ to the supplied date/time.
 
 \subsubsection{SelectVersion}
 This is essentially a special case of relational matches that understands
-the semantics of software versions (e.g., that 1.2 > 1.1.10).
+the semantics of software versions (e.g., that 1.2 $>$ 1.1.10).
 
 \subsubsection{ClosestTime}
 This selector selects the item with the closest time.
@@ -721,10 +740,9 @@ Instrument context files collect all the rmap files for that
 instrument. This file effectively defines the versions of all the rmap files
 for each reference file types that comprise the version of recommendations in
 effect for that instrument. In the example of the instrument context file
-below, one can see that each distinct rmap file has a unique name. If anything
+shown in Figure~\ref{fig:example_instrument_context},
+one can see that each distinct rmap file has a unique name. If anything
 is changed in an rmap file, it gets a new name
-
-Figure~\ref{fig:example_instrument_context}
 
 \begin{figure*}
 \begin{verbatim}
@@ -806,9 +824,11 @@ This hierarchy is designed to match that for JWST and as such is currently
 designed around the current levels of hierarchy. It is a possible generalization
 that would allow it to deal with arbitrary levels of heirarchy, perhaps
 different in number depending on the branch taken. Achieving that would
-take significant modifications but is possible. 
+take some modification of the bestref client functionality but is possible
+without a large effort. Doing the same for the submission machinery would 
+be significantly more work. 
 
-\subsection{Ensuring integrity of the configuration}
+\subsection{Ensuring Integrity of the Configuration}
 
 Since all the rules involve simple text files, one possible corruption of the
 integrity of the system is if someone edits or otherwise changes the
@@ -824,7 +844,7 @@ invoke CRDS so that this check is overridden, allowing users to hand edit
 such files with their local customizations. But with the operational systems,
 these checks are always performed.
 
-\subsection{Practicality and Restrictions of this design}
+\subsection{Practicality and Restrictions of this Design}
 
 This approach assumes that the number of matching rules is reasonable for a
 text file (e.g., fewer than 10,000 lines or so). It also assumes that the
@@ -869,23 +889,23 @@ Supposing one or more new references files of a specific type for a specific
 instrument are ready to be tested and used in the operations system/:
 
 \begin{enumerate}
-\item submit each of the reference files (with validation of each file
+\item Submit each of the reference files (with validation of each file
 being part of the submission process). This is expected to generate
-unique names for each of the submitted reference files
-\item edit the rmap for that reference file type to include the necessary
+unique names for each of the submitted reference files.
+\item Edit the rmap for that reference file type to include the necessary
 changes to use these (most likely either a replacement of older versions
 or the addition of time-variable ones).
-\item submit the updated rmap file (again with implied validation for
+\item Submit the updated rmap file (again with implied validation for
 correctness)
 and again, generating a new, unique rmap file name that represents the version
 of the file in the system that has the desired changes.
-\item edit the instrument context file to use the new version of the rmap file.
-\item submit the updated instrument context file (with validation and 
-generating a new, unique name)
-\item edit the pipeline context file to use the new version of the
+\item Edit the instrument context file to use the new version of the rmap file.
+\item Submit the updated instrument context file (with validation and 
+generating a new, unique name).
+\item Edit the pipeline context file to use the new version of the
 instrument context file.
-\item submit the updated pipeline context file (with validation and 
-generating a new, unique name)
+\item Submit the updated pipeline context file (with validation and 
+generating a new, unique name).
 \end{enumerate}
 
 At this point the new reference files can be used in an operational
@@ -907,7 +927,7 @@ deliveries always use the test environment, though it is expected that when
 software updates are infrequent, the above model will be used for pure
 reference file deliveries.
 
-Since any number of context can exist, one can have several in testing
+Since any number of contexts can exist, one can have several in testing
 simultaneously. If that is the case, one still needs to be careful in
 determining if different contexts need merging of information (as could happen
 if different instruments are submitting new files independently).
@@ -926,7 +946,7 @@ rules has been used to
 support pipeline regression testing and coordinate CRDS with available
 historical system states of the rest of the pipeline.
 
-\subsection{Streamlined updates}
+\subsection{Streamlined Updates}
 
 While this multi-step update process may be necessary in more complex cases, the
 great majority of reference file submissions fall into one of two categories:
@@ -936,9 +956,11 @@ addition of time-dependent references files to address data for specific time
 ranges.
 
 In either of these cases, it is quite useful to streamline the process to
-effectively make it one step. Namely by the fact of submitting the reference
-files, automatically updating and submitting the appropriate rmap to use it,
-and in turn, making the corresponding updates and submissions to the context
+effectively make it a one step operation.
+Specifically by the fact of submitting the reference
+files, in turn automatically updating and submitting
+the appropriate rmap to use it,
+and subsequently, making the corresponding updates and submissions to the context
 files. As a result of these submissions, the user then is given all the
 relevant names for the new reference files, rmap, and context files, most
 importantly the pipeline context file. For this to work properly, the user must
@@ -946,12 +968,12 @@ indicate which pipeline context they are basing the changes on. Normally this
 is the last one,  known as the ``edit context'' which can be modified several
 times in advance of adopting the context as operational in the pipeline.  
 
-There are several other options as well: 
+There are several other options for the edit context as well: 
 
 \begin{itemize}
-\item operational
-\item one of last 10
-\item user specified.  
+\item Operational context.
+\item One of last 10 contexts.
+\item User specified context.  
 \end{itemize}
 
 Usually only the ``edit context'' is used, but the other choices
@@ -962,7 +984,7 @@ differencing of the generated rules for inspection by the submitter and
 verification that the intended changes have occurred prior to confirming
 the submission.  Finally, it includes delivery of the files to the archive.
 
-\subsection{Reference File submission details}
+\subsection{Reference File Submission Details}
 
 The machinery for submitting reference files is an interactive web-based
 system. The ability to submit files or make changes requires user
@@ -974,7 +996,8 @@ File submission is limited to authenticated users. The home page for
 authentic pages is shown in Figure~\ref{fig:authenticatedhome}.
 The fully automatic
 standard process is dubbed ``Batch Reference Submission'' 
-in reference to submission of a pile of files for one instrument,
+in reference to submission of a group of reference 
+files for one instrument,
 multiple types,  and automatic certification and rules updates.
 
 
@@ -1008,17 +1031,19 @@ multiple types,  and automatic certification and rules updates.
 
 \begin{figure*}[ht!]
 \centering
+\includegraphics[width=180mm]{JWST_Submission_Confirmed.png}
+\caption{JWST submission confirmed example}
+\label{fig:confirmedsubmission}
+\end{figure*}
+
+\begin{figure*}[ht!]
+\centering
 \includegraphics[width=180mm]{JWST_Failed_Submission_DM_schema_violation.png}
 \caption{JWST failed submission example}
 \label{fig:failedsubmission}
 \end{figure*}
 
-\begin{figure*}[ht!]
-\centering
-\includegraphics[width=180mm]{JWST_Submission_Confirmed.png}
-\caption{JWST submission confirmed example}
-\label{fig:confirmedsubmission}
-\end{figure*}
+
 
 
 
@@ -1027,8 +1052,8 @@ submission page (Figure~\ref{fig:batchsubmission})
 by identifying the local files designated as the 
 files to replace existing ones (note, the local file names are not the 
 names the files will have when ingested into CRDS). 
-When all the updates have been identified, the submit button [or
-whatever] is clicked, and CRDS will then validate each of the reference
+When all the updates have been identified, the submit button is clicked,
+and CRDS will then validate each of the reference
 files. If they all pass validation, the user will be presented the results of
 the results that will be produced (e.g., the new filenames for the reference
 files, rmaps and context files, and other summary information). An example of a
@@ -1038,11 +1063,11 @@ the submission after which they will be assigned unique names, added to the
 CRDS database of reference files, sent to the STScI archive for archiving, and
 placed in the disk-based repository of reference files. When the submission
 process completes, the user is presented with a summary page, shown in
-Figure~\ref{confirmedsubmission}
+Figure~\ref{fig:confirmedsubmission}
 
 
-If the validation
-doesn't pass, the results indicate what the problem is so the user may make the
+If the validation does not pass, 
+the results indicate what the problem is so the user may make the
 necessary corrections. Figure~\ref{fig:failedsubmission}
 shows such a summary of problems.
 
@@ -1064,16 +1089,16 @@ standard metadata related to the submission aspects, such as when the file was
 submitted.)
 
 There are further checks on file submissions that are intended to warn regarding
-suspicious changes. These changes may be valid, but like indicate a mistake. The
+suspicious changes. These changes may be valid, but likely indicate a mistake. The
 following such situations raise a warning on submission:
 
 \begin{enumerate}
 \item The reversion of a file to a previous version. For example, 
 if a rmap has an
 existing reference file name replaced by one that is earlier in the submission
-sequence, that would be unusual, and the submitter warned about this reversion.
-Likewise if instrument or pipeline contexts point to earlier rmaps or instrument
-contexts, respectively, that raises a warning.
+sequence that would be unusual, and the submitter is warned about this reversion.
+Likewise, if instrument or pipeline contexts point to earlier rmaps or instrument
+contexts respectively, that raises a warning.
 
 \item If someone tries to commit files that were based on a pipeline context that
 is no longer the latest, a warning will be raised. By doing so they may reverse
@@ -1087,7 +1112,7 @@ thus raising the possibility they are bypassing subsequent changes).
 \section{Utilities}
 
 Utilities are generally targeted to one or more of three classes of users:
-Operations, Instrument Scientists (i.e., those that must create and maintain
+operations, instrument scientists (i.e., those that must create and maintain
 reference files), and general users. Some utilities are useful for only one of
 these classes of users whereas others may be more broadly useful. We will
 organize this section by this class of users. Where a utility has other uses we
@@ -1095,7 +1120,7 @@ will indicate that.
 
 \subsection{Operations}
 
-Affected files utility: Given a list of datasets, determine which ones have
+\textbf{Affected files utility:} Given a list of datasets, determine which ones have
 been affected by a change in a pipeline context. Normally it is expected that
 the relevant selection parameters for each dataset is contained in a database
 to avoid having to examine the contents of each dataset. This utility needs to
@@ -1105,7 +1130,7 @@ datasets, and the two pipeline contexts being compared. The results of this
 can be used to determine which datasets must be reprocessed to take advantage
 of any improved reference files.
 
-Active reference files in a context: List all reference files used in a
+\textbf{Active reference files in a context:} List all reference files used in a
 pipeline context. This indicates what files may be needed to process the
 data. (possibly useful for other classes of users)
 
@@ -1125,9 +1150,9 @@ jwst_fgs_readnoise_0001.fits
 ...
 \end{verbatim}
 
-Inverse mapping: Which rmaps and contexts use a specific reference file (e.g.,
+\textbf{Inverse mapping:} Which rmaps and contexts use a specific reference file (e.g.,
 if one finds that one was defective, identify all the pipeline contexts that
-used that file so that users may be notified)?
+used that file so that users may be notified).
 
 \begin{verbatim}
 % python -m crds.uses jwst_fgs_gain_0000.fits
@@ -1146,24 +1171,13 @@ jwst_fgs_gain_0001.rmap
 
 \subsection{Instrument Scientists}
 
-Difference in rules between two contexts: Summarize what has changed in the
+\textbf{Difference in rules between two contexts:} Summarize what has changed in the
 rules between two pipeline or instrument contexts. This allows instrument
 scientists to quickly identify the changes made.
 
-\begin{verbatim}
-% python -m crds.diff jwst_0080.pmap jwst_0081.pmap 
-  --brief --squash-tuples
-  jwst_miri_regions_0004.rmap 
-  jwst_miri_regions_0005.rmap 
-  -- MIRIFUSHORT 12 SHORT N/A 
-  -- added Match rule for jwst_miri_regions_0006.fits
-jwst_miri_0048.imap jwst_miri_0049.imap -- regions -- replaced jwst_miri_regions_0004.rmap with jwst_miri_regions_0005.rmap
-jwst_0080.pmap jwst_0081.pmap -- miri -- replaced jwst_miri_0048.imap with jwst_miri_0049.imap
-\end{verbatim}
-
 \subsection{General users}
 
-Compare retrieved data with current pipeline context: A user has downloaded
+\textbf{Compare retrieved data with current pipeline context:} A user has downloaded
 data and wishes to see what data may need to be re-retrieved since the
 reference files it used are not the currently recommended ones. A variant on
 this is to update the headers of the files with the newly recommended files
@@ -1174,22 +1188,21 @@ will be run remotely and thus need network access to the CRDS server.
 
 All the software (aside from a limited amount of web interface tools) is
 written in Python. The bestref functionality uses the following Python
-libraries (i.e., what isn't part of the Python Standard Library
+libraries (i.e., what is not part of the Python Standard Library
 distribution). It was originally written to use Python 2, but has since been
 updated to use Python 3. The server-side libraries have not been ported to 
 Python 3 yet.
 
-\subsection{Client side dependencies:}
+\subsection{Client Side Dependencies:}
 
 \begin{itemize}
-\item rules file checking uses the **Parsley** parser generator package to define a grammar capable of detecting duplicate lines (cut-and-paste errors)
-  \begin{itemize}
-  \item jwst\_lib.models, jwst\_lib.stpipe, jwst\_lib.modeling (STScI)
-  \item PyYaml
-  \item pyasdf (STScI)
-  \item astropy
-  \item numpy
-  \end{itemize}
+\item Parsley: used by rules file checking to define a grammar capable of detecting duplicate lines (cut-and-paste errors)
+\item jwst\_lib.models, jwst\_lib.stpipe, jwst\_lib.modeling (STScI)
+\item PyYaml
+\item pyasdf (STScI)
+\item Astropy
+\item Numpy
+
 \end{itemize}
 
 \subsection{Server-side dependencies:}
@@ -1200,24 +1213,24 @@ backend. The additional following libraries are used.
 \begin{itemize}
 \item Apache web server using the Python mod\_wsgi as the library interface.
 \item django-file-upoad (source code subsumed into CRDS code with modifications):
-  Used to  manage parallel file uploads, drag-and-drop, progress bars, data rate info,  remote file deletion,  pause/resume,  etc.)
+  Used to  manage parallel file uploads, drag-and-drop, progress bars, data rate info,  remote file deletion,  pause/resume,  etc.).
 \item django-locking (source code subsumed into CRDS code with modifications):
   This is database-backed resource locking used to provide ``instrument lock''
    to limit submissions to one person per instrument (to prevent concurrent 
    submissions).
 \item django-json-rpc: Supports the interface between the server and clients.
 \item django-dbbackup: Used to backup the database and mirror the database between
-  different environments
-\item pytz: timezone support
-\item jQuery/jQuery-UI: web page interface support
-\item DataTables: Table display and manipulation for jQuery
+  different environments.
+\item pytz: timezone support.
+\item jQuery/jQuery-UI: web page interface support.
+\item DataTables: Table display and manipulation for jQuery.
 \item MochiKit: Javascript debug shell used by django-json-rpc.
-\item memcached / libevent / python-memcached: supports cached results on server
+\item memcached / libevent / python-memcached: supports cached results on server.
 \end{itemize}
 
 \section{Limitations and Improvements}
 
-Web uploads are capably (not perfectly) handled by the django-file-upload
+Web uploads are handled by the django-file-upload
 system which is fully integrated with the CRDS code base.  An end-to-end
 checksum (sha1sum-based) verification of file uploads would be desirable
 for extremely large
@@ -1230,8 +1243,8 @@ amounts of data in a single file submission and web transaction.
 The primary limitation of large numbers of files and/or high volumes
 of data is the time required to copy and compute 
 the sha1sum for the file within
-the web server.  Each 4G JWST file currently takes on the order of 
-2 minutes just to copy or checksum.   This basic data transfer
+the web server.  Each 4~GB JWST file currently takes on the order of 
+two minutes just to copy or checksum.   This basic data transfer
 time dwarfs the timing one would ideally desire for a web response,  
 tens of milliseconds, putting CRDS deep into the regime of ``long polling''.    
 Because of the current implementation, the web response time is
@@ -1242,7 +1255,7 @@ in practice have exceeded generous proxy timeout limits.
 
 This can be
 mitigated by partitioning files into multiple smaller submissions (also smaller
-incremental *failure groups* for certification errors or other problems) or
+incremental \textit{failure groups} for certification errors or other problems) or
 using alternate backend delivery mechanisms for particularly large submissions.
 After initial bootstrappng, all incremental JWST reference updates to date have
 been successfully ingested using the web interface.  Fully addressing large
@@ -1269,22 +1282,24 @@ submission requests with suggestions that the submission be partitioned.
 
 Reference files in FITS 
 (\citealt{2010FITS}), JSON (\citealt{JSON}), and ASDF (\citealt{2015ASDF})
-format are supported.
+formats are supported.
 
 Another improvement planned is the ability to return values other than
 filenames or tuples of filenames. A common use of reference files for HST 
-was to provide a table of parameter to be used by the calibration 
-pipeline to tune processing to the configurations. Often the real need
-of the pipeline was just a handful of parameter values. Often this resulted
-in a dual layer lookup system. CDBS would select a table (though sometimes
+was to provide a table of parameters to be used by the calibration 
+pipeline to tune processing to the configurations. Usually the real need
+of the pipeline was just a handful of parameter values rather than
+a whole file. This kind of usage resulted
+in a dual-layer lookup system. CDBS would select a table (though sometimes
 there was only one reference file for all cases), and then the calibration
 pipeline would select a specific row in the table that matched an additional
 set of selection parameters. This could be greately simplified if the 
 rmap itself bypassed reference files entirely and effectively embedded
-the parameter values as what is returned. In this manner, it relieves 
-the calibration pipeline of embedding its own matching system in its code.
+the parameters as what is returned. In this manner it would relieve 
+the calibration pipeline of the need for embedding its own matching 
+system in its code.
 
-\section{Enabling pipeline flexibility}
+\section{Enabling Pipeline Flexibility}
 
 CRDS was designed to allow running the JWST calibration pipelines remotely much
 more easily. HST users could always rerun pipelines at their home institutions,
@@ -1357,7 +1372,7 @@ It is important to realize that this system has a wider range of application
 than just for selecting appropriate reference files. It can act as a selector
 many uses so long as the number of selections is not enormous, and the set of
 selection parameter is reasonably consistent and bounded for all data
-sets. Other uses are already envisioned for JWST. For example, it will be used
+sets. Other such uses are already envisioned for JWST. For example, it will be used
 to determine which calibration pipeline to run for the dataset supplied. 
 So rather than supplying a reference file to use, it will supply the pipeline 
 to execute (either as a name of an executable, or more exactly, a pipeline 
@@ -1376,26 +1391,35 @@ consistent metadata.
 \section{Licensing and Availability}
 
 The bestref client library has a 3-clause BSD and available through its
-repository (xxx). The server side software (e.g., the machinery that handles
+Subversion repository (https://aeon.stsci.edu/ssb/trac/crds). 
+The server side software (e.g., the machinery that handles
 file submissions and web services) is not publicly available due to security
 concerns, though it is possible that it may be made publicly available once it
 has been vetted to be free of any security issues. We will make it available to
 qualified institutions and individuals provided that they agree not to make it
 publicly available. The client library is quite portable. The server-side
 software has more local (STScI) dependencies as well as library dependencies,
-and all the configuration, administration , and security issues providing a
+and all the configuration, administration, and security issues providing a
 server entails.
 
 
 \section{Acknowledgments}
 
-This work was supported by the JWST mission, a joint effort of NASA,
-ESA, and CSA. STScI is operated on behalf of NASA by the Association
-of Universities for Research in Astronomy, and by the HST mission xxx
-The implementation was aided by
-Jonathan Eisenhamer, and the integration into the operations system by Michael
-Swam. Testing from the instrument scientist perspective was carried out by Rosa
-Diaz and Matthew McMaster.
+This work was funded by NASA (contract NAS5-03127) as part of the JWST mission, a joint effort of NASA, the European Space Agency, and the Canadian Space Agency. It was also funded as part of the NASA Hubble Space Telescope Science Operations Contract NAS5-26555 with the Space Telescope Science Institute.
+STScI is operated on behalf of NASA by the Association of Universities for Research in Astronomy.
+
+The implementation was aided by Jonathan Eisenhamer, Warren Hack, Mike Droettboom
+and Pey-Lian Lim. 
+Michael Swam patiently answered countless questions about how CDBS
+worked as well as issues regarding operations, and aided integration into the 
+operations system. Further help with the archive systems and web services
+was provided by Linda Thompson, Doris Fraquelli, Kim Dupries.
+Testing and recommendations for changes from the instrument scientist
+perspective was carried out by Rosa Diaz, Matthew McMaster, and Van Dixon.
+Daniel Durand of the Canadian Astronomy Data Centre and Jonas Haase of the
+European Southern Observatory provided useful feedback on issues relevant
+for outside institutions.
+
 
 %% The Appendices part is started with the command \appendix;
 %% appendix sections are then done as normal sections
