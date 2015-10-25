@@ -1096,8 +1096,12 @@ def bestrefs_explore_compute(request):
     header = { pmap.instrument_key : instrument.upper() }
     pars = imap.get_parkey_map().keys()
     for par in pars:
-        header[par] = utils.condition_value(
-            validate(request, par, r"[A-Za-z0-9\+\-.,*/;|{}\[\]:]*"))
+        write_in =  validate(request, par + "_text", r"[A-Za-z0-9\+\-.,*/;|{}\[\]:]*")
+        if write_in:
+            header[par] = write_in
+        else:
+            header[par] = utils.condition_value(
+                validate(request, par, r"[A-Za-z0-9\+\-.,*/;|{}\[\]:]*"))
     header["DATE-OBS"] = validate(request, "DATE-OBS", timestamp.DATE_RE_STR)
     header["TIME-OBS"] = validate(request, "TIME-OBS", timestamp.TIME_RE_STR)
     return bestrefs_results(request, pmap, header, instrument)

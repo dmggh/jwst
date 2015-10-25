@@ -92,7 +92,7 @@ class InteractiveBase(TransactionTestCase):
         except Exception, exc:
             print "failed user save:", str(exc)
         self.ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, str(self.user))
-        self.fake_database_files([self.pmap, self.pmap2])
+        self.fake_database_files(list(set([self.pmap, self.pmap2])))
         models.set_default_context(self.pmap, skip_history=True)
         models.set_default_context(self.pmap, state="operational")
         utils.ensure_dir_exists(os.path.join(lconfig.get_crds_refpath(self.observatory), "test.fits"))
@@ -668,7 +668,7 @@ if sconfig.observatory == "hst":
 
         observatory = "hst"
         pmap = pmap2 = "hst.pmap"
-        cached_contexts = [pmap, pmap2]
+        cached_contexts = [pmap]
         
         new_context = "interactive/test_data/hst_0027.pmap"
         
@@ -776,6 +776,8 @@ else:  # JWST
         delete_list = [
             "jwst_0001.pmap",
             "jwst_0002.pmap",
+            "jwst_0083.pmap",
+            "jwst_0084.pmap",
             "jwst_miri_0001.imap",
             "jwst_miri_0002.imap",
             "jwst_nircam_0001.imap",

@@ -28,6 +28,11 @@
                 <input type='text' name='{{key}}' value="*" />
             {% endif %}
           </td>
+          <td width="25%">
+            {% if choices %}
+                <input type='text' name='{{key}}_text' value='' />
+            {% endif %}
+          </td>
         </tr>
         {% endif %}
       {% endfor %}
@@ -37,11 +42,13 @@
 
       <tr>
         <td width="25%" class="label">DATE-OBS:</td>
-        <td width="60%"><input type="text" name="DATE-OBS" value="{{dateobs}}" /> <span class="hint">e.g. 2011-01-01</span> <td/>
+        <td width="20%"><input type="text" name="DATE-OBS" value="{{dateobs}}"/> </td>
+        <td width="30%"><span class="hint">e.g. 2011-01-01</span></td>
       </tr>
       <tr>
         <td width="25%" class="label">TIME-OBS:</td>
-        <td width="60%"><input type="text" name="TIME-OBS" value="{{timeobs}}"/> <span class="hint">e.g. 12:00:00</span> </td>
+        <td width="20%"><input type="text" name="TIME-OBS" value="{{timeobs}}"/> </td>
+        <td width="30%"><span class="hint">e.g. 12:01:57</span> </td>
       </tr>
       
       <tr><td> </td></tr>
@@ -83,6 +90,12 @@
     <p/><p>Some of the parameters may not be relevant to the
 instrument mode of interest and should be left unselected in order to avoid errors.
 The results will be determined by the context file and parameters selected.
-</p>
+    </p>
+
+    <p/><p>The secondary text box available for some parameters can be used to
+    specify arbitrary values not captured by the dropdown menu.   Any specified
+    write-in parameter will take precedence over the dropdown menu.
+    </p>
+
 {% endblock help %}
 
