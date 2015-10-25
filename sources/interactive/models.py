@@ -94,7 +94,17 @@ def retrieve_cache(key):
 OBSERVATORIES = ["hst", "jwst"]
 
 INSTRUMENTS = sorted(observatory_module.INSTRUMENTS) # + crds.jwst...
+try:
+    INSTRUMENTS.remove("all")
+except:
+    pass
+
 FILEKINDS   = sorted(observatory_module.FILEKINDS)   # + crds.jwst...
+try:
+    FILEKINDS.remove("all")
+except:
+    pass
+
 FILEKIND_TEXT_DESCR = sorted(observatory_module.TEXT_DESCR.items())
 EXTENSIONS  = sorted(observatory_module.EXTENSIONS)   # + crds.jwst...
 
