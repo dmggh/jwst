@@ -942,29 +942,27 @@ def bestrefs_post(request):
     pmap = rmap.get_cached_mapping(context)
     dataset_mode = validate(
         request, "dataset_mode", "dataset_archive|dataset_uploaded|dataset_local")
-    if dataset_mode == "dataset_uploaded":
-        uploaded_file = get_uploaded_file(request, "dataset_uploaded")
-        dataset_path = uploaded_file.temporary_file_path()
-        dataset_name = uploaded_file.name
+    try:
+        if dataset_mode == "dataset_uploaded":
+            uploaded_file = get_uploaded_file(request, "dataset_uploaded")
+            dataset_path = uploaded_file.temporary_file_path()
+            dataset_name = uploaded_file.name
         # base on the context and datset,  compute best references
-        header = data_file.get_conditioned_header(dataset_path, original_name=dataset_name)
-    elif dataset_mode == "dataset_local":
-        header = header_string_to_header(request.POST["dataset_local"])
-        dataset_name = validate(request, "dataset_name", config.FILE_RE)
-    elif dataset_mode == "dataset_archive":
-        dataset_name = validate(request, "dataset_archive", common.DATASET_ID_RE)
-        try:
+            header = data_file.get_conditioned_header(dataset_path, original_name=dataset_name)
+        elif dataset_mode == "dataset_local":
+            header = header_string_to_header(request.POST["dataset_local"])
+            dataset_name = validate(request, "dataset_name", config.FILE_RE)
+        elif dataset_mode == "dataset_archive":
+            dataset_name = validate(request, "dataset_archive", common.DATASET_ID_RE)
             # If dataset is an association,  it will return multiple headers,  just show one.
             headers = jsonapi_views.get_simplified_dataset_headers_by_id(context, [dataset_name])
             first = sorted(headers.keys())[0]
             header = headers[first]
             if isinstance(header, basestring):
                 raise CrdsError(header)
-        except Exception, exc:
-            raise CrdsError("Problem getting header for dataset " + 
-                            srepr(dataset_name) + ": " + str(exc))
-    else:
-        raise ValueError("Bad dataset_mode " + srepr(dataset_mode))
+    except Exception as exc:
+        raise CrdsError("Problem getting header for dataset " + 
+                        srepr(dataset_name) + ": " + str(exc))
 
     log.info("Primitive Dataset Header:\n", log.PP(header))
 
