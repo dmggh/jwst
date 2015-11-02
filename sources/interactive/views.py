@@ -947,7 +947,7 @@ def bestrefs_post(request):
             uploaded_file = get_uploaded_file(request, "dataset_uploaded")
             dataset_path = uploaded_file.temporary_file_path()
             dataset_name = uploaded_file.name
-            header = data_file.get_dataset_header(dataset_path, original_name=dataset_name)
+            header = data_file.get_free_header(dataset_path, original_name=dataset_name)
             header = utils.condition_header(header)
         elif dataset_mode == "dataset_local":
             dataset_name = validate(request, "dataset_name", config.FILE_RE)
