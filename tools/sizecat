@@ -1,0 +1,25 @@
+#! /usr/bin/env python
+"""From the catalogs directory,  compute catalog total size by:
+
+% sizecat <observatory> <catalog files...>
+
+"""
+import sys
+
+import numpy
+
+from crds import log, client, utils
+
+def main(observatory, catalogs):
+    for catalog in catalogs:
+        files = open(catalog).read().splitlines()
+        filemap = client.get_file_info_map(observatory, files, fields=["size"])
+        total = 0L
+        for filename, fields in filemap.items():
+            with log.error_on_exception("Can't determine size for", repr(filename), "with fields", repr(fields)):
+                total += long(fields["size"])
+        log.info("Total size for the", repr(len(files)), "files in", repr(catalog), "is", 
+                 utils.human_format_number(total))
+                
+if __name__ == "__main__":
+    main(sys.argv[1], sys.argv[2:])
