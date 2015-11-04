@@ -1039,8 +1039,10 @@ def captured_bestrefs(pmap, header):
     Return (bestrefs_dict,  captured_debug_output)
     """
     old = log.set_verbose(60)  # problem here.
-    recommendations = rmap.get_best_references(pmap, header)
-    log.set_verbose(old)
+    try:
+        recommendations = rmap.get_best_references(pmap, header)
+    finally:
+        log.set_verbose(old)
     return recommendations
 
 # ===========================================================================
