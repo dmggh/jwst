@@ -155,7 +155,7 @@ class InteractiveBase(TransactionTestCase):
             else:
                 source = os.path.abspath(filename)
             where = lconfig.relocate_file(filename, self.observatory)
-            if link:
+            if link and not os.path.exists(where):
                 with log.error_on_exception("Symlinking", repr(source), "to", repr(where), "failed."):
                     log.info("Symlinking fake file", repr(source), "to", repr(where))
                     os.symlink(source, where)
