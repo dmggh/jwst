@@ -28,7 +28,7 @@ observatory_module = utils.get_object("crds." + OBSERVATORY)
 
 # ============================================================================
 
-CRDS_CACHE = cache.get_cache("crds_cache")
+CRDS_CACHE = cache.caches["crds_cache"]
 
 def crds_cached(f):
     """Decorator to cache a function in the 'crds_cache'.

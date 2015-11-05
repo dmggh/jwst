@@ -22,7 +22,6 @@ PACKAGES = [
     'crds.server.locking',
     'crds.server.locking.management',
     'crds.server.locking.management.commands',
-    'crds.server.locking.migrations',
     ]
 
 PACKAGE_DIR = {
@@ -48,8 +47,6 @@ PACKAGE_DIR = {
     'crds.server.locking' : './locking',
     'crds.server.locking.management' : './locking/management',
     'crds.server.locking.management.commands' : './locking/management/commands',
-    'crds.server.locking.migrations' : './locking/migrations',
-    
     }
 
 PACKAGE_DATA = {

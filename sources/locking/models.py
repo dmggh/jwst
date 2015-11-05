@@ -3,7 +3,7 @@ import datetime
 from django.db import models, IntegrityError
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes import generic
+# from django.contrib.contenttypes import generic
 from django.utils.translation import ugettext_lazy as _
 
 from .exceptions import NotLocked, AlreadyLocked
