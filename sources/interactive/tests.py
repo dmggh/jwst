@@ -211,9 +211,14 @@ class InteractiveBase(TransactionTestCase):
     def test_bestrefs(self):
         response = self.client.get("/bestrefs/")
         self.assert_no_errors(response)
-    
+
+    def _set_pmap2_defaults(self):
+        models.set_default_context(self.pmap2, skip_history=True)
+        models.set_default_context(self.pmap2, state="operational")
+
     # XXX Implement bestrefs tests
     def test_bestrefs_post_archive_dataset(self):
+        self._set_pmap2_defaults()
         response = self.client.post("/bestrefs/", {
             "pmap_mode" : "pmap_text",
             "pmap_text" : self.pmap2,
@@ -223,6 +228,7 @@ class InteractiveBase(TransactionTestCase):
         self.assert_no_errors(response)
     
     def test_bestrefs_post_default_context(self):
+        self._set_pmap2_defaults()
         response = self.client.post("/bestrefs/", {
             "pmap_mode" : "pmap_edit",
             "pmap_edit" : self.pmap2,
@@ -237,6 +243,7 @@ class InteractiveBase(TransactionTestCase):
         else:
             dataset1 = "interactive/test_data/jw00001001001_01101_00001_MIRIMAGE_uncal.fits"
         self.login()
+        self._set_pmap2_defaults()
         response = self.client.post("/bestrefs/", {
             "pmap_mode" : "pmap_text",
             "pmap_text" : self.pmap2,
@@ -290,18 +297,6 @@ class InteractiveBase(TransactionTestCase):
         self.login()
         response = self.client.get("/certify/")
         self.assert_no_errors(response)
-
-    def test_certify_post_fits_uploaded(self):
-        self.login()
-        self.fake_database_files([self.certify_post_fits])
-        self.add_file_to_ingest_dir(self.certify_post_fits)
-        response = self.client.post("/certify/", {
-            "pmap_mode": "pmap_edit",
-        }, follow=True)
-        # print "certify post FITS response:", response.content
-        self.assert_no_errors(response)
-        self.assertNotIn("ERROR", response.content)
-        self.assertEqual(response.content.count("OK"), 2)
 
     def test_certify_post_rmap_uploaded(self):
         self.login()
@@ -761,6 +756,18 @@ if sconfig.observatory == "hst":
             self.assertIn("ERROR", response.content)
             self.assertIn("s7g1700rl_dead_bad.fits  <span class=\'red\'>Failed.</span>", response.content)
             
+        def test_certify_post_fits_uploaded(self):
+            self.login()
+            self.fake_database_files([self.certify_post_fits])
+            self.add_file_to_ingest_dir(self.certify_post_fits)
+            response = self.client.post("/certify/", {
+                    "pmap_mode": "pmap_edit",
+                    }, follow=True)
+            # print "certify post FITS response:", response.content
+            self.assert_no_errors(response)
+            self.assertNotIn("ERROR", response.content)
+            self.assertEqual(response.content.count("OK"), 2)
+            
 else:  # JWST
     
     class Jwst(InteractiveBase):
@@ -841,20 +848,20 @@ else:  # JWST
         def test_certify_post_rmap_bad(self):
             self.login()
             self.add_file_to_ingest_dir(self.certify_rmap_bad)
-            self.fake_database_files(self.certify_rmap_fits, link=True)
+            self.fake_database_files(self.certify_rmap_fits)
             response = self.post("/certify/", {
                     "pmap_mode": "pmap_text",
                     "pmap_text": "jwst_0003.pmap",
                     "compare_old_reference": "checked",
                     }, follow=True)
-            self.assertTrue(response.content.count("ERROR") == 2)
+            self.assertTrue(response.content.count("ERROR") == 3)
             self.assertTrue(response.content.count("WARNING") == 3)
             self.assertIn("sha1sum", response.content)
-            # self.assertIn("is not in", response.content)
+            self.assertIn("is not in", response.content)
             self.assertIn("Reversion", response.content)
             self.assertIn("Duplicate", response.content)
             self.assertIn("added Match rule", response.content)
-            self.assertTrue(response.content.count("is not known") == 1)
+            self.assertIn("is not known", response.content)
             
         def test_certify_post_fits_bad(self):
             self.login()
@@ -868,3 +875,16 @@ else:  # JWST
             # self.assertIn("ERROR", response.content)
             # self.assertIn("s7g1700rl_dead_bad.fits  <span class=\'red\'>Failed.</span>", response.content)
             
+        def test_certify_post_fits_uploaded(self):
+            self.login()
+            self.fake_database_files([self.certify_post_fits])
+            self.add_file_to_ingest_dir(self.certify_post_fits)
+            response = self.client.post("/certify/", {
+                    "pmap_mode": "pmap_edit",
+                    }, follow=True)
+            # print "certify post FITS response:", response.content
+            self.assert_no_errors(response)
+            self.assertNotIn("ERROR", response.content)
+            self.assertEqual(response.content.count("OK"), 1)
+            self.assertEqual(response.content.count("Warnings"), 1)
+

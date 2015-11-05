@@ -964,8 +964,6 @@ def bestrefs_post(request):
         raise CrdsError("Problem getting header for dataset " + 
                         srepr(dataset_name) + ": " + str(exc))
 
-    log.info("Primitive Dataset Header:\n", log.PP(header))
-
     # base on the context and datset,  compute best references
     results = bestrefs_results(request, pmap, header, dataset_name)
 
@@ -993,14 +991,14 @@ def bestrefs_results(request, pmap, header, dataset_name=""):
     """Render best reference recommendations under context `pmap` for
     critical parameters dictionary `header`.
     """
-    log.info("matching header:", header)
-    header_min = pmap.minimize_header(header)
-    recommendations, bestrefs_debug_output = captured_bestrefs(pmap, header_min)
+    log.info("bestrefs_results matching header:", header)
+    recommendations, bestrefs_debug_output = captured_bestrefs(pmap, header)
     old_recommendations = {}
     # with log.error_on_exception("Failed fetching old bestrefs"):
     #    header = { key.upper() : val.lower() for (key,val) in header.items() }
     #    old_recommendations = pmap.get_old_references(header)
     # organize and format results for HTML display    
+    header_min = pmap.minimize_header(header)
     header_min.pop("REFTYPE", None)
     header_items = sorted(header_min.items())
     bestrefs_items = get_bestrefs_items(recommendations)
