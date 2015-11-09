@@ -23,13 +23,13 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="crds 1.8 documentation" href="index.html" />
     <link rel="next" title="CRDS Database Access" href="database.html" />
     <link rel="prev" title="Using the CRDS Web Site" href="web_site_use.html" /> 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
+  <body>
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -41,10 +41,10 @@
         <li class="right" >
           <a href="web_site_use.html" title="Using the CRDS Web Site"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 1.8 documentation</a> &raquo;</li> 
+        <li><a href="index.html">crds 1.8 documentation</a> &raquo;</li> 
       </ul>
     </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="index.html">
               <img class="logo" src="_static/stsci_logo.png" alt="Logo"/>
@@ -57,9 +57,15 @@
 <li><a class="reference internal" href="#pipeline-echo">Pipeline Echo</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#file-information">File Information</a><ul>
+<li><a class="reference internal" href="#single-file-metadata">Single File Metadata</a></li>
+<li><a class="reference internal" href="#multiple-file-metadata">Multiple File Metadata</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#best-references">Best References</a><ul>
 <li><a class="reference internal" href="#single-header">Single Header</a></li>
 <li><a class="reference internal" href="#multiple-headers">Multiple Headers</a></li>
+<li><a class="reference internal" href="#selection-parameters">Selection Parameters</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#jsonrpc-url">JSONRPC URL</a><ul>
@@ -81,14 +87,12 @@
   <h4>Next topic</h4>
   <p class="topless"><a href="database.html"
                         title="next chapter">CRDS Database Access</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/web_services.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/web_services.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
@@ -107,7 +111,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body" role="main">
+          <div class="body">
             
   <div class="section" id="web-services">
 <h1>Web Services<a class="headerlink" href="#web-services" title="Permalink to this headline">¶</a></h1>
@@ -115,8 +119,20 @@
 remote users to make calls to the CRDS server without installing the CRDS
 Python based client library.   See <a class="reference external" href="http://json-rpc.org/wiki/specification">http://json-rpc.org/wiki/specification</a>
 for more details on the JSONRPC protocol.</p>
+<p>Users of the CRDS client library can access these JSONRPC functions using
+the crds.client module:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">crds</span> <span class="kn">import</span> <span class="n">client</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">get_default_context</span><span class="p">(</span><span class="s">&#39;jwst&#39;</span><span class="p">)</span>
+<span class="go">&#39;jwst_0101.pmap&#39;</span>
+</pre></div>
+</div>
 <div class="section" id="context-information">
 <h2>Context Information<a class="headerlink" href="#context-information" title="Permalink to this headline">¶</a></h2>
+<p>The CRDS context is the version of CRDS rules used to select reference files.
+The default CRDS context is maintained on the CRDS server and reported by
+the function <em>get_default_context()</em>.  Remote pipelines which are operating
+decoupled from the CRDS server can post their actual cached context to the CRDS
+server for retrieval by <em>get_remote_context()</em>.</p>
 <div class="section" id="centralized-default">
 <h3>Centralized Default<a class="headerlink" href="#centralized-default" title="Permalink to this headline">¶</a></h3>
 <p><strong>get_default_context(observatory)</strong></p>
@@ -140,6 +156,64 @@ is run in &#8220;remote&#8221; mode computing best references on the CRDS Server
 generally preferred value is from get_default_context() since it always
 reflects the intended operational context regardless of the pipeline&#8217;s CRDS
 mode.</p>
+</div>
+</div>
+<div class="section" id="file-information">
+<h2>File Information<a class="headerlink" href="#file-information" title="Permalink to this headline">¶</a></h2>
+<p>The CRDS server maintains a catalog of basic metadata for the rules and reference
+files managed by CRDS.   Catalog information cab be</p>
+<div class="section" id="single-file-metadata">
+<h3>Single File Metadata<a class="headerlink" href="#single-file-metadata" title="Permalink to this headline">¶</a></h3>
+<p><strong>get_file_info(pipeline_context, filename)</strong></p>
+<p>Return a dictionary of CRDS catalog information about <tt class="xref py py-obj docutils literal"><span class="pre">filename</span></tt>.  For instance:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">get_file_info</span><span class="p">(</span><span class="s">&quot;jwst&quot;</span><span class="p">,</span> <span class="s">&quot;jwst_miri_flat_0023.fits&quot;</span><span class="p">)</span>
+<span class="go">{&#39;activation_date&#39;: &#39;2014-09-25 18:30:27&#39;,</span>
+<span class="go"> &#39;aperture&#39;: &#39;none&#39;,</span>
+<span class="go"> &#39;blacklisted&#39;: &#39;false&#39;,</span>
+<span class="go"> &#39;change_level&#39;: &#39;severe&#39;,</span>
+<span class="go"> &#39;comment&#39;: &#39;cdp-2 from fm testing&#39;,</span>
+<span class="go"> &#39;creator_name&#39;: &#39;jwst build 3 team&#39;,</span>
+<span class="go"> &#39;deliverer_user&#39;: &#39;jmiller&#39;,</span>
+<span class="go"> &#39;delivery_date&#39;: &#39;2014-09-20 07:55:56&#39;,</span>
+<span class="go"> &#39;derived_from&#39;: &#39;none&#39;,</span>
+<span class="go"> &#39;description&#39;: &#39;all references from jwst build 3 delivery 2. update miri flats, fringes, straymasks, resets, lastframes, nirspec flat.&#39;,</span>
+<span class="go"> &#39;filekind&#39;: &#39;flat&#39;,</span>
+<span class="go"> &#39;instrument&#39;: &#39;miri&#39;,</span>
+<span class="go"> &#39;name&#39;: &#39;jwst_miri_flat_0023.fits&#39;,</span>
+<span class="go"> &#39;observatory&#39;: &#39;jwst&#39;,</span>
+<span class="go"> &#39;pedigree&#39;: &#39;ground&#39;,</span>
+<span class="go"> &#39;reference_file_type&#39;: &#39;flat&#39;,</span>
+<span class="go"> &#39;rejected&#39;: &#39;false&#39;,</span>
+<span class="go"> &#39;replaced_by_filename&#39;: &#39;&#39;,</span>
+<span class="go"> &#39;sha1sum&#39;: &#39;3f0c92aae539cb67f8e8823cc6815130018948f7&#39;,</span>
+<span class="go"> &#39;size&#39;: &#39;10592640&#39;,</span>
+<span class="go"> &#39;state&#39;: &#39;operational&#39;,</span>
+<span class="go"> &#39;type&#39;: &#39;reference&#39;,</span>
+<span class="go"> &#39;uploaded_as&#39;: &#39;jwst_miri_flat_0016.fits&#39;,</span>
+<span class="go"> &#39;useafter_date&#39;: &#39;2050-01-01 00:00:00&#39;}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="multiple-file-metadata">
+<h3>Multiple File Metadata<a class="headerlink" href="#multiple-file-metadata" title="Permalink to this headline">¶</a></h3>
+<p><strong>get_file_info_map(observatory, files=None, fields=None)</strong></p>
+<p>get_file_info_map() is a multi-file version of get_info_map() whihch returns
+the information for several files with one call.  If <tt class="xref py py-obj docutils literal"><span class="pre">files</span></tt> is not specified
+then get_file_info_map() returns info for all files.</p>
+<p>Return the info:</p>
+<div class="highlight-python"><div class="highlight"><pre>{ filename : { info, ... }, ... }
+</pre></div>
+</div>
+<p>on <tt class="xref py py-obj docutils literal"><span class="pre">files</span></tt> of <tt class="xref py py-obj docutils literal"><span class="pre">observatory</span></tt>.</p>
+<p><tt class="xref py py-obj docutils literal"><span class="pre">fields</span></tt> can be used to limit info returned to specified keys:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;activation_date&#39;</span><span class="p">,</span> <span class="s">&#39;aperture&#39;</span><span class="p">,</span> <span class="s">&#39;blacklisted&#39;</span><span class="p">,</span> <span class="s">&#39;change_level&#39;</span><span class="p">,</span> <span class="s">&#39;comment&#39;</span><span class="p">,</span>
+ <span class="s">&#39;creator_name&#39;</span><span class="p">,</span> <span class="s">&#39;deliverer_user&#39;</span><span class="p">,</span> <span class="s">&#39;delivery_date&#39;</span><span class="p">,</span> <span class="s">&#39;derived_from&#39;</span><span class="p">,</span> <span class="s">&#39;description&#39;</span><span class="p">,</span>
+ <span class="s">&#39;filekind&#39;</span><span class="p">,</span> <span class="s">&#39;instrument&#39;</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;observatory&#39;</span><span class="p">,</span> <span class="s">&#39;pedigree&#39;</span><span class="p">,</span> <span class="s">&#39;reference_file_type&#39;</span><span class="p">,</span>
+ <span class="s">&#39;rejected&#39;</span><span class="p">,</span> <span class="s">&#39;replaced_by_filename&#39;</span><span class="p">,</span> <span class="s">&#39;sha1sum&#39;</span><span class="p">,</span> <span class="s">&#39;size&#39;</span><span class="p">,</span> <span class="s">&#39;state&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">,</span>
+ <span class="s">&#39;uploaded_as&#39;</span><span class="p">,</span> <span class="s">&#39;useafter_date&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>If <tt class="xref py py-obj docutils literal"><span class="pre">fields</span></tt> is not specified then get_file_info_map() returns all fields.</p>
 </div>
 </div>
 <div class="section" id="best-references">
@@ -203,6 +277,42 @@ dataset identifier (TBD).  Since <em>dataset_id</em> is only a keyword not used 
 references computations, it can be any unique abstract identifier consisting of
 alphanumeric characters, period, colon, hyphen, or plus sign of 128 characters
 or less.</p>
+</div>
+<div class="section" id="selection-parameters">
+<h3>Selection Parameters<a class="headerlink" href="#selection-parameters" title="Permalink to this headline">¶</a></h3>
+<p><strong>get_required_parkeys(context)</strong></p>
+<p>Return a mapping from instruments to lists of parameter names required to
+compute bestrefs under <tt class="xref py py-obj docutils literal"><span class="pre">context</span></tt>,  i.e. matching header keys:</p>
+<div class="highlight-python"><div class="highlight"><pre>{ instrument : [ matching_parkey_name, ... ], ... }
+</pre></div>
+</div>
+<p>In CRDS the matching parameters are defined by each set of rules, e.g. for
+one HST context (hst_0366.pmap) the reference file selection parameters
+for all instruments are as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&#39;acs&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;INSTRUME&#39;</span><span class="p">,</span> <span class="s">&#39;APERTURE&#39;</span><span class="p">,</span> <span class="s">&#39;ATODCORR&#39;</span><span class="p">,</span> <span class="s">&#39;BIASCORR&#39;</span><span class="p">,</span> <span class="s">&#39;CCDAMP&#39;</span><span class="p">,</span> <span class="s">&#39;CCDCHIP&#39;</span><span class="p">,</span>
+     <span class="s">&#39;CCDGAIN&#39;</span><span class="p">,</span> <span class="s">&#39;CRCORR&#39;</span><span class="p">,</span> <span class="s">&#39;DARKCORR&#39;</span><span class="p">,</span> <span class="s">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s">&#39;DETECTOR&#39;</span><span class="p">,</span> <span class="s">&#39;DQICORR&#39;</span><span class="p">,</span>
+     <span class="s">&#39;DRIZCORR&#39;</span><span class="p">,</span> <span class="s">&#39;FILTER1&#39;</span><span class="p">,</span> <span class="s">&#39;FILTER2&#39;</span><span class="p">,</span> <span class="s">&#39;FLASHCUR&#39;</span><span class="p">,</span> <span class="s">&#39;FLATCORR&#39;</span><span class="p">,</span> <span class="s">&#39;FLSHCORR&#39;</span><span class="p">,</span>
+     <span class="s">&#39;FW1OFFST&#39;</span><span class="p">,</span> <span class="s">&#39;FW2OFFST&#39;</span><span class="p">,</span> <span class="s">&#39;FWSOFFST&#39;</span><span class="p">,</span> <span class="s">&#39;GLINCORR&#39;</span><span class="p">,</span> <span class="s">&#39;LTV1&#39;</span><span class="p">,</span> <span class="s">&#39;LTV2&#39;</span><span class="p">,</span> <span class="s">&#39;NAXIS1&#39;</span><span class="p">,</span>
+     <span class="s">&#39;NAXIS2&#39;</span><span class="p">,</span> <span class="s">&#39;OBSTYPE&#39;</span><span class="p">,</span> <span class="s">&#39;PCTECORR&#39;</span><span class="p">,</span> <span class="s">&#39;PHOTCORR&#39;</span><span class="p">,</span> <span class="s">&#39;REFTYPE&#39;</span><span class="p">,</span> <span class="s">&#39;RPTCORR&#39;</span><span class="p">,</span>
+     <span class="s">&#39;SHADCORR&#39;</span><span class="p">,</span> <span class="s">&#39;SHUTRPOS&#39;</span><span class="p">,</span> <span class="s">&#39;TIME-OBS&#39;</span><span class="p">,</span> <span class="s">&#39;XCORNER&#39;</span><span class="p">,</span> <span class="s">&#39;YCORNER&#39;</span><span class="p">],</span>
+<span class="s">&#39;cos&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;INSTRUME&#39;</span><span class="p">,</span> <span class="s">&#39;ALGNCORR&#39;</span><span class="p">,</span> <span class="s">&#39;BADTCORR&#39;</span><span class="p">,</span> <span class="s">&#39;BRSTCORR&#39;</span><span class="p">,</span> <span class="s">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s">&#39;DEADCORR&#39;</span><span class="p">,</span>
+    <span class="s">&#39;DETECTOR&#39;</span><span class="p">,</span> <span class="s">&#39;EXPTYPE&#39;</span><span class="p">,</span> <span class="s">&#39;FLATCORR&#39;</span><span class="p">,</span> <span class="s">&#39;FLUXCORR&#39;</span><span class="p">,</span> <span class="s">&#39;LIFE_ADJ&#39;</span><span class="p">,</span> <span class="s">&#39;OBSMODE&#39;</span><span class="p">,</span> <span class="s">&#39;OBSTYPE&#39;</span><span class="p">,</span>
+    <span class="s">&#39;OPT_ELEM&#39;</span><span class="p">,</span> <span class="s">&#39;REFTYPE&#39;</span><span class="p">,</span> <span class="s">&#39;TDSCORR&#39;</span><span class="p">,</span> <span class="s">&#39;TIME-OBS&#39;</span><span class="p">,</span> <span class="s">&#39;TRCECORR&#39;</span><span class="p">,</span> <span class="s">&#39;WALKCORR&#39;</span><span class="p">],</span>
+<span class="s">&#39;nicmos&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;INSTRUME&#39;</span><span class="p">,</span> <span class="s">&#39;CAMERA&#39;</span><span class="p">,</span> <span class="s">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s">&#39;FILTER&#39;</span><span class="p">,</span> <span class="s">&#39;NREAD&#39;</span><span class="p">,</span> <span class="s">&#39;OBSMODE&#39;</span><span class="p">,</span> <span class="s">&#39;READOUT&#39;</span><span class="p">,</span>
+        <span class="s">&#39;REFTYPE&#39;</span><span class="p">,</span> <span class="s">&#39;SAMP_SEQ&#39;</span><span class="p">,</span> <span class="s">&#39;TIME-OBS&#39;</span><span class="p">],</span>
+ <span class="s">&#39;stis&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;INSTRUME&#39;</span><span class="p">,</span> <span class="s">&#39;APERTURE&#39;</span><span class="p">,</span> <span class="s">&#39;BINAXIS1&#39;</span><span class="p">,</span> <span class="s">&#39;BINAXIS2&#39;</span><span class="p">,</span> <span class="s">&#39;CCDAMP&#39;</span><span class="p">,</span> <span class="s">&#39;CCDGAIN&#39;</span><span class="p">,</span> <span class="s">&#39;CCDOFFST&#39;</span><span class="p">,</span>
+      <span class="s">&#39;CENWAVE&#39;</span><span class="p">,</span> <span class="s">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s">&#39;DETECTOR&#39;</span><span class="p">,</span> <span class="s">&#39;OBSTYPE&#39;</span><span class="p">,</span> <span class="s">&#39;OPT_ELEM&#39;</span><span class="p">,</span> <span class="s">&#39;REFTYPE&#39;</span><span class="p">,</span> <span class="s">&#39;TIME-OBS&#39;</span><span class="p">],</span>
+ <span class="s">&#39;wfc3&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;INSTRUME&#39;</span><span class="p">,</span> <span class="s">&#39;APERTURE&#39;</span><span class="p">,</span> <span class="s">&#39;ATODCORR&#39;</span><span class="p">,</span> <span class="s">&#39;BIASCORR&#39;</span><span class="p">,</span> <span class="s">&#39;BINAXIS1&#39;</span><span class="p">,</span> <span class="s">&#39;BINAXIS2&#39;</span><span class="p">,</span> <span class="s">&#39;CCDAMP&#39;</span><span class="p">,</span>
+      <span class="s">&#39;CCDGAIN&#39;</span><span class="p">,</span> <span class="s">&#39;CHINJECT&#39;</span><span class="p">,</span> <span class="s">&#39;DARKCORR&#39;</span><span class="p">,</span> <span class="s">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s">&#39;DETECTOR&#39;</span><span class="p">,</span> <span class="s">&#39;DQICORR&#39;</span><span class="p">,</span> <span class="s">&#39;DRIZCORR&#39;</span><span class="p">,</span>
+      <span class="s">&#39;FILTER&#39;</span><span class="p">,</span> <span class="s">&#39;FLASHCUR&#39;</span><span class="p">,</span> <span class="s">&#39;FLATCORR&#39;</span><span class="p">,</span> <span class="s">&#39;FLSHCORR&#39;</span><span class="p">,</span> <span class="s">&#39;PHOTCORR&#39;</span><span class="p">,</span> <span class="s">&#39;REFTYPE&#39;</span><span class="p">,</span> <span class="s">&#39;SAMP_SEQ&#39;</span><span class="p">,</span>
+      <span class="s">&#39;SHUTRPOS&#39;</span><span class="p">,</span> <span class="s">&#39;SUBARRAY&#39;</span><span class="p">,</span> <span class="s">&#39;SUBTYPE&#39;</span><span class="p">,</span> <span class="s">&#39;TIME-OBS&#39;</span><span class="p">],</span>
+ <span class="s">&#39;wfpc2&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;INSTRUME&#39;</span><span class="p">,</span> <span class="s">&#39;ATODGAIN&#39;</span><span class="p">,</span> <span class="s">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s">&#39;FILTER1&#39;</span><span class="p">,</span> <span class="s">&#39;FILTER2&#39;</span><span class="p">,</span> <span class="s">&#39;FILTNAM1&#39;</span><span class="p">,</span> <span class="s">&#39;FILTNAM2&#39;</span><span class="p">,</span>
+        <span class="s">&#39;IMAGETYP&#39;</span><span class="p">,</span> <span class="s">&#39;LRFWAVE&#39;</span><span class="p">,</span> <span class="s">&#39;MODE&#39;</span><span class="p">,</span> <span class="s">&#39;REFTYPE&#39;</span><span class="p">,</span> <span class="s">&#39;SERIALS&#39;</span><span class="p">,</span> <span class="s">&#39;SHUTTER&#39;</span><span class="p">,</span> <span class="s">&#39;TIME-OBS&#39;</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The required parkeys can be used to reduce a complete file header to only those keywords
+necessary to select references under the given context.</p>
 </div>
 </div>
 <div class="section" id="jsonrpc-url">
@@ -299,7 +409,7 @@ current demo reftypes can only be specified as null.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -311,12 +421,12 @@ current demo reftypes can only be specified as null.</p>
         <li class="right" >
           <a href="web_site_use.html" title="Using the CRDS Web Site"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 1.8 documentation</a> &raquo;</li> 
+        <li><a href="index.html">crds 1.8 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer" role="contentinfo">
+    <div class="footer">
         &copy; Copyright 2015, STScI.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>
