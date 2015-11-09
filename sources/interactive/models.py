@@ -925,10 +925,11 @@ class FileBlobRepairMixin(object):
         def repair_activation_date(self):
             for hist in reversed(get_context_history()):  # find earliest pmap which uses mapping
                 pmap = rmap.get_cached_mapping(hist.context)
-                if self.name in pmap.mapping_names():
+                names = pmap.mapping_names() + pmap.reference_names()
+                if self.name in names:
                     self.activation_date = hist.start_date
                     break
-                return
+            return
 
 # ============================================================================
 
