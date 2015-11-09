@@ -4,7 +4,7 @@ from django.contrib import admin
 from crds.server.interactive.models import (ContextModel, ContextHistoryModel, RemoteContextModel,
                                             CounterModel, FileBlob, AuditBlob, RepeatableResultBlob)
 from crds.server import config
-from crds.server.interactive import models
+from crds.server.interactive import models, views
 from crds import log
 
 class RemoteContextModelAdmin(admin.ModelAdmin):
@@ -65,6 +65,20 @@ class AuditBlobAdmin(admin.ModelAdmin):
 admin.site.register(AuditBlob, AuditBlobAdmin)
 
 class RepeatableResultBlobAdmin(admin.ModelAdmin):
-    search_fields = ["id"]
+
+    search_fields = ["id", "name"]
+    
+    actions = ["display_result"]
+
+    def display_result(self, request, queryset):
+        "Display the result encoded in this results blob."
+        displayed = queryset[0]
+        displayed.thaw()
+        return views.display_result(request, displayed.uuid)
+
+    def announce(self, request, message):
+        self.message_user(request, message)
+        log.info("User", repr(str(request.user)), message)
+
 admin.site.register(RepeatableResultBlob, RepeatableResultBlobAdmin)
 
