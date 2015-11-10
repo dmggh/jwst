@@ -14,7 +14,7 @@ def dump_header(fname, extensions=[0], verbose=False):
         hdr = pyfits.getheader(fname, ext=x)
         for r, val in hdr.items():
             if verbose:
-                print(fname, "[" + str(x) + "]:")
+                print(fname, "[" + str(x) + "]:", end="")
             print(r, "=", val)
 
 def main():
