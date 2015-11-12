@@ -45,7 +45,7 @@ import tempfile
 import shutil
 import glob
 
-from crds import log, rmap, utils, refactor, newcontext, CrdsError, diff, config
+from crds import log, rmap, utils, refactor, newcontext, CrdsError, config, naming
 
 from . import models, web_certify, web_difference, locks
 from .common import srepr
@@ -415,7 +415,7 @@ class FileSubmission(object):
             if name in existing:
                 log.info("New name", repr(name), "is already in the cache.  Regenerating name.")
                 continue
-            if existing and diff.newer(existing[-1], name):
+            if existing and naming.newer(existing[-1], name):
                 log.warning("Existing name", repr(existing[-1]), "looks newer than", repr(name), ".")
             try:
                 models.FileBlob.load(name)
@@ -430,17 +430,21 @@ class FileSubmission(object):
         """Generate a candidate new name,  possibly with an existing serial number if un-renamed
         files are submitted out of order.
         """
-        num = self.get_new_serial(instrument, filekind, extension)
+        if extension.endswith("map") or self.observatory != "hst":
+            return self.get_crds_name(instrument, filekind, extension)
+        else:
+            return self.locate.generate_unique_name_core(instrument, filekind, extension)
+        
+    def get_crds_name(self, instrument, filekind, extension):
+        """Return a new CRDS-style name corresponding to instrument, filekind, and extension."""
+        num = self.get_crds_serial(instrument, filekind, extension)
         parts = [x for x in [self.observatory, instrument, filekind, "%04d" % num] if x]
         return "_".join(parts) + extension
-    
-    def get_new_serial(self, instrument, filekind, extension):
+            
+    def get_crds_serial(self, instrument, filekind, extension):
         """Return the next reference or mapping serial number associated with the
         given parameters and update the database.   There's no guarantee the
         number isn't already taken by an ad hoc filename.
-        
-        An alternate and in some ways superior approach to using DB counters is to
-        reflect on the file system and return a count of +1 the last file seen.
         """
         return models.CounterModel.next(self.observatory, instrument, filekind, extension)
     
@@ -452,6 +456,11 @@ class FileSubmission(object):
         """Return the absolute `path`,  or the file's path in the CRDS server cache if none is given."""
         return rmap.locate_file(path, self.observatory)
     
+    @property
+    def locate(self):
+        """Return the locator module for this observatory."""
+        return utils.get_locator_module(self.observatory)
+
     def updated_rmaps(self):
         """Returns [ replaced_rmaps... ]"""
         groups = self.group_references()
