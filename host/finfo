@@ -1,8 +1,27 @@
 #! /usr/bin/env python
+from __future__ import print_function
 
 import sys
 
 from astropy.io import fits
 
-fits.info(sys.argv[1])
+def finfo(reference):
+
+    print("-"*80)
+
+    fits.info(reference)
+
+    with fits.open(reference, mode="readonly", do_not_scale_image_data=True) as hdulist:
+        for (i, hdu) in enumerate(hdulist):
+            if hasattr(hdu.data, "names"):
+                print()
+                print("[%d]: " % i, " ".join(hdu.data.names))
+
+
+def main():
+    for reference in sys.argv[1:]:
+        finfo(reference)
+
+if __name__ == "__main__":
+    main()
 
