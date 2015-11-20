@@ -53,25 +53,39 @@ jpoll.done = function(time, result) {
 jpoll.response_success = function (form, result) {
     jpoll.log("RESPONSE_SUCCESS (built-in): " + result.length + " bytes");
     jpoll.stop();
-    doc = document.open();
+    var doc = document.open();
     doc.write(result);
     doc.close();
 };
 
 jpoll.response_error = function (form, response) {
     console.log("RESPONSE_ERROR (built-in): ", form, " : ", response);
+    // Suppress proxy errors but respond to normal errors.
+    // Many errors have a normal page response and won't get here anyway.
     if (response.status == 0) {
+        jpoll.log("Ignoring normal error status: " + response.status);
         return;
-    }
+    };
+	if (response.status == 504 || response.status == 522) {
+        jpoll.log("Ignoring proxy status error response: " + response.status);
+        return;
+    };
+    var page = response.responseText.toLowerCase();
+    var proxy_error = (page.indexOf("proxy") != -1) && (page.indexOf("error") != -1);
+    if (proxy_error) {
+        console.log("Ignoring proxy text response: " + page);
+        return;
+    };
     jpoll.stop();
-    doc = document.open();
+    var doc = document.open();
     doc.write("<p>REQUEST FAILED:</p><pre>" + response.responseText + "<pre>");
     doc.close();
 };
 
-jpoll.ajax_error = function (event, request, settings) {
-    console.log("AJAX ERROR (built-in): ",  event, request, settings);
-    if (request.status == 0) {
+jpoll.ajax_error = function (event, jqxhr, settings, thrownError) {
+	console.log("AJAX ERROR (built-in): ",  event, jqxhr, settings, thrownError);
+    if (jqxhr.status == 0) {
+		jpoll.log("Ignoring normal ajax status 0.");
         return;
     }
 };
@@ -153,12 +167,12 @@ jpoll.make_form_ajax = function(junk, form) {
             // document.body.innerHtml = html;
         },
         error: function(html) {
-            console.log("AJAX submit ", form, " failed", html);
+			console.log("AJAX submit " + form + " failed " + html);
             return jpoll.response_error(form, html);
         },
     });
-    $(document).ajaxError(function(event, request, settings) {
-        jpoll.ajax_error(event, request, settings)
+    $(document).ajaxError(function(event, jqxhr, settings, thrownError) {
+					jpoll.ajax_error(event, jqxhr, settings, thrownError)
     });    
     jpoll.open_channel();   //  potentially this could be done later,  just before submit.
 };    
