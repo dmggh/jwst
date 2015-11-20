@@ -730,6 +730,7 @@ def render_repeatable_result(request, template, rdict, jpoll_handler=None):
     rdict["user"] = str(request.user)
     rdict["uploaded_file_names"] = get_uploaded_filepaths(request)
     result = models.RepeatableResultBlob.new(template, rdict)
+    # time.sleep(60.0*35.0); # currently 30 minute proxy timeouts
     if jpoll_handler:
         jpoll_handler.done(0, result.repeatable_url)
         time.sleep(10.0)  # wait 10 seconds to give jpoll done processing consistent behavior. 2x jpoll poll rate
