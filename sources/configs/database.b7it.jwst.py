@@ -3,7 +3,7 @@ DBWORD = open("/crds/data1/database/production_django_jwst.dat").read().strip()
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'crds_jwst_b6it',
+        'NAME': 'crds_jwst_b7it',
         'USER': 'jwstcrds',                      # Not used with sqlite3.
         'PASSWORD': DBWORD,              # Not used with sqlite3.
         'HOST': 'iljwdmsbcrdsdbv.stsci.edu',             # Set to empty string for localhost. Not used with sqlite3.

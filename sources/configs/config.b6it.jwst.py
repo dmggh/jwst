@@ -51,4 +51,11 @@ CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/mappings/" + observator
 
 FORCE_REMOTE_MODE = False
 
-ARCHIVE_PARAMETER_SERVICE_URL = "https://undefined-archive-parameter-service.stsci.edu:8888/crds"
+# From Kim Dupries,  likely B6 equivalents:
+#
+# https://iljwdmscarcv.stsci.edu:8888/crds
+# https://dads6.stsci.edu:8888/crds
+# https://dadsc.stsci.edu:8888/crds
+
+IARCHIVE_PARAMETER_SERVICE_URL = "https://dads6.stsci.edu:8888/crds"
+

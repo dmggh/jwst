@@ -1,11 +1,11 @@
 debug = DEBUG = False
 DEBUG_EXTRAS = False
 
-HOST = "iljwdmsacrdsv1"
-PROXY = "jwst-crds-b6it"
+HOST = "iljwdmsccrdsv1"
+PROXY = "jwst-crds-b7it"
 observatory = 'jwst'
-server_usecase ="b6it"
-CRDS_SERVER_IP = "130.167.252.145"
+server_usecase ="b7it"
+CRDS_SERVER_IP = "UNDEFINED"
 port = 8001
 
 # This is a VM-related storage partition used as server space
@@ -51,4 +51,11 @@ CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/mappings/" + observator
 
 FORCE_REMOTE_MODE = False
 
-ARCHIVE_PARAMETER_SERVICE_URL = "https://undefined-archive-parameter-service.stsci.edu:8888/crds"
+# From Kim Dupries,  likely B6 equivalents:
+#
+# https://iljwdmscarcv.stsci.edu:8888/crds
+# https://dads6.stsci.edu:8888/crds
+# https://dadsc.stsci.edu:8888/crds
+
+ARCHIVE_PARAMETER_SERVICE_URL = "https://dads7.stsci.edu:8888/crds"   # XXXXX guessed from above.
+
