@@ -59,6 +59,11 @@ def _check_context(context):
 
 # ---------------------------------------------------------------------------------------------------------
 
+class InvalidDatasetIdError(RuntimeError):
+    """The format of a dataset id is bad."""
+
+# ---------------------------------------------------------------------------------------------------------
+
 def get_dataset_ids(instrument, datasets_since=None):
     """Return a list of the known dataset ids for `instrument`."""
     if datasets_since is None:
@@ -120,14 +125,6 @@ def get_dataset_headers_by_id(context, dataset_ids):
         headers.update(instr_headers)
 
     return headers
-
-def assoc_assoc_id(id):
-    """Return True IFF the ID is of the form <assoc>:<assoc>."""
-    parts = id.split(":")
-    return len(parts) == 2 and parts[0] == parts[1] and parts[0].endswith("0")
-
-class InvalidDatasetIdError(RuntimeError):
-    """The format of a dataset id is bad."""
 
 # ---------------------------------------------------------------------------------------------------------
 

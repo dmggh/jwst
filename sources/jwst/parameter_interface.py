@@ -74,6 +74,8 @@ def get_dataset_headers_by_id(dataset_ids, matching_parameters):
     total_headers = { did.upper() : header for (did, header) in total_headers.items() }
     for did in dataset_ids:
         if did not in total_headers:
-            total_headers[did] = "NOT FOUND no match found in query"
+            total_headers[did] = "NOT FOUND bad ID format for " + repr(did)
+        if did in total_headers and not total_headers[did]:
+            total_headers[did] = "NOT FOUND dataset ID does not exist " + repr(did)
     return total_headers
 
