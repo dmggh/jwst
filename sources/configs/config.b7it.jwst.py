@@ -1,11 +1,11 @@
 debug = DEBUG = False
 DEBUG_EXTRAS = False
 
-HOST = "iljwdmsccrdsv1"
+HOST = "iljwdmsacrdsv1"
 PROXY = "jwst-crds-b7it"
 observatory = 'jwst'
 server_usecase ="b7it"
-CRDS_SERVER_IP = "UNDEFINED"
+CRDS_SERVER_IP = "130.167.252.145"
 port = 8001
 
 # This is a VM-related storage partition used as server space
