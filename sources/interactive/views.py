@@ -1717,12 +1717,18 @@ def browsify_file(filename, browsed_file):
     return file_contents
 
 def browsify_fits(filename, browsed_file):
-    """Format a CRDS reference file for HTML display.   Return HTML lines.
+    """Format a CRDS reference file for HTML display.   Return HTML lines."""
+    output = browsify_header(filename, browsed_file)
+    output += browsify_finfo(filename, browsed_file)
+    return output
+
+def browsify_header(filename, browsed_file):
+    """Fetch the minimum matching header of `filename` under the current operational 
+    context and format it as HTML.
     """
     ref_blob = models.FileBlob.load(os.path.basename(browsed_file))
     default_context = models.get_default_context(ref_blob.observatory)
     mapping = rmap.get_cached_mapping(default_context)
-    
     header = {}
     with log.error_on_exception("Failed getting minimum header for", repr(browsed_file)):
         header = mapping.get_minimum_header(browsed_file)
@@ -1741,24 +1747,29 @@ def browsify_fits(filename, browsed_file):
         output += "</table>\n"
     else:
         output = format_html("<p class='error'>File header unavailable for '{0}'</p>", browsed_file)
-
     output += "<br/>\n"
-    
-    if browsed_file.endswith(".fits"):
-        try:
-            fits_info = finfo(browsed_file)[1] + "\n"
-        except Exception, exc:
-            output += format_html("<p class='error'>FITS info unavailable: '{0}'</p>", exc)
-        else:
-            output += "<b>FITS Info</b>\n"
-            output += "<pre>\n"
-            lines = fits_info.split("\n")
-            if lines[0].lower().startswith("filename"):
-                lines = lines[1:]
-            output += format_html_join("\n", "{0}", ((line,) for line in lines))
-            output += "</pre>\n"
-
     return output
+
+def browsify_finfo(filename, browsed_file):
+    """Fetch the equivalent of FITS info output and format as HTML."""
+    output = ""
+    try:
+        fits_info = finfo(browsed_file)[1] + "\n"
+    except Exception, exc:
+        output += format_html("<p class='error'>FITS info unavailable: '{0}'</p>", exc)
+    else:
+        output += "<b>FITS Info</b>\n"
+        output += "<pre>\n"
+        lines = fits_info.split("\n")
+        if lines[0].lower().startswith("filename"):
+            lines = lines[1:]
+        output += format_html_join("\n", "{0}", ((line,) for line in lines))
+        output += "</pre>\n"
+    return output
+
+def browsify_asdf(filename, browsed_file):
+    """Format an ASDF file as HTML."""
+    return browsify_header(filename, browsed_file)
 
 @capture_output
 def finfo(filename):
