@@ -24,6 +24,13 @@ The CRDS server source code is here:
 
 https://aeon.stsci.edu/ssb/svn/crds_server/trunk
 
+Client Trac is here (public and with most tickets):
+
+https://aeon.stsci.edu/ssb/trac/crds
+
+Server Trac is here (private web source code):
+
+https://aeon.stsci.edu/ssb/trac/crds_server
 
 ---------------------------------------------------------------------------------------
 
