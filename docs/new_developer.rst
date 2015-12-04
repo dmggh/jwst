@@ -161,6 +161,13 @@ user defined readwrite cache (CRDS_PATH) which crds.bestrefs automatially update
 Similarly the JWST calibration code automatically updates the cache unless
 explicitly prohibited from doing so.
 
+crds.bestrefs has an optional "affected table rows" optimization which is
+intended to diagnose the datasets affected by specific table row changes.  This
+check is applied selectively to supported tables (it must emulate row lookups
+for specific instruments and table types) and currently is turned off because
+it does not account for the global effects of modified primary header keywords
+(which also must be defined).
+
 2. crds.sync
 
 The sync tool is used to explicitly update, check, purge, and organize the CRDS
@@ -174,18 +181,37 @@ log running cron updates to result in multiple concurrent cache syncs.
 3. crds.certify
 
 The certify program is used to check reference files and rules files.  For HST
-reference checks are based on .tpn constraint fies.   For JWST the certifier
-attempts to leverage appropriate data model schema to augment  file
-checking. CRDS also has capabilities for writing .tpn files for JWST which can
-futher augment any schema checks,  potentially with more targeted and stringent
-checks.  In addition crds.certify can be augmented with table row checks which
-detect duplicated rows within a single table or deleted rows between two different
+reference checks are based on .tpn constraint files.  Rules checks are based on
+_ld.tpn files.  For JWST the certifier attempts to leverage appropriate data
+model schema to augment file checking. CRDS also has capabilities for writing
+.tpn files for JWST which can futher augment any schema checks, potentially
+with more targeted and stringent checks.  In addition crds.certify can be
+augmented with table row checks which detect duplicated rows within a single
+table or deleted rows between two different versions of a table.  crds.certify
+is also augmented by a Parsley mapping grammar used to detect duplicate lines
+as well as other grammatical errors in CRDS mappings.   
+
+table row checks are driven by a project specific row_keys.dat file which
+defines the columns which can effectively be used to define unique rows or
+"pseudo modes".  The idea is that some columns characterize the data, and some
+columns *are* the data.  Checking which modes are accidentally duplicated or
+deleted doesn't revolve around actual coeffecient values, just the "mode"
+parameters which define a row as for a particular mode.  There are several
+different row lookup algorithms but CRDS certifies tables using this single
+minimal model.   Not all tables are checked,  that hinges on being able to
+characterize rows as "unique under these column values" and making an
+appropriate entry in row_keys.dat for that instrument and type.   Not all
+tables work within this model, roughly 50% of HST tables are covered.  No JWST
+tables are covered yet.
+
 
 3. crds.list
 
-Is used to report on CRDS configurations,  list out available or cached
-reference and rules and their cache paths.   It is a swiss army knife of minor
-informational functions some of which satisfy formal requirements.
+Is used to report on CRDS configurations, list out available or cached
+reference and rules and their cache paths.  It is a swiss army knife of minor
+informational functions some of which satisfy formal requirements.  This is
+also commonly used for end user and pipeline debug to dump the CRDS
+configuration.
 
 4. crds.diff
 
@@ -203,13 +229,17 @@ crds.refactor is often used to "proof" rmaps and type specifications in code.
 Is used to generate new pmaps and imaps given a baseline set of rules and new
 rmaps to insert.
 
-7. crds.matches
+7. crds.checksum
+
+Used to update CRDS rules internal checksums.
+
+8. crds.matches
 
 Is used to display which parameter values a particular reference file or
 dataset id match on.   These are complementary pieces of information displayed
 by the same tool.
 
-8. crds.uses
+9. crds.uses
 
 Is used to display all of the mappings which directly or indirectly refer to
 the specified mapping.  This runs relative to a CRDS cache,  so in principle to
@@ -217,7 +247,7 @@ work correctly the cache should be fully synced via crds.sync.   crds.uses on a
 .imap will produce the list of .pmaps which refer to it.   crds.uses on a .rmap
 will produce  the list of .pmaps and .imaps which refer to it.
 
-9. crds.sql
+10. crds.sql
 
 Bare bones wrapper intended to provide a command line API which wraps the CRDS
 capability of distributing it's metadata catalog as a SQLite 3 file.   It can
@@ -225,3 +255,20 @@ perform basic SQL queries on the catalog via the command line and is an
 alternative to dumping the catalog via crds.sync and running the normal sqlite3
 program on the downloaded file.
 
+---------------------------------------------------------------------------------------
+
+Useful generic command line switches and debug behaviors:
+
+--help           will dump standard argparse help and app specific switches
+
+--verbose        sets logging for debug output level 50
+--verbosity=N    sets logging for debug output level N
+
+--debug-traps    enables deeply nested CRDS exception traps to raise un-impeded
+                 exceptions producing a full traceback.
+
+--pdb            runs a program inside pdb
+
+--profile=[.stats file or "console"]    runs a program under the profiler
+
+--readonly-cache  runs a program such that it should not alter the CRDS Cache
