@@ -34,6 +34,29 @@ https://aeon.stsci.edu/ssb/trac/crds_server
 
 ---------------------------------------------------------------------------------------
 
+Mailing lists:
+
+crds_team@stsci.edu                  mainly ReDCat to pipeline and archive
+crds@stsci.edu                           mainly INS to ReDCaT initial deliveries
+
+crds-servers@stsci.edu               nightly server regressions, cache checks,  /grp/crds/cache updates, and server e-mails
+crds_hst_ops_reprocessing@stsci.edu      reprocessing results for HST OPS
+crds_hst_test_reprocessing@stsci.edu     " HST TEST
+crds_jwst_ops_reprocessing@stsci.edu     " JWST OPS
+crds_jwst_test_reprocessing@stsci.edu    " JWST TEST
+crds_jwst_ita_reprocessing@stsci.edu     " B7 I&T
+crds_jwst_itb_reprocessing@stsci.edu     " B5 I&T
+crds_jwst_itc_reprocessing@stsci.edu     " B6 I&T
+
+crds_datamng                             archive list for reprocessing info
+
+dms-developer@stsci.edu                     pipeline and archive development
+dms-design@stsci.edi                           overall DMS design, metrics, requirements, tasks, schedule, budget
+
+I'm not aware of a ReDCaT list,  those communications seem to happen on crds_team and crds.
+
+---------------------------------------------------------------------------------------
+
 There are a total of 9 CRDS server VMs and servers which are devoted to the
 following development stages:
 
