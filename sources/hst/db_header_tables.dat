@@ -65,7 +65,7 @@
          'rptcorr': 'acs_ref_data.acr_rptcorr',
          'shadcorr': 'acs_ref_data.acr_shadcorr',
          'shadfile': 'acs_ref_data.acr_shadfile',
-         'shutrpos': 'acs_ref_data.acr_shutrpos',
+         'shutrpos': 'acs_a_data.aca_shutrpos',
          'spottab': 'acs_ref_data.acr_spottab',
          'xcorner': 'acs_a_data.aca_xcorner',
          'ycorner': 'acs_a_data.aca_ycorner'},
