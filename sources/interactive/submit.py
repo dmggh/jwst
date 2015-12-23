@@ -498,7 +498,7 @@ class FileSubmission(object):
                 "Non-reference-file's cannot be submitted in a batch submission: " + srepr(uploaded)
             if not self.auto_rename:
                 assert config.is_valid_reference_name(uploaded), \
-                    "Only CRDS-style and CDBS-style names can be accepted without renaming."
+                    "Only CRDS-style and CDBS-style names can be accepted without renaming: " + repr(uploaded)
     
     def modify_and_add_rmaps(self, old_rmaps, cached_references):
         """Generate and submit official rmaps correspending to `old_rmaps` in 
