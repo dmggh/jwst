@@ -52,8 +52,9 @@ class GetService(object):
         except Exception:
             raise ServiceError("Network open failed calling service '{}' at '{}'".format(
                     self.service_name, self.base_url))
-        log.verbose("responded:", repr(response))
-        result = self.get_and_decode_result(response)
+        page = response.read()
+        log.verbose("responded:", repr(page))
+        result = self.get_and_decode_result(page)
         log.verbose("decoded:", repr(result))
         formatted = self.format_result(result)
         log.verbose("returning:", formatted)
@@ -70,8 +71,7 @@ class GetService(object):
                               if value is not None])
         return formatted
 
-    def get_and_decode_result(self, response):
-        page = response.read()
+    def get_and_decode_result(self, page):
         decoded = page.decode("utf-8")
         result = json.loads(decoded)
         return result
