@@ -292,7 +292,7 @@ echo ''
 
 case ${server_mode}
     in
-    "dev" | "test" | "ops" | "b5it" | "b6it" ) 
+    "dev" | "test" | "ops" | "b5it" | "b6it" | "b7it" ) 
 	echo "Setting permissions"
 
 	chmod $public ${ref_path}

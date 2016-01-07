@@ -9,8 +9,8 @@ fi
 
 observatory=$1; shift
 
-if [ "$1" != "django" ] && [ "$1" != "dev" ] && [ "$1" != "ops" ] && [ "$1" != "test" ] && [ "$1" != "b5it" ] && [ "$1" != "b6it" ] ; then
-	echo 'usage: ./install [jwst|hst] [django|dev|ops|test]'
+if [ "$1" != "django" ] && [ "$1" != "dev" ] && [ "$1" != "ops" ] && [ "$1" != "test" ] && [ "$1" != "b5it" ] && [ "$1" != "b6it" ] && [ "$1" != "b7it" ] ; then
+	echo 'usage: ./install [jwst|hst] [django|dev|ops|test|b5it|b6it|b7it]'
 	exit -1;
 fi
 

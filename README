@@ -19,21 +19,22 @@ ops   Apache/VM/Isilon/MySQL/Proxy/mod_wsgi pipeline production server
 
 JWST uniquely has an additional two usecases:
 
-b5it  build 5 frozen i&t server
-b6it  build 6 frozen i&t server
+b5it  build 5 frozen i&t server     (string B)
+b6it  build 6 frozen i&t server     (string C)
+b7it  build 7 frozen i&t server     (string A)
 
 # Install the code as indicated by the appropriate config file from
 # sources/configs/config.<observatory>.<server_kind>
-./install [hst|jwst]  [django|dev|test|ops|b5it|b6it]
+./install [hst|jwst]  [django|dev|test|ops|b5it|b6it|b7it]
 
 # Possibly re-run install if the first run failed due to missing packages
-./install [hst|jwst]  [django|dev|test|ops|b5it|b6it]
+./install [hst|jwst]  [django|dev|test|ops|b5it|b6it|b7it]
 
 # Initilize the CRDS catalog with existing reference files, deliver initial
 # set of mappings.   Generally this is no longer done,  except maybe for private Django dev-server installations.
 # Enter system passwords.
 
-./init [hst|jwst] [django|dev|test|ops|b5it|b6it]
+./init [hst|jwst] [django|dev|test|ops|b5it|b6it|b7it]
 <enter password for test user>
 
 XXXX NOTE: the process of running ./init is now obsolete, the servers are mature and server
@@ -46,7 +47,7 @@ lower level use case is now the preferred method of setting up new servers.
 
 3. Procedure for update not affecting the database:
 
-% ./rerun [hst|jwst] [django|dev|test|ops|b5it|b6it]
+% ./rerun [hst|jwst] [django|dev|test|ops|b5it|b6it|b7it]
 
 4. Procedure for running a command line / ipython environment for debug
 
