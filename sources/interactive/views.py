@@ -1096,7 +1096,10 @@ def bestrefs_explore_compute(request):
     header = { pmap.instrument_key : instrument.upper() }
     pars = imap.get_parkey_map().keys()
     for par in pars:
-        write_in =  validate(request, par + "_text", r"[A-Za-z0-9\+\-.,*/;|{}\[\]:]*")
+        try:
+            write_in =  validate(request, par + "_text", r"[A-Za-z0-9\+\-.,*/;|{}\[\]:]*")
+        except Exception:
+            write_in = None
         if write_in:
             header[par] = write_in
         else:
