@@ -916,11 +916,18 @@ def pmap_label(blob):
             blob = models.FileBlob.load(blob)
         except LookupError:
             return "FILE LOOKUP FAILED -- invalid context"
+
+    try:
+        pmap_operational = models.get_default_context(state="edit")
+        reversion = "*potential reversion*" if blob.name < pmap_operational else ""
+    except Exception:
+        reversion= "*reversion* check failed"
+
     available = "" if blob.available else "*unavailable*" 
     bad = "*bad*" if blob.is_bad_file else ""
     #     blacklisted = "*blacklisted*" if blob.blacklisted else ""
     #     rejected = "*rejected*" if blob.rejected else ""
-    return " ".join([blob.name, str(blob.delivery_date)[:16], available, bad])  #, blacklisted, rejected])
+    return " ".join([blob.name, str(blob.delivery_date)[:16], available, bad, reversion])  #, blacklisted, rejected])
 
 
 # ===========================================================================
@@ -2323,7 +2330,6 @@ def set_default_context(request):
         context_type = validate(request, "context_type", models.CONTEXT_TYPES)
         description = validate(request, "description", common.DESCRIPTION_RE)
         old_default = update_default_context(new_default, description, context_type, str(request.user))
-        
         return crds_render(request, "set_default_context_results.html", {
                     "new_default" :  new_default,
                     "old_default" :  old_default,
