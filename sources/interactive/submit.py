@@ -45,7 +45,7 @@ import tempfile
 import shutil
 import glob
 
-from crds import log, rmap, utils, refactor, newcontext, CrdsError, config, naming
+from crds import log, rmap, utils, refactor, newcontext, CrdsError, config, uniqname, naming
 
 from . import models, web_certify, web_difference, locks
 from .common import srepr
@@ -217,10 +217,11 @@ class FileSubmission(object):
         for path in paths:
             assert paths.count(path) == 1, "File path for '%s' appears more than once." %  pathmap[path]
 
-    def push_status(self, message):
+    def push_status(self, *message):
         """Push status messages to the user's client,  nominally a browser which
         picks up the messages from Django via AJAX polling in the jpoll app.
         """
+        message = " ".join(message)
         if self.status_channel is not None:
             log.info("push_status: " + repr(message))
             self.status_channel.write(message)
@@ -246,7 +247,7 @@ class FileSubmission(object):
                 for (original_name, uploaded_path) in self.ordered_files() }
 
     def do_submit_file(self, original_name, upload_location, creation_method):
-        """Do the core processing of a file submission,  including file certification 
+        """Do the core processing of a file submission,  including file renaming
         and blacklist checking, naming, upload, and record keeping.
         """
         self.push_status("Processing '{}'".format(original_name))
@@ -345,7 +346,14 @@ class FileSubmission(object):
         """Generate a map from old pipeline and instrument context names to the
         names for their replacements.
         """
-        return { old:self.new_name(old) for old in [self.pmap_name] + updates.keys() }
+        new_name_map = {}
+        for old in [self.pmap_name] + updates.keys():
+            instrument, filekind = self.get_file_properties(old)
+            extension = os.path.splitext(old)[-1]
+            new_name_map[old] = new_map = self.get_new_name(instrument, filekind, extension)
+            assert not (rmap.mapping_exists(new_map) or models.FileBlob.exists(new_map)), \
+                "Program error.  New mapping " + srepr(new_map) + " already exists."
+        return new_name_map
 
     def add_crds_file(self, original_name, filepath, state="uploaded", update_derivation=None):
         """Create a FileBlob model instance using properties of this FileSubmission.
@@ -378,21 +386,20 @@ class FileSubmission(object):
     # ---------------------------------------------------------------------------------------------------
 
     def auto_rename_file(self, upload_name, upload_path):
-        """Generate a CRDS name for an uploaded file."""
-        extension = os.path.splitext(upload_name)[-1]
-        instrument, filekind = self.get_file_properties(upload_path)
-        return self.get_new_name(instrument, filekind, extension)
-    
-    def new_name(self, old_map):
-        """Given an old mapping name, `old_map`, adjust the serial number to 
-        create a new mapping name of the same series.
+        """Generate a CRDS or enhanced CDBS-style name for an uploaded mapping
+        or reference.  Enhanced CDBS-style names incorporate a 0 in the
+        timestamp to make them unique for 2016 and beyond.
         """
-        instrument, filekind = self.get_file_properties(old_map)
-        extension = os.path.splitext(old_map)[-1]
-        new_map = self.get_new_name(instrument, filekind, extension)
-        assert not (rmap.mapping_exists(new_map) or models.FileBlob.exists(new_map)), \
-            "Program error.  New mapping " + srepr(new_map) + " already exists."
-        return new_map
+        if self.observatory == "hst" and not config.is_mapping(upload_path):
+            new_name = uniqname.uniqname(upload_path)
+            os.rename(new_name, upload_path)
+            new_name = os.path.basename(new_name)
+        else:
+            extension = os.path.splitext(upload_name)[-1]
+            instrument, filekind = self.get_file_properties(upload_path)
+            new_name = self.get_new_name(instrument, filekind, extension)
+        self.push_status("Renaming", repr(upload_name), "-->", repr(new_name))
+        return new_name
     
     def get_new_name(self, instrument, filekind, extension):
         """get_new_name() iterates over candidate serial numbers until it finds
@@ -411,7 +418,7 @@ class FileSubmission(object):
         pattern_path = rmap.locate_file(decomposable_pattern, self.observatory)
         existing = [os.path.basename(name) for name in sorted(glob.glob(pattern_path))]
         while True:
-            name = self._get_new_name(instrument, filekind, extension)
+            name = self.get_crds_name(instrument, filekind, extension)
             if name in existing:
                 log.info("New name", repr(name), "is already in the cache.  Regenerating name.")
                 continue
@@ -426,15 +433,6 @@ class FileSubmission(object):
                 log.info("New name", repr(name), "is already in the database.  Regenerating name.")
                 continue
     
-    def _get_new_name(self, instrument, filekind, extension):
-        """Generate a candidate new name,  possibly with an existing serial number if un-renamed
-        files are submitted out of order.
-        """
-        if extension.endswith("map") or self.observatory != "hst":
-            return self.get_crds_name(instrument, filekind, extension)
-        else:
-            return self.locate.generate_unique_name_core(instrument, filekind, extension)
-        
     def get_crds_name(self, instrument, filekind, extension):
         """Return a new CRDS-style name corresponding to instrument, filekind, and extension."""
         num = self.get_crds_serial(instrument, filekind, extension)
