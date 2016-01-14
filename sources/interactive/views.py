@@ -330,14 +330,14 @@ def get_pmap_template_vars(dict_):
     pmap_edit = models.get_default_context()
     pmap_edit_label = pmap_label(pmap_edit)
     pmap_operational = models.get_default_context(state="operational")
-    pmap_operational_label = pmap_label(pmap_operational)
+    pmap_operational_label = pmap_label(pmap_operational, pmap_edit)
     if dict_.get("pmap_initial_mode", "edit") == "edit":
         pmap_edit_checked = "checked"
         pmap_operational_checked = ""
     else:
         pmap_edit_checked = ""
         pmap_operational_checked = "checked"
-    recent_pmaps = get_recent_pmaps()
+    recent_pmaps = get_recent_pmaps(10, pmap_edit)
     pmap_labels = dict(recent_pmaps)
     pmap_labels[pmap_edit] = pmap_edit_label
     pmap_labels[pmap_operational] = pmap_operational_label
@@ -345,10 +345,10 @@ def get_pmap_template_vars(dict_):
     return {
         "pmap_edit" : pmap_edit,
         "pmap_edit_checked" : pmap_edit_checked,
-        "edit_context_label" : pmap_label(pmap_edit),
+        "edit_context_label" : pmap_edit_label,
         "pmap_operational" : pmap_operational,
         "pmap_operational_checked" : pmap_operational_checked,
-        "operational_context_label" : pmap_label(pmap_operational),
+        "operational_context_label" : pmap_operational_label,
         "pmaps" : recent_pmaps,
         "pmap_labels_json" : pmap_labels_json,
         }
@@ -496,8 +496,11 @@ def error_trap(template):
                 return func(request, *args, **keys)
             except (AssertionError, CrdsError, FieldError) as exc:
                 msg = format_html("ERROR: {0}", str(exc))
-                pars = dict(keys.items() + [("error_message", msg)])
-                return crds_render(request, template, pars, requires_pmaps=True)
+            # Generic exception handler,  undescriptive,  to prevent server probing via errors
+            except Exception as exc:
+                msg = format_html("ERROR: internal server error")
+            pars = dict(keys.items() + [("error_message", msg)])
+            return crds_render(request, template, pars, requires_pmaps=True)
         trap.func_name = func.func_name
         return trap
     return decorator
@@ -895,7 +898,7 @@ def clear_uploads(request, uploads):
 
 # ===========================================================================
 
-def get_recent_pmaps(last_n=10):
+def get_recent_pmaps(last_n=10, pmap_edit=None):
     """Return a list of option tuples for rendering HTML to choose recent
     pmaps (last 10). This defines what users will see for the context HTML 
     drop-down menu.
@@ -906,10 +909,10 @@ def get_recent_pmaps(last_n=10):
         file_.thaw()
         if file_.state == "uploaded":
             continue
-        pmaps.append((file_.name, pmap_label(file_)))
+        pmaps.append((file_.name, pmap_label(file_, pmap_edit)))
     return list(reversed(pmaps))[:last_n]
     
-def pmap_label(blob):
+def pmap_label(blob, pmap_edit=None):
     """Return the text displayed to users selecting known pmaps."""
     if isinstance(blob, basestring):
         try:
@@ -918,8 +921,10 @@ def pmap_label(blob):
             return "FILE LOOKUP FAILED -- invalid context"
 
     try:
-        pmap_operational = models.get_default_context(state="edit")
-        reversion = "*potential reversion*" if blob.name < pmap_operational else ""
+        if pmap_edit is None:
+            reversion = ""
+        else:
+            reversion = "*reversion?*" if blob.name < pmap_edit else ""
     except Exception:
         reversion= "*reversion* check failed"
 

@@ -67,21 +67,30 @@
 
 {% block help %}
 
-<p><b>Set Context</b> is typically used to define the pipeline mapping which
-will be used in operations.   Set Context can also be used to modify the context which
-will be used as the basis of the next set of rules.
+<p><b>Set Context</b> is typically used to define the context which will be
+  used by the operational pipeline.  Set Context can also be used to modify the
+  editing context from which new contexts will be derived by default during
+  file submissions.
 
-<p><b>Operational Context</b> Default pipeline mapping which will be used operationally
-to determine best references.   The operational context cannot contain blacklisted references.
+<p><b>Select:</b> Choose the type of default to modify, operational or edit.
+This also shows the current default of the selected type.  Normally select
+operational to update pipeline context use, use edit to set the default
+starting point for file submissions.
 
-<p><b>Edit Context</b> Default starting point for editing/deriving new mappings.  Unless
-overridden,  new file submissions which generate rules will use this as the starting context
-and create a modified version of it.
+<p><b>Set To:</b> The context of the selected type will be set to this value.
+Click on the Set To accordion to see other options for choosing the value.
 
-<p><b>Select:</b> Choose the type of default to modify,  operational or edit.   This also 
-shows the current default of the selected type.
+<p><b>Reason For Change:</b> Reason why context is being set. This is shown 
+in the context history.   For single context increments,  the reason is carried
+over from the file submission page.   For multi-context increments,  the
+operator or submitters must make up an appropriate summary.
+</p>
 
-<p><b>Set To:</b> The default context of the chosen type will be set to this value.
+<p><b>Operational</b> Defines default pmap which will be used
+operationally to determine best references.  The operational context cannot
+contain blacklisted references.
 
+<p><b>Edit</b> Defines default starting point (derive from) for future contexts
+created by the server as a result of file submissions.
 
 {% endblock help %}
