@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Package Overview &mdash; crds 1.8 documentation</title>
+    <title>Package Overview &mdash; crds 1.9.0 documentation</title>
     
     <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.8',
+        VERSION:     '1.9.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,13 +23,13 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="crds 1.8 documentation" href="index.html" />
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="crds 1.9.0 documentation" href="index.html" />
     <link rel="next" title="Command Line Tools" href="command_line_tools.html" />
     <link rel="prev" title="CRDS User Manual" href="index.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -41,10 +41,10 @@
         <li class="right" >
           <a href="index.html" title="CRDS User Manual"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">crds 1.8 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 1.9.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="index.html">
               <img class="logo" src="_static/stsci_logo.png" alt="Logo"/>
@@ -53,7 +53,7 @@
   <ul>
 <li><a class="reference internal" href="#">Package Overview</a></li>
 <li><a class="reference internal" href="#installation">Installation</a><ul>
-<li><a class="reference internal" href="#installation-via-ureka">Installation via Ureka</a></li>
+<li><a class="reference internal" href="#installation-via-ureka-or-conda">Installation via Ureka or Conda</a></li>
 <li><a class="reference internal" href="#pip-installation">Pip Installation</a></li>
 <li><a class="reference internal" href="#installing-from-source">Installing from Source</a><ul>
 <li><a class="reference internal" href="#subversion-checkout">Subversion Checkout</a></li>
@@ -65,7 +65,7 @@
 </li>
 <li><a class="reference internal" href="#setting-up-your-environment">Setting up your Environment</a><ul>
 <li><a class="reference internal" href="#basic-environment">Basic Environment</a></li>
-<li><a class="reference internal" href="#setup-for-on-site-operartional-use-hst-or-jwst">Setup for On Site Operartional Use (HST or JWST)</a><ul>
+<li><a class="reference internal" href="#setup-for-on-site-operartional-use-hst-or-jwst">Setup for On-site Operartional Use (HST or JWST)</a><ul>
 <li><a class="reference internal" href="#file-cache-location-crds-path">File Cache Location (CRDS_PATH)</a></li>
 <li><a class="reference internal" href="#server-selection-crds-server-url">Server Selection (CRDS_SERVER_URL)</a></li>
 <li><a class="reference internal" href="#onsite-crds-testing">Onsite CRDS Testing</a></li>
@@ -92,12 +92,14 @@
   <h4>Next topic</h4>
   <p class="topless"><a href="command_line_tools.html"
                         title="next chapter">Command Line Tools</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/installation.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/installation.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
@@ -116,7 +118,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="package-overview">
 <h1>Package Overview<a class="headerlink" href="#package-overview" title="Permalink to this headline">¶</a></h1>
@@ -130,15 +132,6 @@ several sub-packages:</p>
 <li>core package enabling local use and development of mappings
 and reference files.  contains command line utility programs.</li>
 </ul>
-</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>crds.cache</dt>
-<dd><ul class="first simple">
-<li>prototype cache which contains the original baseline CRDS mappings generated</li>
-</ul>
-<p class="last">for HST and JWST,  also demonstrating cache structure for a dual project cache.</p>
 </dd>
 </dl>
 </li>
@@ -164,14 +157,6 @@ and reference files.  contains command line utility programs.</li>
 <dt>crds.jwst</dt>
 <dd><ul class="first last simple">
 <li>analogous to crds.hst,  for JWST.</li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>crds.tobs</dt>
-<dd><ul class="first last simple">
-<li>test observatory supporting artificial rules cases and tests.</li>
 </ul>
 </dd>
 </dl>
@@ -240,6 +225,17 @@ and reference files.  contains command line utility programs.</li>
 </li>
 </ul>
 </div></blockquote>
+<p>CRDS bestrefs for JWST:</p>
+<p>The crds.bestrefs functionality which assigns best references to datasets is fully integrated with the
+JWST calibration software and operates transparently as a consequence of running pipelines.</p>
+<p>Local Use:</p>
+<p>The CRDS defaults are set for onsite use at STScI.   These leverage a shared read-only cache of CRDS rules
+and references currently located at /grp/crds/cache.  HST users will need to set their iref$-style environment
+variables accordingly to use references maintained by CRDS in /grp/crds/cache,  see below.</p>
+<p>Remote Use:</p>
+<p>CRDS can be configured to operate at remote sites by defining a CRDS server and a local cache directory.  With
+this configuration CRDS will transparently download the best references and CRDS rules required to calibrate datasets
+on demand.  See below for configuration instructions.</p>
 <p>More information can be found on each tool using the command line &#8211; &#8211;help switch,  e.g.:</p>
 <div class="highlight-python"><div class="highlight"><pre>% python -m crds.bestrefs --help
 </pre></div>
@@ -248,15 +244,14 @@ and reference files.  contains command line utility programs.</li>
 </div>
 <div class="section" id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="installation-via-ureka">
-<h2>Installation via Ureka<a class="headerlink" href="#installation-via-ureka" title="Permalink to this headline">¶</a></h2>
-<p>Ureka is a collection of astronomy software that provides everything you need to run the data reduction packages
-provided by STScI.   Most people install CRDS as part of Ureka which is found here:</p>
+<div class="section" id="installation-via-ureka-or-conda">
+<h2>Installation via Ureka or Conda<a class="headerlink" href="#installation-via-ureka-or-conda" title="Permalink to this headline">¶</a></h2>
+<p>Most people install CRDS as part of STScI/SSB&#8217;s (Science Software Branch) Ureka (or now Conda) which is found here:</p>
 <blockquote>
 <div><a class="reference external" href="http://ssb.stsci.edu/ureka/">http://ssb.stsci.edu/ureka/</a></div></blockquote>
 <p>Follow the instructions for installing Ureka and afterward you should be able to do the following:</p>
 <div class="highlight-python"><div class="highlight"><pre>% python -m crds.list --version
-CRDS  : INFO     crds version 1.1.1 revision 1784M
+CRDS  : INFO     crds version 1.9.0 revision 2789:2793M
 </pre></div>
 </div>
 <p>and get similar output reflecting your installed CRDS version.</p>
@@ -305,14 +300,12 @@ Nevertheless, for installing CRDS independently, these dependencies are applicab
 <blockquote>
 <div><ul class="simple">
 <li>nose</li>
-<li>BeautifulSoup</li>
-<li>stsci.tools</li>
 </ul>
 </div></blockquote>
 <p>OPTIONAL: For running crds.certify to fully check CRDS rules/mapping files add:</p>
 <blockquote>
 <div><ul class="simple">
-<li>Parsley-1.1  (included in CRDS subversion under third_party)</li>
+<li>Parsley-1.2</li>
 <li>pyaml  (for certifying and using yaml references)</li>
 <li>pyasdf (for certifying and using ASDF references)</li>
 </ul>
@@ -353,68 +346,39 @@ are subject to automatic replacement or deletion by the CRDS framework and shoul
 working copies only.</p>
 </div>
 <div class="section" id="setup-for-on-site-operartional-use-hst-or-jwst">
-<h2>Setup for On Site Operartional Use (HST or JWST)<a class="headerlink" href="#setup-for-on-site-operartional-use-hst-or-jwst" title="Permalink to this headline">¶</a></h2>
+<h2>Setup for On-site Operartional Use (HST or JWST)<a class="headerlink" href="#setup-for-on-site-operartional-use-hst-or-jwst" title="Permalink to this headline">¶</a></h2>
 <p>This section describes use of operational reference files onsite at STScI.  It&#8217;s relevant to fully archived
 operational files,  not development and test.</p>
 <div class="section" id="file-cache-location-crds-path">
 <h3>File Cache Location (CRDS_PATH)<a class="headerlink" href="#file-cache-location-crds-path" title="Permalink to this headline">¶</a></h3>
 <p>For typical onsite use at STScI, CRDS users can share a file cache which contains all rules and references.  The
-location of the shared cache initially defaults to:</p>
-<div class="highlight-python"><div class="highlight"><pre>/grp/crds/cache
-</pre></div>
-</div>
-<p>/grp/crds/cache is designed to support both HST and JWST with a single defaulted <strong>CRDS_PATH</strong> setting.</p>
-<p>Since /grp/crds/cache is the default,  you don&#8217;t have to explicitly set <strong>CRDS_PATH</strong>.</p>
-<p>Since /grp/crds/cache starts out containing all the operational CRDS rules and reference files, file downloads
-are not required.</p>
+location of the shared cache and default <strong>CRDS_PATH</strong> setting is essentially:</p>
+<blockquote>
+<div>% setenv CRDS_PATH  /grp/crds/cache</div></blockquote>
+<p>A remote or pipeline user defines a non-default CRDS cache by setting, e.g.:</p>
+<blockquote>
+<div>% setenv CRDS_PATH   $HOME/crds_cache</div></blockquote>
+<p>Note that the CRDS cache is often used to store reference files and when fully populated for a
+particular mission can contain terabytes of files.</p>
 </div>
 <div class="section" id="server-selection-crds-server-url">
 <h3>Server Selection (CRDS_SERVER_URL)<a class="headerlink" href="#server-selection-crds-server-url" title="Permalink to this headline">¶</a></h3>
 <p>Since each project is supported by a different operational server, CRDS must determine which (if any)
 server to use.</p>
-<p>Starting with OPUS 2014.3 and crds-1.1,  CRDS does a reasonable job guessing what project you&#8217;re working on.</p>
-<p>CRDS can guess the project you&#8217;re working on by:</p>
-<ul class="simple">
-<li>Looking for the string &#8216;hst&#8217; or &#8216;jwst&#8217; in the file names you&#8217;re operating on.</li>
-<li>Looking inside files to determine the applicable instrument, and inferring the project from the instrument name.</li>
-<li>If you explicitly set CRDS_SERVER_URL,  CRDS can ask the server which project it supports.</li>
-</ul>
-<p>You can tell CRDS which project you&#8217;re working on by:</p>
-<ul class="simple">
-<li>Using command line switches in CRDS utility programs:  &#8212;-hst or &#8212;-jwst</li>
-<li>Setting CRDS_OBSERVATORY to &#8216;hst&#8217; or &#8216;jwst&#8217;</li>
-</ul>
-<p>If you&#8217;re working on both projects frequently,  using the command line hints,  e.g. &#8212;-hst,  is probably
-preferred whenever CRDS has trouble guessing.</p>
-<p>If you&#8217;re primarily working on one project,  definining <strong>CRDS_OBSERVATORY</strong> is probably most convenient
-since then you won&#8217;t need to provide command line hints.</p>
-<p>If CRDS can determine the project,  and you don&#8217;t specify CRDS_SERVER_URL,  CRDS will use the default
-operational server for your project:</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="20%" />
-<col width="80%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Project</th>
-<th class="head">Implicit CRDS_SERVER_URL</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td>hst</td>
-<td><a class="reference external" href="https://hst-crds.stsci.edu">https://hst-crds.stsci.edu</a></td>
-</tr>
-<tr class="row-odd"><td>jwst</td>
-<td><a class="reference external" href="https://jwst-crds.stsci.edu">https://jwst-crds.stsci.edu</a></td>
-</tr>
-</tbody>
-</table>
+<p>For <strong>HST</strong>:</p>
+<div class="highlight-python"><div class="highlight"><pre>% setenv CRDS_SERVER_URL https://hst-crds.stsci.edu
+</pre></div>
+</div>
+<p>For <strong>JWST</strong>:</p>
+<div class="highlight-python"><div class="highlight"><pre>% setenv CRDS_SERVER_URL https://jwst-crds.stsci.edu
+</pre></div>
+</div>
 <p>If CRDS cannot determine your project,  and you did not specify CRDS_SERVER_URL,  it will be defaulted to:</p>
-<p><a class="reference external" href="https://crds-serverless-mode.stsci.edu">https://crds-serverless-mode.stsci.edu</a></p>
-<p>In serverless mode, dynamic cache updates are not possible so cache information may become stale.  This affects CRDS
-rules and reference updates,  CRDS knowledge of the current operational context, and CRDS knowledge of rules or
-references determined to be bad.   On the other hand,  in serverless-mode you&#8217;re guaranteed to be working with
-a static system, and no warnings will  be issued because the server is not reachable.</p>
+<div class="highlight-python"><div class="highlight"><pre>% setenv CRDS_SERVER_URL https://crds-serverless-mode.stsci.edu
+</pre></div>
+</div>
+<p>In serverless mode it is not possible for CRDS to download new files or configuration settings,
+so best reference recommendations may become stale.</p>
 </div>
 <div class="section" id="onsite-crds-testing">
 <h3>Onsite CRDS Testing<a class="headerlink" href="#onsite-crds-testing" title="Permalink to this headline">¶</a></h3>
@@ -425,9 +389,16 @@ similar to this:</p>
 % setenv CRDS_SERVER_URL https://hst-crds-test.stsci.edu
 </pre></div>
 </div>
+<p>Alternative servers for JWST I&amp;T testing are:</p>
+<div class="highlight-python"><div class="highlight"><pre>% setenv CRDS_SERVER_URL https://jwst-crds-b5it.stcsi.edu     # build-5
+% setenv CRDS_SERVER_URL https://jwst-crds-b6it.stcsi.edu     # build-6
+% setenv CRDS_SERVER_URL https://jwst-crds-b7it.stcsi.edu     # build-7
+</pre></div>
+</div>
 <p>After syncing this will provide access to CRDS test files and rules in a local cache:</p>
 <div class="highlight-python"><div class="highlight"><pre># Fetch all the test rules
 % python -m crds.sync --all
+
 # Fetch specifically listed test references
 % python -m crds.sync --files &lt;test_references_only_the_test_server_has...&gt;
 </pre></div>
@@ -454,11 +425,9 @@ cache of rules and references supporting only the datasets you care about:</p>
 </pre></div>
 </div>
 <p>For <strong>HST</strong>, to fetch the references required to process some FITS datasets:</p>
-<div class="highlight-python"><div class="highlight"><pre>% python -m crds.bestrefs --files dataset*.fits --sync-references=1
+<div class="highlight-python"><div class="highlight"><pre>% python -m crds.bestrefs --files dataset*.fits --sync-references=1  --update-bestrefs
 </pre></div>
 </div>
-<p>By default crds.bestrefs does not alter your dataset FITS files.   If you also wish to update your dataset FITS
-headers with best references,  add &#8211;update-bestrefs.</p>
 <p>For <strong>JWST</strong>,  CRDS is directly integrated with the calibration step code and will automatically download
 rules and references as needed.   Downloads will only be an issue when you set CRDS_PATH and don&#8217;t already
 have the files you need in your cache.   By default CRDS modifies JWST datasets with new best references
@@ -635,7 +604,7 @@ proceed immediately after fail.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -647,12 +616,12 @@ proceed immediately after fail.</p>
         <li class="right" >
           <a href="index.html" title="CRDS User Manual"
              >previous</a> |</li>
-        <li><a href="index.html">crds 1.8 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 1.9.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright 2015, STScI.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.4.
     </div>
   </body>
 </html>
