@@ -41,7 +41,7 @@
                    <td>{{activity.user}}</td>
                 {% endif %}
                 <td>{{activity.why}}</td>
-                <td>{{activity.details}}</td>
+                <td>{{activity.details|browsify|safe}}</td>
             </tr>
             {% endfor %}
         </tbody>

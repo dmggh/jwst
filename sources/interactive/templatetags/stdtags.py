@@ -4,6 +4,7 @@ Django template tags so they can be used from HTML.
 
 import sys
 import os.path
+import re
 
 from django import template
 
@@ -104,8 +105,24 @@ def file_exists(filename):
 
 @register.filter(is_safe=True)
 @stringfilter
-def browse(name):  # handle str(datetime.datetime.now())
+def browse(name):
     return format_html("<a href='/browse/{0}'>{1}</a>", name, name)
+
+@register.filter(is_safe=True)
+@stringfilter
+def browsify(string):
+    try:
+        return re.sub(r"'([A-Za-z0-9\._]+)'[\,\]]", _browse, string)
+    except Exception:
+        return string
+
+def _browse(match):
+    name = match.group(0)
+    parts = name.split("'")
+    if parts[1].endswith(".cat"):
+        return name
+    else:
+        return format_html("<a href='/browse/{0}'>{1}</a>", parts[1], name)
 
 @register.filter
 @stringfilter
