@@ -1993,6 +1993,7 @@ def render_browse_table(filtered_db, show_defects, authenticated=False):
         html.tr(
             html.th("delivery date") +
             html.th("name") +
+            html.th("uploaded as") +
             html.th("aperture") +
             html.th("useafter date") +
             html.th("status") +
@@ -2010,6 +2011,7 @@ def render_browse_table(filtered_db, show_defects, authenticated=False):
         tr = html.tr(
             td.format(stdtags.minutes(db.delivery_date)) +
             td.format(stdtags.browse(db.name)) +
+            td.format(db.uploaded_as) +
             td.format(db.aperture) +
             td.format(stdtags.minutes(db.useafter_date)) +
             td.format(db.status, status_class=db.status_class) +
@@ -2032,6 +2034,7 @@ def render_browse_table_data(filtered_db, show_defects, authenticated=False):
             "activation date",
             "useafter date",
             "name",
+            "uploaded as",
             "aperture",
             "status",
             "description",
@@ -2050,6 +2053,7 @@ def render_browse_table_data(filtered_db, show_defects, authenticated=False):
             stdtags.minutes(db.activation_date),
             stdtags.minutes(db.useafter_date),
             stdtags.browse(db.name),
+            db.uploaded_as,
             db.aperture,
             db.status,
             db.description,
