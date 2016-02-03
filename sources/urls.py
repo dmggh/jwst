@@ -88,6 +88,8 @@ urlpatterns = patterns('',
         'crds.server.interactive.views.set_default_context'),
     url(r'^display_context_history/$', 
         crds.server.interactive.views.display_context_history),
+    url(r'^display_all_contexts/$', 
+        crds.server.interactive.views.display_all_contexts),
                          
     url(r'^display_result/(?P<results_id>{0})$'.format(UUID_RE_STR), 
         'crds.server.interactive.views.display_result'),

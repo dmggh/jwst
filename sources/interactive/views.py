@@ -2445,6 +2445,20 @@ def edit_context_history(request, history_id):
 
 # ============================================================================
 
+@error_trap("base.html")
+@log_view
+def display_all_contexts(request):
+    """Display a table of all contexts in time order."""
+    context_blobs = reversed(sorted([ ( blob.name, blob) for blob in models.FileBlob.filter(name__endswith=".pmap") ]))
+    response = crds_render(request, "display_all_contexts.html", {
+            "context_blobs" : context_blobs,
+            "include_diff" : True,
+        }, requires_pmaps=False)
+    response['Cache-Control'] = "no-cache"
+    return response
+
+# ============================================================================
+
 CATALOG_FIELDS = (
     ("activation_date_str", "Activation Date"),
 )
