@@ -36,7 +36,8 @@ switch ($CRDS_SERVER)
         setenv CRDS_STACK ${CRDS}/crds_stacks/crds_16
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE test
-        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
+        # setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
+        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
        breaksw
        case tlhstcrdsv1:
         setenv CRDS_STACK ${CRDS}/crds_stacks/crds_15
@@ -49,7 +50,8 @@ switch ($CRDS_SERVER)
         setenv CRDS_STACK ${CRDS}/crds_stacks/crds_16
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE ops
-        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
+        # setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
+        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
         setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
        breaksw
        case plhstcrdsv1:
@@ -60,6 +62,14 @@ switch ($CRDS_SERVER)
         setenv CRDS_GRP_CACHE_KEY 12ca7bb2-dd3b-444a-8e6e-d8fd0bf559ed
        breaksw
 
+       case iljwdmsacrdsv1:
+        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_16
+        setenv CRDS_PROJECT jwst
+        setenv CRDS_USECASE b7it
+        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
+        setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
+       breaksw
+
        case iljwdmsbcrdsv1:
         setenv CRDS_STACK ${CRDS}/crds_stacks/crds_16
         setenv CRDS_PROJECT jwst
@@ -68,7 +78,7 @@ switch ($CRDS_SERVER)
         setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
        breaksw
 
-       case iljwdmsacrdsv1:
+       case iljwdmsccrdsv1:
         setenv CRDS_STACK ${CRDS}/crds_stacks/crds_16
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE b6it

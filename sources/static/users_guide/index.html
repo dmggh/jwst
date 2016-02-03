@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>CRDS User Manual &mdash; crds 1.8 documentation</title>
+    <title>CRDS User Manual &mdash; crds 1.9.0 documentation</title>
     
     <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.8',
+        VERSION:     '1.9.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,12 +23,12 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="crds 1.8 documentation" href="#" />
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="crds 1.9.0 documentation" href="#" />
     <link rel="next" title="Package Overview" href="installation.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -37,10 +37,10 @@
         <li class="right" >
           <a href="installation.html" title="Package Overview"
              accesskey="N">next</a> |</li>
-        <li><a href="#">crds 1.8 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="#">crds 1.9.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="#">
               <img class="logo" src="_static/stsci_logo.png" alt="Logo"/>
@@ -48,12 +48,14 @@
   <h4>Next topic</h4>
   <p class="topless"><a href="installation.html"
                         title="next chapter">Package Overview</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/index.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
@@ -72,7 +74,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="crds-user-manual">
 <h1>CRDS User Manual<a class="headerlink" href="#crds-user-manual" title="Permalink to this headline">¶</a></h1>
@@ -80,7 +82,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Package Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html#installation">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#installation-via-ureka">Installation via Ureka</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installation-via-ureka-or-conda">Installation via Ureka or Conda</a></li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#pip-installation">Pip Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#installing-from-source">Installing from Source</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="installation.html#subversion-checkout">Subversion Checkout</a></li>
@@ -92,7 +94,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html#setting-up-your-environment">Setting up your Environment</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#basic-environment">Basic Environment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#setup-for-on-site-operartional-use-hst-or-jwst">Setup for On Site Operartional Use (HST or JWST)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#setup-for-on-site-operartional-use-hst-or-jwst">Setup for On-site Operartional Use (HST or JWST)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="installation.html#file-cache-location-crds-path">File Cache Location (CRDS_PATH)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="installation.html#server-selection-crds-server-url">Server Selection (CRDS_SERVER_URL)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="installation.html#onsite-crds-testing">Onsite CRDS Testing</a></li>
@@ -216,6 +218,7 @@
 <li class="toctree-l2"><a class="reference internal" href="web_services.html#context-information">Context Information</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="web_services.html#centralized-default">Centralized Default</a></li>
 <li class="toctree-l3"><a class="reference internal" href="web_services.html#pipeline-echo">Pipeline Echo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="web_services.html#context-history">Context History</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="web_services.html#file-information">File Information</a><ul>
@@ -259,7 +262,7 @@
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -268,12 +271,12 @@
         <li class="right" >
           <a href="installation.html" title="Package Overview"
              >next</a> |</li>
-        <li><a href="#">crds 1.8 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="#">crds 1.9.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright 2015, STScI.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.4.
     </div>
   </body>
 </html>

@@ -7,6 +7,13 @@
 <h2>
     Browse {{browsed_file|gray}}     
 
+    {% if browsed_file|endswith:".pmap" %}
+    &nbsp;&nbsp;
+    <a href='/context_table/{{browsed_file}}'>
+        <span style="font-size: 0.75em;">context table</span>
+    </a>
+    {% endif %}
+
     &nbsp;&nbsp;
     <a href='{{browsed_file|download_url}}'>
         <span style="font-size: 0.75em;">download</span>

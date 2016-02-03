@@ -441,9 +441,8 @@ class InteractiveBase(TransactionTestCase):
     def test_batch_submit_truncated(self):
         self.login()
         response = self._batch_submit_insert(self.batch_submit_truncated_references)
-        self.assertIn("File may have been truncated", response.content)
         # doesn't guarantee same message but any WARNING will trigger top level notice
-        self.assertIn("WARNING", response.content)
+        self.assertIn("probable file truncation", response.content)
 
     def _assert_normal_bsr_insert(self, response):
         # print response
