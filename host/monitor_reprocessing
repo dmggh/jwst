@@ -11,10 +11,10 @@ source env.csh
 
 echo "Monitoring reprocessing opportunities based on context changes."
 
-if (${CRDS_PROJECT} == "jwst") then
-    echo "Quitting JWST reprocessing,  no DADSOPS dataset header source."
-    exit 0   # no JWST reprocessing until equivalent of DADSOPS exists and is interfaced.
-endif
+# if (${CRDS_PROJECT} == "jwst") then
+#    echo "Quitting JWST reprocessing,  no DADSOPS dataset header source."
+#    exit 0   # no JWST reprocessing until equivalent of DADSOPS exists and is interfaced.
+# endif
 
 cd ${CRDS}/monitor_reprocessing
 
