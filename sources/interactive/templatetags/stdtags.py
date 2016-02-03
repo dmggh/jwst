@@ -93,11 +93,6 @@ def days(value):  # handle str(datetime.datetime.now())
 
 @register.filter
 @stringfilter
-def endswith(s, ending):
-    return s.endswith(ending)
-
-@register.filter
-@stringfilter
 def file_exists(filename):
     if filename.lower() in ["undefined", "n/a", "no match found."]:
         return False
@@ -231,3 +226,15 @@ def in_group(user, groups):
     return bool(user.groups.filter(name__in=group_list).values('name'))
 
 
+@register.filter
+def endswith(string, suffix):
+    """Exexcute string .endswith method on
+
+    Usage::
+
+        {% if mapping|endswith:".pmap" %}
+        ...
+        {% endif %}
+    """
+    suffix = django.utils.encoding.force_unicode(suffix)
+    return string.endswith(suffix)
