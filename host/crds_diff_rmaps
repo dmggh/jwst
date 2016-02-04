@@ -1,0 +1,5 @@
+#! /bin/sh
+
+for rmap in $*;  do
+    python -m crds.diff --brief --squash-tuples --mapping-text-diffs --check-diffs --check-references ${rmap}  ./${rmap}
+done
