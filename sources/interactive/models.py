@@ -771,6 +771,7 @@ class FileBlobRepairMixin(object):
         "deliverer_email" : lambda self: not self.deliverer_email,
         "creator_name" : lambda self: not self.creator_name,
         "mapping_name_field": lambda self: rmap.is_mapping(self.name) and not self.name == rmap.fetch_mapping(self.name).name,
+        "history" :  lambda self : self.history in ["none","NONE","None", None],
     }
     
     def get_defects(self, verify_checksum=False, fields=None):
@@ -889,6 +890,9 @@ class FileBlobRepairMixin(object):
                           if audit.action in ["mass import", "submit file", "batch submit"]][0]
         self.delivery_date = delivery_date
 
+    def repair_history(self):
+        self.set_fits_field("history", "HISTORY")
+
     if OBSERVATORY == "hst":
         def repair_activation_date(self):
             if self.type == "mapping":
@@ -984,7 +988,7 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
          "type", "derived_from", "sha1sum", "delivery_date", "activation_date", "useafter_date",
          "change_level", "pedigree", "reference_file_type", "size", "uploaded_as", "creator_name",
          "deliverer_user", "deliverer_email", "description", "catalog_link",
-         "replaced_by_filename", "comment", "aperture"]
+         "replaced_by_filename", "comment", "aperture", "history"]
     
     # corresponding table column titles
     model_titles = BlobModel.model_titles + \
@@ -992,7 +996,7 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
          "Type", "Derived From", "Sha1sum", "Delivery Date", "Activation Date", "Useafter Date",
          "Change Level", "Pedigree", "File Type", "Size", "Upload As", "Creator Name",
          "Deliverer", "Deliverer Email", "Description", "Catalog Link",
-         "Replaced By", "Comment", "Aperture"]
+         "Replaced By", "Comment", "Aperture", "History"]
     
     # table fields and titles for use in web displays which combine mappings with catalog
     fusion_fields = [ field.replace("_date", "_date_str") for field in model_fields ]
@@ -1083,7 +1087,8 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
     aperture = models.CharField(
         max_length=80, blank=True, default="none", help_text="from APERTURE keyword of reference file.",)
 
-    
+    history = models.TextField(
+        blank=True, default="none", help_text="History extracted from reference file.")
     
     # ===============================
 
@@ -1149,6 +1154,7 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
         self.set_fits_field("useafter_date", "USEAFTER", timestamp.parse_date)
         self.set_fits_field("comment", "DESCRIP")
         self.set_fits_field("aperture", self.aperture_keyword)
+        self.set_fits_field("history", "HISTORY")
  
     def set_fits_field(self, model_field, fitskey, sanitizer=lambda x: x):
         filename = self.uploaded_as or self.name
