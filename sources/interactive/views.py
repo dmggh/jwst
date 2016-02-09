@@ -15,6 +15,7 @@ import json
 import time
 import fnmatch
 import ast
+import tempfile
 
 # from django.http import HttpResponse
 from django.template import loader, RequestContext
@@ -1784,7 +1785,21 @@ def browsify_finfo(filename, browsed_file):
 
 def browsify_asdf(filename, browsed_file):
     """Format an ASDF file as HTML."""
-    return browsify_header(filename, browsed_file)
+    info = browsify_header(filename, browsed_file)
+    with log.error_on_exception("Can't extract ASDF tree from", srepr(browsed_file)):
+        tree = get_asdf_tree(browsed_file)
+        info += "<b>ASDF Tree</b>\n"
+        info += "<pre>\n" + tree + "\n</pre>\n"
+    return info
+
+def get_asdf_tree(filepath):
+    """Read the YAML tree out of an ASDF file and return it."""
+    import pyasdf
+    assert re.match(config.FILE_PATH_RE, filepath),  "Bad file path extracting ASDF tree contents."
+    with tempfile.NamedTemporaryFile() as temp:
+        return pysh.out_err("asdftool to_yaml {} --output {} --resolve-references; cat {}".format(filepath, temp.name, temp.name))
+    # with pyasdf.AsdfFile.open(filepath) as handle:
+    #     return str(handle.tree)
 
 @capture_output
 def finfo(filename):
@@ -1981,51 +1996,10 @@ def cached_browse_table(filters, select_bad_files=False, show_defects=False, aut
     filtered_db = models.FileBlob.filter(**filters)    
     if select_bad_files:
         filtered_db = [ blob for blob in filtered_db if blob.get_defects() ]
-    # table = render_browse_table(request, filtered_db, show_defects)
     header, rows = render_browse_table_data(filtered_db, show_defects, authenticated)
     table_data = to_datatables(header, rows)
     table_json = json.dumps(table_data)
     return table_json
-    
-def render_browse_table(filtered_db, show_defects, authenticated=False):
-    """Generate the HTML for the search results table."""
-    thead = html.thead(
-        html.tr(
-            html.th("delivery date") +
-            html.th("name") +
-            html.th("uploaded as") +
-            html.th("aperture") +
-            html.th("useafter date") +
-            html.th("status") +
-            html.th("description") +
-            html.th("instrument") + 
-            html.th("reference type") +
-            (html.th("deliverer") if authenticated else "") +
-            (html.th("defects") if show_defects else "") +
-            html.th("<input type='submit' id='diff_button' value='diff' />", _class="diff")
-        )
-    )
-    td = "<td>{0}</td>"
-    rows = []
-    for db in filtered_db:
-        tr = html.tr(
-            td.format(stdtags.minutes(db.delivery_date)) +
-            td.format(stdtags.browse(db.name)) +
-            td.format(db.uploaded_as) +
-            td.format(db.aperture) +
-            td.format(stdtags.minutes(db.useafter_date)) +
-            td.format(db.status, status_class=db.status_class) +
-            td.format(db.description) +
-            td.format(db.instrument) + 
-            td.format(db.filekind) +
-            (td.format(db.deliverer_user) if authenticated else "") +
-            (td.format(repr(db.get_defects())) if show_defects else "") +
-            "<td class='diff'><input type='checkbox' name='{0}'/></td>".format(db.name)
-        )
-        rows.append(tr)
-    tbody = html.tbody("\n".join(rows))
-    table = html.table("\n".join([thead, tbody]), id="crds_files_table")
-    return table
     
 def render_browse_table_data(filtered_db, show_defects, authenticated=False):
     """Generate JSON-able dicts for the search results table."""

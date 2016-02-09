@@ -93,7 +93,7 @@
                 {% endif %}
 
                 <tr>
-                    <td width="20%" align="left" class="label">Description</td>
+                    <td width="20%" align="left" class="label">Submit Description</td>
                     <td>{{fileblob.description}}</td>
                  </tr>
                  <tr>
@@ -114,7 +114,15 @@
                  </tr>
                  {% if fileblob.type == "reference" %}
                      <tr>
-                        <td width="20%" align="left" class="label">Comment</td>
+                        <td width="20%" align="left" class="label">History</td>
+                        <td>
+                          {% for line in fileblob.history|split %}
+                          <p>{{line}}</p>
+                          {% endfor %}
+                        </td>
+                     </tr>
+                     <tr>
+                        <td width="20%" align="left" class="label">File</td>
                         <td>{{fileblob.comment}}</td>
                      </tr>
                      <tr>

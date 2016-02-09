@@ -771,7 +771,7 @@ class FileBlobRepairMixin(object):
         "deliverer_email" : lambda self: not self.deliverer_email,
         "creator_name" : lambda self: not self.creator_name,
         "mapping_name_field": lambda self: rmap.is_mapping(self.name) and not self.name == rmap.fetch_mapping(self.name).name,
-        "history" :  lambda self : self.history in ["none","NONE","None", None],
+        "history" :  lambda self : self.type.lower() == "reference" and self.history in ["none","NONE","None", None],
     }
     
     def get_defects(self, verify_checksum=False, fields=None):
@@ -891,7 +891,7 @@ class FileBlobRepairMixin(object):
         self.delivery_date = delivery_date
 
     def repair_history(self):
-        self.set_fits_field("history", "HISTORY")
+        self.set_fits_field("history", "HISTORY", condition=False)
 
     if OBSERVATORY == "hst":
         def repair_activation_date(self):
@@ -1154,16 +1154,16 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
         self.set_fits_field("useafter_date", "USEAFTER", timestamp.parse_date)
         self.set_fits_field("comment", "DESCRIP")
         self.set_fits_field("aperture", self.aperture_keyword)
-        self.set_fits_field("history", "HISTORY")
+        self.set_fits_field("history", "HISTORY", condition=False)
  
-    def set_fits_field(self, model_field, fitskey, sanitizer=lambda x: x):
+    def set_fits_field(self, model_field, fitskey, sanitizer=lambda x: x, condition=True):
         filename = self.uploaded_as or self.name
         if data_file.is_geis_data(self.pathname):
             read_from = self.pathname[:-1] + "h"
         else:
             read_from = self.pathname
         try:
-            value = data_file.getval(read_from, fitskey)
+            value = data_file.getval(read_from, fitskey, condition=condition)
         except Exception as exc:
             log.error("Fetching keyword '%s' from '%s' failed: '%s'" % (fitskey, read_from, exc))
             return

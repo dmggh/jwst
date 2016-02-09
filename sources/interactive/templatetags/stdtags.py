@@ -101,6 +101,11 @@ def file_exists(filename):
         return (not rmap.is_special_value(filename)) and os.path.exists(crds.locate_file(filename, config.observatory))
     return False
 
+@register.filter
+@stringfilter
+def split(string):
+    return string.split("\n")
+
 # ===========================================================================
 
 @register.filter(is_safe=True)
