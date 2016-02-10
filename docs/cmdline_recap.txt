@@ -1,0 +1,98 @@
+This memo records my understanding of key points of our discussion of a desired
+CRDS command line interface for file submissions.   It summarizes the goals
+of the command line interface.
+
+File Transfer Times
+-------------------
+
+A key complaint with the extant CRDS web system is the duration and complexity of
+file transfers,  either via lengthy file uploads (simple but slowest) or via
+shell based scp copies into the CRDS web ingest directory.
+
+CRDS Wrap-ability
+-----------------
+
+A second reason a command line interface is desired is so that ReDCaT can wrap
+the CRDS submission script with higher level scripts related to their overall
+submission workflow outside the scope of the CRDS data system.
+
+Past Failure Scenarios
+----------------------
+
+A final more obvious reason for a command line interface is to counter some of
+the failure scenarios we've experienced thus far with large file submissions in
+CRDS for HST.  Recapping my undestanding of those failures, the primary problem
+has been web proxy timeouts due to unbounded web requests, and a more recent
+problem pertained to a per-file memory leak.  Both have in theory been fixed
+for now, but both issues remain an area of fragility.  Those issues must be
+addressed but are not an immediate goal of this effort *provided* that
+acceptable short term batch sizes can be supported.  Reasonably the existing
+system is limited to two hour periods of processing and is only vetted for 16G
+total of data, although that limitation can probably be relaxed to more like
+25-30G.
+
+Initial Submission Output
+-------------------------
+
+Upon requesting file submission CRDS should produce some form of initial output
+to record the input parameters.   This record could further include a link by
+which processing status is monitored and a link by which final results will be
+made available.   An e-mail was deemed acceptable for this,  file or standard
+output text in the submission directory is desirable.
+
+Submission Monitoring
+---------------------
+
+Some form of output can be made available to monitor on-going processing and
+verify that it is proceeding and the rough pace.   This only provides a rough
+indication of progress and pace,  not an early indication of errors or option
+for cancellation.
+
+Submission Results Review 
+------------------------- 
+The results of CRDS reference checking and rmap updates are made available for
+review and confirmation on a web page.  Providing a permanent link to these
+results was deemed acceptable versus a re-rendering of complex output as
+(probably overwhelming) plain text.   Following the provided link will continue
+the overall confirmation and final results process as it is now.
+
+Confirmation And Results
+------------------------
+Essentially unchanged.   An e-mail to a permanent results link would be fairly
+easy.  HTML output to web or file is probably fairly easy.
+
+Areas of Complexity
+-------------------
+
+Instrument-based locking and user authentication add some degree of complexity
+to any submission interface.  For v1.0,  instrument-based locking was deemed
+desired-but-not-required,  mitigated by overall team coordination outside the
+scope of the data system.  I think authentication can be nuanced around by a
+combination of obscurity and only requiring authentication for confirmation.
+
+Other web functions
+-------------------
+
+Functions functions which are not upload or processing intensive will nominally
+remain pure-web functions for now:
+
+Batching
+--------
+
+Because of failure scenarios and the need to accept or reject coherent sets,
+ReDCaT will remain responsible for partitioning large batches of files into
+smaller sets which are accepted as incremental rules updates.  Batching limits
+the size of single file submissions which both prevents overloading CRDS and
+limits the amount of time wasted when a submission must be rejected based on
+certification errors or rmap update results.  CRDS will assume that all files
+in a single batch are required as an atomic set,  so the failure of a single
+file will continue to doom the entire batch.
+
+Need Date
+---------
+
+The need date for an operational system is May 1, 2016,  v1.0.   That is
+roughly 11 weeks from now and ambitious in the context of other work,  both
+planned and unplanned.  I think it is attainable if we stick to basics, spike
+early,  and iterate rapidly.
+
