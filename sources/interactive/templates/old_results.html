@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% load stdtags %}
+
+{% block contents %}
+
+    <div class="body_panel">
+        <br/>
+        <h2>Old Results</h2>
+
+<div id="all_contexts" style="background-color: #EEEEEE;">
+    <table border="1" width="100%" class="ctx">
+        <thead class="ctx">
+            <tr class="ctx">
+                <th width="5%" class="center bold label ctx">ID</th>
+                <th width="25%" class="center bold label ctx">Result Link</th>
+                <th width="10%" class="center bold label ctx">User</th>
+                <th width="15%" class="center bold label ctx">Template</th>
+                <th width="30%" class="center bold label ctx">Files</th>
+            </tr>
+        </thead>
+        <tbody class="ctx">
+        {% for result in result_blobs %}
+            <tr class="ctx">
+                <td class="center ctx">{{result.id}}</td>
+                <td class="left ctx"><a href="{{result.repeatable_url}}">{{result.name}}</a></td>
+                <td class="center ctx">{{result.parameters.user}}</td>
+                <td class="left ctx">{{result.page_template}}</td>
+                <td class="center ctx">{{result.files}}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+        <br/>
+    </div>
+{% endblock contents %}
