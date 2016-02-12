@@ -50,6 +50,7 @@ urlpatterns = patterns('',
         crds_cacher(crds.server.interactive.views.difference_files)),
     url(r'^recent_activity/$', 'crds.server.interactive.views.recent_activity'),        
     url(r'^delivery_status/$', 'crds.server.interactive.views.delivery_status'),        
+    url(r'^old_results/$', 'crds.server.interactive.views.old_results'),        
     
     url(r'^create_contexts/$', 'crds.server.interactive.views.create_contexts'),        
     

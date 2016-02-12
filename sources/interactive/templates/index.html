@@ -22,6 +22,9 @@
       {% if is_authenticated %}
       <li><a href="/display_all_contexts/">All Contexts</a></li>
       {% endif %}
+      {% if is_superuser %}
+      <li><a href="/old_results/">Old Results</a></li>
+      {% endif %}
     </ol>
 {% endblock column1 %}        
 

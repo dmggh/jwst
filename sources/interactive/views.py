@@ -2433,6 +2433,28 @@ def display_all_contexts(request):
 
 # ============================================================================
 
+@error_trap("base.html")
+@log_view
+def old_results(request):
+    """Display a table of all contexts in time order."""
+    result_blobs = []
+    for blob in reversed(models.RepeatableResultBlob.objects.all()):
+        blob.thaw()
+        if blob.page_template not in ["certify_results.html"]:
+            result_blobs.append(blob)
+    for blob in result_blobs:
+        blob.files = [ names[1] for names in blob.parameters.get("new_file_map", [])]
+        blob.files += [ names[1] for names in blob.parameters.get("uploaded_files_map", [])]
+        blob.files += [ name for name in blob.parameters.get("uploaded_basename", [])]
+        blob.files = sorted(set([str(name) for name in blob.files]))
+    response = crds_render(request, "old_results.html", {
+            "result_blobs" : result_blobs,
+        }, requires_pmaps=False)
+    response['Cache-Control'] = "no-cache"
+    return response
+
+# ============================================================================
+
 CATALOG_FIELDS = (
     ("activation_date_str", "Activation Date"),
 )
