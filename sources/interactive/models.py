@@ -123,7 +123,7 @@ class FitsBlobField(BlobField):
         self.fitskey = fitskey
         BlobField.__init__(self, *args, **keys)
 
-class FieldError(Exception):
+class FieldError(CrdsError):
     """Blob field value did not meet its constraint."""
     
 class MissingInputError(FieldError):
