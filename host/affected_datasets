@@ -15,7 +15,11 @@ if ($1 == "fast") then
     shift;
     set switches = "--diffs-only --datasets-since=auto"
 else
-    set switches = "--all-instruments"
+    if ("$*" == "") then
+        set switches = "--all-instruments"
+    else
+        set switches = ""   # e.g. add --instruments wfc3 to $*
+    endif
 endif
 
 if ( $1 == "mail" ) then
@@ -53,7 +57,8 @@ echo >bestrefs_err.txt
     echo "$header on $date"; \
     echo "--------------------------------------------------------------------------------------------------------------"; \
     python -m crds.bestrefs --old-context $old_context --new-context $new_context \
-	--stats --print-update-counts --dump-unique-errors --print-affected $switches $* >affected_ids.txt; \
+      --stats --print-update-counts --dump-unique-errors --print-affected \
+      --na-differences-matter --undefined-differences-matter $switches $* >affected_ids.txt; \
     echo $status >bestrefs.status; \
 ) |& tee bestrefs_err.txt
 
