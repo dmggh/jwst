@@ -42,6 +42,7 @@
 %% or use the epsfig package if you prefer to use the old commands
 %% \usepackage{epsfig}
 
+\usepackage{mdframed}
 %% The amssymb package provides various useful mathematical symbols
 % \usepackage{amssymb}
 \usepackage{gensymb}
@@ -527,7 +528,9 @@ MIRIFULONG\textquotesingle , \textquotesingle FAST\textquotesingle ,
 will be used resulting in the return of {\tt jwst\_miri\_dark\_0032.fits} 
 as the recommended dark reference file.
 
+
 \begin{figure*}
+\begin{mdframed}
 \begin{verbatim}
 header = {
     'derived_from' : 'jwst_miri_dark_0007.rmap',
@@ -556,13 +559,17 @@ selector = Match({
         ...
 })
 \end{verbatim}
+\end{mdframed}
 \caption{Example showing basic parameter matching rules coupled with date dependency.}
 \label{fig:example1}
 \end{figure*}
 
 Figure~\ref{fig:example2} shows the use of the software selection mechanism (for brevity, the header is omitted in this and subsequent examples). In this case if the software version is less than 3.1 (using the typical version semantics) then the first file will be chosen, if less than 5 the second will be chosen, otherwise the last file will be used.
 
+\newpage
+
 \begin{figure*}
+\begin{mdframed}
 \begin{verbatim}
 selector = SelectVersion({
    '<3.1':    'jwst_miri_flat_0065.fits',
@@ -570,6 +577,7 @@ selector = SelectVersion({
    'default': 'jwst_miri_flat_123.fits',
 })
 \end{verbatim}
+\end{mdframed}
 \caption{Example showing use of the software version selection mechanism.}
 \label{fig:example2}
 \end{figure*}
@@ -580,6 +588,7 @@ of 3.2, then the pair of images
 (\texttt{cref\_flatfield\_124.fits}, \texttt{cref\_flatfield\_137.fits}) will be returned
 
 \begin{figure*}
+\begin{mdframed}
 \begin{verbatim}
 selector = Bracket({
     1.2: "cref_flatfield_120.fits",
@@ -587,6 +596,7 @@ selector = Bracket({
     5.0: "cref_flatfield_137.fits",
 })
 \end{verbatim}
+\end{mdframed}
 \caption{Example showing bracketing selection.}
 \label{fig:example3}
 \end{figure*}
@@ -602,6 +612,7 @@ described in concert with other types of match syntax for other parameters
 such as wildcard matching or regular expressions.
 
 \begin{figure*}
+\begin{mdframed}
 \begin{verbatim}
 selector = Match({
     ('WFC', 'N/A', 'BETWEEN 1220 1530', 'FR782N') :  "hst_wfc3_flatfile_0027.fits",
@@ -609,6 +620,7 @@ selector = Match({
     ...
 })
 \end{verbatim}
+\end{mdframed}
 \caption{An example showing matching specified ranges.}
 \label{fig:example4}
 \end{figure*}
@@ -736,6 +748,7 @@ one can see that each distinct rmap file has a unique name. If anything
 is changed in an rmap file, it gets a new name
 
 \begin{figure*}
+\begin{mdframed}
 \begin{verbatim}
 header = {
     'derived_from' : 'jwst_nircam_0015.imap',
@@ -767,6 +780,7 @@ selector = {
     'WCSREGIONS' : 'N/A',
 }
 \end{verbatim}
+\end{mdframed}
 \caption{An example of an instrument contex file (.imap)}
 \label{fig:example_instrument_context}
 \end{figure*}
@@ -787,6 +801,7 @@ Figure~\ref{fig:example_pipeline_context} shows an example of such a pipeline co
 It is used to select the appropriate instrument context file to use.
 
 \begin{figure*}
+\begin{mdframed}
 \begin{verbatim}
 header = {
     'derived_from' : 'jwst_0068.pmap',
@@ -806,6 +821,7 @@ selector = {
     'NIRSPEC' : 'jwst_nirspec_0026.imap',
 }
 \end{verbatim}
+\end{mdframed}
 \caption{An example of a pipeline context file (.pmap)}
 \label{fig:example_pipeline_context}
 \end{figure*}
