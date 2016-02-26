@@ -1,0 +1,67 @@
+===================================================
+
+Reviewer 1
+
+The first question in the second paragraph appears to be more
+for direct information to the reviewer than request for inclusion 
+in the paper. If that isn't so, we are happy to address this
+there (though it seems a bit off the software issue). For HST
+there is a signoff on updates by instrument teams, and there is
+a committee responsible for the updates, but I don't think I would
+go as far as to call it a CCB. As far as contemporaneous calibration
+data, these are invariably associated with the proposal and thus
+the calibration is done through associating the data with the science
+data in the pipeline, and these files generally do not appear
+in the CDRS (or the older CDBS). Pipelines are fed tables of the
+files that belong in an association so that they know which file
+to use for such a purpose.
+
+The issue of tracability is handled by the fact that all data products
+are tagged with the version of CRDS rules in their header
+(the pipeline context) along with relevant software versions.
+Given that, the exact same numbers should be extracted if the 
+same context is given. That was one major goal of the system was 
+to be able to replicate previous results (file recommendations
+and otherwise), which the older system could not do. We have 
+added a sentence assuring that this functionality is also repeatable
+for the given context. E.g., one knows which rules file the value
+was extracted from and that provides all the information one 
+needs.
+
+The comment about limiting the downloads needed for areas with
+limited bandwidth is already a feature of the system. The client
+library only downloads files that a pipeline invocation needs, and
+these downloads will be cached for the event other datasets 
+require them. No other files are automatically downloaded when it
+is used in this manner. We have added a sentence to make that clear.
+
+Section 2 comments
+------------------
+
+Paper section 3 item 1:
+The main point being made was that one team may submit a change
+to be tested (which could take a while), followed by another team
+that has a  more urgent need for an update and tesing, yet must
+await the previous test to complete. The teams operate asynchronously
+so one test system isn't necessarily sufficient. But the criticism 
+is a good one, and given this isn't a very important point in the
+paper, we have shortened this issue to say essentially that the
+test system didn't address all test needs.
+
+page 6, substitutions.
+The wording suggestions are indeed much better and have been 
+made.
+
+page 6, last paragraph
+Again the suggested text is much better and has been used.
+
+****** To do
+
+1) box text file figures
+2) improve screen shots
+
+
+
+===================================================
+
+Reviewer 2

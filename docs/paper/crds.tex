@@ -65,16 +65,16 @@
 
 \usepackage{caption}
 
-\usepackage{draftwatermark}
-\SetWatermarkText{DRAFT}
-\SetWatermarkScale{1}
-\lstset{
-  basicstyle=\ttfamily,
-  showstringspaces=false,
-  stringstyle=\color{red},
-  morecomment=[l]{/},
-  commentstyle=\color{blue},
-}
+%%\usepackage{draftwatermark}
+%%\SetWatermarkText{DRAFT}
+%%\SetWatermarkScale{1}
+%%\lstset{
+%%  basicstyle=\ttfamily,
+%%  showstringspaces=false,
+%%  stringstyle=\color{red},
+%%  morecomment=[l]{/},
+%%  commentstyle=\color{blue},
+%%}
 
 %% The lineno packages adds line numbers. Start line numbering with
 %% \begin{linenumbers}, end it with \end{linenumbers}. Or switch it on
@@ -254,7 +254,7 @@ The most critical aspect of the validation requirements for reference files
 concerned the keyword values used to match datasets to the appropriate
 references.  Unlike dataset parameter keywords that describe a specific
 instrument configuration for one observation, reference file keywords
-circumscribe range of parameter values for which the reference file applies.
+circumscribe a range of parameter values for which the reference file applies.
 In CDBS, ranges of parameter values were often represented by special values
 that expand into the discrete values used to define specific instrument
 configurations.  As part of submitting reference files, these special values
@@ -297,13 +297,8 @@ problem when processing real data, thus resulting in having to deal with correct
 mis-processed data (or in some cases, the failure to even process). Problems in the
 operational pipeline are significant disruptions requiring significant work
 to correct. In the last few years a test
-version of the database was created so that tests could be performed, but that
-introduces synchronization and management issues to make sure what is being
-tested corresponds to the previous operational version. Furthermore, if
-multiple deliveries are in progress from different instruments, it introduces a
-coordination issue to make sure they are either all completed together or in
-sequence, which can prove constraining to the needs of each instrument as far
-as testing goes.
+version of the database was created so that tests could be performed without
+affecting operations, yet it still didn't satisfy all testing needs.
 
 \item \textbf{Difficulty in undoing mistakes.}
 A delivery of a file with mistaken
@@ -322,7 +317,7 @@ the mistaken submission.
 
 There are other cases where one mistaken submission may require a series of
 resubmissions of already submitted files to correct for the effect of the wrong
-submission. One such example is if one mistakenly supplies a``wildcard'' for a
+submission. One such example is if one mistakenly supplies a ``wildcard'' for a
 parameter that should only apply to one case. In this event, all the other
 reference files intended for each of the other possible parameter values must
 be resubmitted. This makes the potential effects of mistakes serious and thus
@@ -425,9 +420,9 @@ go with that.
 references and rules files.  Having the capability to detect typos, duplicate 
 lines, and grammatical errors in rules files. 
 Having the capability to analyze basic properties
-such duplicate or deleted rows,  by pseudo-mode, for supported tables files.
-\item Providing utilities for making CRDS useful in: operations; for instrument
-scientists that must generate and monitor reference files; and end users.
+such as duplicate or deleted rows,  by pseudo-mode, for supported tables files.
+\item Providing utilities for making CRDS useful for operations, instrument
+scientists that must generate and monitor reference files, and end users.
 \end{enumerate}
 
 Each of these will be described in a separate section. Since most of the design
@@ -442,7 +437,7 @@ The system is centered around rules files that describe (for one version)
 how reference files should be selected for a single type of
 reference file. In a general sense, the file consists of a header of sorts that
 describes information about what kind of reference file that it is applied to,
-what the relevant information from the dataset is needed to make that
+what relevant information from the dataset is needed to make that
 selection, and other bookkeeping information. Following that header are the
 rules. Generally these are nested sets of criteria that are used to
 successively narrow down the selection until a single result is determined. It
@@ -648,13 +643,12 @@ distinctions are being made, a number of mechanisms have been provided
 to make rules much more concise.
 
 \begin{description}
-\item[lists of allowable alternatives:] Allowable values for parameteters
+\item[Lists of Allowable Alternatives:] Allowable values for parameteters
 may be supplied as an \textquotesingle OR\textquotesingle
 {\tt }list using {\tt |} as a separator. For example:
-\texttt {({\ttfamily"}filter1{\ttfamily"}
-| {\ttfamily"}filter2{\ttfamily"},...)} will allow either value to match the first
+\texttt {({\ttfamily"}filter1|filter2{\ttfamily"},...)} will allow either value to match the first
 parameter.
-\item[Wild Cards:] Using an {\tt \*} in a string applies familiar wildcard 
+\item[Wild Cards:] Using an {\tt *} in a string applies familiar wildcard 
 matching rules to the supplied string. For example 
 \texttt {({\ttfamily"}F*122{\ttfamily"})} will
 match any value starting with {\tt F} and ending with {\tt 122}
@@ -680,20 +674,17 @@ the difference of how weighting is used (discussed below).
 is a match if the value does not match {\tt HRC}.
 \item[Substitutions:] Substitutions can be defined in the header. Essentially
 they result in the replacement of a string in a rules file with a different
-string. This is useful in the case the string is complex and must be entered
-in many different rules (e.g., it is a combination of many different 
-allowable values), or it is more mnemonic to those that must maintain
+string. This is useful in the case where the string is complex and must be 
+entered in many different rules (e.g., it is a combination of many different 
+allowable values), or where it is more mnemonic to those that must maintain
 the rules than the actual header values are.
 \end{description}
 
 With all these match options it is possible to write multiple items that 
 match a given case. In order to allow effective defaults for general cases
-while allowing specific cases to override the general case, special rule
+while allowing specific cases to override the general case, special rules
 for disambiguation in these situations have been developed. The basic idea
-is that more specific matches take precedence over more general matches.
-For example, if one item lists as its matching value a wildcard, and another
-gives a specific value for the same parameter, the specific match takes
-precedence. The precedence is handled by determining the specificity of the
+is that. The precedence is handled by determining the specificity of the
 match. Use of specific values, wildcards, or regular expressions increase
 the specificity index, while use of N/A does not. If multiple rules match,
 the one with the highest specificity index is selected
@@ -704,12 +695,12 @@ chosesn. If not, an error results.
 
 \subsubsection{UseAfter}
 This expects an ordered sequence of date/time values as part of the rules.
-This selector finds the greates date/time value that is less than or equal
+This selector finds the greatest date/time value that is less than or equal
 to the supplied date/time.
 
 \subsubsection{SelectVersion}
 This is essentially a special case of relational matches that understands
-the semantics of software versions (e.g., that 1.2 $>$ 1.1.10).
+the semantics of software versions (e.g., that 1.2 $>$ 1.1.10). 
 
 \subsubsection{ClosestTime}
 This selector selects the item with the closest time.
@@ -725,12 +716,12 @@ and the one that is next least in value (as illustrated in
 Figure~\ref{fig:example3}).
 
 Full documentation of the syntax and semantics of all the rmap and
-context files is available on the web 
+context files is available on the web.
 \footnote{\url{https://jwst-crds.stsci.edu/static/users\_guide/rmap\_syntax.html\#selectors}}
 
 \subsection{Hierarchical Organization}
 
-The system is based on these files (which we refer to rmap files since they
+The system is based on these files (which we refer to as rmap files since they
 indicate the mapping to reference files) but also involves a hierarchy of
 related files that are called context files, which provide a nested 
 organizational structure corresponding to the functions at different levels. Essentially context files are
@@ -821,9 +812,9 @@ selector = {
 
 
 This hierarchy is designed to match that for JWST and as such is currently
-designed around the current levels of hierarchy. It is a possible generalization
-that would allow it to deal with arbitrary levels of heirarchy, perhaps
-different in number depending on the branch taken. Achieving that would
+designed around the current levels of hierarchy. A possible generalization
+of this scheme would allow arbitrary levels of heirarchy, perhaps
+different in number depending on the branch taken. Achieving this would
 take some modification of the bestref client functionality but is possible
 without a large effort. Doing the same for the submission machinery would 
 be significantly more work. 
@@ -880,13 +871,13 @@ system. How does one submit new files and ensure the integrity of the system as
 the content evolves?
 
 One of the important goals for CRDS was to streamline the process of submitting
-new files while ensuring that files are well checked before committed, at least
-for common use cases for new Reference files. A completely manual approach is
+new files while ensuring that files are well checked before committed.
+A completely manual approach is
 outlined here before addressing more automatic schemes. For the time being, the
-details of how files are actually submitted is deferred to the next section
+details of how files are actually submitted is deferred to the next section.
 
 Supposing one or more new references files of a specific type for a specific
-instrument are ready to be tested and used in the operations system/:
+instrument are ready to be tested and used in the operations system:
 
 \begin{enumerate}
 \item Submit each of the reference files (with validation of each file
@@ -896,16 +887,15 @@ unique names for each of the submitted reference files.
 changes to use these (most likely either a replacement of older versions
 or the addition of time-variable ones).
 \item Submit the updated rmap file (again with implied validation for
-correctness)
-and again, generating a new, unique rmap file name that represents the version
+correctness), generating a new, unique rmap file name that represents the version
 of the file in the system that has the desired changes.
 \item Edit the instrument context file to use the new version of the rmap file.
-\item Submit the updated instrument context file (with validation and 
+\item Submit the updated instrument context file (with validation,
 generating a new, unique name).
 \item Edit the pipeline context file to use the new version of the
 instrument context file.
-\item Submit the updated pipeline context file (with validation and 
-generating a new, unique name).
+\item Submit the updated pipeline context file with validation, 
+generating a new, unique name.
 \end{enumerate}
 
 At this point the new reference files can be used in an operational
@@ -993,7 +983,7 @@ shows a screen shot of the home page of the CRDS
 system, which is visible to the public. 
 
 File submission is limited to authenticated users. The home page for
-authentic pages is shown in Figure~\ref{fig:authenticatedhome}.
+authenticated users is shown in Figure~\ref{fig:authenticatedhome}.
 The fully automatic
 standard process is dubbed ``Batch Reference Submission'' 
 in reference to submission of a group of reference 
@@ -1039,7 +1029,7 @@ multiple types,  and automatic certification and rules updates.
 \begin{figure*}[ht!]
 \centering
 \includegraphics[width=180mm]{JWST_Failed_Submission_DM_schema_violation.png}
-\caption{JWST failed submission example}
+\caption{JWST failed submission example\newline\newline}
 \label{fig:failedsubmission}
 \end{figure*}
 
@@ -1047,14 +1037,14 @@ multiple types,  and automatic certification and rules updates.
 
 
 
-The authenticated user begains a batch submission of files on the batch
+The authenticated user begins a batch submission of files on the batch
 submission page (Figure~\ref{fig:batchsubmission}) 
 by identifying the local files designated as the 
 files to replace existing ones (note, the local file names are not the 
 names the files will have when ingested into CRDS). 
 When all the updates have been identified, the submit button is clicked,
 and CRDS will then validate each of the reference
-files. If they all pass validation, the user will be presented the results of
+files. If they all pass validation, the user will be presented
 the results that will be produced (e.g., the new filenames for the reference
 files, rmaps and context files, and other summary information). An example of a
 successful validation is shown in Figure~\ref{fig:goodsubmissionreview}.
@@ -1063,7 +1053,7 @@ the submission after which they will be assigned unique names, added to the
 CRDS database of reference files, sent to the STScI archive for archiving, and
 placed in the disk-based repository of reference files. When the submission
 process completes, the user is presented with a summary page, shown in
-Figure~\ref{fig:confirmedsubmission}
+Figure~\ref{fig:confirmedsubmission}.
 
 
 If the validation does not pass, 
@@ -1076,7 +1066,7 @@ to ensure the syntax is correct.
 
 \subsection{Reference File Validation}
 
-This is handled by using the tools that the JWST pipeline use to validate the
+This is handled by using the tools that the JWST pipeline uses to validate the
 reference files. These are based on data models that use JSON Schema
 (\citealt{JSONSchemaCore, JSONSchemaValidation, JSONHyperSchema, JSONSchemaGuide})
 to define the mandatory aspects of the data expected, including all the
@@ -1084,11 +1074,12 @@ expected data elements (whether arrays or tables), the allowable dimensionality
 and datatype, and required metadata.
 
 The required metadata includes information on who made the reference file, how
-the reference file was made and related information (CRDS will also add
+the reference file was made, and related information. (CRDS will also add
 standard metadata related to the submission aspects, such as when the file was
 submitted.)
 
-There are further checks on file submissions that are intended to warn regarding
+There are further checks on file submissions that are intended to warn the submitter
+regarding
 suspicious changes. These changes may be valid, but likely indicate a mistake. The
 following such situations raise a warning on submission:
 
@@ -1096,7 +1087,7 @@ following such situations raise a warning on submission:
 \item The reversion of a file to a previous version. For example, 
 if a rmap has an
 existing reference file name replaced by one that is earlier in the submission
-sequence that would be unusual, and the submitter is warned about this reversion.
+sequence that would be unusual, the submitter is warned about this reversion.
 Likewise, if instrument or pipeline contexts point to earlier rmaps or instrument
 contexts respectively, that raises a warning.
 
@@ -1128,11 +1119,12 @@ run in a reasonable amount of time since it may have to do this comparison for
 hundreds of thousands of datasets. The inputs to the utility is a text list of
 datasets, and the two pipeline contexts being compared. The results of this
 can be used to determine which datasets must be reprocessed to take advantage
-of any improved reference files.
+of any improved reference files. This functionality is implemented as a server-side
+web service.
 
 \textbf{Active reference files in a context:} List all reference files used in a
 pipeline context. This indicates what files may be needed to process the
-data. (possibly useful for other classes of users)
+data. (This is possibly useful for other classes of users.)
 
 \begin{verbatim}
 % python -m crds.list --contexts 
@@ -1150,9 +1142,8 @@ jwst_fgs_readnoise_0001.fits
 ...
 \end{verbatim}
 
-\textbf{Inverse mapping:} Which rmaps and contexts use a specific reference file (e.g.,
-if one finds that one was defective, identify all the pipeline contexts that
-used that file so that users may be notified).
+\textbf{Inverse mapping:} Identify which rmaps and contexts
+use a specific reference file.
 
 \begin{verbatim}
 % python -m crds.uses jwst_fgs_gain_0000.fits
@@ -1182,7 +1173,7 @@ data and wishes to see what data may need to be re-retrieved since the
 reference files it used are not the currently recommended ones. A variant on
 this is to update the headers of the files with the newly recommended files
 (though for the JWST pipelines, this isn't normally necessary). This typically
-will be run remotely and thus need network access to the CRDS server.
+will be run remotely and thus needs network access to the CRDS server.
 
 \section{Technical implementation details}
 
@@ -1293,11 +1284,13 @@ a whole file. This kind of usage resulted
 in a dual-layer lookup system. CDBS would select a table (though sometimes
 there was only one reference file for all cases), and then the calibration
 pipeline would select a specific row in the table that matched an additional
-set of selection parameters. This could be greately simplified if the 
+set of selection parameters. This could be greatly simplified if the 
 rmap itself bypassed reference files entirely and effectively embedded
 the parameters as what is returned. In this manner it would relieve 
 the calibration pipeline of the need for embedding its own matching 
-system in its code.
+system in its code. Given that the state of the rules is well defined
+by pipeline contexts, replicability of the returned values is ensured 
+when using the same pipeline context.
 
 \section{Enabling Pipeline Flexibility}
 
@@ -1314,7 +1307,10 @@ remotely. Furthermore, the JWST calibration pipelines have been designed to
 make the request directly to CRDS to determine which reference files to use and
 download the file if it is not available locally. This means anyone can run the
 pipeline remotely and be assured that the right reference files will be used,
-and retrieved if necessary.
+and retrieved if necessary. Note that only files needed for the calibration
+of a particular dataset are retrieved. There is no need to download the whole
+set of reference files except in the extreme case that one is reprocessing all
+of the data in the archive.
 
 In fact, the bestref functionality has been designed to work entirely locally
 if all the necessary context and rmap files are available locally. And the
@@ -1354,7 +1350,7 @@ in the HST archive. The generation of the rmaps was automated since the target
 was constantly changing for HST because of continual reference file
 updates. The cycle of generating rmaps and making the reference file comparison
 for all datasets was repeated many times until CRDS went operational. This was
-further complicate by the fact that the database that contained the CDBS best
+further complicated by the fact that the database that contained the CDBS best
 references was not reliable. The differences that arose had to be further
 tested with the operations bestref facility (which requires using actual
 datasets thus is much slower).
@@ -1370,8 +1366,8 @@ as the primary system. CDBS has since been disabled.
 
 It is important to realize that this system has a wider range of application
 than just for selecting appropriate reference files. It can act as a selector
-many uses so long as the number of selections is not enormous, and the set of
-selection parameter is reasonably consistent and bounded for all data
+for many uses as long as the number of selections is not enormous, and the set of
+selection parameters is reasonably consistent and bounded for all data
 sets. Other such uses are already envisioned for JWST. For example, it will be used
 to determine which calibration pipeline to run for the dataset supplied. 
 So rather than supplying a reference file to use, it will supply the pipeline 
