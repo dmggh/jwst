@@ -267,8 +267,7 @@ contrast, the same APERTURE keyword specified in a reference file would
 describe, indirectly, the combined set of different specific APERTUREs that
 reference file was intended to be used for.  When multiple parameters were used
 to match datasets to references, the number of distinct rows in the CDBS
-database was equal to the product of the number of specific values supported by
-a particular reference file for each parameter.
+database was equal to the number of all possible combinations of parameters.
 
 Furthermore, there were occasions for which standard SQL queries were
 insufficient for achieving the desired selection results. In such cases,
@@ -411,11 +410,11 @@ users wish to.
 \section{High-Level Organization of CRDS}
 
 The software for the Calibration Reference Data System (CRDS) 
-can be considered to be in one of three categories:
+can be considered to be in one of four categories:
 
 \begin{enumerate}
 \item Supporting the bestref functionality.
-\item Supporting the submittion of new reference files and all the issues that
+\item Supporting the submission of new reference files and all the issues that
 go with that.
 \item Supporting format, semantic, and parameter constraint checking for both
 references and rules files.  Having the capability to detect typos, duplicate 
@@ -510,8 +509,8 @@ This is the rules file for selecting the JWST MIRI instrument dark files, based 
 the specific detector, read pattern, and subarray configuration, along with the 
 observation date.
 
-The header permits attributes that allow specialized handling of the metadata 
-the dataset, including indicating when parameters are relevant or not (e.g., only 
+The header allows inclusion of attributes that enable specialized handling of the metadata 
+of the dataset, including indicating when parameters are relevant or not (e.g., only 
 care about its value if the value of another parameter is given as specified), 
 how to handle cases where no match is found, and hooks to allow special preprocessing
 of parameter values. See the documentation for details on these cases.
@@ -564,7 +563,7 @@ selector = Match({
 \label{fig:example1}
 \end{figure*}
 
-Figure~\ref{fig:example2} shows the use of the software selection mechanism (for brevity, the header is omitted in this and subsequent examples). In this case if the software version is less than 3.1 (using the typical version semantics) then the first file will be chosen, if less than 5 the second will be chosen, otherwise the last file will be used.
+Figure~\ref{fig:example2} shows the use of the software selection mechanism where a dependency is indicated for the version of the calibration pipeline (for brevity, the header is omitted in this and subsequent examples). In this case if the version of the calibration pipeline is less than 3.1 (using the typical version semantics) then the first file will be chosen, if less than 5 the second will be chosen, otherwise the last file will be used.
 
 \newpage
 
@@ -669,7 +668,7 @@ allowing for more complex matching rules than simple wildcards permit.
 \item[Literal Expressions:] A literal expression is bracketed with curly
 braces {\tt \{ \}} and allows inclusion of special characters without 
 special interpretation by CRDS, such as {\tt | and \*}.
-\item[Relational Expressions:] Relational expressions are braketed by {\tt \#}.
+\item[Relational Expressions:] Relational expressions are bracketed by {\tt \#}.
 These do numerical comparisons on the supplied parameter value to determine
 a match. Supported comparison operators are: 
 \texttt {\textgreater, \textgreater =, \textless, \textless =, == and or}. 
@@ -696,7 +695,7 @@ With all these match options it is possible to write multiple items that
 match a given case. In order to allow effective defaults for general cases
 while allowing specific cases to override the general case, special rules
 for disambiguation in these situations have been developed. The basic idea
-is that. The precedence is handled by determining the specificity of the
+is that the precedence is handled by determining the specificity of the
 match. Use of specific values, wildcards, or regular expressions increase
 the specificity index, while use of N/A does not. If multiple rules match,
 the one with the highest specificity index is selected
@@ -829,7 +828,7 @@ selector = {
 
 This hierarchy is designed to match that for JWST and as such is currently
 designed around the current levels of hierarchy. A possible generalization
-of this scheme would allow arbitrary levels of heirarchy, perhaps
+of this scheme would allow arbitrary levels of hierarchy, perhaps
 different in number depending on the branch taken. Achieving this would
 take some modification of the bestref client functionality but is possible
 without a large effort. Doing the same for the submission machinery would 

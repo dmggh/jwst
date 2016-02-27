@@ -55,6 +55,22 @@ made.
 page 6, last paragraph
 Again the suggested text is much better and has been used.
 
+Section 3 comments
+------------------
+
+Figures 1-6 have been boxed as requested (we do agree that this
+is a signficant improvement)
+
+Figures 7-12 xxxx
+
+Section 4 comments
+------------------
+
+These have all been fixed (we hope :-) We thank the reviewer for
+taking the time to detail these. After viewing the same or similar
+text repeatedly it is quite hard to look as closely as one would
+wish, so this is quite helpful.
+
 ****** To do
 
 1) box text file figures
@@ -65,3 +81,37 @@ Again the suggested text is much better and has been used.
 ===================================================
 
 Reviewer 2
+
+Section 2
+We have reworded to be more explicit that all possible combinations of parameters
+must be represented as distinct rows.
+
+Section 3 point 2: "Could an 'is valid' boolean attribute in the database
+help out?"
+Not really. The file itself may be perfectly good, it is just associated with
+the wrong value of parameters. Possbily if coupled with a resubmission with the
+right values, but note that may mean many entries have to be so marked, and 
+replicated. But as implemented, it didn't have that option.
+
+Section 5: first sentence.
+Fixed.
+Section 5 submission typo
+Fixed
+Section 5 point 3
+todo****xxxx
+
+Section 6.3 paragraph 2
+reworded
+Section 6.3 par 4
+Made it clear that it is the version of the calibration pipeline that is 
+being referred to.
+Section 6.4.1 Relational Expressions typo
+Fixed
+Section 6.4.1 next to last par
+Joined two sentences properly.
+Section 6.5 par 3
+Fixed
+Section 7 par 2 punctuation
+Fixed
+Section 7.2 par 2 begains 
+Fixed
