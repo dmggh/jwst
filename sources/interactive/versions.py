@@ -12,23 +12,23 @@ MODULE_LIST = (
     'matplotlib',
     'numpy',
     # 'scipy',
-    
+
     'crds',
     'crds.server',
-    
+
     'pyodbc',
     'jsonrpc',
-    
+
     'astropy',
     'jwst_lib.models',
-    'pyasdf',
-    
+    'asdf',
+
     'parsley',
     'yaml'
     )
 
 def get_all_versions( mods = MODULE_LIST ):
-    """Return a dictionary of version dictionaries for all modules named 
+    """Return a dictionary of version dictionaries for all modules named
     in sequence `mods`.
     """
     # ... all the relevant python modules
@@ -57,7 +57,7 @@ def get_version(modname):
         mod = dynamic_import(modname)
     except ImportError:
         return { key:"missing" for key in ["str", "rev", "svnurl", "file"]}
-    
+
     # try all the "standard" ways for it to say a version number
     try:
         ans = mod.__version__

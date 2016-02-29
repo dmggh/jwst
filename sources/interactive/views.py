@@ -56,16 +56,16 @@ HERE = os.path.dirname(__file__) or "./"
 def check_value(value, pattern, msg):
     """Ensure that `value` satisifies the conditions implied by `pattern`,
     otherwise raise a FieldError containing `msg`.
-    
+
     If pattern is a function,  call it and trap for assertions, adjust value.
     If pattern is a list,  `value` must be in it.
     If pattern is a string, it is a regex which `value` must match.
-    
+
     Return `value` if it checks out OK.
     """
     value = str(value)
     if isinstance(pattern, type(check_value)):
-        try: 
+        try:
             return pattern(value)
         except AssertionError, exc:
             raise FieldError(format_html(msg + " : " + str(exc)))
@@ -210,7 +210,7 @@ def is_list_of_rmaps(text):
     return rmaps
 
 def is_match_tuple(tuple_str):
-    """Raise an AssertionError if `tuple_str` is does not literal eval to a 
+    """Raise an AssertionError if `tuple_str` is does not literal eval to a
     tuple.  Otherwise return the tuple.
     """
     try:
@@ -261,13 +261,13 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
 
     statuses = ["*"] + models.FILE_STATUS_MAP.keys()
     statuses.remove("uploaded")
-    
+
     locked = get_locked_instrument(request)
     locked = locked if locked else ""
-    
+
     rdict = {   # standard template variables
         "observatory" : models.OBSERVATORY,
-             
+
         "instrument" : "*",
         "instruments" : ["*"] + models.INSTRUMENTS,
 
@@ -286,7 +286,7 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
         "filename" : "*",
         "deliverer_user" : "*",
         "current_path" : request.get_full_path(),
-        
+
         "locked_instrument" : locked,
 
         "username" : str(request.user),
@@ -294,7 +294,7 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
         "auto_rename" : models.OBSERVATORY == "jwst",
         "server_usecase" :  sconfig.server_usecase.lower(),
     }
-    
+
     # echo escaped inputs.
     for key, value in request.GET.items():
         rdict[key] = safestring.mark_for_escaping(value)
@@ -310,7 +310,7 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
     if dict_ is not None:
         for key, value in dict_.items():
             rdict[key] = value
-            
+
     # Set up variables required to support django-json-rpc Javacsript
     jsonrpc_vars = jsonapi_views.get_jsonrpc_template_vars()
     for var in jsonrpc_vars:
@@ -318,12 +318,12 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
             raise CrdsError("Template variable collision on " + srepr(var))
         else:
             rdict[var] = jsonrpc_vars[var]
-            
+
     # This is only for the purpose of showing/hiding logout, super user options.
     # Still,  do it last making it harder to trick.
     rdict["is_authenticated"] = request.user.is_authenticated()
     rdict["is_superuser"] = request.user.is_superuser
-    
+
     return rdict
 
 def get_pmap_template_vars(dict_):
@@ -353,14 +353,14 @@ def get_pmap_template_vars(dict_):
         "pmaps" : recent_pmaps,
         "pmap_labels_json" : pmap_labels_json,
         }
-            
+
 def squash_file_paths(response, uploaded_pairs):
     """Fix filepath leakage here as a brevity and security issue.   Uploaded file
     temporary names or paths are replaced with the client-side original name.  CRDS
     file tree paths of various kinds are replaced with the empty string.
-    
+
     response:   the original un-scrubbed fully instantiated HTML response string.
-    
+
     uploaded_pairs:  [(client_side_filename, temporary_upload_path), ...]
     """
     for (original_name, path) in uploaded_pairs:
@@ -392,7 +392,7 @@ def get_uploaded_filepaths(request):
 def handle_known_or_uploaded_file(request, modevar, knownvar, uploadvar):
     """Process file variables for a file which is either known to CRDS
     and simply named,  or which is uploaded by the user.
-    
+
     Return (uploaded_flag, name_on_users_system,  temporary_file_path)
     """
     must_delete = False
@@ -422,7 +422,7 @@ def handle_upload_delete(must_delete, orig, path):
 
 def get_uploaded_file(request, formvar):
     """Return the DJango UploadedFile associated with `request` and `formvar`,
-    screening the original filename for legality.  Handles 
+    screening the original filename for legality.  Handles
     <input type='file'>, part 1.
     """
     assert request.user.is_authenticated(), \
@@ -435,7 +435,7 @@ def get_uploaded_file(request, formvar):
     return ufile
 
 def get_files(request):
-    """Obtain uploaded files from a common multi-mode form mechanism,  
+    """Obtain uploaded files from a common multi-mode form mechanism,
     returning:   remove_dir,   { original_name : file_path }
     """
     path = os.path.join(sconfig.CRDS_INGEST_DIR, str(request.user))
@@ -483,10 +483,10 @@ def get_recent_or_user_context(request):
 
 class ServerError(Exception):
     """Uncaught exception which will be returned as HTTP 500"""
-    
+
 def error_trap(template):
-    """error_trap() is a 'decorator maker' which returns a decorator which 
-    traps exceptions in views and re-issues the input `template` with an 
+    """error_trap() is a 'decorator maker' which returns a decorator which
+    traps exceptions in views and re-issues the input `template` with an
     appropriate error message so the user can try again.
     """
     def decorator(func):
@@ -508,11 +508,11 @@ def error_trap(template):
 
 def log_view(func):
     """log() captures view inputs, output, and response to a log file.
-    It should be called inside any error_trap() decorator so that it 
+    It should be called inside any error_trap() decorator so that it
     executes before error_trap() absorbs many exceptions.
     """
     def dolog(request, *args, **keys):
-        """trap() is bound to the func parameter of decorator()."""        
+        """trap() is bound to the func parameter of decorator()."""
         log.info() # start with blank line to make concat logs readable
         log.info("REQUEST:", request.path, request.method, "ajax="+str(request.is_ajax()))
         # log.info("META:", log.PP(request.META))
@@ -526,13 +526,13 @@ def log_view(func):
         if request.FILES:
             log.info("FILES:", repr(request.FILES))
         # log.info("OUTPUT:")
-        try:    
+        try:
             response = func(request, *args, **keys)
 #            log.info("RESPONSE:\n" + response.content, stdout=None)
             return response
         except locks.LockingError, exc:  # Skip the traceback for these,  remove manually for debug to log tracebacks
             log.error("Locking error: " + str(exc))
-            raise  
+            raise
         except Exception, exc:
             log.info("EXCEPTION REPR:", repr(exc))
             log.info("EXCEPTION STR:", str(exc))
@@ -551,21 +551,21 @@ def log_view(func):
 # ===========================================================================
 # ===========================================================================
 # Authentication and locking strategy:
-# 
+#
 # 1. File submission views require an authenticated user
-# 
+#
 # 2. As part of login,  an instrument is reserved to that user,  and only they can submit for it.
 # This part is triggered by the user_logged_in signal which allocates database based locks for that
 # instrument and user.
-# 
+#
 # 3. Database-based locks are refreshed whenever the session is refreshed.
 # This is achieved by providing lock refreshing middleware.  Any interactive use of the site causes refresh.
-# 
+#
 # 4. Both Sessions and locks expire 36 hours after the last access by the logged in user.
-# 
+#
 # 5. Logging out releases locks owned by a user.
-# 
-# 
+#
+#
 # There are two ways for a session to expire:
 # a. The session clock runs out and it expires.
 # b. The user logs out.
@@ -596,14 +596,14 @@ def group_required(*group_names):
 # Hooks for coordinating locks on instruments with logins,  ensuring they're
 # obtained on login,  maintained across views, and eventually released on logout.
 # Implemented as Django login/logout signal handlers and a view decorator.
-# 
+#
 # This is a kind of pessimistic locking,  where a user reserves a particular instrument
 # for as long as they're logged in,  but guaranteeing that when it comes time to submit
 # and confirm they've either still got a lock or they'll get notified they were booted.
-# This is in contrast to the optimistic approach of getting all set to commit without 
-# locking and then finding out someone else has locked the instrument and is waiting 
+# This is in contrast to the optimistic approach of getting all set to commit without
+# locking and then finding out someone else has locked the instrument and is waiting
 # to confirm for some reason...  or even has submitted their own copies of the same files.
-# 
+#
 # These signal handlers are called after a user is logged in or out to manage instrument locks.
 #
 # See also middleware.py which resets lock expiry for most interactive views
@@ -614,21 +614,21 @@ def lock_login_receiver(sender, **keys):
     """Signal handler to acquire locks for a user when they login."""
     request = keys["request"]
     user = str(keys["user"])
-    
+
     if "instrument" in request.POST:
         instrument = validate(request, "instrument", models.INSTRUMENTS + ["none"])
         if instrument != "none":
-            # log.info("Login receiver releasing all instrument locks for user '%s' session '%s'." % 
+            # log.info("Login receiver releasing all instrument locks for user '%s' session '%s'." %
             #  (user, request.session.session_key))
             with log.info_on_exception("login releasing locks failed"):
                 locks.release_locks(user=user)
-            
+
             del_locked_instrument(request)
 
-            # log.info("Login receiver acquiring '%s' instrument lock for user '%s' session '%s'." % 
+            # log.info("Login receiver acquiring '%s' instrument lock for user '%s' session '%s'." %
             # (instrument, user, request.session.session_key))
             try:
-                locks.acquire(user=user, type="instrument", name=instrument, 
+                locks.acquire(user=user, type="instrument", name=instrument,
                               timeout=settings.CRDS_LOCK_ACQUIRE_TIMEOUT,
                               max_age=settings.CRDS_MAX_LOCK_AGE)
                 set_locked_instrument(request, instrument)
@@ -648,7 +648,7 @@ def lock_logout_receiver(sender, **keys):
     with log.info_on_exception("logout releasing locks failed"):
         request = keys["request"]
         user = str(keys["user"])
-        locks.release_locks(user=user)   
+        locks.release_locks(user=user)
     del_locked_instrument(request)
 
 user_logged_out.connect(lock_logout_receiver, dispatch_uid="lock_logout_receiver")
@@ -659,7 +659,7 @@ def lock_status(request):
     status = locks.get_lock_status(type="instrument",
                                    user=str(request.user))
     return HttpResponse(json.dumps(status), content_type='application/json')
-        
+
 
 def instrument_lock_required(func):
     """Decorator to ensure a user still owns an un-expired lock defined by their session data."""
@@ -690,7 +690,7 @@ def set_locked_instrument(request, instrument):
         assert instrument in models.INSTRUMENTS, \
             "Failed setting locked instrument in session store to invalid value: " + srepr(instrument)
     request.session["locked_instrument"] = instrument
-    
+
 def del_locked_instrument(request):
     """Remove any trace of a locked instrument."""
     if hasattr(request, "session") and "locked_instrument" in request.session:
@@ -796,7 +796,7 @@ def set_password(request):
         return crds_render(request, "set_password_results.html")
     else:
         return crds_render(request, "set_password.html")
-    
+
 # ===========================================================================
 
 # The following code is derived from django-jquery-file-upload
@@ -829,7 +829,7 @@ def upload_new(request, template="upload_new_input.html"):
         file_local_dir = str(request.user)
         config.check_filename(file_.name)
         assert re.match("[A-Za-z0-9_]+", file_local_dir), "Invalid file_local_dir " + srepr(file_local_dir)
-        ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir, file_.name) 
+        ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir, file_.name)
         with log.verbose_on_exception("Failed removing", repr(ingest_path)):
             pysh.sh("rm -f ${ingest_path}")   #  secure, constructed path
             log.info("Removed existing", repr(ingest_path))
@@ -843,9 +843,9 @@ def upload_new(request, template="upload_new_input.html"):
 
 def json_file_details(filename, filepath):
     """Return a dictionary of details about `filename` at `filepath` for django-file-upload."""
-    return {'name': filename, 
-            # 'url': settings.MEDIA_URL + "pictures/" + f.name.replace(" ", "_"), 
-            # 'thumbnail_url': settings.MEDIA_URL + "pictures/" + f.name.replace(" ", "_"), 
+    return {'name': filename,
+            # 'url': settings.MEDIA_URL + "pictures/" + f.name.replace(" ", "_"),
+            # 'thumbnail_url': settings.MEDIA_URL + "pictures/" + f.name.replace(" ", "_"),
             'size' : os.stat(filepath).st_size,
             'delete_url': reverse('upload-delete', args=[filename]),
             'delete_type': "DELETE"}
@@ -891,7 +891,7 @@ def _upload_delete(request, filename):
         ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir, filename)
         log.info("upload_delete", srepr(ingest_path))
         pysh.sh("rm -f ${ingest_path}")   # secure,  constructed path
-   
+
 def clear_uploads(request, uploads):
     """Remove the basenames listed in `uploads` from the upload directory."""
     for filename in uploads:
@@ -901,7 +901,7 @@ def clear_uploads(request, uploads):
 
 def get_recent_pmaps(last_n=10, pmap_edit=None):
     """Return a list of option tuples for rendering HTML to choose recent
-    pmaps (last 10). This defines what users will see for the context HTML 
+    pmaps (last 10). This defines what users will see for the context HTML
     drop-down menu.
     """
     files = models.FileBlob.objects.filter(name__endswith=".pmap")
@@ -912,7 +912,7 @@ def get_recent_pmaps(last_n=10, pmap_edit=None):
             continue
         pmaps.append((file_.name, pmap_label(file_, pmap_edit)))
     return list(reversed(pmaps))[:last_n]
-    
+
 def pmap_label(blob, pmap_edit=None):
     """Return the text displayed to users selecting known pmaps."""
     if isinstance(blob, basestring):
@@ -929,7 +929,7 @@ def pmap_label(blob, pmap_edit=None):
     except Exception:
         reversion= "*reversion* check failed"
 
-    available = "" if blob.available else "*unavailable*" 
+    available = "" if blob.available else "*unavailable*"
     bad = "*bad*" if blob.is_bad_file else ""
     #     blacklisted = "*blacklisted*" if blob.blacklisted else ""
     #     rejected = "*rejected*" if blob.rejected else ""
@@ -943,7 +943,7 @@ def pmap_label(blob, pmap_edit=None):
 def bestrefs(request):
     """View to get the instrument context for best references."""
     if request.method == "GET":
-        return crds_render(request, "bestrefs_dataset_input.html", 
+        return crds_render(request, "bestrefs_dataset_input.html",
                 {
                  "pmap_initial_mode" : "operational",
                 }, requires_pmaps=True)
@@ -975,7 +975,7 @@ def bestrefs_post(request):
             if isinstance(header, basestring):
                 raise CrdsError(header)
     except Exception as exc:
-        raise CrdsError("Problem getting header for dataset " + 
+        raise CrdsError("Problem getting header for dataset " +
                         srepr(dataset_name) + ": " + str(exc))
 
     # base on the context and datset,  compute best references
@@ -1011,7 +1011,7 @@ def bestrefs_results(request, pmap, header, dataset_name=""):
     # with log.error_on_exception("Failed fetching old bestrefs"):
     #    header = { key.upper() : val.lower() for (key,val) in header.items() }
     #    old_recommendations = pmap.get_old_references(header)
-    # organize and format results for HTML display    
+    # organize and format results for HTML display
     header_min = pmap.minimize_header(header)
     header_min.pop("REFTYPE", None)
     header_items = sorted(header_min.items())
@@ -1043,11 +1043,11 @@ def get_bestrefs_items(recommendations):
         bestrefs_items.append((key.upper(), val.lower()))
     return bestrefs_items
 
-# XXXX non-reentrant,  not safe for threaded servers,  process model only.  
+# XXXX non-reentrant,  not safe for threaded servers,  process model only.
 # 99%,  it will work anyway.  Failing would depend on concurrent web bestrefs.
 @common.capture_output
 def captured_bestrefs(pmap, header):
-    """Run bestrefs in verbose mode capturing debug output.   
+    """Run bestrefs in verbose mode capturing debug output.
     Return (bestrefs_dict,  captured_debug_output)
     """
     old = log.set_verbose(60)  # problem here.
@@ -1070,7 +1070,7 @@ def bestrefs_explore(request):
                 }, requires_pmaps=True)
     else:
         return bestrefs_explore_post(request)
-    
+
 def bestrefs_explore_post(request):
     """View to get best reference dataset parameters."""
     context = get_recent_or_user_context(request)
@@ -1143,12 +1143,12 @@ def certify_post(request):
     compare_old_reference = checkbox(request, "compare_old_reference")
     comparison_context = context if compare_old_reference else None
     _remove_dir, uploaded_files = get_files(request)
-    
+
     all_files = models.get_fileblob_map()
 
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
-    disposition, certify_results = web_certify.certify_file_list(uploaded_files.items(), context=comparison_context, 
+    disposition, certify_results = web_certify.certify_file_list(uploaded_files.items(), context=comparison_context,
         compare_old_reference=compare_old_reference, push_status=jpoll_handler.write)
 
     if disposition != "bad files":
@@ -1160,7 +1160,7 @@ def certify_post(request):
              "certify_results":certify_results,
              "blacklist_results":blacklist_results,
              },  jpoll_handler=jpoll_handler)
-    
+
 # ===========================================================================
 
 @error_trap("batch_submit_reference_input.html")
@@ -1178,7 +1178,7 @@ def batch_submit_references(request):
                           }, requires_pmaps=True)
     else:
         return batch_submit_references_post(request)
-    
+
 def batch_submit_references_post(request):
     """View fragment to process file batch reference submission POSTs."""
     # For the initial submission, pmap_name is predictive,  not definitive
@@ -1193,20 +1193,20 @@ def batch_submit_references_post(request):
     compare_old_reference = checkbox(request, "compare_old_reference")
     _remove_dir, uploaded_files = get_files(request)
     locked_instrument = get_locked_instrument(request)
-    
+
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
-    
-    bsr = submit.BatchReferenceSubmission(pmap_name, uploaded_files, description, 
-        user=request.user, creator=creator, change_level=change_level, 
+
+    bsr = submit.BatchReferenceSubmission(pmap_name, uploaded_files, description,
+        user=request.user, creator=creator, change_level=change_level,
         auto_rename=auto_rename, compare_old_reference=compare_old_reference,
         locked_instrument=locked_instrument, status_channel = jpoll_handler)
-    
+
     disposition, new_references_map, new_mappings_map, reference_certs, mapping_certs, \
         mapping_diffs, collision_list = bsr.submit()
-    
+
     # Map from old filenames to new filenames,  regardless of origin / purpose
     new_file_map = new_mappings_map.items() + new_references_map.items()
-    
+
     bsr_results = {
                 "pmap" : pmap_name,
                 "pmap_mode" : pmap_mode,
@@ -1216,21 +1216,21 @@ def batch_submit_references_post(request):
                 "submission_kind" : "batch submit",
                 "title" : "Batch Reference Submit",
                 "description" : description,
-                "context_rmaps" : sorted(new_mappings_map.values()), 
-                
+                "context_rmaps" : sorted(new_mappings_map.values()),
+
                 "certify_results" : reference_certs + mapping_certs,
                 "collision_list" : collision_list,
-                
+
                 "diff_results" : mapping_diffs,
-                
+
                 "should_still_be_locked" : locked_instrument,
                 "requires_locking" : True,
                 "lock_datestr" : locks.get_lock_datestr(locked_instrument, type="instrument", user=str(request.user)),
 
                 "more_submits" : "/batch_submit_references/",
-                "disposition": disposition,                
+                "disposition": disposition,
             }
-    
+
     return render_repeatable_result(request, "batch_submit_reference_results.html", bsr_results,
                                     jpoll_handler=jpoll_handler)
 
@@ -1251,22 +1251,22 @@ def submit_confirm(request):
     locked_instrument = get_locked_instrument(request)
 
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
-    
+
     try:
         rmodel = models.RepeatableResultBlob.load(results_id)
         result = rmodel.parameters
     except Exception, exc:
         raise CrdsError("Error fetching result: " + results_id + " : " + str(exc))
-    
+
     if result.get("disposition", None):
         raise CrdsError("This submission was already confirmed or cancelled.")
 
     usr = str(request.user)
     assert usr == result.user, "User mismatch: file Submitter='%s' and Confirmer='%s' don't match." % (usr, result.user)
-    
+
     new_file_map = dict(result.new_file_map)
     new_files = new_file_map.values()
-    
+
     if button == "confirm":   # assume confirmed unless lock fails
         disposition = "confirmed"
         if result.get("requires_locking", True) and locked_instrument:  # only verify locks if contexts are being generated.
@@ -1285,8 +1285,8 @@ def submit_confirm(request):
 
     confirmed = (disposition == "confirmed")
     if confirmed:
-        final_pmap, context_map, collision_list = submit.submit_confirm_core( 
-                confirmed, result.submission_kind, result.description, 
+        final_pmap, context_map, collision_list = submit.submit_confirm_core(
+                confirmed, result.submission_kind, result.description,
                 new_files, result.context_rmaps, result.user,  result.pmap, result.pmap_mode, locked_instrument)
 
         rmodel.set_par("original_pmap", result.pmap)
@@ -1298,11 +1298,11 @@ def submit_confirm(request):
         uploaded_files = [(old, new) for (old, new) in new_file_map if (old, new) not in generated_files]
         added_files = getattr(result, "added_files", [])
         deleted_files = getattr(result, "deleted_files", [])
-        
+
         # rmaps specified for context generation but not uploaded or generated
-        context_rmaps = [filename for filename in result.context_rmaps 
+        context_rmaps = [filename for filename in result.context_rmaps
                          if filename not in dict(generated_files).values() + result.uploaded_basenames]
-        
+
         confirm_results = dict(
             pmap_mode = result.pmap_mode,
             pmap = result.pmap,
@@ -1315,9 +1315,9 @@ def submit_confirm(request):
             new_file_map=new_file_map,
             more_submits=result.more_submits,
             collision_list=collision_list)
-        
+
         clear_uploads(request, result.uploaded_basenames)
-        
+
         models.clear_cache()
 
     else:
@@ -1326,13 +1326,13 @@ def submit_confirm(request):
                 blob = models.FileBlob.load(new)
                 blob.destroy()
         confirm_results = dict()
-    
+
     models.RepeatableResultBlob.set_parameter(results_id, "disposition" , disposition)
     confirm_results["disposition"] = disposition
     confirm_results["confirmed"] = confirmed
 
     return render_repeatable_result(request, "confirmed.html", confirm_results, jpoll_handler=jpoll_handler)
-    
+
 # ===========================================================================
 
 @error_trap("delete_references_input.html")
@@ -1345,7 +1345,7 @@ def delete_references(request):
         }, requires_pmaps=True)
     else:
         return delete_references_post(request)
-    
+
 def delete_references_post(request):
     """View fragment to process file delete references POSTs."""
 
@@ -1355,18 +1355,18 @@ def delete_references_post(request):
     deleted_files = validate(request, "deleted_files", is_known_file_list)
     uploaded_files = { fname:rmap.locate_file(fname, models.OBSERVATORY) for fname in deleted_files }
 
-    locked_instrument = get_locked_instrument(request)    
+    locked_instrument = get_locked_instrument(request)
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
     pmap = rmap.get_cached_mapping(pmap_name)
     pmap_references = pmap.reference_names()
     for deleted in deleted_files:
         assert deleted in pmap_references, "File " + repr(deleted) + " does not appear in context " + repr(pmap.name)
-    
-    drs = submit.DeleteReferenceSubmission(pmap_name, uploaded_files, description, 
+
+    drs = submit.DeleteReferenceSubmission(pmap_name, uploaded_files, description,
         user=request.user, locked_instrument=locked_instrument, status_channel=jpoll_handler)
     disposition, new_mappings_map, mapping_certs, mapping_diffs, collision_list = drs.submit()
-    
+
     del_results = {
                 "pmap" : pmap_name,
                 "pmap_mode" : pmap_mode,
@@ -1377,21 +1377,21 @@ def delete_references_post(request):
                 "submission_kind" : "delete references",
                 "title" : "Delete References",
                 "description" : description,
-                "context_rmaps" : sorted(new_mappings_map.values()), 
-                
+                "context_rmaps" : sorted(new_mappings_map.values()),
+
                 "certify_results" : mapping_certs,
                 "diff_results" : mapping_diffs,
-                
+
                 "collision_list" : collision_list,
-                
+
                 "should_still_be_locked" : locked_instrument,
                 "requires_locking" : True,
                 "lock_datestr" : locks.get_lock_datestr(locked_instrument, type="instrument", user=str(request.user)),
 
                 "more_submits" : "/delete/reference/",
-                "disposition": disposition,                
+                "disposition": disposition,
             }
-    
+
     return render_repeatable_result(request, "delete_references_results.html", del_results,
                                     jpoll_handler=jpoll_handler)
 
@@ -1409,7 +1409,7 @@ def add_existing_references(request):
         }, requires_pmaps=True)
     else:
         return add_existing_references_post(request)
-    
+
 def add_existing_references_post(request):
     """View fragment to process add existing references form POSTs."""
 
@@ -1421,19 +1421,19 @@ def add_existing_references_post(request):
 
     locked_instrument = get_locked_instrument(request)
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
-    
+
     pmap = rmap.get_cached_mapping(pmap_name)
     pmap_references = pmap.reference_names()
     for added in added_files:
         assert added not in pmap_references, "File " + repr(added) + " is already in context " + repr(pmap.name)
         blob = models.FileBlob.load(added)
         assert not blob.rejected and not blob.blacklisted,  "File " + repr(added) + " is bad or contains bad files."
-    
-    ars = submit.AddExistingReferenceSubmission(pmap_name, uploaded_files, description, 
+
+    ars = submit.AddExistingReferenceSubmission(pmap_name, uploaded_files, description,
                                                 user=request.user, locked_instrument=locked_instrument,
                                                 status_channel=jpoll_handler)
     disposition, new_mappings_map, mapping_certs, mapping_diffs, collision_list = ars.submit()
-    
+
     add_results = {
                 "pmap" : pmap_name,
                 "pmap_mode" : pmap_mode,
@@ -1444,21 +1444,21 @@ def add_existing_references_post(request):
                 "submission_kind" : "add references",
                 "title" : "Add Existing References",
                 "description" : description,
-                "context_rmaps" : sorted(new_mappings_map.values()), 
-                
+                "context_rmaps" : sorted(new_mappings_map.values()),
+
                 "certify_results" : mapping_certs,
                 "diff_results" : mapping_diffs,
-                
+
                 "collision_list" : collision_list,
-                
+
                 "should_still_be_locked" : locked_instrument,
                 "requires_locking" : True,
                 "lock_datestr" : locks.get_lock_datestr(locked_instrument, type="instrument", user=str(request.user)),
 
                 "more_submits" : "/delete/reference/",
-                "disposition": disposition,                
+                "disposition": disposition,
             }
-    
+
     return render_repeatable_result(request, "add_existing_references_results.html", add_results,
                                     jpoll_handler=jpoll_handler)
 
@@ -1485,9 +1485,9 @@ def create_contexts_post(request):
     context_rmaps = validate(request, "rmaps", is_list_of_rmaps)
     description = validate(request, "description", common.DESCRIPTION_RE)
     context_name_map, collisions = submit.create_contexts(description, context_rmaps, str(request.user), pmap_name)
-    
+
     models.clear_cache()
-    
+
     return render_repeatable_result(request, "create_contexts_results.html", {
                 "pmap": pmap_name,
                 "original_pmap": pmap_name,
@@ -1503,7 +1503,7 @@ def create_contexts_post(request):
                 "more_submits" : "/create_contexts/",
                 "collision_list" : collisions,
             })
-    
+
 # ============================================================================
 
 @error_trap("submit_input.html")
@@ -1522,7 +1522,7 @@ def submit_files(request, crds_filetype):
                 }, requires_pmaps=True)
     else:
         return submit_files_post(request, crds_filetype)
-    
+
 def submit_files_post(request, crds_filetype):
     """Handle the POST case of submit_files, returning dict of template vars."""
     # crds_filetype constrained by RE in URL to 'mapping' or 'reference'.
@@ -1536,22 +1536,22 @@ def submit_files_post(request, crds_filetype):
         pmap_mode, pmap_name = None, None
     description = validate(request, "description", common.DESCRIPTION_RE)
     creator = validate(request, "creator", common.PERSON_RE)
-    change_level = validate(request, "change_level", models.CHANGE_LEVELS)            
+    change_level = validate(request, "change_level", models.CHANGE_LEVELS)
     _remove_dir, uploaded_files = get_files(request)
     locked_instrument = get_locked_instrument(request)
 
     assert not generate_contexts or locked_instrument or request.user.is_superuser,  \
         "Can't generate contexts in unlocked mode."
-    
+
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
-    
-    simple = submit.SimpleFileSubmission(pmap_name, uploaded_files, description, user=request.user,  
-        creator=creator, change_level=change_level, auto_rename=auto_rename, 
+
+    simple = submit.SimpleFileSubmission(pmap_name, uploaded_files, description, user=request.user,
+        creator=creator, change_level=change_level, auto_rename=auto_rename,
         compare_old_reference=compare_old_reference, locked_instrument=locked_instrument,
         status_channel=jpoll_handler)
-    
+
     disposition, certify_results, new_file_map, collision_list, context_rmaps = \
-        simple.submit(crds_filetype, generate_contexts)    
+        simple.submit(crds_filetype, generate_contexts)
 
     rdict = {
                 "crds_filetype": crds_filetype,
@@ -1565,16 +1565,16 @@ def submit_files_post(request, crds_filetype):
                 "description" : description,
                 "pmap" : pmap_name,
                 "pmap_mode" : pmap_mode,
-                
+
                 "certify_results" : certify_results,
                 "more_submits" : "/submit/" + crds_filetype + "/",
                 "requires_locking" : generate_contexts,
                 "should_still_be_locked": locked_instrument,
                 "lock_datestr" : locks.get_lock_datestr(locked_instrument, type="instrument", user=str(request.user)),
-                
+
                 "disposition" : disposition,
     }
-    
+
     return render_repeatable_result(request, 'submit_results.html', rdict, jpoll_handler=jpoll_handler)
 
 # ===========================================================================
@@ -1587,7 +1587,7 @@ def flatten(path):
     for part in path:
         newpath = newpath + part
     return newpath
-    
+
 # ===========================================================================
 
 @error_trap("base.html")
@@ -1610,7 +1610,7 @@ def difference_files(request):
             request, "filemode1", "file_known1", "file_uploaded1")
         must_delete2, file2_orig, file2_path = handle_known_or_uploaded_file(
             request, "filemode2", "file_known2", "file_uploaded2")
-    
+
     assert os.path.splitext(file1_orig)[-1] == os.path.splitext(file2_orig)[-1], \
         "The specified files are not compatible for differencing.  (Different file name extensions.)"
     assert os.path.exists(file1_path), \
@@ -1623,17 +1623,17 @@ def difference_files(request):
     else:   # references
         upload_tuples = [(file1_orig, file2_orig, file1_path, file2_path)]
         logical_errors = []
-        
+
     # log.info("upload_tuples:", upload_tuples)
-                
+
     diff_results = web_difference.mass_differences(upload_tuples)
-    
+
     # log.info("diff_results:", log.PP(diff_results))
-    
+
     handle_upload_delete(must_delete1, file1_orig, file1_path)
     handle_upload_delete(must_delete2, file2_orig, file2_path)
 
-    return crds_render(request, "difference_results.html", { 
+    return crds_render(request, "difference_results.html", {
             "file1" : file1_orig,
             "file2" : file2_orig,
             "diff_results" : diff_results,
@@ -1673,18 +1673,18 @@ def browse_known_file(request, filename):
         related_actions = models.AuditBlob.related_to(filename)
     except LookupError:
         raise CrdsError("Can't find " + repr(filename))
-    
+
     file_contents = browsify_file(filename, browsed_file)
 
     used_by_files = list(uses.uses([filename], blob.observatory))
-    
+
     if blob and blob.type == "reference":
         context = models.get_default_context(blob.observatory)
         match_paths = matches.find_full_match_paths(context, filename)
         match_paths = [flatten(path) for path in match_paths]
     else:
         match_paths = []
-    
+
     ld_tpn_text = tpn_text = ""
     if not rmap.is_mapping(filename):
         with log.error_on_exception("Failed loading TPN constraints for", srepr(filename)):
@@ -1692,7 +1692,7 @@ def browse_known_file(request, filename):
         with log.error_on_exception("Failed loading LD_TPN constraints for", srepr(filename)):
             ld_tpn_text = utils.get_locator_module(blob.observatory).reference_name_to_ld_tpn_text(filename)
 
-    return crds_render(request, "browse_results.html", { 
+    return crds_render(request, "browse_results.html", {
              "fileblob" : blob,
              "observatory" : blob.observatory,
              "related_actions": related_actions,
@@ -1739,7 +1739,7 @@ def browsify_fits(filename, browsed_file):
     return output
 
 def browsify_header(filename, browsed_file):
-    """Fetch the minimum matching header of `filename` under the current operational 
+    """Fetch the minimum matching header of `filename` under the current operational
     context and format it as HTML.
     """
     ref_blob = models.FileBlob.load(os.path.basename(browsed_file))
@@ -1794,11 +1794,14 @@ def browsify_asdf(filename, browsed_file):
 
 def get_asdf_tree(filepath):
     """Read the YAML tree out of an ASDF file and return it."""
-    import pyasdf
+    try:
+        import pyasdf as asdf
+    except ImportError:
+        import asdf
     assert re.match(config.FILE_PATH_RE, filepath),  "Bad file path extracting ASDF tree contents."
     with tempfile.NamedTemporaryFile() as temp:
         return pysh.out_err("asdftool to_yaml {} --output {} --resolve-references; cat {}".format(filepath, temp.name, temp.name))
-    # with pyasdf.AsdfFile.open(filepath) as handle:
+    # with asdf.AsdfFile.open(filepath) as handle:
     #     return str(handle.tree)
 
 @capture_output
@@ -1850,7 +1853,7 @@ def recent_activity_post(request):
     user = validate(request, "deliverer_user", r"[A-Za-z0-9_.\*]+")
     start_date = validate(request, "start_date", parse_date)
     stop_date = validate(request, "stop_date", parse_date)
-    
+
     if "*" not in [start_date, stop_date]:
         assert stop_date >= start_date,  "Stop date precedes start date,  no matches possible."
 
@@ -1866,13 +1869,13 @@ def recent_activity_post(request):
     if stop_date != "*":
         filters["date__lte"] = stop_date
     filtered_activities = models.AuditBlob.filter(**filters)[::-1]
-    
+
     # Skip .cat files since they're not deliverable files and don't currently browse.
     filtered_activities = [blob for blob in filtered_activities if not blob.filename.endswith((".cat",))]
-    
+
     # Filter filenames with UNIX style name globbing
     filtered_activities = [blob for blob in filtered_activities if fnmatch.fnmatch(blob.filename, filename)]
-    
+
     # Skip mass import actions by default since for HST there are 14k+ of them
     if action == "*":
         filtered_activities = [blob for blob in filtered_activities if blob.action != "mass import"]
@@ -1881,7 +1884,7 @@ def recent_activity_post(request):
         filters["start_date"] = timestamp.format_date(filters.pop("date__gte"))
     if stop_date != "*":
         filters["stop_date"] = timestamp.format_date(filters.pop("date__lte"))
-    
+
     return crds_render(request, "recent_activity_results.html", {
                 "filters": sorted(filters.items()),
                 "filtered_activities" : filtered_activities,
@@ -1896,10 +1899,10 @@ def recent_activity_post(request):
 @login_required
 def delivery_status(request):
     """Show a table of the catlog files reflecting file deliveries and their status."""
-    
+
     auditblobs = [ blob for blob in models.AuditBlob.objects.all() if blob.thaw().filename.endswith(".cat") ]
     fileblobs = models.get_fileblob_map()
-    
+
     catalog_info = []
     for audit in auditblobs:
         audit.thaw()
@@ -1922,7 +1925,7 @@ def delivery_status(request):
             )
     delivery_status = list(reversed(sorted(catalog_info, key=lambda k: k["date"])))
     log.info("delivery_status catalog info:", delivery_status)
-        
+
     return crds_render(request, "delivery_status.html", {
             "delivery_status": delivery_status,
     })
@@ -1971,17 +1974,17 @@ def browse_db_post(request):
         filters["delivery_date__gte"] = start_date
     if stop_date != "*":
         filters["delivery_date__lte"] = stop_date
-            
+
     table_json = cached_browse_table(tuple(sorted(filters.items())),
                                      select_bad_files=select_bad_files,
-                                     show_defects=show_defects, 
+                                     show_defects=show_defects,
                                      authenticated=request.user.is_authenticated())
 
     if start_date != "*":
         filters["delivery_date_start"] = timestamp.format_date(filters.pop("delivery_date__gte"))
     if stop_date != "*":
         filters["delivery_date_stop"] = timestamp.format_date(filters.pop("delivery_date__lte"))
-    
+
     return crds_render(request, "browse_db_results.html", {
             "filters": sorted(filters.items()),
             # "filtered_db" : filtered_db,
@@ -1992,15 +1995,15 @@ def browse_db_post(request):
 @models.crds_cached
 def cached_browse_table(filters, select_bad_files=False, show_defects=False, authenticated=False):
     """Compute the (mem)cached datatables JSON for database browsing."""
-    filters = dict(filters)    
-    filtered_db = models.FileBlob.filter(**filters)    
+    filters = dict(filters)
+    filtered_db = models.FileBlob.filter(**filters)
     if select_bad_files:
         filtered_db = [ blob for blob in filtered_db if blob.get_defects() ]
     header, rows = render_browse_table_data(filtered_db, show_defects, authenticated)
     table_data = to_datatables(header, rows)
     table_json = json.dumps(table_data)
     return table_json
-    
+
 def render_browse_table_data(filtered_db, show_defects, authenticated=False):
     """Generate JSON-able dicts for the search results table."""
     header = [
@@ -2012,13 +2015,13 @@ def render_browse_table_data(filtered_db, show_defects, authenticated=False):
             "aperture",
             "status",
             "description",
-            "instrument", 
+            "instrument",
             "reference type",
         ] + \
         (["deliverer"] if authenticated else []) + \
         (["defects"] if show_defects else []) + \
         ["<input type='submit' id='diff_button' value='diff' />"]
-        
+
 
     rows = []
     for db in filtered_db:
@@ -2031,7 +2034,7 @@ def render_browse_table_data(filtered_db, show_defects, authenticated=False):
             db.aperture,
             db.status,
             db.description,
-            db.instrument, 
+            db.instrument,
             db.filekind,
             ] +
             ([db.deliverer_user] if authenticated else []) +
@@ -2055,9 +2058,9 @@ def brokered_get(_request, filename):
     redirects the request to an optimized download server.   The optimized
     download might be owned by the archive (TBD) or it might be handled
     directly by CRDS Apache,  or possibly by servers better optimized than Apache.
-    
+
     From protocol standpoint,  redirecting is superior to asking for the URL
-    and then fetching it sice it cuts out the return trip to client.  The CRDS 
+    and then fetching it sice it cuts out the return trip to client.  The CRDS
     /get/<filename> URL is fixed and mapped to this broker.   The broker then
     determines and redirects to the actual download URL.
     """
@@ -2070,7 +2073,7 @@ def brokered_get(_request, filename):
         "File " + srepr(filename) + " is not yet available for distribution."
 
     url = jsonapi_views.create_unchecked_url(models.OBSERVATORY, filename)
-    
+
     log.info("Brokering file", repr(filename), "from", repr(url))
 
     return HttpResponseRedirect(url)   # secure
@@ -2089,20 +2092,20 @@ if sconfig.DEBUG:
             blob = models.FileBlob.load(filename)
         except LookupError:
             raise CrdsError("No CRDS database entry for" + srepr(filename))
-    
+
         assert blob.available, \
             "File " + srepr(filename) + " is not yet available for distribution."
-    
+
         if blob.type == "mapping":
             content_type = "text/plain"
         else:
             content_type = "application/octet-stream"
-            
+
         response = HttpResponse( stream_response_generator(blob.pathname), content_type=content_type)
         response["Content-Disposition"] = 'attachment; filename=%s' % filename
-    
+
         return response
-    
+
 def stream_response_generator(filename):
     """Attempt to support large files by yielding chunks of data to the response.
     Response streaming is fragile,  dependent on actions of middleware.
@@ -2114,11 +2117,11 @@ def stream_response_generator(filename):
             try:
                 data = infile.read(2**24)
             except IOError, exc:
-                raise CrdsError("reading known CRDS file " + srepr(filename) + 
+                raise CrdsError("reading known CRDS file " + srepr(filename) +
                                 " : " + str(exc))
             if not len(data):
                 break
-            log.info("Yielding", srepr(filename), "chunk #" + str(chunk), "of", 
+            log.info("Yielding", srepr(filename), "chunk #" + str(chunk), "of",
                       len(data), "bytes.")
             # yield data
             chunk += 1
@@ -2132,7 +2135,7 @@ def stream_response_generator(filename):
 @log_view
 def get_archive(request, filename):
     """Supports a link for getting an archive of files of the form:
-    
+
     http://hst-crds.stsci.edu/get_archive/<filename.tar.gz>?file1=hst.pmap&file2=hst_acs.imap?...
     """
     arch_extension = None
@@ -2141,12 +2144,12 @@ def get_archive(request, filename):
             break
     assert arch_extension in ARCH_MODES, \
         "Unsupported archive extension " + repr(filename)
-        
+
     bundle_path = create_archive(request, arch_extension)
 
     response = HttpResponse(content_type="application/octet-stream")
     response.write(open(bundle_path).read())
-    
+
     return response
 
 ARCH_MODES = {
@@ -2172,14 +2175,14 @@ def create_archive(request, arch_extension):
                     raise CrdsError("Archive request is too large.   Request bundled mappings only.")
                 files[blob.name] = blob.pathname
         with log.error_on_exception("failed creating bundle", repr(bundle_path)):
-            utils.ensure_dir_exists(bundle_path)    
+            utils.ensure_dir_exists(bundle_path)
             tar = tarfile.open(bundle_path, mode=ARCH_MODES[arch_extension], dereference=True)
             for filename, path in files.items():
                 tar.add(path, arcname=filename)
             tar.close()
             os.chmod(bundle_path, 0640)
     return bundle_path
-    
+
 def cached_bundle_path(request, arch_extension):
     """Compute the sha1sum of the filenames requested for a bundle to see
     if a bundle is already cached.
@@ -2200,18 +2203,18 @@ def get_archive_url(archive_name, filelist):
     """
     if filelist:
         url = "/get_archive/" + archive_name + "?"
-        for i, filename in enumerate(filelist): 
+        for i, filename in enumerate(filelist):
             url += "file"+str(i)+"="+str(filename) + "&"
         return url[:-1]
     else:
         return ""
-    
+
 # ============================================================================
 
 @error_trap("base.html")
 @superuser_login_required
 def version_info(request):
-    """Output a page with a table of software component versions."""    
+    """Output a page with a table of software component versions."""
     return crds_render(request, "version_info.html", {
                 "version_info" : sorted(versions.get_all_versions().items()),
                 "crds_env" : sorted(config.get_crds_env_vars().items()),
@@ -2222,7 +2225,7 @@ def version_info(request):
 # File enable/disable has somewhat complicated semantics due to the operation of CRDS
 # in a distributed fashion and the nature of interrelated mappings files.  In all cases
 # files marked bad are assumed to produce scientifically invalid results.
-# 
+#
 # CRDS mappings are marked both "rejected" and "blacklisted".
 # Blacklisting is a transitive reject which affects anscestor mappings, i.e. blacklisting
 # and rmap blacklists all .pmap's which contain it.
@@ -2251,16 +2254,16 @@ def mark_bad_post(request):
     if badflag == "bad":
         for blacklist_root in blacklist_roots:
             check_bad_file(blacklist_root)
-    
+
     affected_files = set()
     for blacklist_root in blacklist_roots:
         affected_files = affected_files.union(
             set(mark_bad_core(str(request.user), blacklist_root, badflag, why)))
-        
+
     models.clear_cache()
-    
+
     return crds_render(request, "mark_bad_results.html", { "affected_files": sorted(list(affected_files)) })
-    
+
 def check_bad_file(blacklist_root):
     """Make sure `blacklist_root` does not appear in the operational context."""
     pmap_name = models.get_default_context(state="operational")
@@ -2283,7 +2286,7 @@ def mark_bad_core(user, blacklist_root, badflag, why):
     instrument, filekind = utils.get_file_properties(models.OBSERVATORY, blacklist_root)
 
     models.AuditBlob.new(
-        user, "blacklist", blacklist_root, why, 
+        user, "blacklist", blacklist_root, why,
         "marked as " + srepr(badflag.upper()),
         instrument=instrument, filekind=filekind)
 
@@ -2338,7 +2341,7 @@ def get_default_description_for_set_context(new_context=None):
 
 def get_context_pmaps(context_map):
     """Return a list of option tuples for rendering HTML to choose context
-    pmaps (last 10). This defines what users will see for the context HTML 
+    pmaps (last 10). This defines what users will see for the context HTML
     drop-down menu.
     """
     context_pmaps = {}
@@ -2362,13 +2365,13 @@ def update_default_context(new_default, description, context_type, user):
     with log.error_on_exception("Bad file check failed"):
         bad_files = [ name for name in pmap_names if name in blobs and blobs[name].rejected ]
     if bad_files and context_type == "operational":
-        raise CrdsError("Context " + srepr(new_default) + 
-                        " contains known bad files and cannot be made the default (last 4 of " + 
+        raise CrdsError("Context " + srepr(new_default) +
+                        " contains known bad files and cannot be made the default (last 4 of " +
                         str(len(bad_files)) + " bad files): " + ", ".join(bad_files[-4:]))
     models.set_default_context(new_default, observatory=models.OBSERVATORY, state=context_type, description=description)
-    models.AuditBlob.new(user, "set default context", 
-                         new_default, description, 
-                         context_type + " context changed from " +  
+    models.AuditBlob.new(user, "set default context",
+                         new_default, description,
+                         context_type + " context changed from " +
                          srepr(old_default) + " to " + srepr(new_default))
     return old_default
 
@@ -2473,7 +2476,7 @@ def context_table(request, mapping, recursive="10"):
     else:
         pars = get_context_table_parameters(mapping)
         return crds_render(request, "context_table.html", pars, requires_pmaps=False)
-        
+
 @models.crds_cached
 def get_context_table_parameters(pmap):
     """Return the parameters required to display a context table for `pmap`."""
@@ -2483,13 +2486,13 @@ def get_context_table_parameters(pmap):
         return {
             "pmap" : pmap_dict,
             "mapping_type" : pmap_dict["header"]["mapping"],
-        }    
+        }
     except Exception, exc:
         log.error("Failure in get_context_table_parameters:", str(exc))
         return {}
 
 if sconfig.DEBUG:
-    
+
     @capture_output
     def runit(mode, command):   # secure,  only available for config.DEBUG
         """Exec or Eval a Python command and capture the output."""
@@ -2519,4 +2522,4 @@ if sconfig.DEBUG:
             mode = validate(request, "mode", "exec|eval")
             result, output = runit(mode, command)   # @capture_output adds tuple format + output string
             return crds_render(request, "command_result.html", dict(command_result=result, command_output=output))
-    
+
