@@ -1,0 +1,22 @@
+Hi Everyone,
+
+I’ve attached 8 procedures for review by development that cover 10 CRDS requirements for DMS Build 5.
+
+Test procedure to requirement mapping:
+dms-tp-433 —> DMS-542
+dms-tp-431 —> DMS-546 & DMS-680
+dms-tp-441 —> DMS-547
+dms-tp-413 —> DMS-548
+dms-tp-411 —> DMS-669
+dms-tp-434 —> DMS-681
+dms-tp-436 —> DMS-682
+dms-tp-440 —> DMS-685 & DMS-686
+
+If these procedures could be reviewed by March 8th, 2016, that would be preferable. However, I realize a large dump of procedures like this may take longer to review.
+
+Thank you,
+Heather Gunning
+Integration and Test Engineer
+Space Telescope Science Institute
+phone: (410) 338-4734
+
