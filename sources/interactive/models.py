@@ -763,7 +763,7 @@ class FileBlobRepairMixin(object):
                                      (self.name.endswith(".pmap") and self.instrument != "")),
         "filekind": lambda self:  (((not self.name.endswith((".pmap",".imap"))) and self.filekind not in FILEKINDS) or
                                    (self.name.endswith((".pmap",".imap")) and self.filekind != "")),
-        "comment" : lambda self: not self.comment,
+        "comment" : lambda self: self.type == "reference" and self.comment.lower() in ["", "none", "undefined"],
         "description" : lambda self: not self.description,
         "pedigree" : lambda self: self.type == "reference" and not self.pedigree and \
             not re.match(r"\w+\.r[0-9][hd]", self.name),
@@ -996,7 +996,9 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
          "Type", "Derived From", "Sha1sum", "Delivery Date", "Activation Date", "Useafter Date",
          "Change Level", "Pedigree", "File Type", "Size", "Upload As", "Creator Name",
          "Deliverer", "Deliverer Email", "Description", "Catalog Link",
-         "Replaced By", "Comment", "Aperture", "History"]
+         "Replaced By", "Descrip", "Aperture", "History"]
+
+    # Comment/comment renamed re-labeled as Descrip
     
     # table fields and titles for use in web displays which combine mappings with catalog
     fusion_fields = [ field.replace("_date", "_date_str") for field in model_fields ]
