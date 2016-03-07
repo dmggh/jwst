@@ -94,6 +94,11 @@
         {% include "context_table_body_include.html" %}
     </div>
 
+    <div id="context_history_container" class="body_panel">
+      <br/>
+      <h3 style="margin-top: 0px;">Context History <a href="/display_context_history" class="label" style="font-size: 0.8em;">(more)</a></h3>
+      {% include "context_history_include.html" %}        
+    </div>        
 
     {% if is_authenticated %}
     <div id="remote_contexts_container" class="body_panel"> 
@@ -128,11 +133,6 @@
     </div>
     {% endif %}
 
-    <div id="context_history_container" class="body_panel">
-      <br/>
-      <h3 style="margin-top: 0px;">Context History <a href="/display_context_history" class="label" style="font-size: 0.8em;">(more)</a></h3>
-      {% include "context_history_include.html" %}        
-    </div>        
 </div>
 {% endblock contents_bottom %}
 
