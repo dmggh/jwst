@@ -41,8 +41,10 @@
 % \usepackage{graphicx}
 %% or use the epsfig package if you prefer to use the old commands
 %% \usepackage{epsfig}
-
-\usepackage{mdframed}
+\usepackage{float}
+\floatstyle{boxed} 
+\restylefloat{figure}
+%\usepackage{mdframed}
 %% The amssymb package provides various useful mathematical symbols
 % \usepackage{amssymb}
 \usepackage{gensymb}
@@ -174,7 +176,8 @@ easily generalized for use in similar applications that need a rules-based
 system for selecting the appropriate item for a given dataset; we give some
 examples of such generalizations that will likely be used for JWST. The core
 functionality of the Calibration Reference Data System is available under an
-Open Source license.
+Open Source license. CRDS is briefly constrasted with a selected 
+sampling of other similar systems used at other observatories.
 \end{abstract}
 
 \begin{keyword}
@@ -303,7 +306,11 @@ affecting operations, yet it still didn't satisfy all testing needs.
 \item \textbf{Difficulty in undoing mistakes.}
 A delivery of a file with mistaken
 parameters could be difficult to undo. No reference file could be removed from
-the database for various reasons. In a number of cases, particularly if the
+the database for various reasons.
+(It is possible to address this easily by changing the schema;
+nevertheless, the existing design made 
+such a change difficult.)
+In a number of cases, particularly if the
 date that it was targeted for was incorrect, it could seriously corrupt the
 selection logic. To take the most common error case: Files often had a
 ``useafter'' date associated with them that indicated that it should be used for
@@ -513,7 +520,8 @@ The header allows inclusion of attributes that enable specialized handling of th
 of the dataset, including indicating when parameters are relevant or not (e.g., only 
 care about its value if the value of another parameter is given as specified), 
 how to handle cases where no match is found, and hooks to allow special preprocessing
-of parameter values. See the documentation for details on these cases.
+of parameter values. See the documentation for details on these 
+cases.
 \footnote{\url{https://jwst-crds.stsci.edu/static/users\_guide/rmap_syntax.html\#active-header-fields}}
 Most of these special features were added to handle the existing complexitites present in the CDBS rule system; we expect these will be used far less for JWST.
 
@@ -528,8 +536,8 @@ will be used resulting in the return of {\tt jwst\_miri\_dark\_0032.fits}
 as the recommended dark reference file.
 
 
-\begin{figure*}
-\begin{mdframed}
+\begin{figure*}[ht!]
+%%\begin{mdframed}
 \begin{verbatim}
 header = {
     'derived_from' : 'jwst_miri_dark_0007.rmap',
@@ -538,7 +546,8 @@ header = {
     'mapping' : 'REFERENCE',
     'name' : 'jwst_miri_dark_0009.rmap',
     'observatory' : 'JWST',
-    'parkey' : (('META.INSTRUMENT.DETECTOR', 'META.EXPOSURE.READPATT', 'META.SUBARRAY.NAME'),),
+    'parkey' : (('META.INSTRUMENT.DETECTOR','META.EXPOSURE.READPATT',
+    'META.SUBARRAY.NAME'),),
     'sha1sum' : 'bd99f4960096de9ad39a9ce506d5ff985847c4a3',
 }
 
@@ -558,7 +567,7 @@ selector = Match({
         ...
 })
 \end{verbatim}
-\end{mdframed}
+%%\end{mdframed}
 \caption{Example showing basic parameter matching rules coupled with date dependency.}
 \label{fig:example1}
 \end{figure*}
@@ -568,7 +577,7 @@ Figure~\ref{fig:example2} shows the use of the software selection mechanism wher
 \newpage
 
 \begin{figure*}
-\begin{mdframed}
+%\begin{mdframed}
 \begin{verbatim}
 selector = SelectVersion({
    '<3.1':    'jwst_miri_flat_0065.fits',
@@ -576,7 +585,7 @@ selector = SelectVersion({
    'default': 'jwst_miri_flat_123.fits',
 })
 \end{verbatim}
-\end{mdframed}
+%\end{mdframed}
 \caption{Example showing use of the software version selection mechanism.}
 \label{fig:example2}
 \end{figure*}
@@ -587,7 +596,7 @@ of 3.2, then the pair of images
 (\texttt{cref\_flatfield\_124.fits}, \texttt{cref\_flatfield\_137.fits}) will be returned
 
 \begin{figure*}
-\begin{mdframed}
+%\begin{mdframed}
 \begin{verbatim}
 selector = Bracket({
     1.2: "cref_flatfield_120.fits",
@@ -595,7 +604,7 @@ selector = Bracket({
     5.0: "cref_flatfield_137.fits",
 })
 \end{verbatim}
-\end{mdframed}
+%\end{mdframed}
 \caption{Example showing bracketing selection.}
 \label{fig:example3}
 \end{figure*}
@@ -611,7 +620,7 @@ described in concert with other types of match syntax for other parameters
 such as wildcard matching or regular expressions.
 
 \begin{figure*}
-\begin{mdframed}
+%\begin{mdframed}
 \begin{verbatim}
 selector = Match({
     ('WFC', 'N/A', 'BETWEEN 1220 1530', 'FR782N') :  "hst_wfc3_flatfile_0027.fits",
@@ -619,7 +628,7 @@ selector = Match({
     ...
 })
 \end{verbatim}
-\end{mdframed}
+%\end{mdframed}
 \caption{An example showing matching specified ranges.}
 \label{fig:example4}
 \end{figure*}
@@ -747,7 +756,7 @@ one can see that each distinct rmap file has a unique name. If anything
 is changed in an rmap file, it gets a new name
 
 \begin{figure*}
-\begin{mdframed}
+%\begin{mdframed}
 \begin{verbatim}
 header = {
     'derived_from' : 'jwst_nircam_0015.imap',
@@ -779,7 +788,7 @@ selector = {
     'WCSREGIONS' : 'N/A',
 }
 \end{verbatim}
-\end{mdframed}
+%\end{mdframed}
 \caption{An example of an instrument contex file (.imap)}
 \label{fig:example_instrument_context}
 \end{figure*}
@@ -800,7 +809,7 @@ Figure~\ref{fig:example_pipeline_context} shows an example of such a pipeline co
 It is used to select the appropriate instrument context file to use.
 
 \begin{figure*}
-\begin{mdframed}
+%\begin{mdframed}
 \begin{verbatim}
 header = {
     'derived_from' : 'jwst_0068.pmap',
@@ -820,7 +829,7 @@ selector = {
     'NIRSPEC' : 'jwst_nirspec_0026.imap',
 }
 \end{verbatim}
-\end{mdframed}
+%\end{mdframed}
 \caption{An example of a pipeline context file (.pmap)}
 \label{fig:example_pipeline_context}
 \end{figure*}
@@ -1005,7 +1014,8 @@ in reference to submission of a group of reference
 files for one instrument,
 multiple types,  and automatic certification and rules updates.
 
-
+\floatstyle{plain}
+\restylefloat{figure}
 \begin{figure*}[ht!]
 \centering
 \includegraphics[width=180mm]{JWST_Public_Home_Page.png}
@@ -1413,6 +1423,56 @@ software has more local (STScI) dependencies as well as library dependencies,
 and all the configuration, administration, and security issues providing a
 server entails.
 
+\section{Comparison with Approaches Used at Selected Observatories}
+
+\subsection{Chandra}
+
+The approach Chandra uses is based on the CALDB approach developed by 
+HEASARC and used by most high-engergy missions 
+(\citealt{2006SPIE.6270E..1XG}). Despite
+the name, no database is involved. In fact, the approach is a simpler 
+version of what is described in this paper. Essentially, the rules for 
+selecting files is kept in index files that list all of the available 
+calibration reference files and the situations they should be used for. 
+It shares some of the advantages of our approach such as being able to 
+recreate past recommendations and being able to distribute the software, 
+though it isn’t as simple to set up. 
+
+\subsection{Spitzer}
+
+Spitzer uses perhaps the purest database approach we are aware of, and 
+has been described in \citealt{2005ASPC..347..594L}. 
+While it does permit an easy undo of updates, 
+it is difficult to recreate past recommendations, and is not easy to 
+distribute and run elsewhere (besides, the code and the associate 
+database does not appear to be available to do so).
+The rules for selection of calibration reference 
+files are basically expressed as as SQL queries to the database.
+Special post query processing is sometimes done, such as generating
+a time-interpolated reference from two bracketing files.
+
+\subsection{Gemini}
+
+Gemini uses a hybrid approach, using a database to store much of the 
+information, but where much of the selection of calibration reference 
+files is performed by running Python code to generate the appropriate 
+SQL query to apply to the database (Paul Hirst, private communication). 
+The use of pure SQL queries did not capture all the needs of the 
+complex selection rules required; their hybrid approach allows arbitrarily
+complex rules to be constructed. It does not permit easy distribution of the 
+system though it does provide a web-based service to provide calibration 
+reference file selections to external users. The results rank multiple 
+possible files that may be used as to their applicability. It does try 
+to allow for multiple kinds of processing that may require different 
+versions of calibration files depending on the kind of processing used 
+(e.g., whether you have done an overscan subtraction will affect which 
+bias file you are given). As such, it isn’t easy to support multiple 
+versions of the rules (that requires multiple servers), nor can the 
+system be easily distributed or customized without a lot of expertise 
+(but it can be used remotely through the web, and there is consideration 
+being given to mechanisms to allow local customization to the web results). 
+Reversion is possible by using version control to reinstate the 
+appropriate Python modules, but has never been used in practice.
 
 \section{Acknowledgments}
 

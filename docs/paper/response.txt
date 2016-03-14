@@ -82,6 +82,43 @@ wish, so this is quite helpful.
 
 Reviewer 2
 
+General comment regarding databases and comparisions to other observatories.
+
+A section at the end has been added that briefly describes what Spitzer, 
+Chandra and Gemini use and notes some of the restrictions entailed in their
+approaches (Chandra's is most similar in approach but simpler).
+
+As far as the implications regarding databases go, we have not expanded on that.
+This is mainly because some issues are arguably self evident (distributing
+software that requires databases certainly does impose a significantly larger 
+burden on those installing and maintaining such a system; we doubt that is 
+controversial).
+
+We also think it is nearly self evident that SQL does not always represent 
+rules in a clear or easy to understand way (and many astronomers, the ones 
+that ultimately must provide those rules, are not experts in SQL, particularly
+complex SQL). We aren't saying it is impossible to use only SQL, just not 
+ideal. Indeed, Gemini's experience found it to be too constricting (as we did).
+Chandra doesn't use it at all, and it appears Spitzer's needs are not as complex.
+This is probably aided by the fact that they generally process the data in 
+large runs, i.e,. their updates are relatively infrequent as we understand 
+it.  Besides, they sometimes have special processing after the query (e.g., 
+interpolation between two reference files), so it isn't a pure database
+solution either. Accomodating new needs requires new software changes.
+To be fair, so does ours if a new kind of rule is required, but that
+is much less likely, and much more likely to be in adding a new module
+rather than changing existing code.
+
+As to the focus on STScI needs. It would be nice if we had the resources 
+to develop a system with a very broad reach and goals initially (well, perhaps,
+many very ambitious projects die for being too ambitious!). But with the
+reality of funding oversight, it's very difficult to do that. NASA gets 
+quite nervous when they see work being done that isn't specifically done
+for their mission. We do what we can to keep the project more broadly 
+useful within these constraints. That's even true when writing papers
+(i.e., can we justify spending much time doing a thorough survey of all
+systems out there?).
+
 Section 2
 We have reworded to be more explicit that all possible combinations of parameters
 must be represented as distinct rows.
@@ -91,7 +128,9 @@ help out?"
 Not really. The file itself may be perfectly good, it is just associated with
 the wrong value of parameters. Possbily if coupled with a resubmission with the
 right values, but note that may mean many entries have to be so marked, and 
-replicated. But as implemented, it didn't have that option.
+replicated. But as implemented, it didn't have that option. If it had been 
+designed from the beginning to handle that, yes, it could have dealt with bad
+submissions that way. 
 
 Section 5: first sentence.
 Fixed.
