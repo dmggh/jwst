@@ -112,7 +112,7 @@ rather than changing existing code.
 As to the focus on STScI needs. It would be nice if we had the resources 
 to develop a system with a very broad reach and goals initially (well, perhaps,
 many very ambitious projects die for being too ambitious!). But with the
-reality of funding oversight, it's very difficult to do that. NASA gets 
+reality of funding oversight it's very difficult to do that. NASA gets 
 quite nervous when they see work being done that isn't specifically done
 for their mission. We do what we can to keep the project more broadly 
 useful within these constraints. That's even true when writing papers
@@ -137,7 +137,8 @@ Fixed.
 Section 5 submission typo
 Fixed
 Section 5 point 3
-todo****xxxx
+This text has been made clearer by replacing pseudo-mode with more
+specific text.
 
 Section 6.3 paragraph 2
 reworded

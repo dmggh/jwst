@@ -427,7 +427,8 @@ go with that.
 references and rules files.  Having the capability to detect typos, duplicate 
 lines, and grammatical errors in rules files. 
 Having the capability to analyze basic properties
-such as duplicate or deleted rows,  by pseudo-mode, for supported tables files.
+such as duplicate or deleted rows, as defined by critical row lookup parameters 
+for supported tables files.
 \item Providing utilities for making CRDS useful for operations, instrument
 scientists that must generate and monitor reference files, and end users.
 \end{enumerate}
@@ -654,7 +655,7 @@ performed) or ``OMIT'' (Currently unused).
 \subsubsection{Match}
 This selector finds which tuple of parameters matches the supplied tuple
 of values for those parameters. This is a very flexible selector, and 
-many options are provided for its use. (If only one parameteter is being,
+many options are provided for its use. (If only one parameter is being,
 matched, the tuple can be replaced by a simple string.)
 
 In the simple case, matches are required to be exact. However, to avoid
@@ -663,7 +664,7 @@ distinctions are being made, a number of mechanisms have been provided
 to make rules much more concise.
 
 \begin{description}
-\item[Lists of Allowable Alternatives:] Allowable values for parameteters
+\item[Lists of Allowable Alternatives:] Allowable values for parameters
 may be supplied as an \textquotesingle OR\textquotesingle
 {\tt }list using {\tt |} as a separator. For example:
 \texttt {({\ttfamily"}filter1|filter2{\ttfamily"},...)} will allow either value to match the first
@@ -1466,13 +1467,20 @@ possible files that may be used as to their applicability. It does try
 to allow for multiple kinds of processing that may require different 
 versions of calibration files depending on the kind of processing used 
 (e.g., whether you have done an overscan subtraction will affect which 
-bias file you are given). As such, it isn’t easy to support multiple 
+bias file you are given). 
+
+As such, it isn’t easy to support multiple 
 versions of the rules (that requires multiple servers), nor can the 
 system be easily distributed or customized without a lot of expertise 
 (but it can be used remotely through the web, and there is consideration 
 being given to mechanisms to allow local customization to the web results). 
-Reversion is possible by using version control to reinstate the 
-appropriate Python modules, but has never been used in practice.
+Reversion may be possible by using version control to reinstate the 
+appropriate Python modules, but has never been used in practice; 
+for the results to be replicated accurately requires that none of the
+information in the database for files present at that time of the previous
+results has been changed since that time.
+
+
 
 \section{Acknowledgments}
 
