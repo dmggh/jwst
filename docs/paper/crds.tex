@@ -68,6 +68,8 @@
 
 \usepackage{caption}
 
+\hyphenation{bestref}
+
 %%\usepackage{draftwatermark}
 %%\SetWatermarkText{DRAFT}
 %%\SetWatermarkScale{1}
@@ -176,7 +178,7 @@ easily generalized for use in similar applications that need a rules-based
 system for selecting the appropriate item for a given dataset; we give some
 examples of such generalizations that will likely be used for JWST. The core
 functionality of the Calibration Reference Data System is available under an
-Open Source license. CRDS is briefly constrasted with a selected 
+Open Source license. CRDS is briefly constrasted with a 
 sampling of other similar systems used at other observatories.
 \end{abstract}
 
@@ -574,8 +576,6 @@ selector = Match({
 \end{figure*}
 
 Figure~\ref{fig:example2} shows the use of the software selection mechanism where a dependency is indicated for the version of the calibration pipeline (for brevity, the header is omitted in this and subsequent examples). In this case if the version of the calibration pipeline is less than 3.1 (using the typical version semantics) then the first file will be chosen, if less than 5 the second will be chosen, otherwise the last file will be used.
-
-\newpage
 
 \begin{figure*}
 %\begin{mdframed}
@@ -1437,7 +1437,7 @@ selecting files is kept in index files that list all of the available
 calibration reference files and the situations they should be used for. 
 It shares some of the advantages of our approach such as being able to 
 recreate past recommendations and being able to distribute the software, 
-though it isn’t as simple to set up. 
+though it is not as simple to set up. 
 
 \subsection{Spitzer}
 
@@ -1449,7 +1449,7 @@ distribute and run elsewhere (besides, the code and the associate
 database does not appear to be available to do so).
 The rules for selection of calibration reference 
 files are basically expressed as as SQL queries to the database.
-Special post query processing is sometimes done, such as generating
+Special post-query processing is sometimes done, such as generating
 a time-interpolated reference from two bracketing files.
 
 \subsection{Gemini}
@@ -1469,7 +1469,7 @@ versions of calibration files depending on the kind of processing used
 (e.g., whether you have done an overscan subtraction will affect which 
 bias file you are given). 
 
-As such, it isn’t easy to support multiple 
+As such, it is not easy to support multiple 
 versions of the rules (that requires multiple servers), nor can the 
 system be easily distributed or customized without a lot of expertise 
 (but it can be used remotely through the web, and there is consideration 

@@ -109,15 +109,36 @@ To be fair, so does ours if a new kind of rule is required, but that
 is much less likely, and much more likely to be in adding a new module
 rather than changing existing code.
 
-As to the focus on STScI needs. It would be nice if we had the resources 
+It really isn't our intent to argue that databases are not appropriate; rather 
+for the features we sought, that they did not appear to be the simplest
+solution. In things like this, proving it beyond any question is not
+something that projects have the resources to do. Indeed, practically 
+speaking, there never is proof, only indications by the absense of
+solutions using them. The only proof possible is proving that they
+are suitable by implementing a system that has the features we sought
+using a database. Doing that really is for someone else to do. We can 
+only note that we haven't found one in existance yet.
+
+As to the focus on STScI needs. We don't agree that only one page
+is devoted to generic needs. We would argue that the great majority
+of the discussion is directed to generic capabilities, with occasional
+references to how they relate to JWST or HST. Yes, the examples are for
+STScI systems, but it would be odd for us to use examples for other
+observatories for which we are not qualified to provide. We don't 
+believe that these examples in any way limit the generic aspects of
+the system.
+
+But even if it were the case it wasn't sufficiently generic enough, it's
+a question of having enough resources 
 to develop a system with a very broad reach and goals initially (well, perhaps,
 many very ambitious projects die for being too ambitious!). But with the
 reality of funding oversight it's very difficult to do that. NASA gets 
 quite nervous when they see work being done that isn't specifically done
 for their mission. We do what we can to keep the project more broadly 
-useful within these constraints. That's even true when writing papers
-(i.e., can we justify spending much time doing a thorough survey of all
-systems out there?).
+useful within these constraints, and we think we have done as much as
+possibly can be expected along those lines. That's even true when writing
+papers (i.e., can we justify spending much time doing a thorough survey 
+of all systems out there?).
 
 Section 2
 We have reworded to be more explicit that all possible combinations of parameters
