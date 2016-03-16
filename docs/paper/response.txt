@@ -121,7 +121,8 @@ only note that we haven't found one in existance yet.
 
 As to the focus on STScI needs. We don't agree that only one page
 is devoted to generic needs. We would argue that the great majority
-of the discussion is directed to generic capabilities, with occasional
+of the discussion is directed to generic capabilities, particularly
+with regard to the bestref core functionality, with occasional
 references to how they relate to JWST or HST. Yes, the examples are for
 STScI systems, but it would be odd for us to use examples for other
 observatories for which we are not qualified to provide. We don't 
