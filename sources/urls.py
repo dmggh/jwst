@@ -57,13 +57,13 @@ urlpatterns = patterns('',
     
     (r'^upload/list/$', 'crds.server.interactive.views.upload_list', {}, 'upload-list'),
     (r'^upload/new/$', 'crds.server.interactive.views.upload_new', {}, 'upload-new'),
-    # (r'^upload/delete/(?P<filename>{0})$'.format(FILE_RE_STR),
-    # 'crds.server.interactive.views.upload_delete', {}, 'upload-delete'),
+    (r'^upload/delete/(?P<filename>{0})$'.format(FILE_RE_STR),
+     'crds.server.interactive.views.upload_delete', {}, 'upload-delete'),
               
     url(r'^batch_submit_references/$', 'crds.server.interactive.views.batch_submit_references'),
     url(r'^submit_confirm/$', 'crds.server.interactive.views.submit_confirm'),
 
-    url(r'^delete/reference/$', 'crds.server.interactive.views.delete_references'),
+    # url(r'^delete/reference/$', 'crds.server.interactive.views.delete_references'),
     url(r'^add_existing/reference/$', 'crds.server.interactive.views.add_existing_references'),
             
     url(r'^browse/(?P<filename>{0})$'.format(FILE_RE_STR), 
