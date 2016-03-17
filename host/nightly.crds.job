@@ -16,9 +16,8 @@ echo "CRDS subversion status"
 echo "==========================================================="
 cd ${CRDS}/CRDS
 echo "UPDATING SUBVERSION for CRDS"
-svn update --accept theirs-full
-svn status
-svn info
+# svn update --accept theirs-full
+git status
 
 echo "==========================================================="
 echo "CRDS_server subversion status"
@@ -39,8 +38,7 @@ echo "==========================================================="
 echo "Post-reinstall CRDS subversion status"
 echo "==========================================================="
 cd ${CRDS}/CRDS
-svn status
-svn info
+git status
 
 echo "==========================================================="
 echo "Post-reinstall CRDS_server subversion status"
