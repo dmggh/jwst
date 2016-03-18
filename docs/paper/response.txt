@@ -71,12 +71,6 @@ taking the time to detail these. After viewing the same or similar
 text repeatedly it is quite hard to look as closely as one would
 wish, so this is quite helpful.
 
-****** To do
-
-1) box text file figures
-2) improve screen shots
-
-
 
 ===================================================
 
