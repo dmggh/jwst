@@ -1751,6 +1751,9 @@ def browsify_header(filename, browsed_file):
     header2 = {}
     with log.error_on_exception("Failed getting extra keys for", repr(browsed_file)):
         header2 = data_file.get_unconditioned_header(browsed_file, needed_keys=["APERTURE","USEAFTER"])
+    if not header:
+        with log.error_on_exception("Fallback to FITS header union failed."):
+            header = data_file.get_fits_header_union(browsed_file)
     if header:
         header.update(header2)
         output  = "<b>Header Parameters</b>\n"
