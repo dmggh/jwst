@@ -116,9 +116,7 @@
                      <tr>
                         <td width="20%" align="left" class="label">History</td>
                         <td>
-                          {% for line in fileblob.history|split %}
-                          <p>{{line}}</p>
-                          {% endfor %}
+                          <pre>{{fileblob.history}}</pre>
                         </td>
                      </tr>
                      <tr>

@@ -772,6 +772,8 @@ class FileBlobRepairMixin(object):
         "creator_name" : lambda self: not self.creator_name,
         "mapping_name_field": lambda self: rmap.is_mapping(self.name) and not self.name == rmap.fetch_mapping(self.name).name,
         "history" :  lambda self : self.type.lower() == "reference" and self.history in ["none","NONE","None", None],
+        # "history" :  lambda self : self.type.lower() == "reference",
+        "useafter_date" : lambda self: self.useafter_date in [self.delivery_date, DEFAULT_ACTIVATION_DATE] and self.type != "mapping"
     }
     
     def get_defects(self, verify_checksum=False, fields=None):
@@ -922,7 +924,6 @@ class FileBlobRepairMixin(object):
                 self.useafter_date = timestamp.parse_date(info["useafter_date"])
 
         bad_field_checks["aperture"] = lambda self: self.aperture=="none" and self.type != "mapping" and self.instrument != "wfpc2"
-        bad_field_checks["useafter_date"] = lambda self: self.useafter_date in [self.delivery_date, DEFAULT_ACTIVATION_DATE] and self.type != "mapping"
 
     elif OBSERVATORY == "jwst":  #===========================================================
 
@@ -933,6 +934,17 @@ class FileBlobRepairMixin(object):
                 if self.name in names:
                     self.activation_date = hist.start_date
                     break
+            return
+
+        def repair_useafter_date(self):
+            if self.type == "mapping":
+                return
+            name = self.name
+            with log.error_on_exception("Failed repairing JWST useafter date for", repr(name)):
+                header = data_file.getval("USEAFTER")
+                self.useafter_date = timestamp.parse_date(header["USEAFTER"])
+                return
+            self.useafter_date = timestamp.parse_date(DEFAULT_USEAFTER_DATE)
             return
 
 # ============================================================================
@@ -962,6 +974,7 @@ assert len(ALL_STATES) == len(set(ALL_STATES)), "Doubly-assigned or duplicate st
 assert len(FILE_STATES) >= len(ALL_STATES),  "Uncategorized state in FileBlob state declarations."
 
 DEFAULT_ACTIVATION_DATE =  datetime.datetime(2050, 1, 1, 0, 0)
+DEFAULT_USEAFTER_DATE = datetime.datetime(1900, 1, 1, 0, 0)
 START_OF_CRDS = datetime.datetime(2013, 8, 1, 0, 0)
 
 def SimpleCharField(choice_list, help_text, default):
@@ -1049,7 +1062,7 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
         default=DEFAULT_ACTIVATION_DATE, help_text="Date file first listed in an operational context.")
     
     useafter_date = models.DateTimeField(
-        default=DEFAULT_ACTIVATION_DATE, help_text="Dataset date after which this file is a valid reference.")
+        default=DEFAULT_USEAFTER_DATE, help_text="Dataset date after which this file is a valid reference.")
 
     change_level = SimpleCharField(
         CHANGE_LEVELS,  "Affect of changes in this file relative to preceding version on science results", "SEVERE")
