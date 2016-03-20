@@ -773,7 +773,7 @@ class FileBlobRepairMixin(object):
         "mapping_name_field": lambda self: rmap.is_mapping(self.name) and not self.name == rmap.fetch_mapping(self.name).name,
         "history" :  lambda self : self.type.lower() == "reference" and self.history in ["none","NONE","None", None],
         # "history" :  lambda self : self.type.lower() == "reference",
-        "useafter_date" : lambda self: self.useafter_date in [self.delivery_date, DEFAULT_ACTIVATION_DATE] and self.type != "mapping"
+        "useafter_date" : lambda self: self.useafter_date_str == str(DEFAULT_ACTIVATION_DATE).split(".")[0] and self.type != "mapping"
     }
     
     def get_defects(self, verify_checksum=False, fields=None):
@@ -873,7 +873,12 @@ class FileBlobRepairMixin(object):
         self.set_fits_field("aperture", self.aperture_keyword)  # aperture_keyword from FileBlobModel multiple inheritance
         
     def repair_useafter_date(self):
-        self.set_fits_field("useafter_date", "USEAFTER", timestamp.parse_date)
+        with log.error_on_exception("Failed setting USEAFTER from FITS"):
+            self.set_fits_field("useafter_date", "USEAFTER", timestamp.parse_date)
+            self.save()
+            return
+        self.useafter_date = DEFAULT_USEAFTER_DATE
+        self.save()
 
     def repair_reference_file_type(self):
         self.set_fits_field("reference_file_type", "REFTYPE")
@@ -934,17 +939,6 @@ class FileBlobRepairMixin(object):
                 if self.name in names:
                     self.activation_date = hist.start_date
                     break
-            return
-
-        def repair_useafter_date(self):
-            if self.type == "mapping":
-                return
-            name = self.name
-            with log.error_on_exception("Failed repairing JWST useafter date for", repr(name)):
-                header = data_file.getval("USEAFTER")
-                self.useafter_date = timestamp.parse_date(header["USEAFTER"])
-                return
-            self.useafter_date = timestamp.parse_date(DEFAULT_USEAFTER_DATE)
             return
 
 # ============================================================================
@@ -1185,7 +1179,7 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
         try:
             setattr(self, model_field, sanitizer(value))
         except Exception as exc:
-            log.error("Setting field '%s' for '%s' failed: '%s'" % (model_field, filename, exc))
+            log.error("Setting field '%s' for '%s' failed: '%s'" % (model_field, (self.uploaded_as, self.name), exc))
 
     def add_slow_fields(self, allow_duplicates=False):
         self.thaw()
