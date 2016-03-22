@@ -6,7 +6,6 @@ For HST this OPS server is here:
 
 https://hst-crds.stsci.edu/
 
-
 Documentation on the CRDS client and server is available on the CRDS web sites,
 for JWST OPS here:
 
@@ -17,6 +16,10 @@ For HST OPS nominally identical documenttion is here:
 https://hst-crds.stsci.edu/static/users_guide/index.html
 
 The CRDS client source code is here:
+
+https://github.com/spacetelescope/crds.git
+
+    - or obsolete write locked -
 
 https://aeon.stsci.edu/ssb/svn/crds/trunk
 
@@ -95,6 +98,76 @@ The CRDS servers all have local isolated file systems and password files.
 Maintainers need to have accounts on the CRDS server VMs as well as sudo
 access to the "crds" account.   Maintainers login to the VMs using their
 AD accounts but then sudo to "crds" to perform server maintenance.
+
+---------------------------------------------------------------------------------------
+
+Server Development Workflow
+
+# alias to go to CRDS client git checkout directory  (probably still svn)
+% crds
+
+# alias to go to CRDS server source code and utilities directory,  svn checkout
+% server
+
+# additional environment defined by running CRDS server ./install script,  required for tools and scripts
+% source env.csh
+
+% ... edit source code,  most likely sources/interactive/...
+% ... edit static files, javascript, css, etc.   generally in sources/static
+
+# does CRDS client and server source installs,  independent of Python stack install
+% ./install jwst dev
+
+# start the apache+mod_wsgi+django system,  also memcached memory cache
+% ./run
+
+# does install + run with no parameters once the server is fully set up
+% ./rerun
+
+# shuts down apache + memcached
+% ./stop
+
+# runs the server self-tests,  also run nightly at ~3:05 am,  see runtests.jwst.dev.err
+# it's normal for a few of these to be failing.
+% ./runtests  
+
+# Run Django manage.py in general on CRDS server install
+% ./manage ...
+
+# Open an Ipython shell in the context of the CRDS server
+% ./manage shell
+
+# Operate on CRDS server interactive models (nominally the file catalog, context history, etc.)
+% ./manage shell
+>>> from crds.server.interactive import models
+>>> models...
+
+# Open a SQL/MySQL shell on the CRDS server models
+% ./manage dbshell
+
+# Mirror the OPS server and latest official rules and references and database down to DEV
+% tools/mirror_server jwst ops https://jwst-crds.stsci.edu |& tee mirror_server.jwst.ops.err
+
+# Look at server log files
+% logs   # alias to go to log directory
+
+# Generally view function stderr and crds.log output
+% tail -1000 error_log
+...
+
+# Apache log to monitor requests and their sources,  stats on usage
+% tail -1000 xfor_request_log | resolve_ip
+...
+
+Less useful
+
+% tail -1000 ssl_request_log
+...
+% tail -1000 ssl_error_log
+...
+
+# Look at general CRDS environment
+% printenv | grep CRDS
 
 ---------------------------------------------------------------------------------------
 
