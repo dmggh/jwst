@@ -1,6 +1,11 @@
 {% load stdtags %}
 
 {% for diff_name,diffs in diff_results %}
+
+    {% if ".imap" in diff_name %}
+    <br/>
+    {% endif %}
+
     {% accordion diff_name  %}
         {% if diffs.map_text_diff_items %}
             
