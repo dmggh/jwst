@@ -84,18 +84,21 @@ def get_version(modname):
     # extract svn version from STScI code
     try:
         mod = dynamic_import("%s.svn_version" % modname)
-        svnrev = mod.__svn_version__
-        svnurl = mod.__full_svn_info__ .split('URL: ')[1].split('\n')[0].split("/")[-1]
-        if not svnurl:
-            svnurl = "trunk"
+        rev = mod.__svn_version__
+        url = mod.__full_svn_info__ .split('URL: ')[1].split('\n')[0].split("/")[-1]
     except Exception:
-        svnrev = ''
-        svnurl = ''
+        try:
+            mod = dynamic_import("%s.git_version" % modname)
+            rev = mod.__version__
+            url = mod.__full_version_info__ .split('branch: ')[1].split('\n')[0]
+        except Exception:
+            rev = ''
+            url = ''
 
     vers = {
         'str'   : ans,
-        'rev'   : svnrev,
-        'svnurl': svnurl,
+        'rev'   : rev,
+        'svnurl': url,
         'file'  : filename
         }
     return vers
