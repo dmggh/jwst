@@ -1,0 +1,20 @@
+#! /bin/tcsh -f
+
+setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda
+setenv META_PREFIX ${CRDS_STACK}
+
+rm -rf ${CRDS_STACK}
+cd ${CRDS}/crds_stacks/installer4/build
+
+rm *.err
+./meta clean >& /dev/null
+./meta install @crds  |& tee ${CRDS_STACK}/crds.err
+rm miniconda.sh
+git status
+
+# setenv PATH ${CRDS_STACK}/bin:${PATH}
+# rehash
+
+# Install the entire base to get mercurial... for this.
+# ../src/pull_local
+
