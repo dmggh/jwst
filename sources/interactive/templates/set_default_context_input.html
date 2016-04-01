@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block column1 %}
+{% block contents_both %}
     <h2>Set Context</h2>
     <form method="post" action="/set_default_context/" enctype="multipart/form-data" onsubmit="return crds.warn_delay();" >  {% csrf_token %}
 
@@ -33,7 +33,7 @@
       <p><textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea></p>
       <br/>
 
-      <input type="submit" value="Set Default Context" />
+      <input class="btn btn-primary" type="submit" value="Set Default Context" />
     </form>
     
     <script type="text/javascript">
@@ -63,7 +63,7 @@
         };
     </script>
     
-{% endblock column1 %}
+{% endblock contents_both %}
 
 {% block help %}
 
