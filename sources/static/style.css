@@ -1,18 +1,6 @@
 body {
     min-width: 640px;
-    /* background-image: url(OrionBelt2.jpg); */
-    /* background: #282840; */
-    background-color: #EEEEEE;
-    background-repeat: repeat;
     font-family: sans-serif;
-}
-
-div {
-    /* background-color: transparent; */
-}
-
-hr {
-    color: gray;
 }
 
 #page_header, #header_menu {
@@ -26,7 +14,7 @@ hr {
     color: darkblue;
     text-align: center;
     float: left;
-    width: 80%;
+    width: 90%;
     margin-top: 0.1in;
     margin-left: 0.1in;
     margin-bottom: 0.0in;
@@ -41,7 +29,6 @@ hr {
     margin-bottom: 0.1in;
     margin-right: 0.1in;
     padding: 3px 3px 3px 3px;
-    background-color: #EEEEEE;
     /* border: gray solid 1px; */
 }
 
@@ -54,19 +41,9 @@ img.header_menu {
 
 #contents {
     width: 100%;
-    /* background: transparent; */
     border: none;
     }
     
-.body_panel {
-    background-color: #DDDDDD;
-    margin-top: 4px;
-    margin-bottom: 0px;
-    margin-left: 0px;
-    margin-right: 0px;
-    padding: 0px 3px 3px 3px;
-}
-
 .full_width {
     width: 100%;
 }
@@ -75,6 +52,7 @@ img.header_menu {
     background: opaque;
 }
     
+/*
 #column1, .column1 {
     float: left;
     width: 55%;
@@ -86,6 +64,7 @@ img.header_menu {
     width: 43%;
     margin: 0px 5px 5px 5px;
 }
+*/
 
 .table_header {
     font-size: 14pt;
@@ -108,9 +87,14 @@ h2, .h2 {
     font-size: 24px;
 }
 
-label, .label, .label2 {
+label, .tdlabel, .label2 {
     font-weight: normal;
     color:  darkblue;
+}
+
+.tdlabel
+{
+    text-align: right;
 }
 
 .gray, .grey {
@@ -234,10 +218,6 @@ label, .label, .label2 {
     }
 
 input, select, textarea {
-    color: black;
-    background-color: white;
-    border: gray solid 1px;
-    border-radius: 6px;
     margin: 2px 2px 2px 2px;
     padding: 2px;
 }
@@ -246,6 +226,13 @@ textarea {
     width: 98%;
 }
 
+input[type='checkbox'], input[type='radio'] {
+    margin-right: 0.5em;
+}
+
+select {
+    font-size: 0.8em;
+}
 
 .program, .match, .useafter {
     font-family: monospace; 
@@ -266,11 +253,13 @@ img.plot {
     border: gray solid 2px;
 }
 
+/*
 .help, .datetime, .filename {
   color:#666666;
   background-color: #EEEEEE;
   padding: 5px;
 }
+*/
 
 p.useafter {
     margin-left: 8em;
@@ -292,17 +281,20 @@ p {
 
 th, td {
     padding: 5px;
+    vertical-align: top;
 }
 
 .ctx {
     border: 1px solid lightgray;
     border-radius: 16 px;
+    background: white;
 }
 
 .locked_instrument {
     font-size: 0.8em;
     font-weight: bold;
-    color:#008000;
+    font-color:#fff;
+    text-color:#fff;
 }
 
 .ui-accordion-content { 
@@ -312,6 +304,10 @@ th, td {
 table {
     border-spacing: 0px;
     border-color: #CCCCCC;
+}
+
+tr {
+    width: 100%;
 }
 
 td.diff {
