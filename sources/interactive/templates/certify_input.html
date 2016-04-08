@@ -10,38 +10,48 @@
     {% include "jpoll/jpoll_head_overrides.html" %}
 {% endblock %}
 
-{% block column1 %}
+{% block contents_both %}
     <h2>Certify Files</h2>
-    {% include "select_files.html" %}
 
-    <form method="post" action="/certify/" enctype="multipart/form-data"
-        id="certify_form" class="jpoll_ajax_html_form"
-        onsubmit="return crds.setup_status_display('Certification Status');"> 
-      {% csrf_token %}
+    <div class="row">
+        <div class="col-md-8">
 
-      {% include "comparison_context.html" %}
+            {% include "select_files.html" %}
 
-      <br/>
-      <br/>
-      <input type="submit" value="Certify Files">
-    </form>
-{% endblock column1 %}
+            <form method="post" action="/certify/" enctype="multipart/form-data"
+                id="certify_form" class="jpoll_ajax_html_form"
+                onsubmit="return crds.setup_status_display('Certification Status');"> 
+              {% csrf_token %}
+
+              {% include "comparison_context.html" %}
+
+              <br/>
+              <br/>
+              <input class="btn btn-primary" type="submit" value="Certify Files">
+            </form>
+
+        </div>
+        <div class="col-md-4">
+
+            <p><b>Certify Files</b> runs the same checks required for submission and
+            presents any errors as well as provenance information for review.
+
+            {% include "comparison_context_help.html" %}
+
+            {% include "select_files_help.html" %}
+
+            <p><p>NOTE: If you have installed CRDS,  you can certify files locally like 
+            this:
+            <pre>% python -m crds.certify ./hst_acs_biasfile_0001.rmap</pre> 
+            <pre>% python -m crds.certify --comparison-context=hst.pmap  --dump-provenance ./myfile.fits</pre>
+
+            <p><p>WARNING: certification of context files,  pmaps and imaps, is a transitive 
+            check so it may certify many mappings and can be slow.
+
+        </div>
+
+    </div>
+{% endblock contents_both %}
 
 {% block help %}
-
-<p><b>Certify Files</b> runs the same checks required for submission and
-presents any errors as well as provenance information for review.
-
-{% include "comparison_context_help.html" %}
-
-{% include "select_files_help.html" %}
-
-<p><p>NOTE: If you have installed CRDS,  you can certify files locally like 
-this:
-<pre>% python -m crds.certify ./hst_acs_biasfile_0001.rmap</pre> 
-<pre>% python -m crds.certify --comparison-context=hst.pmap  --dump-provenance ./myfile.fits</pre>
-
-<p><p>WARNING: certification of context files,  pmaps and imaps, is a transitive 
-check so it may certify many mappings and can be slow.
-
 {% endblock help %}
