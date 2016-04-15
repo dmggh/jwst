@@ -103,8 +103,8 @@ def file_exists(filename):
 
 @register.filter
 @stringfilter
-def split(string, delimiter="\n"):
-    return string.split(delimiter)
+def split(string):
+    return string.split("\n")
 
 # ===========================================================================
 

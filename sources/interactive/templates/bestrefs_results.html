@@ -2,136 +2,122 @@
 
 {% load stdtags %}
 
-{% block contents_both %}
+{% block column1 %}
     <h2>Best References </h2>
-    <div class="row">
+    <p style="font-size: 1.1em;">{{dataset_name|gray}}</p>
 
-        <div class="col-md-4">
+    <h3>Context For New References</h3>
+    <p>{{context_name|gray}}</p>
 
-            <p style="font-size: 1.1em;">{{dataset_name|gray}}</p>
+    <h3>Input Parameters</h3>
+    <table width="100%">
 
-            <h3>Context For New References</h3>
-            <p>{{context_name|gray}}</p>
+    {% for key, val in header_items %}
+      {% if "CORR" not in key and "-OBS" not in key %}
+      <tr>
+        <td class="label" width="30%">{{key}}:</td>
+        <td class="value" width="60%">{{val}}</td>
+      </tr>
+      {% endif %}
+    {% endfor %}
 
-            <h3>Input Parameters</h3>
-            <table width="100%">
+    <tr><td> </td></tr>
+    <tr><td> </td></tr>
 
-            {% for key, val in header_items %}
-              {% if "CORR" not in key and "-OBS" not in key %}
-              <tr>
-                <td class="tdlabel" width="30%">{{key}}:</td>
-                <td class="value" width="60%">{{val}}</td>
-              </tr>
-              {% endif %}
-            {% endfor %}
+    {% for key, val in header_items %}
+      {% if "CORR" not in key and "-OBS" in key %}
+      <tr>
+        <td class="label" width="30%">{{key}}:</td>
+        <td class="value" width="60%">{{val}}</td>
+      </tr>
+      {% endif %}
+    {% endfor %}
 
-            <tr><td> </td></tr>
-            <tr><td> </td></tr>
+    <tr><td> </td></tr>
+    <tr><td> </td></tr>
 
-            {% for key, val in header_items %}
-              {% if "CORR" not in key and "-OBS" in key %}
-              <tr>
-                <td class="tdlabel" width="30%">{{key}}:</td>
-                <td class="value" width="60%">{{val}}</td>
-              </tr>
-              {% endif %}
-            {% endfor %}
-
-            <tr><td> </td></tr>
-            <tr><td> </td></tr>
-
-            {% for key, val in header_items %}
-              {% if "CORR" in key %}
-              <tr>
-                <td class="tdlabel" width="30%">{{key}}:</td>
-                <td class="value" width="60%">{{val}}</td>
-              </tr>
-              {% endif %}
-            {% endfor %}
-            </table>
-
-        </div>
+    {% for key, val in header_items %}
+      {% if "CORR" in key %}
+      <tr>
+        <td class="label" width="30%">{{key}}:</td>
+        <td class="value" width="60%">{{val}}</td>
+      </tr>
+      {% endif %}
+    {% endfor %}
+    </table>
     
-        <div class="col-md-8">
-            <h3 style="margin-top: 0; padding-top: 0;">Best Reference Results</h3>
-            <table class="bestrefs_table" style="width:100%;"<>
-              <thead class="bestrefs_header">
-                <tr>
-                  {% if old_bestrefs_items %}
-                     <th class="bestrefs_header">Type</th>
-                     <th class="bestrefs_header">Old Reference</th>
-                     <th class="bestrefs_header">New Reference</th>
-                     <th class="bestrefs_header">Changed</th>
-                     <th class="bestrefs_header">Download</th>
-                  {% else %}
-                     <th class="bestrefs_header">Type</th>
-                     <th class="bestrefs_header">Best Reference</th>
-                     <th class="bestrefs_header">Download</th>
-                  {% endif %}
-                </tr>
-              </thead>
-              <tbody>
-              {% for reftype, fname in bestrefs_items %}
-                <tr>
-                  <td class="bestrefs_header" width="30%">
-                    {{reftype}}
-                  </td>
-                  {% if old_bestrefs_items %}
-                     {% if old_bestrefs_items|lookup:reftype|file_exists %}
-                         <td class="bestrefs_data" width="20%">
-                           {{old_bestrefs_items|lookup:reftype|browse}}
-                         </td> 
-                     {% else %}
-                         <td class="bestrefs_data error" width="60%">{{old_bestrefs_items|lookup:reftype}}</td>
-                     {% endif %}
-                  {% endif %}
-                  {% if fname|file_exists %}
-                    <td class="bestrefs_data" width="20%">
-                         {{fname|browse}}
-                    </td>
-                  {% else %}
-                    <td class="bestrefs_data error" width="60%">{{fname}}</td>
-                  {% endif %}
-                  {% if old_bestrefs_items %}
-                  <td class="bestrefs_data">
-                    {% if fname != old_bestrefs_items|lookup:reftype  %}
-                       <span class="green">yes</updated>
-                    {% else %}
-                       <span class="darkgray">no</span>
-                    {% endif %}
-                  </td>
-                  {% endif %}
-                  {% if fname|file_exists %}
-                    <td class="bestrefs_data" width="20%">
-                         <a href='{{fname|download_url}}'>download</a>
-                    </td>
-                  {% endif %}
-                </tr>
-              {% endfor %}
-              </tbody>
-            </table>
-        </div>
-    </div>
-         
+{% endblock column1 %}
+
+{% block column2 %}
+    <br/>
+    <br/>
+    <br/>
+    <h3>Best Reference Results</h3>
+    <table class="bestrefs_table" style="width:100%;"<>
+      <thead class="bestrefs_header">
+        <tr>
+          {% if old_bestrefs_items %}
+             <th class="bestrefs_header">Type</th>
+             <th class="bestrefs_header">Old Reference</th>
+             <th class="bestrefs_header">New Reference</th>
+             <th class="bestrefs_header">Changed</th>
+             <th class="bestrefs_header">Download</th>
+          {% else %}
+             <th class="bestrefs_header">Type</th>
+             <th class="bestrefs_header">Best Reference</th>
+             <th class="bestrefs_header">Download</th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+      {% for reftype, fname in bestrefs_items %}
+        <tr>
+          <td class="bestrefs_header" width="30%">
+            {{reftype}}
+          </td>
+          {% if old_bestrefs_items %}
+             {% if old_bestrefs_items|lookup:reftype|file_exists %}
+                 <td class="bestrefs_data" width="20%">
+                   {{old_bestrefs_items|lookup:reftype|browse}}
+                 </td> 
+             {% else %}
+                 <td class="bestrefs_data error" width="60%">{{old_bestrefs_items|lookup:reftype}}</td>
+             {% endif %}
+          {% endif %}
+          {% if fname|file_exists %}
+            <td class="bestrefs_data" width="20%">
+                 {{fname|browse}}
+            </td>
+          {% else %}
+            <td class="bestrefs_data error" width="60%">{{fname}}</td>
+          {% endif %}
+          {% if old_bestrefs_items %}
+          <td class="bestrefs_data">
+            {% if fname != old_bestrefs_items|lookup:reftype  %}
+               <span class="green">yes</updated>
+            {% else %}
+               <span class="darkgray">no</span>
+            {% endif %}
+          </td>
+          {% endif %}
+          {% if fname|file_exists %}
+            <td class="bestrefs_data" width="20%">
+                 <a href='{{fname|download_url}}'>download</a>
+            </td>
+          {% endif %}
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+ 
     <div id="bestrefs_diagnostics_disclaimer" sytle="color: darkgray;">
     <br/><br/><br/>
     {% include "bestrefs_bottom_help.html" %}
     </div>
 
-    <div class="panel panel-default">
-        <div class="panel-body">
-    
-        <p><b class="red" >No match found.</b>  No best reference is defined for the given type. 
-        CRDS did not rule the type as not applicable for this parameter set.
+    <br/>
 
-        <p><p><b class="red">n/a</b>  The type is not applicable for the given matching parameters.
-        
-        <p><p><b class="red">parameter</b> A parameter was not valid (for that type).  CRDS did not
-        rule the parameter as not applicable. 
-    </div>
-    </div>
-
-{% endblock contents_both %}
+{% endblock column2 %}
 
 {% block contents_bottom %}
     <div id="bestrefs_debug_output_container">
@@ -145,6 +131,15 @@
 {% endblock contents_bottom %}
 
 {% block bottom_help %}
+    
+    <p><b class="red" >No match found.</b>  No best reference is defined for the given type. 
+    CRDS did not rule the type as not applicable for this parameter set.
+
+    <p><p><b class="red">n/a</b>  The type is not applicable for the given matching parameters.
+    
+    <p><p><b class="red">parameter</b> A parameter was not valid (for that type).  CRDS did not
+    rule the parameter as not applicable. 
+
 {% endblock bottom_help %}
 
 

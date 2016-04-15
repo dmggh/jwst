@@ -1,35 +1,28 @@
 {% extends "base.html" %}
 
-{% block contents_both %}
+{% block column1 %}
 
-<h2>List Actions</h2>
+<form action="/recent_activity/" method="post" > {% csrf_token %}
+    <h2>List Actions</h2>
+    <h3>Filters</h3>
+    <table>
+      {% include "action_options.html" %}
+      {% include "extension_options.html" %}
+      {% include "browse_options.html" %}      
+      {% include "date_input.html" %}
+    </table>
+    <input type="submit" value="Submit" />
+</form>
 
-<h3>Filters</h3>
-<div class="row">
+{% include "date_input_js.html" %}
 
-    <div class="col-md-8">
-        <form action="/recent_activity/" method="post" > {% csrf_token %}
-            <table>
-              {% include "action_options.html" %}
-              {% include "extension_options.html" %}
-              {% include "browse_options.html" %}      
-              {% include "date_input.html" %}
-            </table>
-            <input class="btn btn-primary" type="submit" value="Submit" />
-        </form>
-
-        {% include "date_input_js.html" %}
-    </div>
-
-    <div class="col-md-4">
-
-        <p><b>Recent Activity</b> Search the CRDS database for actions matching the
-        filters you specify.  To ignore a field during search, set it to *.
-        </p>
-    </div>
-</div>
-{% endblock contents_both %}
+{% endblock column1 %}
 
 {% block help %}
+
+<p><b>Recent Activity</b> Search the CRDS database for actions matching the
+filters you specify.  To ignore a field during search, set it to *.
+</p>
+
 {% endblock help %}
 

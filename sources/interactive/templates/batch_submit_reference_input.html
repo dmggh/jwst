@@ -8,7 +8,7 @@
     {% include "jpoll/jpoll_head_overrides.html" %}
 {% endblock %}
 
-{% block contents_both %}
+{% block column1 %}
     <h2>Batch Submit Reference <span class='locked_instrument'>{{locked_instrument}}</span></h2>
     {% include "select_files.html" %}        
 
@@ -16,37 +16,34 @@
           id="batch_submit_form" class="jpoll_ajax_html_form"
     	  onsubmit="return crds.validate_and_confirm_file_submit(this);">  {% csrf_token %}
 
-      <span><h3>Derive From Context:</h3>
+      <h3>Derive From Context:</h3>
       {% include "select_pmap.html" %}
-        </span>
        <br/>
         
-        <span><h3>Change Level: </h3><select name='change_level' value="{{change_level}}">
+        <h3>Change Level: <select name='change_level' value="{{change_level}}">
                 <option>SEVERE</option>
                 <option>MODERATE</option>
                 <option>TRIVIAL</option>
             </select>
-        </span>
+        </h3>
 
-        <span><h3>Creator: </h3>
+        <h3>Creator:
         <input type='text' name='creator' id='creator' size="40" value="{{creator}}">
-        </span>
+        </h3>
 
-      <span><h3>Description:</h3> <textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea>   
-      </span>
+      <h3>Description: <textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea>   
+      </h3>
 
-      <span><h3 style="display: inline;">Auto-Rename: </h3> {% include "auto_rename_input.html" %}  </span>
+      <h3>Auto-Rename:  {% include "auto_rename_input.html" %}  </h3>
 
-        <br/> <br/>
-
-      <span><h3 style="display: inline;">Compare Old Reference:</h3> <input type="checkbox" name="compare_old_reference" value="checked" {{compare_old_reference}} /></span>
+      <h3>Compare Old Reference:  <input type="checkbox" name="compare_old_reference" value="checked" {{compare_old_reference}} /></h3>
 
       <br/>
       <br/>
-      <input class="btn btn-primary" type="submit" value="Submit References" >
+      <input type="submit" value="Submit References" >
     </form>
 
-{% endblock contents_both %}
+{% endblock column1 %}
 
 {% block help %}
 

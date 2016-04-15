@@ -8,135 +8,120 @@
     {% include "jpoll/jpoll_head_overrides.html" %}
 {% endblock %}
 
-{% block contents_both %}
-
+{% block column1 %}
     <h2>Submit {{crds_filetype|capfirst}} Files <span class='locked_instrument'>{{locked_instrument}}</span></h2>
+    {% include "select_files.html" %}        
 
-<div class="row">
-    <div class="col-md-8">
+    <form method="post" action="/submit/{{crds_filetype}}/" enctype="multipart/form-data"
+        id="batch_submit_form" class="jpoll_ajax_html_form"
+        onsubmit="return crds.validate_and_confirm_file_submit(this);" > {% csrf_token %}
 
-        {% include "select_files.html" %}        
-
-        <form method="post" action="/submit/{{crds_filetype}}/" enctype="multipart/form-data"
-            id="batch_submit_form" class="jpoll_ajax_html_form"
-            onsubmit="return crds.validate_and_confirm_file_submit(this);" > {% csrf_token %}
-
-            <input type='hidden' name='observatory' value='{{observatory}}' />
-            
-            <span><h3>Change Level:</h3>
-            <select style="font-size: 0.75em;" name='change_level' value="{{change_level}}">
-                <option>SEVERE</option>
-                <option>MODERATE</option>
-                <option>TRIVIAL</option>
-            </select>
-            </span>
-
-            <span><h3>Creator:</h3>
-            <input type='text' name='creator' id='creator' size="40" value="{{creator}}">
-            </span>
-
-            <span><h3>Description:</h3>
-            <textarea name='description' id='description' rows="4" cols="50">{{description}}</textarea>
-            </span>
-
-            {% if crds_filetype == "reference" %}
-                <br/> <br/> <br/>
-                <span><h3 style="display:inline;">Compare Old Reference: </h3> <input type="checkbox" name="compare_old_reference" value='checked' {{compare_old_reference}} /></span>
-                <div id="comparison-context-hide">
-                    <h3>Comparison Context:</h3>
-                    {% include "select_pmap.html" %}
-                </div>        
-                <script type="text/javascript" language="javascript">
-                    $("input[name='compare_old_reference']").change(function() {
-                        var checkbox = $("input[name='compare_old_reference']");
-                        if (checkbox.is(":checked")) {
-                                $("#comparison-context-hide").show();
-                        } else {
-                                $("#comparison-context-hide").hide();
-                        };
-                    });
-                </script>
-            {% endif %}
-            
-            {% if crds_filetype == "mapping" %}
-                <span><h3>Generate Contexts:</h3>
-                    <input name='generate_contexts' type='checkbox' value='checked' {{generate_contexts}}> 
-                </span>
-                <div id="derivation-context-hide">
-                    <h3>Derive From Context:</h3>
-                   {% include "select_pmap.html" %}  
-                </div>      
-                <script type="text/javascript" language="javascript">
-                    $("input[name='generate_contexts']").change(function() {
-                        var checkbox = $("input[name='generate_contexts']");
-                        if (checkbox.is(":checked")) {
-                                $("#derivation-context-hide").show();
-                        } else {
-                                $("#derivation-context-hide").hide();
-                        };
-                    });
-                </script>
-            {% endif %}
-            
-            <br/>
-            <span><h3 style="display: inline;">Auto-Rename:</h3>
-            {% include "auto_rename_input.html" %}
-            </span>
-            
-            <br/> <br/>
-
-          <p></p>
-          <input class="btn btn-primary" type="submit" value="Submit Files">
-        </form>
+        <input type='hidden' name='observatory' value='{{observatory}}' />
         
-    </div>
-    <div class="col-md-4">
+        <h3>Change Level:
+        <select name='change_level' value="{{change_level}}">
+            <option>SEVERE</option>
+            <option>MODERATE</option>
+            <option>TRIVIAL</option>
+        </select>
+        </h3>
 
-        <p><b>Submit {{crds_filetype|capfirst}} Files</b> permanently enters files into CRDS and the 
-        archive.
+        <h3>Creator:
+        <input type='text' name='creator' id='creator' size="40" value="{{creator}}">
+        </h3>
 
-        {% include "select_files_help.html" %}
+        <h3>Description:</h3>
+        <textarea name='description' id='description' rows="4" cols="50">{{description}}</textarea>
 
         {% if crds_filetype == "reference" %}
-            <p><p><b>Compare Old Reference</b> check this to perform comparisons
-            against prior versions of the submitted reference files identified by the
-            comparison context.  If left unchecked,  the comparison context is ignored
-            and no comparison to prior versions is performed.
-            
-            <p><p><b>Comparison Context</b> specifies the context used to locate
-            comparison references.  The submitted references are matched against references
-            in this context with the same parameters for the sake of comparison.
+            <h3>Compare Old Reference:  <input type="checkbox" name="compare_old_reference" value='checked' {{compare_old_reference}} /></h3>
+            <div id="comparison-context-hide">
+                <h3>Comparison Context:</h3>
+                {% include "select_pmap.html" %}
+            </div>        
+            <script type="text/javascript" language="javascript">
+                $("input[name='compare_old_reference']").change(function() {
+                    var checkbox = $("input[name='compare_old_reference']");
+                    if (checkbox.is(":checked")) {
+                            $("#comparison-context-hide").show();
+                    } else {
+                            $("#comparison-context-hide").hide();
+                    };
+                });
+            </script>
         {% endif %}
-
-        <p><p><b>Change Level</b> The degree to which the new files are expected to 
-        impact science results.
-
-        <p><p><b>Description</b> information about what's new in this file and what
-        the expected impacts are.
-
-        <p><p><b>Creator</b> author of the contents or changes to the file,  not 
-        necessarily the submitter.  The submitter is known based on login information.
-
+        
         {% if crds_filetype == "mapping" %}
-            <p><p><b>Generate Contexts</b> Automatically generate a new .pmap and .imap 
-            utilizing submitted rmaps.  Ignored for submitted .pmaps or .imaps.
-            <p><p><b>Derive From Context</b> Generate new .imaps and .pmaps by inserting
-            the submitted .rmaps into this context to derive a new one.
+            <h3>Generate Contexts:
+                <input name='generate_contexts' type='checkbox' value='checked' {{generate_contexts}}> 
+            </h3>
+            <div id="derivation-context-hide">
+                <h3>Derive From Context:</h3>
+                {% include "select_pmap.html" %}  
+            </div>      
+            <script type="text/javascript" language="javascript">
+                $("input[name='generate_contexts']").change(function() {
+                    var checkbox = $("input[name='generate_contexts']");
+                    if (checkbox.is(":checked")) {
+                            $("#derivation-context-hide").show();
+                    } else {
+                            $("#derivation-context-hide").hide();
+                    };
+                });
+            </script>
         {% endif %}
-
-        {% include "auto_rename_help.html" %}
-
-        <p><p><b>NOTE:</b> All submitted files must pass certification before they will
-        be accepted by CRDS.  All references referred to by a mapping must be submitted
-        before the mapping will be accepted.
-
-    </div>
-</div>
-
-{% endblock contents_both %}
+        
+        <h3>Auto-Rename:
+        {% include "auto_rename_input.html" %}
+        </h3>
+        
+      <p></p>
+      <input type="submit" value="Submit Files">
+    </form>
+    
+{% endblock column1 %}
 
 
 {% block help %}
+
+<p><b>Submit {{crds_filetype|capfirst}} Files</b> permanently enters files into CRDS and the 
+archive.
+
+{% include "select_files_help.html" %}
+
+{% if crds_filetype == "reference" %}
+    <p><p><b>Compare Old Reference</b> check this to perform comparisons
+    against prior versions of the submitted reference files identified by the
+    comparison context.  If left unchecked,  the comparison context is ignored
+    and no comparison to prior versions is performed.
+    
+    <p><p><b>Comparison Context</b> specifies the context used to locate
+    comparison references.  The submitted references are matched against references
+    in this context with the same parameters for the sake of comparison.
+{% endif %}
+
+<p><p><b>Change Level</b> The degree to which the new files are expected to 
+impact science results.
+
+<p><p><b>Description</b> information about what's new in this file and what
+the expected impacts are.
+
+<p><p><b>Creator</b> author of the contents or changes to the file,  not 
+necessarily the submitter.  The submitter is known based on login information.
+
+{% if crds_filetype == "mapping" %}
+    <p><p><b>Generate Contexts</b> Automatically generate a new .pmap and .imap 
+    utilizing submitted rmaps.  Ignored for submitted .pmaps or .imaps.
+    <p><p><b>Derive From Context</b> Generate new .imaps and .pmaps by inserting
+    the submitted .rmaps into this context to derive a new one.
+{% endif %}
+
+{% include "auto_rename_help.html" %}
+
+<p><p><b>NOTE:</b> All submitted files must pass certification before they will
+be accepted by CRDS.  All references referred to by a mapping must be submitted
+before the mapping will be accepted.
+
 {% endblock help %}
 
 

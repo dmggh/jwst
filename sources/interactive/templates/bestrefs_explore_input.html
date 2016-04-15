@@ -1,18 +1,13 @@
 {% extends "base.html" %}
-{% load stdtags %}
 
 {% block head_additions %}
 {% endblock head_additions %}
 
-{% block contents_both %}
-<div class="row">
-
-    <div class="col-md-8">
-
+{% block column1 %}
     <h2>Explore Best References <span class="value">({{mapping.filename}} : {{instrument}})</span></h2>
     <form method="post" action="/bestrefs_explore_compute/"> {% csrf_token %}
-      <input type="hidden" name="context" id="context" value="{{mapping.filename}}" />
-      <input type="hidden" name="instrument" id="instrument" value="{{instrument}}" />
+      <input type="hidden" name="context" value="{{mapping.filename}}" />
+      <input type="hidden" name="instrument" value="{{instrument}}" />
       <h3>Enter Dataset Parameters</h3>
       <table width="100%">
 
@@ -21,21 +16,21 @@
       {% for key, choices in valid_values %}
         {% if "CORR" not in key %}
         <tr>
-          <td width="25%">{{key}}:</td>
+          <td width="25%" class="label">{{key}}:</td>
           <td width="25%">
             {% if choices %}
-                <select class="parameter_select" name="{{key}}" id='{{key|split:"."|join:"_"}}'>
+                <select name="{{key}}">
                     {% for opt in choices %}
-                      <option name="{{opt}}">{{opt}}</option>
+                      <option>{{opt}}</option>
                     {% endfor %} 
                 </select>
             {% else %}
-                <input type='text' name='{{key}}' id='{{key|split:"."|join:"_"}}' value="*" />
+                <input type='text' name='{{key}}' value="*" />
             {% endif %}
           </td>
           <td width="25%">
             {% if choices %}
-                <input type='text' name='{{key}}_text' id='{{key|split:"."|join:"_"}}_text' value='' />
+                <input type='text' name='{{key}}_text' value='' />
             {% endif %}
           </td>
         </tr>
@@ -46,13 +41,13 @@
       <tr><td> </td></tr>
 
       <tr>
-        <td width="25%" class="">DATE-OBS:</td>
-        <td width="20%"><input type="text" name="DATE-OBS" id="DATE-OBS" value="{{dateobs}}"/> </td>
+        <td width="25%" class="label">DATE-OBS:</td>
+        <td width="20%"><input type="text" name="DATE-OBS" value="{{dateobs}}"/> </td>
         <td width="30%"><span class="hint">e.g. 2011-01-01</span></td>
       </tr>
       <tr>
-        <td width="25%" class="">TIME-OBS:</td>
-        <td width="20%"><input type="text" name="TIME-OBS" id="TIME-OBS" value="{{timeobs}}"/> </td>
+        <td width="25%" class="label">TIME-OBS:</td>
+        <td width="20%"><input type="text" name="TIME-OBS" value="{{timeobs}}"/> </td>
         <td width="30%"><span class="hint">e.g. 12:01:57</span> </td>
       </tr>
       
@@ -62,16 +57,16 @@
       {% for key, choices in valid_values %}
         {% if "CORR" in key %}
         <tr>
-          <td width="25%" class="">{{key}}:</td>
+          <td width="25%" class="label">{{key}}:</td>
           <td width="25%">
             {% if choices %}
-                <select name="{{key}}" id='{{key|split:"."|join:"_"}}'>
+                <select name="{{key}}">
                     {% for opt in choices %}
                       <option>{{opt}}</option>
                     {% endfor %} 
                 </select>
             {% else %}
-                <input type='text' name='{{key}}' id='{{key|split:"."|join:"_"}}' value="*" />
+                <input type='text' name='{{key}}' value="*" />
             {% endif %}
           </td>
         </tr>
@@ -83,39 +78,24 @@
 
       </table>
 
-      <input class="btn btn-default" type="submit" value="Get References" />
+      <input type="submit" value="Get References" />
     </form>
-
-    </div>
-
-    <div class="col-md-4">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                Enter Dataset Parameters
-            </div>
-            <div class="panel-body">
-                <p>
-                Select the dataset matching parameters used to identify best references. 
-                </p>
-
-                <p/><p>Some of the parameters may not be relevant to the
-            instrument mode of interest and should be left unselected in order to avoid errors.
-            The results will be determined by the context file and parameters selected.
-                </p>
-
-                <p/><p>The secondary text box available for some parameters can be used to
-                specify arbitrary values not captured by the dropdown menu.   Any specified
-                write-in parameter will take precedence over the dropdown menu.
-                </p>
-
-            </div>
-        </div>
-    </div>
-
-</div> {# row #}
-
-{% endblock contents_both %}
+{% endblock column1 %}
 
 {% block help %}
+    <p><b>Enter Dataset Parameters</b> 
+    Select the dataset matching parameters used to identify best references. 
+    </p>
+
+    <p/><p>Some of the parameters may not be relevant to the
+instrument mode of interest and should be left unselected in order to avoid errors.
+The results will be determined by the context file and parameters selected.
+    </p>
+
+    <p/><p>The secondary text box available for some parameters can be used to
+    specify arbitrary values not captured by the dropdown menu.   Any specified
+    write-in parameter will take precedence over the dropdown menu.
+    </p>
+
 {% endblock help %}
 

@@ -1,12 +1,7 @@
 {% extends "base.html" %}
 
-{% block contents_both %}
+{% block column1 %}
     <h2>Mark Files Bad</h2>
-
-    <div class="row">
-
-    <div class="col-md-8">
-
     <form method="post" action="/mark_bad/" enctype="multipart/form-data"> 
       {% csrf_token %}
       <table width="100%">
@@ -14,43 +9,41 @@
        <input type='hidden' name='observatory' value='{{observatory}}' />
 
         <tr>
-          <td width="5%" class="tdlabel">Files:</td>
+          <td width="5%" class="label">Files:</td>
           <td width="25%">
             <textarea name="file_known" cols="50" rows="4" >{{file_known}}</textarea>
           </td>
         </tr>
         
         <tr>
-          <td width="5%" class="tdlabel">Mark as:</td>
+          <td width="5%" class="label">Mark as:</td>
           <td width="25%">
             <input type="radio" name="badflag" value="bad" 
                 {% if badflag == 'bad' %}
                     checked
                 {% endif %}
-            ><span class="tdlabel">Bad</span></input>
+            ><span class="label">Bad</span></input>
             <input type="radio" name="badflag" value="ok" 
                 {% if badflag == 'bad' %}
                     checked
                 {% endif %}
-            ><span class="tdlabel">OK</span></input>
+            ><span class="label">OK</span></input>
           </td>
         </tr>
         
         <tr>
-          <td width="5%" class="tdlabel">Reason:</td>
+          <td width="5%" class="label">Reason:</td>
           <td width="25%"><textarea name="why" rows="4" cols="40">{{why}}</textarea>
           </td>
         </tr>
       
       </table>
       <p></p>
-      <input class="btn btn-primary" type="submit" value="Submit">
+      <input type="submit" value="Submit">
     </form>
+{% endblock column1 %}
 
-    </div>
-
-    <div class="col-md-4">
-
+{% block help %}
 
     <p><b>Mark Files Bad</b> Marks files as "bad" or "ok".   
     
@@ -82,11 +75,4 @@
 
     <p><p><b>Reason</b> Why this file is no longer usable or is usable once again.
     
-    </div>
-
-    </div>
-
-{% endblock contents_both %}
-
-{% block help %}
 {% endblock help %}

@@ -6,31 +6,29 @@
 
 <form method="post" action="/login/"  onsubmit="crds.validate_login();" >
 {% csrf_token %}
-<table style="margin-left: 2em;">
+<table>
 <tr>
-    <td style="font-size: 1.3em; text-align: right;">{{ form.username.label_tag }}</td>
+    <td>{{ form.username.label_tag }}</td>
     <td>{{ form.username }}</td>
 </tr>
 <tr>
-    <td  style="font-size: 1.3em; text-align: right; color: darkblue;">Lock Instrument:</td> 
+    <td class="label">Lock Instrument:</td> 
     <td> {% include "select_instrument.html" %} </td>
 </tr>
 <tr>
-    <td style="font-size: 1.3em; text-align: right;">{{ form.password.label_tag }}</td>
+    <td>{{ form.password.label_tag }}</td>
     <td>{{ form.password }}</td>
 </tr>
 </table>
 
-<input class="btn btn-primary btn-lg" type="submit" value="Login"/>  
+<br/>
+<p>
+<span class='warning'>WARNING: </span> 
+<span class='gray'>Any pending submissions in other sessions will be automatically cancelled.</span>
+</p>
+<br/>
 
-<br/> <br/> <br/>
-
-<div class="panel panel-warning">
-    <div class="panel-heading">WARNING:</div> 
-    <div class="panel-body">
-        Any pending submissions in other sessions will be automatically cancelled.
-    </div>
-</div>
+<input type="submit" value="login" style='font-size: 1.1em; font-weight: bold;' />  
 
 <input type="hidden" name="next" value="{{ next }}" />
 </form>
