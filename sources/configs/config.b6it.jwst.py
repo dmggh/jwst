@@ -49,6 +49,11 @@ CRDS_MAPPING_URL   = CRDS_URL + "get/"
 CRDS_UNCHECKED_REFERENCE_URL = CRDS_URL + "unchecked_get/references/" + observatory + "/"
 CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/mappings/" + observatory + "/"
 
+# As of 2016-04-18:
+
+# CRDS_UNCHECKED_REFERENCE_URL = "https://iwjwdmscauiwebv.stsci.edu/portal/Download/file/JWST/reference/"
+# CRDS_UNCHECKED_MAPPING_URL = "https://iwjwdmscauiwebv.stsci.edu/portal/Download/file/JWST/reference/"
+
 FORCE_REMOTE_MODE = False
 
 # From Kim Dupries,  likely B6 equivalents:
