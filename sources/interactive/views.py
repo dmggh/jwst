@@ -1262,7 +1262,8 @@ def submit_confirm(request):
         raise CrdsError("This submission was already confirmed or cancelled.")
 
     usr = str(request.user)
-    assert usr == result.user, "User mismatch: file Submitter='%s' and Confirmer='%s' don't match." % (usr, result.user)
+    assert usr == result.user or request.user.is_superuser, \
+        "User mismatch: file Submitter='%s' and Confirmer='%s' don't match." % (usr, result.user)
 
     new_file_map = dict(result.new_file_map)
     new_files = new_file_map.values()

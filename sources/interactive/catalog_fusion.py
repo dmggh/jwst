@@ -43,13 +43,17 @@ def webify_parameters(header, rows):
         web_rows.append(web_row)
     return web_header, web_rows
 
-def webify_matching_keys(keys):
+def webify_matching_keys(keys, normal_length):
     """Break the common case of or-bar separated globs into a comma separated string.
     Leave fancy forms of values alone.  Like raw regexes, relational exprs, and BETWEEN.
     """
     webified = []
     for key in keys:
         webified.append(", ".join(key.split("|")) if not selectors.esoteric_key(key) else key)
+    try:
+        webified += ["--"] * (normal_length - len(webified) - 1)
+    except:
+        pass
     return tuple(webified)
 
 def fix_meta_parameters(parameters):
@@ -78,7 +82,7 @@ def get_fused_rmap_parameters(mapping, catalog_fields=models.FileBlob.fusion_ite
     rows = []
     for row in rmap_dict["selections"]:
         filename = row[-1]
-        extended_row = (webify_matching_keys(row[:-1]) + 
+        extended_row = (webify_matching_keys(row[:-1], len(header[:-1])) + 
                         tuple(getattr(fileblobs[filename], field[0], "--") for field in catalog_fields) + 
                         (filename,))
         rows.append(extended_row)
