@@ -1,0 +1,9 @@
+#! /bin/tcsh -f
+
+./clean
+git checkout -- crds/git_version.py
+git pull origin
+git status
+git remote -v
+
+
