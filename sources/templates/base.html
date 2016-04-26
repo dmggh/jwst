@@ -76,6 +76,17 @@
  
 	    {% block contents_top %}{% endblock contents_top %}
         
+        {% if error_message %}
+            <div class="panel panel-danger">
+                <div class="panel-heading">
+                    Error...
+                </div>
+                <div class="panel-body">
+                  {{error_message}}
+                </div>
+            </div>
+        {% endif %}
+
         <div id="both_columns" class="body_panel">
             
           {% block contents_both %} 

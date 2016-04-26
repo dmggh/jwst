@@ -84,16 +84,34 @@ crds.poll_lock_status = function () {
 
 // Tailor the CRDS base template to dynamically add a JPOLL log and
 // hide the original column1 and column2 contents.
-crds.setup_status_display = function (title) {
-    $("#column1").hide();
-    $("<div id='after-column1' class='column1'>").insertAfter("#column1");
-    $("#after-column1").css({"margin":"4px"});
+crds.setup_status_display = function (start_id, title) {
+
+    // The #column1 was removed and replaced with twitter bootstrap
+    // So, instead of looking for the div with id="column1"
+    // I want to find the closest ancestor with a class that
+    // starts with col-
+    
+    // Figure out the nearest ancestor div with "col-*" as a 
+    // class name
+    var div_col = $('#'+start_id).closest('div[class^=col-]');
+    console.log('div col is ' + div_col);
+    console.log(div_col);
+
+    var div_col_classes = div_col.attr('class');
+    console.log('div col classes are ' + div_col_classes);
+    
+    // Hide it (but maybe want to remove it)
+    $(div_col).hide();
+    
+    // This is the big change:
+    //    1. add in the classes from the one we just hid
+    //    2.  insert after the one we just hid
+    $("<div id='after-column1' class='"+div_col_classes+"'></div>").insertAfter(div_col);
+    
     $("#after-column1").append(
-        "<br/><br/>"
-    ).append(
         $("<h3>" + title + "</h3>").css({"text-align":"center"})
     ).append(
-        $("<div id='jpoll_log'>")
+        $("<div id='jpoll_log'></div>")
     );
     $(".error").empty();
     
@@ -126,7 +144,12 @@ crds.validate_and_confirm_file_submit = function(form) {
     
     $("input[type='submit']").hide();
     
-    crds.setup_status_display("Submission Status");
+    // Added the form attribute id in here as it is a new parameter
+    // to this function. 
+    console.log('form is ');
+    console.log(form);
+    console.log('form id ' + $(form).attr('id'));
+    crds.setup_status_display($(form).attr('id'), "Submission Status");
     
     return true;
 };
@@ -149,7 +172,7 @@ crds.validate_and_confirm_add_delete = function(form) {
     
     $("input[type='submit']").hide();
     
-    crds.setup_status_display("Add/Delete Status");
+    crds.setup_status_display($(form).attr('id'), "Add/Delete Status");
     
     return true;
 };

@@ -2,6 +2,10 @@
 
 {% block contents_both %}
     <h2>Set Context</h2>
+
+    <div class="row">
+    <div class="col-md-8">
+
     <form method="post" action="/set_default_context/" enctype="multipart/form-data" onsubmit="return crds.warn_delay();" >  {% csrf_token %}
 
       <h3>Select:</h3>
@@ -35,6 +39,43 @@
 
       <input class="btn btn-primary" type="submit" value="Set Default Context" />
     </form>
+
+    </div>
+    <div class="col-md-4">
+
+        <p><b>Set Context</b> is typically used to define the context which will be
+          used by the operational pipeline.  Set Context can also be used to modify the
+          editing context from which new contexts will be derived by default during
+          file submissions.
+          </p>
+
+        <p><b>Select:</b> Choose the type of default to modify, operational or edit.
+        This also shows the current default of the selected type.  Normally select
+        operational to update pipeline context use, use edit to set the default
+        starting point for file submissions.
+          </p>
+
+        <p><b>Set To:</b> The context of the selected type will be set to this value.
+        Click on the Set To accordion to see other options for choosing the value.
+          </p>
+
+        <p><b>Reason For Change:</b> Reason why context is being set. This is shown 
+        in the context history.   For single context increments,  the reason is carried
+        over from the file submission page.   For multi-context increments,  the
+        operator or submitters must make up an appropriate summary.
+        </p>
+
+        <p><b>Operational</b> Defines default pmap which will be used
+        operationally to determine best references.  The operational context cannot
+        contain blacklisted references.
+          </p>
+
+        <p><b>Edit</b> Defines default starting point (derive from) for future contexts
+        created by the server as a result of file submissions.
+          </p>
+
+    </div>
+</div>
     
     <script type="text/javascript">
         crds.context_map = {
@@ -66,31 +107,4 @@
 {% endblock contents_both %}
 
 {% block help %}
-
-<p><b>Set Context</b> is typically used to define the context which will be
-  used by the operational pipeline.  Set Context can also be used to modify the
-  editing context from which new contexts will be derived by default during
-  file submissions.
-
-<p><b>Select:</b> Choose the type of default to modify, operational or edit.
-This also shows the current default of the selected type.  Normally select
-operational to update pipeline context use, use edit to set the default
-starting point for file submissions.
-
-<p><b>Set To:</b> The context of the selected type will be set to this value.
-Click on the Set To accordion to see other options for choosing the value.
-
-<p><b>Reason For Change:</b> Reason why context is being set. This is shown 
-in the context history.   For single context increments,  the reason is carried
-over from the file submission page.   For multi-context increments,  the
-operator or submitters must make up an appropriate summary.
-</p>
-
-<p><b>Operational</b> Defines default pmap which will be used
-operationally to determine best references.  The operational context cannot
-contain blacklisted references.
-
-<p><b>Edit</b> Defines default starting point (derive from) for future contexts
-created by the server as a result of file submissions.
-
 {% endblock help %}
