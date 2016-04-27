@@ -1,0 +1,28 @@
+#! /usr/bin/env python
+
+import os, sys
+
+from crds import utils, log, config
+
+def size_catalog(cat_path):
+    total = 0
+    with open(cat_path) as cat_file:
+        lines = cat_file.read().splitlines()
+        for filename in lines:
+            observatory = os.path.basename(cat_path).split("_")[0]
+            filepath = config.locate_file(filename, observatory)
+            size =  os.stat(filepath).st_size
+            log.info("File:", repr(filepath), "=", utils.human_format_number(size))
+            total += size
+    log.info("Catalog:", repr(cat_path), "total size =", utils.human_format_number(total))
+    return total
+
+def main():
+    total = 0
+    for cat_path in sys.argv[1:]:
+        total += size_catalog(cat_path)
+    log.info("Total bytes of", len(sys.argv[1:]), "catalogs =", utils.human_format_number(total))
+
+if __name__ == "__main__":
+    main()
+
