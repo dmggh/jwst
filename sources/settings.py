@@ -170,9 +170,12 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'dbbackup',
     'django_nose',
+    'smuggler',
 )
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+
 
 if DEBUG_EXTRAS:
     INSTALLED_APPS += (

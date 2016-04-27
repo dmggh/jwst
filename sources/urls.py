@@ -96,9 +96,7 @@ urlpatterns = patterns('',
         'crds.server.interactive.views.display_result'),
                        
     url(r'^edit_context_history/(?P<history_id>\d+)/{0}/$'.format(FILE_RE_STR), 
-        'crds.server.interactive.views.edit_context_history'),
-                       
-
+        'crds.server.interactive.views.edit_context_history'),                    
                          
     url(r'^jpoll/open_channel/$', 'crds.server.jpoll.views.open_channel'),
     url(r'^jpoll/pull_messages/$', 'crds.server.jpoll.views.pull_messages'),
@@ -106,7 +104,7 @@ urlpatterns = patterns('',
 #     url(r'^jpoll/test_page/$', 'crds.server.jpoll.views.test_page'),
 #     url(r'^jpoll/test_worker/$', 'crds.server.jpoll.views.test_worker'),
 #     url(r'^jpoll/test_response/$', 'crds.server.jpoll.views.test_response'),
-    
+
     #        (r'site_media/(?P<path>.*)$', 'django.views.static.serve',
     #         {'document_root': settings.MEDIA_ROOT }),
     #        
@@ -126,6 +124,12 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns += patterns('',
+
+    # ...  django-smuggler ....
+    (r'^admin/', include('smuggler.urls')),  # before admin url patterns!
+    (r'^admin/', include(admin.site.urls)),
+    # ...  django-smuggler ....
+    
     (r'^admin/', include(admin.site.urls)),
 )
 
