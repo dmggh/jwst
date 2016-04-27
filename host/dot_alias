@@ -58,8 +58,8 @@ alias BYE logout
 #  Source code areas
 alias crds       "cd ${CRDS}/CRDS"
 alias server     "cd ${CRDS}/CRDS_server"
-alias stack      "cd ${CRDS_STACK}/../installer3/build"
-alias installer "cd ${CRDS}/crds_stacks/installer3/build"
+alias stack      "cd ${CRDS_STACK}/../installer4/build"
+alias installer "cd ${CRDS}/crds_stacks/installer4/build"
 
 # Server maintenance areas
 alias logs       "cd ${CRDS}/server/logs"
