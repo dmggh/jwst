@@ -3,14 +3,22 @@
 setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda
 setenv META_PREFIX ${CRDS_STACK}
 
-rm -rf ${CRDS_STACK}
-cd ${CRDS}/crds_stacks/installer4/build
+rm -rf ${CRDS_STACK}.old
+mv ${CRDS_STACK} ${CRDS_STACK}.old
+mkdir ${CRDS_STACK}
+cd ${CRDS}/crds_stacks
+rm -rf installer4
+cp -r /eng/ssb/crds/installer4 .
+cd installer4/build
+
 
 rm *.err
 ./meta clean >& /dev/null
 ./meta install @crds  |& tee ${CRDS_STACK}/crds.err
+./meta clean >& /dev/null
 rm miniconda.sh
-git status
+git status  |& tee ${CRDS_STACK}/git.status
+git log --stat |& tee ${CRDS_STACK}/git.log
 
 # setenv PATH ${CRDS_STACK}/bin:${PATH}
 # rehash
