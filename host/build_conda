@@ -11,7 +11,6 @@ rm -rf installer4
 cp -r /eng/ssb/crds/installer4 .
 cd installer4/build
 
-
 rm *.err
 ./meta clean >& /dev/null
 ./meta install @crds  |& tee ${CRDS_STACK}/crds.err
@@ -19,6 +18,7 @@ rm *.err
 rm miniconda.sh
 git status  |& tee ${CRDS_STACK}/git.status
 git log --stat |& tee ${CRDS_STACK}/git.log
+conda list |& tee ${CRDS_STACK}/conda.list
 
 # setenv PATH ${CRDS_STACK}/bin:${PATH}
 # rehash

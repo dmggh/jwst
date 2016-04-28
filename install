@@ -1,5 +1,8 @@
 #! /bin/csh
 
+cp host/dot_setenv ~/.setenv
+cp host/dot_alias ~/.alias
+
 source ~/.setenv
 source ~/.alias
 ./_install $*
