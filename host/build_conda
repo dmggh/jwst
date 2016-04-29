@@ -16,12 +16,14 @@ rm *.err
 ./meta install @crds  |& tee ${CRDS_STACK}/crds.err
 ./meta clean >& /dev/null
 rm miniconda.sh
+
+setenv PATH ${CRDS_STACK}/bin:${PATH}
+rehash
+
 git status  |& tee ${CRDS_STACK}/git.status
 git log --stat |& tee ${CRDS_STACK}/git.log
 conda list |& tee ${CRDS_STACK}/conda.list
 
-# setenv PATH ${CRDS_STACK}/bin:${PATH}
-# rehash
 
 # Install the entire base to get mercurial... for this.
 # ../src/pull_local
