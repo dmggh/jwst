@@ -1,0 +1,73 @@
+#! /usr/bin/env pysh
+#-*-python-*-
+
+from __future__ import print_function
+
+import uuid
+import pwd
+import shutil
+import os
+
+from crds import log
+
+def tempname(same_dir):
+    """Generate a temporary filename located in `same_dir`."""
+    return os.path.join(same_dir, str(uuid.uuid4()))
+
+def reown(fpath, mode):
+    same_dir = os.path.dirname(fpath)
+    temp_path1, temp_path2 = tempname(same_dir), tempname(same_dir)
+
+    log.info("Copying", repr(fpath), "-->", repr(temp_path1))
+    shutil.copy(fpath, temp_path1)
+    
+    log.info("Chmod'ing", repr(temp_path1), "-->", oct(mode))
+    os.chmod(temp_path1, mode)
+    
+    log.info("Moving", repr(fpath), "-->", repr(temp_path2))
+    shutil.move(fpath, temp_path2)
+    
+    log.info("Moving", repr(temp_path1), "-->", repr(fpath))
+    shutil.move(temp_path1, fpath)
+    
+    log.info("Removing", repr(temp_path2))
+    os.remove(temp_path2)
+    
+    stat = os.stat(fpath)
+    current_mode = oct(stat.st_mode)
+    uid = stat.st_uid
+    pentry = pwd.getpwuid(uid)
+    username = pentry.pw_name
+    log.info("Done", repr(fpath), "mode =", current_mode, "owner =", username)
+    
+def main(path, modestr):
+    """Re-own all files under `path` which are not already owned by the current
+    user and chmod them to `mode`.
+    """
+    log.set_log_time(True)
+
+    mode = int(modestr, 8)
+
+    log.info("Finding all files under:", repr(path))
+    all_files = set(words("find ${path} -type f"))
+
+    log.info("Finding current user files under:", repr(path))
+    user_files = set(words("find ${path} -type f -user `whoami`"))
+
+    non_user_files = sorted(list(all_files - user_files))
+    log.info("Files not owned by current user:", non_user_files)
+
+    for fpath in non_user_files:
+        with log.error_on_exception("Failed reowning", repr(fpath)):
+            reown(fpath, mode)
+
+if __name__ == "__main__":
+    usage("[path] [filemode] [--help]", 2, 2, help="""
+
+Change ownership of files under [path] not already owned by the current
+user to the current user with permissions [filemode].  
+
+[filemode] is 3-digit octal permissions.
+
+""")
+    main(sys.argv[1], sys.argv[2])
