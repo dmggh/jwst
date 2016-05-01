@@ -42,8 +42,12 @@ JPOLL_KEY_RE = re.compile(r"^JPOLL-KEY-\d\d\d\d-\d\d-\d\d-\d\d:\d\d:\d\d(.\d\d\d
 
 def get_key(request):
     """Fetch the unique JPOLL channel identifier for this request."""
-    key = request.session["jpoll_key"]
-    assert JPOLL_KEY_RE.match(key), "Badly formatted jpoll_key " + repr(key)
+    key = None
+    try:
+        key = request.session["jpoll_key"]
+        assert JPOLL_KEY_RE.match(key), "Badly formatted jpoll_key " + repr(key)
+    except:
+        print("Failed fetching JPOLL key from request.session.", file=sys.stderr)
     return key
  
 def get_channel(request):
