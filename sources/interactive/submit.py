@@ -283,6 +283,8 @@ class FileSubmission(object):
             log.info("Copying", upload_location, "-->", permanent_location)
             self.push_status("Copying '{}'".format(original_name))
             shutil.copyfile(upload_location, permanent_location)
+        with log.error_on_exception("Failed chmod'ing cached file", srepr(permanent_location)):
+            os.chmod(permanent_location, 0o444)
         
 #        data_file.setval("COMMENT", "Header parameters of this file only reflect the original CRDS assignment rules.")
 #        data_file.setval("COMMENT", "The CRDS rules,  which can change independently, define how this file is assigned now.")
@@ -961,7 +963,7 @@ class Delivery(object):
         for filename in self.delivered_files:
             cat.write(filename + "\n")
         cat.close()
-        os.chmod(catpath, 0444)
+        os.chmod(catpath, 0o444)
         return catpath
 
     def deliver_make_links(self, catalog, paths):
