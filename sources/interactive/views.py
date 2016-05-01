@@ -37,7 +37,7 @@ from crds import (rmap, utils, timestamp, uses, matches, log, config)
 from crds import (data_file, pysh)
 from crds import CrdsError
 
-from . import (models, web_certify, web_difference, submit, versions, locks, html)
+from . import (models, web_certify, web_difference, submit, versions, locks, html, mail)
 from .templatetags import stdtags
 from .models import FieldError, MissingInputError
 from .common import capture_output, srepr, profile, complete_re
@@ -729,15 +729,48 @@ def display_result(request, results_id):
     pars["results_id"] = results_id  # needed to implement "disposition", confirmed or cancelled.
     return crds_render(request, result.page_template, pars)
 
-def render_repeatable_result(request, template, rdict, jpoll_handler=None):
+
+GENERIC_BODY = """
+
+Job for {user} to {results_kind}
+
+Results at: {repeatable_url}
+
+{uploaded_file_mention}
+
+"""
+
+def render_repeatable_result(request, template, rdict, jpoll_handler=None, 
+                             email_subject=None, email_body=GENERIC_BODY):
     """Create a repeatable results model instance and redirect to it."""
-    rdict["user"] = str(request.user)
-    rdict["uploaded_file_names"] = get_uploaded_filepaths(request)
+
+    user = str(request.user)
+    rdict["user"] = user
+
+    uploaded_file_names = get_uploaded_filepaths(request)  # Django temps
+    rdict["uploaded_file_names"] = uploaded_file_names
     result = models.RepeatableResultBlob.new(template, rdict)
+
+    with log.error_on_exception("Failed sending results e-mail"):
+        if email_subject is None:
+            results_kind = template.replace("_results", "").replace(".html","")
+            email_subject = "results for " + user + " about " + results_kind
+        email_subject = "CRDS " + sconfig.observatory.upper() + " " + sconfig.server_usecase.upper() + " " + email_subject
+        all_uploaded = get_files(request)[1].keys()
+        uploaded_file_mention = ("For files: \n\n" + "\n".join(all_uploaded)) if all_uploaded else ""
+        mail.mail(sconfig.CRDS_RESULTS_FROM_ADDRESS, 
+                  sconfig.CRDS_RESULTS_TO_ADDRESSES,  # + [ request.user.email ], 
+                  subject=email_subject, body=email_body, 
+                  results_kind=results_kind,
+                  uploaded_file_mention=uploaded_file_mention,
+                  repeatable_url=sconfig.CRDS_URL + result.repeatable_url,
+                  **rdict)
+        
     # time.sleep(60.0*35.0); # currently 30 minute proxy timeouts
     if jpoll_handler:
         jpoll_handler.done(0, result.repeatable_url)
         time.sleep(10.0)  # wait 10 seconds to give jpoll done processing consistent behavior. 2x jpoll poll rate
+
     return HttpResponseRedirect(result.repeatable_url)   # secure
 
 # ===========================================================================
