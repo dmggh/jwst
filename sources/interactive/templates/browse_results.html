@@ -182,6 +182,7 @@
     </table>
 {% endaccordion %}
 
+{% comment %}
 {% accordion "Used By Files" %}
     <p>
         {% if used_by_files %}
@@ -193,7 +194,8 @@
         {% endif %}
     </p>
 {% endaccordion %}
-    
+{% endcomment %}
+
 {% if match_paths %}
     {% accordion "Lookup Patterns" %}
     <table border="1">
