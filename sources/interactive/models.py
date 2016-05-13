@@ -873,12 +873,11 @@ class FileBlobRepairMixin(object):
         self.set_fits_field("aperture", self.aperture_keyword)  # aperture_keyword from FileBlobModel multiple inheritance
         
     def repair_useafter_date(self):
-        with log.error_on_exception("Failed setting USEAFTER from FITS"):
-            self.set_fits_field("useafter_date", "USEAFTER", timestamp.parse_date)
-            self.save()
-            return
         self.useafter_date = DEFAULT_USEAFTER_DATE
         self.save()
+        # try:
+        #     self.set_fits_field("useafter_date", "USEAFTER", timestamp.parse_date)
+        # except Exception:
 
     def repair_reference_file_type(self):
         self.set_fits_field("reference_file_type", "REFTYPE")
