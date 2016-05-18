@@ -100,6 +100,8 @@ def get_dataset_headers_by_id(context, dataset_ids):
 
     headers = dict()
     dataset_ids = [ dataset.upper() for dataset in dataset_ids ]
+    dataset_ids = [ dataset + ":" + dataset if ":" not in dataset else dataset 
+                    for dataset in dataset_ids ]
     ids_by_instrument = defaultdict(list)
     for dataset in dataset_ids:
         for detector, instrument in DETECTOR_TO_INSTRUMENT.items():
@@ -119,9 +121,6 @@ def get_dataset_headers_by_id(context, dataset_ids):
     
     for instr, dids in ids_by_instrument.items():
         instr_headers = parameter_interface.get_dataset_headers_by_id(dids, matching_params[instr])
-        # for (key, header) in instr_headers.items():
-        #     if "META.INSTRUMENT.TYPE" not in header:
-        #         header["META.INSTRUMENT.TYPE"] = header["META.INSTRUMENT.NAME"]
         headers.update(instr_headers)
 
     return headers

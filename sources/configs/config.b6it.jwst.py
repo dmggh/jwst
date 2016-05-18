@@ -62,5 +62,5 @@ FORCE_REMOTE_MODE = False
 # https://dads6.stsci.edu:8888/crds
 # https://dadsc.stsci.edu:8888/crds
 
-ARCHIVE_PARAMETER_SERVICE_URL = "https://iljwdmscarcv.stsci.edu:8888/crds"
+ARCHIVE_PARAMETER_SERVICE_URL = "http://iljwdmscarcv.stsci.edu:8888/crds"
 # ARCHIVE_PARAMETER_SERVICE_URL = "http://jwdmsdevvm4:8888/crds"

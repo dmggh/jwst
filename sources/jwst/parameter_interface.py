@@ -70,21 +70,17 @@ def get_dataset_headers_by_id(dataset_ids, matching_parameters):
     for i in range(0, len(dataset_ids), max_headers):
         results = get_header_block(
             dataset_ids[i:min(i+max_headers, len(dataset_ids))], matching_parameters)
-        results = filter_headers(results)
         total_headers.update(results)
     total_headers = { did.upper() : header for (did, header) in total_headers.items() }
     for did in dataset_ids:
-        if did not in total_headers:
+        if did not in total_headers:  # Bad ID format
             total_headers[did] = "NOT FOUND bad ID format for " + repr(did)
-        if did in total_headers and not total_headers[did]:
-            total_headers[did] = "NOT FOUND dataset ID does not exist " + repr(did)
+        else:
+            if not total_headers[did]:  # OK format,  no database entry
+                total_headers[did] = "NOT FOUND dataset ID does not exist " + repr(did)
+            else:
+                header = total_headers[did]
+                for key, value in header.items():
+                    if value is None:
+                        header[key] = "UNDEFINED"
     return total_headers
-
-
-def filter_headers(headers):
-    """Massage archive web service headers as needed for use by CRDS."""
-    for dataset_id, header in headers.items():
-        for key, value in header.items():
-            if value is None:
-                header[key] = "UNDEFINED"
-    return headers

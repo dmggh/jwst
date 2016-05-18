@@ -845,7 +845,7 @@ else:  # JWST
             "interactive/test_data/jwst_miri_6666.imap",
             ]
         
-        archive_dataset_id = "ASSOCIATION:jw00001001001_01101_01333.MIRIMAGE"
+        archive_dataset_id = "ASSOCIATION:JW94015004002_02109_00001.MIRIMAGE"
 
         certify_post_fits_bad = "interactive/test_data/jwst_miri_amplifier_bad.fits"
 
