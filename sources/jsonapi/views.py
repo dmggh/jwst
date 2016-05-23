@@ -17,6 +17,7 @@ from jsonrpc._json import dumps
 from jsonrpc.site import jsonrpc_site
 
 from django.utils import html
+from django.contrib.auth.models import User
 
 from . import crds_db
 from crds.server.interactive import models as imodels
@@ -24,6 +25,9 @@ from crds.server.interactive import versions
 from crds.server.interactive.common import DATASET_ID_RE, FITS_KEY_RE, FITS_VAL_RE, LIST_GLOB_RE
 from crds.server.interactive.common import INSTRUMENT_RE, FIELD_RE
 import crds.server.config as config    # server parameters
+
+# from crds.server.jpoll import views as jviews
+from crds.server.interactive import submit
 
 from crds.client import proxy
 from crds import rmap, utils, log, timestamp, pysh
@@ -365,6 +369,19 @@ def check_boolean(flag):
     """Verify boolean input value and return Python bool."""
     assert flag in BOOL_TRANS, "Invalid boolean value."
     return BOOL_TRANS[flag]
+
+class InvalidUserError(EncError):
+    """The specified username is not known to this server."""
+ 
+def check_username(username):
+    """Verify that username is a valid user."""
+    try:
+        if username != "*":
+            assert len(list(User.objects.filter(username=username))) == 1
+    except Exception:
+        raise InvalidUserError("The specified CRDS server username " + repr(username) + " is invalid.")
+    return username
+
 # ===========================================================================
 
 @jsonrpc_method('list_mappings(observatory=String, glob_pattern=String)')   # secure
@@ -826,6 +843,31 @@ def get_remote_context(request, observatory, pipeline_name):
     observatory = check_observatory(observatory)
     pipeline_name = check_pipeline_name(pipeline_name)
     return imodels.get_remote_context(observatory, pipeline_name)
+
+# ===============================================================
+
+@jsonrpc_method('get_submission_info(String, String)')
+def get_submission_info(request, observatory, username):
+    """Return parameters relevant to doing command line file submissions."""
+    observatory = check_observatory(observatory)
+    username = check_username(username)
+    return submit.get_submission_info(observatory, username)
+ 
+# # ===============================================================
+ 
+# @jsonrpc_method('jpoll_pull_messages(key=String, since_id=int)')
+# def jpoll_pull_messages(request, key, since_id):
+#     """Return a list of jpoll message objects from channel defind by `key`
+#     with sequence numbers after `since_id`.
+#     """
+#     return jviews.pull_messages_core(key, since_id=since_id)
+ 
+# @jsonrpc_method("jpoll_abort(key=String)")
+# def jpoll_abort(request, key):
+#     """Mark the process that writes to the channel identified by `key` for
+#     voluntary termination.
+#     """
+#     return jviews.abort_core(key)
 
 # ===============================================================
 

@@ -3,9 +3,11 @@
 CRDS_RESULTS_FROM_ADDRESS = "crds-servers@stsci.edu"
 CRDS_RESULTS_TO_ADDRESSES = ["jmiller@stsci.edu"]
 
-# -------------------------------------------------------------------------------------------------
-# ---- vars above this line can be overridden in site_config.py copied from configs/config.xx.yy.py
-# -------------------------------------------------------------------------------------------------
+INGEST_HOST = "dmsinsvm.stsci.edu"
+
+# ^^^^^ -------------------------------------------------------------------------------------------
+# vars above this line can be overridden in site_config.py copied from configs/config.xx.yy.py
+# vvvvv -------------------------------------------------------------------------------------------
 
 from site_config import *
 

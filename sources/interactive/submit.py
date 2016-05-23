@@ -997,7 +997,34 @@ class Delivery(object):
                 except Exception:
                     pass
     
-# ------------------------------------------------------------------------------------------------
-        
-#if __name__ == "__main__":
-#    SubmitFilesScript()()
+# ----------------------------------------------------------------------------------------------------
+
+def submission_path(*args):
+    """Return the full path to the description file for this submission based on the submission subdirectory name."""
+    return os.path.join(sconfig.CRDS_SUBMISSION_DIR, *args)
+
+SUBMISSION_CLASSES = {
+        "batch" : BatchReferenceSubmission,
+        "mapping" : SimpleFileSubmission,
+        "reference" : SimpleFileSubmission,
+        "add" : AddExistingReferenceSubmission,
+        "delete" : DeleteReferenceSubmission,
+}
+
+SUBMISSION_INFO = {
+    "submission_kinds" : SUBMISSION_CLASSES.keys(),
+    # "submission_dir" :  submission_path(),
+    # "monitor_url": sconfig.CRDS_URL + "monitor/",
+    # "confirm_url": sconfig.CRDS_URL + "confirm/",
+}
+
+def get_ingest_dir(username):   # API to interactive views file uploads
+    """Return the directory path to which  injested files should be copied or uploaded."""
+    return sconfig.INGEST_HOST + ":" + os.path.join(sconfig.CRDS_INGEST_DIR, str(username))
+
+def get_submission_info(observatory, username):
+    info = dict(SUBMISSION_INFO)
+    info["ingest_dir"] = get_ingest_dir(username)
+    return info
+
+
