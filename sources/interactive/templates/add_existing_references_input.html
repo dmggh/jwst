@@ -4,9 +4,12 @@
     {% include "jpoll/jpoll_head_overrides.html" %}
 {% endblock %}
 
-{% block column1 %}
+{% block contents_both %}
     <h2>Add Existing References  <span class='locked_instrument'>{{locked_instrument}}</span></h2>
     
+    <div class="row">
+    <div class="col-md-8">
+
     <form method="post" action="/add_existing/reference/" enctype="multipart/form-data"
           id="add_existing_references_form" class="jpoll_ajax_html_form"
     	  onsubmit="return crds.validate_and_confirm_add_delete(this);">  {% csrf_token %}
@@ -23,21 +26,28 @@
 
       <br/>
       <br/>
-      <input type="submit" value="Add References" > 
+      <input class="btn btn-primary" type="submit" value="Add References" > 
     </form>
 
-{% endblock column1 %}
+    </div>
+
+    <div class="col-md-4">
+
+
+        <p><b>Add Existing References</b> generates a new context from the derivation context which adds the listed 
+        references.   Enter file names of existing references separated by spaces or newlines.
+
+        <p><p><b>NOTE:</b> this does not ingest references into CRDS, it adds existing CRDS references to a set of rules.
+
+        <p><p><b>Derive From Context</b> The name of the pipeline context which 
+        will be recursively updated to add the reference files.
+
+        <p><p><b>Description</b> information about why these files were added.
+
+    </div>
+    </div>
+
+{% endblock contents_both %}
 
 {% block help %}
-
-<p><b>Add Existing References</b> generates a new context from the derivation context which adds the listed 
-references.   Enter file names of existing references separated by spaces or newlines.
-
-<p><p><b>NOTE:</b> this does not ingest references into CRDS, it adds existing CRDS references to a set of rules.
-
-<p><p><b>Derive From Context</b> The name of the pipeline context which 
-will be recursively updated to add the reference files.
-
-<p><p><b>Description</b> information about why these files were added.
-
 {% endblock help %}

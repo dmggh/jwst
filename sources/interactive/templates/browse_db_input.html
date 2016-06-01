@@ -1,44 +1,52 @@
 {% extends "base.html" %}
 
-{% block column1 %}
+{% block contents_both %}
+<h2>Browse Database</h2>
+<h3>Filters</h3>
 
-<form action="/browse_db/" method="post"> {% csrf_token %}
-    <h2>Browse Database</h2>
-    <h3>Filters</h3>
-    <table>
-        {% include "browse_options.html" %}
-        {% include "status_options.html" %}
-        {% include "extension_options.html" %}
-        {% include "date_input.html" %}
-        {% if is_superuser %}
-          <tr>
-            <td class="label" width="50%">Bad Files Only (slow):</td>
-            <td align="right">
-                <input type='checkbox' name='select_bad_files' value="selected" {{select_bad_files}}></input>
-            </td>
-          </tr>
-          <tr>
-            <td class="label" width="50%">Show Defects (slow):</td>
-            <td align="right">
-                <input type='checkbox' name='show_defects' value="selected" {{show_defects}}></input>
-            </td>
-          </tr>
-        {% endif %}
-    </table>
-    <br/>
-    <input type="submit" value="Submit" />
-</form>
+<div class="row">
+
+    <div class="col-md-8">
+
+        <form action="/browse_db/" method="post"> {% csrf_token %}
+            <table>
+                {% include "browse_options.html" %}
+                {% include "status_options.html" %}
+                {% include "extension_options.html" %}
+                {% include "date_input.html" %}
+                {% if is_superuser %}
+                  <tr>
+                    <td class="tdlabel" width="50%">Bad Files Only (slow):</td>
+                    <td align="right">
+                        <input type='checkbox' name='select_bad_files' value="selected" {{select_bad_files}}></input>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="tdlabel" width="50%">Show Defects (slow):</td>
+                    <td align="right">
+                        <input type='checkbox' name='show_defects' value="selected" {{show_defects}}></input>
+                    </td>
+                  </tr>
+                {% endif %}
+            </table>
+            <br/>
+            <input class="btn btn-primary" type="submit" value="Submit" />
+        </form>
+
+    </div>
+
+    <div class="col-md-4">
+        <p><b>Browse Database</b> Searches the CRDS database for files matching the
+        criteria you specify.   Filters restrict the search to files matching that value.
+        To ignore a field during search, set it to *.
+        </p>
+    </div>
+</div>
 
 {% include "date_input_js.html" %}
 
-{% endblock column1 %}
+{% endblock contents_both %}
 
 {% block help %}
-
-<p><b>Browse Database</b> Searches the CRDS database for files matching the
-criteria you specify.   Filters restrict the search to files matching that value.
-To ignore a field during search, set it to *.
-</p>
-    
 {% endblock help %}
 

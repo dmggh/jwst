@@ -8,70 +8,88 @@
     {% include "jpoll/jpoll_head_overrides.html" %}
 {% endblock %}
 
-{% block column1 %}
+{% block contents_both %}
     <h2>Batch Submit Reference <span class='locked_instrument'>{{locked_instrument}}</span></h2>
+
+    <div class="row">
+    <div class="col-md-8">
+
     {% include "select_files.html" %}        
 
     <form method="post" action="/batch_submit_references/" enctype="multipart/form-data"
           id="batch_submit_form" class="jpoll_ajax_html_form"
     	  onsubmit="return crds.validate_and_confirm_file_submit(this);">  {% csrf_token %}
 
-      <h3>Derive From Context:</h3>
+      <span><h3>Derive From Context:</h3>
       {% include "select_pmap.html" %}
+        </span>
        <br/>
         
-        <h3>Change Level: <select name='change_level' value="{{change_level}}">
+        <span><h3>Change Level: </h3><select name='change_level' value="{{change_level}}">
                 <option>SEVERE</option>
                 <option>MODERATE</option>
                 <option>TRIVIAL</option>
             </select>
-        </h3>
+        </span>
 
-        <h3>Creator:
+        <span><h3>Creator: </h3>
         <input type='text' name='creator' id='creator' size="40" value="{{creator}}">
-        </h3>
+        </span>
 
-      <h3>Description: <textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea>   
-      </h3>
+      <span><h3>Description:</h3> <textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea>   
+      </span>
 
-      <h3>Auto-Rename:  {% include "auto_rename_input.html" %}  </h3>
+      <span><h3 style="display: inline;">Auto-Rename: </h3> {% include "auto_rename_input.html" %}  </span>
 
-      <h3>Compare Old Reference:  <input type="checkbox" name="compare_old_reference" value="checked" {{compare_old_reference}} /></h3>
+        <br/> <br/>
+
+      <span><h3 style="display: inline;">Compare Old Reference:</h3> <input type="checkbox" name="compare_old_reference" value="checked" {{compare_old_reference}} /></span>
 
       <br/>
       <br/>
-      <input type="submit" value="Submit References" >
+      <input class="btn btn-primary" type="submit" value="Submit References" >
     </form>
 
-{% endblock column1 %}
+    </div>
+
+    <div class="col-md-4">
+        <p><b>Batch Submit References</b> supports uploading a list of reference
+        files for one or more reference types of a single instrument.  After checking and 
+        storing the reference files,   new CRDS rmap files which refer to them
+        are generated.  Finally a new imap and pmap are generated to refer to the new rmaps.
+        Each reference file must certify or the entire batch will be rejected.  
+        </p>
+
+        {% include "select_files_help.html" %}
+
+        <p><b>Derive From Context</b> The name of the pipeline context which 
+        will be recursively updated to insert the new reference files.
+        </p>
+
+        <p><b>Change Level</b> The degree to which the new files are expected to 
+        impact science results.
+        </p>
+
+        <p><b>Creator</b> author of the contents or changes to the file,  not 
+        necessarily the submitter.   The submitter is known based on login information.
+        </p>
+
+        <p><b>Description</b> information about what's new in this file and what
+        the expected impacts are.
+        </p>
+
+        {% include "auto_rename_help.html" %}
+
+        <p><b>Compare Old Reference</b> check this to perform table comparisons
+        against prior versions of the submitted reference file.  The prior reference
+        file is located by inspecting the derivation context.  Left unchecked,  
+        no comparison to prior versions is performed.
+        </p>
+
+    </div>
+</div>
+
+{% endblock contents_both %}
 
 {% block help %}
-
-<p><b>Batch Submit References</b> supports uploading a list of reference
-files for one or more reference types of a single instrument.  After checking and 
-storing the reference files,   new CRDS rmap files which refer to them
-are generated.  Finally a new imap and pmap are generated to refer to the new rmaps.
-Each reference file must certify or the entire batch will be rejected.  
-
-{% include "select_files_help.html" %}
-
-<p><p><b>Derive From Context</b> The name of the pipeline context which 
-will be recursively updated to insert the new reference files.
-
-<p><p><b>Change Level</b> The degree to which the new files are expected to 
-impact science results.
-
-<p><p><b>Creator</b> author of the contents or changes to the file,  not 
-necessarily the submitter.   The submitter is known based on login information.
-
-<p><p><b>Description</b> information about what's new in this file and what
-the expected impacts are.
-
-{% include "auto_rename_help.html" %}
-
-<p><p><b>Compare Old Reference</b> check this to perform table comparisons
-against prior versions of the submitted reference file.  The prior reference
-file is located by inspecting the derivation context.  Left unchecked,  
-no comparison to prior versions is performed.
-
 {% endblock help %}

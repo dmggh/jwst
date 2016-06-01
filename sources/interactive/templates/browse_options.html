@@ -1,26 +1,26 @@
       
       <tr>
-        <td class="label" width="50%">Instrument:</td>
+        <td class="tdlabel" width="50%">Instrument:</td>
         <td align="right">
             {% include "select_instrument.html" %}
         </td>
       </tr>
       
       <tr>
-        <td class="label" width="50%">Reference Type:</td>
+        <td class="tdlabel" width="50%">Reference Type:</td>
         <td align="right">
             {% include "select_filekind.html" %}
         </td>
       </tr>
       
       <tr>
-        <td class="label" width="50%">Filename:</td>
+        <td class="tdlabel" width="50%">Filename:</td>
         <td align="right"><input type="text" name="filename" value="{{filename}}" /></td>
       </tr>
       
       {% if is_authenticated %}
       <tr>
-        <td class="label" width="50%">User:</td>
+        <td class="tdlabel" width="50%">User:</td>
         <td align="right">
             <select name="deliverer_user">
             {% for user in users %}
