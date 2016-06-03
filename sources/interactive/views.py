@@ -958,7 +958,7 @@ def pmap_label(blob, pmap_edit=None):
         if pmap_edit is None:
             reversion = ""
         else:
-            reversion = "*reversion?*" if blob.name < pmap_edit else ""
+            reversion = "*reversion*" if blob.name < pmap_edit else ""
     except Exception:
         reversion= "*reversion* check failed"
 

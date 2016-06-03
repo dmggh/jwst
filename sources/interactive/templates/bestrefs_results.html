@@ -111,26 +111,8 @@
               </tbody>
             </table>
         </div>
-    </div>
-         
-    <div id="bestrefs_diagnostics_disclaimer" sytle="color: darkgray;">
-    <br/><br/><br/>
-    {% include "bestrefs_bottom_help.html" %}
-    </div>
-
-    <div class="panel panel-default">
-        <div class="panel-body">
-    
-        <p><b class="red" >No match found.</b>  No best reference is defined for the given type. 
-        CRDS did not rule the type as not applicable for this parameter set.
-
-        <p><p><b class="red">n/a</b>  The type is not applicable for the given matching parameters.
-        
-        <p><p><b class="red">parameter</b> A parameter was not valid (for that type).  CRDS did not
-        rule the parameter as not applicable. 
-    </div>
-    </div>
-
+    </div>         
+</div>
 {% endblock contents_both %}
 
 {% block contents_bottom %}
@@ -142,9 +124,31 @@
       </pre>
     {% endaccordion %}
     </div>
+
+    <br/>
+    
+    <div class="panel panel-default">
+        <div class="panel-body">
+    
+        <p><b class="red" >No match found.</b>  No best reference is defined for the given type. 
+        CRDS did not rule the type as not applicable for this parameter set.
+
+        <p><p><b class="red">n/a</b>  The type is not applicable for the given matching parameters.
+        
+        <p><p><b class="red">parameter</b> A parameter was not valid (for that type).  CRDS did not
+        rule the parameter as not applicable. 
+        </div>
+    </div>
+
 {% endblock contents_bottom %}
 
 {% block bottom_help %}
+    <div id="bestrefs_diagnostics_disclaimer" sytle="color: darkgray;">
+      </br>
+      {% include "bestrefs_bottom_help.html" %}
+    </div>
 {% endblock bottom_help %}
 
+{% block crds_info_box %}
+{% endblock crds_info_box %}
 

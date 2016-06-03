@@ -2,41 +2,26 @@
 
 {% block contents_both %}
 
-<h2>Explore Best References</h2>
+<h2 title="Find references based on menu-driven instrument configurations."
+>Explore Best References</h2>
 
 <div class="row">
 
 <div class="col-md-8">
     <form action="/bestrefs_explore/" method="post"> {% csrf_token %}
-        <h3>Select Context:</h3>
+        <h3 title="Version of CRDS rules used to find best references."
+           >Select Context:</h3>
         {% include "select_pmap.html" %}
         
-        <h3>Select Instrument:</h3>
+        <h3 title="Instrument for which best references will be found,  defines
+           available parameter choices."
+           >Select Instrument:</h3>
         {% include "select_instrument.html" %}
 
         <br/><br/><br/>
 
         <input class="btn btn-primary" type="submit" value="Choose Instrument" />
     </form>
-</div>
-
-<div class="col-md-4">
-    <div class="panel panel-default">
-      <div class="panel-body">
-            <p><b>Explore Best References</b> supports browsing over and manually selecting the 
-            matching parameters for best references.
-            </p>
-
-            <p/><p><b>Context</b> defines the version of the pipeline 
-            context used to determine the best reference files. The context chosen defines 
-            available parameter choices and file selection rules.
-            </p>
-
-            <p/><p><b>Instrument</b> defines the instrument for which parameter choices 
-            will be displayed.
-            </p>
-      </div>
-    </div>    
 </div>
 
 </div>

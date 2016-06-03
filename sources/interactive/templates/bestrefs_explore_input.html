@@ -13,7 +13,8 @@
     <form method="post" action="/bestrefs_explore_compute/"> {% csrf_token %}
       <input type="hidden" name="context" id="context" value="{{mapping.filename}}" />
       <input type="hidden" name="instrument" id="instrument" value="{{instrument}}" />
-      <h3>Enter Dataset Parameters</h3>
+      <h3 title="Select parameter values used to determine best references."
+         >Enter Dataset Parameters</h3>
       <table width="100%">
 
       {# repeated for-loop with "CORR in" and "CORR not in:" #}
@@ -83,31 +84,30 @@
 
       </table>
 
-      <input class="btn btn-default" type="submit" value="Get References" />
+      <input class="btn btn-primary" type="submit" value="Get References" />
     </form>
 
     </div>
 
     <div class="col-md-4">
+      <br/>
         <div class="panel panel-default">
             <div class="panel-heading">
-                Enter Dataset Parameters
+                About Parameters
             </div>
             <div class="panel-body">
-                <p>
-                Select the dataset matching parameters used to identify best references. 
-                </p>
+                <p>The selected context file and parameter values determine
+                best references.
+                </p><p/>
 
-                <p/><p>Some of the parameters may not be relevant to the
-            instrument mode of interest and should be left unselected in order to avoid errors.
-            The results will be determined by the context file and parameters selected.
-                </p>
+                <p>Some <b>parameters may not be relevant</b> to the chosen
+            instrument mode and should be left unselected to avoid errors.
+                </p><p/>
 
-                <p/><p>The secondary text box available for some parameters can be used to
-                specify arbitrary values not captured by the dropdown menu.   Any specified
+                <p>The <b>secondary text box</b> available for some parameters can 
+                specify <b>arbitrary values</b> not captured by the dropdown menu. Any
                 write-in parameter will take precedence over the dropdown menu.
                 </p>
-
             </div>
         </div>
     </div>
