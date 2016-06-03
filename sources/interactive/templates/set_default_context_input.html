@@ -1,18 +1,25 @@
 {% extends "base.html" %}
 
 {% block contents_both %}
-    <h2>Set Context</h2>
+    <h2 title="Set the context used in the pipeline by default (operational) or
+    as the default starting point for the next file submission (edit)"
+       >Set Context</h2>
 
     <div class="row">
     <div class="col-md-8">
 
-    <form method="post" action="/set_default_context/" enctype="multipart/form-data" onsubmit="return crds.warn_delay();" >  {% csrf_token %}
+    <form method="post" action="/set_default_context/"
+          enctype="multipart/form-data" 
+          onsubmit="return crds.warn_delay();" >  {% csrf_token %}
 
-      <h3>Select:</h3>
+      <h3 title="Choose type of context to set, operational (pipeline) or edit"
+         >Select:</h3>
       <table border='1'>
             <tr>
-                <th>Context Type</th>
-                <th>Current Value</th>
+                <th title="Type of context to set"
+                   >Context Type</th>
+                <th title="Current value of selected context type."
+                   >Current Value</th>
             </tr>
             <tr>
                 <td>
@@ -30,10 +37,12 @@
             </tr>
       </table>
 
-      <h3>Set To:</h3>
+      <h3 title="Value to set the selected context type to."
+         >Set To:</h3>
       {% include "select_pmap.html" %}
       
-      <h3>Reason for Change:</h3>
+      <h3 title="Describe content or reason for this context transition."
+         >Reason for Change:</h3>
       <p><textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea></p>
       <br/>
 
@@ -41,42 +50,28 @@
     </form>
 
     </div>
-    <div class="col-md-4">
-
-        <p><b>Set Context</b> is typically used to define the context which will be
-          used by the operational pipeline.  Set Context can also be used to modify the
-          editing context from which new contexts will be derived by default during
-          file submissions.
-          </p>
-
-        <p><b>Select:</b> Choose the type of default to modify, operational or edit.
-        This also shows the current default of the selected type.  Normally select
-        operational to update pipeline context use, use edit to set the default
-        starting point for file submissions.
-          </p>
-
-        <p><b>Set To:</b> The context of the selected type will be set to this value.
-        Click on the Set To accordion to see other options for choosing the value.
-          </p>
-
-        <p><b>Reason For Change:</b> Reason why context is being set. This is shown 
-        in the context history.   For single context increments,  the reason is carried
-        over from the file submission page.   For multi-context increments,  the
-        operator or submitters must make up an appropriate summary.
-        </p>
-
-        <p><b>Operational</b> Defines default pmap which will be used
-        operationally to determine best references.  The operational context cannot
-        contain blacklisted references.
-          </p>
-
-        <p><b>Edit</b> Defines default starting point (derive from) for future contexts
-        created by the server as a result of file submissions.
-          </p>
-
     </div>
+<div>
+  <br/>
+  <p><b>Reason For Change:</b> Shown in the <b>context history</b>.  For single
+    context increments, the reason is defaulted from the file submission
+    description but may be changed here.  For multi-context increments or
+    reversals, the reason must be added manually.
+  </p>
+  
+  <p><b>Operational</b> Drives default <b>pipeline best references</b>.  The
+    pipeline's CRDS cache must be sync'ed for this to take effect.  The
+    operational context cannot contain bad files.  Generally set following each
+    reference file delivery.
+  </p>
+  
+  <p><b>Edit</b> Drives default <b>file submission</b> context generation. Generally
+    set for branching context development or custom context submissions.
+  </p>
 </div>
-    
+
+</div>
+
     <script type="text/javascript">
         crds.context_map = {
             {% for context in context_map.items %}
@@ -105,6 +100,3 @@
     </script>
     
 {% endblock contents_both %}
-
-{% block help %}
-{% endblock help %}
