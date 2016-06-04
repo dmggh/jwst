@@ -46,13 +46,13 @@ CRDS_REFERENCE_URL = CRDS_URL + "get/"
 CRDS_MAPPING_URL   = CRDS_URL + "get/"
 
 # These may get redirected to the archive or a static file server
-CRDS_UNCHECKED_REFERENCE_URL = CRDS_URL + "unchecked_get/references/" + observatory + "/"
-CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/mappings/" + observatory + "/"
+# CRDS_UNCHECKED_REFERENCE_URL = CRDS_URL + "unchecked_get/references/" + observatory + "/"
+# CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/mappings/" + observatory + "/"
 
 # As of 2016-04-18:
 
-# CRDS_UNCHECKED_REFERENCE_URL = "https://iwjwdmscauiwebv.stsci.edu/portal/Download/file/JWST/reference/"
-# CRDS_UNCHECKED_MAPPING_URL = "https://iwjwdmscauiwebv.stsci.edu/portal/Download/file/JWST/reference/"
+CRDS_UNCHECKED_REFERENCE_URL = "https://iwjwdmscauiwebv.stsci.edu/portal/Download/file/JWST/reference/"
+CRDS_UNCHECKED_MAPPING_URL = "https://iwjwdmscauiwebv.stsci.edu/portal/Download/file/JWST/reference/"
 
 FORCE_REMOTE_MODE = False
 
@@ -62,5 +62,5 @@ FORCE_REMOTE_MODE = False
 # https://dads6.stsci.edu:8888/crds
 # https://dadsc.stsci.edu:8888/crds
 
-# ARCHIVE_PARAMETER_SERVICE_URL = "https://iljwdmscarcv.stsci.edu:8888/crds"
-ARCHIVE_PARAMETER_SERVICE_URL = "http://jwdmsdevvm4:8888/crds"
+ARCHIVE_PARAMETER_SERVICE_URL = "http://iljwdmscarcv.stsci.edu:8888/crds"
+# ARCHIVE_PARAMETER_SERVICE_URL = "http://jwdmsdevvm4:8888/crds"

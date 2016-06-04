@@ -1,0 +1,9 @@
+#! /usr/bin/env pysh
+#-*-python-*-
+
+from __future__ import print_function
+
+usage("[words...]", 1, 10**9, help="Print every 10th word")
+
+for i in range(0, len(sys.argv[1:]), 10):
+    print(sys.argv[i])

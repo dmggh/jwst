@@ -55,6 +55,7 @@
 <li><a class="reference internal" href="#naming">Naming</a></li>
 <li><a class="reference internal" href="#basic-structure">Basic Structure</a><ul>
 <li><a class="reference internal" href="#header">header</a></li>
+<li><a class="reference internal" href="#comment">comment</a></li>
 <li><a class="reference internal" href="#selector">selector</a></li>
 </ul>
 </li>
@@ -178,12 +179,16 @@ the CDBS web site are named with the forms:</p>
 </div>
 <div class="section" id="basic-structure">
 <h2>Basic Structure<a class="headerlink" href="#basic-structure" title="Permalink to this headline">¶</a></h2>
-<p>All mappings have the same basic structure consisting of a &#8220;header&#8221; section followe by a &#8220;selector&#8221; section.</p>
+<p>All mappings have the same basic structure consisting of a &#8220;header&#8221; section followed by a &#8220;selector&#8221; section.</p>
 <div class="section" id="header">
 <h3>header<a class="headerlink" href="#header" title="Permalink to this headline">¶</a></h3>
 <p>The header provides meta data describing the mapping.  A critical field in the mapping header is the &#8220;parkey&#8221;
 field which names the dataset parameters (nominally FITS keywords or JWST data model names) which are used by
 the selector to do a best references lookup.</p>
+</div>
+<div class="section" id="comment">
+<h3>comment<a class="headerlink" href="#comment" title="Permalink to this headline">¶</a></h3>
+<p>An optional multi-line comment block can be added between the header and selector sections.</p>
 </div>
 <div class="section" id="selector">
 <h3>selector<a class="headerlink" href="#selector" title="Permalink to this headline">¶</a></h3>
@@ -195,22 +200,26 @@ structure consisting of top-level selectors and sub-selectors.</p>
 <h2>Pipeline Mappings (.pmap)<a class="headerlink" href="#pipeline-mappings-pmap" title="Permalink to this headline">¶</a></h2>
 <p>A sample pipeline mapping for HST looks like:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;name&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst.pmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;derived_from&#39;</span> <span class="p">:</span> <span class="s1">&#39;created by hand 12-23-2011&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;mapping&#39;</span> <span class="p">:</span> <span class="s1">&#39;PIPELINE&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;observatory&#39;</span> <span class="p">:</span> <span class="s1">&#39;HST&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;parkey&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;INSTRUME&#39;</span><span class="p">,),</span>
-    <span class="s1">&#39;description&#39;</span> <span class="p">:</span> <span class="s1">&#39;Initially generated on 12-23-2011&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;sha1sum&#39;</span> <span class="p">:</span> <span class="s1">&#39;e2c6392fd2731df1e8d933bd990f3fd313a813db&#39;</span><span class="p">,</span>
+    <span class="s">&#39;name&#39;</span> <span class="p">:</span> <span class="s">&#39;hst.pmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;derived_from&#39;</span> <span class="p">:</span> <span class="s">&#39;created by hand 12-23-2011&#39;</span><span class="p">,</span>
+    <span class="s">&#39;mapping&#39;</span> <span class="p">:</span> <span class="s">&#39;PIPELINE&#39;</span><span class="p">,</span>
+    <span class="s">&#39;observatory&#39;</span> <span class="p">:</span> <span class="s">&#39;HST&#39;</span><span class="p">,</span>
+    <span class="s">&#39;parkey&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="s">&#39;INSTRUME&#39;</span><span class="p">,),</span>
+    <span class="s">&#39;description&#39;</span> <span class="p">:</span> <span class="s">&#39;Initially generated on 12-23-2011&#39;</span><span class="p">,</span>
+    <span class="s">&#39;sha1sum&#39;</span> <span class="p">:</span> <span class="s">&#39;e2c6392fd2731df1e8d933bd990f3fd313a813db&#39;</span><span class="p">,</span>
 <span class="p">}</span>
 
+<span class="n">comment</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;This is an optional mapping section used to add multiline commentary,</span>
+<span class="s">perhaps to describe mapping evolution or unusual behaviors.</span>
+<span class="s">&quot;&quot;&quot;</span>
+
 <span class="n">selector</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;ACS&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_acs.imap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;COS&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos.imap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;NICMOS&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_nicmos.imap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;STIS&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_stis.imap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;WFC3&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_wfc3.imap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;WFPC2&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_wfpc2.imap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;ACS&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_acs.imap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;COS&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos.imap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;NICMOS&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_nicmos.imap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;STIS&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_stis.imap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;WFC3&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_wfc3.imap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;WFPC2&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_wfpc2.imap&#39;</span><span class="p">,</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -221,33 +230,33 @@ mapping file.</p>
 <h2>Instrument Mappings (.imap)<a class="headerlink" href="#instrument-mappings-imap" title="Permalink to this headline">¶</a></h2>
 <p>A sample instrument mapping for HST&#8217;s COS instrument looks like:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;derived_from&#39;</span> <span class="p">:</span> <span class="s1">&#39;scraped 2011-12-23 11:57:10&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;description&#39;</span> <span class="p">:</span> <span class="s1">&#39;Initially generated on 2011-12-23 11:57:10&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;instrument&#39;</span> <span class="p">:</span> <span class="s1">&#39;COS&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;mapping&#39;</span> <span class="p">:</span> <span class="s1">&#39;INSTRUMENT&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;name&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos.imap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;observatory&#39;</span> <span class="p">:</span> <span class="s1">&#39;HST&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;parkey&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;REFTYPE&#39;</span><span class="p">,),</span>
-    <span class="s1">&#39;sha1sum&#39;</span> <span class="p">:</span> <span class="s1">&#39;800fb1567cb5bed4031402c7396aeb86c5e1db61&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;source_url&#39;</span> <span class="p">:</span> <span class="s1">&#39;http://www.stsci.edu/hst/observatory/cdbs/SIfileInfo/COS/reftablequeryindex&#39;</span><span class="p">,</span>
+    <span class="s">&#39;derived_from&#39;</span> <span class="p">:</span> <span class="s">&#39;scraped 2011-12-23 11:57:10&#39;</span><span class="p">,</span>
+    <span class="s">&#39;description&#39;</span> <span class="p">:</span> <span class="s">&#39;Initially generated on 2011-12-23 11:57:10&#39;</span><span class="p">,</span>
+    <span class="s">&#39;instrument&#39;</span> <span class="p">:</span> <span class="s">&#39;COS&#39;</span><span class="p">,</span>
+    <span class="s">&#39;mapping&#39;</span> <span class="p">:</span> <span class="s">&#39;INSTRUMENT&#39;</span><span class="p">,</span>
+    <span class="s">&#39;name&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos.imap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;observatory&#39;</span> <span class="p">:</span> <span class="s">&#39;HST&#39;</span><span class="p">,</span>
+    <span class="s">&#39;parkey&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="s">&#39;REFTYPE&#39;</span><span class="p">,),</span>
+    <span class="s">&#39;sha1sum&#39;</span> <span class="p">:</span> <span class="s">&#39;800fb1567cb5bed4031402c7396aeb86c5e1db61&#39;</span><span class="p">,</span>
+    <span class="s">&#39;source_url&#39;</span> <span class="p">:</span> <span class="s">&#39;http://www.stsci.edu/hst/observatory/cdbs/SIfileInfo/COS/reftablequeryindex&#39;</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="n">selector</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;badttab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_badttab.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;bpixtab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_bpixtab.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;brftab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_brftab.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;brsttab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_brsttab.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;deadtab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_deadtab.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;disptab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_disptab.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;flatfile&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_flatfile.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;fluxtab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_fluxtab.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;geofile&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_geofile.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;lamptab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_lamptab.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;phatab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_phatab.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;spwcstab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_spwcstab.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;tdstab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_tdstab.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;wcptab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_wcptab.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;xtractab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_xtractab.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;badttab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_badttab.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;bpixtab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_bpixtab.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;brftab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_brftab.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;brsttab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_brsttab.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;deadtab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_deadtab.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;disptab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_disptab.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;flatfile&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_flatfile.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;fluxtab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_fluxtab.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;geofile&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_geofile.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;lamptab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_lamptab.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;phatab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_phatab.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;spwcstab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_spwcstab.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;tdstab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_tdstab.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;wcptab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_wcptab.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;xtractab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_xtractab.rmap&#39;</span><span class="p">,</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -261,23 +270,23 @@ keyword which will record the best reference selection.</p>
 <h2>Reference Mappings (.rmap)<a class="headerlink" href="#reference-mappings-rmap" title="Permalink to this headline">¶</a></h2>
 <p>A sample reference mapping for HST COS DEADTAB looks like:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;derived_from&#39;</span> <span class="p">:</span> <span class="s1">&#39;scraped 2011-12-23 11:54:56&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;description&#39;</span> <span class="p">:</span> <span class="s1">&#39;Initially generated on 2011-12-23 11:54:56&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;filekind&#39;</span> <span class="p">:</span> <span class="s1">&#39;DEADTAB&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;instrument&#39;</span> <span class="p">:</span> <span class="s1">&#39;COS&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;mapping&#39;</span> <span class="p">:</span> <span class="s1">&#39;REFERENCE&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;name&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_deadtab.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;observatory&#39;</span> <span class="p">:</span> <span class="s1">&#39;HST&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;parkey&#39;</span> <span class="p">:</span> <span class="p">((</span><span class="s1">&#39;DETECTOR&#39;</span><span class="p">,),</span> <span class="p">(</span><span class="s1">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s1">&#39;TIME-OBS&#39;</span><span class="p">)),</span>
-    <span class="s1">&#39;sha1sum&#39;</span> <span class="p">:</span> <span class="s1">&#39;e27984a6441d8aaa7cd28ead2267a6be4c3a153b&#39;</span><span class="p">,</span>
+    <span class="s">&#39;derived_from&#39;</span> <span class="p">:</span> <span class="s">&#39;scraped 2011-12-23 11:54:56&#39;</span><span class="p">,</span>
+    <span class="s">&#39;description&#39;</span> <span class="p">:</span> <span class="s">&#39;Initially generated on 2011-12-23 11:54:56&#39;</span><span class="p">,</span>
+    <span class="s">&#39;filekind&#39;</span> <span class="p">:</span> <span class="s">&#39;DEADTAB&#39;</span><span class="p">,</span>
+    <span class="s">&#39;instrument&#39;</span> <span class="p">:</span> <span class="s">&#39;COS&#39;</span><span class="p">,</span>
+    <span class="s">&#39;mapping&#39;</span> <span class="p">:</span> <span class="s">&#39;REFERENCE&#39;</span><span class="p">,</span>
+    <span class="s">&#39;name&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_deadtab.rmap&#39;</span><span class="p">,</span>
+    <span class="s">&#39;observatory&#39;</span> <span class="p">:</span> <span class="s">&#39;HST&#39;</span><span class="p">,</span>
+    <span class="s">&#39;parkey&#39;</span> <span class="p">:</span> <span class="p">((</span><span class="s">&#39;DETECTOR&#39;</span><span class="p">,),</span> <span class="p">(</span><span class="s">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s">&#39;TIME-OBS&#39;</span><span class="p">)),</span>
+    <span class="s">&#39;sha1sum&#39;</span> <span class="p">:</span> <span class="s">&#39;e27984a6441d8aaa7cd28ead2267a6be4c3a153b&#39;</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="n">selector</span> <span class="o">=</span> <span class="n">Match</span><span class="p">({</span>
-    <span class="p">(</span><span class="s1">&#39;FUV&#39;</span><span class="p">,)</span> <span class="p">:</span> <span class="n">UseAfter</span><span class="p">({</span>
-        <span class="s1">&#39;1996-10-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s1">&#39;s7g1700gl_dead.fits&#39;</span><span class="p">,</span>
+    <span class="p">(</span><span class="s">&#39;FUV&#39;</span><span class="p">,)</span> <span class="p">:</span> <span class="n">UseAfter</span><span class="p">({</span>
+        <span class="s">&#39;1996-10-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s">&#39;s7g1700gl_dead.fits&#39;</span><span class="p">,</span>
     <span class="p">}),</span>
-    <span class="p">(</span><span class="s1">&#39;NUV&#39;</span><span class="p">,)</span> <span class="p">:</span> <span class="n">UseAfter</span><span class="p">({</span>
-        <span class="s1">&#39;1996-10-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s1">&#39;s7g1700ql_dead.fits&#39;</span><span class="p">,</span>
+    <span class="p">(</span><span class="s">&#39;NUV&#39;</span><span class="p">,)</span> <span class="p">:</span> <span class="n">UseAfter</span><span class="p">({</span>
+        <span class="s">&#39;1996-10-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s">&#39;s7g1700ql_dead.fits&#39;</span><span class="p">,</span>
     <span class="p">}),</span>
 <span class="p">})</span>
 </pre></div>
@@ -499,11 +508,11 @@ as &#8220;or&#8221; and means that a match occurs if either pattern matches that
 </pre></div>
 </div>
 <p>will match:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">(</span><span class="s2">&quot;either_this&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">(</span><span class="s">&quot;either_this&quot;</span><span class="p">,</span> <span class="s">&quot;2&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>and also:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">(</span><span class="s2">&quot;that&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">(</span><span class="s">&quot;that&quot;</span><span class="p">,</span> <span class="s">&quot;1&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -655,13 +664,13 @@ is less than or equal to ( &lt;= ) EXPSTART of a dataset.   Unlike
 reference file and dataset timestamp values,  all CRDS rmaps represent times in
 the single format shown in the rmap example below:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">selector</span> <span class="o">=</span> <span class="n">Match</span><span class="p">({</span>
-   <span class="p">(</span><span class="s1">&#39;HRC&#39;</span><span class="p">,)</span> <span class="p">:</span> <span class="n">UseAfter</span><span class="p">({</span>
-       <span class="s1">&#39;1991-01-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s1">&#39;j4d1435hj_a2d.fits&#39;</span><span class="p">,</span>
-       <span class="s1">&#39;1992-01-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s1">&#39;kcb1734ij_a2d.fits&#39;</span><span class="p">,</span>
+   <span class="p">(</span><span class="s">&#39;HRC&#39;</span><span class="p">,)</span> <span class="p">:</span> <span class="n">UseAfter</span><span class="p">({</span>
+       <span class="s">&#39;1991-01-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s">&#39;j4d1435hj_a2d.fits&#39;</span><span class="p">,</span>
+       <span class="s">&#39;1992-01-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s">&#39;kcb1734ij_a2d.fits&#39;</span><span class="p">,</span>
    <span class="p">}),</span>
-   <span class="p">(</span><span class="s1">&#39;WFC&#39;</span><span class="p">,)</span> <span class="p">:</span> <span class="n">UseAfter</span><span class="p">({</span>
-       <span class="s1">&#39;1991-01-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s1">&#39;kcb1734hj_a2d.fits&#39;</span><span class="p">,</span>
-       <span class="s1">&#39;2008-01-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s1">&#39;t3n1116mj_a2d.fits&#39;</span><span class="p">,</span>
+   <span class="p">(</span><span class="s">&#39;WFC&#39;</span><span class="p">,)</span> <span class="p">:</span> <span class="n">UseAfter</span><span class="p">({</span>
+       <span class="s">&#39;1991-01-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s">&#39;kcb1734hj_a2d.fits&#39;</span><span class="p">,</span>
+       <span class="s">&#39;2008-01-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s">&#39;t3n1116mj_a2d.fits&#39;</span><span class="p">,</span>
    <span class="p">}),</span>
 <span class="p">})</span>
 </pre></div>
@@ -677,9 +686,9 @@ file is &#8216;kcb1734ij_a2d.fits&#8217;</p>
 <p>The SelectVersion() rmap operator uses a software version and various relations
 to make a selection:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">selector</span> <span class="o">=</span> <span class="n">SelectVersion</span><span class="p">({</span>
-   <span class="s1">&#39;&lt;3.1&#39;</span><span class="p">:</span>    <span class="s1">&#39;cref_flatfield_65.fits&#39;</span><span class="p">,</span>
-   <span class="s1">&#39;&lt;5&#39;</span><span class="p">:</span>      <span class="s1">&#39;cref_flatfield_73.fits&#39;</span><span class="p">,</span>
-   <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="s1">&#39;cref_flatfield_123.fits&#39;</span><span class="p">,</span>
+   <span class="s">&#39;&lt;3.1&#39;</span><span class="p">:</span>    <span class="s">&#39;cref_flatfield_65.fits&#39;</span><span class="p">,</span>
+   <span class="s">&#39;&lt;5&#39;</span><span class="p">:</span>      <span class="s">&#39;cref_flatfield_73.fits&#39;</span><span class="p">,</span>
+   <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="s">&#39;cref_flatfield_123.fits&#39;</span><span class="p">,</span>
 <span class="p">})</span>
 </pre></div>
 </div>
@@ -692,9 +701,9 @@ versions are examined in sorted order.</p>
 <p>The ClosestTime() rmap operator does a lookup on a series of times and selects
 the closest time which either precedes or follows the given parameter value:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">selector</span> <span class="o">=</span> <span class="n">ClosestTime</span><span class="p">({</span>
-     <span class="s1">&#39;2017-04-24 00:00:00&#39;</span><span class="p">:</span>  <span class="s2">&quot;cref_flatfield_123.fits&quot;</span><span class="p">,</span>
-     <span class="s1">&#39;2018-02-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s2">&quot;cref_flatfield_222.fits&quot;</span><span class="p">,</span>
-     <span class="s1">&#39;2019-04-15 00:00:00&#39;</span><span class="p">:</span>  <span class="s2">&quot;cref_flatfield_123.fits&quot;</span><span class="p">,</span>
+     <span class="s">&#39;2017-04-24 00:00:00&#39;</span><span class="p">:</span>  <span class="s">&quot;cref_flatfield_123.fits&quot;</span><span class="p">,</span>
+     <span class="s">&#39;2018-02-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s">&quot;cref_flatfield_222.fits&quot;</span><span class="p">,</span>
+     <span class="s">&#39;2019-04-15 00:00:00&#39;</span><span class="p">:</span>  <span class="s">&quot;cref_flatfield_123.fits&quot;</span><span class="p">,</span>
 <span class="p">})</span>
 </pre></div>
 </div>
@@ -706,9 +715,9 @@ the closest time which either precedes or follows the given parameter value:</p>
 numerical parameter and the match values.   The match value which is closest to
 the supplied parameter is chosen:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">selector</span> <span class="o">=</span> <span class="n">GeomtricallyNearest</span><span class="p">({</span>
-    <span class="mf">1.2</span> <span class="p">:</span> <span class="s2">&quot;cref_flatfield_120.fits&quot;</span><span class="p">,</span>
-    <span class="mf">1.5</span> <span class="p">:</span> <span class="s2">&quot;cref_flatfield_124.fits&quot;</span><span class="p">,</span>
-    <span class="mf">5.0</span> <span class="p">:</span> <span class="s2">&quot;cref_flatfield_137.fits&quot;</span><span class="p">,</span>
+    <span class="mf">1.2</span> <span class="p">:</span> <span class="s">&quot;cref_flatfield_120.fits&quot;</span><span class="p">,</span>
+    <span class="mf">1.5</span> <span class="p">:</span> <span class="s">&quot;cref_flatfield_124.fits&quot;</span><span class="p">,</span>
+    <span class="mf">5.0</span> <span class="p">:</span> <span class="s">&quot;cref_flatfield_137.fits&quot;</span><span class="p">,</span>
 <span class="p">})</span>
 </pre></div>
 </div>
@@ -719,14 +728,14 @@ the supplied parameter is chosen:</p>
 <p>The Bracket() selector is unusual because it returns the pair of selections which
 enclose the supplied parameter value:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">selector</span> <span class="o">=</span> <span class="n">Bracket</span><span class="p">({</span>
-    <span class="mf">1.2</span><span class="p">:</span> <span class="s2">&quot;cref_flatfield_120.fits&quot;</span><span class="p">,</span>
-    <span class="mf">1.5</span><span class="p">:</span> <span class="s2">&quot;cref_flatfield_124.fits&quot;</span><span class="p">,</span>
-    <span class="mf">5.0</span><span class="p">:</span> <span class="s2">&quot;cref_flatfield_137.fits&quot;</span><span class="p">,</span>
+    <span class="mf">1.2</span><span class="p">:</span> <span class="s">&quot;cref_flatfield_120.fits&quot;</span><span class="p">,</span>
+    <span class="mf">1.5</span><span class="p">:</span> <span class="s">&quot;cref_flatfield_124.fits&quot;</span><span class="p">,</span>
+    <span class="mf">5.0</span><span class="p">:</span> <span class="s">&quot;cref_flatfield_137.fits&quot;</span><span class="p">,</span>
 <span class="p">})</span>
 </pre></div>
 </div>
 <p>Here,  a parameter value of 1.3 returns the value:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">(</span><span class="s1">&#39;cref_flatfield_120.fits&#39;</span><span class="p">,</span> <span class="s1">&#39;cref_flatfield_124.fits&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">(</span><span class="s">&#39;cref_flatfield_120.fits&#39;</span><span class="p">,</span> <span class="s">&#39;cref_flatfield_124.fits&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -756,7 +765,7 @@ enclose the supplied parameter value:</p>
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2015, STScI.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>

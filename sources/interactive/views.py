@@ -958,7 +958,7 @@ def pmap_label(blob, pmap_edit=None):
         if pmap_edit is None:
             reversion = ""
         else:
-            reversion = "*reversion?*" if blob.name < pmap_edit else ""
+            reversion = "*reversion*" if blob.name < pmap_edit else ""
     except Exception:
         reversion= "*reversion* check failed"
 
@@ -1694,6 +1694,7 @@ def mapping_upload_tuples(file1_orig, file2_orig, file1_path, file2_path):
 
 # ===========================================================================
 
+@profile("browse_details.stats")
 @error_trap("base.html")
 @log_view
 def browse_known_file(request, filename):
@@ -1710,7 +1711,7 @@ def browse_known_file(request, filename):
 
     file_contents = browsify_file(filename, browsed_file)
 
-    used_by_files = list(uses.uses([filename], blob.observatory))
+    # used_by_files = list(uses.uses([filename], blob.observatory))
 
     if blob and blob.type == "reference":
         context = models.get_default_context(blob.observatory)
@@ -1730,7 +1731,7 @@ def browse_known_file(request, filename):
              "fileblob" : blob,
              "observatory" : blob.observatory,
              "related_actions": related_actions,
-             "used_by_files" : used_by_files,
+             # "used_by_files" : used_by_files,
              "match_paths" : match_paths,
              "file_contents": file_contents,
              "tpn_text" : tpn_text,

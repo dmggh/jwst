@@ -1,11 +1,14 @@
-
-        <h3>Compare Old Reference:  <input type="checkbox" name="compare_old_reference" checked /></h3>
+<div  title="When specified,  check against prior rules and replaced references.">
+        <h3
+           >Compare Old Reference:  
+        </h3>
+        <input type="checkbox" name="compare_old_reference" checked />
 
         <div id="comparison-context-hide">
             <h3>Comparison Context</h3>
             {% include "select_pmap.html" %}
         </div>
-        
+</div>        
         <script type="text/javascript" language="javascript">
             $("input[name='compare_old_reference']").change(function() {
                 var checkbox = $("input[name='compare_old_reference']");

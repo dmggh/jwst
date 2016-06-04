@@ -49,9 +49,9 @@ class GetService(object):
         formatted_parameters = self.format_parameters(named_parameters)
         try:
             response = self.get_response(formatted_parameters)
-        except Exception:
-            raise ServiceError("Network open failed calling service '{}' at '{}'".format(
-                    self.service_name, self.base_url))
+        except Exception as exc:
+            raise ServiceError("Network open failed calling service '{}' at '{}' : '{}'".format(
+                    self.service_name, self.base_url, str(exc)))
         page = response.read()
         log.verbose("responded:", repr(page))
         result = self.get_and_decode_result(page)

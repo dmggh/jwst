@@ -13,7 +13,7 @@ import crds.config as lconfig
 
 from crds.server import settings
 from crds.server import config as sconfig
-from crds.server.interactive import models, locks
+from crds.server.interactive import models, locks, mail
 
 from django.contrib.auth.models import User
 
@@ -63,6 +63,11 @@ class InteractiveBase(TransactionTestCase):
         sconfig.CRDS_CATALOG_DIR = os.path.join(CRDS_PATH, "catalogs")
         sconfig.FILE_UPLOAD_TEMP_DIR = os.path.join(CRDS_PATH, "uploads")
         settings.CRDS_LOCK_ACQUIRE_TIMEOUT = 0.5  # Don't waste time during tests with SQLite
+
+        def null_func(*args, **keys):
+            pass
+        mail.mail = null_func
+
 
     @classmethod
     def tearDownClass(cls):
@@ -840,7 +845,7 @@ else:  # JWST
             "interactive/test_data/jwst_miri_6666.imap",
             ]
         
-        archive_dataset_id = "ASSOCIATION:jw00001001001_01101_01333.MIRIMAGE"
+        archive_dataset_id = "ASSOCIATION:JW94015004002_02109_00001.MIRIMAGE"
 
         certify_post_fits_bad = "interactive/test_data/jwst_miri_amplifier_bad.fits"
 

@@ -34,15 +34,15 @@
         {% if fileblob %}        
             <table border="1">
                 <tr>
-                    <td width="20%" align="left" class="label">CRDS Name</td>
+                    <td width="20%" align="left" class="tdlabel">CRDS Name</td>
                     <td>{{fileblob.pathname|exists_color}}</td>
                 </tr>
                  <tr>
-                    <td width="20%" align="left" class="label">Uploaded Name</td>
+                    <td width="20%" align="left" class="tdlabel">Uploaded Name</td>
                     <td>{{fileblob.uploaded_as}}</td>
                  </tr>
                 <tr>
-                    <td width="20%" align="left" class="label">Sha1sum</td>
+                    <td width="20%" align="left" class="tdlabel">Sha1sum</td>
                     {% if fileblob.sha1sum %}
                         <td>{{fileblob.sha1sum}}</td>
                     {% else %}
@@ -50,17 +50,17 @@
                     {% endif %}
                 </tr>
                 <tr>
-                    <td width="20%" align="left" class="label">Size (bytes)</td>
+                    <td width="20%" align="left" class="tdlabel">Size (bytes)</td>
                     <td>{{fileblob.size}}</td>
                 </tr>
                 <tr>
-                    <td width="20%" align="left" class="label">Status</td>
+                    <td width="20%" align="left" class="tdlabel">Status</td>
                     <td class="{{fileblob.status_class}}">{{fileblob.status}}</td>
                 </tr>
                 
                  {% if fileblob.blacklisted_by %}
                      <tr>
-                        <td width="20%" align="left" class="label">Blacklisted By</td>
+                        <td width="20%" align="left" class="tdlabel">Blacklisted By</td>
                         <td>
                             {% for bl in fileblob.blacklisted_by %}
                                 <span class="red">{{bl}}</span> &nbsp;&nbsp;
@@ -69,70 +69,70 @@
                      </tr>
                  {% endif %}
                  <tr>
-                    <td width="20%" align="left" class="label">Reject Flag</td>
+                    <td width="20%" align="left" class="tdlabel">Reject Flag</td>
                     <td>{{fileblob.rejected}}</td>
                  </tr>
                  <tr>
-                    <td width="20%" align="left" class="label">Replaced By File Name</td>
+                    <td width="20%" align="left" class="tdlabel">Replaced By File Name</td>
                     <td>{{fileblob.replaced_by_filename}}</td>
                  </tr>
                 
                 {% if is_authenticated %}
                  <tr>
-                    <td width="20%" align="left" class="label">Submitter</td>
+                    <td width="20%" align="left" class="tdlabel">Submitter</td>
                     <td>{{fileblob.deliverer_user}}</td>
                  </tr>
                  <tr>
-                    <td width="20%" align="left" class="label">Submitter Email</td>
+                    <td width="20%" align="left" class="tdlabel">Submitter Email</td>
                     <td>{{fileblob.deliverer_email}}</td>
                  </tr>
                  <tr>
-                    <td width="20%" align="left" class="label">Creator Name</td>
+                    <td width="20%" align="left" class="tdlabel">Creator Name</td>
                     <td>{{fileblob.creator_name}}</td>
                  </tr>
                 {% endif %}
 
                 <tr>
-                    <td width="20%" align="left" class="label">Submit Description</td>
+                    <td width="20%" align="left" class="tdlabel">Submit Description</td>
                     <td>{{fileblob.description}}</td>
                  </tr>
                  <tr>
-                    <td width="20%" align="left" class="label">Derived From</td>
+                    <td width="20%" align="left" class="tdlabel">Derived From</td>
                     <td>{{fileblob.derived_from}}</td>
                  </tr>
                  <tr>
-                    <td width="20%" align="left" class="label">Change Level</td>
+                    <td width="20%" align="left" class="tdlabel">Change Level</td>
                     <td>{{fileblob.change_level}}</td>
                  </tr>
                  <tr>
-                    <td width="20%" align="left" class="label">Delivery Date</td>
+                    <td width="20%" align="left" class="tdlabel">Delivery Date</td>
                     <td>{{fileblob.delivery_date|seconds}}</td>
                  </tr>
                  <tr>
-                    <td width="20%" align="left" class="label">Activation Date</td>
+                    <td width="20%" align="left" class="tdlabel">Activation Date</td>
                     <td>{{fileblob.activation_date|seconds}}</td>
                  </tr>
                  {% if fileblob.type == "reference" %}
                      <tr>
-                        <td width="20%" align="left" class="label">History</td>
+                        <td width="20%" align="left" class="tdlabel">History</td>
                         <td>
                           <pre>{{fileblob.history}}</pre>
                         </td>
                      </tr>
                      <tr>
-                        <td width="20%" align="left" class="label">Descrip</td>
+                        <td width="20%" align="left" class="tdlabel">Descrip</td>
                         <td>{{fileblob.comment}}</td>
                      </tr>
                      <tr>
-                        <td width="20%" align="left" class="label">Pedigree</td>
+                        <td width="20%" align="left" class="tdlabel">Pedigree</td>
                         <td>{{fileblob.pedigree}}</td>
                      </tr>
                       <tr>
-                        <td width="20%" align="left" class="label">Useafter Date</td>
+                        <td width="20%" align="left" class="tdlabel">Useafter Date</td>
                         <td>{{fileblob.useafter_date|seconds}}</td>
                      </tr>
                      <tr>
-                        <td width="20%" align="left" class="label">Aperture</td>
+                        <td width="20%" align="left" class="tdlabel">Aperture</td>
                         <td>{{fileblob.aperture}}</td>
                      </tr>
                  {% endif %}
@@ -182,6 +182,7 @@
     </table>
 {% endaccordion %}
 
+{% comment %}
 {% accordion "Used By Files" %}
     <p>
         {% if used_by_files %}
@@ -193,7 +194,8 @@
         {% endif %}
     </p>
 {% endaccordion %}
-    
+{% endcomment %}
+
 {% if match_paths %}
     {% accordion "Lookup Patterns" %}
     <table border="1">
