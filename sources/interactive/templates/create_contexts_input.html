@@ -1,42 +1,30 @@
 {% extends "base.html" %}
 
-{% block column1 %}
+{% block contents_both %}
 
-<form action="/create_contexts/" method="post""> {% csrf_token %}
-    <h2>Create Parent Contexts</h2>
-    <h3>Derived From</h3>
+<form action="/create_contexts/" method="post"> {% csrf_token %}
+    <h2 title="Insert *existing* rmaps into a version of CRDS rules."
+       >Create Parent Contexts</h2>
+    <h3 title="Version CRDS of rules to which existing rmaps are added or replaced."
+       >Derived From</h3>
     {% include "select_pmap.html" %}
     
     <table>
-      <tr><td colspan="3"><h3>New Rmaps</h3></td></tr>
+      <tr title="Newline separated list of existing rmaps."
+         ><td colspan="3"><h3>Existing Rmaps</h3></td></tr>
       <tr><td colspan="3"><textarea name="rmaps" cols="60" rows="10">{{rmaps}}</textarea></td></tr>
-      <tr><td><h3>Description</h3></td></tr>
+      <tr title="Describe the reason for this updated version of CRDS rules."
+         ><td><h3>Description</h3></td></tr>
       <tr><td colspan="3"><textarea name="description" cols="60" rows="10">{{description}}</textarea></td></tr> 
       </table>
       <br/>
       <input type="submit" value="Create Parent Contexts" style="font-size:1.1em;"/>
 </form>
 
-{% endblock column1 %}
+<br/>
+<p><b>NOTE:</b> use with care,  there is <b>no confirmation step</b>,  submissions
+  final.</p>
 
-{% block help %}
+{% endblock contents_both %}
 
-<p><b>Create Parent Contexts</b> automatically generates and submits new pipeline 
-and instrument contexts which refer to your new rmaps.   NOTE:  USE WITH CARE,
-THERE IS NO CONFIRMATION STEP.
 
-<p><b>Derived From</b> defines the context which will be modified to create a 
-new context.  The 
-pipeline context refers to a set of instrument contexts.   New instrument contexts
-will be derived from the existing contexts by updating them to refer to the New
-Rmaps.   A new pipeline context will be generated to refer to the new instrument
-contexts.
-
-<p><p><b>New Rmaps</b> will replace their equivalents in the instrument contexts
-identified by the pipeline context.   Each file in New Rmaps must have already 
-been accepted by CRDS. New Rmaps can be listed one file per line, separated by 
-spaces, or seperated by commas.
-
-<p><p><b>Description</b> should document the general rationale or purpose 
-behind the set of New Rmaps.
-{% endblock help %}
