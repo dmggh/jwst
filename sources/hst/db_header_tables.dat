@@ -234,7 +234,7 @@
           'drizcorr': 'wfc3_ref_data.w3r_drizcorr',
           'expstart': 'wfc3_ref_data.w3r_expstart',
           'filter': 'wfc3_ref_data.w3r_filter',
-          'flashcur': 'wfc3_a_data.w3a_flshcur',
+          'flashcur': 'wfc3_a_data.w3a_flashcur',
           # 'flashcur': 'wfc3_ref_data.w3r_flashcur',
           'flatcorr': 'wfc3_ref_data.w3r_flatcorr',
           'flshcorr': 'wfc3_ref_data.w3r_flshcorr',

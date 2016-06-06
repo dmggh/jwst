@@ -1268,13 +1268,13 @@ def submit_confirm(request):
     
     if button == "confirm":   # assume confirmed unless lock fails
         disposition = "confirmed"
-        if result.get("requires_locking", True) and locked_instrument:  # only verify locks if contexts are being generated.
-            try:
-                locks.verify_locked(
-                    type="instrument", name=locked_instrument, user=str(request.user), datestr=result["lock_datestr"])
-            except locks.LockingError, exc:
-                disposition = "cancelled due to: " + str(exc)
-                log.info("Locking exception:", str(exc))
+        # if result.get("requires_locking", True) and locked_instrument:  # only verify locks if contexts are being generated.
+        #     try:
+        #         locks.verify_locked(
+        #             type="instrument", name=locked_instrument, user=str(request.user), datestr=result["lock_datestr"])
+        #     except locks.LockingError, exc:
+        #         disposition = "cancelled due to: " + str(exc)
+        #         log.info("Locking exception:", str(exc))
     elif button == "cancel":
         disposition = "cancelled by submitter"
     elif button == "timeout":
@@ -1675,7 +1675,7 @@ def browse_known_file(request, filename):
     
     file_contents = browsify_file(filename, browsed_file)
 
-    used_by_files = list(uses.uses([filename], blob.observatory))
+    used_by_files = ["temporarily disabled"]  # list(uses.uses([filename], blob.observatory))
     
     if blob and blob.type == "reference":
         context = models.get_default_context(blob.observatory)

@@ -803,7 +803,7 @@ def submit_confirm_core(confirmed, submission_kind, description, new_files, cont
     if confirmed:
         if context_rmaps:
             # Instrument lock required since we're generating a new .imap from context_rmaps.
-            locks.verify_instrument_locked_files(user, locked_instrument, paths, blob.observatory)
+            # locks.verify_instrument_locked_files(user, locked_instrument, paths, blob.observatory)
             # context_rmaps aren't necessarily in new_file_map and may be existing files.  So they only
             # specify changes to `pmap_name`,  not file deliveries.
             submission = FileSubmission(pmap_name, uploaded_files=None, description=description, user=user, creator="crds", 
