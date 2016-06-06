@@ -1548,8 +1548,13 @@ def create_contexts_post(request):
 def submit_files(request, crds_filetype):
     """Handle file submission,  crds_filetype=reference|mapping."""
     if request.method == "GET":
+        if crds_filetype == "mapping":
+            page_title_help = "Submit .rmaps, .imaps, or .pmaps."
+        else:
+            page_title_help = "Submit new references without generating new rules."
         return crds_render(request, "submit_input.html", {
                     "crds_filetype" :  crds_filetype,
+                    "page_title_help" : page_title_help,
                     "compare_old_reference" : "checked",
                     "generate_contexts" : "checked",
                     "auto_rename":""
