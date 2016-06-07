@@ -1,56 +1,57 @@
 {% extends "base.html" %}
 
 {% block contents_both %}
-    <h2 title="Set the context used in the pipeline by default (operational) or
-    as the default starting point for the next file submission (edit)"
-       >Set Context</h2>
+<h2 title="Set the context used in the pipeline by default (operational) or
+           as the default starting point for the next file submission (edit)"
+    >Set Context</h2>
 
-    <div class="row">
-    <div class="col-md-8">
+<form method="post" action="/set_default_context/"
+      enctype="multipart/form-data" 
+      onsubmit="return crds.warn_delay();" >  {% csrf_token %}
+  
+  <div  title="Choose type of context to set, operational (pipeline) or edit">
+    <h3>Select:</h3>
+    <table border='1' width="100%">
+      <tr>
+        <th title="Type of context to set"
+            >Context Type</th>
+        <th title="Current value of selected context type."
+            >Current Value</th>
+      </tr>
+      <tr>
+        <td>
+          <select name="context_type" id="context_type" onchange="crds.set_context_display($('#context_type').val());">
+            {% for ctype in context_types %}
+            {% if ctype == "operational" %}
+            <option selected>{{ctype}}</option>
+            {% else %}
+            <option>{{ctype}}</option>
+            {% endif %}
+            {% endfor %}
+          </select>
+        </td>
+        <td id='context_display' class="gray"></td>
+      </tr>
+    </table>
+  </div>
+  
+  <div title="Value to set the selected context type to.">
+    <h3>Set To:</h3>
+    {% include "select_pmap.html" %}
+  </div>
+  
+  <div title="Describe content or reason for this context transition.">
+    <h3>Reason for Change:</h3>
+    <p><textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea></p>
+    <br/>
+  </div>
+  
+  <input class="btn btn-primary" type="submit" value="Set Default Context" />
+</form>
 
-    <form method="post" action="/set_default_context/"
-          enctype="multipart/form-data" 
-          onsubmit="return crds.warn_delay();" >  {% csrf_token %}
+<br/><br/>
+{% include "bluebar.html" %}
 
-      <h3 title="Choose type of context to set, operational (pipeline) or edit"
-         >Select:</h3>
-      <table border='1'>
-            <tr>
-                <th title="Type of context to set"
-                   >Context Type</th>
-                <th title="Current value of selected context type."
-                   >Current Value</th>
-            </tr>
-            <tr>
-                <td>
-                    <select name="context_type" id="context_type" onchange="crds.set_context_display($('#context_type').val());">
-                        {% for ctype in context_types %}
-                            {% if ctype == "operational" %}
-                                <option selected>{{ctype}}</option>
-                            {% else %}
-                                <option>{{ctype}}</option>
-                            {% endif %}
-                        {% endfor %}
-                    </select>
-                </td>
-                <td id='context_display' class="gray"></td>
-            </tr>
-      </table>
-
-      <h3 title="Value to set the selected context type to."
-         >Set To:</h3>
-      {% include "select_pmap.html" %}
-      
-      <h3 title="Describe content or reason for this context transition."
-         >Reason for Change:</h3>
-      <p><textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea></p>
-      <br/>
-
-      <input class="btn btn-primary" type="submit" value="Set Default Context" />
-    </form>
-
-    </div>
-    </div>
 <div>
   <br/>
   <p><b>Reason For Change:</b> Shown in the <b>context history</b>.  For single
@@ -68,8 +69,6 @@
   <p><b>Edit</b> Drives default <b>file submission</b> context generation. Generally
     set for branching context development or custom context submissions.
   </p>
-</div>
-
 </div>
 
     <script type="text/javascript">

@@ -5,18 +5,13 @@
 {% endblock head_additions %}
 
 {% block contents_both %}
-<div class="row">
-
-    <div class="col-md-8">
-
     <h2>Explore Best References <span class="value">({{mapping.filename}} : {{instrument}})</span></h2>
     <form method="post" action="/bestrefs_explore_compute/"> {% csrf_token %}
       <input type="hidden" name="context" id="context" value="{{mapping.filename}}" />
       <input type="hidden" name="instrument" id="instrument" value="{{instrument}}" />
-      <h3 title="Select parameter values used to determine best references."
-         >Enter Dataset Parameters</h3>
+      <h3 title="Select parameter values used to determine best references.">Enter Dataset Parameters</h3>
+      
       <table width="100%">
-
       {# repeated for-loop with "CORR in" and "CORR not in:" #}
       
       {% for key, choices in valid_values %}
@@ -87,32 +82,24 @@
       <input class="btn btn-primary" type="submit" value="Get References" />
     </form>
 
+    <br/>
+    {%include "bluebar.html" %}
+
+    <div>
+      <h3>About Parameters</h3>
+        <p>The selected context file and parameter values determine
+          best references.
+        </p><p/>
+        
+        <p>Some <b>parameters may not be relevant</b> to the chosen
+          instrument mode and should be left unselected to avoid errors.
+        </p><p/>
+        
+        <p>The <b>secondary text box</b> available for some parameters can 
+          specify <b>arbitrary values</b> not captured by the dropdown menu. Any
+          write-in parameter will take precedence over the dropdown menu.
+        </p>
     </div>
-
-    <div class="col-md-4">
-      <br/>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                About Parameters
-            </div>
-            <div class="panel-body">
-                <p>The selected context file and parameter values determine
-                best references.
-                </p><p/>
-
-                <p>Some <b>parameters may not be relevant</b> to the chosen
-            instrument mode and should be left unselected to avoid errors.
-                </p><p/>
-
-                <p>The <b>secondary text box</b> available for some parameters can 
-                specify <b>arbitrary values</b> not captured by the dropdown menu. Any
-                write-in parameter will take precedence over the dropdown menu.
-                </p>
-            </div>
-        </div>
-    </div>
-
-</div> {# row #}
 
 {% endblock contents_both %}
 
