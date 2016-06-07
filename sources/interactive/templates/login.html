@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block column1 %}
+{% block contents_both %}
 
 <h2>Login</h2>
 
@@ -21,19 +21,19 @@
 </tr>
 </table>
 
+<br/>
 <input class="btn btn-primary btn-lg" type="submit" value="Login"/>  
 
-<br/> <br/> <br/>
-
-<div class="panel panel-warning">
-    <div class="panel-heading">WARNING:</div> 
-    <div class="panel-body">
-        Any pending submissions in other sessions will be automatically cancelled.
-    </div>
-</div>
+<br/>
 
 <input type="hidden" name="next" value="{{ next }}" />
 </form>
+
+{% if form.errors %}
+<div id="error_login" class="error">
+Your username and password didn't match. Please try again.
+</div>
+{% endif %}
 
 <script type="application/javascript">
     crds.validate_login = function () {
@@ -42,13 +42,5 @@
     }
 </script>
 
-{% endblock %}
-
-{% block column2 %}
-{% if form.errors %}
-<div class="error">
-<p>Your username and password didn't match. Please try again.</p>
-</div>
-{% endif %}
-{% endblock %}
+{% endblock contents_both %}
 
