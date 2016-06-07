@@ -5,44 +5,30 @@
 {% endblock %}
 
 {% block contents_both %}
-    <h2>Delete References  <span class='locked_instrument'>{{locked_instrument}}</span></h2>
-    
-    <div class="row">
+    <h2 title="Remove references from  a version of CRDS rules creating new
+               rules.  Does not delete from CRDS or archive."
+       >Delete References  <span class='locked_instrument'>{{locked_instrument}}</span></h2>
+    <form method="post" action="/delete/reference/" enctype="multipart/form-data"
+          id="delete_references_form" class="jpoll_ajax_html_form"
+          onsubmit="return crds.validate_and_confirm_add_delete(this);" >  {% csrf_token %}
 
-        <div class="col-md-8">
-            <form method="post" action="/delete/reference/" enctype="multipart/form-data"
-                  id="delete_references_form" class="jpoll_ajax_html_form"
-                  onsubmit="return crds.validate_and_confirm_add_delete(this);" >  {% csrf_token %}
+      <h3 title="Newline separated list of *existing* CRDS reference file names."
+          >Deleted Files:</h3>
+      <textarea name="deleted_files" cols="50" rows="4" >{{deleted_files}}</textarea>
 
-              <h3>Deleted Files:</h3>
-              <textarea name="deleted_files" cols="50" rows="4" >{{deleted_files}}</textarea>
+      <h3 title="Version of CRDS rules from which named references are removed."
+          >Derive From Context:</h3>
+      {% include "select_pmap.html" %}
+      <br/>
+      
+      <h3 title="Rationale behind removing these files from rules."
+          >Description: <textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea>   
+      </h3>
 
-              <h3>Derive From Context:</h3>
-              {% include "select_pmap.html" %}
-               <br/>
-                
-              <h3>Description: <textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea>   
-              </h3>
-
-              <br/>
-              <br/>
-              <input class="btn btn-primary" type="submit" value="Submit References" >
-            </form>
-
-        </div>
-        <div class="col-md-4">
-
-            <p><b>Delete References</b> generates a new context from the derivation context which omits the listed references.   
-            Enter file names separated by spaces or newlines.   NOTE: this does not remove
-            references from CRDS entirely.   It creates a new context which omits the references.
-
-            <p><p><b>Derive From Context</b> The name of the pipeline context which 
-            will be recursively updated to delete the reference files.
-
-            <p><p><b>Description</b> information about why these files were deleted.
-
-        </div>
-    </div>
+      <br/>
+      <br/>
+      <input class="btn btn-primary" type="submit" value="Submit References" >
+    </form>
 
 {% endblock contents_both %}
 

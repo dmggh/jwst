@@ -5,7 +5,8 @@
 {% endblock %}
 
 {% block contents_both %}
-    <h2 "Add *existing* references to a version of CRDS rules creating new rules which include them or use them as replacements."
+    <h2 title="Add *existing* references to a version of CRDS rules creating
+               new rules.  Does not ingest new files into CRDS and archive."
        >Add Existing References  <span class='locked_instrument'>{{locked_instrument}}</span></h2>
     
     <form method="post" action="/add_existing/reference/" enctype="multipart/form-data"
