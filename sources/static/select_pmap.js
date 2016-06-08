@@ -11,6 +11,7 @@
                 };
             };
             var pmap_option;
+			var title;
             if (pmap_mode == "pmap_text") {
                 pmap_option = pmap;
                 title = "User Specified";

@@ -29,7 +29,8 @@ from . import models as jmodels
 # Utility functions
 
 def jdebug(*args):
-    '''print(*args, file=sys.stderr)'''
+    return
+    print(*args, file=sys.stderr)
 
 def new_key(request):
     """Create the unique identifier for this JPOLL channel."""
@@ -45,15 +46,59 @@ def get_key(request):
     key = None
     try:
         key = request.session["jpoll_key"]
-        assert JPOLL_KEY_RE.match(key), "Badly formatted jpoll_key " + repr(key)
     except:
         print("Failed fetching JPOLL key from request.session.", file=sys.stderr)
     return key
- 
+
 def get_channel(request):
     """Based on `request`,  load the JPOLL channel for it and return it."""
     key = get_key(request)
+    return get_channel_from_key(key)
+    
+def get_channel_from_key(key):
+    assert JPOLL_KEY_RE.match(key), "Badly formatted jpoll_key " + repr(key)
     return jmodels.ChannelModel.open(key)
+
+'''
+from crds import log
+def log_view(func):
+    """log() captures view inputs, output, and response to a log file.
+    It should be called inside any error_trap() decorator so that it
+    executes before error_trap() absorbs many exceptions.
+    """
+    def dolog(request, *args, **keys):
+        """trap() is bound to the func parameter of decorator()."""
+        log.info() # start with blank line to make concat logs readable
+        log.info("REQUEST:", request.path, request.method, "ajax="+str(request.is_ajax()))
+        # log.info("META:", log.PP(request.META))
+        if request.GET:
+            log.info("GET:",   repr(request.GET))
+        if request.POST:
+            log.info("POST:",  repr(request.POST))
+#        if request.COOKIES:
+#            log.info("COOKIES:", repr(request.COOKIES), stdout=None)
+        # log.info("SESSION:", request.session.session_key, "expires", request.session.get_expiry_date())
+        if request.FILES:
+            log.info("FILES:", repr(request.FILES))
+        # log.info("OUTPUT:")
+        try:
+            response = func(request, *args, **keys)
+#            log.info("RESPONSE:\n" + response.content, stdout=None)
+            return response
+        except Exception, exc:
+            log.info("EXCEPTION REPR:", repr(exc))
+            log.info("EXCEPTION STR:", str(exc))
+            log.info("EXCEPTION TRACEBACK:")
+            info = sys.exc_info()
+            tb_list = traceback.extract_tb(info[2])
+            for line in traceback.format_list(tb_list):
+                log.info(line.strip(), time=False)
+            raise
+        finally:
+            pass
+    dolog.func_name = func.func_name
+    return dolog
+'''
 
 #---------------------------------------------------------------------------------------------------
 # View functions
@@ -76,13 +121,22 @@ def close_channel(request):
     channel.wipe()
     return HttpResponse(json.dumps(key), content_type='application/json')
 
+# @log_view
 @login_required
 def pull_messages(request):
     """Return any pending JPOLL messages on the channel associated with `request` as a JSON response."""
+    jdebug("pull_messages entered.")
     channel = get_channel(request)
+    jdebug("pull_messages got channel:", channel)
     messages = channel.pull()
-    jdebug("jpoll: pulling messages for", repr(channel.key), "=", messages)
+    jdebug("jpoll: pulled messages for", repr(channel.key), "=", messages)
     return HttpResponse(json.dumps(messages), content_type='application/json')
+
+def pull_messages_core(key, since_id=0):
+    channel = get_channel_from_key(key)
+    messages = channel.pull(since_id)
+    jdebug("jpoll: pulling messages for", repr(channel.key), "=", messages)
+    return messages
 
 #---------------------------------------------------------------------------------------------
 # JPOLL Handler client functions

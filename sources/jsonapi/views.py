@@ -26,7 +26,7 @@ from crds.server.interactive.common import DATASET_ID_RE, FITS_KEY_RE, FITS_VAL_
 from crds.server.interactive.common import INSTRUMENT_RE, FIELD_RE
 import crds.server.config as config    # server parameters
 
-# from crds.server.jpoll import views as jviews
+from crds.server.jpoll import views as jviews
 from crds.server.interactive import submit
 
 from crds.client import proxy
@@ -855,19 +855,19 @@ def get_submission_info(request, observatory, username):
  
 # # ===============================================================
  
-# @jsonrpc_method('jpoll_pull_messages(key=String, since_id=int)')
-# def jpoll_pull_messages(request, key, since_id):
-#     """Return a list of jpoll message objects from channel defind by `key`
-#     with sequence numbers after `since_id`.
-#     """
-#     return jviews.pull_messages_core(key, since_id=since_id)
+@jsonrpc_method('jpoll_pull_messages(key=String, since_id=int)')
+def jpoll_pull_messages(request, key, since_id):
+    """Return a list of jpoll message objects from channel defind by `key`
+    with sequence numbers after `since_id`.
+    """
+    return jviews.pull_messages_core(key, since_id=since_id)
  
-# @jsonrpc_method("jpoll_abort(key=String)")
-# def jpoll_abort(request, key):
-#     """Mark the process that writes to the channel identified by `key` for
-#     voluntary termination.
-#     """
-#     return jviews.abort_core(key)
+@jsonrpc_method("jpoll_abort(key=String)")
+def jpoll_abort(request, key):
+    """Mark the process that writes to the channel identified by `key` for
+    voluntary termination.
+    """
+    return jviews.abort_core(key)
 
 # ===============================================================
 
