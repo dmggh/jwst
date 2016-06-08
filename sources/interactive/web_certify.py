@@ -54,9 +54,9 @@ def captured_certify(original_name, uploaded_path, check_references=True, filema
     output = _captured_certify(original_name, uploaded_path, context, compare_old_reference,
                                check_references, filemap)[1]
 
-    if re.search(r"(CRDS\s+:\s+ERROR)", output):
+    if re.search(r"(CRDS - ERROR)", output):
         status = "Failed."
-    elif re.search(r"(CRDS\s+:\s+WARNING)", output):
+    elif re.search(r"(CRDS - WARNING)", output):
         status = "Warnings"
     else:
         status = "OK"
