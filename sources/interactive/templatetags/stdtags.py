@@ -14,9 +14,10 @@ from django.shortcuts import render as django_render
 import django.utils.encoding
 
 import crds
-from crds import (rmap, utils, log)
+from crds import (rmap, utils, log, data_file)
 from crds.server import (config)
 import crds.server.jsonapi.views as jviews
+from crds.server.interactive import models as imodels
 
 register = template.Library()
 
@@ -138,6 +139,22 @@ def download_url(filename):
     except Exception:
         return conditional_escape(filename)
 
+
+@register.filter
+def download_link(filename):
+    """Return the URL for downloading `filename`.
+    """
+    try:
+        # return jviews.create_url(config.observatory, filename)
+        if data_file.is_geis(filename):
+            return "<a href='{}'>header</a>&nbsp<a href='{}'>data</a>".format(
+                jviews.create_unchecked_url(imodels.OBSERVATORY, filename[:-1]+"h"), 
+                jviews.create_unchecked_url(imodels.OBSERVATORY, filename[:-1]+"d"))
+        else:
+            return "<a href='{}'>download</a>".format(
+                jviews.create_unchecked_url(imodels.OBSERVATORY, filename))
+    except Exception:
+        return conditional_escape("[no download link]")
 
 # Filter for accessing dictionary using variable
 @register.filter
