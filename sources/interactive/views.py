@@ -1872,6 +1872,10 @@ def browsify_json(filename, browsed_file):
     """Format a CRDS JSON reference file for HTML display.   Return HTML string."""
     return browsify_text(filename, browsed_file)
 
+def browsify_geis(filename, browsed_file):
+    browsed_header = browsed_file[:-1] + "h"
+    return browsify_text(filename, browsed_header)
+
 # ===========================================================================
 
 # @profile('recent_activity.stats')

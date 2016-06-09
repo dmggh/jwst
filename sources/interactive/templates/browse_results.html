@@ -15,9 +15,9 @@
     {% endif %}
 
     &nbsp;&nbsp;
-    <a href='{{browsed_file|download_url}}'>
-        <span style="font-size: 0.75em;">download</span>
-    </a>
+    <span style="font-size: 0.75em;">
+      download  {{browsed_file|download_link|safe}}
+    </span>
 
     {% if is_superuser %}
     &nbsp;&nbsp;
