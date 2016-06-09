@@ -20,7 +20,7 @@ MODULE_LIST = (
     'jsonrpc',
 
     'astropy',
-    'jwst_lib.models',
+    'jwst.datamodels',
     'asdf',
 
     'parsley',
