@@ -1,0 +1,12 @@
+#! /bin/tcsh -x
+
+source ./env.csh
+
+rsync -av /grp/crds/${CRDS_PROJECT}/mappings /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}/file_cache
+chmod -v 444 /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}/file_cache/mappings/${CRDS_PROJECT}/*
+rsync -av /grp/crds/${CRDS_PROJECT}/config /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}/file_cache
+chmod -v 644 /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}/file_cache/config/${CRDS_PROJECT}/*
+rsync -av /grp/crds/${CRDS_PROJECT}/references /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}/file_cache
+chmod -v 444 /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}/file_cache/references/${CRDS_PROJECT}/*
+
+
