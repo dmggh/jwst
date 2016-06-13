@@ -103,7 +103,7 @@
                   {% endif %}
                   {% if fname|file_exists %}
                     <td class="bestrefs_data" width="20%">
-                         <a href='{{fname|download_url}}'>download</a>
+                      {{fname|download_link|safe}}
                     </td>
                   {% endif %}
                 </tr>

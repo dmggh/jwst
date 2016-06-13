@@ -87,7 +87,7 @@ h2, .h2 {
     font-size: 24px;
 }
 
-label, .tdlabel, .label2 {
+.label, .tdlabel, .label2 {
     font-weight: normal;
     color:  darkblue;
 }
