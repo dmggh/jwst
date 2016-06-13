@@ -1,7 +1,7 @@
 # XXXXXXXX Late imports below
 
-CRDS_RESULTS_FROM_ADDRESS = "crds-servers@stsci.edu"
-CRDS_RESULTS_TO_ADDRESSES = ["jmiller@stsci.edu"]
+CRDS_STATUS_FROM_ADDRESS = "crds-servers@stsci.edu"
+CRDS_STATUS_TO_ADDRESSES = ["jmiller@stsci.edu"]
 
 INGEST_HOST = "dmsinsvm.stsci.edu"
 

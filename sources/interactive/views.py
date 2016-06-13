@@ -729,48 +729,23 @@ def display_result(request, results_id):
     pars["results_id"] = results_id  # needed to implement "disposition", confirmed or cancelled.
     return crds_render(request, result.page_template, pars)
 
-
-GENERIC_BODY = """
-
-Job for {user} to {results_kind}
-
-Results at: {repeatable_url}
-
-{uploaded_file_mention}
-
-"""
-
-def render_repeatable_result(request, template, rdict, jpoll_handler=None, 
-                             email_subject=None, email_body=GENERIC_BODY):
+def redirect_repeatable_result(request, template, rdict, jpoll_handler=None):
     """Create a repeatable results model instance and redirect to it."""
+    result = render_repeatable_result(request, template, rdict)
+    return redirect_jpoll_result(result, jpoll_handler)
 
-    user = str(request.user)
-    rdict["user"] = user
-
-    uploaded_file_names = get_uploaded_filepaths(request)  # Django temps
-    rdict["uploaded_file_names"] = uploaded_file_names
+def render_repeatable_result(request, template, rdict):
+    """Create a repeatable results model instance and redirect to it."""
+    rdict["user"] = request.user.username
+    rdict["uploaded_file_names"] = get_uploaded_filepaths(request)
     result = models.RepeatableResultBlob.new(template, rdict)
+    return result
 
-    with log.error_on_exception("Failed sending results e-mail"):
-        if email_subject is None:
-            results_kind = template.replace("_results", "").replace(".html","")
-            email_subject = "results for " + user + " about " + results_kind
-        email_subject = "CRDS " + sconfig.observatory.upper() + " " + sconfig.server_usecase.upper() + " " + email_subject
-        all_uploaded = get_files(request)[1].keys()
-        uploaded_file_mention = ("For files: \n\n" + "\n".join(all_uploaded)) if all_uploaded else ""
-        mail.mail(sconfig.CRDS_RESULTS_FROM_ADDRESS, 
-                  sconfig.CRDS_RESULTS_TO_ADDRESSES,  # + [ request.user.email ], 
-                  subject=email_subject, body=email_body, 
-                  results_kind=results_kind,
-                  uploaded_file_mention=uploaded_file_mention,
-                  repeatable_url=sconfig.CRDS_URL + result.repeatable_url,
-                  **rdict)
-        
-    # time.sleep(60.0*35.0); # currently 30 minute proxy timeouts
+def redirect_jpoll_result(result, jpoll_handler):
+    """Send the done message to `jpoll_handler` and redirect to the URL in `result`."""
     if jpoll_handler:
         jpoll_handler.done(0, result.repeatable_url)
         time.sleep(10.0)  # wait 10 seconds to give jpoll done processing consistent behavior. 2x jpoll poll rate
-
     return HttpResponseRedirect(result.repeatable_url)   # secure
 
 # ===========================================================================
@@ -788,6 +763,7 @@ from django.contrib.auth.views import login as django_login
 
 # @profile("login.stats")
 @error_trap("base.html")
+@log_view
 def login(request):
     """CRDS login view function,  sets and tests session cookie."""
     extras = dict(
@@ -1216,7 +1192,7 @@ def certify_post(request):
     else:
         blacklist_results = []
 
-    return render_repeatable_result(request, "certify_results.html", {
+    return redirect_repeatable_result(request, "certify_results.html", {
              "certify_results":certify_results,
              "blacklist_results":blacklist_results,
              },  jpoll_handler=jpoll_handler)
@@ -1291,9 +1267,15 @@ def batch_submit_references_post(request):
                 "disposition": disposition,
             }
 
-    return render_repeatable_result(request, "batch_submit_reference_results.html", bsr_results,
-                                    jpoll_handler=jpoll_handler)
+    result = render_repeatable_result(
+        request, "batch_submit_reference_results.html", bsr_results)
 
+    mail.crds_notification(
+            username=request.user.username, user_email=request.user.email, 
+            files = uploaded_files.keys(), results_kind = "Batch Submit References",
+            description = description, repeatable_url=result.repeatable_url)
+    
+    return redirect_jpoll_result(result, jpoll_handler)
 # ============================================================================
 
 @error_trap("base.html")
@@ -1392,7 +1374,7 @@ def submit_confirm(request):
     confirm_results["disposition"] = disposition
     confirm_results["confirmed"] = confirmed
 
-    return render_repeatable_result(request, "confirmed.html", confirm_results, jpoll_handler=jpoll_handler)
+    return redirect_repeatable_result(request, "confirmed.html", confirm_results, jpoll_handler=jpoll_handler)
 
 # ===========================================================================
 
@@ -1453,7 +1435,7 @@ def delete_references_post(request):
                 "disposition": disposition,
             }
 
-    return render_repeatable_result(request, "delete_references_results.html", del_results,
+    return redirect_repeatable_result(request, "delete_references_results.html", del_results,
                                     jpoll_handler=jpoll_handler)
 
 # ===========================================================================
@@ -1520,7 +1502,7 @@ def add_existing_references_post(request):
                 "disposition": disposition,
             }
 
-    return render_repeatable_result(request, "add_existing_references_results.html", add_results,
+    return redirect_repeatable_result(request, "add_existing_references_results.html", add_results,
                                     jpoll_handler=jpoll_handler)
 
 # ===========================================================================
@@ -1549,7 +1531,7 @@ def create_contexts_post(request):
 
     models.clear_cache()
 
-    return render_repeatable_result(request, "create_contexts_results.html", {
+    return redirect_repeatable_result(request, "create_contexts_results.html", {
                 "pmap": pmap_name,
                 "original_pmap": pmap_name,
                 "pmap_mode" : "pmap_text",
@@ -1641,7 +1623,7 @@ def submit_files_post(request, crds_filetype):
                 "disposition" : disposition,
     }
 
-    return render_repeatable_result(request, 'submit_results.html', rdict, jpoll_handler=jpoll_handler)
+    return redirect_repeatable_result(request, 'submit_results.html', rdict, jpoll_handler=jpoll_handler)
 
 # ===========================================================================
 
