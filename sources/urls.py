@@ -61,6 +61,8 @@ urlpatterns = patterns('',
     (r'^upload/delete/(?P<filename>{0})$'.format(FILE_RE_STR),
      'crds.server.interactive.views.upload_delete', {}, 'upload-delete'),
               
+    # (r'^upload/alt_new/$', 'crds.server.interactive.views.upload_alt_new', {}, 'upload-alt-new'),
+
     url(r'^batch_submit_references/$', 'crds.server.interactive.views.batch_submit_references'),
     url(r'^submit_confirm/$', 'crds.server.interactive.views.submit_confirm'),
 

@@ -931,6 +931,33 @@ def clear_uploads(request, uploads):
         _upload_delete(request, filename)
 
 # ===========================================================================
+'''
+@error_trap("upload_alt_new.html")
+@log_view
+@login_required
+def upload_alt_new(request, template="upload_alt_new.html"):
+    """Support adding new files to the upload area."""
+    if request.method == "GET":
+        return crds_render(request, template)
+    else:
+        file_ = get_uploaded_file(request, 'file')
+        file_local_dir = str(request.user)
+        config.check_filename(file_.name)
+        assert re.match("[A-Za-z0-9_]+", file_local_dir), "Invalid file_local_dir " + srepr(file_local_dir)
+        ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir, file_.name)
+        with log.verbose_on_exception("Failed removing", repr(ingest_path)):
+            pysh.sh("rm -f ${ingest_path}")   #  secure, constructed path
+            log.info("Removed existing", repr(ingest_path))
+        utils.ensure_dir_exists(ingest_path, mode=0770)
+        log.info("Linking", file_.temporary_file_path(), "to", ingest_path)
+        os.link(file_.temporary_file_path(), ingest_path)
+        data = [json_file_details(file_.name, file_.temporary_file_path())]
+        response = JSONResponse(data, {}, response_content_type(request))
+        response['Content-Disposition'] = 'inline; filename=files.json'
+        return response
+'''
+
+# ===========================================================================
 
 def get_recent_pmaps(last_n=10, pmap_edit=None):
     """Return a list of option tuples for rendering HTML to choose recent
