@@ -1,3 +1,4 @@
+
 """This module defines the Django view functions which respond to HTTP requests
 and return HTTP response objects.
 """
@@ -1199,6 +1200,18 @@ def certify_post(request):
 
 # ===========================================================================
 
+@error_trap("base.html")
+@log_view
+# @login_required
+def monitor_process(request, process_key):
+    """Return a page response to periodically monitor and display status for `process_key`."""
+    request.session["jpoll_key"] = process_key
+    return crds_render(request, "monitor_process.html", {
+            "process_key" : process_key,
+            })
+    
+# ===========================================================================
+
 @error_trap("batch_submit_reference_input.html")
 @log_view
 @login_required
@@ -1231,6 +1244,11 @@ def batch_submit_references_post(request):
     locked_instrument = get_locked_instrument(request)
 
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
+
+    mail.crds_notification(body=mail.GENERIC_STARTED_BODY,
+            username=request.user.username, user_email=request.user.email, 
+            files = uploaded_files.keys(), results_kind = "Batch Submit References",
+            description = description, monitor_url=jpoll_handler.monitor_url)
 
     bsr = submit.BatchReferenceSubmission(pmap_name, uploaded_files, description,
         user=request.user, creator=creator, change_level=change_level,

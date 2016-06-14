@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% load stdtags %}
+
+{% block head_overrides %}
+    {% include "jpoll/jpoll_head_overrides.html" %}
+{% endblock %}
+
+
+{% block contents %}
+
+<h2>Monitoring <span class="green smaller">{{process_key}}<span></h2>
+
+{% if error_message %}
+    <div id="error_box" class="error">
+        {{error_message}}
+    </div>
+    <br/>
+{% endif %}
+
+<div id="jpoll_log" style="width: 98%; overflow: auto; height: 6em; max-height: 6em; border: 1px solid;">
+</div>
+
+<script type="application/javascript">
+    $( function () {
+        jpoll.channel = "{{process_key}}";
+        jpoll.init();
+        jpoll.start();
+    });
+</script>
+
+{% endblock contents %}

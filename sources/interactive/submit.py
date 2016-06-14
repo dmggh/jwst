@@ -185,6 +185,7 @@ class FileSubmission(object):
             # raise RuntimeError("Unforseen event!!!")
             return result
         except Exception as exc:
+            self.push_status("FAILED: " + str(exc))
             self.cleanup_failed_submission()
             raise
         
@@ -226,7 +227,7 @@ class FileSubmission(object):
             log.info("push_status: " + repr(message))
             self.status_channel.write(message)
             self.status_channel.flush()
-            
+
     def ordered_files(self):
         """Organize uploaded file tuples in dependency order,  starting with references and ending with .pmaps."""
         rmaps, imaps, pmaps, other = [], [], [], []

@@ -18,6 +18,7 @@ import time
 import json
 import datetime
 import re
+import uuid
 
 from django.shortcuts import render as django_render
 from django.http import HttpResponse
@@ -26,20 +27,27 @@ from django.contrib.auth.decorators import login_required
 from . import models as jmodels
 
 #---------------------------------------------------------------------------------------------
+
+# e.g. 'JPOLL-KEY-2014-02-11-14:26:44.080829'
+# JPOLL_KEY_RE_STR = r"JPOLL-KEY-\d\d\d\d-\d\d-\d\d-\d\d:\d\d:\d\d(.\d\d\d\d\d\d)?"
+# JPOLL_KEY_RE = re.compile(r"^" + JPOLL_KEY_RE_STR + r"$")
+
+JPOLL_KEY_RE_STR = r"[A-Za-z0-9]{8}\-[A-Za-z0-9]{4}\-[A-Za-z0-9]{4}\-[A-Za-z0-9]{4}\-[A-Za-z0-9]{12}"
+JPOLL_KEY_RE = re.compile("^" + JPOLL_KEY_RE_STR + "$")
+
+
+#---------------------------------------------------------------------------------------------
 # Utility functions
 
 def jdebug(*args):
-    return
     print(*args, file=sys.stderr)
+
+#---------------------------------------------------------------------------------------------
 
 def new_key(request):
     """Create the unique identifier for this JPOLL channel."""
-    key = "JPOLL-KEY-" + str(datetime.datetime.now()).replace(" ","-")
-    request.session["jpoll_key"] = key
+    request.session["jpoll_key"] = key = str(uuid.uuid4())
     return key
-
-# e.g. 'JPOLL-KEY-2014-02-11-14:26:44.080829'
-JPOLL_KEY_RE = re.compile(r"^JPOLL-KEY-\d\d\d\d-\d\d-\d\d-\d\d:\d\d:\d\d(.\d\d\d\d\d\d)?$")
 
 def get_key(request):
     """Fetch the unique JPOLL channel identifier for this request."""
@@ -50,11 +58,20 @@ def get_key(request):
         print("Failed fetching JPOLL key from request.session.", file=sys.stderr)
     return key
 
+def get_or_new_key(request):
+    if "jpoll_key" in request.session:
+        key = get_key(request)
+        jdebug("JPOLL get_or_new_key() session has existing key:", key)
+    else:
+        key = new_key(request)
+        jdebug("JPOLL get_or_new_key() creating key:", key)
+    return key
+
 def get_channel(request):
     """Based on `request`,  load the JPOLL channel for it and return it."""
     key = get_key(request)
     return get_channel_from_key(key)
-    
+
 def get_channel_from_key(key):
     assert JPOLL_KEY_RE.match(key), "Badly formatted jpoll_key " + repr(key)
     return jmodels.ChannelModel.open(key)
@@ -151,7 +168,7 @@ def get_jpoll_handler(request):
     """Return the jpoll handler associated with this request,  suitable as a Stream for logging
     and supporting a done(status, result) method for reporting request results via jpoll.
     """
-    return get_jpoll_handler_from_key(get_key(request))
+    return get_jpoll_handler_from_key(get_or_new_key(request))
 
 class JpollHandler(object):
     """A JpollHandler is a stream handler for the Python logger which routes to the jpoll log_message stream.
@@ -163,7 +180,16 @@ class JpollHandler(object):
         try:
             self.channel = jmodels.ChannelModel.open(key)
         except Exception:
-            self.channel = None
+            self.channel = jmodels.ChannelModel.new(key)
+
+    @property
+    def key(self):
+        return self.channel.key
+
+    @property
+    def monitor_url(self):
+        from crds.server import config
+        return config.CRDS_URL + "/monitor/" + self.channel.key + "/"
 
     def write(self, message):
         """Output `message` to self's JPOLL channel."""

@@ -13,9 +13,24 @@ from crds.server import config as sconfig
 
 # =============================================================================================
 
-GENERIC_RESULT = """
+GENERIC_STARTED_BODY = """
 
-Job for {username} to {results_kind}
+Job {results_kind} for {username}.
+
+Monitor at: {monitor_url}
+
+Files:
+
+{files}
+
+{description}
+"""
+
+# =============================================================================================
+
+GENERIC_RESULT_BODY = """
+
+Job {results_kind} for {username}.
 
 Results at: {repeatable_url}
 
@@ -49,8 +64,8 @@ def crds_notification(subject=None, from_address=None, to_addresses=None, body=N
                       username="anonymous", user_email=None, files=("none",), results_kind=None, 
                       description="", extras={}, **keys):
     with log.error_on_exception("Failed sending results e-mail"):
-        body = body or GENERIC_RESULT
-        subject = subject or ("Results for " + results_kind + " for " + username)
+        body = body or GENERIC_RESULT_BODY
+        subject = subject or (results_kind + " for " + username)
         subject = "CRDS " + sconfig.observatory.upper() + " " + sconfig.server_usecase.upper() + " " + subject
         from_address = from_address or sconfig.CRDS_STATUS_FROM_ADDRESS
         to_addresses = to_addresses or sconfig.CRDS_STATUS_TO_ADDRESSES[:]
