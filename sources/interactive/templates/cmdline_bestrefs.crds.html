@@ -14,243 +14,104 @@
 
       <h3>Overview</h3>
 
-      <p>For assigning best references to multiple datasets, CRDS uses command
-      line tools which are included with the Ureka software distribution. This
-      page documents configuring and using CRDS for common use cases.
+      <p> CRDS uses command line tools or calibration software to identify and automatically download
+      required reference files.
       </p>
 
-      <p>There are four high level aspects of working with references:</p>
+      <p>Working with CRDS references typically involves one or more of the following:</p>
 
-      <ol>
-        <li>Configuring your UNIX environment for CRDS.</li>
-        <li>Assigning new references to datasets / observations.</li>
-        <li>Obtaining and caching reference files.</li>
-        <li>Running calibration software that uses reference files.</li>
-      </ol>
+      <h3>Installing CRDS</h3>
 
-      <p>Configuring the CRDS tools involves setting environment variables
-      which define:</p>
+      <p>The current preferred approach is to install CRDS as part
+      of <a href='http://astroconda.readthedocs.io/en/latest/'>Astroconda</a>.</p>
 
-      <ol>
-        <li>The CRDS server in use:  <b>CRDS_SERVER_URL</b></li>
-        <li>The location of local copies of CRDS files:  <b>CRDS_PATH</b></li>
-        {% if observatory|upper == "HST" %}
-        <li>How calibration software finds references stored by CRDS: <b>iref$</b>, <b>jref$</b>, etc.</li>
-        {% endif %}
-      </ol>
+      <h3>Configuring UNIX</h3>
+
+      <p><b>Onsite use</b> generally requires <b>no setup for JWST</b> and uses
+        shared CRDS files located under <b>/grp/crds/cache</b>. No downloads
+        are required.
+      </p>
+
+      <p><b>For personal or offsite use</b>,  configuration requires 
+        defining <b>where to store downloaded files</b> and <b>which CRDS
+        server</b> to interact with.
+      </p> 
+      <p/>
 
       {% if observatory|upper == "HST" %} 
-      <p>Once configured,  running the <em>crds.bestrefs</em> program to
-        populate dataset headers with best references can be run like this:
-      </p>
-      <div class="code">
-        <pre>% python -m crds.bestrefs --update-bestrefs --sync-references=1 --files *.fits</pre>
-      </div>
-      <p>crds.bestrefs will both populate dataset headers and download the
-        recommended references to your CRDS cache.  Used in this mode of
-        operation crds.bestrefs is primarily applicable to HST,  the JWST
-        calibration software employs CRDS automatically.
-      </p>
+      <pre class="code darkblue">
+setenv CRDS_PATH $HOME/crds_cache
+setenv CRDS_SERVER_URL https://hst-crds.stsci.edu
+setenv iref  ${CRDS_PATH}/references/hst/iref/
+setenv jref  ${CRDS_PATH}/references/hst/jref/
+setenv oref  ${CRDS_PATH}/references/hst/oref/
+setenv lref  ${CRDS_PATH}/references/hst/lref/
+setenv nref  ${CRDS_PATH}/references/hst/nref/
+setenv uref  ${CRDS_PATH}/references/hst/uref/</pre>
+
+        {% else %}
+            <pre class="code darkblue">
+setenv CRDS_SERVER_URL https://jwst-crds.stsci.edu
+setenv CRDS_PATH $HOME/crds_cache</pre>
+        {% endif %}
+
+            <p>or in sh syntax:<p>
+
+      {% if observatory|upper == "HST" %} 
+      <pre class="code darkblue">
+export CRDS_PATH="$HOME/crds_cache"
+export CRDS_SERVER_URL="https://hst-crds.stsci.edu"
+export iref="{CRDS_PATH}/references/hst/iref/"
+export jref="{CRDS_PATH}/references/hst/jref/"
+export oref="{CRDS_PATH}/references/hst/oref/"
+export lref="{CRDS_PATH}/references/hst/lref/"
+export nref="{CRDS_PATH}/references/hst/nref/"
+export uref="{CRDS_PATH}/references/hst/uref/"</pre>
+        {% else %}
+            <pre class="code darkblue">
+export CRDS_SERVER_URL="https://jwst-crds.stsci.edu"
+export CRDS_PATH="$HOME/crds_cache"</pre>
+        {% endif %}
+
+
+      <h3>Assigning, obtaining, and caching reference files.</h3>
+
+      {% if observatory|upper == "HST" %} 
+          <p>For <b>HST</b>,  CRDS has a command line tool which assigns best references to
+            the FITS headers of data files prior to calibration.   Running the tool
+            can also be used to simultaneously download and cache the current best
+            reference files as they are assigned:        
+          </p>
+
+          <pre class="code darkblue">python -m crds.bestrefs --update-bestrefs --sync-references=1 --files *.fits</pre>
+      
+          <p>Since the files are cached,  re-running the tool later will only
+             download those files which have been updated.
+          </p>
+      {% else %}
+          <p>For <b>JWST</b> best references are assigned and/or downloaded transparently
+            when calibration software is run. </b>
+          </p>
+          <p><a href='http://ssb.stsci.edu/doc/jwst_dev/jwst_pipeline.pipeline.doc.user_guide.doc/html/main.html'>Performing
+          JWST Calibrations</a> describes running JWST calibrations more
+          generally,  including implicitly CRDS.
+          </p>
       {% endif %}
 
-      <h3>Common CRDS Configurations and Usage</h3>
-
-    {% if observatory|upper == "HST" %} 
-
-    <p>Below are configuration and command line
-      instructions for for several common CRDS use cases.
-    </p>
-    <br/>
-
-    {% accordion "Shared (On-site) HST environment, Flat Cache" %}
-    <p class="darkred">
-      This configuration utilizes a readonly group cache which is prepopulated
-      with all the existing CRDS files.  Consequently, no downloads are
-      required or performed.  This configuration can only be used from sites
-      with visibility to the <b>/grp/crds/cache</b> file system, nominally on
-      site at STScI or with VPN access.  This configuration is the current
-      default for HST so no explicit CRDS settings are required,  but for
-      reference purposes the settings are:
-    </p>
-    <pre class="code darkblue">
-      setenv CRDS_SERVER_URL https://hst-crds.stsci.edu
-      setenv CRDS_PATH /grp/crds/cache
-    </pre>
-    <p class="darkred">
-      The current group shared cache is organized with a flat single
-      directory structure for all references.  The group cache is readonly
-      so files cannot be changed by end users.  To obtain writable versions
-      of files, use one of the other CRDS configurations to obtain private
-      copies of the files you need.
-      
-      These environment variables are required to make CRDS cached references usable
-      by calibration software:
-    </p>
-    <pre class="code darkblue">
-      setenv iref  ${CRDS_PATH}/references/hst/
-      setenv jref  ${CRDS_PATH}/references/hst/
-      setenv oref  ${CRDS_PATH}/references/hst/
-      setenv lref  ${CRDS_PATH}/references/hst/
-      setenv nref  ${CRDS_PATH}/references/hst/
-      setenv uref  ${CRDS_PATH}/references/hst/
-    </pre>
-    
-    <p class="darkred">
-      Each variable corresponds to one HST instrument.  The assigned values are
-      all the same because this CRDS cache is "flat" and all references for all
-      instruments are stored in one directory.  Once the environment is
-      configured, crds.bestrefs can be run like this on datasets to assign best
-      references to the dataset headers and fetch the reference files:
-    </p>
-    <pre class="code darkblue">
-      python -m crds.bestrefs --update-bestrefs --files *.fits
-    </pre>
-    <p class="darkred">
-      Since this cache is complete and readonly,  the --sync-references=1
-      switch is omitted.
-    </p>
-   {% endaccordion %}
-
-    {% accordion "Personal (Off-site) HST Environment, By-instrument Cache" %}
-    <p class="darkred">
-      The new default cache organization for reference caches
-      is organized with a subdirectory for each instrument.  To
-      configure CRDS for HST for a personal cache organized by
-      instrument:
-    </p>    
-    <pre class="code darkblue">
-      setenv CRDS_SERVER_URL https://hst-crds.stsci.edu
-      setenv CRDS_PATH $HOME/crds_cache
-    </pre>
-    <p class="darkred">
-      Environment variables are required to make the CRDS cache usable
-      by calibration software,  defined here organized  by instrument:
-    </p>
-    <pre class="code darkblue">
-      setenv iref  ${CRDS_PATH}/references/hst/iref/
-      setenv jref  ${CRDS_PATH}/references/hst/jref/
-      setenv oref  ${CRDS_PATH}/references/hst/oref/
-      setenv lref  ${CRDS_PATH}/references/hst/lref/
-      setenv nref  ${CRDS_PATH}/references/hst/nref/
-      setenv uref  ${CRDS_PATH}/references/hst/uref/
-    </pre>
-    <p class="darkred">
-      Once the environment is configured,  crds.bestrefs can be run like this on datasets to
-      assign best references to the dataset headers and fetch the reference files:
-    </p>
-    <pre class="code darkblue">
-      python -m crds.bestrefs --update-bestrefs --sync-references=1 --files *.fits    
-    </pre>
-    <p class="darkred">
-      To reorganize a flat CRDS Cache to one with instrument subdirectories like the
-      above:
-    </p>
-    <pre class="code darkblue">
-      python -m crds.sync --organize=instrument
-    </pre>
-    {% endaccordion %}
-    
-    {% accordion "Personal (Off-site) HST Environment, Flat Cache" %}
-    <p class="darkred">
-      To configure CRDS for HST with a local/private/portable CRDS cache
-      organized in a flat single directory layout:
-    </p>    
-    <pre class="code darkblue">
-      setenv CRDS_SERVER_URL https://hst-crds.stsci.edu
-      setenv CRDS_PATH $HOME/crds_cache
-    </pre>
-    <p class="darkred">
-      Environment variables are required to make the CRDS cache usable
-      by calibration software,  shown here for the shared flat CRDS cache:
-    </p>
-    <pre class="code darkblue">
-       setenv iref  ${CRDS_PATH}/references/hst/
-       setenv jref  ${CRDS_PATH}/references/hst/
-       setenv oref  ${CRDS_PATH}/references/hst/
-       setenv lref  ${CRDS_PATH}/references/hst/
-       setenv nref  ${CRDS_PATH}/references/hst/
-       setenv uref  ${CRDS_PATH}/references/hst/
-    </pre>
-    <p class="darkred">
-      Once the environment is configured,  crds.bestrefs can be run like this on datasets to
-      assign best references to the dataset headers and fetch the reference files:
-    </p>
-    <pre class="code darkblue">
-      python -m crds.bestrefs --update-bestrefs --sync-references=1 --files *.fits    
-    </pre>
-    <p class="darkred">
-      To reorganize files in a CRDS Cache which is organized by instrument into
-      the flat single directory structure above:
-    </p>
-    <pre class="code darkblue">
-      python -m crds.sync --organize=flat
-    </pre>
-    {% endaccordion %}
-
-    <br/>
-    <p/><p> See <a href='{{ request.build_absolute_uri }}/static/users_guide/installation.html#setting-up-your-environment'>Setting Up Your Environment</a>
-    or <a href='{{ request.build_absolute_uri }}/static/users_guide/command_line_tools.html'>Command Line Tools</a> for more information on configuring your
-    environment and running crds.bestrefs.
-    </p>
-    {% endif %}
-
-    {% if observatory|upper == "JWST" %}
-    
-    For JWST, CRDS best references are automatically assigned as part of
-    running calibration steps.
-
-    </p>
-    <p/><p><b>On Site at STScI</b>, a default readonly file cache is available (/grp/crds/cache) and 
-    hence no configuration or file downloads should be required.
-    </p>
-    <p/><p>For <b>Off Site</b> use without VPN or ssh, you can create a cache of required rules and references
-    with settings like these:
-    </p>
-    <pre class="code" >
-    % setenv CRDS_PATH $HOME/crds_cache                         # small scale personal cache
-    % setenv CRDS_SERVER_URL https://jwst-crds.stsci.edu
-    % ... run calibration steps ...</pre>
-    
-    <p> See <a href='{{ request.build_absolute_uri }}/static/users_guide/installation.html#setting-up-your-environment'>Setting Up Your Environment</a>
-    for more information on configuring your environment.
-    </p>
-    {% endif %}
-    
     <h3>Other Notes</h3>
 
-      <p>CRDS can operate from your CRDS cache when you cannot contact
-        the CRDS server via the internet.  It cannot however update.
-      </p>
-      <p>Other than in-place editing downloaded local copies of CRDS rules or
-        references, it's not advisable to manually manipulate the directories
-        and or files in your CRDS cache.   CRDS automatically creates and
-        maintains your CRDS cache.
-      </p>
-      <p>If you have an alternate means of obtaining references which you
-        prefer, there's no requirement to use CRDS to obtain and cache
-        reference files. Some setup may still be required.
-      </p>
-      <p>If you're onsite at STScI using the shared cache,  no downloads will
-        occur,  all files are already cached.
-      </p>
-      <p>Recalibrating to utilize new references should not require: (a)
-      redownloading your data or (b) redownloading CRDS references you've already
-      used in past calibrations.
+      <p><b>CRDS can operate</b> from cache <b>when not connected to the Internet</b>.
+      It cannot however update the cache or notion of best references..
       </p>
 
-      <p>More information on installing CRDS and calibration software in
-      general can be found here:
+      <p>CRDS automatically creates and maintains your CRDS cache.  <b>Direct
+      edits</b> to files in the cache <b>should be avoided.</b>
       </p>
 
-      <p><a href='http://ssb.stsci.edu/ssb_software.shtml'>Onsite SSBX and SSBDEV Ureka installations</a></p>
-      <p><a href='http://ssb.stsci.edu/ureka/'>Public Ureka Release, Binary Installers, etc.</a></p>
+      <p><b>Recalibrating</b> to utilize new references <b>should not
+      require redownloading</b> your data your datasets or cached reference files.
+      </p>
 
-      {% if observatory|upper == "JWST" %}
-      <p>A more general guide on running JWST calibration software in general is here:</p>
-      <p><a href='http://ssb.stsci.edu/doc/jwst_dev/jwst_pipeline.pipeline.doc.user_guide.doc/html/main.html'>Performing
-      JWST Calibrations</a></p>
-      {% endif %}
-     </div>
 </div>
 {% endblock contents %}
 
