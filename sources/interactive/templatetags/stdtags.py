@@ -242,57 +242,6 @@ class AccordionNode(template.Node):
         return accordion_template.format(title, content)
     
 # ===========================================================================
-# do jquery-ui tooltip
-
-@register.tag
-def tip(parser, token):
-    pars = token.split_contents()
-    tag_name = pars[0]
-    title_words = pars[1:]
-    nodelist = parser.parse(('endtip',))
-    parser.delete_first_token()
-    return TipNode(title_words, nodelist)
-
-TIP_TEMPLATE = """
-<script class="tip">
-    $(function() {
-        $("%s").attr("title", "%s");
-    });
-</script>
-"""
-
-TIP_TRAILER = """
-<script>
-    $( document ).tooltip();
-</script>
-"""
-
-class TipNode(template.Node):
-    def __init__(self, title_words, nodelist):
-        self.title_words = title_words
-        self.nodelist = nodelist
-        
-    def render(self, context):
-        title_words = []
-        for word in self.title_words:
-            if word.startswith(('"',"'")) and word.endswith(('"',"'")):
-                resolved = word[1:-1]
-            elif word.startswith("{{") and word.endswith("}}"):
-                t = template.Template("{% load stdtags %} " + word)
-                resolved = t.render(context)
-            else:
-                try:
-                    resolved = template.Variable(word).resolve(context)
-                except Exception, exc:
-                    log.info("Accordion tag failed resolving: ", 
-                             repr(word), "under context", repr(context))
-                    raise
-            title_words.append(resolved)
-        title = " ".join(title_words).strip()
-        content = self.nodelist.render(context).strip()
-        return TIP_TEMPLATE % (title, content)
-    
-# ===========================================================================
 # copied from https://djangosnippets.org/snippets/847/
 
 @register.filter
