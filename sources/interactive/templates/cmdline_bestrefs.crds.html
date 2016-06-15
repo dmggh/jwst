@@ -34,7 +34,7 @@
 
       <p><b>For personal or offsite use</b>,  configuration requires 
         defining <b>where to store downloaded files</b> and <b>which CRDS
-        server</b> to interact with.
+        server</b> to interact with:
       </p> 
       <p/>
 
@@ -51,8 +51,8 @@ setenv uref  ${CRDS_PATH}/references/hst/uref/</pre>
 
         {% else %}
             <pre class="code darkblue">
-setenv CRDS_SERVER_URL https://jwst-crds.stsci.edu
-setenv CRDS_PATH $HOME/crds_cache</pre>
+setenv CRDS_PATH $HOME/crds_cache
+setenv CRDS_SERVER_URL https://jwst-crds.stsci.edu</pre>
         {% endif %}
 
             <p>or in sh syntax:<p>
@@ -69,10 +69,9 @@ export nref="{CRDS_PATH}/references/hst/nref/"
 export uref="{CRDS_PATH}/references/hst/uref/"</pre>
         {% else %}
             <pre class="code darkblue">
-export CRDS_SERVER_URL="https://jwst-crds.stsci.edu"
-export CRDS_PATH="$HOME/crds_cache"</pre>
+export CRDS_PATH="$HOME/crds_cache"
+export CRDS_SERVER_URL="https://jwst-crds.stsci.edu"</pre>
         {% endif %}
-
 
       <h3>Assigning, obtaining, and caching reference files.</h3>
 
@@ -93,15 +92,16 @@ export CRDS_PATH="$HOME/crds_cache"</pre>
             when calibration software is run. </b>
           </p>
           <p><a href='http://ssb.stsci.edu/doc/jwst_dev/jwst_pipeline.pipeline.doc.user_guide.doc/html/main.html'>Performing
-          JWST Calibrations</a> describes running JWST calibrations more
-          generally,  including implicitly CRDS.
+          JWST Calibrations</a> describes running JWST calibrations more generally,  including implicitly CRDS.
           </p>
       {% endif %}
 
     <h3>Other Notes</h3>
 
-      <p><b>CRDS can operate</b> from cache <b>when not connected to the Internet</b>.
-      It cannot however update the cache or notion of best references..
+      <p>Once initialized, <b>CRDS can operate</b> from cache <b>when not
+        connected to the Internet</b>.  However, disconnected CRDS cannot
+        update its rules for "best" or the availability of any new references
+        locally.
       </p>
 
       <p>CRDS automatically creates and maintains your CRDS cache.  <b>Direct
