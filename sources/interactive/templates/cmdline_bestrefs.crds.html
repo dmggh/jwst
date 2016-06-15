@@ -40,7 +40,7 @@ setenv oref  ${CRDS_PATH}/references/hst/oref/
 setenv lref  ${CRDS_PATH}/references/hst/lref/
 setenv nref  ${CRDS_PATH}/references/hst/nref/
 setenv uref  ${CRDS_PATH}/references/hst/uref/</pre>
-      <p>or in sh syntax:</p>
+      {% accordion "sh syntax:" %}</p>
       <p/>
       <pre class="code darkblue">
 export CRDS_PATH="/grp/crds/cache"
@@ -50,6 +50,7 @@ export oref="${CRDS_PATH}/references/hst/oref/"
 export lref="${CRDS_PATH}/references/hst/lref/"
 export nref="${CRDS_PATH}/references/hst/nref/"
 export uref="${CRDS_PATH}/references/hst/uref/"</pre>
+      {% endaccordion %}
       {% else %}
       <p><b>Onsite use</b> generally requires <b>no CRDS setup for JWST</b> and uses
         shared CRDS files located under <b>/grp/crds/cache</b>.
@@ -76,9 +77,8 @@ setenv uref  ${CRDS_PATH}/references/hst/uref/</pre>
 setenv CRDS_PATH $HOME/crds_cache
 setenv CRDS_SERVER_URL https://jwst-crds.stsci.edu</pre>
         {% endif %}
-
-            <p>or in sh syntax:<p>
-
+            
+     {% accordion "sh syntax:" %}
       {% if observatory|upper == "HST" %} 
       <pre class="code darkblue">
 export CRDS_PATH="$HOME/crds_cache"
@@ -94,6 +94,7 @@ export uref="{CRDS_PATH}/references/hst/uref/"</pre>
 export CRDS_PATH="$HOME/crds_cache"
 export CRDS_SERVER_URL="https://jwst-crds.stsci.edu"</pre>
         {% endif %}
+      {% endaccordion %}
 
       <p>This defines where personal copies of CRDS files are stored and which
       CRDS server is used.</p>
