@@ -6,17 +6,18 @@
 
 <form method="post" action="/login/"  onsubmit="crds.validate_login();" >
 {% csrf_token %}
-<table style="margin-left: 2em;">
+<table>  {#  style="margin-left: 2em;"> #}
 <tr>
-    <td style="font-size: 1.3em; text-align: right;">{{ form.username.label_tag }}</td>
+    <td style="font-size: 1.3em; text-align: right; color: darkblue;">{{ form.username.label_tag }}</td>
     <td>{{ form.username }}</td>
 </tr>
 <tr>
-    <td  style="font-size: 1.3em; text-align: right; color: darkblue;">Lock Instrument:</td> 
+    <td  style="font-size: 1.3em; text-align: right; color: darkblue;
+    font-weight: bold;">Lock Instrument:</td> 
     <td> {% include "select_instrument.html" %} </td>
 </tr>
 <tr>
-    <td style="font-size: 1.3em; text-align: right;">{{ form.password.label_tag }}</td>
+    <td style="font-size: 1.3em; text-align: right; color: darkblue;">{{ form.password.label_tag }}</td>
     <td>{{ form.password }}</td>
 </tr>
 </table>
