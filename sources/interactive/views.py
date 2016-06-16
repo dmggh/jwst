@@ -700,7 +700,7 @@ def del_locked_instrument(request):
 
 # ===========================================================================
 
-# @profile("index.stats")
+@profile("index.stats")
 @error_trap("base.html")
 @log_view
 def index(request):
