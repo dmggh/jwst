@@ -1228,6 +1228,7 @@ def batch_submit_references(request):
     else:
         return batch_submit_references_post(request)
 
+@profile("batch_submit_post.stats")
 def batch_submit_references_post(request):
     """View fragment to process file batch reference submission POSTs."""
     # For the initial submission, pmap_name is predictive,  not definitive
@@ -1245,9 +1246,9 @@ def batch_submit_references_post(request):
 
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
-    mail.crds_notification(body=mail.GENERIC_STARTED_BODY,
+    mail.crds_notification(body=mail.GENERIC_STARTED_BODY, status="STARTED",
             username=request.user.username, user_email=request.user.email, 
-            files = uploaded_files.keys(), results_kind = "Batch Submit References",
+            uploaded_files = uploaded_files, results_kind = "Batch Submit References",
             description = description, monitor_url=jpoll_handler.monitor_url)
 
     bsr = submit.BatchReferenceSubmission(pmap_name, uploaded_files, description,
@@ -1288,14 +1289,15 @@ def batch_submit_references_post(request):
     result = render_repeatable_result(
         request, "batch_submit_reference_results.html", bsr_results)
 
-    mail.crds_notification(
+    mail.crds_notification(body=mail.GENERIC_READY_BODY, status="READY",
             username=request.user.username, user_email=request.user.email, 
-            files = uploaded_files.keys(), results_kind = "Batch Submit References",
+            uploaded_files = uploaded_files, results_kind = "Batch Submit References",
             description = description, repeatable_url=result.repeatable_url)
     
     return redirect_jpoll_result(result, jpoll_handler)
 # ============================================================================
 
+@profile("submit_confirm_post.stats")
 @error_trap("base.html")
 @log_view
 @login_required
@@ -1313,8 +1315,8 @@ def submit_confirm(request):
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
     try:
-        rmodel = models.RepeatableResultBlob.load(results_id)
-        result = rmodel.parameters
+        repeatable_model = models.RepeatableResultBlob.load(results_id)
+        result = repeatable_model.parameters
     except Exception, exc:
         raise CrdsError("Error fetching result: " + results_id + " : " + str(exc))
 
@@ -1338,9 +1340,9 @@ def submit_confirm(request):
                 disposition = "cancelled due to: " + str(exc)
                 log.info("Locking exception:", str(exc))
     elif button == "cancel":
-        disposition = "cancelled by submitter"
+        disposition = "cancelled"
     elif button == "timeout":
-        disposition = format_html("cancelled due to '{0}' session lock timeout", locked_instrument)
+        disposition = format_html("lock timeout")
         locks.release_locks(user=request.user)
         del_locked_instrument(request)
 
@@ -1350,9 +1352,9 @@ def submit_confirm(request):
                 confirmed, result.submission_kind, result.description,
                 new_files, result.context_rmaps, result.user,  result.pmap, result.pmap_mode, locked_instrument)
 
-        rmodel.set_par("original_pmap", result.pmap)
-        rmodel.set_par("pmap", final_pmap)
-        rmodel.save()
+        repeatable_model.set_par("original_pmap", result.pmap)
+        repeatable_model.set_par("pmap", final_pmap)
+        repeatable_model.save()
 
         new_file_map = sorted(new_file_map.items() + context_map.items())
         generated_files = sorted([(old, new) for (old, new) in new_file_map if old not in result.uploaded_basenames])
@@ -1386,13 +1388,28 @@ def submit_confirm(request):
             with log.error_on_exception("Failed marking", repr(new), "as cancelled."):
                 blob = models.FileBlob.load(new)
                 blob.destroy()
-        confirm_results = dict()
+        confirm_results = dict(
+            uploaded_files = [],
+            generated_files = [],
+            added_files = [],
+            deleted_files = [],
+            )
 
     models.RepeatableResultBlob.set_parameter(results_id, "disposition" , disposition)
     confirm_results["disposition"] = disposition
     confirm_results["confirmed"] = confirmed
+    confirm_results["description"] = repeatable_model.parameters["description"]
+    
+    result = render_repeatable_result(request, "confirmed.html", confirm_results)
 
-    return redirect_repeatable_result(request, "confirmed.html", confirm_results, jpoll_handler=jpoll_handler)
+    mail.crds_notification(
+        body = mail.GENERIC_CONFIRMED_BODY, status=disposition.upper(),
+        username = request.user.username, user_email = request.user.email, 
+        results_kind = repeatable_model.parameters["submission_kind"],
+        repeatable_url = result.repeatable_url,
+        extras=confirm_results)
+
+    return redirect_jpoll_result(result, jpoll_handler)
 
 # ===========================================================================
 

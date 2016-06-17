@@ -76,7 +76,6 @@ def get_channel_from_key(key):
     assert JPOLL_KEY_RE.match(key), "Badly formatted jpoll_key " + repr(key)
     return jmodels.ChannelModel.open(key)
 
-'''
 from crds import log
 def log_view(func):
     """log() captures view inputs, output, and response to a log file.
@@ -115,11 +114,11 @@ def log_view(func):
             pass
     dolog.func_name = func.func_name
     return dolog
-'''
 
 #---------------------------------------------------------------------------------------------------
 # View functions
 
+@log_view
 @login_required
 def open_channel(request):
     """Based on `request`,  attach a new JPOLL channel to it and return it."""
@@ -129,6 +128,7 @@ def open_channel(request):
     jmodels.ChannelModel.new(key)
     return HttpResponse(json.dumps(key), content_type='application/json')
 
+@log_view
 @login_required
 def close_channel(request):
     """Based on `request`,  close the JPOLL channel associated with it,  wiping out old messages."""
@@ -138,7 +138,7 @@ def close_channel(request):
     channel.wipe()
     return HttpResponse(json.dumps(key), content_type='application/json')
 
-# @log_view
+@log_view
 @login_required
 def pull_messages(request):
     """Return any pending JPOLL messages on the channel associated with `request` as a JSON response."""
@@ -189,7 +189,7 @@ class JpollHandler(object):
     @property
     def monitor_url(self):
         from crds.server import config
-        return config.CRDS_URL + "/monitor/" + self.channel.key + "/"
+        return config.CRDS_URL + "monitor/" + self.channel.key + "/"
 
     def write(self, message):
         """Output `message` to self's JPOLL channel."""

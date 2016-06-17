@@ -82,7 +82,7 @@ class ChannelModel(models.Model):
         # hence there's less incentive for adding last_id here after
         # the fact when it requires manual db ops on the production db.
 
-        if isinstance(since, datetime.datetime):
+        if isinstance(since, (str, datetime.datetime)):
             messages = MessageModel.objects.filter(channel=self, timestamp__gt=since)
         else:
             messages = MessageModel.objects.filter(channel=self, id__gt=since)
