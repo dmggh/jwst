@@ -107,7 +107,7 @@ def html_colorize_log(output):
 
 def colorize_line(line):
     """Add color to one CRDS log line."""
-    line = re.sub("CRDS - ERROR", "CRDS - <span class='red'>ERROR</span>", line)
-    line = re.sub("CRDS - WARNING", "CRDS - <span class='orange'>WARNING</span>", line)
+    line = re.sub("CRDS\s+[\-\:]\s+ERROR", "CRDS - <span class='red'>ERROR</span>", line)
+    line = re.sub("CRDS\s+[\-\:]\s+WARNING", "CRDS - <span class='orange'>WARNING</span>", line)
     return line
 

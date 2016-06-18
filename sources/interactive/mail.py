@@ -29,7 +29,7 @@ Monitor at:
 # =============================================================================================
 
 GENERIC_READY_BODY = """
-READY '{results_kind}' for '{username}'.
+{disposition} '{results_kind}' for '{username}'.
 
 Review/Confirm at:
 ------------------

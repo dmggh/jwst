@@ -1289,7 +1289,8 @@ def batch_submit_references_post(request):
     result = render_repeatable_result(
         request, "batch_submit_reference_results.html", bsr_results)
 
-    mail.crds_notification(body=mail.GENERIC_READY_BODY, status="READY",
+    mail.crds_notification(body=mail.GENERIC_READY_BODY, status=disposition.upper(),
+            disposition=disposition.upper(),
             username=request.user.username, user_email=request.user.email, 
             uploaded_files = uploaded_files, results_kind = "Batch Submit References",
             description = description, repeatable_url=result.repeatable_url)
@@ -1533,7 +1534,7 @@ def add_existing_references_post(request):
                 "requires_locking" : True,
                 "lock_datestr" : locks.get_lock_datestr(locked_instrument, type="instrument", user=str(request.user)),
 
-                "more_submits" : "/delete/reference/",
+                "more_submits" : "/add/reference/",
                 "disposition": disposition,
             }
 
