@@ -1296,6 +1296,7 @@ def batch_submit_references_post(request):
             description = description, repeatable_url=result.repeatable_url)
     
     return redirect_jpoll_result(result, jpoll_handler)
+
 # ============================================================================
 
 @profile("submit_confirm_post.stats")
@@ -1401,7 +1402,7 @@ def submit_confirm(request):
     confirm_results["confirmed"] = confirmed
     confirm_results["description"] = repeatable_model.parameters["description"]
     
-    result = render_repeatable_result(request, "confirmed.html", confirm_results)
+    return redirect_repeatable_result(request, "confirmed.html", confirm_results)
 
     mail.crds_notification(
         body = mail.GENERIC_CONFIRMED_BODY, status=disposition.upper(),

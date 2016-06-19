@@ -1,4 +1,4 @@
-from crds.server.jwst import restful
+from crds.server.xjwst import restful
 from crds.server import config
 from crds import log
 

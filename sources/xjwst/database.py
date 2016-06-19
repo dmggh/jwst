@@ -16,7 +16,7 @@ from crds.server.interactive import models, common
 from crds.server.interactive import views as iviews
 from crds.server import config as sconfig
 
-from crds.server.jwst import parameter_interface
+from crds.server.xjwst import parameter_interface
 
 HERE = os.path.dirname(__file__) or "."
 
