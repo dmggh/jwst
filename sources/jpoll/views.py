@@ -140,12 +140,13 @@ def close_channel(request):
 
 @log_view
 @login_required
-def pull_messages(request):
+def pull_messages(request, since_id=None):
     """Return any pending JPOLL messages on the channel associated with `request` as a JSON response."""
     jdebug("pull_messages entered.")
     channel = get_channel(request)
+    since_id = int(since_id) if since_id else None
     jdebug("pull_messages got channel:", channel)
-    messages = channel.pull()
+    messages = channel.pull(since_id)
     jdebug("jpoll: pulled messages for", repr(channel.key), "=", messages)
     return HttpResponse(json.dumps(messages), content_type='application/json')
 
