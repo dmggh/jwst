@@ -102,15 +102,13 @@ export CRDS_SERVER_URL="https://jwst-crds.stsci.edu"</pre>
       <h3>Assigning, obtaining, and caching reference files.</h3>
 
       {% if observatory|upper == "HST" %} 
-          <p>For <b>HST</b>,  CRDS has a command line tool which assigns best references to
-            the FITS headers of data files prior to calibration.   Running the tool
-            can also be used to simultaneously download and cache the current best
-            reference files as they are assigned:        
+          <p>For <b>HST</b>,  CRDS has a command line tool that <b>assigns best references</b> to
+            the FITS headers and can also <b>download and cache</b> the best reference files.
           </p><p/>
 
           <pre class="code darkblue">python -m crds.bestrefs --update-bestrefs --sync-references=1 --files *.fits</pre>
       
-          <p>Since the files are cached,  re-running the tool later will only
+          <p>Since the files are cached, re-running the tool later will only
              download those files which have been updated.
           </p>
       {% else %}
@@ -125,17 +123,17 @@ export CRDS_SERVER_URL="https://jwst-crds.stsci.edu"</pre>
     <h3>Other Notes</h3>
 
       <p>Once initialized, <b>CRDS can operate</b> from cache <b>when not
-        connected to the Internet</b>.  However, disconnected CRDS cannot
-        update its rules for "best" or the availability of any new references
-        locally.
+        connected to the Internet</b>.  In this disconnected mode CRDS runs
+        normally but can only assign the best reference files known to the
+        local cache.
       </p>
 
-      <p>CRDS automatically creates and maintains your CRDS cache.  <b>Direct
+      <p>CRDS creates and maintains your CRDS cache.  <b>Direct
       edits</b> to files in the cache <b>should be avoided.</b>
       </p>
 
-      <p><b>Recalibrating</b> to utilize new references <b>should not
-      require redownloading</b> your data your datasets or cached reference files.
+      <p><b>Recalibrating</b> to utilize new references <b>should not require
+      redownloading</b> your datasets or previously cached reference files.
       </p>
 
 </div>
