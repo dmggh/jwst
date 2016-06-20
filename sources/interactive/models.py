@@ -1621,11 +1621,11 @@ class RepeatableResultBlob(BlobModel):
     def set_par(self, name, value):   # Avoid multiple saves
         self.parameters[name] = value
         self.parameters_enc = json_ext.dumps(self.parameters)
-        
+
     @property
     def repeatable_url(self):
         "Return the URL which can be used to display this persistent result."
-        return "/display_result/" + str(self.uuid)
+        return config.CRDS_URL + "/display_result/" + str(self.uuid)
 
 # =============================================================================
 

@@ -9,8 +9,7 @@
 {% endblock %}
 
 {% block contents_both %}
-    <h2 title="Submit new reference files and automatically create new CRDS rules."
-       >Batch Submit Reference <span class='locked_instrument'>{{locked_instrument}}</span></h2>
+    <h2 title="Submit new reference files and automatically create new CRDS rules.">Batch Submit Reference </h2>
 
     {% include "select_files.html" %}        
 
@@ -18,38 +17,43 @@
           id="batch_submit_form" class="jpoll_ajax_html_form"
     	  onsubmit="return crds.validate_and_confirm_file_submit(this);">  {% csrf_token %}
 
-      <span><h3 title="Context new references will be added to generating new rules."
-               >Derive From Context:</h3>
+      <div title="Context new references will be added to generating new rules.">
+              <h3 >Derive From Context:</h3>
       {% include "select_pmap.html" %}
-        </span>
+      </div>
        <br/>
         
-        <span><h3 title="Degree that new files are expected to impact science results."
-                 >Change Level: </h3><select name='change_level' value="{{change_level}}">
+        <div title="Degree that new files are expected to impact science results.">
+               <h3 style="display: inline;">Change Level: </h3>
+               <select name='change_level' value="{{change_level}}">
                 <option>SEVERE</option>
                 <option>MODERATE</option>
                 <option>TRIVIAL</option>
             </select>
-        </span>
+        </div>
 
-        <span><h3 title="Author of new reference files, generally not the submitter."
-                 >Creator: </h3>
-        <input type='text' name='creator' id='creator' size="40" value="{{creator}}">
-        </span>
+        <br/>
+        <div title="Author of new reference files, generally not the submitter.">
+               <h3 style="display: inline;" >Creator: </h3>
+               <input type='text' name='creator' id='creator' size="40" value="{{creator}}">
+        </div>
 
-      <span><h3 title="Information about file changes and expected impacts, include instrument and type."
-               >Description:</h3> <textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea>   
-      </span>
+      <div title="Information about file changes and expected impacts, include instrument and type.">
+           <h3>Description:</h3> 
+           <textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea>   
+      </div>
 
       <br/>
       <br/>
-      <span><h3 title="When checked, automatically rename the submitted files with CRDS generated names." 
-               style="display: inline;">Auto-Rename: </h3> {% include "auto_rename_input.html" %}  </span>
+      <div title="When checked, automatically rename the submitted files with CRDS generated names.">
+               <h3 style="display: inline;">Auto-Rename: </h3> {% include "auto_rename_input.html" %}
+      </div>
+      <br/> <br/>
 
-        <br/> <br/>
-
-      <span><h3 title="When checked, compare new table references to prior versions." 
-               style="display: inline;">Compare Old Reference:</h3> <input type="checkbox" name="compare_old_reference" value="checked" {{compare_old_reference}} /></span>
+      <div title="When checked, compare new table references to prior versions.">
+        <h3 style="display: inline;">Compare Old Reference:</h3> 
+        <input type="checkbox" name="compare_old_reference" value="checked" {{compare_old_reference}} />
+      </div>
 
       <br/>
       <br/>

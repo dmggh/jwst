@@ -9,22 +9,28 @@
        >Derived From</h3>
     {% include "select_pmap.html" %}
     
-    <table>
-      <tr title="Newline separated list of existing rmaps."
-         ><td colspan="3"><h3>Existing Rmaps</h3></td></tr>
-      <tr><td colspan="3"><textarea name="rmaps" cols="60" rows="10">{{rmaps}}</textarea></td></tr>
-      <tr title="Describe the reason for this updated version of CRDS rules."
-         ><td><h3>Description</h3></td></tr>
-      <tr><td colspan="3"><textarea name="description" cols="60" rows="10">{{description}}</textarea></td></tr> 
-      </table>
-      <br/>
-      <input type="submit" value="Create Parent Contexts" style="font-size:1.1em;"/>
+    <table width="100%">
+      <tr title="Newline separated list of existing rmaps." >
+        <td><h3>Existing Rmaps</h3></td>
+      </tr>
+      <tr>
+        <td><textarea name="rmaps" rows="10">{{rmaps}}</textarea></td>
+      </tr>
+      <tr title="Describe the reason for this updated version of CRDS rules.">
+        <td><h3>Description</h3></td>
+      </tr>
+      <tr>
+        <td><textarea name="description" rows="10">{{description}}</textarea></td>
+      </tr> 
+    </table>
+
+    <br/>
+    <input class="btn btn-primary" type="submit" value="Create Parent Contexts" style="font-size:1.1em;"/>
+
+
 </form>
 
 <br/>
 <p><b>NOTE:</b> use with care,  there is <b>no confirmation step</b>,  submissions
   final.</p>
-
 {% endblock contents_both %}
-
-

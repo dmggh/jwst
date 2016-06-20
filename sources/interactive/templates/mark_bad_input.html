@@ -1,92 +1,83 @@
 {% extends "base.html" %}
 
 {% block contents_both %}
-    <h2>Mark Files Bad</h2>
-
-    <div class="row">
-
-    <div class="col-md-8">
-
-    <form method="post" action="/mark_bad/" enctype="multipart/form-data"> 
-      {% csrf_token %}
-      <table width="100%">
-
-       <input type='hidden' name='observatory' value='{{observatory}}' />
-
-        <tr>
-          <td width="5%" class="tdlabel">Files:</td>
-          <td width="25%">
-            <textarea name="file_known" cols="50" rows="4" >{{file_known}}</textarea>
-          </td>
-        </tr>
-        
-        <tr>
-          <td width="5%" class="tdlabel">Mark as:</td>
-          <td width="25%">
-            <input type="radio" name="badflag" value="bad" 
-                {% if badflag == 'bad' %}
-                    checked
-                {% endif %}
-            ><span class="tdlabel">Bad</span></input>
-            <input type="radio" name="badflag" value="ok" 
-                {% if badflag == 'bad' %}
-                    checked
-                {% endif %}
-            ><span class="tdlabel">OK</span></input>
-          </td>
-        </tr>
-        
-        <tr>
-          <td width="5%" class="tdlabel">Reason:</td>
-          <td width="25%"><textarea name="why" rows="4" cols="40">{{why}}</textarea>
-          </td>
-        </tr>
-      
-      </table>
-      <p></p>
-      <input class="btn btn-primary" type="submit" value="Submit">
-    </form>
-
-    </div>
-
-    <div class="col-md-4">
-
-
-    <p><b>Mark Files Bad</b> Marks files as "bad" or "ok".   
+<h2 title="Mark specified files as 'bad' (scientifically invalid) or 'ok' again."
+    >Mark Files Bad</h2>
+<form method="post" action="/mark_bad/" enctype="multipart/form-data"> 
+  {% csrf_token %}
+  <table width="100%">
+    <input type='hidden' name='observatory' value='{{observatory}}' />
     
-    <p><p>Marking a file bad means that it is scientifically invalid or likely to produce invalid results.
+    <tr title="Newline separated list of references or mappings to mark as 'bad' or 'ok'.">
+      <td class="tdlabel">Files:</td>
+      <td>
+        <textarea name="file_known" cols="50" rows="4" >{{file_known}}</textarea>
+      </td>
+    </tr>
     
-    <p><p>Contexts marked bad or containing bad files cannot be set as the operational default.
+    <tr title="Choose 'bad' to disable a scientifically invalid file.  Choose 'ok' to reenable normal use.">
+      <td class="tdlabel">Mark as:</td>
+      <td>
+        <input type="radio" name="badflag" value="bad" 
+               {% if badflag == 'bad' %}
+               checked
+               {% endif %}
+               ><span class="tdlabel">Bad</span></input>
+        <input type="radio" name="badflag" value="ok" 
+               {% if badflag == 'bad' %}
+               checked
+               {% endif %}
+               ><span class="tdlabel">OK</span></input>
+      </td>
+    </tr>
     
-    <p><p>Files which are in the operational context cannot be marked bad.
+    <tr title="Why this file is no longer usable or is usable once again.">
+      <td class="tdlabel">Reason:</td>
+      <td><textarea name="why" rows="4" cols="40">{{why}}</textarea>
+      </td>
+    </tr>
     
-    <p><p>To mark a file bad,  first generate an alternate context which omits the bad file
-    and make it operational. The bad file will transition to a non-operational
-    state.   Non-operational files can be marked bad and used under historical
-    contexts.  See Delete References for a quick way to remove references from
-    a context.
-  
-    
-    <p><p>Marking any mapping as bad will taint all mappings which contain it as also bad.
+  </table>
 
-    <p><p>Attempts to use historical contexts which recommend bad files will
-    generate errors by default.
+  <p></p>
+  <input class="btn btn-primary" type="submit" value="Submit">
 
-    <p><p>This procedure maintains the invariant that a known bad file is <b>never</b> in the operational
-    context.
+</form>
 
-    <p><p><b>Files</b> a list of known CRDS mapping or reference filename to be marked as bad or ok.
-    Separate names with commas or whitespace.
-    
-    <p><p><b>Mark as</b> Choose "bad" to disable a file.  Choose "ok" to reenable.
-
-    <p><p><b>Reason</b> Why this file is no longer usable or is usable once again.
-    
-    </div>
-
-    </div>
 
 {% endblock contents_both %}
 
-{% block help %}
-{% endblock help %}
+{% block bottom_help %}
+
+{% include "bluebar.html" %}
+
+<div>
+   <h3>Procedure:</h3>
+   <ol>
+     <li>Generate a clean context which does not contain the prospective bad files.</li>
+     <li>Set the clean context as the pipeline default using Set Context.
+     <li>Mark the now unused-by-default files 'bad'.
+     <li>Sync the pipeline's cache.</li>
+     
+   </ol>
+   <p/><p>This procedure maintains the invariant that a known bad file is <b>never</b> in the operational context.</p>
+
+  <h3>Additional Notes:</h3>
+  <ul>
+    <li>Marking bad means a file is likely to produce scientifically invalid results.</li>
+    
+    <li>Errors are generated if a context containing bad rules is used or recommends bad references.</li>
+
+    <li>Set env vars CRDS_ALLOW_BAD_RULES or CRDS_ALLOW_BAD_REFERENCES to 1 for warnings instead of errors.</li>
+
+    <li>Contexts containing bad files cannot be set as the operational default.</li>
+    
+    <li>Files which are in the operational context cannot be marked bad.</li>
+    
+    <li>Marking any mapping as bad taints all contexts containing it as also bad.</li>
+
+    <li>Marking a reference as bad taints only the reference.</li>
+  </ul>
+</div>
+
+{% endblock bottom_help %}

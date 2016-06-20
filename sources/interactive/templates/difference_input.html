@@ -4,65 +4,61 @@
     <h2 title="Compare mapping or reference files using CRDS differencing tools."
        >Difference Files</h2>
 
-    <div class="row">
-    <div class="col-md-8">
-        <form method="post" action="/difference/" enctype="multipart/form-data"> 
-          {% csrf_token %}
-          <table >
-            <tr>
-              <td><h3>File 1</h3></td>
-              <td></td>
-            </tr>
-            <tr title="Use file on CRDS server.">
-              <td class="tdlabel">
-                <input type="radio" name="filemode1" value="file_known1" checked />
-                Known:&nbsp&nbsp&nbsp&nbsp
-              </td>
-              <td>
-                <input type='text' name='file_known1' size="32" value="{{file_known1}}"
-                       onchange="crds.set_radio('filemode1', 'file_known1');" />
-              </td>
-            </tr>
-            <tr  title="Upload file to difference.">
-              <td class="tdlabel">
-                <input type="radio" name="filemode1" value="file_uploaded1" />
-                Uploaded:
-              </td>
-              <td>
-                <input type='file' maxlength="1" name='file_uploaded1' size="32"
-                       onchange="crds.set_radio('filemode1','file_uploaded1');" />
-              </td>
-            </tr>
-            <tr>
-              <td><h3>File 2</h3></td>
-              <td></td>
-            </tr>
-            <tr title="Use file on CRDS server.">
-              <td  class="tdlabel">
-                <input type="radio" name="filemode2" value="file_known2" checked />
-                Known:&nbsp&nbsp&nbsp&nbsp
-              </td>
-              <td>
-                <input type='text' name='file_known2' size="32" value="{{file_known2}}"
-                       onchange="crds.set_radio('filemode2', 'file_known2');" />
-              </td>
-            </tr>
-            <tr title="Upload file to difference.">
-              <td class="tdlabel">
-                <input type="radio" name="filemode2" value="file_uploaded2" />
-                Uploaded:
-              </td>
-              <td>
-                <input type='file' name='file_uploaded2' maxlength="1" size="32"
-                       onchange="crds.set_radio('filemode2','file_uploaded2');" />
-              </td>
-            </tr>
-          </table>
-          <p></p>
-          <input class="btn btn-primary" type="submit" value="Difference Files">
-        </form>
-    </div>
-    </div>
+    <form method="post" action="/difference/" enctype="multipart/form-data"> 
+      {% csrf_token %}
+      <table >
+        <tr>
+          <td><h3>File 1</h3></td>
+          <td></td>
+        </tr>
+        <tr title="Use file on CRDS server.">
+          <td class="tdlabel">
+            <input type="radio" name="filemode1" value="file_known1" checked />
+            Known:&nbsp&nbsp&nbsp&nbsp
+          </td>
+          <td>
+            <input type='text' name='file_known1' size="32" value="{{file_known1}}"
+                   onchange="crds.set_radio('filemode1', 'file_known1');" />
+          </td>
+        </tr>
+        <tr  title="Upload file to difference.">
+          <td class="tdlabel">
+            <input type="radio" name="filemode1" value="file_uploaded1" />
+            Uploaded:
+          </td>
+          <td>
+            <input type='file' maxlength="1" name='file_uploaded1' size="32"
+                   onchange="crds.set_radio('filemode1','file_uploaded1');" />
+          </td>
+        </tr>
+        <tr>
+          <td><h3>File 2</h3></td>
+          <td></td>
+        </tr>
+        <tr title="Use file on CRDS server.">
+          <td  class="tdlabel">
+            <input type="radio" name="filemode2" value="file_known2" checked />
+            Known:&nbsp&nbsp&nbsp&nbsp
+          </td>
+          <td>
+            <input type='text' name='file_known2' size="32" value="{{file_known2}}"
+                   onchange="crds.set_radio('filemode2', 'file_known2');" />
+          </td>
+        </tr>
+        <tr title="Upload file to difference.">
+          <td class="tdlabel">
+            <input type="radio" name="filemode2" value="file_uploaded2" />
+            Uploaded:
+          </td>
+          <td>
+            <input type='file' name='file_uploaded2' maxlength="1" size="32"
+                   onchange="crds.set_radio('filemode2','file_uploaded2');" />
+          </td>
+        </tr>
+      </table>
+      <p></p>
+      <input class="btn btn-primary" type="submit" value="Difference Files">
+    </form>
 </div>
 
 <div>

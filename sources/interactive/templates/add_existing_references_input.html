@@ -5,28 +5,33 @@
 {% endblock %}
 
 {% block contents_both %}
-    <h2 "Add *existing* references to a version of CRDS rules creating new rules which include them or use them as replacements."
-       >Add Existing References  <span class='locked_instrument'>{{locked_instrument}}</span></h2>
+    <h2 title="Add *existing* references to a version of CRDS rules creating
+               new rules.  Does not ingest new files into CRDS and archive."
+       >Add Existing References</h2>
     
     <form method="post" action="/add_existing/reference/" enctype="multipart/form-data"
           id="add_existing_references_form" class="jpoll_ajax_html_form"
     	  onsubmit="return crds.validate_and_confirm_add_delete(this);">  {% csrf_token %}
 
-      <h3 title="Newline separated list of *existing* CRDS reference file names."
-         >Added Files:</h3>
-      <textarea name="added_files" cols="50" rows="4" >{{added_files}}</textarea>
+      <div title="Newline separated list of *existing* CRDS reference file names."> 
+        <h3>Added Files:</h3>
+        <textarea name="added_files" cols="50" rows="4" >{{added_files}}</textarea>
+      </div>
 
-      <h3 title="Version of CRDS rules to which existing references are added."
-         >Derive From Context:</h3>
-      {% include "select_pmap.html" %}
-       <br/>
-        
-      <h3 title="Rationale behind this rules change or file merge."
-         >Description: <textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea>   
-      </h3>
+      <div title="Version of CRDS rules to which existing references are added."> 
+        <h3>Derive From Context:</h3>
+        {% include "select_pmap.html" %}
+      </div>
+
+       <div title="Rationale behind this rules change or file merge.">
+         <br/>        
+         <h3>Description:</h3>
+         <textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea>   
+      </div>
 
       <br/>
       <input class="btn btn-primary" type="submit" value="Add References" > 
+
     </form>
 
     <br/>

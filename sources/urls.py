@@ -6,6 +6,7 @@ from jsonrpc import jsonrpc_site
 
 import crds.server.jsonapi.views
 import crds.server.interactive.views
+from crds.server.jpoll.views import JPOLL_KEY_RE_STR
 
 from crds.server import settings, config
 from crds.server.interactive.common import UUID_RE_STR
@@ -37,6 +38,8 @@ urlpatterns = patterns('',
     url(r'^set_password/$', 'crds.server.interactive.views.set_password'),          
     url(r'^lock_status/$', 'crds.server.interactive.views.lock_status'),         
     
+    url(r'^monitor/(?P<process_key>{0})/$'.format(JPOLL_KEY_RE_STR), 'crds.server.interactive.views.monitor_process'),
+
     url(r'^bestrefs/$', 'crds.server.interactive.views.bestrefs'),          
     url(r'^bestrefs_explore/$', 'crds.server.interactive.views.bestrefs_explore'),          
     url(r'^bestrefs_explore_compute/$', 'crds.server.interactive.views.bestrefs_explore_compute'), 
@@ -61,6 +64,8 @@ urlpatterns = patterns('',
     (r'^upload/delete/(?P<filename>{0})$'.format(FILE_RE_STR),
      'crds.server.interactive.views.upload_delete', {}, 'upload-delete'),
               
+    # (r'^upload/alt_new/$', 'crds.server.interactive.views.upload_alt_new', {}, 'upload-alt-new'),
+
     url(r'^batch_submit_references/$', 'crds.server.interactive.views.batch_submit_references'),
     url(r'^submit_confirm/$', 'crds.server.interactive.views.submit_confirm'),
 

@@ -2,33 +2,22 @@
 
 {% block contents_both %}
 
-<h2 title="Find references based on menu-driven instrument configurations."
->Explore Best References</h2>
-
-<div class="row">
-
-<div class="col-md-8">
-    <form action="/bestrefs_explore/" method="post"> {% csrf_token %}
-        <h3 title="Version of CRDS rules used to find best references."
-           >Select Context:</h3>
-        {% include "select_pmap.html" %}
-        
-        <h3 title="Instrument for which best references will be found,  defines
-           available parameter choices."
-           >Select Instrument:</h3>
-        {% include "select_instrument.html" %}
-
-        <br/><br/><br/>
-
-        <input class="btn btn-primary" type="submit" value="Choose Instrument" />
-    </form>
-</div>
-
-</div>
+<h2 title="Find references based on menu-driven instrument configurations.">Explore Best References</h2>
+<form action="/bestrefs_explore/" method="post"> {% csrf_token %}
+  <h3 title="Version of CRDS rules used to find best references."
+      >Select Context:</h3>
+  {% include "select_pmap.html" %}
+  
+  <h3 title="Instrument for which best references will be found,  defines
+             available parameter choices."
+      >Select Instrument:</h3>
+  {% include "select_instrument.html" %}
+  
+  <br/><br/><br/>
+  
+  <input class="btn btn-primary" type="submit" value="Choose Instrument" />
+</form>
 {% endblock contents_both %}
-
-{% block help %}
-{% endblock help %}
 
 {% block bottom_help %}
     {% include "bestrefs_bottom_help.html" %}

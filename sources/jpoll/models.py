@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import sys
 import json
+import datetime
 
 from django.db import models
 from django.utils import html
@@ -81,7 +82,10 @@ class ChannelModel(models.Model):
         # hence there's less incentive for adding last_id here after
         # the fact when it requires manual db ops on the production db.
 
-        messages = MessageModel.objects.filter(channel=self, timestamp__gt=since)
+        if isinstance(since, (str, datetime.datetime)):
+            messages = MessageModel.objects.filter(channel=self, timestamp__gt=since)
+        else:
+            messages = MessageModel.objects.filter(channel=self, id__gt=since)
         messages = list(messages.order_by("timestamp"))
         if messages:
             self.last_returned = messages[-1].timestamp

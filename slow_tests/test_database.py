@@ -41,7 +41,7 @@ class DatabaseBase(object):
 
 if sconfig.observatory == "hst":
     
-    from crds.server.hst import database as db
+    from crds.server.xhst import database as db
     
     class Hst(DatabaseBase, TestCase):
 
@@ -105,7 +105,7 @@ if sconfig.observatory == "hst":
 
 else:  # JWST
     
-    from crds.server.jwst import database as db
+    from crds.server.xjwst import database as db
 
     class Jwst(DatabaseBase, TestCase):
 

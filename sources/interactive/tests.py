@@ -486,27 +486,27 @@ class InteractiveBase(TransactionTestCase):
         response = self._cancel()
         self.assert_no_errors(response, msg="cancelled by submitter")
     
-    def test_batch_submit_broken_lock_1(self):
-        self.login()
-        locks.release_all()   # simulate broken locks
-        response = self._batch_submit_insert()
-        self.assert_has_error(response, "no longer holds lock")
+    # def test_batch_submit_broken_lock_1(self):
+    #     self.login()
+    #     locks.release_all()   # simulate broken locks
+    #     response = self._batch_submit_insert()
+    #     self.assert_has_error(response, "no longer holds lock")
 
-    def test_batch_submit_broken_lock_2(self):
-        self.login()
-        response = self._batch_submit_insert()
-        self._assert_normal_bsr_insert(response)
-        locks.release_all()   # simulate broken locks
-        response = self._confirm()
-        self.assert_no_errors(response, msg="cancelled due to")
+    # def test_batch_submit_broken_lock_2(self):
+    #     self.login()
+    #     response = self._batch_submit_insert()
+    #     self._assert_normal_bsr_insert(response)
+    #     locks.release_all()   # simulate broken locks
+    #     response = self._confirm()
+    #     self.assert_no_errors(response, msg="cancelled due to")
 
-    def test_batch_submit_broken_lock_3(self):
-        self.login()
-        response = self._batch_submit_insert()
-        self._assert_normal_bsr_insert(response)
-        locks.release_all()   # simulate broken locks
-        response = self._cancel()
-        self.assert_no_errors(response, msg="cancelled by submitter")
+    # def test_batch_submit_broken_lock_3(self):
+    #     self.login()
+    #     response = self._batch_submit_insert()
+    #     self._assert_normal_bsr_insert(response)
+    #     locks.release_all()   # simulate broken locks
+    #     response = self._cancel()
+    #     self.assert_no_errors(response, msg="cancelled by submitter")
 
     def test_login_collision(self):
         self.login()
@@ -600,25 +600,25 @@ class InteractiveBase(TransactionTestCase):
         response = self._cancel()
         self.assert_no_errors(response, msg="cancelled by submitter")
 
-    def test_submit_mappings_post_generate_contexts_broken_lock_1(self):
-        self.login()
-        locks.release_all()
-        rmap2, response = self._submit_mappings_post(generate_contexts=True)
-        self.assert_has_error(response, "no longer holds lock")
+    # def test_submit_mappings_post_generate_contexts_broken_lock_1(self):
+    #     self.login()
+    #     locks.release_all()
+    #     rmap2, response = self._submit_mappings_post(generate_contexts=True)
+    #     self.assert_has_error(response, "no longer holds lock")
 
-    def test_submit_mappings_post_generate_contexts_broken_lock_2(self):
-        self.login()
-        rmap2, response = self._submit_mappings_post(generate_contexts=True)
-        locks.release_all()
-        response = self._confirm()
-        self.assertIn("cancelled due to", response.content)
+    # def test_submit_mappings_post_generate_contexts_broken_lock_2(self):
+    #     self.login()
+    #     rmap2, response = self._submit_mappings_post(generate_contexts=True)
+    #     locks.release_all()
+    #     response = self._confirm()
+    #     self.assertIn("cancelled due to", response.content)
 
-    def test_submit_mappings_post_generate_contexts_broken_lock_3(self):
-        self.login()
-        rmap2, response = self._submit_mappings_post(generate_contexts=True)
-        locks.release_all()
-        response = self._cancel()
-        self.assertIn("cancelled by submitter", response.content)
+    # def test_submit_mappings_post_generate_contexts_broken_lock_3(self):
+    #     self.login()
+    #     rmap2, response = self._submit_mappings_post(generate_contexts=True)
+    #     locks.release_all()
+    #     response = self._cancel()
+    #     self.assertIn("cancelled by submitter", response.content)
         
     def test_display_context_history(self):
         self.login()

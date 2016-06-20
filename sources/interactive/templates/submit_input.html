@@ -10,8 +10,7 @@
 
 {% block contents_both %}
 
-    <h2 title="{{page_title_help}}"
-       >Submit {{crds_filetype|capfirst}} Files <span class='locked_instrument'>{{locked_instrument}}</span></h2>
+    <h2>Submit {{crds_filetype|capfirst}} Files</h2>
 
         {% include "select_files.html" %}        
 
@@ -21,31 +20,38 @@
 
             <input type='hidden' name='observatory' value='{{observatory}}' />
             
-            <span><h3 title="Degree that new files are expected to impact science results."
-                      >Change Level:</h3>
-            <select style="font-size: 0.75em;" name='change_level' value="{{change_level}}">
+            <div title="Degree that new files are expected to impact science results.">
+              <br/>
+              <h3 style="display: inline;" >Change Level:</h3>
+              <select style="font-size: 0.75em;" name='change_level' value="{{change_level}}">
                 <option>SEVERE</option>
                 <option>MODERATE</option>
                 <option>TRIVIAL</option>
-            </select>
-            </span>
+              </select>
+            </div>
 
-            <span><h3 title="Author of new reference files, generally not the submitter."
-                     >Creator:</h3>
-            <input type='text' name='creator' id='creator' size="40" value="{{creator}}">
-            </span>
+            <div title="Author of new reference files, generally not the submitter.">
+              <br/>
+              <h3 style="display: inline;">Creator:</h3>
+              <input type='text' name='creator' id='creator' size="40" value="{{creator}}">
+            </div>
 
-            <span><h3 title="Information about file changes and expected impacts, include instrument and type."
-                     >Description:</h3>
-            <textarea name='description' id='description' rows="4" cols="50">{{description}}</textarea>
-            </span>
+            <div title="Information about file changes and expected impacts, include instrument and type.">
+              <br/>
+              <h3 style="display: inline;" >Description:</h3>
+              <textarea name='description' id='description' rows="4" cols="50">{{description}}</textarea>
+            </div>
 
             {% if crds_filetype == "reference" %}
-                <br/> <br/> <br/>
-                <span><h3 style="display:inline;">Compare Old Reference: </h3> <input type="checkbox" name="compare_old_reference" value='checked' {{compare_old_reference}} /></span>
-                <div id="comparison-context-hide">
-                    <h3>Comparison Context:</h3>
-                    {% include "select_pmap.html" %}
+                <div title="Compare new references with older versions during certification." > 
+                  <br/>
+                  <h3 style="display:inline;">Compare Old Reference: </h3> 
+                  <input type="checkbox" name="compare_old_reference"
+                         value='checked' {{compare_old_reference}} />
+                </div>
+                <div id="comparison-context-hide" title="Context to search for comparison references.">
+                  <h3>Comparison Context:</h3>
+                  {% include "select_pmap.html" %}
                 </div>        
                 <script type="text/javascript" language="javascript">
                     $("input[name='compare_old_reference']").change(function() {
@@ -60,14 +66,14 @@
             {% endif %}
             
             {% if crds_filetype == "mapping" %}
-                <span><h3 title="Automatically generate new .pmap and .imap referring to new rmaps."
-                         >Generate Contexts:</h3>
-                    <input name='generate_contexts' type='checkbox' value='checked' {{generate_contexts}}> 
-                </span>
-                <div id="derivation-context-hide">
-                    <h3 title="Version CRDS of rules to which new files are added."
-                       >Derive From Context:</h3>
-                   {% include "select_pmap.html" %}  
+                <div title="Automatically generate new .pmap and .imap referring to new rmaps.">
+                  <br/>
+                  <h3 style="display: inline;">Generate Contexts:</h3>
+                  <input name='generate_contexts' type='checkbox' value='checked' {{generate_contexts}}> 
+                </div>
+                <div id="derivation-context-hide" title="Version CRDS of rules to which new files are added.">
+                  <h3>Derive From Context:</h3>
+                  {% include "select_pmap.html" %}  
                 </div>      
                 <script type="text/javascript" language="javascript">
                     $("input[name='generate_contexts']").change(function() {
@@ -81,15 +87,14 @@
                 </script>
             {% endif %}
             
-            <br/>
-            <span><h3 title="When checked, automatically rename the submitted files with CRDS generated names." 
-                     style="display: inline;">Auto-Rename:</h3>
+            <div title="When checked, automatically rename the submitted files with CRDS generated names.">
+              <br/>
+              <h3 style="display: inline;">Auto-Rename:</h3>
               {% include "auto_rename_input.html" %}
-            </span>
+            </div>
             
-            <br/> <br/>
+            <br/> 
 
-          <p></p>
           <input class="btn btn-primary" type="submit" value="Submit Files">
         </form>
 {% endblock contents_both %}

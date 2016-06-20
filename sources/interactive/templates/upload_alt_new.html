@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% load stdtags %}
+
+{% block contents_both %}
+    <h2>Upload File</h2>
+    <form method="post" action="/upload/alt_new/" enctype="multipart/form-data"> 
+      {% csrf_token %}
+      <input type='file' name='file' />
+      <input class="btn btn-primary" type="submit" value="Upload file">
+    </form>
+{% endblock contents_both %}
+

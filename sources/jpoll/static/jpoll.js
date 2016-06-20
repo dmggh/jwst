@@ -114,6 +114,14 @@ jpoll.start = function (interval_msec) {
     jpoll.poll_interval_id = setInterval(jpoll.pull_messages, jpoll.interval_msec);
 };
 
+// For fully independent pages like submission pages,  does everything including
+// channel creation.
+jpoll.start_all =  function (interval_msec) {
+   jpoll.init();
+   jpoll.open_channel();
+   jpoll.start(interval_msec);
+}
+
 // Stop the poller.
 jpoll.stop = function () {
     jpoll.log("stopping.");
@@ -150,7 +158,8 @@ jpoll.pull_messages = function() {
             };
         };
     }).error(function(response) {
-        jpoll.log("PULL_MESSAGES failed: " + response);
+					console.log("PULL_MESSAGES failed: ")
+					console.log(response.responseText);
     });
 };
 
@@ -174,11 +183,11 @@ jpoll.make_form_ajax = function(junk, form) {
     $(document).ajaxError(function(event, jqxhr, settings, thrownError) {
 					jpoll.ajax_error(event, jqxhr, settings, thrownError)
     });    
-    jpoll.open_channel();   //  potentially this could be done later,  just before submit.
+    // jpoll.open_channel();   //  potentially this could be done later,  just before submit.
 };    
 
 // Automatically set up every form on the page with class='jpoll_ajax_html_form' as an ajax form returning html.
 // This is essentially a non-blocking submit,  which at first order,  "just works" thanks to jquery.forms.js
-$(function () {
-   jpoll.init();
-});
+// $(function () {
+//   jpoll.init();
+// });

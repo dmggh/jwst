@@ -1,3 +1,4 @@
+
 """This module defines the Django view functions which respond to HTTP requests
 and return HTTP response objects.
 """
@@ -699,7 +700,7 @@ def del_locked_instrument(request):
 
 # ===========================================================================
 
-# @profile("index.stats")
+@profile("index.stats")
 @error_trap("base.html")
 @log_view
 def index(request):
@@ -729,48 +730,23 @@ def display_result(request, results_id):
     pars["results_id"] = results_id  # needed to implement "disposition", confirmed or cancelled.
     return crds_render(request, result.page_template, pars)
 
-
-GENERIC_BODY = """
-
-Job for {user} to {results_kind}
-
-Results at: {repeatable_url}
-
-{uploaded_file_mention}
-
-"""
-
-def render_repeatable_result(request, template, rdict, jpoll_handler=None, 
-                             email_subject=None, email_body=GENERIC_BODY):
+def redirect_repeatable_result(request, template, rdict, jpoll_handler=None):
     """Create a repeatable results model instance and redirect to it."""
+    result = render_repeatable_result(request, template, rdict)
+    return redirect_jpoll_result(result, jpoll_handler)
 
-    user = str(request.user)
-    rdict["user"] = user
-
-    uploaded_file_names = get_uploaded_filepaths(request)  # Django temps
-    rdict["uploaded_file_names"] = uploaded_file_names
+def render_repeatable_result(request, template, rdict):
+    """Create a repeatable results model instance and redirect to it."""
+    rdict["user"] = request.user.username
+    rdict["uploaded_file_names"] = get_uploaded_filepaths(request)
     result = models.RepeatableResultBlob.new(template, rdict)
+    return result
 
-    with log.error_on_exception("Failed sending results e-mail"):
-        if email_subject is None:
-            results_kind = template.replace("_results", "").replace(".html","")
-            email_subject = "results for " + user + " about " + results_kind
-        email_subject = "CRDS " + sconfig.observatory.upper() + " " + sconfig.server_usecase.upper() + " " + email_subject
-        all_uploaded = get_files(request)[1].keys()
-        uploaded_file_mention = ("For files: \n\n" + "\n".join(all_uploaded)) if all_uploaded else ""
-        mail.mail(sconfig.CRDS_RESULTS_FROM_ADDRESS, 
-                  sconfig.CRDS_RESULTS_TO_ADDRESSES,  # + [ request.user.email ], 
-                  subject=email_subject, body=email_body, 
-                  results_kind=results_kind,
-                  uploaded_file_mention=uploaded_file_mention,
-                  repeatable_url=sconfig.CRDS_URL + result.repeatable_url,
-                  **rdict)
-        
-    # time.sleep(60.0*35.0); # currently 30 minute proxy timeouts
+def redirect_jpoll_result(result, jpoll_handler):
+    """Send the done message to `jpoll_handler` and redirect to the URL in `result`."""
     if jpoll_handler:
         jpoll_handler.done(0, result.repeatable_url)
         time.sleep(10.0)  # wait 10 seconds to give jpoll done processing consistent behavior. 2x jpoll poll rate
-
     return HttpResponseRedirect(result.repeatable_url)   # secure
 
 # ===========================================================================
@@ -788,6 +764,7 @@ from django.contrib.auth.views import login as django_login
 
 # @profile("login.stats")
 @error_trap("base.html")
+@log_view
 def login(request):
     """CRDS login view function,  sets and tests session cookie."""
     extras = dict(
@@ -929,6 +906,33 @@ def clear_uploads(request, uploads):
     """Remove the basenames listed in `uploads` from the upload directory."""
     for filename in uploads:
         _upload_delete(request, filename)
+
+# ===========================================================================
+'''
+@error_trap("upload_alt_new.html")
+@log_view
+@login_required
+def upload_alt_new(request, template="upload_alt_new.html"):
+    """Support adding new files to the upload area."""
+    if request.method == "GET":
+        return crds_render(request, template)
+    else:
+        file_ = get_uploaded_file(request, 'file')
+        file_local_dir = str(request.user)
+        config.check_filename(file_.name)
+        assert re.match("[A-Za-z0-9_]+", file_local_dir), "Invalid file_local_dir " + srepr(file_local_dir)
+        ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir, file_.name)
+        with log.verbose_on_exception("Failed removing", repr(ingest_path)):
+            pysh.sh("rm -f ${ingest_path}")   #  secure, constructed path
+            log.info("Removed existing", repr(ingest_path))
+        utils.ensure_dir_exists(ingest_path, mode=0770)
+        log.info("Linking", file_.temporary_file_path(), "to", ingest_path)
+        os.link(file_.temporary_file_path(), ingest_path)
+        data = [json_file_details(file_.name, file_.temporary_file_path())]
+        response = JSONResponse(data, {}, response_content_type(request))
+        response['Content-Disposition'] = 'inline; filename=files.json'
+        return response
+'''
 
 # ===========================================================================
 
@@ -1189,11 +1193,23 @@ def certify_post(request):
     else:
         blacklist_results = []
 
-    return render_repeatable_result(request, "certify_results.html", {
+    return redirect_repeatable_result(request, "certify_results.html", {
              "certify_results":certify_results,
              "blacklist_results":blacklist_results,
              },  jpoll_handler=jpoll_handler)
 
+# ===========================================================================
+
+@error_trap("base.html")
+@log_view
+# @login_required
+def monitor_process(request, process_key):
+    """Return a page response to periodically monitor and display status for `process_key`."""
+    request.session["jpoll_key"] = process_key
+    return crds_render(request, "monitor_process.html", {
+            "process_key" : process_key,
+            })
+    
 # ===========================================================================
 
 @error_trap("batch_submit_reference_input.html")
@@ -1212,6 +1228,7 @@ def batch_submit_references(request):
     else:
         return batch_submit_references_post(request)
 
+@profile("batch_submit_post.stats")
 def batch_submit_references_post(request):
     """View fragment to process file batch reference submission POSTs."""
     # For the initial submission, pmap_name is predictive,  not definitive
@@ -1228,6 +1245,11 @@ def batch_submit_references_post(request):
     locked_instrument = get_locked_instrument(request)
 
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
+
+    mail.crds_notification(body=mail.GENERIC_STARTED_BODY, status="STARTED",
+            username=request.user.username, user_email=request.user.email, 
+            uploaded_files = uploaded_files, results_kind = "Batch Submit References",
+            description = description, monitor_url=jpoll_handler.monitor_url)
 
     bsr = submit.BatchReferenceSubmission(pmap_name, uploaded_files, description,
         user=request.user, creator=creator, change_level=change_level,
@@ -1264,11 +1286,20 @@ def batch_submit_references_post(request):
                 "disposition": disposition,
             }
 
-    return render_repeatable_result(request, "batch_submit_reference_results.html", bsr_results,
-                                    jpoll_handler=jpoll_handler)
+    result = render_repeatable_result(
+        request, "batch_submit_reference_results.html", bsr_results)
+
+    mail.crds_notification(body=mail.GENERIC_READY_BODY, status=disposition.upper(),
+            disposition=disposition.upper(),
+            username=request.user.username, user_email=request.user.email, 
+            uploaded_files = uploaded_files, results_kind = "Batch Submit References",
+            description = description, repeatable_url=result.repeatable_url)
+    
+    return redirect_jpoll_result(result, jpoll_handler)
 
 # ============================================================================
 
+@profile("submit_confirm_post.stats")
 @error_trap("base.html")
 @log_view
 @login_required
@@ -1286,8 +1317,8 @@ def submit_confirm(request):
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
     try:
-        rmodel = models.RepeatableResultBlob.load(results_id)
-        result = rmodel.parameters
+        repeatable_model = models.RepeatableResultBlob.load(results_id)
+        result = repeatable_model.parameters
     except Exception, exc:
         raise CrdsError("Error fetching result: " + results_id + " : " + str(exc))
 
@@ -1311,9 +1342,9 @@ def submit_confirm(request):
                 disposition = "cancelled due to: " + str(exc)
                 log.info("Locking exception:", str(exc))
     elif button == "cancel":
-        disposition = "cancelled by submitter"
+        disposition = "cancelled"
     elif button == "timeout":
-        disposition = format_html("cancelled due to '{0}' session lock timeout", locked_instrument)
+        disposition = format_html("lock timeout")
         locks.release_locks(user=request.user)
         del_locked_instrument(request)
 
@@ -1323,9 +1354,9 @@ def submit_confirm(request):
                 confirmed, result.submission_kind, result.description,
                 new_files, result.context_rmaps, result.user,  result.pmap, result.pmap_mode, locked_instrument)
 
-        rmodel.set_par("original_pmap", result.pmap)
-        rmodel.set_par("pmap", final_pmap)
-        rmodel.save()
+        repeatable_model.set_par("original_pmap", result.pmap)
+        repeatable_model.set_par("pmap", final_pmap)
+        repeatable_model.save()
 
         new_file_map = sorted(new_file_map.items() + context_map.items())
         generated_files = sorted([(old, new) for (old, new) in new_file_map if old not in result.uploaded_basenames])
@@ -1359,13 +1390,28 @@ def submit_confirm(request):
             with log.error_on_exception("Failed marking", repr(new), "as cancelled."):
                 blob = models.FileBlob.load(new)
                 blob.destroy()
-        confirm_results = dict()
+        confirm_results = dict(
+            uploaded_files = [],
+            generated_files = [],
+            added_files = [],
+            deleted_files = [],
+            )
 
     models.RepeatableResultBlob.set_parameter(results_id, "disposition" , disposition)
     confirm_results["disposition"] = disposition
     confirm_results["confirmed"] = confirmed
+    confirm_results["description"] = repeatable_model.parameters["description"]
+    
+    return redirect_repeatable_result(request, "confirmed.html", confirm_results)
 
-    return render_repeatable_result(request, "confirmed.html", confirm_results, jpoll_handler=jpoll_handler)
+    mail.crds_notification(
+        body = mail.GENERIC_CONFIRMED_BODY, status=disposition.upper(),
+        username = request.user.username, user_email = request.user.email, 
+        results_kind = repeatable_model.parameters["submission_kind"],
+        repeatable_url = result.repeatable_url,
+        extras=confirm_results)
+
+    return redirect_jpoll_result(result, jpoll_handler)
 
 # ===========================================================================
 
@@ -1426,7 +1472,7 @@ def delete_references_post(request):
                 "disposition": disposition,
             }
 
-    return render_repeatable_result(request, "delete_references_results.html", del_results,
+    return redirect_repeatable_result(request, "delete_references_results.html", del_results,
                                     jpoll_handler=jpoll_handler)
 
 # ===========================================================================
@@ -1489,11 +1535,11 @@ def add_existing_references_post(request):
                 "requires_locking" : True,
                 "lock_datestr" : locks.get_lock_datestr(locked_instrument, type="instrument", user=str(request.user)),
 
-                "more_submits" : "/delete/reference/",
+                "more_submits" : "/add/reference/",
                 "disposition": disposition,
             }
 
-    return render_repeatable_result(request, "add_existing_references_results.html", add_results,
+    return redirect_repeatable_result(request, "add_existing_references_results.html", add_results,
                                     jpoll_handler=jpoll_handler)
 
 # ===========================================================================
@@ -1522,7 +1568,7 @@ def create_contexts_post(request):
 
     models.clear_cache()
 
-    return render_repeatable_result(request, "create_contexts_results.html", {
+    return redirect_repeatable_result(request, "create_contexts_results.html", {
                 "pmap": pmap_name,
                 "original_pmap": pmap_name,
                 "pmap_mode" : "pmap_text",
@@ -1614,7 +1660,7 @@ def submit_files_post(request, crds_filetype):
                 "disposition" : disposition,
     }
 
-    return render_repeatable_result(request, 'submit_results.html', rdict, jpoll_handler=jpoll_handler)
+    return redirect_repeatable_result(request, 'submit_results.html', rdict, jpoll_handler=jpoll_handler)
 
 # ===========================================================================
 

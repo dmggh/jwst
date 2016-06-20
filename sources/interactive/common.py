@@ -63,6 +63,7 @@ def profile(filename=None):
     def decomaker(func):
         """Decorator function maker
         """
+        # @utils.elapsed_time,  name must be established first
         def profile_core(*args, **keys):
             """profile_request runs the runit() hack under the profiler and
             extracts the function result from a global.
@@ -70,10 +71,12 @@ def profile(filename=None):
             def runit():
                 """executes a function and stores the result globally."""
                 profile_core.result = func(*args, **keys)
+            runit.__name__ = func.__name__ + " [profile]"
             utils.ensure_dir_exists(filename)
             cProfile.runctx("runit()", locals(), locals(), filename=filename)
             return profile_core.result
-        return profile_core
+        profile_core.__name__ = func.__name__ + "[profile]"
+        return utils.elapsed_time(profile_core)
     return decomaker
 
 # ===================================================================
@@ -104,7 +107,7 @@ def html_colorize_log(output):
 
 def colorize_line(line):
     """Add color to one CRDS log line."""
-    line = re.sub(": ERROR", ": <span class='red'>ERROR</span>", line)
-    line = re.sub(": WARNING", ": <span class='orange'>WARNING</span>", line)
+    line = re.sub("CRDS\s+[\-\:]\s+ERROR", "CRDS - <span class='red'>ERROR</span>", line)
+    line = re.sub("CRDS\s+[\-\:]\s+WARNING", "CRDS - <span class='orange'>WARNING</span>", line)
     return line
 

@@ -33,11 +33,11 @@
 
         </div>
     </div>
+
+
 {% endblock contents_both %}
 
-{% block help %}
-{% endblock help %}
-
+{% block bottom_help %}
 <div>
   <p>NOTE: If you have installed CRDS,  you can certify files locally like this:
   </p>
@@ -49,4 +49,9 @@
     check so it may certify many mappings and can be slow.
   </p>  
 </div>
+
+{% include "bluebar.html" %}
+
+{% endblock bottom_help %}
+
 
