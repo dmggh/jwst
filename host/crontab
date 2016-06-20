@@ -7,7 +7,7 @@ MAILTO="crds-servers@stsci.edu"
 5 3 * * *       source $HOME/cronenv.csh;      nightly.crds.job 
 
 # every minute, no e-mail
-*/1 * * * *     source $HOME/cronenv.csh;  wget $CRDS_SERVER_URL -O /dev/null;  >& /dev/null
+*/1 * * * *     source $HOME/cronenv.csh;  wget $CRDS_SERVER_URL -O /dev/null  >& /dev/null;
 
 # every 10 minutes, e-mail
 */10 * * * *     source $HOME/cronenv.csh;     cron_query_affected_datasets -q -i
