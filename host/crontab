@@ -6,7 +6,10 @@ MAILTO="crds-servers@stsci.edu"
 # run five minutes after 3 am, every day
 5 3 * * *       source $HOME/cronenv.csh;      nightly.crds.job 
 
-# every 1 minutes, e-mail
+# every minute, no e-mail
+*/1 * * * *     source $HOME/cronenv.csh;  wget $CRDS_SERVER_URL -O /dev/null;  >& /dev/null
+
+# every 10 minutes, e-mail
 */10 * * * *     source $HOME/cronenv.csh;     cron_query_affected_datasets -q -i
 
 # every 5 minutes, no e-mail
