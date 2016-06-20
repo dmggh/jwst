@@ -8,6 +8,7 @@ import datetime
 
 from django.db import models
 from django.utils import html
+from django.db import transaction
 
 # Create your models here.
 
@@ -30,10 +31,11 @@ class ChannelModel(models.Model):
     @classmethod
     def new(cls, key):
         """Create a new channel with unique name `key`."""
-        self = cls()
-        self.key = key
-        self.save()
-        return self
+        with transaction.atomic():
+            self = cls()
+            self.key = key
+            self.save()
+            return self
     
     @classmethod
     def open(cls, key):
@@ -64,12 +66,13 @@ class ChannelModel(models.Model):
 
     def push(self, type, data):
         """Add a json encodable `message_obj` to this channel."""
-        message = MessageModel()
-        message.channel = self
-        message.type = type
-        message.json = json.dumps(data)
-        message.save()
-    
+        with transaction.atomic():
+            message = MessageModel()
+            message.channel = self
+            message.type = type
+            message.json = json.dumps(data)
+            message.save()
+            
     def pull(self, since=None):
         """Return json for the list of messages pushed since datetime `since` or the last call if `since` is None."""
         if since is None:
@@ -96,16 +99,17 @@ class ChannelModel(models.Model):
     
     def wipe(self):
         """Remove this channel and all associated messages."""
-        try:
-            MessageModel.objects.filter(channel=self).delete()
-        except Exception as exc:
-            print("ERROR: Failed removing message objects for channel '{}'".format(self.key), 
-                  file=sys.stderr)
-        try:
-            self.delete()
-        except Exception as exc:
-            print("ERROR: Failed removing channel object '{}'.".format(self.key), 
-                  file=sys.stderr)
+        with transaction.atomic():
+            try:
+                MessageModel.objects.filter(channel=self).delete()
+            except Exception as exc:
+                print("ERROR: Failed removing message objects for channel '{}'".format(self.key), 
+                      file=sys.stderr)
+            try:
+                self.delete()
+            except Exception as exc:
+                print("ERROR: Failed removing channel object '{}'.".format(self.key), 
+                      file=sys.stderr)
     
     @classmethod
     def wipe_key(cls, key):

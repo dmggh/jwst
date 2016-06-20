@@ -29,7 +29,7 @@ Monitor at:
 # =============================================================================================
 
 GENERIC_READY_BODY = """
-{disposition} '{results_kind}' for '{username}'.
+{status} '{results_kind}' for '{username}'.
 
 Review/Confirm at:
 ------------------
@@ -79,9 +79,9 @@ def mail(from_address, to_addresses, subject, body, **keys):
 def crds_notification(subject=None, from_address=None, to_addresses=None, body=None, status="",
                       username="anonymous", user_email=None, files=("none",), results_kind=None, 
                       added_files=[], deleted_files=[], uploaded_files=[], generated_files=[],
-                      description="", extras={}, **keys):
+                      description="", **keys):
         # with log.error_on_exception("Failed sending results e-mail"):
-        body = body or GENERIC_RESULT_BODY
+
         subject = subject or (status + " " + results_kind + " for " + username)
         subject = "CRDS " + sconfig.observatory.upper() + " " + sconfig.server_usecase.upper() + " " + subject
 
@@ -93,7 +93,7 @@ def crds_notification(subject=None, from_address=None, to_addresses=None, body=N
 
         description = label_with_text("Description:", description)
         
-        keys = dict(keys.items() + locals().items() + extras.items())
+        keys = dict(keys.items() + locals().items())
         
         keys = optional_parameter(keys, "uploaded_files")
         keys = optional_parameter(keys, "added_files")

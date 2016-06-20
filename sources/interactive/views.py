@@ -1261,6 +1261,8 @@ def batch_submit_references_post(request):
 
     # Map from old filenames to new filenames,  regardless of origin / purpose
     new_file_map = new_mappings_map.items() + new_references_map.items()
+    
+    status = "READY" if not disposition else disposition.upper()
 
     bsr_results = {
                 "pmap" : pmap_name,
@@ -1289,8 +1291,7 @@ def batch_submit_references_post(request):
     result = render_repeatable_result(
         request, "batch_submit_reference_results.html", bsr_results)
 
-    mail.crds_notification(body=mail.GENERIC_READY_BODY, status=disposition.upper(),
-            disposition=disposition.upper(),
+    mail.crds_notification(body=mail.GENERIC_READY_BODY, status=status,
             username=request.user.username, user_email=request.user.email, 
             uploaded_files = uploaded_files, results_kind = "Batch Submit References",
             description = description, repeatable_url=result.repeatable_url)
@@ -1402,14 +1403,14 @@ def submit_confirm(request):
     confirm_results["confirmed"] = confirmed
     confirm_results["description"] = repeatable_model.parameters["description"]
     
-    return redirect_repeatable_result(request, "confirmed.html", confirm_results)
+    result = render_repeatable_result(request, "confirmed.html", confirm_results)
 
     mail.crds_notification(
         body = mail.GENERIC_CONFIRMED_BODY, status=disposition.upper(),
         username = request.user.username, user_email = request.user.email, 
         results_kind = repeatable_model.parameters["submission_kind"],
         repeatable_url = result.repeatable_url,
-        extras=confirm_results)
+        **confirm_results)
 
     return redirect_jpoll_result(result, jpoll_handler)
 

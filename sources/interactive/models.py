@@ -12,6 +12,7 @@ from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
 
 from django.core import cache
+from django.db import transaction
 
 # Create your models here.
 from crds import (timestamp, rmap, utils, refactor, log, data_file, uses, diff, checksum)
@@ -175,12 +176,17 @@ class CrdsModel(models.Model):
     @classmethod
     def get_or_create(cls, *args):
         """Get the model for `name`, or create it."""
-        name = "_".join(args)
-        try:
-            model = cls.objects.get(name=name)
-        except ObjectDoesNotExist:
-            model = cls(name=name)
-        return model
+        with transaction.atomic():
+            name = "_".join(args)
+            try:
+                model = cls.objects.get(name=name)
+            except ObjectDoesNotExist:
+                model = cls(name=name)
+            return model
+
+    def save(self, *args, **keys):
+        with transaction.atomic():
+            super(CrdsModel, self).save(*args, **keys)
 
 # ============================================================================
 
