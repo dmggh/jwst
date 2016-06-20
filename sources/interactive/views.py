@@ -745,7 +745,7 @@ def render_repeatable_result(request, template, rdict):
 def redirect_jpoll_result(result, jpoll_handler):
     """Send the done message to `jpoll_handler` and redirect to the URL in `result`."""
     if jpoll_handler:
-        jpoll_handler.done(0, result.repeatable_url)
+        jpoll_handler.done(0, result.abs_repeatable_url)
         time.sleep(10.0)  # wait 10 seconds to give jpoll done processing consistent behavior. 2x jpoll poll rate
     return HttpResponseRedirect(result.repeatable_url)   # secure
 
@@ -1294,7 +1294,7 @@ def batch_submit_references_post(request):
     mail.crds_notification(body=mail.GENERIC_READY_BODY, status=status,
             username=request.user.username, user_email=request.user.email, 
             uploaded_files = uploaded_files, results_kind = "Batch Submit References",
-            description = description, repeatable_url=result.repeatable_url)
+            description = description, repeatable_url=result.abs_repeatable_url)
     
     return redirect_jpoll_result(result, jpoll_handler)
 
@@ -1409,7 +1409,7 @@ def submit_confirm(request):
         body = mail.GENERIC_CONFIRMED_BODY, status=disposition.upper(),
         username = request.user.username, user_email = request.user.email, 
         results_kind = repeatable_model.parameters["submission_kind"],
-        repeatable_url = result.repeatable_url,
+        repeatable_url = result.abs_repeatable_url,
         **confirm_results)
 
     return redirect_jpoll_result(result, jpoll_handler)
