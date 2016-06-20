@@ -484,7 +484,7 @@ class InteractiveBase(TransactionTestCase):
         response = self._batch_submit_insert()
         self._assert_normal_bsr_insert(response)
         response = self._cancel()
-        self.assert_no_errors(response, msg="cancelled by submitter")
+        self.assert_no_errors(response, msg="cancelled")
     
     # def test_batch_submit_broken_lock_1(self):
     #     self.login()
@@ -549,7 +549,7 @@ class InteractiveBase(TransactionTestCase):
         self.login()
         response = self._submit_references_post()
         response = self._cancel()
-        self.assert_no_errors(response, msg="cancelled by submitter")
+        self.assert_no_errors(response, msg="cancelled")
     
     def _submit_mappings_post(self, generate_contexts):
         self.fake_database_files(self.submit_references, link=True)
@@ -582,7 +582,7 @@ class InteractiveBase(TransactionTestCase):
         self.assert_no_errors(response)
         self.assertIn(rmap2, response.content)
         response = self._cancel()
-        self.assert_no_errors(response, msg="cancelled by submitter")
+        self.assert_no_errors(response, msg="cancelled")
         
     def test_submit_mappings_post_generate_contexts_confirm(self):
         self.login()
@@ -598,7 +598,7 @@ class InteractiveBase(TransactionTestCase):
         self.assert_no_errors(response)
         self.assertIn(rmap2, response.content)
         response = self._cancel()
-        self.assert_no_errors(response, msg="cancelled by submitter")
+        self.assert_no_errors(response, msg="cancelled")
 
     # def test_submit_mappings_post_generate_contexts_broken_lock_1(self):
     #     self.login()
