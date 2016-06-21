@@ -1,11 +1,11 @@
 debug = DEBUG = False
 DEBUG_EXTRAS = False
 
-HOST = "iljwdmsacrdsv1"
-PROXY = "jwst-crds-b7it"
+HOST = "iljwdmsdcrdsv1"
+PROXY = "jwst-crds-dit"
 observatory = 'jwst'
-server_usecase ="b7it"
-CRDS_SERVER_IP = "130.167.252.145"
+server_usecase ="dit"
+CRDS_SERVER_IP = "130.167.252.189"
 port = 8001
 
 # This is a VM-related storage partition used as server space
@@ -45,9 +45,10 @@ CRDS_DIRECT_URL = "https://" + HOST + ".stsci.edu:" + str(port) + "/"
 CRDS_REFERENCE_URL = CRDS_URL + "get/"
 CRDS_MAPPING_URL   = CRDS_URL + "get/"
 
-# These may get redirected to the archive or a static file server
-CRDS_UNCHECKED_REFERENCE_URL = CRDS_URL + "unchecked_get/references/" + observatory + "/"
-CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/mappings/" + observatory + "/"
+# As of 2016-04-18:
+
+CRDS_UNCHECKED_REFERENCE_URL = "https://iwjwdmsdauiwebv.stsci.edu/portal/Download/file/JWST/reference/"
+CRDS_UNCHECKED_MAPPING_URL = "https://iwjwdmsdauiwebv.stsci.edu/portal/Download/file/JWST/reference/"
 
 FORCE_REMOTE_MODE = False
 
@@ -57,5 +58,5 @@ FORCE_REMOTE_MODE = False
 # https://dads6.stsci.edu:8888/crds
 # https://dadsc.stsci.edu:8888/crds
 
-ARCHIVE_PARAMETER_SERVICE_URL = "https://dads7.stsci.edu:8888/crds"   # XXXXX guessed from above.
-
+ARCHIVE_PARAMETER_SERVICE_URL = "http://iljwdmsdarcv.stsci.edu:8888/crds"
+# ARCHIVE_PARAMETER_SERVICE_URL = "http://jwdmsdevvm4:8888/crds"
