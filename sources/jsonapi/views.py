@@ -855,12 +855,12 @@ def get_submission_info(request, observatory, username):
  
 # # ===============================================================
  
-@jsonrpc_method('jpoll_pull_messages(key=String, since_id=int)')
+@jsonrpc_method('jpoll_pull_messages(key=String, since_id=String)')
 def jpoll_pull_messages(request, key, since_id):
     """Return a list of jpoll message objects from channel defind by `key`
     with sequence numbers after `since_id`.
     """
-    return jviews.pull_messages_core(key, since_id=since_id)
+    return jviews.pull_messages_core(key, since_id=int(since_id))
  
 @jsonrpc_method("jpoll_abort(key=String)")
 def jpoll_abort(request, key):
