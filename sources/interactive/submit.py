@@ -242,10 +242,10 @@ class FileSubmission(object):
                 other.append((original_name, uploaded_path))
         return sorted(other) + sorted(rmaps) + sorted(imaps) + sorted(pmaps)
 
-    def submit_file_list(self, creation_method):
+    def submit_file_list(self, submitted_files, creation_method):
         """Ingest a list of `uploaded_files` tuples into CRDS."""
         return { original_name: self.do_submit_file(original_name, uploaded_path, creation_method=creation_method)
-                for (original_name, uploaded_path) in self.ordered_files() }
+                 for (original_name, uploaded_path) in submitted_files }
 
     def do_submit_file(self, original_name, upload_location, creation_method):
         """Do the core processing of a file submission,  including file renaming
@@ -651,11 +651,8 @@ class BatchReferenceSubmission(FileSubmission):
         """
         # Once both references and refactoring checks out,  submit reference files
         # and collect mapping from uploaded names to official names.
-        return {
-            original_name : self.do_submit_file(original_name, uploaded_path, creation_method="batch submit")
-            for (original_name, uploaded_path) in sorted(self.uploaded_files.items())
-        }
-    
+        return self.submit_file_list(self.uploaded_files.items(), "batch submit")
+
 # .............................................................................
 
 class ExistingReferenceSubmission(FileSubmission):
@@ -741,7 +738,7 @@ class SimpleFileSubmission(FileSubmission):
             return (disposition, certify_results, {}, [], [])
         
         # Add the files to the CRDS database as "uploaded",  pending certification and confirmation.
-        new_file_map = self.submit_file_list("submit_files")
+        new_file_map = self.submit_file_list(self.ordered_files(), "submit_files")
         
         collision_list = self.get_collision_list(new_file_map.values())
         
