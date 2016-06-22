@@ -393,15 +393,22 @@ class FileSubmission(object):
         or reference.  Enhanced CDBS-style names incorporate a 0 in the
         timestamp to make them unique for 2016 and beyond.
         """
-        if self.observatory == "hst" and not config.is_mapping(upload_path):
-            new_name = uniqname.uniqname(upload_path)
-            os.rename(new_name, upload_path)
-            new_name = os.path.basename(new_name)
-        else:
-            extension = os.path.splitext(upload_name)[-1]
-            instrument, filekind = self.get_file_properties(upload_path)
-            new_name = self.get_new_name(instrument, filekind, extension)
-        self.push_status("Renaming", repr(upload_name), "-->", repr(new_name))
+        try:
+            if self.observatory == "hst" and not config.is_mapping(upload_path):
+                new_name = uniqname.uniqname(upload_path)
+                os.rename(new_name, upload_path)
+                new_name = os.path.basename(new_name)
+            else:
+                extension = os.path.splitext(upload_name)[-1]
+                instrument, filekind = self.get_file_properties(upload_path)
+                new_name = self.get_new_name(instrument, filekind, extension)
+            self.push_status("Renaming", repr(upload_name), "-->", repr(new_name))
+        except Exception as exc:
+            error_msg = str(exc)
+            if "probable file truncation" in error_msg:
+                raise CrdsError("Error renaming", srepr(upload_name), ": file may be truncated : " + srepr(exc))
+            else:
+                raise
         return new_name
     
     def get_new_name(self, instrument, filekind, extension):
