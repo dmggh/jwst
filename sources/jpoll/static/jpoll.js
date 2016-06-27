@@ -46,6 +46,7 @@ jpoll.init_log = function () {
 jpoll.done = function(time, result) {
     jpoll.log("DONE (built-in): " + result.result);
     jpoll.stop();
+    jpoll.channel = null;
     window.location = result.result
 };
 

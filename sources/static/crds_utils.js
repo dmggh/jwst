@@ -96,7 +96,7 @@ crds.setup_status_display = function (title) {
     );
     $(".error").empty();
     
-    jpoll.start_all();
+    jpoll.start();
     
     return true;                   
 };
@@ -129,7 +129,7 @@ crds.validate_and_confirm_file_submit = function(form) {
     console.log('form is ');
     console.log(form);
     console.log('form id ' + $(form).attr('id'));
-    crds.setup_status_display($(form).attr('id'), "Submission Status");
+	crds.setup_status_display("Submission Status");
     
     return true;
 };
@@ -152,7 +152,7 @@ crds.validate_and_confirm_add_delete = function(form) {
     
     $("input[type='submit']").hide();
     
-    crds.setup_status_display($(form).attr('id'), "Add/Delete Status");
+	crds.setup_status_display("Add/Delete Status");
     
     return true;
 };
