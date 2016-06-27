@@ -1,0 +1,25 @@
+#! /usr/bin/env python
+#-*-python-*-
+from __future__ import print_function
+
+from astropy.io import fits
+from crds.pysh import *
+from crds import pysh
+
+pysh.usage("<keyword> [extension] <filenames...>", 2, 5)
+
+if re.match("^\d+$", sys.argv[2]):
+   extension = int(sys.argv[2])
+   del sys.argv[2]
+
+keyword = sys.argv[1]
+filenames = sys.argv[2:]
+
+for filename in filenames:
+   with fits.open(filename) as hdulist:
+      for i, hdu in enumerate(hdulist):
+         try:
+            print(repr(filename), keyword + "[{}]".format(i), "=", hdu.header[keyword])
+         except KeyError:
+            pass
+

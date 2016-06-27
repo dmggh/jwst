@@ -181,6 +181,7 @@ class FileSubmission(object):
     def submit(self, *args, **keys):
         """Validate the submitted files and add them to the database."""
         try:
+            self.push_status("Starting submission processing.")
             result = self._submit(*args, **keys)
             # raise RuntimeError("Unforseen event!!!")
             return result
@@ -590,7 +591,7 @@ class BatchReferenceSubmission(FileSubmission):
         """Certify and submit the files,  returning information to confirm/cancel."""
         # Verify that ALL references certify,  raise CrdsError on first error.
         comparison_context = self.pmap_name if self.compare_old_reference else None
-        
+
         self.verify_instrument_lock()
         
         self.ensure_references()
