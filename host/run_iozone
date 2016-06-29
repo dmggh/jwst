@@ -1,6 +1,6 @@
 #! /bin/sh
 
-export datestr=`datetag day`
+export datestr=`datetag minute`
 export host=`echo $HOST | cut -d. -f1`
 
 export outfile=/eng/ssb/crds/metrics/iozone/iozone_${host}_${datestr}.log
