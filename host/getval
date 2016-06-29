@@ -6,7 +6,7 @@ from astropy.io import fits
 from crds.pysh import *
 from crds import pysh
 
-pysh.usage("<keyword> [extension] <filenames...>", 2, 5)
+pysh.usage("<keyword> [extension] <filenames...>", 2, 2**20)
 
 if re.match("^\d+$", sys.argv[2]):
    extension = int(sys.argv[2])

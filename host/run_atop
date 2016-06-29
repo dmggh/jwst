@@ -1,0 +1,6 @@
+#! /bin/sh
+
+export datestr=`datetag day`
+export host=`echo $HOST | cut -d. -f1`
+atop -w /eng/ssb/crds/metrics/atop/atop_${host}_${datestr}.log 0 1
+
