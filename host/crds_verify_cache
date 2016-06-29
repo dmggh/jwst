@@ -40,5 +40,5 @@ python -m crds.list --config
 echo "================================================================================================="
 echo "Verifying cache using crds.sync"
 echo "================================================================================================="
-python -m crds.sync --verbose --stats  $cmd_params
+python -m crds.sync --verbose --stats  --profile=console $cmd_params
 

@@ -1,0 +1,12 @@
+#! /bin/sh
+
+export datestr=`datetag day`
+export host=`echo $HOST | cut -d. -f1`
+
+export outfile=/eng/ssb/crds/metrics/iozone/iozone_${host}_${datestr}.log
+
+(iozone -a -e -s 4k -s 10m -s 100m -r1 -f /tmp/aa; \
+iozone -a -e -s 4k -s 10m -s 100m -r1 -f /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}/aa; \
+iozone -a -e -s 4k -s 10m -s 100m -r1 -f /crds/data1/${host}/aa; \
+) >& $outfile
+
