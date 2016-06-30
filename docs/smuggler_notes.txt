@@ -1,0 +1,23 @@
+The Django-smuggler package can be used to download JSON serialized copies
+of server application models.   There is a "dump" URL and a "load" URL pattern.
+
+Access link:  
+       
+       https://jwst-crds.stsci.edu/admin/auth/dump
+
+to download the auth application database models.
+
+Access the link:
+
+       https://jwst-crds.stsci.edu/admin/auth/load
+
+to upload .json from a prior download.
+
+This process can be used to transfer models from one server, say OPS,  to
+another,  say TEST, without going through the full mirroring process,
+synchronizing caches and directories, etc.
+
+NOTE that Django smuggler can be used on any app but that there's an assumption
+that the models between the source and destination systems are the same, not
+different versions of the same model as might happen during server development.
+
