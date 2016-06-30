@@ -11,8 +11,9 @@ MAILTO="crds-servers@stsci.edu"
 
 # every minute, no e-mail,  atop metrics collection
 */1 * * * *     source $HOME/cronenv.csh;  run_atop >& /dev/null;
+
 # every six hours, iozone metrics collection
-* */6 * * *     source $HOME/cronenv.csh;  run_iozone >& /dev/null;
+0 */6 * * *     source $HOME/cronenv.csh;  run_iozone >& /dev/null;
 
 # every 10 minutes, e-mail
 */10 * * * *     source $HOME/cronenv.csh;     cron_query_affected_datasets -q -i
