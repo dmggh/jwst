@@ -10,10 +10,10 @@ MAILTO="crds-servers@stsci.edu"
 */1 * * * *     source $HOME/cronenv.csh;  wget $CRDS_SERVER_URL -O /dev/null  >& /dev/null;
 
 # every minute, no e-mail,  atop metrics collection
-*/1 * * * *     source $HOME/cronenv.csh;  run_atop >& /dev/null;
+# */1 * * * *     source $HOME/cronenv.csh;  run_atop >& /dev/null;
 
 # every six hours, iozone metrics collection
-0 */6 * * *     source $HOME/cronenv.csh;  run_iozone >& /dev/null;
+# 0 */6 * * *     source $HOME/cronenv.csh;  run_iozone >& /dev/null;
 
 # every 10 minutes, e-mail
 */10 * * * *     source $HOME/cronenv.csh;     cron_query_affected_datasets -q -i
@@ -47,6 +47,6 @@ MAILTO="crds-servers@stsci.edu"
 
 # runs ~8 hours,  every week, e-mail
 # */5 * * * *    source $HOME/cronenv.csh;  crds_verify_cache --verbose --last 5 --check-sha1sum >& ${CRDS_CRON}/crds_verify_cache.log;  snip ${CRDS_CRON}/crds_verify_cache.log 500
-0 0 * * sun      source $HOME/cronenv.csh;  crds_verify_cache  local                             >& ${CRDS_CRON}/crds_verify_cache.local.log;   snip ${CRDS_CRON}/crds_verify_cache.local.log 500
-0 0 * * sat      source $HOME/cronenv.csh;  crds_verify_cache  shared                            >& ${CRDS_CRON}/crds_verify_cache.shared.log;  snip ${CRDS_CRON}/crds_verify_cache.shared.log 500
+# 0 0 * * sun      source $HOME/cronenv.csh;  crds_verify_cache  local                             >& ${CRDS_CRON}/crds_verify_cache.local.log;   snip ${CRDS_CRON}/crds_verify_cache.local.log 500
+# 0 0 * * sat      source $HOME/cronenv.csh;  crds_verify_cache  shared                            >& ${CRDS_CRON}/crds_verify_cache.shared.log;  snip ${CRDS_CRON}/crds_verify_cache.shared.log 500
 
