@@ -55,6 +55,8 @@ PACKAGE_DATA = {
         "interactive/*.dat",
         "xhst/*.dat",
         "xjwst/*.dat",
+        "xhst/*.json",
+        "xjwst/*.json",
         "interactive/test_data/*",
         
         "jsonapi/templates/*.html",  

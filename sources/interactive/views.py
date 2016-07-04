@@ -294,6 +294,7 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
 
         "auto_rename" : models.OBSERVATORY == "jwst",
         "server_usecase" :  sconfig.server_usecase.lower(),
+        "mock_params" : sconfig.CRDS_MOCK_ARCHIVE_PARAMETERS,
     }
 
     # echo escaped inputs.

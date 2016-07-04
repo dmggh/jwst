@@ -24,7 +24,7 @@ from crds.server.interactive import models as imodels
 from crds.server.interactive import versions
 from crds.server.interactive.common import DATASET_ID_RE, FITS_KEY_RE, FITS_VAL_RE, LIST_GLOB_RE
 from crds.server.interactive.common import INSTRUMENT_RE, FIELD_RE
-import crds.server.config as config    # server parameters
+import crds.server.config as sconfig    # server parameters
 
 from crds.server.jpoll import views as jviews
 from crds.server.interactive import submit
@@ -53,17 +53,17 @@ def get_jsonrpc_template_vars():
 def create_url(observatory, filename):
     """Create a CRDS server URL for a filename,  i.e. a URL including possible checking."""
     if crds.config.is_mapping(filename):
-        url = config.CRDS_MAPPING_URL + filename
+        url = sconfig.CRDS_MAPPING_URL + filename
     else:
-        url = config.CRDS_REFERENCE_URL + filename
+        url = sconfig.CRDS_REFERENCE_URL + filename
     return url
 
 def create_unchecked_url(observatory, filename):
     """Create an archive URL for a filename.   Simple file download URL."""
     if crds.config.is_mapping(filename):
-        url = config.CRDS_UNCHECKED_MAPPING_URL + filename
+        url = sconfig.CRDS_UNCHECKED_MAPPING_URL + filename
     else:
-        url = config.CRDS_UNCHECKED_REFERENCE_URL + filename
+        url = sconfig.CRDS_UNCHECKED_REFERENCE_URL + filename
     return url
 
 # ===========================================================================
@@ -163,7 +163,7 @@ def check_context(context, observatory=None):
     Return the name of the corresponding literal context.
     """
     if observatory is None:    # json_rpc wrapper passes None when unspecified, not unspecified
-        observatory = config.observatory
+        observatory = sconfig.observatory
     else:
         observatory = check_observatory(observatory)
     if not crds.config.is_mapping(context):  # this is for speed, to short circuit most checking
@@ -171,10 +171,10 @@ def check_context(context, observatory=None):
             raise UnknownContextError("Context parameter '{0}' is not a .pmap, .imap, or .rmap file"
                                       " or a valid date based context specification.", context)
         context = _check_date_based_context(context, observatory)
-    if config.observatory not in context:
+    if sconfig.observatory not in context:
         raise MismatchedContextError("Requested context '{0}' doesn't match the observatory '{1}'" \
                                      " supported by this server.   Switch servers or contexts.", 
-                                     context, config.observatory)
+                                     context, sconfig.observatory)
     _blob = check_known_file(context)
     if not crds.config.is_mapping(context):
         raise UnknownContextError("Context parameter '{0}' is not a known CRDS .pmap, .imap, or .rmap file.", context)
@@ -387,7 +387,7 @@ def check_username(username):
 @jsonrpc_method('list_mappings(observatory=String, glob_pattern=String)')   # secure
 def list_mappings(request, observatory, glob_pattern):
     if observatory is None:
-        observatory = config.observatory
+        observatory = sconfig.observatory
     check_observatory(observatory)
     if not re.match(LIST_GLOB_RE, glob_pattern):
         raise BadListGlobError("Illegal glob pattern, not permitted '{0}'", glob_pattern)
@@ -400,14 +400,14 @@ def list_mappings(request, observatory, glob_pattern):
     # In order to sync obsolete bad mappings,  it's important *not* to check for bad files.
     # Weed out the files not in an available state.
     blobs = imodels.get_fileblob_map(name__in = mappings, # rejected = False, blacklisted = False, 
-                                    state__in = config.CRDS_DISTRIBUTION_STATES)
+                                    state__in = sconfig.CRDS_DISTRIBUTION_STATES)
 
     return sorted(blobs.keys())
 
 @jsonrpc_method('list_references(observatory=String, glob_pattern=String)')   # secure
 def list_references(request, observatory, glob_pattern):
     if observatory is None:
-        observatory = config.observatory
+        observatory = sconfig.observatory
     check_observatory(observatory)
     if not re.match(LIST_GLOB_RE, glob_pattern):
         raise BadListGlobError("Illegal glob pattern, not permitted '{0}'", glob_pattern)
@@ -421,7 +421,7 @@ def list_references(request, observatory, glob_pattern):
     # In order to sync obsolete bad mappings,  it's important *not* to check for bad files.
     # Weed out the files not in an available state.
     blobs = imodels.get_fileblob_map(name__in = references, # rejected = False, blacklisted = False, 
-                                     state__in = config.CRDS_DISTRIBUTION_STATES)
+                                     state__in = sconfig.CRDS_DISTRIBUTION_STATES)
 
     return sorted(blobs.keys())
 
@@ -438,6 +438,12 @@ MAX_BESTREFS_PER_RPC = 1000
 
 @jsonrpc_method('get_best_references_by_ids(context=String, dataset_ids=Array, reftypes=Array, include_headers=Boolean)')   # secure
 def get_best_references_by_ids(request, context, dataset_ids, reftypes, include_headers):
+    return _get_best_references_by_ids(request, context, dataset_ids, reftypes, include_headers)
+
+def _get_best_references_by_ids(request, context, dataset_ids, reftypes, include_headers):
+    """Core computation which determines best refences for a list of datasets relative to 
+    a particular CRDS context which can be specified symbolically.
+    """
     context = check_context(context)
     dataset_ids = check_dataset_ids(dataset_ids)
     reftypes = check_reftypes(reftypes)
@@ -462,6 +468,26 @@ def get_best_references_by_ids(request, context, dataset_ids, reftypes, include_
         except Exception as exc:
             result[dataset_id] = (False, "FAILED: " + str(exc))
     return result
+
+@jsonrpc_method('get_aui_best_references(date=String, dataset_ids=Array)')   # secure
+def get_aui_best_references(request, date, dataset_ids):
+    """Present the AUI with a simpler tailored interface for getting lists of bestrefs by date."""
+    date = check_context_date(date)
+    dataset_ids = check_dataset_ids(dataset_ids)
+    context = sconfig.observatory+ "-" + timestamp.reformat_date(date, sep="T").split(".")[0]
+    # checking happens in _get_best...
+    complex_results = _get_best_references_by_ids(request, context, dataset_ids, reftypes=(), include_headers=False)
+    simpler_results = {}
+    for dataset_id, result in complex_results.items():
+        if result[0]:
+            filenames = []
+            for typename, filename in result[1].items():
+                if not filename.startswith("NOT FOUND"):
+                    filenames.append(filename)
+            simpler_results[dataset_id] = (True, filenames)
+        else:
+            simpler_results[dataset_id] = result
+    return simpler_results
 
 def get_simplified_dataset_headers_by_id(context, dataset_ids):
     """Simplified dataset headers first computes synthetic dataset headers,  and then maps the
@@ -627,14 +653,14 @@ def file_exists(request, filename):
 @jsonrpc_method('get_default_context(observatory=String)')    # secure
 def get_default_context(request, observatory):
     if observatory is None:
-        observatory = config.observatory
+        observatory = sconfig.observatory
     observatory = check_observatory(observatory)
     return imodels.get_default_context(observatory, state="operational")
 
 @jsonrpc_method('get_context_by_date(date=String, observatory=String)')  # secure
 def get_context_by_date(request, date, observatory):
     if observatory is None:
-        observatory = config.observatory
+        observatory = sconfig.observatory
     else:
         observatory = check_observatory(observatory)
     return check_context(date, observatory)
@@ -646,14 +672,14 @@ def get_server_info(request):
     version_info["svnurl"] = "/" + "/".join(version_info["svnurl"].split("/")[3:])  # don't leak full url,  just branch
     info = {
         "last_synced" : timestamp.now(),
-        "edit_context" : imodels.get_default_context(config.observatory),
-        "operational_context" : imodels.get_default_context(config.observatory, state="operational"),
-        "bad_files" : " ".join(imodels.get_bad_files(config.observatory)),
-        "bad_files_list" : imodels.get_bad_files(config.observatory),
-        "force_remote_mode" : config.FORCE_REMOTE_MODE,
+        "edit_context" : imodels.get_default_context(sconfig.observatory),
+        "operational_context" : imodels.get_default_context(sconfig.observatory, state="operational"),
+        "bad_files" : " ".join(imodels.get_bad_files(sconfig.observatory)),
+        "bad_files_list" : imodels.get_bad_files(sconfig.observatory),
+        "force_remote_mode" : sconfig.FORCE_REMOTE_MODE,
         "mappings" : list_mappings(None, None, "*map"),
-        "context_history" : imodels.get_context_history_tuples(config.observatory),
-        "observatory" : config.observatory,
+        "context_history" : imodels.get_context_history_tuples(sconfig.observatory),
+        "observatory" : sconfig.observatory,
         "crds_version" : version_info,
 
         # These define client:server limits,  not server:archive-web-service limits
@@ -662,19 +688,19 @@ def get_server_info(request):
 
         "reference_url": {
             "checked" : {
-                config.observatory : config.CRDS_REFERENCE_URL,
+                sconfig.observatory : sconfig.CRDS_REFERENCE_URL,
                     },
             "unchecked" : {
-                config.observatory : config.CRDS_UNCHECKED_REFERENCE_URL,
+                sconfig.observatory : sconfig.CRDS_UNCHECKED_REFERENCE_URL,
                 },
             },
 
         "mapping_url": {
             "checked" : {
-                config.observatory : config.CRDS_MAPPING_URL,
+                sconfig.observatory : sconfig.CRDS_MAPPING_URL,
                 },
             "unchecked" : {
-                config.observatory : config.CRDS_UNCHECKED_MAPPING_URL,
+                sconfig.observatory : sconfig.CRDS_UNCHECKED_MAPPING_URL,
                 },
             },
         }

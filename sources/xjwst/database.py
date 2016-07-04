@@ -5,13 +5,16 @@ import pprint
 import getpass
 from collections import OrderedDict, defaultdict, namedtuple
 import os.path
+import json
 
 import pyodbc
 
 from django.utils import html
 
 import crds
-from crds import rmap, log, utils, timestamp, config, jwst
+from crds import log, utils, timestamp, config
+from crds import bestrefs, rmap, jwst
+
 from crds.server.interactive import models, common
 from crds.server.interactive import views as iviews
 from crds.server import config as sconfig
@@ -64,13 +67,44 @@ class InvalidDatasetIdError(RuntimeError):
 
 # ---------------------------------------------------------------------------------------------------------
 
+if sconfig.CRDS_MOCK_ARCHIVE_PARAMETERS:
+    path = os.path.join(HERE, sconfig.CRDS_MOCK_ARCHIVE_PARAMETERS)
+    MOCK_PARAMETERS = bestrefs.load_bestrefs_headers(path)
+else:
+    MOCK_PARAMETERS = None
+
+# ---------------------------------------------------------------------------------------------------------
+
 def get_dataset_ids(instrument, datasets_since=None):
     """Return a list of the known dataset ids for `instrument`."""
     if datasets_since is None:
         datasets_since = "1900-01-01 00:00:00"
     _check_instrument(instrument)
     _check_date(datasets_since)
-    return parameter_interface.get_dataset_ids(instrument, datasets_since)
+    params = mock_params(instrument, datasets_since)
+    if params:
+        return params.keys()
+    else:
+        return parameter_interface.get_dataset_ids(instrument, datasets_since)
+
+def mock_params(instrument, date):
+    params = filter_by_instrument(instrument, MOCK_PARAMETERS)
+    params = filter_by_date(date, params)
+    return params
+
+def filter_by_instrument(instrument, params):
+    return { dataset_id : header for (dataset_id, header) in params.items()
+             if get_instrument(header).upper() == instrument.upper() }
+
+def get_instrument(header):
+    return header["META.INSTRUMENT.NAME"]
+
+def filter_by_date(datasets_since, params):
+    return { dataset_id : header for (dataset_id, header) in params.items()
+             if get_date(header) >= datasets_since }
+
+def get_date(header):
+    return header["META.OBSERVATION.DATE"] + " " + header["META.OBSERVATION.TIME"]
 
 # ---------------------------------------------------------------------------------------------------------
 
@@ -102,6 +136,11 @@ def get_dataset_headers_by_id(context, dataset_ids):
     dataset_ids = [ dataset.upper() for dataset in dataset_ids ]
     dataset_ids = [ dataset + ":" + dataset if ":" not in dataset else dataset 
                     for dataset in dataset_ids ]
+
+    params = mock_params_by_ids(context, dataset_ids)
+    if params:
+        return params
+
     ids_by_instrument = defaultdict(list)
     for dataset in dataset_ids:
         for detector, instrument in DETECTOR_TO_INSTRUMENT.items():
@@ -124,6 +163,17 @@ def get_dataset_headers_by_id(context, dataset_ids):
         headers.update(instr_headers)
 
     return headers
+
+def mock_params_by_ids(context, dataset_ids):
+    if MOCK_PARAMETERS:
+        selected_params = {}
+        for dataset_id in dataset_ids:
+            try:
+                selected_params[dataset_id] = MOCK_PARAMETERS[dataset_id]
+            except:
+                selected_params[dataset_id] = "NOT FOUND no parameter set for dataset."
+    else:
+        return {}
 
 # ---------------------------------------------------------------------------------------------------------
 

@@ -5,6 +5,8 @@ CRDS_STATUS_TO_ADDRESSES = ["jmiller@stsci.edu"]
 
 INGEST_HOST = "dmsinsvm.stsci.edu"
 
+CRDS_MOCK_ARCHIVE_PARAMETERS = None
+
 # ^^^^^ -------------------------------------------------------------------------------------------
 # vars above this line can be overridden in site_config.py copied from configs/config.xx.yy.py
 # vvvvv -------------------------------------------------------------------------------------------
