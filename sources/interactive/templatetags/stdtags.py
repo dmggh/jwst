@@ -169,7 +169,7 @@ def download_link(filename):
     try:
         # return jviews.create_url(config.observatory, filename)
         if data_file.is_geis(filename):
-            return "<a href='{}'>header</a>&nbsp<a href='{}'>data</a>".format(
+            return "download <a href='{}'>header</a>&nbsp<a href='{}'>data</a>".format(
                 jviews.create_unchecked_url(imodels.OBSERVATORY, filename[:-1]+"h"), 
                 jviews.create_unchecked_url(imodels.OBSERVATORY, filename[:-1]+"d"))
         else:
