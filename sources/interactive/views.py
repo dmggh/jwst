@@ -1328,21 +1328,21 @@ def submit_confirm(request):
         raise CrdsError("This submission was already confirmed or cancelled.")
 
     usr = str(request.user)
-    assert usr == result.user or request.user.is_superuser, \
-        "User mismatch: file Submitter='%s' and Confirmer='%s' don't match." % (usr, result.user)
+    if not request.user.is_superuser:
+        assert usr == result.user, "User mismatch: file Submitter='%s' and Confirmer='%s' don't match." % (usr, result.user)
 
     new_file_map = dict(result.new_file_map)
     new_files = new_file_map.values()
 
     if button == "confirm":   # assume confirmed unless lock fails
         disposition = "confirmed"
-        if result.get("requires_locking", True) and locked_instrument:  # only verify locks if contexts are being generated.
-            try:
-                locks.verify_locked(
-                    type="instrument", name=locked_instrument, user=str(request.user), datestr=result["lock_datestr"])
-            except locks.LockingError, exc:
-                disposition = "cancelled due to: " + str(exc)
-                log.info("Locking exception:", str(exc))
+        # if result.get("requires_locking", True) and locked_instrument:  # only verify locks if contexts are being generated.
+        #     try:
+        #         locks.verify_locked(
+        #             type="instrument", name=locked_instrument, user=str(request.user), datestr=result["lock_datestr"])
+        #     except locks.LockingError, exc:
+        #         disposition = "cancelled due to: " + str(exc)
+        #         log.info("Locking exception:", str(exc))
     elif button == "cancel":
         disposition = "cancelled"
     elif button == "timeout":
