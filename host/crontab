@@ -47,6 +47,6 @@ MAILTO="crds-servers@stsci.edu"
 
 # runs ~8 hours,  every week, e-mail
 # */5 * * * *    source $HOME/cronenv.csh;  crds_verify_cache --verbose --last 5 --check-sha1sum >& ${CRDS_CRON}/crds_verify_cache.log;  snip ${CRDS_CRON}/crds_verify_cache.log 500
-# 0 0 * * sun      source $HOME/cronenv.csh;  crds_verify_cache  local                             >& ${CRDS_CRON}/crds_verify_cache.local.log;   snip ${CRDS_CRON}/crds_verify_cache.local.log 500
-# 0 0 * * sat      source $HOME/cronenv.csh;  crds_verify_cache  shared                            >& ${CRDS_CRON}/crds_verify_cache.shared.log;  snip ${CRDS_CRON}/crds_verify_cache.shared.log 500
+0 0 * * sun      source $HOME/cronenv.csh;  crds_verify_cache  local                             >& ${CRDS_CRON}/crds_verify_cache.local.log;   snip ${CRDS_CRON}/crds_verify_cache.local.log 500
+0 0 * * sat      source $HOME/cronenv.csh;  crds_verify_cache  shared                            >& ${CRDS_CRON}/crds_verify_cache.shared.log;  snip ${CRDS_CRON}/crds_verify_cache.shared.log 500
 
