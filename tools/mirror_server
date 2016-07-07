@@ -109,3 +109,23 @@ echo "-----------------------------------------------------------"
 cd ${CRDS}/CRDS_server
 crontab <host/crontab
 
+echo "-----------------------------------------------------------"
+echo "IMPORTANT:  If this mirroring is being run in a TEST or I&T"
+echo "pipeline,  there's a very good chance that OPS and TEST or I&T have"
+echo "evolved CRDS rules independently.   Such rules files *appear*"
+echo "to be already present in the TEST CRDS cache so they are not"
+echo "re-synced by default fromi the newly mirrored system.  In reality"
+echo "the TEST pipeline has the wrong version of the file, an artifact"
+echo "of the last test cycle instead of the official file from OPS,"
+echo "very probably with different contents and assignment properties."
+echo
+echo "REQUIRED:  After mirroring,  the TEST pipeline rules cache needs"
+echo "to be 'repaired' to replace the test artifacts with the official"
+echo "versions of the files from OPS.   This is achieved by running"
+echo "crds_repair_cache (included with the CRDS client)"
+echo "with appropriate parameters in the pipeline environment."
+echo "This extra TEST step is necessary to avoid ham-fisted file"
+echo "replacements in OPS or user environments,  where blindly replacing rules"
+echo "either results in obscuring OPS inconsistencies/errors or losing "
+echo "any experimental customizations a user may have done."
+echo "-----------------------------------------------------------"
