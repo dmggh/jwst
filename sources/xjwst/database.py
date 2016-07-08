@@ -67,11 +67,44 @@ class InvalidDatasetIdError(RuntimeError):
 
 # ---------------------------------------------------------------------------------------------------------
 
-if sconfig.CRDS_MOCK_ARCHIVE_PARAMETERS:
-    path = os.path.join(HERE, sconfig.CRDS_MOCK_ARCHIVE_PARAMETERS)
-    MOCK_PARAMETERS = bestrefs.load_bestrefs_headers(path)
-else:
-    MOCK_PARAMETERS = None
+MOCK_PARAMETERS = None
+
+def deferred_load_mock_parameters():
+    """Defer the time consuming loading of any mock parameters dictionary to run time
+    if they're actually used.
+    """
+    global MOCK_PARAMETERS
+    if sconfig.CRDS_MOCK_ARCHIVE_PARAMETERS:
+        if MOCK_PARAMETERS is None:
+            path = os.path.join(HERE, sconfig.CRDS_MOCK_ARCHIVE_PARAMETERS)
+            log.info("Loading mock archive parameters from", repr(path))
+            MOCK_PARAMETERS = bestrefs.load_bestrefs_headers(path)
+    else:
+        MOCK_PARAMETERS = None
+    return MOCK_PARAMETERS
+
+def mock_params(instrument, date):
+    params = deferred_load_mock_parameters()
+    if params is not None:
+        params = filter_by_instrument(instrument, MOCK_PARAMETERS)
+        params = filter_by_date(date, params)
+    else:
+        params = {}
+    return params
+
+def filter_by_instrument(instrument, params):
+    return { dataset_id : header for (dataset_id, header) in params.items()
+             if get_instrument(header).upper() == instrument.upper() } 
+
+def get_instrument(header):
+    return header["META.INSTRUMENT.NAME"]
+
+def filter_by_date(datasets_since, params):
+    return { dataset_id : header for (dataset_id, header) in params.items()
+             if get_date(header) >= datasets_since }
+
+def get_date(header):
+    return header["META.OBSERVATION.DATE"] + " " + header["META.OBSERVATION.TIME"]
 
 # ---------------------------------------------------------------------------------------------------------
 
@@ -86,25 +119,6 @@ def get_dataset_ids(instrument, datasets_since=None):
         return params.keys()
     else:
         return parameter_interface.get_dataset_ids(instrument, datasets_since)
-
-def mock_params(instrument, date):
-    params = filter_by_instrument(instrument, MOCK_PARAMETERS)
-    params = filter_by_date(date, params)
-    return params
-
-def filter_by_instrument(instrument, params):
-    return { dataset_id : header for (dataset_id, header) in params.items()
-             if get_instrument(header).upper() == instrument.upper() }
-
-def get_instrument(header):
-    return header["META.INSTRUMENT.NAME"]
-
-def filter_by_date(datasets_since, params):
-    return { dataset_id : header for (dataset_id, header) in params.items()
-             if get_date(header) >= datasets_since }
-
-def get_date(header):
-    return header["META.OBSERVATION.DATE"] + " " + header["META.OBSERVATION.TIME"]
 
 # ---------------------------------------------------------------------------------------------------------
 

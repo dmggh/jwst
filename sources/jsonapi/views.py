@@ -30,7 +30,7 @@ from crds.server.jpoll import views as jviews
 from crds.server.interactive import submit
 
 from crds.client import proxy
-from crds import rmap, utils, log, timestamp, pysh
+from crds import rmap, utils, log, timestamp, pysh, python23
 import crds.config                     # generic client/server
 from crds.config import FILE_RE, check_filename
 
@@ -463,6 +463,8 @@ def _get_best_references_by_ids(request, context, dataset_ids, reftypes, include
         except KeyError:
             result[dataset_id] = (False, "FAILED: " + "unable to obtain matching parameters.")
             continue
+        if isinstance(header, python23.string_types):
+            result[dataset_id] = (False, header)
         try:
             result[dataset_id] = (True, rmap.get_best_references(context, header, include=reftypes, condition=True))
         except Exception as exc:
