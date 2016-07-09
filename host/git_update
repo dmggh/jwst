@@ -3,7 +3,6 @@
 ./clean
 git checkout -- crds/git_version.py
 git pull origin
+git pull upstream master
 git status
 git remote -v
-
-
