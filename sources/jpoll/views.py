@@ -40,7 +40,7 @@ JPOLL_KEY_RE = re.compile("^" + JPOLL_KEY_RE_STR + "$")
 # Utility functions
 
 def jdebug(*args):
-    print(*args, file=sys.stderr)
+    # print(*args, file=sys.stderr)
 
 #---------------------------------------------------------------------------------------------
 
@@ -118,7 +118,7 @@ def log_view(func):
 #---------------------------------------------------------------------------------------------------
 # View functions
 
-@log_view
+#@log_view
 @login_required
 def open_channel(request):
     """Based on `request`,  attach a new JPOLL channel to it and return it."""
@@ -128,7 +128,7 @@ def open_channel(request):
     jmodels.ChannelModel.new(key)
     return HttpResponse(json.dumps(key), content_type='application/json')
 
-@log_view
+# @log_view
 @login_required
 def close_channel(request):
     """Based on `request`,  close the JPOLL channel associated with it,  wiping out old messages."""
@@ -138,7 +138,7 @@ def close_channel(request):
     channel.wipe()
     return HttpResponse(json.dumps(key), content_type='application/json')
 
-@log_view
+# @log_view
 @login_required
 def pull_messages(request, since_id=None):
     """Return any pending JPOLL messages on the channel associated with `request` as a JSON response."""
