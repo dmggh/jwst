@@ -39,12 +39,12 @@ echo "-----------------------------------------------------------"
 du -h -c --max-depth 2 /crds/data1
 
 echo "-----------------------------------------------------------"
-echo "Disk Space Used /crds/data1"
+echo "Disk Space Used /ifs/crds"
 echo "-----------------------------------------------------------"
 du -h -c --max-depth 3 /ifs/crds
 
 echo "-----------------------------------------------------------"
-echo "Disk Space Used /crds/data1"
+echo "Disk Space Used $HOME"
 echo "-----------------------------------------------------------"
 du -h -c --max-depth 3 $HOME
 
