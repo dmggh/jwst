@@ -1,8 +1,27 @@
 #! /bin/tcsh
 
 # This script verifies the shared readonly cache using sha1sums.  It's intended
-# to be run as a cronjob weekly or less,  only on the DEV server since it will
-# saturate the VM file buffer cache and degrade CRDS server performance.
+# to be run as a cronjob weekly or less.
+
+#
+# It turns out that sha1sums are most useful for detecting like-named mappings
+# with different contents which evolve independently in TEST and OPS.  This
+# script is really about addressing the unexpected within CRDS server caches.
+# The ideal cache check is to check sha1sums for both rules and references, but
+# whereas checking reference sha1sums presently takes six days (once it was
+# 10-12 hours), checking sha1sums on mappings and merely the existence and
+# length of references takes 10 minutes.  So the structure of the check is a compromise
+# between what is desirable, demonstrably useful,  and feasible.   
+#
+# The reference file check should be somewhat effective for HST where reference
+# names are time-based and unique.  It can be less effective for JWST where
+# references in TEST and OPS can have the same counter-based names but
+# different contents.  If in doubt, it's necessary to add --check-sha1sum to
+# the command line so that references are fully checked.  Even for HST same
+# length same named files can have different contents.  So the point of this
+# comment is that this check is better than none but not really complete or
+# foolproof for reference files.  Rules should be well covered.
+#
 
 server
 source env.csh
@@ -27,7 +46,7 @@ else
 endif
 
 if ($#argv < 1) then
-    set cmd_params="--all --check-sha1sum --fetch-references --readonly-cache --verbose"
+    set cmd_params="--all --readonly-cache --verbose --stats $*"
 else
     set cmd_params="$*"
 endif
@@ -40,5 +59,6 @@ python -m crds.list --config
 echo "================================================================================================="
 echo "Verifying cache using crds.sync"
 echo "================================================================================================="
-python -m crds.sync --verbose --stats  --profile=console $cmd_params
+python -m crds.sync --check-sha1sum $cmd_params # mappings only,  slow sha1sum
+python -m crds.sync --fetch-references --check-files $cmd_params                # mappings + references,  no sha1sum
 
