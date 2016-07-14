@@ -988,6 +988,7 @@ def bestrefs(request):
     else:
         return bestrefs_post(request)
 
+@profile("dataset_bestrefs.stats")
 def bestrefs_post(request):
     """View to get best reference dataset parameters."""
     context = get_recent_or_user_context(request)
@@ -1109,6 +1110,7 @@ def bestrefs_explore(request):
     else:
         return bestrefs_explore_post(request)
 
+@profile("bestrefs_explore.stats")
 def bestrefs_explore_post(request):
     """View to get best reference dataset parameters."""
     context = get_recent_or_user_context(request)
@@ -1165,7 +1167,6 @@ def bestrefs_explore_compute(request):
 @error_trap("certify_input.html")
 @log_view
 @login_required
-# @profile
 def certify_file(request):
     """View to return certify input form or process POST."""
     if request.method == "GET":
@@ -1173,7 +1174,7 @@ def certify_file(request):
     else:
         return certify_post(request)
 
-# @profile("certify5.stats")
+@profile("certify.stats")
 def certify_post(request):
     """View fragment to process file certification POSTs."""
 
@@ -1218,7 +1219,6 @@ def monitor_process(request, process_key):
 @login_required
 @group_required("file_submission")
 @instrument_lock_required
-# @profile("batch_submit_reference.stats")
 def batch_submit_references(request):
     """View to return batch submit reference form or process POST."""
     if request.method == "GET":
@@ -1428,6 +1428,7 @@ def delete_references(request):
     else:
         return delete_references_post(request)
 
+@profile("delete_references.stats")
 def delete_references_post(request):
     """View fragment to process file delete references POSTs."""
 
@@ -1492,6 +1493,7 @@ def add_existing_references(request):
     else:
         return add_existing_references_post(request)
 
+@profile("add_existing_references.stats")
 def add_existing_references_post(request):
     """View fragment to process add existing references form POSTs."""
 
@@ -1610,6 +1612,7 @@ def submit_files(request, crds_filetype):
     else:
         return submit_files_post(request, crds_filetype)
 
+@profile("submit_files.stats")
 def submit_files_post(request, crds_filetype):
     """Handle the POST case of submit_files, returning dict of template vars."""
     # crds_filetype constrained by RE in URL to 'mapping' or 'reference'.
@@ -1937,6 +1940,7 @@ def recent_activity(request):
     else:
         return recent_activity_post(request)
 
+@profile("recent_activity.stats")
 def recent_activity_post(request):
     """View fragment handling recent_activity POST case."""
     action = validate(request, "action", models.AUDITED_ACTIONS+[r"\*"])
@@ -1988,7 +1992,7 @@ def recent_activity_post(request):
 
 # ===========================================================================
 
-# @profile('delivery_status.stats')
+@profile('delivery_status.stats')
 @error_trap("base.html")
 @log_view
 @login_required
@@ -2027,7 +2031,7 @@ def delivery_status(request):
 
 # ===========================================================================
 
-# @profile("browse_db.stats")
+@profile("browse_db.stats")
 @error_trap("browse_db_input.html")
 @log_view
 # @login_required
@@ -2340,6 +2344,7 @@ def mark_bad(request):
     else:
         return mark_bad_post(request)
 
+@profile("mark_bad.stats")
 def mark_bad_post(request):
     """View fragment to process the blacklist POST."""
     blacklist_roots = validate(request, "file_known", is_known_file_list)
@@ -2389,6 +2394,7 @@ def mark_bad_core(user, blacklist_root, badflag, why):
 
 # ===========================================================================
 
+@profile("set_default_context.stats")
 @error_trap("base.html")
 @log_view
 @login_required
@@ -2470,6 +2476,7 @@ def update_default_context(new_default, description, context_type, user):
                          srepr(old_default) + " to " + srepr(new_default))
     return old_default
 
+@profile("display_context_history.stats")
 @error_trap("base.html")
 @log_view
 def display_context_history(request):
