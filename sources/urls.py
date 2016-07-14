@@ -104,8 +104,8 @@ urlpatterns = patterns('',
         'crds.server.interactive.views.edit_context_history'),                    
                          
     url(r'^jpoll/open_channel/$', 'crds.server.jpoll.views.open_channel'),
-    url(r'^jpoll/pull_messages/$', 'crds.server.jpoll.views.pull_messages'),
-    url(r'^jpoll/pull_messages/(?P<since_id>\-?\d+)/$', 'crds.server.jpoll.views.pull_messages'),
+    url(r'^jpoll/pull_messages/(?P<channel_id>{})/(?P<since_id>\-?\d+)/$'.format(UUID_RE_STR), 
+        'crds.server.jpoll.views.pull_messages'),
     
 #     url(r'^jpoll/test_page/$', 'crds.server.jpoll.views.test_page'),
 #     url(r'^jpoll/test_worker/$', 'crds.server.jpoll.views.test_worker'),

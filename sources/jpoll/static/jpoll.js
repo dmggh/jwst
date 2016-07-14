@@ -138,7 +138,7 @@ jpoll.last_seen = -1;
 // Poll for messages
 jpoll.pull_messages = function() {
     // jpoll.log("PULL_MESSAGES")
-    return $.getJSON("/jpoll/pull_messages/" + jpoll.last_seen + "/", function (response) {
+    return $.getJSON("/jpoll/pull_messages/" + jpoll.channel + "/" + jpoll.last_seen + "/", function (response) {
         // jpoll.log("PULL_MESSAGES succeeded: " + response);
         // This event should basically execute jpoll.XXX(YYY) where XXX is msg[0] and YYY is msg[1]
         for (var index in response) {

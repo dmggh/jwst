@@ -131,20 +131,19 @@ def open_channel(request):
 
 # @log_view
 @login_required
-def close_channel(request):
+def close_channel(request, channel_id):
     """Based on `request`,  close the JPOLL channel associated with it,  wiping out old messages."""
-    key = get_key(request)
-    jdebug("jpoll: close_channel:", key)
-    channel = get_channel(request)
+    jdebug("jpoll: close_channel:", channel_id)
+    channel = get_channel_from_key(channel_id)
     channel.wipe()
-    return HttpResponse(json.dumps(key), content_type='application/json')
+    return HttpResponse(json.dumps(channel_id), content_type='application/json')
 
 # @log_view
 @login_required
-def pull_messages(request, since_id=None):
+def pull_messages(request, channel_id, since_id=None):
     """Return any pending JPOLL messages on the channel associated with `request` as a JSON response."""
     jdebug("pull_messages entered.")
-    channel = get_channel(request)
+    channel = get_channel_from_key(channel_id)
     since_id = int(since_id) if since_id else None
     jdebug("pull_messages got channel:", channel)
     messages = channel.pull(since_id)
