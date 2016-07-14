@@ -40,6 +40,7 @@ JPOLL_KEY_RE = re.compile("^" + JPOLL_KEY_RE_STR + "$")
 # Utility functions
 
 def jdebug(*args):
+    pass
     # print(*args, file=sys.stderr)
 
 #---------------------------------------------------------------------------------------------
