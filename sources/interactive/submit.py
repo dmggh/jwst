@@ -45,14 +45,12 @@ import tempfile
 import shutil
 import glob
 
-from crds import log, rmap, utils, refactor, newcontext, CrdsError, config, uniqname, naming
+from django.contrib.auth.models import User
 
+from crds import (log, rmap, utils, refactor, newcontext, CrdsError, config, uniqname, naming)
 from . import models, web_certify, web_difference, locks
 from .common import srepr
-
 from crds.server import config as sconfig
-
-from django.contrib.auth.models import User
 
 # ----------------------------------------------------------------------------------------------------
 
@@ -153,7 +151,6 @@ class FileSubmission(object):
         self.description = description
         self.user_name = str(user) if isinstance(user, User) else user
         self.user = User.objects.get(username=self.user_name)
-        self._user = None
         self.creator = creator
         self.change_level = change_level
         self.auto_rename = auto_rename
@@ -161,7 +158,15 @@ class FileSubmission(object):
         self.locked_instrument = locked_instrument
         self.status_channel = status_channel
         self.added_files = []
-        
+
+    def todict(self):
+        """Return the dictionary representation of key + simple parameters."""
+        params = dict(self.__dict__)
+        del params["user"]
+        del params["status_channel"]
+        del params["added_files"]
+        return params
+
     @property
     def pmap(self):
         return rmap.get_cached_mapping(self.pmap_name)
@@ -245,10 +250,10 @@ class FileSubmission(object):
 
     def submit_file_list(self, submitted_files, creation_method):
         """Ingest a list of `uploaded_files` tuples into CRDS."""
-        return { original_name: self.do_submit_file(original_name, uploaded_path, creation_method=creation_method)
+        return { original_name: self.do_submit_file(original_name, uploaded_path)
                  for (original_name, uploaded_path) in submitted_files }
 
-    def do_submit_file(self, original_name, upload_location, creation_method):
+    def do_submit_file(self, original_name, upload_location):
         """Do the core processing of a file submission,  including file renaming
         and blacklist checking, naming, upload, and record keeping.
         """
@@ -596,7 +601,6 @@ class BatchReferenceSubmission(FileSubmission):
         
         self.ensure_references()
         
-        #   XXX Certification and submit_file_list order is critical:  certify then submit
         reference_disposition, reference_certs = web_certify.certify_file_list(self.uploaded_files.items(), 
             context=comparison_context, compare_old_reference=self.compare_old_reference, push_status=self.push_status)
     
@@ -736,7 +740,6 @@ class SimpleFileSubmission(FileSubmission):
         if generate_contexts:
             self.verify_instrument_lock()
         
-        # XXX Certification and submit_file_list order is critical:  certify then submit
         disposition, certify_results = web_certify.certify_file_list(
             self.uploaded_files.items(), context=self.pmap_name, compare_old_reference=self.compare_old_reference,
             push_status=self.push_status)
@@ -1005,10 +1008,6 @@ class Delivery(object):
     
 # ----------------------------------------------------------------------------------------------------
 
-def submission_path(*args):
-    """Return the full path to the description file for this submission based on the submission subdirectory name."""
-    return os.path.join(sconfig.CRDS_SUBMISSION_DIR, *args)
-
 SUBMISSION_CLASSES = {
         "batch" : BatchReferenceSubmission,
         "mapping" : SimpleFileSubmission,
@@ -1019,7 +1018,6 @@ SUBMISSION_CLASSES = {
 
 SUBMISSION_INFO = {
     "submission_kinds" : SUBMISSION_CLASSES.keys(),
-    # "submission_dir" :  submission_path(),
     # "monitor_url": sconfig.CRDS_URL + "monitor/",
     # "confirm_url": sconfig.CRDS_URL + "confirm/",
 }
