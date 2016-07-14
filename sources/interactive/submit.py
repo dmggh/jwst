@@ -193,7 +193,7 @@ class FileSubmission(object):
                     utils.human_format_number(file_size), 
                     utils.human_format_number(size_so_far), 
                     utils.human_format_number(total_size)))
-            result[original_name] = self.do_submit_file(original_name, uploaded_path, creation_method=creation_method)
+            result[original_name] = self.do_submit_file(original_name, uploaded_path)
         return result
 
     def do_submit_file(self, original_name, upload_location):
