@@ -1203,7 +1203,7 @@ def certify_post(request):
 
 @error_trap("base.html")
 @log_view
-# @login_required
+@login_required
 def monitor_process(request, process_key):
     """Return a page response to periodically monitor and display status for `process_key`."""
     request.session["jpoll_key"] = process_key
