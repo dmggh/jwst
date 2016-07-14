@@ -179,19 +179,18 @@ def get_dataset_headers_by_id(context, dataset_ids):
     return headers
 
 def mock_params_by_ids(context, dataset_ids):
-    if MOCK_PARAMETERS:
+    params = deferred_load_mock_parameters()
+    if params:
         selected_params = {}
         for dataset_id in dataset_ids:
             try:
-                selected_params[dataset_id] = MOCK_PARAMETERS[dataset_id]
+                selected_params[dataset_id] = params[dataset_id]
             except:
                 selected_params[dataset_id] = "NOT FOUND no parameter set for dataset."
     else:
         return {}
 
 # ---------------------------------------------------------------------------------------------------------
-
-
 
 def get_synthetic_dataset_headers_by_id(context, dataset_ids):
     """Leverage the association table to provide headers for member ids which don't
