@@ -66,74 +66,6 @@ def file_exists_somehow(filename):
 
 # ----------------------------------------------------------------------------------------------------
 
-'''
-from crds import cmdline
-
-class SubmitFilesScript(cmdline.Script):
-    """Command line version of CRDS file submissions."""
-    
-    description = """Submit files to CRDS relative to the specified context.
-    
-    There are two broad scenarios which have several use cases.
-    
-    I.  Submit primitive files.   
-    
-        Other than basic certification,  CRDS will accept the files as is.
-        CRDS does not attempt to interrelate these files.  The given context is
-        used to locate existing files which correspond to the submitted files
-        for differencing and certification,  particularly for references.
-    
-        a. Submit references, of any known instruments or types.
-
-        b. Submit .rmap's, .imap's, or .pmap's,  in any relation
-    
-    II. Submit files and generate mappings.
-    
-        CRDS accepts related primitive files, but then automatically generates
-        related higher level mapping files.
-        
-        a. Submit references for one instrument but possibly several types,  
-                and generate .rmap's, .imap, and .pmap.
-                
-        b. Submit .rmap's,  generate .imap's and .pmap's. 
-    """
-    
-    def add_args(self):
-        self.add_argument("files", nargs="+", help="Paths of references and mappings to add to CRDS.""")
-        self.add_argument("--derive-from-context", store_in="derive_from_context",
-                          help=".pmap used for certification or basis for new mappings/.pmap")
-        self.add_argument("--change-level", choices=["trivial", "medium", "severe"], store_in="change_level", 
-                          default="severe", help="Degree to which submitted files impact science results.")
-        self.add_argument("--description", help="Free text description of file submission.")
-        self.add_argument("--auto-rename", action="store_true", default=True,
-                          help="If specified,  automatically rename files to CRDS-style versioned names.")
-        self.add_argument("--compare-old-references", action="store_true", default=False,
-                          help="Check references against replaced files in derive-from-context, where applicable.")
-        self.add_argument("--generate-rules", action="store_true", default=False,
-                          help="Generate mappings as required to add the submitted files to the derived-from-context.")
-        self.add_argument("--creator", default="(unknown)",
-                          help="Name of the person who originally authored the file.")
-        
-    def main(self):
-        submit_files(self.args.derive_from_context, self.args.files)
-        
-    def batch_submission(self):
-        self.user = None
-        self.bsr = BatchReferenceSubmission(args.derive_from_context, args.files, args.description, 
-                        user=self.user, creator=self.args.creator, change_level=self.args.change_level, 
-                        auto_rename=self.args.auto_rename, compare_old_reference=self.args.compare_old_reference)
-        self.bsr.submit()
-        
-    def confirm_or_cancel(self):
-        pass
-
-def submit_files(_context, _files):
-    "placeholder"
-    raise NotImplementedError("command line interface not finished yet.")
-'''
-
-# ------------------------------------------------------------------------------------------------
-
 class FileSubmission(object):
     """Baseclass for file submissions,  carrier object for submission metadata and files."""
     
@@ -250,14 +182,24 @@ class FileSubmission(object):
 
     def submit_file_list(self, submitted_files, creation_method):
         """Ingest a list of `uploaded_files` tuples into CRDS."""
-        return { original_name: self.do_submit_file(original_name, uploaded_path)
-                 for (original_name, uploaded_path) in submitted_files }
+        result = {}
+        size_so_far = 0
+        total_size = utils.total_size([path[1] for path in submitted_files])
+        for i, (original_name, uploaded_path) in enumerate(submitted_files):
+            file_size = utils.file_size(uploaded_path)
+            size_so_far += file_size
+            self.push_status("Processing '{}' [{} / {} files] [{} / {} / {} bytes]".format(
+                    original_name, i+1, len(submitted_files),
+                    utils.human_format_number(file_size), 
+                    utils.human_format_number(size_so_far), 
+                    utils.human_format_number(total_size)))
+            result[original_name] = self.do_submit_file(original_name, uploaded_path, creation_method=creation_method)
+        return result
 
     def do_submit_file(self, original_name, upload_location):
         """Do the core processing of a file submission,  including file renaming
         and blacklist checking, naming, upload, and record keeping.
         """
-        self.push_status("Processing '{}'".format(original_name))
         # Automatically 
         if self.auto_rename:
             permanent_name = self.auto_rename_file(original_name, upload_location)
@@ -282,14 +224,15 @@ class FileSubmission(object):
         
         utils.ensure_dir_exists(permanent_location)
         # Move or copy the temporary file to its permanent location,  assert ownership of CRDS copy now
-        owner = os.stat(upload_location).st_uid
-        if owner == os.getuid() and not rmap.is_mapping(permanent_location):
-            log.info("Linking", upload_location, "-->", permanent_location)
-            os.link(upload_location, permanent_location)
-        else:
-            log.info("Copying", upload_location, "-->", permanent_location)
-            self.push_status("Copying '{}'".format(original_name))
-            shutil.copyfile(upload_location, permanent_location)
+        bn = lambda x : os.path.basename(x)
+        self.push_status("Linking", bn(upload_location), "-->", bn(permanent_location))
+        os.link(upload_location, permanent_location)
+#        owner = os.stat(upload_location).st_uid
+# #        if owner == os.getuid() and not rmap.is_mapping(permanent_location):
+#         else:
+#             log.info("Copying", upload_location, "-->", permanent_location)
+#             self.push_status("Copying '{}'".format(original_name))
+#             shutil.copyfile(upload_location, permanent_location)
         with log.error_on_exception("Failed chmod'ing cached file", srepr(permanent_location)):
             os.chmod(permanent_location, 0o444)
         
@@ -370,6 +313,7 @@ class FileSubmission(object):
         These files will be deleted/destroyed if the submission fails or is cancelled when
         cleanup_failed_submission() is called.
         """
+        self.push_status("Adding file", repr(original_name), "to database.")
         if update_derivation is None:   # undefined
             update_derivation = self.auto_rename
         self.added_files.append((original_name, filepath))
