@@ -12,20 +12,7 @@ echo "==========================================================="
 echo >$HOME/isolate.$TAIL
 ls -lt $HOME/isolate.*
 
-echo "==========================================================="
-echo "Disk Quotas"
-echo "==========================================================="
-du -c -h --max-depth=0 /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}*
-du -c -h --max-depth=0 /crds/data1/${CRDS_SERVER}
-du -c -h --max-depth=0 /home/crds
-
-echo ---------------------------- free space --------------------
-df -h /home/crds
-df -h /crds/data1
-df -h /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}*
-
-echo ---------------------------- mounts ------------------------
-mount
+system_status
 
 echo "=========================================================="
 echo "Stack Build"

@@ -6,8 +6,6 @@ source env.csh
 setenv TAIL ${CRDS_PROJECT}.${CRDS_USECASE}
 setenv ETAIL ${TAIL}.err
 
-system_status
-
 echo "==========================================================="
 echo "CRDS git status"
 echo "==========================================================="

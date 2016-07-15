@@ -8,7 +8,7 @@ import pwd
 import shutil
 import os
 
-from crds import log
+from crds import log, pysh
 
 def tempname(same_dir):
     """Generate a temporary filename located in `same_dir`."""
@@ -39,12 +39,23 @@ def reown(fpath, mode):
     pentry = pwd.getpwuid(uid)
     username = pentry.pw_name
     log.info("Done", repr(fpath), "mode =", current_mode, "owner =", username)
+
+def process_instances(progname):
+    out_err = pysh.out_err("ps ax")
+    return out_err.count(progname)
     
 def main(path, modestr):
     """Re-own all files under `path` which are not already owned by the current
     user and chmod them to `mode`.
     """
     log.set_log_time(True)
+    
+    progname = os.path.basename(sys.argv[0])
+    if process_instances(progname) > 2:    # multiple processes involved with once cron instance
+        log.info("Another background_chown is already running.  Exiting now.")
+        sys.exit(0)
+    else:
+        log.info("Only one instance of", progname, "running.  Starting up.")
 
     mode = int(modestr, 8)
 
