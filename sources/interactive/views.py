@@ -1283,7 +1283,6 @@ def batch_submit_references_post(request):
 
                 "should_still_be_locked" : locked_instrument,
                 "requires_locking" : True,
-                "lock_datestr" : locks.get_lock_datestr(locked_instrument, type="instrument", user=str(request.user)),
 
                 "more_submits" : "/batch_submit_references/",
                 "disposition": disposition,
@@ -1469,8 +1468,6 @@ def delete_references_post(request):
 
                 "should_still_be_locked" : locked_instrument,
                 "requires_locking" : True,
-                "lock_datestr" : locks.get_lock_datestr(locked_instrument, type="instrument", user=str(request.user)),
-
                 "more_submits" : "/delete/reference/",
                 "disposition": disposition,
             }
@@ -1537,7 +1534,6 @@ def add_existing_references_post(request):
 
                 "should_still_be_locked" : locked_instrument,
                 "requires_locking" : True,
-                "lock_datestr" : locks.get_lock_datestr(locked_instrument, type="instrument", user=str(request.user)),
 
                 "more_submits" : "/add/reference/",
                 "disposition": disposition,
@@ -1660,7 +1656,6 @@ def submit_files_post(request, crds_filetype):
                 "more_submits" : "/submit/" + crds_filetype + "/",
                 "requires_locking" : generate_contexts,
                 "should_still_be_locked": locked_instrument,
-                "lock_datestr" : locks.get_lock_datestr(locked_instrument, type="instrument", user=str(request.user)),
 
                 "disposition" : disposition,
     }
