@@ -10,7 +10,7 @@ MAILTO="crds-servers@stsci.edu"
 # */1 * * * *     source $HOME/cronenv.csh;  wget $CRDS_SERVER_URL -O /dev/null  >& /dev/null;
 
 # every minute, no e-mail,  atop metrics collection
-*/1 * * * *     source $HOME/cronenv.csh;  run_atop >& /dev/null;
+*/10 * * * *     source $HOME/cronenv.csh;  run_atop >& /dev/null;
 
 # every six hours, iozone metrics collection
 0 */6 * * *     source $HOME/cronenv.csh;  run_iozone >& /dev/null;
