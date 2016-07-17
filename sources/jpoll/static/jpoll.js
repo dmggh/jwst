@@ -144,7 +144,7 @@ jpoll.pull_messages = function() {
         for (var index in response) {
             var msg = response[index];
             // jpoll.log("processing " + msg.time + " " + msg.type);
-            if (msg.id <= jpoll.last_seen) {
+            if (msg.id < jpoll.last_seen) {
                 jpoll.log("Dropping duplicate message: " + msg.id + " " + msg.time + " " + msg.data);
                 continue;
             }
