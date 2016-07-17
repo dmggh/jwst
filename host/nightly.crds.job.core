@@ -54,12 +54,6 @@ crds_certify_cache 5 --exist >& ${CRDS_CRON}/crds_certify_cache.${ETAIL}
 snip ${CRDS_CRON}/crds_certify_cache.${ETAIL}
 
 echo "==========================================================="
-echo "Server cache verify check,  no sha1sum"
-echo "==========================================================="
-crds_verify_cache local --all --verbose --fetch-references --readonly-cache --stats >& ${CRDS_CRON}/crds_verify_cache.${ETAIL}
-snip ${CRDS_CRON}/crds_verify_cache.${ETAIL}
-
-echo "==========================================================="
 echo "Server orphan files check"
 echo "==========================================================="
 cd ${CRDS}/CRDS_server
