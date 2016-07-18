@@ -53,7 +53,9 @@ def main(path, modestr):
     user and chmod them to `mode`.
     """
     log.set_log_time(True)
-    
+
+    log.divider(func=log.info)
+
     progname = os.path.basename(sys.argv[0])
     if process_instances() > 1:    # multiple processes involved with once cron instance
         log.info("Another background_chown is already running.  Exiting now.")
