@@ -40,9 +40,13 @@ def reown(fpath, mode):
     username = pentry.pw_name
     log.info("Done", repr(fpath), "mode =", current_mode, "owner =", username)
 
-def process_instances(progname):
+def process_instances():
+    # log.info("Counting instances of", repr("host/background_chown"))
     out_err = pysh.out_err("ps ax")
-    return out_err.count(progname)
+    count = out_err.count("host/background_chown")
+    # log.info(out_err)
+    log.info("Counted", count, "instances of", repr("host/background_chown"))
+    return count
     
 def main(path, modestr):
     """Re-own all files under `path` which are not already owned by the current
@@ -51,7 +55,7 @@ def main(path, modestr):
     log.set_log_time(True)
     
     progname = os.path.basename(sys.argv[0])
-    if process_instances(progname) > 2:    # multiple processes involved with once cron instance
+    if process_instances() > 1:    # multiple processes involved with once cron instance
         log.info("Another background_chown is already running.  Exiting now.")
         sys.exit(0)
     else:
@@ -71,6 +75,8 @@ def main(path, modestr):
     for fpath in non_user_files:
         with log.error_on_exception("Failed reowning", repr(fpath)):
             reown(fpath, mode)
+
+    log.info("Exiting...")
 
 if __name__ == "__main__":
     usage("[path] [filemode] [--help]", 2, 2, help="""
