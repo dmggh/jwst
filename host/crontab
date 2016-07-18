@@ -44,12 +44,10 @@ MAILTO="crds-servers@stsci.edu"
 # Every week, only on the DEV server
 
 # runs ~ small hours,  every week,  e-mail
-# */5 * * * *    source $HOME/cronenv.csh;  crds_certify_cache 5           >& ${CRDS_CRON}/crds_certify_cache.log; snip ${CRDS_CRON}/crds_certify_cache.log 500
 # certify local cache only
-0 12 * * sun     source $HOME/cronenv.csh;  crds_certify_cache 5 --exist   >& ${CRDS_CRON}/crds_certify_cache.log; snip ${CRDS_CRON}/crds_certify_cache.log 500
+0 12 * * sun     source $HOME/cronenv.csh;  crds_certify_cache 1 --exist   >& ${CRDS_CRON}/crds_certify_cache.log; snip ${CRDS_CRON}/crds_certify_cache.log 500
 
-# runs ~8 hours,  every week, e-mail
-# */5 * * * *    source $HOME/cronenv.csh;  crds_verify_cache --verbose --last 5 --check-sha1sum >& ${CRDS_CRON}/crds_verify_cache.log;  snip ${CRDS_CRON}/crds_verify_cache.log 500
+# runs ~1 hours,  every week, e-mail
 0 0 * * sun      source $HOME/cronenv.csh;  crds_verify_cache  local                             >& ${CRDS_CRON}/crds_verify_cache.local.log;   snip ${CRDS_CRON}/crds_verify_cache.local.log 500
 0 0 * * sat      source $HOME/cronenv.csh;  crds_verify_cache  shared                            >& ${CRDS_CRON}/crds_verify_cache.shared.log;  snip ${CRDS_CRON}/crds_verify_cache.shared.log 500
 

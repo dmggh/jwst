@@ -45,12 +45,6 @@ else
     exit -1
 endif
 
-if ($#argv < 1) then
-    set cmd_params="--all --readonly-cache --verbose --stats $*"
-else
-    set cmd_params="$*"
-endif
-
 echo "================================================================================================="
 echo "CRDS Configuration for Cache Verification on ${CRDS_USECASE} VM"
 echo "================================================================================================="
@@ -59,6 +53,9 @@ python -m crds.list --config
 echo "================================================================================================="
 echo "Verifying cache using crds.sync"
 echo "================================================================================================="
-python -m crds.sync --check-sha1sum $cmd_params # mappings only,  slow sha1sum
-python -m crds.sync --fetch-references --check-files $cmd_params                # mappings + references,  no sha1sum
+ # mappings only,  slow sha1sum
+python -m crds.sync --check-sha1sum --all --readonly-cache --verbose --stats
+
+# mappings + references,  no sha1sum
+python -m crds.sync --check-files --all --fetch-references --readonly-cache --verbose --stats
 
