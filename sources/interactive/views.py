@@ -1325,6 +1325,9 @@ def submit_confirm(request):
 
     if result.get("disposition", None):
         raise CrdsError("This submission was already confirmed or cancelled.")
+    else:
+        repeatable_model.set_par("disposition", "finalizing")
+        repeatable_model.save()
 
     usr = str(request.user)
     if not request.user.is_superuser:
@@ -1335,17 +1338,10 @@ def submit_confirm(request):
 
     if button == "confirm":   # assume confirmed unless lock fails
         disposition = "confirmed"
-        # if result.get("requires_locking", True) and locked_instrument:  # only verify locks if contexts are being generated.
-        #     try:
-        #         locks.verify_locked(
-        #             type="instrument", name=locked_instrument, user=str(request.user), datestr=result["lock_datestr"])
-        #     except locks.LockingError, exc:
-        #         disposition = "cancelled due to: " + str(exc)
-        #         log.info("Locking exception:", str(exc))
     elif button == "cancel":
         disposition = "cancelled"
     elif button == "timeout":
-        disposition = format_html("lock timeout")
+        disposition = "lock timeout"
         locks.release_locks(user=request.user)
         del_locked_instrument(request)
 
@@ -1354,10 +1350,6 @@ def submit_confirm(request):
         final_pmap, context_map, collision_list = submit.submit_confirm_core(
                 confirmed, result.submission_kind, result.description,
                 new_files, result.context_rmaps, result.user,  result.pmap, result.pmap_mode, locked_instrument)
-
-        repeatable_model.set_par("original_pmap", result.pmap)
-        repeatable_model.set_par("pmap", final_pmap)
-        repeatable_model.save()
 
         new_file_map = sorted(new_file_map.items() + context_map.items())
         generated_files = sorted([(old, new) for (old, new) in new_file_map if old not in result.uploaded_basenames])
@@ -1386,6 +1378,10 @@ def submit_confirm(request):
 
         models.clear_cache()
 
+        repeatable_model.set_par("original_pmap", result.pmap)
+        repeatable_model.set_par("pmap", final_pmap)
+        # XXX single model save below
+
     else:
         for new in new_files:
             with log.error_on_exception("Failed marking", repr(new), "as cancelled."):
@@ -1398,7 +1394,9 @@ def submit_confirm(request):
             deleted_files = [],
             )
 
-    models.RepeatableResultBlob.set_parameter(results_id, "disposition" , disposition)
+    repeatable_model.set_par("disposition" , disposition)
+    repeatable_model.save()  # XXX required by further set_par() above
+
     confirm_results["disposition"] = disposition
     confirm_results["confirmed"] = confirmed
     confirm_results["description"] = repeatable_model.parameters["description"]
