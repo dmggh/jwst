@@ -1347,9 +1347,14 @@ def submit_confirm(request):
 
     confirmed = (disposition == "confirmed")
     if confirmed:
+
         final_pmap, context_map, collision_list = submit.submit_confirm_core(
                 confirmed, result.submission_kind, result.description,
                 new_files, result.context_rmaps, result.user,  result.pmap, result.pmap_mode, locked_instrument)
+
+        repeatable_model.set_par("original_pmap", result.pmap)
+        repeatable_model.set_par("pmap", final_pmap)
+        # XXX single model save below
 
         new_file_map = sorted(new_file_map.items() + context_map.items())
         generated_files = sorted([(old, new) for (old, new) in new_file_map if old not in result.uploaded_basenames])
@@ -1377,10 +1382,6 @@ def submit_confirm(request):
         clear_uploads(request, result.uploaded_basenames)
 
         models.clear_cache()
-
-        repeatable_model.set_par("original_pmap", result.pmap)
-        repeatable_model.set_par("pmap", final_pmap)
-        # XXX single model save below
 
     else:
         for new in new_files:
