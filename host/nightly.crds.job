@@ -14,8 +14,6 @@ echo "UPDATING SUBVERSION for CRDS"
 # svn update --accept theirs-full
 ./clean
 git_update
-git status
-git log --stat |& head -100
 
 echo "==========================================================="
 echo "CRDS_server subversion status"
@@ -25,6 +23,7 @@ echo "UPDATING SUBVERSION for CRDS_server"
 svn update --accept theirs-full
 svn status
 svn info
+svn diff
 
 echo "==========================================================="
 echo "Re-installing server"
@@ -38,8 +37,6 @@ echo "==========================================================="
 cd ${CRDS}/CRDS
 ./clean
 git_update
-git status
-git log --stat |& head -100
 
 echo "==========================================================="
 echo "Post-reinstall CRDS_server subversion status"
@@ -48,6 +45,7 @@ cd ${CRDS}/CRDS_server
 echo "UPDATING SUBVERSION for CRDS_server"
 svn status
 svn info
+svn diff
 
 echo "==========================================================="
 echo "Updating crontab"
