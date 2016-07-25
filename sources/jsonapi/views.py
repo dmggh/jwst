@@ -465,10 +465,11 @@ def _get_best_references_by_ids(request, context, dataset_ids, reftypes, include
             continue
         if isinstance(header, python23.string_types):
             result[dataset_id] = (False, header)
-        try:
-            result[dataset_id] = (True, rmap.get_best_references(context, header, include=reftypes, condition=True))
-        except Exception as exc:
-            result[dataset_id] = (False, "FAILED: " + str(exc))
+        else:
+            try:
+                result[dataset_id] = (True, rmap.get_best_references(context, header, include=reftypes, condition=True))
+            except Exception as exc:
+                result[dataset_id] = (False, "FAILED: " + str(exc))
     return result
 
 @jsonrpc_method('get_aui_best_references(date=String, dataset_ids=Array)')   # secure
