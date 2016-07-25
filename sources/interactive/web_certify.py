@@ -66,9 +66,12 @@ def captured_certify(original_name, uploaded_path, check_references=True, filema
 def _captured_certify(original_name, uploaded_path, context=None, compare_old_reference=False, check_references=False, 
                       filemap=None):
     """Run  crds.certify_files on `uploaded_path` and capture it's stdout/stderr."""
-    certify.certify_file(uploaded_path, context=context, dump_provenance=True, check_references=False, 
+    certify.certify_file(uploaded_path, context=context, 
+                         dump_provenance=True, check_references=False, 
                          original_name=original_name, trap_exceptions=True, 
-                         compare_old_reference=compare_old_reference, observatory=models.OBSERVATORY)
+                         compare_old_reference=compare_old_reference, 
+                         observatory=models.OBSERVATORY,
+                         run_fitsverify=True)
 
     if check_references and rmap.is_mapping(original_name):
         if filemap is None:
@@ -99,7 +102,8 @@ def do_certify_file(original_name, certifypath, check_references=False, filemap=
     try:
         certify.certify_file(certifypath, check_references=None,
             trap_exceptions=False, original_name=original_name,
-            context=context, observatory=models.OBSERVATORY)
+            context=context, observatory=models.OBSERVATORY,
+            run_fitsverify=True)
     except Exception, exc:
         raise CrdsError("Certifying " + srepr(original_name) + ": " + str(exc))
 
