@@ -110,7 +110,7 @@ setenv CRDS_LOG_TIME 1
 
 # SSB JWST data model setting to avoid omitting keywords with invalid schema values.
 # The default behavior is that the keyword is entirely suppressed and appears to be missing.
-# setenv PASS_INVALID_VALUES 1
+setenv PASS_INVALID_VALUES 1
 
 # CRDS setting to keep SSB JWST data model warnings from being re-mapped to errors.
 # setenv CRDS_ALLOW_SCHEMA_VIOLATIONS 1
