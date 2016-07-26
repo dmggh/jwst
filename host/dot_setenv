@@ -105,6 +105,16 @@ setenv CRDS_SERVER_FILES ${CRDS_IFS}/server_files
 setenv CRDS_CRON {$CRDS}/server/logs/cron
 setenv CRDS_LOG_TIME 1
 
+# Enabling both of the below permits non-compliant keyword values (according to 
+# SSB JWST data model schema) to be certied with a warning and added to rmaps.
+
+# SSB JWST data model setting to avoid omitting keywords with invalid schema values.
+# The default behavior is that the keyword is entirely suppressed and appears to be missing.
+# setenv PASS_INVALID_VALUES 1
+
+# CRDS setting to keep SSB JWST data model warnings from being re-mapped to errors.
+# setenv CRDS_ALLOW_SCHEMA_VIOLATIONS 1
+
 setenv PATH ${CRDS}/CRDS_server/host:${CRDS_STACK}/bin:/usr/kerberos/bin:/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin
 # /usr/stsci/Python-2.7.4/bin:
 
