@@ -23,13 +23,13 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="crds 1.9.0 documentation" href="index.html" />
     <link rel="next" title="CRDS Database Access" href="database.html" />
     <link rel="prev" title="Using the CRDS Web Site" href="web_site_use.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -41,10 +41,10 @@
         <li class="right" >
           <a href="web_site_use.html" title="Using the CRDS Web Site"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">crds 1.9.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 1.9.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="index.html">
               <img class="logo" src="_static/stsci_logo.png" alt="Logo"/>
@@ -72,15 +72,18 @@
 <li><a class="reference internal" href="#aui-interface-for-best-references">AUI Interface for Best References</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#jsonrpc-url">JSONRPC URL</a><ul>
-<li><a class="reference internal" href="#jwst">JWST</a></li>
-<li><a class="reference internal" href="#hst">HST</a></li>
+<li><a class="reference internal" href="#jsonrpc-protocol">JSONRPC Protocol</a><ul>
+<li><a class="reference internal" href="#sample-url-s">Sample URL&#8217;s</a><ul>
+<li><a class="reference internal" href="#jwst-url">JWST URL</a></li>
+<li><a class="reference internal" href="#hst-url">HST URL</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#jsonrpc-request">JSONRPC Request</a></li>
-<li><a class="reference internal" href="#jsonrpc-response">JSONRPC Response</a></li>
+<li><a class="reference internal" href="#generic-request">Generic Request</a></li>
+<li><a class="reference internal" href="#generic-response">Generic Response</a></li>
 <li><a class="reference internal" href="#error-handling">Error Handling</a></li>
-<li><a class="reference internal" href="#jsonrpc-demo-page">JSONRPC Demo Page</a></li>
+<li><a class="reference internal" href="#demo-page">Demo Page</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -91,12 +94,14 @@
   <h4>Next topic</h4>
   <p class="topless"><a href="database.html"
                         title="next chapter">CRDS Database Access</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/web_services.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/web_services.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
@@ -115,7 +120,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="web-services">
 <h1>Web Services<a class="headerlink" href="#web-services" title="Permalink to this headline">¶</a></h1>
@@ -214,7 +219,7 @@ files managed by CRDS.   Catalog information cab be</p>
 <div class="section" id="single-file-metadata">
 <h3>Single File Metadata<a class="headerlink" href="#single-file-metadata" title="Permalink to this headline">¶</a></h3>
 <p><strong>get_file_info(pipeline_context, filename)</strong></p>
-<p>Return a dictionary of CRDS catalog information about <tt class="xref py py-obj docutils literal"><span class="pre">filename</span></tt>.  For instance:</p>
+<p>Return a dictionary of CRDS catalog information about <code class="xref py py-obj docutils literal"><span class="pre">filename</span></code>.  For instance:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">get_file_info</span><span class="p">(</span><span class="s">&quot;jwst&quot;</span><span class="p">,</span> <span class="s">&quot;jwst_miri_flat_0023.fits&quot;</span><span class="p">)</span>
 <span class="go">{&#39;activation_date&#39;: &#39;2014-09-25 18:30:27&#39;,</span>
 <span class="go"> &#39;aperture&#39;: &#39;none&#39;,</span>
@@ -247,14 +252,14 @@ files managed by CRDS.   Catalog information cab be</p>
 <h3>Multiple File Metadata<a class="headerlink" href="#multiple-file-metadata" title="Permalink to this headline">¶</a></h3>
 <p><strong>get_file_info_map(observatory, files=None, fields=None)</strong></p>
 <p>get_file_info_map() is a multi-file version of get_info_map() whihch returns
-the information for several files with one call.  If <tt class="xref py py-obj docutils literal"><span class="pre">files</span></tt> is not specified
+the information for several files with one call.  If <code class="xref py py-obj docutils literal"><span class="pre">files</span></code> is not specified
 then get_file_info_map() returns info for all files.</p>
 <p>Return the info:</p>
 <div class="highlight-python"><div class="highlight"><pre>{ filename : { info, ... }, ... }
 </pre></div>
 </div>
-<p>on <tt class="xref py py-obj docutils literal"><span class="pre">files</span></tt> of <tt class="xref py py-obj docutils literal"><span class="pre">observatory</span></tt>.</p>
-<p><tt class="xref py py-obj docutils literal"><span class="pre">fields</span></tt> can be used to limit info returned to specified keys:</p>
+<p>on <code class="xref py py-obj docutils literal"><span class="pre">files</span></code> of <code class="xref py py-obj docutils literal"><span class="pre">observatory</span></code>.</p>
+<p><code class="xref py py-obj docutils literal"><span class="pre">fields</span></code> can be used to limit info returned to specified keys:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;activation_date&#39;</span><span class="p">,</span> <span class="s">&#39;aperture&#39;</span><span class="p">,</span> <span class="s">&#39;blacklisted&#39;</span><span class="p">,</span> <span class="s">&#39;change_level&#39;</span><span class="p">,</span> <span class="s">&#39;comment&#39;</span><span class="p">,</span>
  <span class="s">&#39;creator_name&#39;</span><span class="p">,</span> <span class="s">&#39;deliverer_user&#39;</span><span class="p">,</span> <span class="s">&#39;delivery_date&#39;</span><span class="p">,</span> <span class="s">&#39;derived_from&#39;</span><span class="p">,</span> <span class="s">&#39;description&#39;</span><span class="p">,</span>
  <span class="s">&#39;filekind&#39;</span><span class="p">,</span> <span class="s">&#39;instrument&#39;</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;observatory&#39;</span><span class="p">,</span> <span class="s">&#39;pedigree&#39;</span><span class="p">,</span> <span class="s">&#39;reference_file_type&#39;</span><span class="p">,</span>
@@ -262,7 +267,7 @@ then get_file_info_map() returns info for all files.</p>
  <span class="s">&#39;uploaded_as&#39;</span><span class="p">,</span> <span class="s">&#39;useafter_date&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>If <tt class="xref py py-obj docutils literal"><span class="pre">fields</span></tt> is not specified then get_file_info_map() returns all fields.</p>
+<p>If <code class="xref py py-obj docutils literal"><span class="pre">fields</span></code> is not specified then get_file_info_map() returns all fields.</p>
 </div>
 </div>
 <div class="section" id="best-references">
@@ -304,6 +309,11 @@ returned with the value <em>NOT FOUND n/a</em>.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&quot;amplifier&quot;</span><span class="p">,</span><span class="s">&quot;mask&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
+<p>Because <strong>get_best_references</strong> determines references for a list of types,  lookup
+errors are reported by setting the value of a reference type to
+&#8220;NOT FOUND &#8221; + error_message.   A value of &#8220;NOT FOUND n/a&#8221; indicates that CRDS
+determined that a particular reference type does not apply to the given
+parameter set.</p>
 </div>
 <div class="section" id="multiple-headers">
 <h3>Multiple Headers<a class="headerlink" href="#multiple-headers" title="Permalink to this headline">¶</a></h3>
@@ -331,7 +341,7 @@ or less.</p>
 <h3>Selection Parameters<a class="headerlink" href="#selection-parameters" title="Permalink to this headline">¶</a></h3>
 <p><strong>get_required_parkeys(context)</strong></p>
 <p>Return a mapping from instruments to lists of parameter names required to
-compute bestrefs under <tt class="xref py py-obj docutils literal"><span class="pre">context</span></tt>,  i.e. matching header keys:</p>
+compute bestrefs under <code class="xref py py-obj docutils literal"><span class="pre">context</span></code>,  i.e. matching header keys:</p>
 <div class="highlight-python"><div class="highlight"><pre>{ instrument : [ matching_parkey_name, ... ], ... }
 </pre></div>
 </div>
@@ -483,24 +493,27 @@ Transfer-Encoding: chunked
 </div>
 </div>
 </div>
-<div class="section" id="jsonrpc-url">
-<h2>JSONRPC URL<a class="headerlink" href="#jsonrpc-url" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="jsonrpc-protocol">
+<h2>JSONRPC Protocol<a class="headerlink" href="#jsonrpc-protocol" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="sample-url-s">
+<h3>Sample URL&#8217;s<a class="headerlink" href="#sample-url-s" title="Permalink to this headline">¶</a></h3>
 <p>The base URL used for making CRDS JSONRPC method calls is essentially <em>/json/</em>.
 All further information,  including the method name and the parameters,  are
 POSTed using a JSON serialization scheme.   Example absolute server URLs are:</p>
-<div class="section" id="jwst">
-<h3>JWST<a class="headerlink" href="#jwst" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="jwst-url">
+<h4>JWST URL<a class="headerlink" href="#jwst-url" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><a class="reference external" href="http://jwst-crds.stsci.edu/json/">http://jwst-crds.stsci.edu/json/</a></div></blockquote>
 </div>
-<div class="section" id="hst">
-<h3>HST<a class="headerlink" href="#hst" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="hst-url">
+<h4>HST URL<a class="headerlink" href="#hst-url" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><a class="reference external" href="http://hst-crds.stsci.edu/json/">http://hst-crds.stsci.edu/json/</a></div></blockquote>
 </div>
 </div>
-<div class="section" id="jsonrpc-request">
-<h2>JSONRPC Request<a class="headerlink" href="#jsonrpc-request" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="generic-request">
+<h3>Generic Request<a class="headerlink" href="#generic-request" title="Permalink to this headline">¶</a></h3>
+<p>JSONRPC requests are made by POST&#8217;ing a set of variables to the appropriate URL.</p>
 <p>An example CRDS service request can be demonstrated in a language agnostic way
 using the UNIX command line utility curl:</p>
 <div class="highlight-python"><div class="highlight"><pre>% curl -i -X POST -d &#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;method&quot;: &quot;get_default_context&quot;, &quot;params&quot;: [&quot;jwst&quot;], &quot;id&quot;: 1}&#39; https://jwst-crds.stsci.edu/json/
@@ -514,26 +527,21 @@ positionally to the CRDS method.</p>
 <p>The <em>id</em> can be used to associate calls with their responses in asynchronous
 environments.</p>
 </div>
-<div class="section" id="jsonrpc-response">
-<h2>JSONRPC Response<a class="headerlink" href="#jsonrpc-response" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="generic-response">
+<h3>Generic Response<a class="headerlink" href="#generic-response" title="Permalink to this headline">¶</a></h3>
 <p>The response returned by the server for the above request is the following JSON:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&quot;error&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s">&quot;jsonrpc&quot;</span><span class="p">:</span> <span class="s">&quot;1.0&quot;</span><span class="p">,</span> <span class="s">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&quot;result&quot;</span><span class="p">:</span> <span class="s">&quot;jwst_0000.pmap&quot;</span><span class="p">}</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="error-handling">
-<h2>Error Handling<a class="headerlink" href="#error-handling" title="Permalink to this headline">¶</a></h2>
-<p>Because <strong>get_best_references</strong> determines references for a list of types,  lookup
-errors are reported by setting the value of a reference type to
-&#8220;NOT FOUND &#8221; + error_message.   A value of &#8220;NOT FOUND n/a&#8221; indicates that CRDS
-determined that a particular reference type does not apply to the given
-parameter set.</p>
+<h3>Error Handling<a class="headerlink" href="#error-handling" title="Permalink to this headline">¶</a></h3>
 <p>Fatal errors are handled by setting the error attribute of the result object to
 an error object.   Inspect the result.error.message attribute to get descriptive
 text about the error.</p>
 </div>
-<div class="section" id="jsonrpc-demo-page">
-<h2>JSONRPC Demo Page<a class="headerlink" href="#jsonrpc-demo-page" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="demo-page">
+<h3>Demo Page<a class="headerlink" href="#demo-page" title="Permalink to this headline">¶</a></h3>
 <p>The CRDS servers support demoing the JSONRPC services and calling them interactively
 by visiting the URL <em>.../json/browse/</em>.  This facility is available in development
 and test environments upon request.</p>
@@ -562,6 +570,7 @@ shown here with FITS parkey names:</p>
 </div>
 </div>
 </div>
+</div>
 
 
           </div>
@@ -569,7 +578,7 @@ shown here with FITS parkey names:</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -581,12 +590,12 @@ shown here with FITS parkey names:</p>
         <li class="right" >
           <a href="web_site_use.html" title="Using the CRDS Web Site"
              >previous</a> |</li>
-        <li><a href="index.html">crds 1.9.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 1.9.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright 2015, STScI.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>
