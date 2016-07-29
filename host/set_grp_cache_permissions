@@ -1,0 +1,9 @@
+#! /bin/tcsh -f -x
+
+setenv CRDS_PATH /grp/crds/cache
+
+echo "Setting cache file permissions"
+chmod 444 ${CRDS_PATH}/mappings/${CRDS_PROJECT}/* 
+chmod 444 ${CRDS_PATH}/references/${CRDS_PROJECT}/*
+chmod 644 ${CRDS_PATH}/config/${CRDS_PROJECT}/* 
+

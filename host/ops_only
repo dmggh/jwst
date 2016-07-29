@@ -1,0 +1,9 @@
+#! /bin/tcsh -f
+
+if ( "${CRDS_USECASE}" != "ops" ) then
+    echo "Not OPS system,  exiting without: $*"
+    exit
+endif
+
+$*
+
