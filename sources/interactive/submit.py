@@ -499,7 +499,7 @@ class FileSubmission(object):
             old_rmap_path = rmap.locate_mapping(old_rmap)
             self.push_status("Generating new rmap '{}' from '{}'.".format(new_rmap, old_rmap))
             # refactor inserting references.
-            self.__class__.modify_rmaps_function(old_rmap_path, new_rmap_path, these_ref_paths)
+            self.modify_rmaps_function(old_rmap_path, new_rmap_path, these_ref_paths)
             # Submit the new rmap with added references
             self.add_crds_file(new_rmap, new_rmap_path, update_derivation=True)
         return rmap_replacement_map

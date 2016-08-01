@@ -111,8 +111,20 @@ def label_with_text(label, text):
 
 def file_list(label, files):
     # log.info("file_list:", repr(label), "files:", files)
-    return label_with_text(label, "\n".join(sorted([os.path.basename(old) + " --> " + os.path.basename(new)
-                                                    for (old, new) in dict(files).items()])))
+    # files could be: list of filenames, list of upload items, dict of upload items
+
+    if isinstance(files, dict):
+        files = files.items()
+
+    files_str = ""
+    for name  in sorted(files):
+        if isinstance(name, tuple):
+            old, new = name
+            files_str += os.path.basename(old) + " --> " + os.path.basename(new) + "\n"
+        else:
+            files_str += os.path.basename(name) + "\n"
+
+    return label_with_text(label, files_str)
 
 def optional_parameter(keys, param):
     label = "\n" + " ".join([word.capitalize() for word in param.split("_")]) + ":"
