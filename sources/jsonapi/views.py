@@ -475,9 +475,8 @@ def _get_best_references_by_ids(request, context, dataset_ids, reftypes, include
 @jsonrpc_method('get_aui_best_references(date=String, dataset_ids=Array)')   # secure
 def get_aui_best_references(request, date, dataset_ids):
     """Present the AUI with a simpler tailored interface for getting lists of bestrefs by date."""
-    date = check_context_date(date)
+    context = check_context(date)
     dataset_ids = check_dataset_ids(dataset_ids)
-    context = sconfig.observatory+ "-" + timestamp.reformat_date(date, sep="T").split(".")[0]
     # checking happens in _get_best...
     complex_results = _get_best_references_by_ids(request, context, dataset_ids, reftypes=(), include_headers=False)
     simpler_results = {}

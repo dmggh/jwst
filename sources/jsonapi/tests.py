@@ -398,6 +398,8 @@ if server_config.observatory == "jwst":
         imap = "jwst_niriss_0009.imap"
         min_reference_count = 5
 
+        ordinary_date = "2014-09-26T00:00:00"
+
         observatory = server_config.observatory
     
         header = {
@@ -445,4 +447,13 @@ if server_config.observatory == "jwst":
         #         "gain" : "jwst_miri_gain_0002.fits",
         #     }
 
+        def _get_aui_best_references_for_specifier(self, specifier):
+            ids = client.get_dataset_ids(specifier, "miri")
+            refs = client.get_aui_best_references(specifier, ids[:10])
+            return refs
 
+        def test_get_aui_bestrefs_date(self):
+            refs = self._get_aui_best_references_for_specifier(self.ordinary_date)
+
+        def test_get_aui_bestrefs_context(self):
+            refs = self._get_aui_best_references_for_specifier(self.pmap)
