@@ -10,8 +10,8 @@
     {% include "select_pmap.html" %}
     
     <table width="100%">
-      <tr title="Newline separated list of existing rmaps." >
-        <td><h3>Existing Rmaps</h3></td>
+      <tr title="Newline separated list of existing rmaps to be added to specified contexts." >
+        <td><h3>Add Back Existing Rmaps</h3></td>
       </tr>
       <tr>
         <td><textarea name="rmaps" rows="10">{{rmaps}}</textarea></td>
@@ -33,4 +33,6 @@
 <br/>
 <p><b>NOTE:</b> use with care,  there is <b>no confirmation step</b>,  submissions
   final.</p>
+
 {% endblock contents_both %}
+
