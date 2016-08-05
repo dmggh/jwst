@@ -225,14 +225,14 @@ class FileSubmission(object):
         utils.ensure_dir_exists(permanent_location)
         # Move or copy the temporary file to its permanent location,  assert ownership of CRDS copy now
         bn = lambda x : os.path.basename(x)
-        self.push_status("Linking", bn(upload_location), "-->", bn(permanent_location))
-        os.link(upload_location, permanent_location)
-#        owner = os.stat(upload_location).st_uid
-# #        if owner == os.getuid() and not rmap.is_mapping(permanent_location):
-#         else:
-#             log.info("Copying", upload_location, "-->", permanent_location)
-#             self.push_status("Copying '{}'".format(original_name))
-#             shutil.copyfile(upload_location, permanent_location)
+        owner = os.stat(upload_location).st_uid
+        if owner == os.getuid() and not rmap.is_mapping(permanent_location):
+            self.push_status("Linking", bn(upload_location), "-->", bn(permanent_location))
+            os.link(upload_location, permanent_location)
+        else:
+            log.info("Copying", upload_location, "-->", permanent_location)
+            self.push_status("Copying '{}'".format(original_name))
+            shutil.copyfile(upload_location, permanent_location)
         with log.error_on_exception("Failed chmod'ing cached file", srepr(permanent_location)):
             os.chmod(permanent_location, 0o444)
         
