@@ -225,14 +225,15 @@ class FileSubmission(object):
         utils.ensure_dir_exists(permanent_location)
         # Move or copy the temporary file to its permanent location,  assert ownership of CRDS copy now
         bn = lambda x : os.path.basename(x)
-        self.push_status("Linking", bn(upload_location), "-->", bn(permanent_location))
-        os.link(upload_location, permanent_location)
-#        owner = os.stat(upload_location).st_uid
-# #        if owner == os.getuid() and not rmap.is_mapping(permanent_location):
-#         else:
-#             log.info("Copying", upload_location, "-->", permanent_location)
-#             self.push_status("Copying '{}'".format(original_name))
-#             shutil.copyfile(upload_location, permanent_location)
+        owner = os.stat(upload_location).st_uid
+        if owner == os.getuid() and not rmap.is_mapping(permanent_location):
+            self.push_status("Linking", bn(upload_location), "-->", bn(permanent_location))
+            os.link(upload_location, permanent_location)
+            sha1sum = utils.checksum(permanent_location)
+        else:
+            log.info("Copying", upload_location, "-->", permanent_location)
+            self.push_status("Copying '{}'".format(original_name))
+            sha1sum = utils.copy_and_checksum(upload_location, permanent_location)
         with log.error_on_exception("Failed chmod'ing cached file", srepr(permanent_location)):
             os.chmod(permanent_location, 0o444)
         
@@ -240,7 +241,7 @@ class FileSubmission(object):
 #        data_file.setval("COMMENT", "The CRDS rules,  which can change independently, define how this file is assigned now.")
     
         # Make a database record for this file.
-        self.add_crds_file(original_name, permanent_location)
+        self.add_crds_file(original_name, permanent_location, sha1sum=sha1sum)
         
         return os.path.basename(permanent_location)
 
@@ -307,7 +308,8 @@ class FileSubmission(object):
                 "Program error.  New mapping " + srepr(new_map) + " already exists."
         return new_name_map
 
-    def add_crds_file(self, original_name, filepath, state="uploaded", update_derivation=None):
+    def add_crds_file(self, original_name, filepath, state="uploaded", update_derivation=None,
+                      sha1sum=None):
         """Create a FileBlob model instance using properties of this FileSubmission.
         
         These files will be deleted/destroyed if the submission fails or is cancelled when
@@ -319,7 +321,7 @@ class FileSubmission(object):
         self.added_files.append((original_name, filepath))
         return models.add_crds_file(self.observatory, original_name, filepath,  str(self.user), self.user.email, 
             self.description, change_level=self.change_level, creator_name=self.creator, state=state,
-            update_derivation=update_derivation)
+            update_derivation=update_derivation, sha1sum=None)
     
     def verify_instrument_lock(self):
         """Ensure that all the submitted files correspond to the locked instrument."""

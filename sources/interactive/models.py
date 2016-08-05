@@ -1186,12 +1186,12 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
         except Exception as exc:
             log.error("Setting field '%s' for '%s' failed: '%s'" % (model_field, (self.uploaded_as, self.name), exc))
 
-    def add_slow_fields(self, allow_duplicates=False):
+    def add_slow_fields(self, allow_duplicates=False, sha1sum=None):
         self.thaw()
         log.info("Adding slow fields for",  self.moniker)
         if self.type == "reference" and self.name.endswith(".fits"):
             self.init_FITS_fields()
-        self.sha1sum = self.compute_checksum()
+        self.sha1sum = sha1sum or self.compute_checksum()
         self.blacklisted = len(self.blacklisted_by) > 0
         self.save()
         try:
@@ -1356,7 +1356,7 @@ def add_crds_file(observatory, upload_name, permanent_location,
             deliverer, deliverer_email, description,
             change_level="SEVERE", add_slow_fields=True,
             creator_name="unknown", state="submitted", update_derivation=True,
-            allow_duplicates=False):
+            allow_duplicates=False, sha1sum=None):
     "Make a database record for this file.  Track the action of creating it."""
     if rmap.is_mapping(permanent_location):
         log.verbose("Adding", repr(upload_name), "as", repr(permanent_location))
@@ -1383,7 +1383,7 @@ def add_crds_file(observatory, upload_name, permanent_location,
 
     # note that modifying derivation fields changes the sha1sum of mappings.
     if add_slow_fields:
-        blob.add_slow_fields(allow_duplicates=allow_duplicates)
+        blob.add_slow_fields(allow_duplicates=allow_duplicates, sha1sum=sha1sum)
 
     # Set file permissions to read only.
     try:
