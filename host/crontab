@@ -16,7 +16,7 @@ MAILTO="crds-servers@stsci.edu"
 0 */6 * * *     source $HOME/cronenv.csh;  run_iozone >& /dev/null;
 
 # every 2 hours, no e-mail
-0 */2 * * *  source $HOME/cronenv.csh;        background_chown $CRDS_PATH 640 |& cat  >>  ${CRDS_CRON}/background_chown.log;  
+# 0 */2 * * *  source $HOME/cronenv.csh;        background_chown $CRDS_PATH 640 |& cat  >>  ${CRDS_CRON}/background_chown.log;  
 
 # every 10 minutes, e-mail
 */10 * * * *     source $HOME/cronenv.csh;     cron_query_affected_datasets -q -i
