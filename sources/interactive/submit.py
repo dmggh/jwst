@@ -47,6 +47,7 @@ import glob
 
 from django.contrib.auth.models import User
 
+import crds
 from crds import (log, rmap, utils, refactor, newcontext, CrdsError, config, uniqname, naming)
 from . import models, web_certify, web_difference, locks
 from .common import srepr
@@ -101,7 +102,7 @@ class FileSubmission(object):
 
     @property
     def pmap(self):
-        return rmap.get_cached_mapping(self.pmap_name)
+        return crds.get_pickled_mapping(self.pmap_name)
         
     @property
     def upload_names(self):

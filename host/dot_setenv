@@ -104,6 +104,7 @@ setenv CRDS_FILE_CACHE ${CRDS_IFS}/file_cache
 setenv CRDS_SERVER_FILES ${CRDS_IFS}/server_files
 setenv CRDS_CRON {$CRDS}/server/logs/cron
 setenv CRDS_LOG_TIME 1
+setenv CRDS_USE_PICKLED_CONTEXTS 1
 
 # Enabling both of the below permits non-compliant keyword values (according to 
 # SSB JWST data model schema) to be certied with a warning and added to rmaps.

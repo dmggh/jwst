@@ -37,6 +37,7 @@ from astropy.io import fits as pyfits
 from crds import (rmap, utils, timestamp, uses, matches, log, config)
 from crds import (data_file, pysh)
 from crds import CrdsError
+import crds
 
 from . import (models, web_certify, web_difference, submit, versions, locks, html, mail)
 from .templatetags import stdtags
@@ -992,7 +993,7 @@ def bestrefs(request):
 def bestrefs_post(request):
     """View to get best reference dataset parameters."""
     context = get_recent_or_user_context(request)
-    pmap = rmap.get_cached_mapping(context)
+    pmap = crds.get_symbolic_mapping(context)
     dataset_mode = validate(
         request, "dataset_mode", "dataset_archive|dataset_uploaded|dataset_local")
     try:
@@ -1114,7 +1115,7 @@ def bestrefs_explore(request):
 def bestrefs_explore_post(request):
     """View to get best reference dataset parameters."""
     context = get_recent_or_user_context(request)
-    pmap = rmap.get_cached_mapping(context)
+    pmap = crds.get_symbolic_mapping(context)
     instrument = validate(request, "instrument", models.INSTRUMENTS)
     valid_values = dict(pmap.get_imap(instrument).get_parkey_map())
     for key, values in valid_values.items():
@@ -1144,7 +1145,7 @@ def bestrefs_explore_compute(request):
     """
     context = validate(request, "context", is_pmap)
     instrument = validate(request, "instrument", models.INSTRUMENTS)
-    pmap = rmap.get_cached_mapping(context)
+    pmap = crds.get_symbolic_mapping(context)
     imap = pmap.get_imap(instrument)
     header = { pmap.instrument_key : instrument.upper() }
     pars = imap.get_parkey_map().keys()
@@ -1439,7 +1440,7 @@ def delete_references_post(request):
     locked_instrument = get_locked_instrument(request)
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
-    pmap = rmap.get_cached_mapping(pmap_name)
+    pmap = crds.get_symbolic_mapping(pmap_name)
     pmap_references = pmap.reference_names()
     for deleted in deleted_files:
         assert deleted in pmap_references, "File " + repr(deleted) + " does not appear in context " + repr(pmap.name)
@@ -1502,7 +1503,7 @@ def add_existing_references_post(request):
     locked_instrument = get_locked_instrument(request)
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
-    pmap = rmap.get_cached_mapping(pmap_name)
+    pmap = crds.get_symbolic_mapping(pmap_name)
     pmap_references = pmap.reference_names()
     for added in added_files:
         assert added not in pmap_references, "File " + repr(added) + " is already in context " + repr(pmap.name)
@@ -1829,7 +1830,7 @@ def browsify_header(filename, browsed_file):
     """
     ref_blob = models.FileBlob.load(os.path.basename(browsed_file))
     default_context = models.get_default_context(ref_blob.observatory)
-    mapping = rmap.get_cached_mapping(default_context)
+    mapping = crds.get_symbolic_mapping(default_context)
     header = {}
     with log.error_on_exception("Failed getting minimum header for", repr(browsed_file)):
         header = mapping.get_minimum_header(browsed_file)
@@ -2361,7 +2362,7 @@ def mark_bad_post(request):
 def check_bad_file(blacklist_root):
     """Make sure `blacklist_root` does not appear in the operational context."""
     pmap_name = models.get_default_context(state="operational")
-    pmap = rmap.get_cached_mapping(pmap_name)
+    pmap = crds.get_symbolic_mapping(pmap_name)
     assert blacklist_root not in pmap.mapping_names() + pmap.reference_names(), \
         "File '{}' is in the current operational context '{}'.  Create a new context which does not contain " \
         "it and make that context operational.  Then mark '{}' as 'bad'." \
@@ -2453,7 +2454,7 @@ def update_default_context(new_default, description, context_type, user):
     old_default = models.get_default_context(models.OBSERVATORY, state=context_type)
     if old_default == new_default:
         raise CrdsError(srepr(old_default) + " is already in use for the " + srepr(context_type) + " context.")
-    pmap = rmap.get_cached_mapping(new_default)
+    pmap = crds.get_symbolic_mapping(new_default)
     blobs = models.get_fileblob_map()
     pmap_names = pmap.mapping_names() + pmap.reference_names()
     bad_files = []

@@ -59,7 +59,7 @@ def profile(filename=None):
     """Decorate a view with @profile to run cProfile when the function is called.
     """
     if not os.path.dirname(filename):
-        filename = os.path.join(crds_server_log_dir, filename)
+        filename = os.path.join(crds_server_log_dir, "..", "profiles", filename)
     def decomaker(func):
         """Decorator function maker
         """

@@ -4,8 +4,9 @@ corresponding files.
 """
 import re
 
+import crds
 from crds.server.interactive import models, html
-from crds import config, rmap, selectors
+from crds import config, selectors
 
 #
 # catalog fields are an item list mapping FileBlob attributes to web page column labels
@@ -93,6 +94,6 @@ def get_mapping_dict(mapping):
     if re.match(config.complete_re(r"operational|edit"), mapping):
         mapping = models.get_default_context(state=mapping)
     config.is_mapping(mapping)
-    loaded_mapping = rmap.get_cached_mapping(mapping)
+    loaded_mapping = crds.get_pickled_mapping(mapping)
     return mapping, loaded_mapping.todict()
 

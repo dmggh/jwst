@@ -260,7 +260,7 @@ def required_keys(instr):
     pars.append("asm_asn_id")
     pars.append("asm_member_name") 
     pars.append("asm_member_type")
-    imap = rmap.get_cached_mapping(models.get_default_context(state="operational")).get_imap(instr)
+    imap = crds.get_pickled_mapping(models.get_default_context(state="operational")).get_imap(instr)
     pars.extend(imap.selections.keys())
     return pars
 

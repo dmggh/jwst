@@ -30,9 +30,10 @@ from crds.server.jpoll import views as jviews
 from crds.server.interactive import submit
 
 from crds.client import proxy
-from crds import rmap, utils, log, timestamp, pysh, python23
+from crds import rmap, utils, log, timestamp, pysh, python23, heavy_client
 import crds.config                     # generic client/server
 from crds.config import FILE_RE, check_filename
+import crds
 
 # ===========================================================================
 
@@ -204,7 +205,7 @@ def _check_date_based_context(context, observatory):
             else:
                 context = _pmap_from_date(datestr, observatory)
     if instrument:
-        pmap = rmap.get_cached_mapping(context)
+        pmap = crds.get_pickled_mapping(context)
         try:
             instrument = check_instrument(instrument)
         except Exception:
@@ -430,7 +431,7 @@ def get_best_references(request, context, header, reftypes):
     context = check_context(context)
     header = check_header(header)
     reftypes = check_reftypes(reftypes)
-    return rmap.get_best_references(context, header, include=reftypes, condition=True)
+    return heavy_client.hv_best_references(context, header, include=reftypes, condition=True)
 
 MAX_BESTREFS_PER_RPC = 1000
 
@@ -467,7 +468,7 @@ def _get_best_references_by_ids(request, context, dataset_ids, reftypes, include
             result[dataset_id] = (False, header)
         else:
             try:
-                result[dataset_id] = (True, rmap.get_best_references(context, header, include=reftypes, condition=True))
+                result[dataset_id] = (True, heavy_client.hv_best_references(context, header, include=reftypes, condition=True))
             except Exception as exc:
                 result[dataset_id] = (False, "FAILED: " + str(exc))
     return result
@@ -523,7 +524,7 @@ def get_best_references_by_header_map(request, context, headers, reftypes):
     result = {}
     for id, header in headers.items():
         try:
-            result[id] = (True, rmap.get_best_references(context, header, include=reftypes, condition=True))
+            result[id] = (True, heavy_client.hv_best_references(context, header, include=reftypes, condition=True))
         except Exception as exc:
             result[id] = (False, "FAILED: " + str(exc))
     return result
@@ -538,7 +539,7 @@ def get_mapping_names(request, context):
     mappings = set()
     for pmap in context:
         pmap = check_context(pmap)
-        ctx = crds.get_cached_mapping(pmap)
+        ctx = crds.get_pickled_mapping(pmap)
         mappings = mappings.union(set(ctx.mapping_names()))
     return sorted(list(mappings))
 
@@ -549,7 +550,7 @@ def get_reference_names(request, context):
 
 @imodels.crds_cached
 def _get_reference_names(context):
-    ctx = rmap.get_cached_mapping(context)
+    ctx = crds.get_pickled_mapping(context)
     return ctx.reference_names()
 
 CRDS_JSONRPC_CHUNK_SIZE = 2**23    # 8M
@@ -574,7 +575,7 @@ def get_url(request, context, filename):
     """Based on `context` to determine observatory,  return the URL of `filename`."""
     context = check_context(context)
     check_filename(filename)
-    ctx = rmap.get_cached_mapping(context)
+    ctx = crds.get_pickled_mapping(context)
     return create_url(ctx.observatory, filename)
 
 @jsonrpc_method('get_file_info(observatory=Object, filename=String)')   # secure
@@ -583,7 +584,7 @@ def get_file_info(request, observatory, filename):
     try:
         observatory = check_observatory(observatory)
     except InvalidObservatoryError:   # originally this worked on context, not observatory,  now both.
-        observatory = rmap.get_cached_mapping(check_context(observatory)).observatory  # load mapping and fetch observ.
+        observatory = crds.get_pickled_mapping(check_context(observatory)).observatory  # load mapping and fetch observ.
     blob = check_known_file(filename)
     blob.thaw()
     return blob.info
@@ -625,7 +626,7 @@ def call_context_function(context, func_name, *args, **keys):
     """Based on `context`,  load an observtory specific version of `func_name`
     and call it with the remaining positional and keyword parameters.
     """
-    pmap = rmap.get_cached_mapping(context)
+    pmap = crds.get_pickled_mapping(context)
     func = utils.get_object("crds.server", "x" + pmap.observatory, func_name)
     return func(*args, **keys)
 
@@ -713,7 +714,7 @@ def get_server_info(request):
 @jsonrpc_method('get_required_parkeys(context=String)')   # secure
 def get_required_parkeys(request, context):
     context = check_context(context)
-    pmap = rmap.get_cached_mapping(context)
+    pmap = crds.get_pickled_mapping(context)
     return pmap.get_required_parkeys()
 
 # ===============================================================
@@ -732,14 +733,14 @@ def get_sqlite_db(request, observatory):
 def get_mapping_url(request, context, mapping):
     context = check_context(context)
     _blob = check_mapping(mapping)
-    ctx = rmap.get_cached_mapping(context)
+    ctx = crds.get_pickled_mapping(context)
     return create_url(ctx.observatory, mapping)
 
 @jsonrpc_method('get_reference_url(String, String)') # secure
 def get_reference_url(request, context, reference):
     context = check_context(context)
     _blob = check_reference(reference)
-    ctx = rmap.get_cached_mapping(context)
+    ctx = crds.get_pickled_mapping(context)
     return create_url(ctx.observatory, reference)
 
 # ===============================================================
