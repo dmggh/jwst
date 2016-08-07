@@ -25,7 +25,7 @@ MAILTO="crds-servers@stsci.edu"
 */5 * * * *     source $HOME/cronenv.csh;      monitor_reprocessing >& ${CRDS_CRON}/monitor_reprocessing.log
 
 # every 5 minutes, no e-mail
-*/5 * * * *     source $HOME/cronenv.csh;      cron_sync --last 1  >& ${CRDS_CRON}/server_cache_sync.log
+*/5 * * * *     source $HOME/cronenv.csh;      cron_sync --last 1  --save-pickles >& ${CRDS_CRON}/server_cache_sync.log
 
 # every 10 minutes, no e-mail, only on the OPS server
 */10 * * * *  source $HOME/cronenv.csh;   ops_only sync_ops_to_grp >& ${CRDS_CRON}/sync_ops_to_grp.log
@@ -50,7 +50,7 @@ MAILTO="crds-servers@stsci.edu"
 0 12 * * sun     source $HOME/cronenv.csh;  crds_certify_cache 1 --exist   >& ${CRDS_CRON}/crds_certify_cache.log; snip ${CRDS_CRON}/crds_certify_cache.log 500
 
 # runs ~1 hours,  every week, e-mail
-0 0 * * sun      source $HOME/cronenv.csh;  crds_verify_cache  local                             >& ${CRDS_CRON}/crds_verify_cache.local.log;   snip ${CRDS_CRON}/crds_verify_cache.local.log 500
+0 0 * * sun      source $HOME/cronenv.csh;  crds_verify_cache  local    >& ${CRDS_CRON}/crds_verify_cache.local.log;   snip ${CRDS_CRON}/crds_verify_cache.local.log 500
 
-0 0 * * sat      source $HOME/cronenv.csh;  crds_verify_cache  shared                            >& ${CRDS_CRON}/crds_verify_cache.shared.log;  snip ${CRDS_CRON}/crds_verify_cache.shared.log 500
+0 0 * * sat      source $HOME/cronenv.csh;  crds_verify_cache  shared   >& ${CRDS_CRON}/crds_verify_cache.shared.log;  snip ${CRDS_CRON}/crds_verify_cache.shared.log 500
 
