@@ -53,7 +53,7 @@ def webify_matching_keys(keys, normal_length):
         webified.append(", ".join(key.split("|")) if not selectors.esoteric_key(key) else key)
     try:
         webified += ["--"] * (normal_length - len(webified) - 1)
-    except:
+    except Exception:
         pass
     return tuple(webified)
 
