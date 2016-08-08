@@ -1,6 +1,6 @@
 #! /bin/tcsh -f
 
-setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda
+setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda-2
 setenv META_PREFIX ${CRDS_STACK}
 
 rm -rf ${CRDS_STACK}.old
