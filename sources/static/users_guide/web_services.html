@@ -394,20 +394,46 @@ context (or date) can be obtained as follows.</p>
 <span class="go"> &#39;JW80500018001_02101_00003.MIRIFUSHORT:JW80500018001_02101_00003.MIRIFUSHORT&#39;]</span>
 </pre></div>
 </div>
-<p>Dataset ids are nominally of the form &lt;product&gt;:&lt;exposure&gt; (particularly for HST).  For
-JWST at this time all IDs are effectively of the form &lt;exposure&gt;:&lt;exposure&gt;.</p>
+<p>Dataset IDs have a grammar like this for HST:</p>
+<div class="highlight-python"><div class="highlight"><pre>&lt;product_id&gt; : &lt;exposure_id&gt;
+</pre></div>
+</div>
+<p>Dataset IDs currently have a grammar like this for JWST:</p>
+<div class="highlight-python"><div class="highlight"><pre>&lt;id&gt;     :=  &lt;whole&gt;:&lt;part&gt;
+&lt;whole&gt;  :=  &lt;filesetname&gt;:&lt;detector&gt;
+&lt;part&gt;   :=  &lt;filesetname&gt;:&lt;detector&gt;
+</pre></div>
+</div>
+<p>As can be seen above, currently JWST IDs are redundant and &lt;whole&gt; and &lt;part&gt;
+are identical.  However, conceptually the IDs have that relationship and may be
+further elaborated and differentiated in later builds (post-jwst-build-7).  In
+such a case,  several exposure level IDs (&lt;parts&gt;&#8217;s) might have an identical
+common root (&lt;whole&gt;).</p>
+<p>In both cases it&#8217;s possible to specify either half of an ID returned by
+get_dataset_ids() to request matching parameters or best references using the
+services below.</p>
+<p>For HST requesting parameters using only the &lt;product_id&gt; returns the
+parameters associated with the full two part ID for every exposure of the
+product.  Requesting the parameters using only the &lt;exposure_id&gt; returns the
+references associated with processing that exposure.</p>
+<p>For JWST, conceptually the same behavior will be preserved, so while either
+half of an ID will currently return the same parameters, at a future date the
+&lt;whole&gt; part may return all references associated with all exposures of a
+single high level product, and the &lt;part&gt; component will only return the
+references associated with processing that particular exposure.</p>
 </div>
 <div class="section" id="matching-parameters-by-id">
 <h3>Matching Parameters By ID<a class="headerlink" href="#matching-parameters-by-id" title="Permalink to this headline">¶</a></h3>
 <p><strong>get_dataset_headers_by_id(context_specifier, ids, datasets_since)</strong></p>
-<p><em>context_specifier</em> is a date-based CRDS context specifier,  e.g.:  jwst_0192.pmap, 2015-05-25T00:00:27, jwst-operational</p>
-<p><em>ids</em> is a list of archive dataset id strings</p>
-<p><em>datasets_since</em> is an optional cut-off date for datasets.  If specified, only datasets acquired after that date are returned.</p>
 <p>CRDS fetches best reference matching parameters indirectly from the archive database.
 The <em>get_dataset_headers_by_id()</em> function can be used to return the parameters required
 to compute best references associated with the specified dataset ids:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">get_dataset_headers_by_id</span><span class="p">(</span><span class="s">&quot;2016-01-01&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;JW96090001004_03101_00001.NRCB2:JW96090001004_03101_00001.NRCB2&#39;</span><span class="p">],</span> <span class="bp">None</span><span class="p">)</span>
-<span class="go">{&#39;JW96090001004_03101_00001.NRCB2:JW96090001004_03101_00001.NRCB2&#39;: {&#39;META.EXPOSURE.READPATT&#39;: &#39;BRIGHT1&#39;,</span>
+<p><em>context_specifier</em> is a date-based CRDS context specifier,  e.g.:  jwst_0192.pmap, 2015-05-25T00:00:27, jwst-operational</p>
+<p><em>ids</em> is a list of archive dataset id strings as shown above.</p>
+<p><em>datasets_since</em> is an optional cut-off date for datasets.  If specified, only datasets acquired after that date are returned.</p>
+<p>An example call using the CRDS Python client is:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">get_dataset_headers_by_id</span><span class="p">(</span><span class="s">&quot;2016-01-01&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;JW96090001004_03101_00001.NRCB2&#39;</span><span class="p">],</span> <span class="bp">None</span><span class="p">)</span>
+<span class="go">{&#39;JW96090001004_03101_00001.NRCB2&#39;: {&#39;META.EXPOSURE.READPATT&#39;: &#39;BRIGHT1&#39;,</span>
 <span class="go"> &#39;META.EXPOSURE.TYPE&#39;: &#39;NRC_IMAGE&#39;,</span>
 <span class="go"> &#39;META.INSTRUMENT.CHANNEL&#39;: &#39;SHORT&#39;,</span>
 <span class="go"> &#39;META.INSTRUMENT.DETECTOR&#39;: &#39;NRCB2&#39;,</span>
@@ -421,13 +447,18 @@ to compute best references associated with the specified dataset ids:</p>
 <div class="section" id="aui-interface-for-best-references">
 <h3>AUI Interface for Best References<a class="headerlink" href="#aui-interface-for-best-references" title="Permalink to this headline">¶</a></h3>
 <p><strong>get_aui_best_references(date, ids)</strong></p>
-<p><em>date</em> is a date-based CRDS context specifier,  e.g.:  jwst_0192.pmap, 2015-05-25T00:00:27, jwst-operational</p>
-<p><em>ids</em> is a list of valid archive dataset ids</p>
 <p>The CRDS server can compute the best references for a list of data set ids
 using the <em>get_aui_best_references()</em> function.  The dataset ids must be
 compatible with those returned by <em>get_dataset_ids()</em> above.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">get_aui_best_references</span><span class="p">(</span><span class="s">&quot;2016-01-01&quot;</span><span class="p">,</span> <span class="n">ids</span><span class="p">)</span>
-<span class="go">{&#39;JW82500001003_02102_00001.NRCA1:JW82500001003_02102_00001.NRCA1&#39;: [True,</span>
+<p><em>date</em> is a date-based CRDS context specifier, e.g.: jwst_0192.pmap,
+2015-05-25T00:00:27, jwst-operational</p>
+<p><em>ids</em> is a list of valid archive dataset ids.  For this interface for JWST it&#8217;s
+currently natural and supported to use either half (currently identical) of the
+dataset IDs as specified in get_dataset_ids() above.  Using a &#8220;half-ID&#8221; is shown
+below.</p>
+<p>An examople call using the CRDS Python client is:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">get_aui_best_references</span><span class="p">(</span><span class="s">&quot;2016-01-01&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;JW82500001003_02102_00001.NRCA1&#39;</span><span class="p">,</span><span class="s">&#39;JW82500001003_02102_00001.NRCA3&#39;</span><span class="p">])</span>
+<span class="go">{&#39;JW82500001003_02102_00001.NRCA1&#39;: [True,</span>
 <span class="go">  [&#39;jwst_nircam_ipc_0001.fits&#39;,</span>
 <span class="go">   &#39;jwst_nircam_linearity_0020.fits&#39;,</span>
 <span class="go">   &#39;jwst_nircam_distortion_0001.asdf&#39;,</span>
@@ -441,7 +472,7 @@ compatible with those returned by <em>get_dataset_ids()</em> above.</p>
 <span class="go">   &#39;jwst_nircam_mask_0010.fits&#39;,</span>
 <span class="go">   &#39;jwst_nircam_readnoise_0000.fits&#39;,</span>
 <span class="go">   &#39;jwst_nircam_superbias_0001.fits&#39;]],</span>
-<span class="go"> &#39;JW82500001003_02102_00001.NRCA3:JW82500001003_02102_00001.NRCA3&#39;: [True,</span>
+<span class="go"> &#39;JW82500001003_02102_00001.NRCA3&#39;: [True,</span>
 <span class="go">  [&#39;jwst_nircam_ipc_0003.fits&#39;,</span>
 <span class="go">   &#39;jwst_nircam_linearity_0022.fits&#39;,</span>
 <span class="go">   &#39;jwst_nircam_distortion_0003.asdf&#39;,</span>
@@ -460,13 +491,14 @@ compatible with those returned by <em>get_dataset_ids()</em> above.</p>
 </div>
 <p>The value returned is a mapping from dataset ids to a pair of values.  The
 first value of the id result pair is a boolean with the sense &#8220;completed
-successfully&#8221;.  The second value has a variable type depending on the boolean
-value.   If the ID was successful,  the second value of the pair is a list of
-file names.  If the ID was unsuccessful,  the second value of the pair is a
-string describing the error:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">get_aui_best_references</span><span class="p">(</span><span class="s">&quot;2016-01-01&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;JW96090001004_03101_00001.NRCB2:JW96090001004_03101_00001.NRCB5&#39;</span><span class="p">])</span>
-<span class="go">{&#39;JW96090001004_03101_00001.NRCB2:JW96090001004_03101_00001.NRCB5&#39;: [False,</span>
-<span class="go">  &quot;NOT FOUND dataset ID does not exist &#39;JW96090001004_03101_00001.NRCB2:JW96090001004_03101_00001.NRCB5&#39;&quot;]}</span>
+successfully&#8221;.</p>
+<p>The second value has a variable type depending on the boolean value.  If the ID
+was successful, the second value of the pair is a list of file names.  If the
+ID was unsuccessful, the second value of the pair is a string describing the
+error:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">get_aui_best_references</span><span class="p">(</span><span class="s">&quot;2016-01-01&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;JW96090001004_03101_00001.NRCB5&#39;</span><span class="p">])</span>
+<span class="go">{&#39;JW96090001004_03101_00001.NRCB5&#39;: [False,</span>
+<span class="go">  &quot;NOT FOUND dataset ID does not exist &#39;JW96090001004_03101_00001.NRCB5&#39;&quot;]}</span>
 </pre></div>
 </div>
 <p>Code utilizing this service will have better performance if multiple IDs are
@@ -477,9 +509,9 @@ from the results.  The net effect is that the list of files returned includes
 only those types that could be successfully assigned with the given context
 (date) and parameter set. Types which are assigned the value N/A are also
 silently dropped.</p>
-<p>Under the hood the get_aui_best_references function is a language agnostic JSONRPC call
+<p>Under the hood the <em>get_aui_best_references()</em> function is a language agnostic JSONRPC call
 which can be called from the UNIX command line by e.g. &#8220;curl&#8221; as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre>% curl -i -X POST -d &#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;method&quot;: &quot;get_aui_best_references&quot;, &quot;params&quot;: [&quot;2016-01-01&quot;, [&quot;JW80500017001_02101_00001.MIRIFUSHORT:JW80500017001_02101_00001.MIRIFUSHORT&quot;]], &quot;id&quot;: 1}&#39; https://jwst-crds.stsci.edu/json/
+<div class="highlight-python"><div class="highlight"><pre>% curl -i -X POST -d &#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;method&quot;: &quot;get_aui_best_references&quot;, &quot;params&quot;: [&quot;2016-01-01&quot;, [&quot;JW80500017001_02101_00001.MIRIFUSHORT&quot;]], &quot;id&quot;: 1}&#39; https://jwst-crds.stsci.edu/json/
 HTTP/1.1 200 OK
 Date: Mon, 25 Jul 2016 20:03:13 GMT
 Vary: Cookie
@@ -488,7 +520,7 @@ Content-Type: application/json-rpc
 Via: 1.1 jwst-crds.stsci.edu
 Transfer-Encoding: chunked
 
-{&quot;error&quot;: null, &quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;id&quot;: 1, &quot;result&quot;: {&quot;JW80500017001_02101_00001.MIRIFUSHORT:JW80500017001_02101_00001.MIRIFUSHORT&quot;: [true, [&quot;jwst_miri_ipc_0005.fits&quot;, &quot;jwst_miri_fringe_0018.fits&quot;, &quot;jwst_miri_linearity_0010.fits&quot;, &quot;jwst_miri_distortion_0010.asdf&quot;, &quot;jwst_miri_specwcs_0003.asdf&quot;, &quot;jwst_miri_drizpars_0001.fits&quot;, &quot;jwst_miri_v2v3_0003.asdf&quot;, &quot;jwst_miri_wavelengthrange_0001.asdf&quot;, &quot;jwst_miri_regions_0003.asdf&quot;, &quot;jwst_miri_wcsregions_0001.json&quot;, &quot;jwst_miri_flat_0036.fits&quot;, &quot;jwst_miri_saturation_0013.fits&quot;, &quot;jwst_miri_photom_0011.fits&quot;, &quot;jwst_miri_dark_0031.fits&quot;, &quot;jwst_miri_gain_0004.fits&quot;, &quot;jwst_miri_straymask_0006.fits&quot;, &quot;jwst_miri_reset_0018.fits&quot;, &quot;jwst_miri_lastframe_0018.fits&quot;, &quot;jwst_miri_mask_0013.fits&quot;, &quot;jwst_miri_readnoise_0005.fits&quot;]]}}
+{&quot;error&quot;: null, &quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;id&quot;: 1, &quot;result&quot;: {&quot;JW80500017001_02101_00001.MIRIFUSHORT&quot;: [true, [&quot;jwst_miri_ipc_0005.fits&quot;, &quot;jwst_miri_fringe_0018.fits&quot;, &quot;jwst_miri_linearity_0010.fits&quot;, &quot;jwst_miri_distortion_0010.asdf&quot;, &quot;jwst_miri_specwcs_0003.asdf&quot;, &quot;jwst_miri_drizpars_0001.fits&quot;, &quot;jwst_miri_v2v3_0003.asdf&quot;, &quot;jwst_miri_wavelengthrange_0001.asdf&quot;, &quot;jwst_miri_regions_0003.asdf&quot;, &quot;jwst_miri_wcsregions_0001.json&quot;, &quot;jwst_miri_flat_0036.fits&quot;, &quot;jwst_miri_saturation_0013.fits&quot;, &quot;jwst_miri_photom_0011.fits&quot;, &quot;jwst_miri_dark_0031.fits&quot;, &quot;jwst_miri_gain_0004.fits&quot;, &quot;jwst_miri_straymask_0006.fits&quot;, &quot;jwst_miri_reset_0018.fits&quot;, &quot;jwst_miri_lastframe_0018.fits&quot;, &quot;jwst_miri_mask_0013.fits&quot;, &quot;jwst_miri_readnoise_0005.fits&quot;]]}}
 </pre></div>
 </div>
 </div>
