@@ -106,11 +106,11 @@
                  </tr>
                  <tr>
                     <td width="20%" align="left" class="tdlabel">Delivery Date</td>
-                    <td>{{fileblob.delivery_date|seconds}}</td>
+                    <td>{{fileblob.delivery_date_str}}</td>
                  </tr>
                  <tr>
                     <td width="20%" align="left" class="tdlabel">Activation Date</td>
-                    <td>{{fileblob.activation_date|seconds}}</td>
+                    <td>{{fileblob.activation_date_str}}</td>
                  </tr>
                  {% if fileblob.type == "reference" %}
                      <tr>
@@ -129,7 +129,7 @@
                      </tr>
                       <tr>
                         <td width="20%" align="left" class="tdlabel">Useafter Date</td>
-                        <td>{{fileblob.useafter_date|seconds}}</td>
+                        <td>{{fileblob.useafter_date_str}}</td>
                      </tr>
                      <tr>
                         <td width="20%" align="left" class="tdlabel">Aperture</td>

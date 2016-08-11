@@ -1109,15 +1109,31 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
 
     @property
     def activation_date_str(self):
-        return timestamp.format_date(self.activation_date).split(".")[0]
+        return self._repr_date(self.activation_date)
 
     @property
     def delivery_date_str(self):
-        return timestamp.format_date(self.delivery_date).split(".")[0]
+        return self._repr_date(self.delivery_date)
 
     @property
     def useafter_date_str(self):
-        return timestamp.format_date(self.useafter_date).split(".")[0]
+        return self._repr_date(self.useafter_date)
+
+    
+
+    def _repr_date(self, dateobj):
+        """Clean up dates for web display,  replacing bogus defaults for uninitialized dates
+        (reasonable for some purposes, arguably confusing on pages) with the value N/A.
+
+        Return a string instead of an object,  formatted to seconds resolution.
+        """
+        if dateobj in [DEFAULT_ACTIVATION_DATE, DEFAULT_USEAFTER_DATE]:
+            datestr = "N/A"
+        else:
+            datestr = timestamp.format_date(dateobj).split(".")[0]   # YYYY-MM-DD HH:MM:SS
+        return datestr
+
+    
 
     # ===============================
 
