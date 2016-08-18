@@ -1,7 +1,11 @@
 # XXXXXXXX Late imports below
 
 CRDS_STATUS_FROM_ADDRESS = "crds-servers@stsci.edu"
-CRDS_STATUS_TO_ADDRESSES = ["jmiller@stsci.edu"]
+
+if server_usecase not in ["dev"]:
+    CRDS_STATUS_TO_ADDRESSES = ["crds-servers@stsci.edu", "redcat@stsci.edu"]
+else:
+    CRDS_STATUS_TO_ADDRESSES = ["crds-servers@stsci.edu"]    
 
 INGEST_HOST = "dmsinsvm.stsci.edu"
 
