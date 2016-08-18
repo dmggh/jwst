@@ -210,4 +210,3 @@ if DEBUG_EXTRAS:
         'TAG': 'div',
         'ENABLE_STACKTRACES' : True,
         }
-
