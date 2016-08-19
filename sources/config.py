@@ -17,6 +17,11 @@ CRDS_MOCK_ARCHIVE_PARAMETERS = None
 
 from site_config import *
 
+if server_usecase not in ["dev"]:
+    CRDS_STATUS_TO_ADDRESSES = ["crds-servers@stsci.edu", "redcat@stsci.edu"]
+else:
+    CRDS_STATUS_TO_ADDRESSES = ["crds-servers@stsci.edu"]    
+
 # install_dir is the server installation location,  with the exceptions of logs
 # this should be kept small.
 install_dir= install_root
