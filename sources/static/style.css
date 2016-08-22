@@ -346,3 +346,9 @@ td.diff {
 .bootstrap_a {
     color: #337ab7;
 }
+
+.simple_white {
+    background-color: white;
+    border: 0px solid white;
+}
+
