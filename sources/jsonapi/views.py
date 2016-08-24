@@ -900,6 +900,72 @@ def jpoll_abort(request, key):
 
 # ===============================================================
 
+STUBBED_VERSIONS =  {
+    'CAL_VER': '0.6.0noop.dev307',
+    'author': 'Warren J. Hack',
+    'descrip': 'JWST calibration processing step version reference file',
+    'history': 'Created by cal_ver_steps version 0.7.0.dev',
+    'instrument': 'SYSTEM',
+    'reftype': 'CALVER',
+    'versions': {'AlignRefsStep': None,
+                 'AmiAnalyzeStep': '0.7.0.dev',
+                 'AmiAverageStep': '0.7.0.dev',
+                 'AmiNormalizeStep': '0.7.0.dev',
+                 'AssignWcsStep': None,
+                 'BackgroundStep': None,
+                 'Combine1dStep': None,
+                 'CubeBuildStep': None,
+                 'DQInitStep': None,
+                 'DarkCurrentStep': None,
+                 'EmissionStep': None,
+                 'Extract1dStep': None,
+                 'Extract2dStep': None,
+                 'FlatFieldStep': None,
+                 'FringeStep': None,
+                 'HlspStep': None,
+                 'IPCStep': None,
+                 'ImprintStep': None,
+                 'JumpStep': None,
+                 'KlipStep': None,
+                 'LastFrameStep': None,
+                 'LinearityStep': None,
+                 'OutlierDetectionStep': None,
+                 'PersistenceStep': None,
+                 'PhotomStep': None,
+                 'RSCD_Step': None,
+                 'RampFitStep': None,
+                 'RefPixStep': None,
+                 'ResampleStep': None,
+                 'ResetStep': None,
+                 'SaturationStep': None,
+                 'SkyMatchStep': '0.1.0',
+                 'SourceCatalogStep': None,
+                 'StackRefsStep': None,
+                 'StraylightStep': None,
+                 'SubtractImagesStep': None,
+                 'SuperBiasStep': None,
+                 'TweakRegStep': '0.1.0',
+                 'TweakregCatalogStep': None,
+                 'WfsCombineStep': None
+                 }
+    }
+
+def  check_version(master_version):
+    assert re.match(r"[a-zA-Z\-\.0-9\_]{1,128}", master_version), "Invalid version string,  must be 1-128 chars of A-Z, a-z, 0-9, ., -, _"
+    return master_version
+
+@jsonrpc_method('get_system_versions(master_version=String, context=String)')
+def get_system_versions(request, master_version, context):
+    master_version = check_version(master_version)
+    if context.lower() in ["null", "none"]:
+        context = imodels.OBSERVATORY + "-operational"
+    context = check_context(context)
+    # simulate real world performance more closely
+    loaded = crds.get_symbolic_mapping(context)
+    return STUBBED_VERSIONS
+
+# ===============================================================
+
 #@jsonrpc_method('jsonapi.sayHello')
 #def whats_the_time(request, name='Lester'):
 #  return "Hello %s" % name
