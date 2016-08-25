@@ -951,7 +951,8 @@ STUBBED_VERSIONS =  {
     }
 
 def  check_version(master_version):
-    assert re.match(r"[a-zA-Z\-\.0-9\_]{1,128}", master_version), "Invalid version string,  must be 1-128 chars of A-Z, a-z, 0-9, ., -, _"
+    assert re.match(r"^[a-zA-Z\-\.0-9\_]{1,128}$", master_version), \
+        "Invalid version string,  must be 1-128 chars of A-Z, a-z, 0-9, ., -, _"
     return master_version
 
 @jsonrpc_method('get_system_versions(master_version=String, context=String)')
