@@ -1,6 +1,6 @@
 from crds.server.xjwst import restful
 from crds.server import config
-from crds import log
+from crds import log, python23
 
 BASE_URL = config.ARCHIVE_PARAMETER_SERVICE_URL
 
@@ -76,11 +76,15 @@ def get_dataset_headers_by_id(dataset_ids, matching_parameters):
         if did not in total_headers:  # Bad ID format
             total_headers[did] = "NOT FOUND bad ID format for " + repr(did)
         else:
-            if not total_headers[did]:  # OK format,  no database entry
+            header = total_headers[did]  # NOT a copy, mutate in place if needed
+            if header is None:
                 total_headers[did] = "NOT FOUND dataset ID does not exist " + repr(did)
-            else:
-                header = total_headers[did]
+            elif isinstance(header, python23.string_types):
+                pass
+            elif isinstance(header, dict):
                 for key, value in header.items():
                     if value is None:
                         header[key] = "UNDEFINED"
+            else:
+                total_headers[did] = "NOT FOUND unhandled parameter set format for " + repr(did)
     return total_headers
