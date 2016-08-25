@@ -70,6 +70,7 @@
 <li><a class="reference internal" href="#valid-dataset-ids">Valid Dataset IDs</a></li>
 <li><a class="reference internal" href="#matching-parameters-by-id">Matching Parameters By ID</a></li>
 <li><a class="reference internal" href="#aui-interface-for-best-references">AUI Interface for Best References</a></li>
+<li><a class="reference internal" href="#interface-for-calibration-s-w-versions">Interface for Calibration S/W Versions</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#jsonrpc-protocol">JSONRPC Protocol</a><ul>
@@ -521,6 +522,86 @@ Via: 1.1 jwst-crds.stsci.edu
 Transfer-Encoding: chunked
 
 {&quot;error&quot;: null, &quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;id&quot;: 1, &quot;result&quot;: {&quot;JW80500017001_02101_00001.MIRIFUSHORT&quot;: [true, [&quot;jwst_miri_ipc_0005.fits&quot;, &quot;jwst_miri_fringe_0018.fits&quot;, &quot;jwst_miri_linearity_0010.fits&quot;, &quot;jwst_miri_distortion_0010.asdf&quot;, &quot;jwst_miri_specwcs_0003.asdf&quot;, &quot;jwst_miri_drizpars_0001.fits&quot;, &quot;jwst_miri_v2v3_0003.asdf&quot;, &quot;jwst_miri_wavelengthrange_0001.asdf&quot;, &quot;jwst_miri_regions_0003.asdf&quot;, &quot;jwst_miri_wcsregions_0001.json&quot;, &quot;jwst_miri_flat_0036.fits&quot;, &quot;jwst_miri_saturation_0013.fits&quot;, &quot;jwst_miri_photom_0011.fits&quot;, &quot;jwst_miri_dark_0031.fits&quot;, &quot;jwst_miri_gain_0004.fits&quot;, &quot;jwst_miri_straymask_0006.fits&quot;, &quot;jwst_miri_reset_0018.fits&quot;, &quot;jwst_miri_lastframe_0018.fits&quot;, &quot;jwst_miri_mask_0013.fits&quot;, &quot;jwst_miri_readnoise_0005.fits&quot;]]}}
+</pre></div>
+</div>
+</div>
+<div class="section" id="interface-for-calibration-s-w-versions">
+<h3>Interface for Calibration S/W Versions<a class="headerlink" href="#interface-for-calibration-s-w-versions" title="Permalink to this headline">¶</a></h3>
+<p><strong>get_system_versions(master_version, context)</strong></p>
+<p>The versions of calibration software components for a particular s/w release
+will nominally be recorded in CRDS as reference files with type CALVER looked
+up from a corresponding rmap using a master version string.  The function of
+this service is really independent of that representation,  but nominally
+one reference file will describe versions for components of one s/w release.</p>
+<p>This <em>get_system_versions()</em> service will return a JSON object corresponding to
+the contents of the s/w versions reference file.  This interface should not
+however be construed as the definition of the file contents.</p>
+<p><em>master_version</em> is a string naming the overall version number for a
+calibration software release and used to select a particular versions reference
+file within a CRDS context.</p>
+<p><em>context</em> is a CRDS context name which is used to interpret <em>master_version</em> to
+define the versions reference file corresponding to an overall s/w
+release. Typically the string &#8220;jwst-operational&#8221; should be used to select the
+current default CRDS context in use in the JWST pipeline.  It is anticipated
+that the definitions of software versions should be relatively stable and
+additive as new contexts are generated. This parameter provides a mechanism for
+selecting non-default versions of CRDS rules to determine s/w versions.</p>
+<p>An example call using the CRDS Python client shows the conceptual
+nature of the interface,  the functional inputs and outputs:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">versions_obj</span> <span class="o">=</span> <span class="n">get_system_versions</span><span class="p">(</span><span class="s">&quot;0.6.0noop.dev307&quot;</span><span class="p">,</span> <span class="s">&quot;jwst-operational&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Printing the Python client return object in JSON format gives a more
+language agnostic view of the conceptual return value:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">versions_obj</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+<span class="go">{</span>
+<span class="go">&quot;CAL_VER&quot;: &quot;0.6.0noop.dev307&quot;,</span>
+<span class="go">&quot;author&quot;: &quot;Warren J. Hack&quot;,</span>
+<span class="go">&quot;descrip&quot;: &quot;JWST calibration processing step version reference file&quot;,</span>
+<span class="go">&quot;history&quot;: &quot;Created by cal_ver_steps version 0.7.0.dev&quot;,</span>
+<span class="go">&quot;instrument&quot;: &quot;SYSTEM&quot;,</span>
+<span class="go">&quot;reftype&quot;: &quot;CALVER&quot;,</span>
+<span class="go">&quot;versions&quot;: {</span>
+<span class="go">     &quot;AlignRefsStep&quot;: null,</span>
+<span class="go">     &quot;AmiAnalyzeStep&quot;: &quot;0.7.0.dev&quot;,</span>
+<span class="go">     &quot;AmiAverageStep&quot;: &quot;0.7.0.dev&quot;,</span>
+<span class="go">     &quot;AmiNormalizeStep&quot;: &quot;0.7.0.dev&quot;,</span>
+<span class="go">     &quot;AssignWcsStep&quot;: null,</span>
+<span class="go">      ...</span>
+<span class="go">     },</span>
+<span class="go"> ...</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+<p>where ... indicates that the full contents of the object are not being
+displayed.</p>
+<p>The following curl command line shows the full expansion of the same service
+example wrapped in the JSONRPC protocol in a language agnostic way:</p>
+<div class="highlight-python"><div class="highlight"><pre>curl -i -X POST -d &#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;method&quot;: &quot;get_system_versions&quot;, &quot;params&quot;: [&quot;0.6.0noop.dev307&quot;,&quot;null&quot;], &quot;id&quot;: 1}&#39; https://jwst-crds-dit.stsci.edu/json/
+HTTP/1.1 200 OK
+Date: Wed, 24 Aug 2016 22:33:04 GMT
+Vary: Cookie
+X-Frame-Options: SAMEORIGIN
+Content-Type: application/json-rpc
+Via: 1.1 jwst-crds-dit.stsci.edu
+Transfer-Encoding: chunked
+
+{&quot;error&quot;: null, &quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;id&quot;: 1, &quot;result&quot;: {&quot;reftype&quot;: &quot;CALVER&quot;, &quot;author&quot;: &quot;Warren J. Hack&quot;, &quot;versions&quot;: {&quot;TweakRegStep&quot;: &quot;0.1.0&quot;, &quot;SubtractImagesStep&quot;: null, &quot;RSCD_Step&quot;: null, &quot;CubeBuildStep&quot;: null, &quot;Extract1dStep&quot;: null, &quot;AmiAnalyzeStep&quot;: &quot;0.7.0.dev&quot;, &quot;Extract2dStep&quot;: null, &quot;BackgroundStep&quot;: null, &quot;SuperBiasStep&quot;: null, &quot;DarkCurrentStep&quot;: null, &quot;Combine1dStep&quot;: null, &quot;SaturationStep&quot;: null, &quot;LinearityStep&quot;: null, &quot;DQInitStep&quot;: null, &quot;ImprintStep&quot;: null, &quot;OutlierDetectionStep&quot;: null, &quot;AssignWcsStep&quot;: null, &quot;KlipStep&quot;: null, &quot;StackRefsStep&quot;: null, &quot;TweakregCatalogStep&quot;: null, &quot;SourceCatalogStep&quot;: null, &quot;PersistenceStep&quot;: null, &quot;StraylightStep&quot;: null, &quot;IPCStep&quot;: null, &quot;FlatFieldStep&quot;: null, &quot;ResetStep&quot;: null, &quot;RefPixStep&quot;: null, &quot;ResampleStep&quot;: null, &quot;AmiAverageStep&quot;: &quot;0.7.0.dev&quot;, &quot;FringeStep&quot;: null, &quot;AlignRefsStep&quot;: null, &quot;LastFrameStep&quot;: null, &quot;JumpStep&quot;: null, &quot;EmissionStep&quot;: null, &quot;WfsCombineStep&quot;: null, &quot;AmiNormalizeStep&quot;: &quot;0.7.0.dev&quot;, &quot;SkyMatchStep&quot;: &quot;0.1.0&quot;, &quot;PhotomStep&quot;: null, &quot;RampFitStep&quot;: null, &quot;HlspStep&quot;: null}, &quot;instrument&quot;: &quot;SYSTEM&quot;, &quot;descrip&quot;: &quot;JWST calibration processing step version reference file&quot;, &quot;CAL_VER&quot;: &quot;0.6.0noop.dev307&quot;, &quot;history&quot;: &quot;Created by cal_ver_steps version 0.7.0.dev&quot;}}
+</pre></div>
+</div>
+<p>This example shows the structure of a response string for a query with an error,
+&#8220;result&#8221; is set to null and &#8220;error&#8221; describes the problem in more detail,  most
+notably with the response.error.message string:</p>
+<div class="highlight-python"><div class="highlight"><pre>% curl -i -X POST -d &#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;method&quot;: &quot;get_system_versions&quot;, &quot;params&quot;: [&quot;an,invalid(version)&quot;,&quot;null&quot;], &quot;id&quot;: 1}&#39; https://jwst-crds-dit.stsci.edu/json/
+HTTP/1.1 200 OK
+Date: Wed, 24 Aug 2016 22:23:11 GMT
+Vary: Cookie
+X-Frame-Options: SAMEORIGIN
+Content-Type: application/json-rpc
+Via: 1.1 jwst-crds-dit.stsci.edu
+Transfer-Encoding: chunked
+
+{&quot;error&quot;: {&quot;message&quot;: &quot;OtherError: Invalid version string,  must be 1-128 chars of A-Z, a-z, 0-9, ., -, _&quot;, &quot;code&quot;: 500, &quot;data&quot;: null, &quot;name&quot;: &quot;OtherError&quot;}, &quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;id&quot;: 1, &quot;result&quot;: null}
 </pre></div>
 </div>
 </div>
