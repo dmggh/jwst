@@ -10,6 +10,7 @@ import zlib
 import gzip
 import os.path
 import glob
+import json
 
 from jsonrpc import jsonrpc_method
 from jsonrpc.exceptions import Error
@@ -30,7 +31,7 @@ from crds.server.jpoll import views as jviews
 from crds.server.interactive import submit
 
 from crds.client import proxy
-from crds import rmap, utils, log, timestamp, pysh, python23, heavy_client
+from crds import rmap, utils, log, timestamp, pysh, python23, heavy_client, exceptions
 import crds.config                     # generic client/server
 from crds.config import FILE_RE, check_filename
 import crds
@@ -900,56 +901,6 @@ def jpoll_abort(request, key):
 
 # ===============================================================
 
-STUBBED_VERSIONS =  {
-    'CAL_VER': '0.6.0noop.dev307',
-    'author': 'Warren J. Hack',
-    'descrip': 'JWST calibration processing step version reference file',
-    'history': 'Created by cal_ver_steps version 0.7.0.dev',
-    'instrument': 'SYSTEM',
-    'reftype': 'CALVER',
-    'versions': {'AlignRefsStep': None,
-                 'AmiAnalyzeStep': '0.7.0.dev',
-                 'AmiAverageStep': '0.7.0.dev',
-                 'AmiNormalizeStep': '0.7.0.dev',
-                 'AssignWcsStep': None,
-                 'BackgroundStep': None,
-                 'Combine1dStep': None,
-                 'CubeBuildStep': None,
-                 'DQInitStep': None,
-                 'DarkCurrentStep': None,
-                 'EmissionStep': None,
-                 'Extract1dStep': None,
-                 'Extract2dStep': None,
-                 'FlatFieldStep': None,
-                 'FringeStep': None,
-                 'HlspStep': None,
-                 'IPCStep': None,
-                 'ImprintStep': None,
-                 'JumpStep': None,
-                 'KlipStep': None,
-                 'LastFrameStep': None,
-                 'LinearityStep': None,
-                 'OutlierDetectionStep': None,
-                 'PersistenceStep': None,
-                 'PhotomStep': None,
-                 'RSCD_Step': None,
-                 'RampFitStep': None,
-                 'RefPixStep': None,
-                 'ResampleStep': None,
-                 'ResetStep': None,
-                 'SaturationStep': None,
-                 'SkyMatchStep': '0.1.0',
-                 'SourceCatalogStep': None,
-                 'StackRefsStep': None,
-                 'StraylightStep': None,
-                 'SubtractImagesStep': None,
-                 'SuperBiasStep': None,
-                 'TweakRegStep': '0.1.0',
-                 'TweakregCatalogStep': None,
-                 'WfsCombineStep': None
-                 }
-    }
-
 def  check_version(master_version):
     assert re.match(r"^[a-zA-Z\-\.0-9\_]{1,128}$", master_version), \
         "Invalid version string,  must be 1-128 chars of A-Z, a-z, 0-9, ., -, _"
@@ -957,13 +908,35 @@ def  check_version(master_version):
 
 @jsonrpc_method('get_system_versions(master_version=String, context=String)')
 def get_system_versions(request, master_version, context):
+    """This service looks up a SYSTEM CALVER reference based on `master_version` within
+    `context`,  loads it,  and returns it as an object.  The structure of the object is
+    outside the scope of CRDS.  Initial references are .json
+    """
     master_version = check_version(master_version)
     if context.lower() in ["null", "none"]:
         context = imodels.OBSERVATORY + "-operational"
     context = check_context(context)
     # simulate real world performance more closely
-    loaded = crds.get_symbolic_mapping(context)
-    return STUBBED_VERSIONS
+    header = {
+        "INSTRUME" : "SYSTEM",
+        "META.INSTRUMENT.NAME" : "SYSTEM",
+        "CAL_VER" : master_version,
+        "META.CALIBRATION_SOFTWARE_VERSION" : master_version,
+        "META.OBSERVATION.DATE": "2050-01-01",
+        "DATE-OBS" : "2050-01-01",
+        "META.OBSERVATION.TIME": "00:00:00",
+        "TIME-OBS" : "00:00:00",
+        }
+    log.set_verbose()
+    references = rmap.get_best_references(context, header, condition=True, include=["calver"])
+    calver_name = references["calver"]
+    if not calver_name.startswith("NOT FOUND") and crds.config.is_reference(calver_name):
+        calver_reference = crds.locate_file(references["calver"], imodels.OBSERVATORY)
+        with open(calver_reference) as handle:
+            contents = json.load(handle)
+    else:
+        raise exceptions.CrdsLookupError(calver_name)
+    return contents
 
 # ===============================================================
 
