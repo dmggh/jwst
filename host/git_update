@@ -4,9 +4,11 @@
 echo "-----------------------------------------------------------------------"
 git checkout -- crds/git_version.py
 echo "-----------------------------------------------------------------------"
+# This works for trunk but fails for a branch or tag...  which is good.
 git pull origin
 echo "-----------------------------------------------------------------------"
-git pull upstream master
+# This works for trunk but succeeds within a branch or tag...  which is unacceptable.
+# git pull upstream master
 echo "-----------------------------------------------------------------------"
 git status
 echo "-----------------------------------------------------------------------"
