@@ -102,7 +102,7 @@ class FileSubmission(object):
 
     @property
     def pmap(self):
-        return crds.get_pickled_mapping(self.pmap_name)
+        return crds.get_pickled_mapping(self.pmap_name)   # reviewed
         
     @property
     def upload_names(self):

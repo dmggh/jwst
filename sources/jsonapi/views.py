@@ -206,7 +206,7 @@ def _check_date_based_context(context, observatory):
             else:
                 context = _pmap_from_date(datestr, observatory)
     if instrument:
-        pmap = crds.get_pickled_mapping(context)
+        pmap = crds.get_pickled_mapping(context)  # reviewed
         try:
             instrument = check_instrument(instrument)
         except Exception:
@@ -540,7 +540,7 @@ def get_mapping_names(request, context):
     mappings = set()
     for pmap in context:
         pmap = check_context(pmap)
-        ctx = crds.get_pickled_mapping(pmap)
+        ctx = crds.get_cached_mapping(pmap)
         mappings = mappings.union(set(ctx.mapping_names()))
     return sorted(list(mappings))
 
@@ -551,7 +551,7 @@ def get_reference_names(request, context):
 
 @imodels.crds_cached
 def _get_reference_names(context):
-    ctx = crds.get_pickled_mapping(context)
+    ctx = crds.get_pickled_mapping(context)  # reviewed
     return ctx.reference_names()
 
 CRDS_JSONRPC_CHUNK_SIZE = 2**23    # 8M
@@ -576,7 +576,7 @@ def get_url(request, context, filename):
     """Based on `context` to determine observatory,  return the URL of `filename`."""
     context = check_context(context)
     check_filename(filename)
-    ctx = crds.get_pickled_mapping(context)
+    ctx = crds.get_pickled_mapping(context)  # reviewed
     return create_url(ctx.observatory, filename)
 
 @jsonrpc_method('get_file_info(observatory=Object, filename=String)')   # secure
@@ -585,7 +585,7 @@ def get_file_info(request, observatory, filename):
     try:
         observatory = check_observatory(observatory)
     except InvalidObservatoryError:   # originally this worked on context, not observatory,  now both.
-        observatory = crds.get_pickled_mapping(check_context(observatory)).observatory  # load mapping and fetch observ.
+        observatory = crds.get_pickled_mapping(check_context(observatory)).observatory  # load mapping and fetch observ.  # reviewed
     blob = check_known_file(filename)
     blob.thaw()
     return blob.info
@@ -627,7 +627,7 @@ def call_context_function(context, func_name, *args, **keys):
     """Based on `context`,  load an observtory specific version of `func_name`
     and call it with the remaining positional and keyword parameters.
     """
-    pmap = crds.get_pickled_mapping(context)
+    pmap = crds.get_pickled_mapping(context)  # reviewed
     func = utils.get_object("crds.server", "x" + pmap.observatory, func_name)
     return func(*args, **keys)
 
@@ -715,7 +715,7 @@ def get_server_info(request):
 @jsonrpc_method('get_required_parkeys(context=String)')   # secure
 def get_required_parkeys(request, context):
     context = check_context(context)
-    pmap = crds.get_pickled_mapping(context)
+    pmap = crds.get_pickled_mapping(context)  # reviewed
     return pmap.get_required_parkeys()
 
 # ===============================================================
@@ -734,14 +734,14 @@ def get_sqlite_db(request, observatory):
 def get_mapping_url(request, context, mapping):
     context = check_context(context)
     _blob = check_mapping(mapping)
-    ctx = crds.get_pickled_mapping(context)
+    ctx = crds.get_pickled_mapping(context)   # reviewed
     return create_url(ctx.observatory, mapping)
 
 @jsonrpc_method('get_reference_url(String, String)') # secure
 def get_reference_url(request, context, reference):
     context = check_context(context)
     _blob = check_reference(reference)
-    ctx = crds.get_pickled_mapping(context)
+    ctx = crds.get_pickled_mapping(context)  # reviewed
     return create_url(ctx.observatory, reference)
 
 # ===============================================================

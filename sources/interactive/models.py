@@ -421,7 +421,7 @@ def update_delivery_status():
 
 def _active_files(context):
     """Return the set of all filenames referred to by `context`."""
-    pmap = crds.get_pickled_mapping(context)
+    pmap = crds.get_cached_mapping(context)
     return set(pmap.mapping_names() + pmap.reference_names())
 
 @utils.cached
@@ -910,7 +910,7 @@ class FileBlobRepairMixin(object):
         def repair_activation_date(self):
             if self.type == "mapping":
                 for hist in reversed(get_context_history()):  # find earliest pmap which uses mapping
-                    pmap = crds.get_pickled_mapping(hist.context)
+                    pmap = crds.get_cached_mapping(hist.context)
                     if self.name in pmap.mapping_names():
                         self.activation_date = hist.start_date
                         break
@@ -940,7 +940,7 @@ class FileBlobRepairMixin(object):
 
         def repair_activation_date(self):
             for hist in reversed(get_context_history()):  # find earliest pmap which uses mapping
-                pmap = crds.get_pickled_mapping(hist.context)
+                pmap = crds.get_cached_mapping(hist.context)
                 names = pmap.mapping_names() + pmap.reference_names()
                 if self.name in names:
                     self.activation_date = hist.start_date
@@ -1141,7 +1141,7 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
     def blacklisted_by(self):
         if self.type != "mapping":
             return []
-        nested_mappings  = crds.get_pickled_mapping(self.name).mapping_names()
+        nested_mappings  = crds.get_pickled_mapping(self.name).mapping_names()  # reviewed
         return [str(blob.name) for blob in FileBlob.filter(rejected=True) if blob.name in nested_mappings]
 
     # ===============================

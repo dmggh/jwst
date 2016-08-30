@@ -94,6 +94,6 @@ def get_mapping_dict(mapping):
     if re.match(config.complete_re(r"operational|edit"), mapping):
         mapping = models.get_default_context(state=mapping)
     config.is_mapping(mapping)
-    loaded_mapping = crds.get_pickled_mapping(mapping)
+    loaded_mapping = crds.get_pickled_mapping(mapping)   # reviewed
     return mapping, loaded_mapping.todict()
 

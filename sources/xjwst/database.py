@@ -165,7 +165,7 @@ def get_dataset_headers_by_id(context, dataset_ids):
             log.warning("No instrument name found for dataset:", repr(dataset))
             headers[dataset.upper()] = "NOT FOUND No instrument name found for dataset"
 
-    pmap =  crds.get_pickled_mapping(context)
+    pmap =  crds.get_pickled_mapping(context)   # reviewed
     
     matching_params = { 
         instr : list((set(pmap.get_imap(instr).get_required_parkeys())-set(["REFTYPE"]))|set(["META.INSTRUMENT.NAME"])) 
