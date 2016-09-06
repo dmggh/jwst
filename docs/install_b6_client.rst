@@ -18,7 +18,7 @@ The CRDS client consists of a package of pure Python code suitable for installin
 a python-2.7.x or python-3.4.x environment.   Further, CRDS and calibration software 
 created by the Science Software Branch are managed, tracked, and distributed using 
 Continuum's Conda system so CRDS can be installed automatically via Conda in addition
-to a simple explicit source code install.
+to explicit source code install.
 
 Automatic installation as a dependency
 --------------------------------------
