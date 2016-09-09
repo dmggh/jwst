@@ -60,4 +60,5 @@ FORCE_REMOTE_MODE = False
 # ARCHIVE_PARAMETER_SERVICE_URL = "https://undefined-archive-parameter-service.stsci.edu:8888/crds"
 ARCHIVE_PARAMETER_SERVICE_URL = "http://iljwdmsdarcv.stsci.edu:8888/crds"
 
-CRDS_MOCK_ARCHIVE_PARAMETERS = "jwst-b6-params.json"
+CRDS_MOCK_ARCHIVE_PARAMETERS = "jwst-b7-params-dit-20160907.json"
+
