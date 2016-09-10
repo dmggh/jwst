@@ -453,10 +453,11 @@ using the <em>get_aui_best_references()</em> function.  The dataset ids must be
 compatible with those returned by <em>get_dataset_ids()</em> above.</p>
 <p><em>date</em> is a date-based CRDS context specifier, e.g.: jwst_0192.pmap,
 2015-05-25T00:00:27, jwst-operational</p>
-<p><em>ids</em> is a list of valid archive dataset ids.  For this interface for JWST it&#8217;s
-currently natural and supported to use either half (currently identical) of the
-dataset IDs as specified in get_dataset_ids() above.  Using a &#8220;half-ID&#8221; is shown
-below.</p>
+<p><em>ids</em> is a list of valid archive dataset ids.  For JWST it&#8217;s currently natural
+and supported to use either half (currently identical) of the dataset IDs as
+specified in get_dataset_ids() above.  Using a &#8220;half-ID&#8221; is shown below.
+Ultimately the first half will identify a group of exposures and the second
+half will identify a single exposure in the group.</p>
 <p>An examople call using the CRDS Python client is:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">get_aui_best_references</span><span class="p">(</span><span class="s">&quot;2016-01-01&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;JW82500001003_02102_00001.NRCA1&#39;</span><span class="p">,</span><span class="s">&#39;JW82500001003_02102_00001.NRCA3&#39;</span><span class="p">])</span>
 <span class="go">{&#39;JW82500001003_02102_00001.NRCA1&#39;: [True,</span>
@@ -503,7 +504,7 @@ error:</p>
 </pre></div>
 </div>
 <p>Code utilizing this service will have better performance if multiple IDs are
-requested per call.</p>
+requested per call.   A maximum of 500 ids should be requested per call.</p>
 <p>Although it is possible for errors to occur on a per-type basis, for this
 interface specific types which result in lookup errors (e.g. flat) are dropped
 from the results.  The net effect is that the list of files returned includes
