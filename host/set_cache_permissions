@@ -1,7 +1,8 @@
-#! /bin/tcsh -f -x
+#! /bin/tcsh -fx
 
 echo "Setting cache file permissions at `date`"
 chmod 444 ${CRDS_PATH}/mappings/${CRDS_PROJECT}/* 
 chmod 444 ${CRDS_PATH}/references/${CRDS_PROJECT}/*
 chmod 644 ${CRDS_PATH}/config/${CRDS_PROJECT}/* 
+chmod 644 ${CRDS_PATH}/pickles/${CRDS_PROJECT}/* 
 
