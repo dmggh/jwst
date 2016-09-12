@@ -35,12 +35,12 @@ cd ${CRDS}/CRDS_server
 
 # This synchronizes the local cache to the master server
 setenv CRDS_SERVER_URL $mirrored_server_url
+
 echo "-----------------------------------------------------"
 echo "Syncing mappings from $mirrored_server_url"
 echo "-----------------------------------------------------"
 cd ${CRDS}/CRDS_server
 python -m crds.sync --all --repair-files --check-sha1sum --purge-mappings --verbose --stats
-python -m crds.sync --all --clear-pickles --save-pickles --verbose --stats
 
 echo "-----------------------------------------------------"
 echo "Fast-Syncing references from $mirrored_server_url"
@@ -48,6 +48,12 @@ echo "-----------------------------------------------------"
 # setenv CRDS_DOWNLOAD_CHECKSUMS 0    # Omit sha1sum verification on initial download
 cd ${CRDS}/CRDS_server
 python -m crds.sync --all --repair-files --fetch-references --purge-references --purge-mappings --verbose --stats
+
+echo "-----------------------------------------------------"
+echo "Restoring pickles from $mirrored_server_url"
+echo "-----------------------------------------------------"
+cd ${CRDS}/CRDS_server
+python -m crds.sync --all --clear-pickles --save-pickles --verbose --stats
 
 # This checks the consistency of the database and server cache and delivery areas
 echo "-----------------------------------------------------"
