@@ -601,22 +601,7 @@ def get_file_info_map(request, observatory, files, fields):
     observatory = check_observatory(observatory)
     files = check_file_list(files)
     fields = check_field_list(fields)
-    filemap = imodels.get_fileblob_map(observatory=observatory)
-    if files is None:
-        files = filemap.keys()
-    if fields is None:
-        blob0 = filemap.values()[0]
-        blob0.thaw()
-        fields = blob0.info.keys()
-    result = {}
-    for name in files:
-        try:
-            blob = filemap[name]
-        except KeyError:
-            result[name] = "NOT FOUND"
-            continue
-        blob.thaw()
-        result[name] = { field:value for (field, value) in blob.info.items() if field in fields }
+    result = imodels.get_readonly_fileblob_map(observatory=observatory, files=files, fields=fields)
     return result
 
 MAX_HEADERS_PER_RPC = 5000

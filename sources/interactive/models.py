@@ -1423,6 +1423,26 @@ def get_fileblob_map(observatory=OBSERVATORY, **keys):
     """
     return { str(blob.name) : blob for blob in FileBlob.objects.filter(observatory=observatory, **keys) }
 
+@crds_cached
+def get_readonly_fileblob_map(observatory=OBSERVATORY, files=None, fields=None):
+    filemap = get_fileblob_map(observatory=observatory)
+    if files is None:
+        files = filemap.keys()
+    if fields is None:
+        blob0 = filemap.values()[0]
+        blob0.thaw()
+        fields = blob0.info.keys()
+    result = {}
+    for name in files:
+        try:
+            blob = filemap[name]
+        except KeyError:
+            result[name] = "NOT FOUND"
+            continue
+        blob.thaw()
+        result[name] = utils.Struct({ field:value for (field, value) in blob.info.items() if field in fields })
+    return result
+
 def set_state(filename, state):
     blob = FileBlob.load(filename)
     blob.state = state
