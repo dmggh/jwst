@@ -1989,7 +1989,7 @@ def recent_activity_post(request):
     return crds_render(request, "recent_activity_results.html", {
                 "filters": sorted(filters.items()),
                 "filtered_activities" : filtered_activities,
-                "fileblobs" : models.get_readonly_fileblob_map(),
+                "fileblobs" : models.get_fileblob_map(),
             })
 
 # ===========================================================================
@@ -2002,7 +2002,7 @@ def delivery_status(request):
     """Show a table of the catlog files reflecting file deliveries and their status."""
 
     auditblobs = [ blob for blob in models.AuditBlob.objects.all() if blob.thaw().filename.endswith(".cat") ]
-    fileblobs = models.get_fileblob_map()   # can't be readonly
+    fileblobs = models.get_fileblob_map()
 
     catalog_info = []
     for audit in auditblobs:
@@ -2012,8 +2012,8 @@ def delivery_status(request):
         status_class = "error"
         with log.error_on_exception("Failed interpreting catalog", repr(audit.filename)):
             files = sorted(open(os.path.join(sconfig.CRDS_CATALOG_DIR, audit.filename)).read().splitlines())
-            status = fileblobs[files[0]].status                  # XXX potentially mutates status
-            status_class = fileblobs[files[0]].status_class      # XXX potentially mutates status
+            status = fileblobs[files[0]].status
+            status_class = fileblobs[files[0]].status_class
         catalog_info.append(
                 dict(date=audit.date,
                      action=audit.action,
@@ -2506,7 +2506,6 @@ def get_context_history_variables(last_n=None):
     history_tuples = [ (hist, context_blobs[hist.context]) for hist in history ]
     return history, history_tuples
 
-@profile("edit_contxt_history.stats")
 @error_trap("edit_context_history.html")
 @login_required
 @log_view
@@ -2527,7 +2526,6 @@ def edit_context_history(request, history_id):
 
 # ============================================================================
 
-@profile("display_all_contexts.stats")
 @error_trap("base.html")
 @log_view
 def display_all_contexts(request):
@@ -2542,7 +2540,6 @@ def display_all_contexts(request):
 
 # ============================================================================
 
-@profile("old_results.stats")
 @error_trap("base.html")
 @log_view
 def old_results(request):
@@ -2569,7 +2566,6 @@ CATALOG_FIELDS = (
     ("activation_date_str", "Activation Date"),
 )
 
-@profile("context_table.stats")
 @error_trap("base.html")
 @log_view
 def context_table(request, mapping, recursive="10"):

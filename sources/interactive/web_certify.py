@@ -29,7 +29,7 @@ def certify_file_list(upload_tuples, check_references=True, context=None, compar
     
     where disposition is either "" or "bad files" and used to suppress confirmation.
     """
-    filemap = models.get_readonly_fileblob_map(models.OBSERVATORY)
+    filemap = models.get_fileblob_map(models.OBSERVATORY)
     certify_results = {}
     disposition = ""
     for (original_name, upload_path) in sorted(upload_tuples):
