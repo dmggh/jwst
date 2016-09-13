@@ -2576,6 +2576,7 @@ def context_table(request, mapping, recursive="10"):
     """Return either the top level context table HTML associated with a historical
     context display *or* the JSON representation of a .rmap context display.
     """
+    mapping = str(mapping)
     recursive = int(recursive)
     if mapping.endswith(".rmap"):
         header, rows = catalog_fusion.get_rmap_web_parameters(mapping, CATALOG_FIELDS)

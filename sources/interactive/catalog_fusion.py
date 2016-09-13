@@ -91,6 +91,7 @@ def get_fused_rmap_parameters(mapping, catalog_fields=models.FileBlob.fusion_ite
 
 def get_mapping_dict(mapping):
     """Given mapping spec `mapping`,  return the dictionary representation."""
+    mapping = str(mapping)
     if re.match(config.complete_re(r"operational|edit"), mapping):
         mapping = models.get_default_context(state=mapping)
     config.is_mapping(mapping)
