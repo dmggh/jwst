@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>CRDS User Manual &mdash; crds 1.9.0 documentation</title>
+    <title>CRDS User Manual &mdash; crds 7.0.5 documentation</title>
     
     <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.9.0',
+        VERSION:     '7.0.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="crds 1.9.0 documentation" href="#" />
+    <link rel="top" title="crds 7.0.5 documentation" href="#" />
     <link rel="next" title="Package Overview" href="installation.html" /> 
   </head>
   <body role="document">
@@ -37,7 +37,7 @@
         <li class="right" >
           <a href="installation.html" title="Package Overview"
              accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">crds 1.9.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="#">crds 7.0.5 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -82,19 +82,31 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Package Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html#installation">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#installation-via-ureka-or-conda">Installation via Ureka or Conda</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installation-via-astroconda">Installation via AstroConda</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#install-continuum-s-anaconda">Install Continuum&#8217;s Anaconda</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#set-up-astroconda-astronomy-specific-packages">Set up AstroConda astronomy specific packages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#install-crds-astroconda-contributed-package">Install CRDS AstroConda Contributed Package</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#pip-installation">Pip Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#installing-from-source">Installing from Source</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="installation.html#subversion-checkout">Subversion Checkout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#github-checkout">GitHub Checkout</a></li>
 <li class="toctree-l3"><a class="reference internal" href="installation.html#run-the-install-script">Run the Install Script</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#dependencies">Dependencies</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html#best-references-basics">Best references Basics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#crds-bestrefs-for-hst">CRDS bestrefs for HST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#crds-bestrefs-for-jwst">CRDS bestrefs for JWST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#default-onsite-use">Default Onsite Use:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#offsite-and-pipeline-use">Offsite and Pipeline Use:</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html#setting-up-your-environment">Setting up your Environment</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#basic-environment">Basic Environment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#setup-for-on-site-operartional-use-hst-or-jwst">Setup for On-site Operartional Use (HST or JWST)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#setup-for-on-site-operational-use-hst-or-jwst">Setup for On-site Operational Use (HST or JWST)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="installation.html#file-cache-location-crds-path">File Cache Location (CRDS_PATH)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="installation.html#server-selection-crds-server-url">Server Selection (CRDS_SERVER_URL)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="installation.html#onsite-crds-testing">Onsite CRDS Testing</a></li>
@@ -275,7 +287,7 @@
         <li class="right" >
           <a href="installation.html" title="Package Overview"
              >next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">crds 1.9.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="#">crds 7.0.5 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
