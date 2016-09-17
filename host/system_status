@@ -44,6 +44,11 @@ echo "-----------------------------------------------------------"
 du -h -c --max-depth 3 /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}
 
 echo "-----------------------------------------------------------"
+echo "Disk Space Used /grp/crds/${CRDS_PROJECT}"
+echo "-----------------------------------------------------------"
+du -h -c --max-depth 3 /grp/crds/${CRDS_PROJECT}
+
+echo "-----------------------------------------------------------"
 echo "Disk Space Used $HOME"
 echo "-----------------------------------------------------------"
 du -h -c --max-depth 3 $HOME
