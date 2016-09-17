@@ -32,6 +32,9 @@ observatory_module = utils.get_object("crds." + OBSERVATORY)
 
 CRDS_CACHE = cache.caches["crds_cache"]
 
+#  IMPORTANT:  crds_cached functions must cache on positional parameters only,
+#  using keyword parameters in a cached function results in permanent misses.
+
 def crds_cached(f):
     """Decorator to cache a function in the 'crds_cache'.
     This is distinct from 'default' because 'default' interacts with sessions
@@ -280,7 +283,7 @@ def mirror_filename_counters(observatory, official_path):
 # ============================================================================
 
 @crds_cached
-def get_bad_files(observatory=OBSERVATORY):
+def get_bad_files(observatory):
     """Return the current list of blacklisted or rejected files."""
     log.info("Computing bad files list.")
     fileblobs = get_fileblob_map(observatory)
@@ -495,7 +498,7 @@ def get_context_history(observatory=OBSERVATORY, state="operational"):
     # return [o for o in ContextHistoryModel.objects.all().reverse()]
 
 @crds_cached
-def get_context_history_tuples(observatory=OBSERVATORY):
+def get_context_history_tuples(observatory):
     """Return the history for `observatory` in list of tuples form."""
     history = get_context_history(observatory)
     history_tuples = []

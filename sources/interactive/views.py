@@ -938,7 +938,9 @@ def upload_alt_new(request, template="upload_alt_new.html"):
 
 # ===========================================================================
 
-def get_recent_pmaps(last_n=10, pmap_edit=None):
+@utils.cached
+@models.crds_cached
+def get_recent_pmaps(last_n, pmap_edit):
     """Return a list of option tuples for rendering HTML to choose recent
     pmaps (last 10). This defines what users will see for the context HTML
     drop-down menu.
