@@ -93,7 +93,7 @@ def get_mapping_dict(mapping):
     """Given mapping spec `mapping`,  return the dictionary representation."""
     mapping = str(mapping)
     if re.match(config.complete_re(r"operational|edit"), mapping):
-        mapping = models.get_default_context(state=mapping)
+        mapping = models.get_default_context(models.OBSERVATORY, mapping)
     config.is_mapping(mapping)
     loaded_mapping = crds.get_pickled_mapping(mapping)   # reviewed
     return mapping, loaded_mapping.todict()

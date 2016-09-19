@@ -202,7 +202,7 @@ def _check_date_based_context(context, observatory):
             filekind = parts[2] if len(parts) > 2 else None
             datestr = match.group("date")
             if datestr in ["edit", "operational"]:  # server defaults are "pseudo dates" :-)
-                context = imodels.get_default_context(observatory=observatory, state=datestr)
+                context = imodels.get_default_context(observatory, datestr)
             else:
                 context = _pmap_from_date(datestr, observatory)
     if instrument:
@@ -388,6 +388,15 @@ def check_username(username):
 
 @jsonrpc_method('list_mappings(observatory=String, glob_pattern=String)')   # secure
 def list_mappings(request, observatory, glob_pattern):
+    return _list_mappings(observatory, glob_pattern)
+
+# NOTE: Asynchronous delivery status that defines the availability of files complicates
+# caching here,  at a minimum update_delivery_status() shoud be hoisted outsite
+# the memory caching.  Updates to the file blob status should then invalidate the cache.
+# causing this function to re-execute making new files available.
+
+# @imodels.crds_cached
+def _list_mappings(observatory, glob_pattern):
     if observatory is None:
         observatory = sconfig.observatory
     check_observatory(observatory)
@@ -408,6 +417,15 @@ def list_mappings(request, observatory, glob_pattern):
 
 @jsonrpc_method('list_references(observatory=String, glob_pattern=String)')   # secure
 def list_references(request, observatory, glob_pattern):
+    return _list_references(observatory, glob_pattern)
+
+# NOTE:  See notes on Asynchronous delivery status above under list_mappings().
+
+# @imodels.crds_cached
+def _list_references(observatory, glob_pattern):
+    """List the *available* (as determined by pending deliveries and the CRDS database)
+    references found in the CRDS cache that match `glob_pattern.`
+    """
     if observatory is None:
         observatory = sconfig.observatory
     check_observatory(observatory)
@@ -530,9 +548,18 @@ def get_best_references_by_header_map(request, context, headers, reftypes):
             result[id] = (False, "FAILED: " + str(exc))
     return result
 
+# ===========================================================================================================
+
 @jsonrpc_method('get_mapping_names(context=Object)') # secure
 def get_mapping_names(request, context):
-    """Return the list of mappings referred to by `context` or a list of contexts."""
+    """Return the list of mappings referred to by `context` or a list of contexts as
+    defined by loading the mapping closure from the file system.
+    """
+    return _get_mapping_names(context)
+
+@imodels.crds_cached
+def _get_mapping_names(context):
+    """Return the list of mappings referred to by `context` or a list of contexts.""" 
     if isinstance(context, basestring):
         context = [context]
     elif not isinstance(context, (list, tuple)):
@@ -544,6 +571,8 @@ def get_mapping_names(request, context):
         mappings = mappings.union(set(ctx.mapping_names()))
     return sorted(list(mappings))
 
+# ===========================================================================================================
+
 @jsonrpc_method('get_reference_names(context=String)') # secure
 def get_reference_names(request, context):
     context = check_context(context)
@@ -551,8 +580,13 @@ def get_reference_names(request, context):
 
 @imodels.crds_cached
 def _get_reference_names(context):
+    """Return the list of references referred to by `context` as defined by fully loading
+    `context` from the file system.
+    """ 
     ctx = crds.get_pickled_mapping(context)  # reviewed
     return ctx.reference_names()
+
+# ===========================================================================================================
 
 CRDS_JSONRPC_CHUNK_SIZE = 2**23    # 8M
 
@@ -571,6 +605,8 @@ def get_file_chunk(request, context, filename, chunk):
     edata = base64.b64encode(data)
     return [chunks, edata]
 
+# ===========================================================================================================
+
 @jsonrpc_method('get_url(context=String, filename=String)')  # secure
 def get_url(request, context, filename):
     """Based on `context` to determine observatory,  return the URL of `filename`."""
@@ -578,6 +614,8 @@ def get_url(request, context, filename):
     check_filename(filename)
     ctx = crds.get_pickled_mapping(context)  # reviewed
     return create_url(ctx.observatory, filename)
+
+# ===========================================================================================================
 
 @jsonrpc_method('get_file_info(observatory=Object, filename=String)')   # secure
 def get_file_info(request, observatory, filename):
@@ -659,7 +697,7 @@ def get_default_context(request, observatory):
     if observatory is None:
         observatory = sconfig.observatory
     observatory = check_observatory(observatory)
-    return imodels.get_default_context(observatory, state="operational")
+    return imodels.get_default_context(observatory, "operational")
 
 @jsonrpc_method('get_context_by_date(date=String, observatory=String)')  # secure
 def get_context_by_date(request, date, observatory):
@@ -669,15 +707,23 @@ def get_context_by_date(request, date, observatory):
         observatory = check_observatory(observatory)
     return check_context(date, observatory)
 
+# ===========================================================================================================
+
 @jsonrpc_method('get_server_info()')   # secure
 def get_server_info(request):
+    """Core information about server configuration used to drive CRDS serverless operating modes."""
+    return _get_server_info()
+
+@imodels.crds_cached
+def _get_server_info():
+    """Memcached version of get_server_info(),  'request' is not cacheable."""
     version_info = versions.get_version("crds")
     version_info.pop("file", None)  # don't leak absolute path
     version_info["svnurl"] = "/" + "/".join(version_info["svnurl"].split("/")[3:])  # don't leak full url,  just branch
     info = {
-        "last_synced" : timestamp.now(),
-        "edit_context" : imodels.get_default_context(sconfig.observatory),
-        "operational_context" : imodels.get_default_context(sconfig.observatory, state="operational"),
+        "last_synced" : str(timestamp.now()),
+        "edit_context" : imodels.get_default_context(sconfig.observatory, "edit"),
+        "operational_context" : imodels.get_default_context(sconfig.observatory, "operational"),
         "bad_files" : " ".join(imodels.get_bad_files(sconfig.observatory)),
         "bad_files_list" : imodels.get_bad_files(sconfig.observatory),
         "force_remote_mode" : sconfig.FORCE_REMOTE_MODE,
@@ -722,6 +768,11 @@ def get_required_parkeys(request, context):
 
 @jsonrpc_method('get_sqlite_db(observatory=String)')    # secure
 def get_sqlite_db(request, observatory):
+    """Return the CRDS catalog database as a compressed, base64 encoded string."""
+    return _get_sqlite_db(observatory)
+
+@imodels.crds_cached
+def _get_sqlite_db(observatory):
     """Return the CRDS catalog database as a compressed, base64 encoded string."""
     observatory = check_observatory(observatory)
     db_path = crds_db.dump_sqlite_db(observatory)
@@ -905,6 +956,8 @@ def  check_version(master_version):
     assert re.match(r"^[a-zA-Z\-\.0-9\_]{1,128}$", master_version), \
         "Invalid version string,  must be 1-128 chars of A-Z, a-z, 0-9, ., -, _"
     return master_version
+
+# ===========================================================================================================
 
 @jsonrpc_method('get_system_versions(master_version=String, context=String)')
 def get_system_versions(request, master_version, context):

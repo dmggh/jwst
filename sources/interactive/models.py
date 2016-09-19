@@ -40,6 +40,7 @@ def crds_cached(f):
     This is distinct from 'default' because 'default' interacts with sessions
     and Django's own unit tests fail.
     """
+    # @common.profile(f.__name__ + ".stats")
     def wrapper(*args, **keys):
         raw_key = __name__ + "_" + f.func_name + "_" + str(args + tuple(sorted(keys.items())))
         raw_key = raw_key.replace("(","_").replace(")","_").replace("'","").replace(",","_").replace(" ","")
@@ -383,7 +384,7 @@ def update_activation_dates(context, activation_date, fileblob_map=None):
 def update_file_states(new_context=None, fileblob_map=None):
     """Interpret the catalog link for all files which are in a transitory state."""
     if new_context is None:
-        new_context = get_default_context(state="operational")
+        new_context = get_default_context(OBSERVATORY, "operational")
         log.info("Updating for operational files in", repr(new_context))
     active_files = _active_files(new_context)
     if fileblob_map is None:
@@ -459,7 +460,7 @@ def update_file_replacements(old_pmap, new_pmap, fileblob_map=None):
                 fileblob_map[old_rep].save()
 
 @crds_cached
-def get_default_context(observatory=OBSERVATORY, state="edit"):
+def get_default_context(observatory, state):
     """Return the latest context which is in `state`."""
     assert observatory == OBSERVATORY, "Bad observatory for this server."
     assert state in ["edit", "operational"],  "Invalid context state: " + repr(state) + " should be 'edit' or 'operational'"
@@ -564,6 +565,7 @@ class BlobModel(CrdsModel):
             blob[name] = self.enforce_type(name, getattr(self, name, old_blob.get(name, self.blob_fields[name].default)))
         self.blob = json_ext.dumps(blob)
         super(BlobModel, self).save()
+        clear_cache()
         
     def thaw(self):
         if hasattr(self, "_thawed"):

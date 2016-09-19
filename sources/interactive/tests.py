@@ -652,7 +652,7 @@ class InteractiveBase(TransactionTestCase):
         self.assert_no_errors(response)
         self.assertNotIn("ERROR", response.content)
         self.assertEqual(
-            models.get_default_context(observatory=self.observatory, state="operational"), 
+            models.get_default_context(self.observatory, "operational"), 
             new_context)
         first_history = models.get_context_history(
             observatory=self.observatory, state="operational")[0].context

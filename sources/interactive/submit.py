@@ -263,9 +263,9 @@ class FileSubmission(object):
         
         # Evaluate implicit pmap names *now*,  while locked!
         if self.pmap_mode == "pmap_edit":
-            self.final_pmap = models.get_default_context(models.OBSERVATORY, state="edit")
+            self.final_pmap = models.get_default_context(models.OBSERVATORY, "edit")
         elif self.pmap_mode == "pmap_operational":
-            self.final_pmap = models.get_default_context(models.OBSERVATORY, state="operational")
+            self.final_pmap = models.get_default_context(models.OBSERVATORY, "operational")
         else:
             self.final_pmap = self.pmap_name
         

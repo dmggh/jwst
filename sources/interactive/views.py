@@ -331,9 +331,9 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
 
 def get_pmap_template_vars(dict_):
     """Get the template variables required for the pmap selection accordion."""
-    pmap_edit = models.get_default_context()
+    pmap_edit = models.get_default_context(models.OBSERVATORY, "edit")
     pmap_edit_label = pmap_label(pmap_edit)
-    pmap_operational = models.get_default_context(state="operational")
+    pmap_operational = models.get_default_context(models.OBSERVATORY, "operational")
     pmap_operational_label = pmap_label(pmap_operational, pmap_edit)
     if dict_.get("pmap_initial_mode", "edit") == "edit":
         pmap_edit_checked = "checked"
@@ -471,9 +471,9 @@ def get_recent_or_user_mode_and_context(request):
     pmap_mode = validate(
             request, "pmap_mode", "pmap_menu|pmap_text|pmap_edit|pmap_operational")
     if pmap_mode == "pmap_edit":
-        context = models.get_default_context()
+        context = models.get_default_context(models.OBSERVATORY, "edit")
     elif pmap_mode == "pmap_operational":
-        context = models.get_default_context(state="operational")
+        context = models.get_default_context(models.OBSERVATORY, "operational")
     else:
         context = validate(request, pmap_mode, is_pmap)
     return pmap_mode, str(context)
@@ -1771,7 +1771,7 @@ def browse_known_file(request, filename):
     # used_by_files = list(uses.uses([filename], blob.observatory))
 
     if blob and blob.type == "reference":
-        context = models.get_default_context(blob.observatory)
+        context = models.get_default_context(blob.observatory, "edit")
         match_paths = matches.find_full_match_paths(context, filename)
         match_paths = [flatten(path) for path in match_paths]
     else:
@@ -1835,7 +1835,7 @@ def browsify_header(filename, browsed_file):
     context and format it as HTML.
     """
     ref_blob = models.FileBlob.load(os.path.basename(browsed_file))
-    default_context = models.get_default_context(ref_blob.observatory)
+    default_context = models.get_default_context(ref_blob.observatory, "edit")
     mapping = crds.get_symbolic_mapping(default_context)
     header = {}
     with log.error_on_exception("Failed getting minimum header for", repr(browsed_file)):
@@ -2374,7 +2374,7 @@ def mark_bad_post(request):
 
 def check_bad_file(blacklist_root):
     """Make sure `blacklist_root` does not appear in the operational context."""
-    pmap_name = models.get_default_context(state="operational")
+    pmap_name = models.get_default_context(models.OBSERVATORY, "edit")
     pmap = crds.get_symbolic_mapping(pmap_name)
     assert blacklist_root not in pmap.mapping_names() + pmap.reference_names(), \
         "File '{}' is in the current operational context '{}'.  Create a new context which does not contain " \
@@ -2436,10 +2436,10 @@ def get_default_description_for_set_context(new_context=None):
     operational context to `new_context`.  Return "" for anything hard.
     """
     if new_context is None:
-        new_context = models.get_default_context(observatory=models.OBSERVATORY, state="edit")
+        new_context = models.get_default_context(models.OBSERVATORY, "edit")
     with log.error_on_exception("Can't find default description for transition to", srepr(new_context)):
         mappings = rmap.list_mappings("*.pmap", observatory=models.OBSERVATORY)
-        old_context = models.get_default_context(observatory=models.OBSERVATORY, state="operational")
+        old_context = models.get_default_context(models.OBSERVATORY, "operational")
         ith = mappings.index(old_context)
         if ith+1 < len(mappings) and mappings[ith+1] == new_context:
             description = models.FileBlob.load(new_context).thaw().description
@@ -2464,7 +2464,7 @@ def get_context_pmaps(context_map):
 def update_default_context(new_default, description, context_type, user):
     """Do the work of choosing a new context."""
     is_available_file(new_default)
-    old_default = models.get_default_context(models.OBSERVATORY, state=context_type)
+    old_default = models.get_default_context(models.OBSERVATORY, context_type)
     if old_default == new_default:
         raise CrdsError(srepr(old_default) + " is already in use for the " + srepr(context_type) + " context.")
     pmap = crds.get_symbolic_mapping(new_default)
