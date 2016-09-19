@@ -62,3 +62,4 @@ ARCHIVE_PARAMETER_SERVICE_URL = "http://iljwdmsdarcv.stsci.edu:8888/crds"
 
 CRDS_MOCK_ARCHIVE_PARAMETERS = "jwst-b7-params-dit-20160907.json"
 
+# CRDS_STATUS_TO_ADDRESSES = ["crds-servers@stsci.edu", "redcat@stsci.edu"]
