@@ -1250,9 +1250,11 @@ def batch_submit_references_post(request):
 
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
+    simplified_uploads = [ name for (name, path) in uploaded_files.items() ]
+
     mail.crds_notification(body=mail.GENERIC_STARTED_BODY, status="STARTED",
             username=request.user.username, user_email=request.user.email, 
-            uploaded_files = uploaded_files, results_kind = "Batch Submit References",
+            uploaded_files = simplified_uploads, results_kind = "Batch Submit References",
             description = description, monitor_url=jpoll_handler.monitor_url)
 
     bsr = submit.BatchReferenceSubmission(pmap_name, uploaded_files, description,
@@ -1294,9 +1296,11 @@ def batch_submit_references_post(request):
     result = render_repeatable_result(
         request, "batch_submit_reference_results.html", bsr_results)
 
+    renamed_uploads = new_references_map.items()
+
     mail.crds_notification(body=mail.GENERIC_READY_BODY, status=status,
             username=request.user.username, user_email=request.user.email, 
-            uploaded_files = uploaded_files, results_kind = "Batch Submit References",
+            uploaded_files = renamed_uploads, results_kind = "Batch Submit References",
             description = description, repeatable_url=result.abs_repeatable_url)
     
     return redirect_jpoll_result(result, jpoll_handler)
