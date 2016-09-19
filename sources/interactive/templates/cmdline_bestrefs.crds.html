@@ -55,6 +55,9 @@ export uref="${CRDS_PATH}/references/hst/"</pre>
       <p><b>Onsite use</b> generally requires <b>no CRDS setup for JWST</b> and uses
         shared CRDS files located under <b>/grp/crds/cache</b>.
       </p>
+      <p/>
+      <pre class="code darkblue">
+# Typical onsite users and developers need no configuration for JWST.</pre>
       {% endif %}
 
       <p><b>For personal or offsite use</b>,  configuration requires 
@@ -98,6 +101,12 @@ export CRDS_SERVER_URL="https://jwst-crds.stsci.edu"</pre>
 
       <p>This defines where personal copies of CRDS files are stored and which
       CRDS server is used.</p>
+
+      <p>Non-standard onsite configurations (TEST, I&T, DEV) require similar 
+      setup and designation of the appropriate server and cache area.
+      </p>
+
+
 
       <h3>Assigning, obtaining, and caching reference files.</h3>
 
