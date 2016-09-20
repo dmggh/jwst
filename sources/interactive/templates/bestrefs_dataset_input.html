@@ -21,7 +21,7 @@
 
     <h3 title="Choose one method to define dataset parameters.">Dataset:</h3>
     <table width="100%">
-      <tr title="Find best references for uploaded dataset FITS parameters.">
+      <tr title="Find best references for uploaded dataset FITS parameters. Nominally this should be level-2b data but there are no formal restrictions on actual file use, experimentation is fine.  Uploads header metadata only.">
         <td class="h4">
             <input type="radio" name="dataset_mode" value="dataset_local" checked="checked" /><span>Upload FITS Header</span>
         </td>
@@ -40,7 +40,7 @@
         </td>
       </tr>
       {% if is_authenticated %}
-      <tr title="Find best references using an uploaded dataset file.">
+      <tr title="Find best references for and uploaded dataset file.  While slower,  this may work in situations where Javascript header extraction above fails.">
         <td class="h4">
            <input type="radio" title="Find best references using an uploaded dataset file."
                   name="dataset_mode" value="dataset_uploaded">Upload Dataset</input>
