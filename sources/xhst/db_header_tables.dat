@@ -146,6 +146,7 @@
           'aperture': 'stis_ref_data.ssr_aperture',
           'asn_id': 'assoc_member.asm_asn_id',
           'biasfile': 'stis_ref_data.ssr_biasfile',
+          'biascorr': 'stis_ref_data.ssr_biascorr',
           'binaxis1': 'stis_ref_data.ssr_binaxis1',
           'binaxis2': 'stis_ref_data.ssr_binaxis2',
           'bpixtab': 'stis_ref_data.ssr_bpixtab',
