@@ -1,11 +1,14 @@
 #! /usr/bin/env python
+from __future__ import print_function
+
 import sys
 
 selected = [int(x) for x in sys.argv[1:]]
 
 for line in sys.stdin:
-	words = [w.strip() for w in line.split()]
-	output = [ word for (i,word) in enumerate(words) if not selected or i in selected]
-	joined= " ".join(output)
-	if joined.strip():
-		print joined
+        words = [w.strip() for w in line.split()]
+        output = [ word for (i,word) in enumerate(words) if not selected or i in selected]
+        joined= " ".join(output)
+        if joined.strip():
+                print(joined)
+
