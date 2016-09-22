@@ -457,3 +457,8 @@ if server_config.observatory == "jwst":
 
         def test_get_aui_bestrefs_context(self):
             refs = self._get_aui_best_references_for_specifier(self.pmap)
+        
+        def test_get_system_versions(self):
+            versions = client.get_system_versions("0.6.0noop.dev331", "jwst_0209.pmap")
+
+

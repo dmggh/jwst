@@ -39,29 +39,31 @@
 
         {% if is_authenticated %}
             <div class="col-md-6">
-              <div class="title_bar">
-                <h3>Restricted Services
-                  {% if is_authenticated %}
-                      <span class='locked_instrument'>{{locked_instrument}}</span>  
-                  {% endif %}
-                </h3>
-              </div>
               <ol>
-                <li><a href="/certify/">Certify Files</a></li>
-                <li><a href="/difference/">Difference Files</a></li>
-                <li><a href="/delivery_status/">Delivery Status</a></li>
-                <li><a href="/set_password/">Change Password</a></li>
+                <div class="title_bar" style="text-indent: -3em;">
+                  <h3>Restricted Services
+                  </h3>
+                </div>
+                <li><a href="/certify/" title="Check uploaded files using the same ceritfier used for file submissions" >Certify Files</a></li>
+                <li><a href="/difference/" title="Compare two named or uploaded CRDS rules or reference files">Difference Files</a></li>
+                <li><a href="/delivery_status/" title="Infer archiving status from files in the delivery directory">Delivery Status</a></li>
+                <li><a href="/set_password/" title="Update your password">Change Password</a></li>
                 {% if user|in_group:"file_submission" %}
-                    <li><a href="/set_default_context/">Set Context</a></li>
+                    <li><a href="/set_default_context/" title="Choose the context everyone should use by default.  Afterward ask the pipeline operator to sync the CRDS cache">Set Context</a></li>
                 {% endif %}
                 {% if user|in_group:"file_submission" and locked_instrument %}
-                    <br/>
-                    <li><a href="/batch_submit_references/">Batch Submit References</a></li>
-                    <li><a href="/submit/reference/">Submit References</a></li>
-                    <li><a href="/submit/mapping/">Submit Mappings</a></li>
-                    <li><a href="/mark_bad/">Mark Files Bad</a></li>
-                    <li><a href="/add_existing/reference/">Add References</a></li>
-                    <li><a href="/delete/reference/">Delete References</a></li>
+                    <div class="title_bar" style="text-indent: -3em;">
+                      <h3>Routine Submission Services</h3>
+                    </div>
+                    <li><a href="/batch_submit_references/" title="Submit new references and generate corresponding CRDS rules">Batch Submit References</a></li>
+                    <li><a href="/submit/mapping/" title="Submit new rmaps, imaps, or pmaps.  Rmaps can also generate updated imaps and pmaps">Submit Mappings</a></li>
+                    <div class="title_bar" style="text-indent: -3em;">
+                      <h3>Advanced Services</h3>
+                    </div>
+                    <li><a href="/mark_bad/" title="Designate references or rules as scientifically invalid">Mark Files Bad</a></li>
+                    <li><a href="/submit/reference/" title="Submit new references only, no rules generation">Submit References</a></li>
+                    <li><a href="/add_existing/reference/" title="Add existing references into a context generating a new context">Add References</a></li>
+                    <li><a href="/delete/reference/" title="Remove references from a context generating a new context without them">Delete References</a></li>
                 {% endif %}
               </ol>
               
@@ -98,20 +100,20 @@
         $("#contents").hide();
     </script>
     <div id="operational_references_container" class="body_panel"> 
-        <h3 style="margin-top: 0px;">Operational References <span style="font-size: 0.7em;" class="gray">(under context {{pmap.header.name|browse}})</span></h3>
+        <h3 style="margin-top: 0px;" title="References in use in the pipeline.  This may lag deliveries">Operational References <span style="font-size: 0.7em;" class="gray">(under context {{pmap.header.name|browse}})</span></h3>
         {% include "context_table_body_include.html" %}
     </div>
 
     <div id="context_history_container" class="body_panel">
       <br/>
-      <h3 style="margin-top: 0px;">Context History <a href="/display_context_history/" class="tdlabel" style="font-size: 0.8em;">(more)</a></h3>
+      <h3 style="margin-top: 0px;" title="Dates of context use in pipeline">Context History <a href="/display_context_history/" class="tdlabel" style="font-size: 0.8em;">(more)</a></h3>
       {% include "context_history_include.html" %}        
     </div>        
 
     {% if is_authenticated %}
     <div id="remote_contexts_container" class="body_panel"> 
         <br/>
-        <h3 style="margin-top: 0px;">Remote Contexts</h3>
+        <h3 style="margin-top: 0px;" title="Shows pipeline CRDS cache synchronization status">Remote Contexts</h3>
         <table style="background-color: #EEEEEE;">
           <theader>
             <tr>
