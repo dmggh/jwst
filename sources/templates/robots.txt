@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /browse/
+Disallow: /difference/
+Disallow: /login/
+Disallow: /browse_db/
+Disallow: /recent_activity/
+Disallow: /bestrefs/
+Disallow: /bestrefs_explore/
+Disallow: /context_table/
+Disallow: /get/

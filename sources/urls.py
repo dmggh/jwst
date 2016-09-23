@@ -1,6 +1,7 @@
 from django.conf.urls import *
 
 from django.views.decorators.cache import cache_page
+from django.views.generic import TemplateView
 
 from jsonrpc import jsonrpc_site
 
@@ -19,6 +20,9 @@ MAX_AGE = None  # seconds,  or forever for None
 crds_cacher = cache_page(MAX_AGE, cache='crds_cache')
 
 urlpatterns = patterns('',
+
+    (r'^robots\.txt$', TemplateView.as_view(template_name="robots.txt")),
+
     # url(r'^json/browse/', 'jsonrpc.views.browse', name="jsonrpc_browser"), # for the graphical browser/web console only, omissible
 
     # Original json rpc POST URL format:   /json/

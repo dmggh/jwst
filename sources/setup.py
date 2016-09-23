@@ -51,7 +51,8 @@ PACKAGE_DIR = {
 
 PACKAGE_DATA = {
     '': [ 
-        "templates/*.html",
+        "templates/*",
+        "interactive/templates/*",
         "interactive/*.dat",
         "xhst/*.dat",
         "xjwst/*.dat",
