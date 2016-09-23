@@ -21,8 +21,8 @@ crds_cacher = cache_page(MAX_AGE, cache='crds_cache')
 
 urlpatterns = patterns('',
 
-    (r'^robots\.txt$', TemplateView.as_view(template_name="robots.txt")),
-
+    (r'^robots\.txt$', TemplateView.as_view(template_name="robots.txt", content_type='text/plain')),
+ 
     # url(r'^json/browse/', 'jsonrpc.views.browse', name="jsonrpc_browser"), # for the graphical browser/web console only, omissible
 
     # Original json rpc POST URL format:   /json/
