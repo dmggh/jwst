@@ -1,19 +1,13 @@
-#! /bin/tcsh
+#! /bin/tcsh -x
 
 if ( $#argv < 1 ) then
-    echo "usage: capture <context> [--strict] [bestrefs parameters...]"
+    echo "usage: capture <context> [--strict] [--no-update] [bestrefs parameters...]"
     echo
     echo "Captures the current catalog parameters in a regression test store for <context>"
     exit 1
 endif
 
 setenv REGRESS $CRDS/regress/`echo $1 | cut -d'.' -f1`
-if ( -e ${REGRESS} ) then
-    echo "Regression $REGRESS already exists.  Stopping capture."
-    echo "Remove $REGRESS to capture current catalog."
-    exit 2
-endif
-
 echo "Capturing regression inputs and results to $REGRESS"
 
 rm -rf $REGRESS
@@ -21,23 +15,9 @@ mkdir -p $REGRESS
 cd $REGRESS
 
 # Capture server headers to .json files,  comparing CRDS to catalog bestrefs
-mkdir -p ${REGRESS}/unaltered
-cd unaltered
 python -m crds.config --list |& tee capture_config.err
-crds_catalog_capture $* --no-update --dump-unique-errors --unique-errors-file INSTRUMENT_capture_unique_err.ids >& capture.err
+crds_catalog_capture $* --dump-unique-errors --unique-errors-file INSTRUMENT_capture_unique_err.ids >& capture.err
 summarize_bestrefs_log capture.err
 
-cp -r ${REGRESS}/unaltered ${REGRESS}/crds_updated
-
-cd ${REGRESS}/crds_updated
-python -m crds.config --list |& tee updated_config.err
-crds_json_regress $* --update --dump-unique-errors --unique-errors-file INSTRUMENT_update_unique_err.ids >& update.err
-summarize_bestrefs_log update.err
-
-cd ${REGRESS}/crds_updated
-python -m crds.config --list |& tee verify_config.err
-crds_json_regress $* --dump-unique-errors --unique-errors-file INSTRUMENT_verify_unique_err.ids >& verify.err
-summarize_bestrefs_log verify.err
-
-find ${REGRESS} -type f | xargs gzip -f
+gzip *.json *.errs
 

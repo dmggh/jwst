@@ -11,7 +11,7 @@ Unless --no-update is specified,  catalog bestrefs are replaced by CRDS bestrefs
 
 Add --compare-cdbs to see initial differences between CRDS and the cataloged bestrefs.
 
-Adding --strict is equivalent to --compare-cdbs --na-differences-matter --undefined-differences-matter.
+Adding --strict is equivalent to --na-differences-matter --undefined-differences-matter.
 """)
 
 if "--no-update" in sys.argv:

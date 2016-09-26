@@ -13,7 +13,7 @@ def main(base_command, context, args):
         command = base_command + " " + " ".join(args)
         command = command.replace("CONTEXT", context)
         command = command.replace("INSTRUMENT", instrument)
-        pysh.sh(command, trace_commands=True, raise_on_error=True)
+        pysh.sh(command, trace_commands=True)   # , raise_on_error=True)  raising kills subsequent intstruments,  undesirable.
 
 if __name__ == "__main__":
     pysh.usage("<base_command>  <context>  [remaining parameters...]", 2, help="""
