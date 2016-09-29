@@ -16,7 +16,7 @@ def mass_differences(pair_or_quad_tuples, connector=" --> ", push_status=lambda 
     the official file tree. Used for file submission and multiple generated files.
     """
     # key must be a string to json encode as a repeatable result.
-    diffs = { tup[0] +  connector + "<span class='blue'>" + tup[1] + "</span>" : 
+    diffs = { tup[0] +  connector + tup[1] : 
                 difference_core(*tup, push_status=push_status) for tup in pair_or_quad_tuples }
     return sorted(diffs.items())
 
