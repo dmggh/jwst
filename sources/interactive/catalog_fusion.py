@@ -62,7 +62,12 @@ def fix_meta_parameters(parameters):
     for the context display.
     """
     if isinstance(parameters, basestring):
-        return parameters.replace("META.","")
+        parameters = parameters.replace("META.","")
+        parameters = parameters.split(".")
+        for par in reversed(parameters):
+            if par != "NAME":
+                break
+        return par
     else:
         return tuple([fix_meta_parameters(par) for par in parameters])
 
