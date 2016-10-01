@@ -59,7 +59,8 @@ def webify_matching_keys(keys, normal_length):
 
 def fix_meta_parameters(parameters):
     """Web-hack for JWST,  ditch the wordy META. prefix on every parameter just
-    for the context display.
+    for the context display.   Since even the residual object paths are still 
+    lengthy,  split on "." and return the rightmost path element that is not "NAME".
     """
     if isinstance(parameters, basestring):
         parameters = parameters.replace("META.","")
