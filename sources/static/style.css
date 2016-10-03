@@ -352,3 +352,7 @@ td.diff {
     border: 0px solid white;
 }
 
+.browse_a {
+    text-decoration: underline;
+    color: blue;
+}

@@ -6,6 +6,7 @@ import re
 from django.utils import html
 
 from crds import rmap, pysh, config
+from crds.server.interactive import catalog_fusion
 
 GEIS_HEADER_RE = r"\w+(\.r\dh)"
 
@@ -51,6 +52,7 @@ def difference_core(file1_orig, file2_orig, file1_path=None, file2_path=None, pu
         # logical diffs are stored as json,  make json-ify-able items
         logical_diffs = [ diff.flat.items() for diff in filtered 
                          if "header" not in diff[-1] and "different" not in diff[-1] ]
+        logical_diffs = [ abbreviate_meta_pars(diff[:-1]) + [add_link(diff[-1])] for diff in logical_diffs]
         header_diffs = [ diff for diff in filtered 
                          if "header" in diff[-1] or 
                          ("different" in diff[-1] and "parameter lists" not in diff[-1]) ]
@@ -80,7 +82,25 @@ def difference_core(file1_orig, file2_orig, file1_path=None, file2_path=None, pu
        "file1" : file1_orig,
        "file2" : file2_orig,
     }
-    
+
+def add_link(diff):
+    """Convert quoted filenames in logical diff tuples into diffs with browseable links."""
+    label, value = diff
+    with_links = re.sub(
+        "([^']*')([^']+\.[^']+)('[^']*)", 
+        lambda match: (
+            match.group(1) + 
+            "<a href='/browse/{}' class='browse_a'>{}</a>".format(*(match.group(2),)*2) + 
+            match.group(3)),
+        value)
+    return (label, with_links)
+
+def abbreviate_meta_pars(diffs):
+    """Abreviate the JWST "META." parameter names."""
+    labels, values = zip(*diffs)
+    labels = catalog_fusion.fix_meta_parameters(labels)
+    return zip(labels, values)
+
 def boring_diff(diff):
     """Return True IFF a logical diff is more boring than normal,  i.e. routine formal header changes."""
     return (("replaced 'derived_from'" in diff[-1]) or 
