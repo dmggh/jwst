@@ -4,11 +4,11 @@
 
 {% for pitem in pmap.selections %}
     {% accordion  "<span class='bootstrap_a'>" pitem.0 "</span>" %}
-        <p><a href="/browse/{{pitem.1.header.name}}">{{pitem.1.header.name}}</a></p><br/>
+        <p><a href="/browse/{{pitem.1.header.name}}" class="browse_a">{{pitem.1.header.name}}</a></p><br/>
         {% for iitem in pitem.1.selections %}
             {% if iitem.1.name != "N/A" %}
                {% accordion "<span class='bootstrap_a'>" iitem.0 "</span> ---- <span class='green'>"  iitem.1.text_descr "</span>" %}
-                   <p><a href="/browse/{{iitem.1.header.name}}">{{iitem.1.header.name}}</a></p><br/>
+                   <p><a href="/browse/{{iitem.1.header.name}}" class="browse_a">{{iitem.1.header.name}}</a></p><br/>
                    <div class="rmap_tag" mapping_name="{{iitem.1.header.name}}"></div>
                {% endaccordion %}
             {% else %}

@@ -37,7 +37,7 @@ def webify_parameters(header, rows):
     for row in rows:
         filename = row[-1]
         if filename.upper() != "N/A":
-            web_row = row[:-1] + ("<a href='/browse/{0}'>{1}</a>".format(filename, filename),                      
+            web_row = row[:-1] + ("<a href='/browse/{0}' class='browse_a'>{1}</a>".format(filename, filename),                      
                                   "<input type='checkbox' value='{0}' />".format(filename),)
         else:
             web_row = row[:-1] + ('<span class="darkgray">N/A</span>', "")
