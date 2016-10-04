@@ -11,6 +11,7 @@ rm -rf installer4
 cp -r /eng/ssb/crds/installer4 .
 cd installer4/build
 
+mkdir -p ${CRDS_STACK}
 rm *.err
 ./meta clean >& /dev/null
 ./meta install @crds  |& tee ${CRDS_STACK}/crds.err
