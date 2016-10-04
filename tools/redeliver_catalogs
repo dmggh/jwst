@@ -21,6 +21,20 @@ def find_undelivered_catalogs():
     log.info("Found undelivered catalogs:", catalogs)
     return catalogs
 
+def reduce_to_existing(catalogs):
+    """Return the list of catalogs that actually exist as files in the
+    catalogs directory.   This supports redelivering a range of catalogs
+    after the file delivery directory has been wiped prior to truly 
+    delivering the files by filtering out duds.
+    """
+    existing = []
+    for catalog in catalogs:
+        if not os.path.exists(os.path.join(config.CRDS_CATALOG_DIR, catalog)):
+            log.info("Skipping missing catalog", catalog)
+            continue
+        existing.append(catalog)
+    return existing
+
 def wipe_delivered_files(files):
     """Remove any existing links for `files` from the delivery directory
     """
@@ -81,7 +95,7 @@ def main():
     elif "--catalogs" in sys.argv:
         sys.argv.remove("--catalogs")
         catalogs = sys.argv[1:]
-        redeliver_catalogs(catalogs)
+        redeliver_catalogs(reduce_to_existing(catalogs))
     elif "--files" in sys.argv:
         sys.argv.remove("--files")
         relink_filelist(sys.argv[1:])

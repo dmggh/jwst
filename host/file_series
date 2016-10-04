@@ -1,0 +1,22 @@
+#! /usr/bin/env pysh
+
+"""
+"""
+
+usage("<prefix> <suffix> <starting_n> <stopping_n> <format>", 5, 5,
+      """Prints a series of related filenames to stdout with the specified prefix followed by
+a number followed by a suffix.
+
+% file_series  jwst_ .cat 20 30 %d
+jwst_20.cat
+jwst_21.cat
+...
+jwst_29.cat
+jwst_30.cat
+""")
+
+program, prefix, suffix, start_n, stop_n, format = sys.argv
+
+for i in range(int(start_n), int(stop_n)+1):
+    print(prefix + format % i + suffix)
+
