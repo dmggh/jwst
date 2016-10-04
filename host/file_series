@@ -4,7 +4,9 @@
 """
 
 usage("<prefix> <suffix> <starting_n> <stopping_n> <format>", 5, 5,
-      """Prints a series of related filenames to stdout with the specified prefix followed by
+      """
+
+Prints a series of related filenames to stdout with the specified prefix followed by
 a number followed by a suffix.
 
 % file_series  jwst_ .cat 20 30 %d
