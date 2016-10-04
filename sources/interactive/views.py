@@ -2568,6 +2568,16 @@ def old_results(request):
 
 # ============================================================================
 
+@profile("uses.stats")
+@log_view
+def uses_view(request, filename):
+    """Return the list of files that use `filename` as a JSON list."""
+    filename = is_known_file(filename)
+    files = uses.uses([filename], models.OBSERVATORY)
+    return HttpResponse(json.dumps(files), content_type="application/json")
+
+# ============================================================================
+
 CATALOG_FIELDS = (
     ("activation_date_str", "Activation Date"),
 )

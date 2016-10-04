@@ -182,19 +182,9 @@
     </table>
 {% endaccordion %}
 
-{% comment %}
 {% accordion "Used By Files" %}
-    <p>
-        {% if used_by_files %}
-            {% for line in used_by_files %}
-                {{line|browse}}, 
-            {% endfor %}
-        {% else %}
-            <b>no files</b>
-        {% endif %}
-    </p>
+    <div class="uses_tag" filename="{{browsed_file}}"></div>    
 {% endaccordion %}
-{% endcomment %}
 
 {% if match_paths %}
     {% accordion "Lookup Patterns" %}
@@ -241,3 +231,52 @@
 <br/><br/>
 
 {% endblock contents %}
+
+{% block body_trailer %}
+<script type="text/javascript">
+$(function () {
+    $("#contents").hide();
+    $(".accordion").accordion({
+        change: function( event, ui ) {
+            console.log(event);
+            var div = $(ui.newContent).children("div.uses_tag");
+            if (!div) { 
+               return; 
+            };
+            if (div.html()) {
+                console.log("table already intialized")
+                return;
+            };
+            var filename = div.attr("filename");
+            var url = "/uses/" + filename;
+            if (!filename) {
+               console.log("no url,  skipping fetch.");
+               return;
+            };
+            console.log("Fetching " + url);
+            div.html($("<p class='green'>").html("Computing files using this one... (may take a long time)"));
+            $.ajax({
+                url : url,
+                context: document.body
+            }).done(function (json) {
+                div.hide();
+                var filelist = "";
+                for (var i=0; i<json.length; i++) {
+                       filelist += "<a href='/browse/" + json[i] + "' class='browse_a'>" + json[i] + "</a><span>,&nbsp;</span> ";
+                };
+                div.html("<p>" + filelist + "</p>");
+                div.show();
+            }).fail(function () {
+                div.hide();
+                div.html("Computation of used files failed.").css("color", "red");
+                div.show();
+            });
+        },
+    });
+    $("#contents").show();
+});
+</script>
+
+{% endblock body_trailer %}
+
+

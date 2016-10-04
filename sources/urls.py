@@ -79,6 +79,10 @@ urlpatterns = patterns('',
     url(r'^browse/(?P<filename>{0})$'.format(FILE_RE_STR), 
         crds_cacher(crds.server.interactive.views.browse_known_file)),
     url(r'^browse_db/$', 'crds.server.interactive.views.browse_db'),
+
+    url(r'^uses/(?P<filename>{0})$'.format(FILE_RE_STR),
+        crds.server.interactive.views.uses_view),
+
     url(r'^context_table/(?P<mapping>{0})/?$'.format(FILE_RE_STR, FILE_RE_STR),
         'crds.server.interactive.views.context_table'),
     url(r'^context_table/(?P<mapping>{0})/(?P<recursive>\d+)$'.format(FILE_RE_STR), 
