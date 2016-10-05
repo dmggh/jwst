@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import config
 # comes from pyetc.etc_web.config
 
@@ -27,7 +29,7 @@ if __name__ == '__main__' :
         setcmd=""
 
     def print_var(xx) :
-        print setcmd+xx+"='"+str(config.__dict__[xx])+"'"
+        print(setcmd+xx+"='"+str(config.__dict__[xx])+"'")
 
     if len(l) == 0 :
         for x in config.__dict__ :
