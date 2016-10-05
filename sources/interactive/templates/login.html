@@ -13,14 +13,17 @@
     <td style="font-size: 1.3em; text-align: right; color: darkblue;">{{ form.username.label_tag }}</td>
     <td>{{ form.username }}</td>
 </tr>
-<tr>
+<tr title="Certify users who are not also submitting should lock 'none'.">
     <td  style="font-size: 1.3em; text-align: right; color: darkblue;
     font-weight: bold;">Lock Instrument:</td> 
-    <td> {% include "select_instrument.html" %} </td>
+    <td>
+      {% include "select_instrument.html" %} 
+    </td>
 </tr>
 <tr>
     <td style="font-size: 1.3em; text-align: right; color: darkblue;">{{ form.password.label_tag }}</td>
     <td>{{ form.password }}</td>
+    <td></td>
 </tr>
 </table>
 
