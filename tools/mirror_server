@@ -80,7 +80,7 @@ rm -rf deliveries
 mkdir deliveries
 cd ${CRDS}/CRDS_server
 # tools/redeliver_catalogs --find-undelivered-catalogs
-tools/redeliver_catalogs --files `cat $deliveries_file`
+redeliver_catalogs --files `cat $deliveries_file`
 
 echo "-----------------------------------------------------"
 echo "Rechecking orphan files."
