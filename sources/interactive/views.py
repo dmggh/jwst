@@ -1006,8 +1006,10 @@ def bestrefs_post(request):
             header = data_file.get_free_header(dataset_path, original_name=dataset_name)
             header = utils.condition_header(header)
         elif dataset_mode == "dataset_local":
-            dataset_name = validate(request, "dataset_name", config.FILE_RE)
-            header = header_string_to_header(request.POST["dataset_local"])
+            # dataset_name = validate(request, "dataset_name", config.FILE_RE)
+            dataset_name = "Uploaded-Dataset-Header"
+            inputs = validate(request, "dataset_local", ".+")
+            header = header_string_to_header(inputs)
         elif dataset_mode == "dataset_archive":
             dataset_name = validate(request, "dataset_archive", common.DATASET_ID_RE)
             # If dataset is an association,  it will return multiple headers,  just show one.
@@ -1033,7 +1035,9 @@ def header_string_to_header(hstring):
     """
     header = {}
     for line in cStringIO.StringIO(str(hstring)):
-        words = line.split()
+        words = line.strip().split()
+        if not words:
+            continue
         key = words[0]
         value = " ".join(words[1:])
         value = utils.condition_value(value)
