@@ -201,7 +201,7 @@ def _check_date_based_context(context, observatory):
             instrument = parts[1] if len(parts) > 1 else None
             filekind = parts[2] if len(parts) > 2 else None
             datestr = match.group("date")
-            if datestr in ["edit", "operational"]:  # server defaults are "pseudo dates" :-)
+            if datestr in imodels.CONTEXT_TYPES:  # server defaults are "pseudo dates" :-)
                 context = imodels.get_default_context(observatory, datestr)
             else:
                 context = _pmap_from_date(datestr, observatory)
@@ -236,8 +236,9 @@ def check_context_date(date):
             raise Exception("Forced date error")
         return timestamp.parse_date(date)
     except Exception:
-        raise InvalidDateBasedContext("Invalid context date/time format '{0}' " \
-                                      "should be YYYY-MM-DDTHH:MM:SS | edit | operational", date)
+        raise InvalidDateBasedContext(
+            "Invalid context date/time format '{0}' "
+            "should be YYYY-MM-DDTHH:MM:SS | " + " | ".join(imodels.CONTEXT_TYPES), date)
 
 def check_datasets_since(date):
     if date is None:
@@ -722,8 +723,6 @@ def _get_server_info():
     version_info["svnurl"] = "/" + "/".join(version_info["svnurl"].split("/")[3:])  # don't leak full url,  just branch
     info = {
         "last_synced" : str(timestamp.now()),
-        "edit_context" : imodels.get_default_context(sconfig.observatory, "edit"),
-        "operational_context" : imodels.get_default_context(sconfig.observatory, "operational"),
         "bad_files" : " ".join(imodels.get_bad_files(sconfig.observatory)),
         "bad_files_list" : imodels.get_bad_files(sconfig.observatory),
         "force_remote_mode" : sconfig.FORCE_REMOTE_MODE,
@@ -754,6 +753,10 @@ def _get_server_info():
                 },
             },
         }
+
+    for context in imodels.CONTEXT_TYPES:
+        info[context + "_context"] = imodels.get_default_context(sconfig.observatory, context)
+
     return info
 
 # ===============================================================
@@ -967,7 +970,7 @@ def get_system_versions(request, master_version, context):
     """
     master_version = check_version(master_version)
     if context.lower() in ["null", "none"]:
-        context = imodels.OBSERVATORY + "-operational"
+        context = imodels.OBSERVATORY + "-versions"
     context = check_context(context)
     # simulate real world performance more closely
     header = {

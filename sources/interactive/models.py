@@ -299,7 +299,11 @@ def get_bad_files(observatory):
 
 # ============================================================================
 
-CONTEXT_TYPES = ["operational", "edit"]
+CONTEXT_TYPES = ["operational", "edit", "versions"]
+
+# operational == context in use by default (pipeline must sync)
+# edit == default derivation point for future rules creation (can be overridden during submission)
+# versions == defines context capable of handling all cal code version strings, probably last context
 
 # "default" is synonymous with "edit", the suggested derivation point for edits.
 
@@ -338,7 +342,7 @@ def set_default_context(context, observatory=OBSERVATORY, state="edit", descript
     """
     
     assert context.endswith(".pmap"), "context must be a .pmap"
-    assert state in ["edit", "operational"],  "Invalid context state: " + repr(state) + " should be 'edit' or 'operational'"
+    assert state in CONTEXT_TYPES,  "Invalid context state: " + repr(state) + " should be in " + repr(CONTEXT_TYPES)
     log.info("Setting '{}' default '{}' context to '{}'".format(observatory, state, context))
     model = ContextModel.get_or_create(observatory, state, "context")
     model.context = context
@@ -463,7 +467,7 @@ def update_file_replacements(old_pmap, new_pmap, fileblob_map=None):
 def get_default_context(observatory, state):
     """Return the latest context which is in `state`."""
     assert observatory == OBSERVATORY, "Bad observatory for this server."
-    assert state in ["edit", "operational"],  "Invalid context state: " + repr(state) + " should be 'edit' or 'operational'"
+    assert state in CONTEXT_TYPES,  "Invalid context state: " + repr(state) + " should be in " + repr(CONTEXT_TYPES)
     return str(ContextModel.get_or_create(observatory, state, "context").context)
 
 class ContextHistoryModel(CrdsModel):
