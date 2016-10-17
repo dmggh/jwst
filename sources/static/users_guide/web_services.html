@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Web Services &mdash; crds 7.0.5 documentation</title>
+    <title>Web Services &mdash; crds 7.0.8 documentation</title>
     
     <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '7.0.5',
+        VERSION:     '7.0.8',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="crds 7.0.5 documentation" href="index.html" />
+    <link rel="top" title="crds 7.0.8 documentation" href="index.html" />
     <link rel="next" title="CRDS Database Access" href="database.html" />
     <link rel="prev" title="Using the CRDS Web Site" href="web_site_use.html" /> 
   </head>
@@ -41,7 +41,7 @@
         <li class="right" >
           <a href="web_site_use.html" title="Using the CRDS Web Site"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.0.5 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 7.0.8 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -542,14 +542,13 @@ calibration software release and used to select a particular versions reference
 file within a CRDS context.</p>
 <p><em>context</em> is a CRDS context name which is used to interpret <em>master_version</em> to
 define the versions reference file corresponding to an overall s/w
-release. Typically the string &#8220;jwst-operational&#8221; should be used to select the
-current default CRDS context in use in the JWST pipeline.  It is anticipated
+release. Typically the string &#8220;null&#8221; should be used to select the current CRDS
+versions translation context in use in the JWST pipeline.  It is anticipated
 that the definitions of software versions should be relatively stable and
-additive as new contexts are generated. This parameter provides a mechanism for
-selecting non-default versions of CRDS rules to determine s/w versions.</p>
+additive as new contexts are generated.</p>
 <p>An example call using the CRDS Python client shows the conceptual
 nature of the interface,  the functional inputs and outputs:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">versions_obj</span> <span class="o">=</span> <span class="n">get_system_versions</span><span class="p">(</span><span class="s">&quot;0.6.0noop.dev307&quot;</span><span class="p">,</span> <span class="s">&quot;jwst-operational&quot;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">versions_obj</span> <span class="o">=</span> <span class="n">get_system_versions</span><span class="p">(</span><span class="s">&quot;0.6.0noop.dev307&quot;</span><span class="p">,</span> <span class="s">&quot;null&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Printing the Python client return object in JSON format gives a more
@@ -576,6 +575,23 @@ language agnostic view of the conceptual return value:</p>
 </div>
 <p>where ... indicates that the full contents of the object are not being
 displayed.</p>
+<p>The alternative abstract context identifier &#8220;jwst-versions&#8221; may be used en lieu
+of &#8220;null&#8221;.  The translation of the &#8220;jwst-versions&#8221; identifier is maintained on
+the CRDS server as a more literal context name such as &#8220;jwst_0059.pmap&#8221;.  The
+value associated with &#8220;jwst-versions&#8221; or &#8220;null&#8221; will nominally be updated on
+the CRDS server whenever a new master version is defined.</p>
+<p>The intended purpose of the &#8220;jwst-versions&#8221; tag is to name the most capable
+context for use in translating calibration master versions.  Unlike the
+abstract name &#8220;jwst-operational&#8221; that describes the default context used to
+define calibration references, it is anticipated that &#8220;jwst-versions&#8221; will
+never or rarely ever revert to older versions of CRDS rules.  This is because
+&#8220;version facts&#8221; should not in general change once they&#8217;re defined, 0.6.0 should
+mean the same thing in every epoch, whereas it&#8217;s valid for calibration
+reference assignments to change over time.</p>
+<p>Nevertheless, in the case of anomalous situations related to CAL_VER, alternate
+CRDS contexts may be explicitly named to specify different rules by which to
+translate master version names.  Alternately, the value associated with
+&#8220;jwst-versions&#8221; (or &#8220;null&#8221;) can be redefined on the CRDS server.</p>
 <p>The following curl command line shows the full expansion of the same service
 example wrapped in the JSONRPC protocol in a language agnostic way:</p>
 <div class="highlight-python"><div class="highlight"><pre>curl -i -X POST -d &#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;method&quot;: &quot;get_system_versions&quot;, &quot;params&quot;: [&quot;0.6.0noop.dev307&quot;,&quot;null&quot;], &quot;id&quot;: 1}&#39; https://jwst-crds-dit.stsci.edu/json/
@@ -704,7 +720,7 @@ shown here with FITS parkey names:</p>
         <li class="right" >
           <a href="web_site_use.html" title="Using the CRDS Web Site"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.0.5 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 7.0.8 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
