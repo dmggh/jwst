@@ -73,8 +73,11 @@ def orange(value):
 @stringfilter
 def minutes(value):  # handle str(datetime.datetime.now())
     """Return date & time formatted to minutes."""
-    parts = value.split(":")
-    return format_html_join(":", "{0}", ((part,) for part in parts[:-1]))
+    if value == "N/A":
+        return value
+    else:
+        parts = value.split(":")
+        return format_html_join(":", "{0}", ((part,) for part in parts[:-1]))
 
 @register.filter
 @stringfilter

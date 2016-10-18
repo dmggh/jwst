@@ -2137,9 +2137,9 @@ def render_browse_table_data(filtered_db, show_defects, authenticated=False):
     rows = []
     for db in filtered_db:
         rows.append([
-            stdtags.minutes(db.delivery_date),
-            stdtags.minutes(db.activation_date),
-            stdtags.minutes(db.useafter_date),
+            stdtags.minutes(db.delivery_date_str),
+            stdtags.minutes(db.activation_date_str),
+            stdtags.minutes(db.useafter_date_str),
             stdtags.browse(db.name),
             db.uploaded_as,
             db.aperture,
