@@ -395,6 +395,20 @@ context (or date) can be obtained as follows.</p>
 <span class="go"> &#39;JW80500018001_02101_00003.MIRIFUSHORT:JW80500018001_02101_00003.MIRIFUSHORT&#39;]</span>
 </pre></div>
 </div>
+<p>Alternately the abstract default context can be specified as &#8220;&lt;project&gt;-operational&#8221;, as in:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">get_dataset_ids</span><span class="p">(</span><span class="s">&quot;jwst-operational&quot;</span><span class="p">,</span> <span class="s">&quot;miri&quot;</span><span class="p">)</span>
+<span class="go">[&#39;JW80500017001_02101_00001.MIRIFUSHORT:JW80500017001_02101_00001.MIRIFUSHORT&#39;,</span>
+<span class="go"> &#39;J80500020001_02101_00001.MIRIFUSHORT:JW80500020001_02101_00001.MIRIFUSHORT&#39;,</span>
+<span class="go"> &#39;JW80500018001_02101_00001.MIRIFUSHORT:JW80500018001_02101_00001.MIRIFUSHORT&#39;,</span>
+<span class="go"> &#39;JW80500020001_02101_00001.MIRIFULONG:JW80500020001_02101_00001.MIRIFULONG&#39;,</span>
+<span class="go"> &#39;JW80500018001_02101_00002.MIRIFULONG:JW80500018001_02101_00002.MIRIFULONG&#39;,</span>
+<span class="go"> &#39;JW80500009001_02101_00001.MIRIMAGE:JW80500009001_02101_00001.MIRIMAGE&#39;,</span>
+<span class="go"> &#39;JW80500018001_02101_00001.MIRIFULONG:JW80500018001_02101_00001.MIRIFULONG&#39;,</span>
+<span class="go"> &#39;JW80500018001_02101_00002.MIRIFUSHORT:JW80500018001_02101_00002.MIRIFUSHORT&#39;,</span>
+<span class="go"> &#39;JW80500003001_02101_00001.MIRIMAGE:JW80500003001_02101_00001.MIRIMAGE&#39;,</span>
+<span class="go"> &#39;JW80500018001_02101_00003.MIRIFUSHORT:JW80500018001_02101_00003.MIRIFUSHORT&#39;]</span>
+</pre></div>
+</div>
 <p>Dataset IDs have a grammar like this for HST:</p>
 <div class="highlight-python"><div class="highlight"><pre>&lt;product_id&gt; : &lt;exposure_id&gt;
 </pre></div>
@@ -450,7 +464,10 @@ to compute best references associated with the specified dataset ids:</p>
 <p><strong>get_aui_best_references(date, ids)</strong></p>
 <p>The CRDS server can compute the best references for a list of data set ids
 using the <em>get_aui_best_references()</em> function.  The dataset ids must be
-compatible with those returned by <em>get_dataset_ids()</em> above.</p>
+compatible with those returned by <em>get_dataset_ids()</em> above.  Examples below
+are fully functional at this time but actual IDs and parameter sets may change
+during the course of development; use get_dataset_ids() documented above to
+obtain up-to-date example IDs.</p>
 <p><em>date</em> is a date-based CRDS context specifier, e.g.: jwst_0192.pmap,
 2015-05-25T00:00:27, jwst-operational</p>
 <p><em>ids</em> is a list of valid archive dataset ids.  For JWST it&#8217;s currently natural
@@ -504,7 +521,7 @@ error:</p>
 </pre></div>
 </div>
 <p>Code utilizing this service will have better performance if multiple IDs are
-requested per call.   A maximum of 500 ids should be requested per call.</p>
+requested per call.   A maximum of 200 ids should be requested per call.</p>
 <p>Although it is possible for errors to occur on a per-type basis, for this
 interface specific types which result in lookup errors (e.g. flat) are dropped
 from the results.  The net effect is that the list of files returned includes
