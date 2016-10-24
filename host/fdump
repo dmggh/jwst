@@ -1,0 +1,41 @@
+#! /usr/bin/env python
+from __future__ import print_function
+
+import sys
+from astropy.io import fits
+
+from crds.config import locate_file
+
+if len(sys.argv) == 1:
+        print("usage:", sys.argv[0], "<fits file> [<extension>=0 [<2D array index expr> = '']] [--sumarray_off] [--line_width <width>]")
+        sys.exit(1)
+elif len(sys.argv) == 2:
+        FITS_FILE = sys.argv[1]
+        EXTENSION = 0
+        INDEX_EXPR = ""
+elif len(sys.argv) == 3:
+        FITS_FILE = sys.argv[1]
+        EXTENSION = int(sys.argv[2])
+        INDEX_EXPR = ""
+elif len(sys.argv) == 4:
+        FITS_FILE = sys.argv[1]
+        EXTENSION = int(sys.argv[2])
+        INDEX_EXPR = sys.argv[3]
+else:
+        print("Too many parameters...")
+        sys.exit(2)
+
+FITS_FILE = locate_file(FITS_FILE, "jwst")
+
+data = fits.getdata(FITS_FILE, ext=EXTENSION)
+
+if isinstance(data, fits.FITS_rec):
+        indexed = eval("data" + INDEX_EXPR)
+        coldefs = indexed.names
+        print(type(data), data.shape)
+        print(coldefs)
+        for r in indexed:
+                print(str(r))
+else:
+        print(type(data), data.shape)
+        print(repr(eval("data" + INDEX_EXPR)))
