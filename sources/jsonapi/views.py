@@ -453,7 +453,7 @@ def get_best_references(request, context, header, reftypes):
     reftypes = check_reftypes(reftypes)
     return heavy_client.hv_best_references(context, header, include=reftypes, condition=True)
 
-MAX_BESTREFS_PER_RPC = 1000
+MAX_BESTREFS_PER_RPC = 200
 
 # ===========================================================================================================
 
@@ -466,12 +466,11 @@ def _get_best_references_by_ids(request, context, dataset_ids, reftypes, include
     a particular CRDS context which can be specified symbolically.
     """
     context = check_context(context)
+    if len(dataset_ids) > MAX_BESTREFS_PER_RPC:
+        raise InvalidDatasetIds("Get best references by ids limited to <= '{0}' datasets per call.", MAX_BESTREFS_PER_RPC)
     dataset_ids = check_dataset_ids(dataset_ids)
     reftypes = check_reftypes(reftypes)
     include_headers = check_boolean(include_headers)
-
-    if len(dataset_ids) > MAX_BESTREFS_PER_RPC:
-        raise InvalidDatasetIds("Get best references by ids limited to <= '{0}' datasets per call.", MAX_BESTREFS_PER_RPC)
 
     headers = get_simplified_dataset_headers_by_id(context, dataset_ids)
 
@@ -658,7 +657,7 @@ def get_file_info_map(request, observatory, files, fields):
         result[name] = { field:value for (field, value) in blob.info.items() if field in fields }
     return result
 
-MAX_HEADERS_PER_RPC = 5000
+MAX_HEADERS_PER_RPC = 200
 
 # ===============================================================
 
@@ -732,8 +731,8 @@ def _get_server_info():
         "crds_version" : version_info,
 
         # These define client:server limits,  not server:archive-web-service limits
-        "max_headers_per_rpc" : MAX_HEADERS_PER_RPC,
-        "max_bestrefs_per_rpc" : MAX_BESTREFS_PER_RPC,
+        "max_headers_per_rpc" : MAX_HEADERS_PER_RPC // 2,
+        "max_bestrefs_per_rpc" : MAX_BESTREFS_PER_RPC // 2,
 
         "reference_url": {
             "checked" : {
