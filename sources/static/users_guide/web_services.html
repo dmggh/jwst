@@ -444,7 +444,7 @@ references associated with processing that particular exposure.</p>
 The <em>get_dataset_headers_by_id()</em> function can be used to return the parameters required
 to compute best references associated with the specified dataset ids:</p>
 <p><em>context_specifier</em> is a date-based CRDS context specifier,  e.g.:  jwst_0192.pmap, 2015-05-25T00:00:27, jwst-operational</p>
-<p><em>ids</em> is a list of archive dataset id strings as shown above.</p>
+<p><em>ids</em> is a list of archive dataset id strings as shown above.   A maximum of 200 IDs should be requested per call.</p>
 <p><em>datasets_since</em> is an optional cut-off date for datasets.  If specified, only datasets acquired after that date are returned.</p>
 <p>An example call using the CRDS Python client is:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">get_dataset_headers_by_id</span><span class="p">(</span><span class="s">&quot;2016-01-01&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;JW96090001004_03101_00001.NRCB2&#39;</span><span class="p">],</span> <span class="bp">None</span><span class="p">)</span>
@@ -474,7 +474,8 @@ obtain up-to-date example IDs.</p>
 and supported to use either half (currently identical) of the dataset IDs as
 specified in get_dataset_ids() above.  Using a &#8220;half-ID&#8221; is shown below.
 Ultimately the first half will identify a group of exposures and the second
-half will identify a single exposure in the group.</p>
+half will identify a single exposure in the group.  A maximum of 200 ids should
+be requested per call.</p>
 <p>An examople call using the CRDS Python client is:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">get_aui_best_references</span><span class="p">(</span><span class="s">&quot;2016-01-01&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;JW82500001003_02102_00001.NRCA1&#39;</span><span class="p">,</span><span class="s">&#39;JW82500001003_02102_00001.NRCA3&#39;</span><span class="p">])</span>
 <span class="go">{&#39;JW82500001003_02102_00001.NRCA1&#39;: [True,</span>
@@ -520,8 +521,6 @@ error:</p>
 <span class="go">  &quot;NOT FOUND dataset ID does not exist &#39;JW96090001004_03101_00001.NRCB5&#39;&quot;]}</span>
 </pre></div>
 </div>
-<p>Code utilizing this service will have better performance if multiple IDs are
-requested per call.   A maximum of 200 ids should be requested per call.</p>
 <p>Although it is possible for errors to occur on a per-type basis, for this
 interface specific types which result in lookup errors (e.g. flat) are dropped
 from the results.  The net effect is that the list of files returned includes
