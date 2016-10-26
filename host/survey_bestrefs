@@ -1,0 +1,12 @@
+#! /bin/tcsh -f
+
+setenv output survey-bestrefs-`datetag`
+
+unsetenv CRDS_LOG_TIME
+
+mkdir -p $output
+cd $output
+python -m crds.bestrefs --stats --dump-unique-errors --profile=survey.stats  $* |& tee survey.err
+
+
+
