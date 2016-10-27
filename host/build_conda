@@ -1,24 +1,29 @@
-#! /bin/tcsh -f
+#! /bin/tcsh -fx
 
 setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda-2
 setenv META_PREFIX ${CRDS_STACK}
 
+cd ${CRDS}/crds_stacks
 rm -rf ${CRDS_STACK}.old
 mv ${CRDS_STACK} ${CRDS_STACK}.old
-mkdir ${CRDS_STACK}
-cd ${CRDS}/crds_stacks
 rm -rf installer4
 cp -r /eng/ssb/crds/installer4 .
 cd installer4/build
 
-mkdir -p ${CRDS_STACK}
-rm *.err
+rm -f *.err
 ./meta clean >& /dev/null
+
+# Set up miniconda
+wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O ./miniconda.sh
+bash ./miniconda.sh -b -p $CRDS_STACK
+rm miniconda.sh
+setenv PATH ${CRDS_STACK}/bin:${PATH}
+rehash 
+conda update --yes conda
+
 ./meta install @crds  |& tee ${CRDS_STACK}/crds.err
 ./meta clean >& /dev/null
-rm miniconda.sh
 
-setenv PATH ${CRDS_STACK}/bin:${PATH}
 rehash
 
 git status  |& tee ${CRDS_STACK}/git.status
