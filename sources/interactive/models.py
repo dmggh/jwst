@@ -1192,7 +1192,7 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
         self.set_fits_field("pedigree", "PEDIGREE")
         self.set_fits_field("reference_file_type", "REFTYPE")
         self.set_fits_field("useafter_date", "USEAFTER", timestamp.parse_date)
-        self.set_fits_field("comment", "DESCRIP")
+        self.set_fits_field("comment", "DESCRIP", condition=False)
         self.set_fits_field("aperture", self.aperture_keyword)
         self.set_fits_field("history", "HISTORY", condition=False)
  
