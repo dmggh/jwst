@@ -2560,17 +2560,28 @@ def old_results(request):
         if blob.page_template not in ["certify_results.html"]:
             result_blobs.append(blob)
     for blob in result_blobs:
-        blob.files = [ names[1] for names in blob.parameters.get("new_file_map", [])]
-        blob.files += [ names[1] for names in blob.parameters.get("uploaded_files_map", [])]
-        blob.files += [ name for name in blob.parameters.get("uploaded_basename", [])]
-        blob.files += [ name for name in blob.parameters.get("added_files", [])]
-        blob.files += [ name for name in blob.parameters.get("deleted_files", [])]
-        blob.files = sorted(set([str(name) for name in blob.files]))
+        new_file_map = blob.parameters.get("new_file_map", [])
+        if isinstance(new_file_map, dict):
+            new_file_map = new_file_map.items()
+        files = [ names[1] for names in new_file_map ]
+        files += [ names[1] for names in blob.parameters.get("uploaded_files_map", [])]
+        files += [ name for name in blob.parameters.get("uploaded_basename", [])]
+        files += [ name for name in blob.parameters.get("added_files", [])]
+        files += [ name for name in blob.parameters.get("deleted_files", [])]
+        blob.files = sorted(set([str(name) for name in files]))
     response = crds_render(request, "old_results.html", {
             "result_blobs" : result_blobs,
         }, requires_pmaps=False)
     response['Cache-Control'] = "no-cache"
     return response
+
+    del_results = {
+                "new_file_map" : new_mappings_map,
+                "uploaded_basenames" : [],
+                "deleted_files" : deleted_files,
+                "context_rmaps" : sorted(new_mappings_map.values()),
+            }
+
 
 # ============================================================================
 
