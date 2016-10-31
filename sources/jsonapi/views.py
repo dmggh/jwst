@@ -731,8 +731,8 @@ def _get_server_info():
         "crds_version" : version_info,
 
         # These define client:server limits,  not server:archive-web-service limits
-        "max_headers_per_rpc" : MAX_HEADERS_PER_RPC // 2,
-        "max_bestrefs_per_rpc" : MAX_BESTREFS_PER_RPC // 2,
+        "max_headers_per_rpc" : MAX_HEADERS_PER_RPC,
+        "max_bestrefs_per_rpc" : MAX_BESTREFS_PER_RPC,
 
         "reference_url": {
             "checked" : {
