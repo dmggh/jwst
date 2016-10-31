@@ -2563,6 +2563,8 @@ def old_results(request):
         blob.files = [ names[1] for names in blob.parameters.get("new_file_map", [])]
         blob.files += [ names[1] for names in blob.parameters.get("uploaded_files_map", [])]
         blob.files += [ name for name in blob.parameters.get("uploaded_basename", [])]
+        blob.files += [ name for name in blob.parameters.get("added_files", [])]
+        blob.files += [ name for name in blob.parameters.get("deleted_files", [])]
         blob.files = sorted(set([str(name) for name in blob.files]))
     response = crds_render(request, "old_results.html", {
             "result_blobs" : result_blobs,
