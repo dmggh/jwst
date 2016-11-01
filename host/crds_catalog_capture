@@ -29,7 +29,8 @@ else:
     strict = ""
     
 pysh.sh("crds_instrument_iter 'python -m crds.bestrefs --new-context CONTEXT' " + " ".join(sys.argv[1:]) + 
-        " --instrument INSTRUMENT --save-pickle INSTRUMENT.json ${update} ${strict} --stats ", 
+        " --instrument INSTRUMENT --save-pickle INSTRUMENT.json ${update} ${strict} --stats" +
+        " --dump-unique-errors --unique-errors-file INSTRUMENT_capture_unique_err.ids", 
         trace_commands=True, raise_on_error=True)
 
 

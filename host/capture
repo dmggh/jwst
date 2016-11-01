@@ -7,7 +7,8 @@ if ( $#argv < 1 ) then
     exit 1
 endif
 
-setenv REGRESS $CRDS/regress/`echo $1 | cut -d'.' -f1`
+# setenv REGRESS $CRDS/regress/`echo $1 | cut -d'.' -f1`
+setenv REGRESS $CRDS/regress/`datetag`
 echo "Capturing regression inputs and results to $REGRESS"
 
 rm -rf $REGRESS
@@ -16,7 +17,7 @@ cd $REGRESS
 
 # Capture server headers to .json files,  comparing CRDS to catalog bestrefs
 python -m crds.config --list |& tee capture_config.err
-crds_catalog_capture $* --dump-unique-errors --unique-errors-file INSTRUMENT_capture_unique_err.ids >& capture.err
+crds_catalog_capture $* >& capture.err
 summarize_bestrefs_log capture.err
 
 gzip *.json *.errs
