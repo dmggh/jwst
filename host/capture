@@ -1,4 +1,4 @@
-#! /bin/tcsh -x
+#! /bin/tcsh -fx
 
 if ( $#argv < 1 ) then
     echo "usage: capture <context> [--strict] [--no-update] [bestrefs parameters...]"
