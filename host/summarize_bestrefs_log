@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 #-*-python-*-
+from __future__ import print_function
 
 import sys
 
@@ -9,15 +10,15 @@ def main():
     pysh.usage("<log_file>", 1)
     log  = sys.argv[1]
     if log.endswith(".gz"):
-        print "Uncompressing", log
+        print("Uncompressing", log)
         pysh.sh("gunzip $log")
         uncompressed = log[:-3]
     else:
-        print "Log", log, "is not compressed"
+        print("Log", log, "is not compressed")
         uncompressed = log
     print pysh.out("cat $uncompressed | grep -v 'CRDS  : ERROR    instrument'")
     if log.endswith(".gz"):
-        print "Recompressing", log
+        print("Recompressing", log)
         pysh.sh("gzip $uncompressed")
 if __name__ == "__main__":
     main()

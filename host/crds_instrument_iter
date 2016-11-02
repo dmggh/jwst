@@ -9,7 +9,7 @@ from crds import pysh, client
 def main(base_command, context, args):
     """Run `base_command`"""
     client.dump_mappings(context)
-    for instrument in crds.get_cached_mapping(context).selections:
+    for instrument in sorted(crds.get_cached_mapping(context).selections):
         command = base_command + " " + " ".join(args)
         command = command.replace("CONTEXT", context)
         command = command.replace("INSTRUMENT", instrument)
