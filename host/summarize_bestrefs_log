@@ -16,7 +16,7 @@ def main():
     else:
         print("Log", log, "is not compressed")
         uncompressed = log
-    print pysh.out("cat $uncompressed | grep -v 'CRDS  : ERROR    instrument'")
+    print(pysh.out("cat $uncompressed | grep -v 'CRDS  : ERROR    instrument'"))
     if log.endswith(".gz"):
         print("Recompressing", log)
         pysh.sh("gzip $uncompressed")
