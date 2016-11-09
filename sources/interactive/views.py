@@ -1033,6 +1033,25 @@ def header_string_to_header(hstring):
     """Convert a string representing a FITS header into a dictionary, screening
     for illegal keys or values.
     """
+    try:
+        return _dict_header_format(hstring)
+    except Exception:
+        return _simple_header_format(hstring)
+
+def _dict_header_format(hstring):
+    """Enable users to cut-and-paste CRDS header dump dictionaries."""
+    header = ast.literal_eval(hstring)
+    for (key, value) in header.items():
+        value = utils.condition_value(value)
+        if not common.FITS_KEY_RE.match(key) and common.FITS_VAL_RE.match(value):
+            log.warning("Dropping illegal keyword '%s' with value '%s'." % (key, value))
+            continue
+        header[key] = value
+    return header
+        
+def _simple_header_format(hstring):
+    """Enable simple line based header format where each line is of the form: <key> <value>
+    """
     header = {}
     for line in cStringIO.StringIO(str(hstring)):
         words = line.strip().split()
