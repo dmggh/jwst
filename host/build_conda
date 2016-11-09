@@ -1,6 +1,8 @@
 #! /bin/tcsh -fx
 
-setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda-2
+setenv CONDA_NAME crds_conda-3
+
+setenv CRDS_STACK ${CRDS}/crds_stacks/$CONDA_NAME
 setenv META_PREFIX ${CRDS_STACK}
 
 cd ${CRDS}/crds_stacks
@@ -21,7 +23,11 @@ setenv PATH ${CRDS_STACK}/bin:${PATH}
 rehash 
 conda update --yes conda
 
-./meta install @crds  |& tee ${CRDS_STACK}/crds.err
+conda install --yes --file http://ssb.stsci.edu/conda/jwstdp-0.7.0rc/jwstdp-0.7.0rc2-linux-py27.0.txt
+conda remove --yes crds
+
+./meta install @crds2  |& tee ${CRDS_STACK}/crds2.err
+./meta install jwst |& tee ${CRDS_STACK}/jwst.err
 ./meta clean >& /dev/null
 
 rehash
