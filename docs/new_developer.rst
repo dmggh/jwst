@@ -146,7 +146,7 @@ Server Development Workflow
 % ./manage dbshell
 
 # Mirror the OPS server and latest official rules and references and database down to DEV
-% tools/mirror_server jwst ops https://jwst-crds.stsci.edu |& tee mirror_server.jwst.ops.err
+% mirror_server jwst ops https://jwst-crds.stsci.edu |& tee mirror_server.jwst.ops.err
 
 # Look at server log files
 % logs   # alias to go to log directory

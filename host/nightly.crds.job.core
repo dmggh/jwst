@@ -32,7 +32,7 @@ echo "============================================================"
 echo "Backing up server"
 echo "============================================================"
 cd ${CRDS}/CRDS_server
-tools/backup_server >& ${CRDS_CRON}/backup.${ETAIL}
+backup_server >& ${CRDS_CRON}/backup.${ETAIL}
 tail -100 ${CRDS_CRON}/backup.${ETAIL}
 
 echo "==========================================================="
@@ -57,7 +57,7 @@ echo "==========================================================="
 echo "Server orphan files check"
 echo "==========================================================="
 cd ${CRDS}/CRDS_server
-tools/orphan_files --verbose >& ${CRDS_CRON}/orphan_files.${ETAIL}
+orphan_files --verbose >& ${CRDS_CRON}/orphan_files.${ETAIL}
 tail -100 ${CRDS_CRON}/orphan_files.${ETAIL}
 
 echo "==========================================================="

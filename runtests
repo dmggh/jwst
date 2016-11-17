@@ -12,7 +12,7 @@ else
 endif
 
 if ($switch_port) then
-    tools/set_backup_url True
+    set_backup_url True
 else
     echo "================================================================================"
     echo "Testing on live server"
@@ -51,5 +51,5 @@ $TEST_CMD $* |& tee $LOG
 
 if ($switch_port) then
     cd ${CRDS}/CRDS_server
-    tools/set_backup_url False
+    set_backup_url False
 endif

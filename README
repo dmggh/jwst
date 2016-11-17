@@ -76,15 +76,15 @@ e.g.
 
 Typically dbbackup and restore are done by wrapper scripts in the tools directory:
 
-tools/backup_server
-tools/restore_server
+backup_server
+restore_server
 
 which implicitly use save sets for the current server.  the tools scripts also include
 aspects of the server from the file system in addition to the database.   The 1T+ file
 caches are not backed up,  if needed they are mirrored from another system or sync'ed
 from the archive (once available).
 
-tools/backup_server and tools/restore_server maintain backup files in two locations:
+backup_server and restore_server maintain backup files in two locations:
 
 * there is a private dated location (currently under $CRDS/...) containing multiple backups.
 
@@ -103,7 +103,7 @@ First,  on the source server:
 
 # login tlhstcrdsv1
 % server
-% tools/backup_server
+% backup_server
 
 That puts required backup files in the shared /eng/ssb/crds/...
 
@@ -111,13 +111,13 @@ Second,  on the destination server:
 
 # login dlhstcrdsv1
 % server
-% tools/mirror_server hst test https://hst-crds-test.stsci.edu |& tee mirror_server.hst.test.err
+% mirror_server hst test https://hst-crds-test.stsci.edu |& tee mirror_server.hst.test.err
 
 where the parameters to mirror_server specify the *source* server and the destination is
 implicitly the server of the current login.
 
 If the state of the mirrored server has changed since the nightly backup,  manually running the
-tools/backup_server script is required prior to mirroring in order to capture and mirror the latest
+backup_server script is required prior to mirroring in order to capture and mirror the latest
 state.
 
 If no state change has occurred since the nightly backup,  the source server backup step can be skipped.

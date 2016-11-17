@@ -219,7 +219,7 @@ initializations have been performed by cloning the database and server file
 area of the operational server using the server mirroring tool:
 
 % server
-% tools/mirror_server jwst ops https://jwst-crds.stsci.edu |& tee mirror_server.jwst.ops.err
+% mirror_server jwst ops https://jwst-crds.stsci.edu |& tee mirror_server.jwst.ops.err
 
 Mirroring the server as above will restore the database backup of the OPS server to
 the local B5IT server and make the server file system as consistent as possible.

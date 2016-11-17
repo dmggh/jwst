@@ -23,7 +23,7 @@ echo "-----------------------------------------------------------"
 echo "Moving server ${CRDS_PROJECT} ${CRDS_USECASE} to backup URL"
 echo "-----------------------------------------------------------"
 cd ${CRDS}/CRDS_server
-tools/set_backup_url True
+set_backup_url True
 source env.csh
 
 # This replaces the local database with the specified backup, presumably from the master server
@@ -60,7 +60,7 @@ echo "-----------------------------------------------------"
 echo "Checking and purging orphan files."
 echo "-----------------------------------------------------"
 cd ${CRDS}/CRDS_server
-tools/orphan_files #  --purge-delivery-errors
+orphan_files #  --purge-delivery-errors
 
 # This recreates the catalogs directory from a backup tarball.
 echo "-----------------------------------------------------"
@@ -79,14 +79,14 @@ cd ${CRDS_PATH}/../server_files
 rm -rf deliveries
 mkdir deliveries
 cd ${CRDS}/CRDS_server
-# tools/redeliver_catalogs --find-undelivered-catalogs
+# redeliver_catalogs --find-undelivered-catalogs
 redeliver_catalogs --files `cat $deliveries_file`
 
 echo "-----------------------------------------------------"
 echo "Rechecking orphan files."
 echo "-----------------------------------------------------"
 cd ${CRDS}/CRDS_server
-tools/orphan_files
+orphan_files
 
 echo "-----------------------------------------------------"
 echo "Copying monitor_reprocessing files from backup"
@@ -103,7 +103,7 @@ echo "-----------------------------------------------------"
 echo "Re-installing and restarting server ${CRDS_PROJECT} ${CRDS_USECASE}"
 echo "-----------------------------------------------------"
 cd ${CRDS}/CRDS_server
-tools/set_backup_url False
+set_backup_url False
 
 echo "-----------------------------------------------------------"
 echo "Resetting last context state of affected datasets client."
