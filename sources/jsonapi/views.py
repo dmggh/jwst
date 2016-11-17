@@ -453,7 +453,7 @@ def get_best_references(request, context, header, reftypes):
     reftypes = check_reftypes(reftypes)
     return heavy_client.hv_best_references(context, header, include=reftypes, condition=True)
 
-MAX_BESTREFS_PER_RPC = 200
+MAX_BESTREFS_PER_RPC = 1000
 
 # ===========================================================================================================
 
@@ -657,7 +657,7 @@ def get_file_info_map(request, observatory, files, fields):
         result[name] = { field:value for (field, value) in blob.info.items() if field in fields }
     return result
 
-MAX_HEADERS_PER_RPC = 200
+MAX_HEADERS_PER_RPC = 1000
 
 # ===============================================================
 
