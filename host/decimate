@@ -3,7 +3,18 @@
 
 from __future__ import print_function
 
-usage("[words...]", 1, 10**9, help="Print every 10th word")
+usage("N [words...]", 1, 10**9, help="Print N-1 of every N words")
 
-for i in range(0, len(sys.argv[1:]), 10):
-    print(sys.argv[i])
+def decimate(interval, words):
+    result = []
+    for i, word in enumerate(words):
+        if not (i % interval == 0):
+            result.append(word)
+    return result
+
+to_be_deleted = decimate(int(sys.argv[1]), sys.argv[2:])
+
+for word in to_be_deleted:
+    print(word)
+
+

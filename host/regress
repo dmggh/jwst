@@ -10,6 +10,8 @@ endif
 setenv REGRESS $CRDS/regress/`echo $1 | cut -d'.' -f1`
 echo "Running bestrefs regression using inputs from $REGRESS"
 
+mkdir -p $REGRESS/crds_updated
+
 cd $REGRESS/crds_updated
 gunzip *.gz
 python -m crds.list --config |& tee config.err

@@ -25,10 +25,10 @@ else:
 
 if "--strict" in sys.argv:
     sys.argv.remove("--strict")
-    strict = "--compare-cdbs --na-differences-matter --undefined-differences-matter"
+    strict = "--na-differences-matter --undefined-differences-matter"
 else:
-    strict = "--compare-cdbs"
+    strict = ""
 
-pysh.sh("crds_instrument_iter 'python -m crds.bestrefs --new-context CONTEXT ' ${context} " +
-        "--load-pickle INSTRUMENT.json ${update} ${strict} --stats " + " ".join(sys.argv[2:]))
+pysh.sh("crds_instrument_iter 'python -m crds.bestrefs --dump-cmdline --compare-source-bestrefs --new-context CONTEXT ' ${context} " +
+        " --load-pickle INSTRUMENT.json --profile=profile_INSTRUMENT.stats ${update} ${strict} --stats --dump-unique-errors " + " ".join(sys.argv[2:]))
 
