@@ -21,10 +21,10 @@ bash ./miniconda.sh -b -p $CRDS_STACK
 rm miniconda.sh
 setenv PATH ${CRDS_STACK}/bin:${PATH}
 rehash 
-conda update --yes conda
+conda update --quiet --yes conda
 
-conda install --yes --file http://ssb.stsci.edu/conda/jwstdp-0.7.0rc/jwstdp-0.7.0rc2-linux-py27.0.txt
-conda remove --yes crds
+conda install --quiet --yes --file http://ssb.stsci.edu/conda/jwstdp-0.7.0rc/jwstdp-0.7.0rc2-linux-py27.0.txt
+conda remove --quiet --yes crds
 
 ./meta install @crds2  |& tee ${CRDS_STACK}/crds2.err
 ./meta install jwst |& tee ${CRDS_STACK}/jwst.err
