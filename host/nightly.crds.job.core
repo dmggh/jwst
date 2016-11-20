@@ -18,7 +18,7 @@ echo "=========================================================="
 echo "Stack Build"
 echo "=========================================================="
 host/build_conda >& ${CRDS_CRON}/build_conda.${ETAIL}
-tail -100 ${CRDS_CRON}/build_stack.${ETAIL}
+tail -100 ${CRDS_CRON}/build_conda.${ETAIL}
     
 if ( "$CRDS_USECASE" != "ops" ) then
     echo "==========================================================="
