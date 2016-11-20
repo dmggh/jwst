@@ -588,25 +588,6 @@ def _get_reference_names(context):
 
 # ===========================================================================================================
 
-CRDS_JSONRPC_CHUNK_SIZE = 2**23    # 8M
-
-@jsonrpc_method('get_file_chunk(context=String, filename=String, chunk=Number)')   # secure
-def get_file_chunk(request, context, filename, chunk):
-    context = check_context(context)
-    blob = check_known_file(filename)
-    chunks = int(math.ceil(blob.size / CRDS_JSONRPC_CHUNK_SIZE))
-    if not isinstance(chunk, (int, float, basestring)) or math.floor(int(chunk)) != math.floor(chunk):
-        raise InvalidChunk("the specified chunk must be an integer index.")
-    if not (0 <= chunk < chunks):
-        raise InvalidChunk("the specified data chunk '{0}' is out of range.", chunk)
-    with open(blob.pathname, "rb") as infile:
-        infile.seek(chunk*CRDS_JSONRPC_CHUNK_SIZE)
-        data = infile.read(CRDS_JSONRPC_CHUNK_SIZE)
-    edata = base64.b64encode(data)
-    return [chunks, edata]
-
-# ===========================================================================================================
-
 @jsonrpc_method('get_url(context=String, filename=String)')  # secure
 def get_url(request, context, filename):
     """Based on `context` to determine observatory,  return the URL of `filename`."""
