@@ -980,3 +980,6 @@ def get_reference_info(instrument, reference):
     gen = refops.make_dicts(instrument.lower() + "_file", where="WHERE file_name='{}'".format(reference.lower()))
     return gen.next()
 
+# ----------------------------------------------------------------------------------------------------------
+def get_normalized_ids(dataset_ids):
+    return [did.upper() for did in dataset_ids]

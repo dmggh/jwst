@@ -6,6 +6,7 @@ import getpass
 from collections import OrderedDict, defaultdict, namedtuple
 import os.path
 import json
+import re
 
 import pyodbc
 
@@ -147,9 +148,6 @@ def get_dataset_headers_by_id(context, dataset_ids):
         _check_dataset_id(did)
 
     headers = dict()
-    dataset_ids = [ dataset.upper() for dataset in dataset_ids ]
-    dataset_ids = [ dataset + ":" + dataset if ":" not in dataset else dataset 
-                    for dataset in dataset_ids ]
 
     params = mock_params_by_ids(context, dataset_ids)
     if params:
@@ -189,6 +187,25 @@ def mock_params_by_ids(context, dataset_ids):
                 selected_params[dataset_id] = "NOT FOUND no parameter set for dataset."
     else:
         return {}
+
+# ----------------------------------------------------------------------------------------------------------
+# e.g.   jw90001001001_02101_00001_nis  -->  jw90001001001_02101_00001.nis
+# Hack fileset names into dotted format as a convenience
+
+JWST_FILESET_RE_STR = r"[A-Za-z0-9]{13}_[A-Za-z0-9]{5}_[A-Za-z0-9]{5}_[A-Za-z0-9]{3,10}"
+JWST_FILESET_RE = re.compile(config.complete_re(JWST_FILESET_RE_STR))
+
+def get_normalized_ids(dataset_ids):
+    normalized_ids = []
+    for dataset in dataset_ids:
+        dataset = dataset.upper()
+        if JWST_FILESET_RE.match(dataset):
+            parts = dataset.split("_")
+            dataset = "_".join(parts[:-1]) + "." + parts[-1]
+        if ":" not in dataset:
+            dataset = dataset + ":" + dataset
+        normalized_ids.append(dataset)
+    return normalized_ids
 
 # ---------------------------------------------------------------------------------------------------------
 

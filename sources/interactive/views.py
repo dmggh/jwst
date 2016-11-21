@@ -36,6 +36,7 @@ from astropy.io import fits as pyfits
 
 from crds import (rmap, utils, timestamp, uses, matches, log, config)
 from crds import (data_file, pysh)
+from crds import heavy_client
 from crds import CrdsError
 import crds
 
@@ -1117,7 +1118,9 @@ def captured_bestrefs(pmap, header):
     """
     old = log.set_verbose(60)  # problem here.
     try:
-        recommendations = rmap.get_best_references(pmap, header)
+        recommendations = heavy_client.getrecommendations(
+            header, context=pmap.name, observatory=pmap.observatory)
+        # recommendations = rmap.get_best_references(pmap, header)
     finally:
         log.set_verbose(old)
     return recommendations
