@@ -149,12 +149,14 @@ def get_dataset_headers_by_id(context, dataset_ids):
 
     headers = dict()
 
-    params = mock_params_by_ids(context, dataset_ids)
+    normalized_ids = get_normalized_ids(dataset_ids)
+
+    params = mock_params_by_ids(context, normalized_ids)
     if params:
         return params
 
     ids_by_instrument = defaultdict(list)
-    for dataset in dataset_ids:
+    for dataset in normalized_ids:
         for detector, instrument in DETECTOR_TO_INSTRUMENT.items():
             if detector.upper() in dataset.upper():
                 ids_by_instrument[instrument].append(str(dataset))
