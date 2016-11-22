@@ -57,7 +57,7 @@ echo >bestrefs_err.txt
     echo "$header on $date"; \
     echo "--------------------------------------------------------------------------------------------------------------"; \
     python -m crds.bestrefs --old-context $old_context --new-context $new_context \
-      --stats --print-update-counts --dump-unique-errors --print-affected \
+      --stats --print-update-counts --dump-unique-errors --print-affected --dump-cmdline \
       --na-differences-matter --undefined-differences-matter $switches $* >affected_ids.txt; \
     echo $status >bestrefs.status; \
 ) |& tee bestrefs_err.txt
