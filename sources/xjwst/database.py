@@ -192,7 +192,7 @@ def mock_params_by_ids(context, dataset_ids):
 # e.g.   jw90001001001_02101_00001_nis  -->  jw90001001001_02101_00001.nis
 # Hack fileset names into dotted format as a convenience
 
-JWST_FILESET_RE_STR = r"[A-Za-z0-9]{13}_[A-Za-z0-9]{5}_[A-Za-z0-9]{5}_[A-Za-z0-9]{3,10}"
+JWST_FILESET_RE_STR = r"[A-Za-z0-9]{13}_[A-Za-z0-9]{5}_[A-Za-z0-9]{5}_[A-Za-z0-9]{3,15}"
 JWST_FILESET_RE = re.compile(config.complete_re(JWST_FILESET_RE_STR))
 
 def get_normalized_ids(dataset_ids):
