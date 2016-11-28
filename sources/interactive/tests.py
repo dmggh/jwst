@@ -1,5 +1,4 @@
-
-"""Unit tess to exercise the interactive portions of the CRDS server."""
+"""Unit tests to exercise the interactive portions of the CRDS server."""
 
 import sys
 import os
@@ -889,9 +888,9 @@ else:  # JWST
             response = self.client.post("/certify/", {
                     "pmap_mode": "pmap_edit",
                     }, follow=True)
-            # print "certify post FITS response:", response.content
+            print "certify post FITS response:", response.content
             self.assert_no_errors(response)
             self.assertNotIn("ERROR", response.content)
-            self.assertEqual(response.content.count("OK"), 1)
-            self.assertEqual(response.content.count("Warnings"), 2)
+            self.assertEqual(response.content.count("OK"), 2)
+            self.assertEqual(response.content.count("Warnings"), 1)
 
