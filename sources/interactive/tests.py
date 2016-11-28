@@ -20,6 +20,8 @@ from django.contrib.auth.models import User
 
 class InteractiveBase(TransactionTestCase):
 
+    __test__ = False
+
     @classmethod
     def setUpClass(cls):
         
