@@ -59,6 +59,8 @@ def redeliver_catalogs(catalogs):
         with log.error_on_exception("Failed redelivering", repr(cat)):
             delivery =  submit.Delivery("fake user", models.OBSERVATORY, filepaths, "fake description", "fake action")
             delivery.deliver_make_links(catalog_path, filepaths)
+        deliveries = os.path.join(config.CRDS_DELIVERY_DIR, "*")
+        pysh.sh("chmod 444 ${deliveries}")
 
 def basecatalog(filename):
     """Given a catalog filename,  return the filename after removing any delivery processing suffix
