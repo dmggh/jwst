@@ -999,29 +999,29 @@ def bestrefs_post(request):
     pmap = crds.get_symbolic_mapping(context)
     dataset_mode = validate(
         request, "dataset_mode", "dataset_archive|dataset_uploaded|dataset_local")
-    try:
+    if dataset_mode == "dataset_uploaded":
+        uploaded_file = get_uploaded_file(request, "dataset_uploaded")
+        dataset_name = uploaded_file.name
+    elif dataset_mode == "dataset_local":
+        dataset_name = "Uploaded-Dataset-Header"
+    elif dataset_mode == "dataset_archive":
+        dataset_name = validate(request, "dataset_archive", common.DATASET_ID_RE)
+    with log.augment_exception("Problem getting dataset parameters for", srepr(dataset_name)):
+        # exception_class=CrdsError):
         if dataset_mode == "dataset_uploaded":
-            uploaded_file = get_uploaded_file(request, "dataset_uploaded")
             dataset_path = uploaded_file.temporary_file_path()
-            dataset_name = uploaded_file.name
             header = data_file.get_free_header(dataset_path, original_name=dataset_name)
             header = utils.condition_header(header)
         elif dataset_mode == "dataset_local":
-            # dataset_name = validate(request, "dataset_name", config.FILE_RE)
-            dataset_name = "Uploaded-Dataset-Header"
             inputs = validate(request, "dataset_local", ".+")
             header = header_string_to_header(inputs)
         elif dataset_mode == "dataset_archive":
-            dataset_name = validate(request, "dataset_archive", common.DATASET_ID_RE)
             # If dataset is an association,  it will return multiple headers,  just show one.
             headers = jsonapi_views.get_simplified_dataset_headers_by_id(context, [dataset_name])
             first = sorted(headers.keys())[0]
             header = headers[first]
-            if isinstance(header, basestring):
-                raise CrdsError(header)
-    except Exception as exc:
-        raise CrdsError("Problem getting header for dataset " +
-                        srepr(dataset_name) + ": " + str(exc))
+        if isinstance(header, basestring):
+            raise CrdsError(header)
 
     # base on the context and datset,  compute best references
     results = bestrefs_results(request, pmap, header, dataset_name)

@@ -527,7 +527,10 @@ def get_simplified_dataset_headers_by_id(context, dataset_ids):
             simplified_map[did] = header_map[did]
         except KeyError:
             try:
-                containing = [did2 for did2 in sorted_ids if did in did2]
+                # replace(".","_") is a hack to support JWST ID's in either .detector or _detector formats
+                # original JWST API has .detector but _detector is in common use in filenames.
+                # CRDS normalized ID for is .detector
+                containing = [did2 for did2 in sorted_ids if (did in did2) or (did in did2.replace(".","_"))]
                 simplified_map[did] = header_map[containing[0]]
             except KeyError:
                 continue
