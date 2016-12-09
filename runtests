@@ -2,7 +2,11 @@
 
 # usage: ./runtests <parameters to "manage.py test"...>
 
-cd ${CRDS}/CRDS_server
+# Django-1.8 syntax to run single test, e.g.:
+#
+# ./runtests live crds.server.interactive.tests.Jwst.test_certify_post_fits_uploaded
+
+echo "Script path:" $0
 
 if ( $1 == "live") then
     shift;
@@ -10,6 +14,8 @@ if ( $1 == "live") then
 else 
     set switch_port=1
 endif
+
+cd ${CRDS}/CRDS_server
 
 if ($switch_port) then
     set_backup_url True
@@ -28,14 +34,10 @@ echo "Removing any stale test databases"
 drop database test_crds_${CRDS_PROJECT}_${CRDS_USECASE};
 EOF
 
-cd sources
-
-
 # setenv TEST_CMD "python -u manage.py test --verbosity=2 --with-coverage --cover-erase --cover-html --cover-package=crds -cover-branches --cover-html-dir=$CRDS/CRDS_server/coverage"
 
 # Removed coverage switches due to incompatibility with django-1.8.2
-setenv TEST_CMD "python -u manage.py test --verbosity=2"
-
+setenv TEST_CMD "python -Wall -u -m crds.server.manage test --verbosity=2"
 
 if ($# > 0) then
     # subsequent parameters are apps to test
@@ -47,7 +49,14 @@ else
     echo "Running implied tests ALL"
     echo "================================================================================"
 endif
-$TEST_CMD $* |& tee $LOG
+setenv PROJ `capitalize $CRDS_PROJECT`
+cd ${CRDS_INSTALL_DIR}/python/lib/python/crds/server
+
+if ("$*" != "") then    
+    $TEST_CMD $* |& tee $LOG
+else
+    $TEST_CMD crds.server.jsonapi.tests.$PROJ crds.server.interactive.tests.$PROJ |& tee $LOG
+endif
 
 if ($switch_port) then
     cd ${CRDS}/CRDS_server
