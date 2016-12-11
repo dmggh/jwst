@@ -18,6 +18,7 @@ from django.db import transaction
 import crds
 from crds import (timestamp, rmap, utils, refactor, log, data_file, uses, diff, checksum)
 from crds import CrdsError
+from crds.log import srepr
 
 from crds.server.config import observatory as OBSERVATORY
 from crds.server.config import table_prefix as TABLE_PREFIX
@@ -886,26 +887,26 @@ class FileBlobRepairMixin(object):
         self.filekind = utils.get_file_properties(utils.file_to_observatory(self.pathname), self.pathname)[1]
         
     def repair_aperture(self):
-        self.set_fits_field("aperture", self.aperture_keyword)  # aperture_keyword from FileBlobModel multiple inheritance
+        self.set_metadata_field("aperture", ["APERTURE", "META.APERTURE.NAME"])  # aperture_keyword from FileBlobModel multiple inheritance
         
     def repair_useafter_date(self):
         self.useafter_date = DEFAULT_USEAFTER_DATE
         self.save()
         # try:
-        #     self.set_fits_field("useafter_date", "USEAFTER", timestamp.parse_date)
+        #     self.set_metadata_field("useafter_date", "USEAFTER", timestamp.parse_date)
         # except Exception:
 
     def repair_reference_file_type(self):
-        self.set_fits_field("reference_file_type", "REFTYPE")
+        self.set_metadata_field("reference_file_type", ["REFTYPE", "META.REFFILE.TYPE"])
 
     def repair_pedigree(self):
-        self.set_fits_field("pedigree", "PEDIGREE")
+        self.set_metadata_field("pedigree", ["PEDIGREE", "META.REFFILE.PEDIGREE"])
         if self.observatory == "jwst" and not self.pedigree:
             log.warning("Using JWST default PEDIGREE of DUMMY.")
             self.pedigree = "DUMMY"
 
     def repair_comment(self):
-        self.set_fits_field("comment", "DESCRIP")
+        self.set_metadata_field("comment", ["DESCRIP", "DESCRIPTION"])
 
     def repair_delivery_date(self):
         delivery_date = [ audit.date for audit in AuditBlob.filter(filename=self.name) 
@@ -913,7 +914,7 @@ class FileBlobRepairMixin(object):
         self.delivery_date = delivery_date
 
     def repair_history(self):
-        self.set_fits_field("history", "HISTORY", condition=False)
+        self.set_metadata_field("history", ["HISTORY"], condition=False)
 
     if OBSERVATORY == "hst":
         def repair_activation_date(self):
@@ -1181,42 +1182,56 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
         except:
             return "FileBlob-" + str(self.id)
 
-    @property
-    def aperture_keyword(self):
-        return {
-            "hst" : "APERTURE",
-            "jwst" : "META.APERTURE.NAME",
-            }[OBSERVATORY]
+    def init_metadata_fields(self):
+        """Extract metadata from the cataloged file and store it in the model.  Use the 
+        value from the first keyword found.
+        """
+        self.set_metadata_field("pedigree", ["PEDIGREE"])
+        self.set_metadata_field("reference_file_type", ["REFTYPE"])
+        self.set_metadata_field("useafter_date", ["USEAFTER", "META.REFFILE.USEAFTER"], timestamp.parse_date)
+        self.set_metadata_field("comment", ["DESCRIP", "DESCRIPTION"], condition=False) # displayed as DESCRIPTION, stored as comment in models
+        self.set_metadata_field("aperture", ["APERTURE", "META.APERTURE.NAME"])
+        self.set_metadata_field("history", ["HISTORY", "META.REFFILE.HISTORY"], condition=False)
 
-    def init_FITS_fields(self):
-        self.set_fits_field("pedigree", "PEDIGREE")
-        self.set_fits_field("reference_file_type", "REFTYPE")
-        self.set_fits_field("useafter_date", "USEAFTER", timestamp.parse_date)
-        self.set_fits_field("comment", "DESCRIP", condition=False)
-        self.set_fits_field("aperture", self.aperture_keyword)
-        self.set_fits_field("history", "HISTORY", condition=False)
- 
-    def set_fits_field(self, model_field, fitskey, sanitizer=lambda x: x, condition=True):
+    def set_metadata_field(self, model_field, keywords, sanitizer=lambda x: x, condition=True):
+        """Set `model_field` to the first of `keywords` found, optionally santizing the value, or
+        `condition`ing the value.
+        """
+        try:
+            value = self.get_one_of_metadata_field(keywords, condition)
+            value = sanitizer(value)
+            setattr(self, model_field, value)
+        except Exception as exc:
+            log.error("Setting field '%s' for '%s' failed: '%s'" % (model_field, (self.uploaded_as, self.name), exc))
+            setattr(self, model_field, "none")
+
+    def get_one_of_metadata_field(self, keywords, condition):
+        """Search the file corresponding to `self` for the first value of a
+        keyword in `keywords` that is not None and optionally `condition` the
+        value before returning it.  Return None if no keyword value is found.
+        """
         filename = self.uploaded_as or self.name
         if data_file.is_geis_data(self.pathname):
             read_from = self.pathname[:-1] + "h"
         else:
             read_from = self.pathname
-        try:
-            value = data_file.getval(read_from, fitskey, condition=condition)
-        except Exception as exc:
-            log.error("Fetching keyword '%s' from '%s' failed: '%s'" % (fitskey, read_from, exc))
-            return
-        try:
-            setattr(self, model_field, sanitizer(value))
-        except Exception as exc:
-            log.error("Setting field '%s' for '%s' failed: '%s'" % (model_field, (self.uploaded_as, self.name), exc))
+        for keyword in keywords:
+            with log.verbose_on_exception("Fetching keyword", srepr(keyword), "from", srepr(filename)):
+                return data_file.getval(read_from, keyword, condition=condition)
+        return None
 
     def add_slow_fields(self, allow_duplicates=False, sha1sum=None):
+        """Add catalog fields from this file which potentially take a long time to add,  like
+        `sha1sum` which may be passed as a pre-existing value.   Optionally reject
+        duplicate files identified by sha1sums if `allow_duplicates` is False. 
+
+        (Duplicate file submissions are a fairly common mistake, don't remove
+        without replacing.)
+        """
         self.thaw()
         log.info("Adding slow fields for",  self.moniker)
         if self.type == "reference" and self.name.endswith(".fits"):
-            self.init_FITS_fields()
+            self.init_metadata_fields()
         self.sha1sum = sha1sum or self.compute_checksum()
         self.blacklisted = len(self.blacklisted_by) > 0
         self.save()
