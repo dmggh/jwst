@@ -788,7 +788,8 @@ class FileBlobRepairMixin(object):
         "deliverer_email" : lambda self: not self.deliverer_email,
         "creator_name" : lambda self: not self.creator_name,
         "mapping_name_field": lambda self: rmap.is_mapping(self.name) and not self.name == rmap.fetch_mapping(self.name).name,
-        "history" :  lambda self : self.type.lower() == "reference" and self.history in ["none","NONE","None", None],
+        "history" :  lambda self : self.type.lower() == "reference" and self.history in ["none","NONE","None", None, ""],
+        "decription" : lambda self : self.type.lower() == "reference" and self.description in ["none", "NONE", "None", None, ""],
         # "history" :  lambda self : self.type.lower() == "reference",
         "useafter_date" : lambda self: self.useafter_date_str == str(DEFAULT_ACTIVATION_DATE).split(".")[0] and self.type != "mapping"
     }
@@ -906,7 +907,7 @@ class FileBlobRepairMixin(object):
             self.pedigree = "DUMMY"
 
     def repair_comment(self):
-        self.set_metadata_field("comment", ["DESCRIP", "DESCRIPTION"])
+        self.set_metadata_field("comment", ["DESCRIP", "DESCRIPTION", "META.REFFILE.DESCRIPTION"])
 
     def repair_delivery_date(self):
         delivery_date = [ audit.date for audit in AuditBlob.filter(filename=self.name) 
@@ -914,7 +915,7 @@ class FileBlobRepairMixin(object):
         self.delivery_date = delivery_date
 
     def repair_history(self):
-        self.set_metadata_field("history", ["HISTORY"], condition=False)
+        self.set_metadata_field("history", ["HISTORY", "META.REFFILE.HISTORY"], condition=False)
 
     if OBSERVATORY == "hst":
         def repair_activation_date(self):
@@ -1186,10 +1187,10 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
         """Extract metadata from the cataloged file and store it in the model.  Use the 
         value from the first keyword found.
         """
-        self.set_metadata_field("pedigree", ["PEDIGREE"])
-        self.set_metadata_field("reference_file_type", ["REFTYPE"])
+        self.set_metadata_field("pedigree", ["PEDIGREE", "META.REFFILE.PEDIGREE"])
+        self.set_metadata_field("reference_file_type", ["REFTYPE", "META.REFFILE.TYPE"])
         self.set_metadata_field("useafter_date", ["USEAFTER", "META.REFFILE.USEAFTER"], timestamp.parse_date)
-        self.set_metadata_field("comment", ["DESCRIP", "DESCRIPTION"], condition=False) # displayed as DESCRIPTION, stored as comment in models
+        self.set_metadata_field("comment", ["DESCRIP", "DESCRIPTION", "META.REFFILE.DESCRIPTION"], condition=False) # displayed as DESCRIPTION, stored as comment in models
         self.set_metadata_field("aperture", ["APERTURE", "META.APERTURE.NAME"])
         self.set_metadata_field("history", ["HISTORY", "META.REFFILE.HISTORY"], condition=False)
 
