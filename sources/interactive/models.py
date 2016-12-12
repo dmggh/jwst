@@ -1228,7 +1228,7 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
         """
         self.thaw()
         log.info("Adding slow fields for",  self.moniker)
-        if self.type == "reference" and self.name.endswith(".fits"):
+        if self.type == "reference":
             self.init_metadata_fields()
         self.sha1sum = sha1sum or self.compute_checksum()
         self.blacklisted = len(self.blacklisted_by) > 0
