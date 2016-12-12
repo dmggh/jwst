@@ -791,7 +791,7 @@ class FileBlobRepairMixin(object):
         "history" :  lambda self : self.type.lower() == "reference" and self.history in ["none","NONE","None", None, ""],
         "decription" : lambda self : self.type.lower() == "reference" and self.description in ["none", "NONE", "None", None, ""],
         # "history" :  lambda self : self.type.lower() == "reference",
-        "useafter_date" : lambda self: self.useafter_date_str == str(DEFAULT_ACTIVATION_DATE).split(".")[0] and self.type != "mapping"
+        "useafter_date" : lambda self: self.useafter_date_str in [str(DEFAULT_ACTIVATION_DATE).split(".")[0], "N/A"] and self.type != "mapping"
     }
     
     def get_defects(self, verify_checksum=False, fields=None):
@@ -891,11 +891,8 @@ class FileBlobRepairMixin(object):
         self.set_metadata_field("aperture", ["APERTURE", "META.APERTURE.NAME"])  # aperture_keyword from FileBlobModel multiple inheritance
         
     def repair_useafter_date(self):
-        self.useafter_date = DEFAULT_USEAFTER_DATE
-        self.save()
-        # try:
-        #     self.set_metadata_field("useafter_date", "USEAFTER", timestamp.parse_date)
-        # except Exception:
+        self.set_metadata_field("useafter_date", ["USEAFTER", "META.REFFILE.USEAFTER"], 
+                                timestamp.parse_date, default=DEFAULT_USEAFTER_DATE)
 
     def repair_reference_file_type(self):
         self.set_metadata_field("reference_file_type", ["REFTYPE", "META.REFFILE.TYPE"])
@@ -1189,12 +1186,12 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
         """
         self.set_metadata_field("pedigree", ["PEDIGREE", "META.REFFILE.PEDIGREE"])
         self.set_metadata_field("reference_file_type", ["REFTYPE", "META.REFFILE.TYPE"])
-        self.set_metadata_field("useafter_date", ["USEAFTER", "META.REFFILE.USEAFTER"], timestamp.parse_date)
+        self.set_metadata_field("useafter_date", ["USEAFTER", "META.REFFILE.USEAFTER"], timestamp.parse_date, default=DEFAULT_USEAFTER_DATE)
         self.set_metadata_field("comment", ["DESCRIP", "DESCRIPTION", "META.REFFILE.DESCRIPTION"], condition=False) # displayed as DESCRIPTION, stored as comment in models
         self.set_metadata_field("aperture", ["APERTURE", "META.APERTURE.NAME"])
         self.set_metadata_field("history", ["HISTORY", "META.REFFILE.HISTORY"], condition=False)
 
-    def set_metadata_field(self, model_field, keywords, sanitizer=lambda x: x, condition=True):
+    def set_metadata_field(self, model_field, keywords, sanitizer=lambda x: x, condition=True, default="none"):
         """Set `model_field` to the first of `keywords` found, optionally santizing the value, or
         `condition`ing the value.
         """
@@ -1204,7 +1201,7 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
             setattr(self, model_field, value)
         except Exception as exc:
             log.error("Setting field '%s' for '%s' failed: '%s'" % (model_field, (self.uploaded_as, self.name), exc))
-            setattr(self, model_field, "none")
+            setattr(self, model_field, default)
 
     def get_one_of_metadata_field(self, keywords, condition):
         """Search the file corresponding to `self` for the first value of a
