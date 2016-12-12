@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Web Services &mdash; crds 7.0.8 documentation</title>
+    <title>Web Services &#8212; crds 7.1.0 documentation</title>
     
     <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,17 +14,18 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '7.0.8',
+        VERSION:     '7.1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="crds 7.0.8 documentation" href="index.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="CRDS Database Access" href="database.html" />
     <link rel="prev" title="Using the CRDS Web Site" href="web_site_use.html" /> 
   </head>
@@ -41,7 +42,7 @@
         <li class="right" >
           <a href="web_site_use.html" title="Using the CRDS Web Site"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.0.8 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.0 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -98,21 +99,18 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/web_services.txt"
+      <li><a href="_sources/web_services.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -131,8 +129,8 @@ Python based client library.   See <a class="reference external" href="http://js
 for more details on the JSONRPC protocol.</p>
 <p>Users of the CRDS client library can access these JSONRPC functions using
 the crds.client module:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">crds</span> <span class="kn">import</span> <span class="n">client</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">get_default_context</span><span class="p">(</span><span class="s">&#39;jwst&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">crds</span> <span class="k">import</span> <span class="n">client</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">get_default_context</span><span class="p">(</span><span class="s1">&#39;jwst&#39;</span><span class="p">)</span>
 <span class="go">&#39;jwst_0101.pmap&#39;</span>
 </pre></div>
 </div>
@@ -152,9 +150,9 @@ This value is set and maintained on the CRDS Server.   The actual pipeline conte
 differs from this commanded valuer until the pipeline is synchronized with the CRDS
 server using cron_sync.</p>
 <p>The commanded default can be obtained using the CRDS client library as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre> &gt;&gt;&gt; from CRDS import client
- &gt;&gt;&gt; client.get_default_context(&#39;jwst&#39;)
-&#39;jwst_0101.pmap&#39;
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">CRDS</span> <span class="k">import</span> <span class="n">client</span>
+ <span class="o">&gt;&gt;&gt;</span> <span class="n">client</span><span class="o">.</span><span class="n">get_default_context</span><span class="p">(</span><span class="s1">&#39;jwst&#39;</span><span class="p">)</span>
+<span class="s1">&#39;jwst_0101.pmap&#39;</span>
 </pre></div>
 </div>
 <p>See the explanation of JSONRPC requests and responses below for a language and library
@@ -172,9 +170,9 @@ generally preferred value is from get_default_context() since it always
 reflects the intended operational context regardless of the pipeline&#8217;s CRDS
 mode.</p>
 <p>The actual default context for a pipeline can be obtained as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre> &gt;&gt;&gt; from CRDS import client
- &gt;&gt;&gt; client.get_remote_context(&#39;jwst&#39;, &#39;jwst-ops-pipeline&#39;)
-&#39;jwst_0101.pmap&#39;
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">CRDS</span> <span class="k">import</span> <span class="n">client</span>
+ <span class="o">&gt;&gt;&gt;</span> <span class="n">client</span><span class="o">.</span><span class="n">get_remote_context</span><span class="p">(</span><span class="s1">&#39;jwst&#39;</span><span class="p">,</span> <span class="s1">&#39;jwst-ops-pipeline&#39;</span><span class="p">)</span>
+<span class="s1">&#39;jwst_0101.pmap&#39;</span>
 </pre></div>
 </div>
 </div>
@@ -182,7 +180,7 @@ mode.</p>
 <h3>Context History<a class="headerlink" href="#context-history" title="Permalink to this headline">¶</a></h3>
 <p>CRDS makes the history of contexts which have been activated in the pipeline as
 the operational context via the get_context_history() web service:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">get_context_history</span><span class="p">(</span><span class="s">&quot;jwst&quot;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">get_context_history</span><span class="p">(</span><span class="s2">&quot;jwst&quot;</span><span class="p">)</span>
 <span class="go">[(&#39;2012-09-06 00:00:00&#39;, &#39;jwst.pmap&#39;, &#39;Bootstrap mappings&#39;),</span>
 <span class="go"> (&#39;2012-09-27 00:00:00&#39;,</span>
 <span class="go">  &#39;jwst_0000.pmap&#39;,</span>
@@ -221,7 +219,7 @@ files managed by CRDS.   Catalog information cab be</p>
 <h3>Single File Metadata<a class="headerlink" href="#single-file-metadata" title="Permalink to this headline">¶</a></h3>
 <p><strong>get_file_info(pipeline_context, filename)</strong></p>
 <p>Return a dictionary of CRDS catalog information about <code class="xref py py-obj docutils literal"><span class="pre">filename</span></code>.  For instance:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">get_file_info</span><span class="p">(</span><span class="s">&quot;jwst&quot;</span><span class="p">,</span> <span class="s">&quot;jwst_miri_flat_0023.fits&quot;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_file_info</span><span class="p">(</span><span class="s2">&quot;jwst&quot;</span><span class="p">,</span> <span class="s2">&quot;jwst_miri_flat_0023.fits&quot;</span><span class="p">)</span>
 <span class="go">{&#39;activation_date&#39;: &#39;2014-09-25 18:30:27&#39;,</span>
 <span class="go"> &#39;aperture&#39;: &#39;none&#39;,</span>
 <span class="go"> &#39;blacklisted&#39;: &#39;false&#39;,</span>
@@ -256,16 +254,16 @@ files managed by CRDS.   Catalog information cab be</p>
 the information for several files with one call.  If <code class="xref py py-obj docutils literal"><span class="pre">files</span></code> is not specified
 then get_file_info_map() returns info for all files.</p>
 <p>Return the info:</p>
-<div class="highlight-python"><div class="highlight"><pre>{ filename : { info, ... }, ... }
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="n">filename</span> <span class="p">:</span> <span class="p">{</span> <span class="n">info</span><span class="p">,</span> <span class="o">...</span> <span class="p">},</span> <span class="o">...</span> <span class="p">}</span>
 </pre></div>
 </div>
 <p>on <code class="xref py py-obj docutils literal"><span class="pre">files</span></code> of <code class="xref py py-obj docutils literal"><span class="pre">observatory</span></code>.</p>
 <p><code class="xref py py-obj docutils literal"><span class="pre">fields</span></code> can be used to limit info returned to specified keys:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;activation_date&#39;</span><span class="p">,</span> <span class="s">&#39;aperture&#39;</span><span class="p">,</span> <span class="s">&#39;blacklisted&#39;</span><span class="p">,</span> <span class="s">&#39;change_level&#39;</span><span class="p">,</span> <span class="s">&#39;comment&#39;</span><span class="p">,</span>
- <span class="s">&#39;creator_name&#39;</span><span class="p">,</span> <span class="s">&#39;deliverer_user&#39;</span><span class="p">,</span> <span class="s">&#39;delivery_date&#39;</span><span class="p">,</span> <span class="s">&#39;derived_from&#39;</span><span class="p">,</span> <span class="s">&#39;description&#39;</span><span class="p">,</span>
- <span class="s">&#39;filekind&#39;</span><span class="p">,</span> <span class="s">&#39;instrument&#39;</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;observatory&#39;</span><span class="p">,</span> <span class="s">&#39;pedigree&#39;</span><span class="p">,</span> <span class="s">&#39;reference_file_type&#39;</span><span class="p">,</span>
- <span class="s">&#39;rejected&#39;</span><span class="p">,</span> <span class="s">&#39;replaced_by_filename&#39;</span><span class="p">,</span> <span class="s">&#39;sha1sum&#39;</span><span class="p">,</span> <span class="s">&#39;size&#39;</span><span class="p">,</span> <span class="s">&#39;state&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">,</span>
- <span class="s">&#39;uploaded_as&#39;</span><span class="p">,</span> <span class="s">&#39;useafter_date&#39;</span><span class="p">]</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;activation_date&#39;</span><span class="p">,</span> <span class="s1">&#39;aperture&#39;</span><span class="p">,</span> <span class="s1">&#39;blacklisted&#39;</span><span class="p">,</span> <span class="s1">&#39;change_level&#39;</span><span class="p">,</span> <span class="s1">&#39;comment&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;creator_name&#39;</span><span class="p">,</span> <span class="s1">&#39;deliverer_user&#39;</span><span class="p">,</span> <span class="s1">&#39;delivery_date&#39;</span><span class="p">,</span> <span class="s1">&#39;derived_from&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;filekind&#39;</span><span class="p">,</span> <span class="s1">&#39;instrument&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;observatory&#39;</span><span class="p">,</span> <span class="s1">&#39;pedigree&#39;</span><span class="p">,</span> <span class="s1">&#39;reference_file_type&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;rejected&#39;</span><span class="p">,</span> <span class="s1">&#39;replaced_by_filename&#39;</span><span class="p">,</span> <span class="s1">&#39;sha1sum&#39;</span><span class="p">,</span> <span class="s1">&#39;size&#39;</span><span class="p">,</span> <span class="s1">&#39;state&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;uploaded_as&#39;</span><span class="p">,</span> <span class="s1">&#39;useafter_date&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>If <code class="xref py py-obj docutils literal"><span class="pre">fields</span></code> is not specified then get_file_info_map() returns all fields.</p>
@@ -288,16 +286,16 @@ header parameter of the rmap.</p>
 <p>For JWST,  the rmap parkeys (matching parameter names) are currently specified
 as JWST stpipe data model dotted identifiers.  Example JSON for the get_best_references
 <em>header</em> parameter for JWST is:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span> <span class="s">&quot;meta.instrument.type&quot;</span><span class="p">:</span><span class="s">&quot;fgs&quot;</span><span class="p">,</span>
-  <span class="s">&quot;meta.instrument.detector&quot;</span><span class="p">:</span><span class="s">&quot;fgs1&quot;</span><span class="p">,</span>
-  <span class="s">&quot;meta.instrument.filter&quot;</span><span class="p">:</span><span class="s">&quot;any&quot;</span> <span class="p">}</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="s2">&quot;meta.instrument.type&quot;</span><span class="p">:</span><span class="s2">&quot;fgs&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;meta.instrument.detector&quot;</span><span class="p">:</span><span class="s2">&quot;fgs1&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;meta.instrument.filter&quot;</span><span class="p">:</span><span class="s2">&quot;any&quot;</span> <span class="p">}</span>
 </pre></div>
 </div>
 <p>For JWST,  it is also possible to use the equivalent FITS header keyword,  as
 defined by the data model schema, to determine best references:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span> <span class="s">&quot;instrume&quot;</span><span class="p">:</span><span class="s">&quot;fgs&quot;</span><span class="p">,</span>
-  <span class="s">&quot;detector&quot;</span><span class="p">:</span><span class="s">&quot;fgs1&quot;</span><span class="p">,</span>
-  <span class="s">&quot;filter&quot;</span><span class="p">:</span><span class="s">&quot;any&quot;</span> <span class="p">}</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="s2">&quot;instrume&quot;</span><span class="p">:</span><span class="s2">&quot;fgs&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;detector&quot;</span><span class="p">:</span><span class="s2">&quot;fgs1&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;filter&quot;</span><span class="p">:</span><span class="s2">&quot;any&quot;</span> <span class="p">}</span>
 </pre></div>
 </div>
 <p>For HST,  GEIS or FITS header keyword names are supported.</p>
@@ -307,7 +305,7 @@ all reference types are returned.   Reference types which are defined for an
 instrument but which are not applicable to the mode defined by <em>header</em> are
 returned with the value <em>NOT FOUND n/a</em>.</p>
 <p>Example JSON for <em>reftypes</em> might be:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&quot;amplifier&quot;</span><span class="p">,</span><span class="s">&quot;mask&quot;</span><span class="p">]</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s2">&quot;amplifier&quot;</span><span class="p">,</span><span class="s2">&quot;mask&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>Because <strong>get_best_references</strong> determines references for a list of types,  lookup
@@ -324,12 +322,12 @@ best references for multiple datasets with a single service call.  All
 parameters are as for get_best_references() with the modification that <em>header</em>
 above is replaced with a mapping from multiple dataset ids to their
 corresponding headers, i.e. <em>header_map</em>:</p>
-<div class="highlight-python"><div class="highlight"><pre>{ dataset_id : header, ... }
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="n">dataset_id</span> <span class="p">:</span> <span class="n">header</span><span class="p">,</span> <span class="o">...</span> <span class="p">}</span>
 </pre></div>
 </div>
 <p>The return value is likewise adapted to return best references for multiple
 datasets:</p>
-<div class="highlight-python"><div class="highlight"><pre>{ dataset_id : best_references, ... }
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="n">dataset_id</span> <span class="p">:</span> <span class="n">best_references</span><span class="p">,</span> <span class="o">...</span> <span class="p">}</span>
 </pre></div>
 </div>
 <p>Where <em>dataset_id</em> is nominally an HST IPPPSSOOT id (e.g. &#8216;I9ZF01010&#8217;) or JWST
@@ -343,31 +341,31 @@ or less.</p>
 <p><strong>get_required_parkeys(context)</strong></p>
 <p>Return a mapping from instruments to lists of parameter names required to
 compute bestrefs under <code class="xref py py-obj docutils literal"><span class="pre">context</span></code>,  i.e. matching header keys:</p>
-<div class="highlight-python"><div class="highlight"><pre>{ instrument : [ matching_parkey_name, ... ], ... }
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="n">instrument</span> <span class="p">:</span> <span class="p">[</span> <span class="n">matching_parkey_name</span><span class="p">,</span> <span class="o">...</span> <span class="p">],</span> <span class="o">...</span> <span class="p">}</span>
 </pre></div>
 </div>
 <p>In CRDS the matching parameters are defined by each set of rules, e.g. for
 one HST context (hst_0366.pmap) the reference file selection parameters
 for all instruments are as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&#39;acs&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;INSTRUME&#39;</span><span class="p">,</span> <span class="s">&#39;APERTURE&#39;</span><span class="p">,</span> <span class="s">&#39;ATODCORR&#39;</span><span class="p">,</span> <span class="s">&#39;BIASCORR&#39;</span><span class="p">,</span> <span class="s">&#39;CCDAMP&#39;</span><span class="p">,</span> <span class="s">&#39;CCDCHIP&#39;</span><span class="p">,</span>
-     <span class="s">&#39;CCDGAIN&#39;</span><span class="p">,</span> <span class="s">&#39;CRCORR&#39;</span><span class="p">,</span> <span class="s">&#39;DARKCORR&#39;</span><span class="p">,</span> <span class="s">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s">&#39;DETECTOR&#39;</span><span class="p">,</span> <span class="s">&#39;DQICORR&#39;</span><span class="p">,</span>
-     <span class="s">&#39;DRIZCORR&#39;</span><span class="p">,</span> <span class="s">&#39;FILTER1&#39;</span><span class="p">,</span> <span class="s">&#39;FILTER2&#39;</span><span class="p">,</span> <span class="s">&#39;FLASHCUR&#39;</span><span class="p">,</span> <span class="s">&#39;FLATCORR&#39;</span><span class="p">,</span> <span class="s">&#39;FLSHCORR&#39;</span><span class="p">,</span>
-     <span class="s">&#39;FW1OFFST&#39;</span><span class="p">,</span> <span class="s">&#39;FW2OFFST&#39;</span><span class="p">,</span> <span class="s">&#39;FWSOFFST&#39;</span><span class="p">,</span> <span class="s">&#39;GLINCORR&#39;</span><span class="p">,</span> <span class="s">&#39;LTV1&#39;</span><span class="p">,</span> <span class="s">&#39;LTV2&#39;</span><span class="p">,</span> <span class="s">&#39;NAXIS1&#39;</span><span class="p">,</span>
-     <span class="s">&#39;NAXIS2&#39;</span><span class="p">,</span> <span class="s">&#39;OBSTYPE&#39;</span><span class="p">,</span> <span class="s">&#39;PCTECORR&#39;</span><span class="p">,</span> <span class="s">&#39;PHOTCORR&#39;</span><span class="p">,</span> <span class="s">&#39;REFTYPE&#39;</span><span class="p">,</span> <span class="s">&#39;RPTCORR&#39;</span><span class="p">,</span>
-     <span class="s">&#39;SHADCORR&#39;</span><span class="p">,</span> <span class="s">&#39;SHUTRPOS&#39;</span><span class="p">,</span> <span class="s">&#39;TIME-OBS&#39;</span><span class="p">,</span> <span class="s">&#39;XCORNER&#39;</span><span class="p">,</span> <span class="s">&#39;YCORNER&#39;</span><span class="p">],</span>
-<span class="s">&#39;cos&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;INSTRUME&#39;</span><span class="p">,</span> <span class="s">&#39;ALGNCORR&#39;</span><span class="p">,</span> <span class="s">&#39;BADTCORR&#39;</span><span class="p">,</span> <span class="s">&#39;BRSTCORR&#39;</span><span class="p">,</span> <span class="s">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s">&#39;DEADCORR&#39;</span><span class="p">,</span>
-    <span class="s">&#39;DETECTOR&#39;</span><span class="p">,</span> <span class="s">&#39;EXPTYPE&#39;</span><span class="p">,</span> <span class="s">&#39;FLATCORR&#39;</span><span class="p">,</span> <span class="s">&#39;FLUXCORR&#39;</span><span class="p">,</span> <span class="s">&#39;LIFE_ADJ&#39;</span><span class="p">,</span> <span class="s">&#39;OBSMODE&#39;</span><span class="p">,</span> <span class="s">&#39;OBSTYPE&#39;</span><span class="p">,</span>
-    <span class="s">&#39;OPT_ELEM&#39;</span><span class="p">,</span> <span class="s">&#39;REFTYPE&#39;</span><span class="p">,</span> <span class="s">&#39;TDSCORR&#39;</span><span class="p">,</span> <span class="s">&#39;TIME-OBS&#39;</span><span class="p">,</span> <span class="s">&#39;TRCECORR&#39;</span><span class="p">,</span> <span class="s">&#39;WALKCORR&#39;</span><span class="p">],</span>
-<span class="s">&#39;nicmos&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;INSTRUME&#39;</span><span class="p">,</span> <span class="s">&#39;CAMERA&#39;</span><span class="p">,</span> <span class="s">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s">&#39;FILTER&#39;</span><span class="p">,</span> <span class="s">&#39;NREAD&#39;</span><span class="p">,</span> <span class="s">&#39;OBSMODE&#39;</span><span class="p">,</span> <span class="s">&#39;READOUT&#39;</span><span class="p">,</span>
-        <span class="s">&#39;REFTYPE&#39;</span><span class="p">,</span> <span class="s">&#39;SAMP_SEQ&#39;</span><span class="p">,</span> <span class="s">&#39;TIME-OBS&#39;</span><span class="p">],</span>
- <span class="s">&#39;stis&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;INSTRUME&#39;</span><span class="p">,</span> <span class="s">&#39;APERTURE&#39;</span><span class="p">,</span> <span class="s">&#39;BINAXIS1&#39;</span><span class="p">,</span> <span class="s">&#39;BINAXIS2&#39;</span><span class="p">,</span> <span class="s">&#39;CCDAMP&#39;</span><span class="p">,</span> <span class="s">&#39;CCDGAIN&#39;</span><span class="p">,</span> <span class="s">&#39;CCDOFFST&#39;</span><span class="p">,</span>
-      <span class="s">&#39;CENWAVE&#39;</span><span class="p">,</span> <span class="s">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s">&#39;DETECTOR&#39;</span><span class="p">,</span> <span class="s">&#39;OBSTYPE&#39;</span><span class="p">,</span> <span class="s">&#39;OPT_ELEM&#39;</span><span class="p">,</span> <span class="s">&#39;REFTYPE&#39;</span><span class="p">,</span> <span class="s">&#39;TIME-OBS&#39;</span><span class="p">],</span>
- <span class="s">&#39;wfc3&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;INSTRUME&#39;</span><span class="p">,</span> <span class="s">&#39;APERTURE&#39;</span><span class="p">,</span> <span class="s">&#39;ATODCORR&#39;</span><span class="p">,</span> <span class="s">&#39;BIASCORR&#39;</span><span class="p">,</span> <span class="s">&#39;BINAXIS1&#39;</span><span class="p">,</span> <span class="s">&#39;BINAXIS2&#39;</span><span class="p">,</span> <span class="s">&#39;CCDAMP&#39;</span><span class="p">,</span>
-      <span class="s">&#39;CCDGAIN&#39;</span><span class="p">,</span> <span class="s">&#39;CHINJECT&#39;</span><span class="p">,</span> <span class="s">&#39;DARKCORR&#39;</span><span class="p">,</span> <span class="s">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s">&#39;DETECTOR&#39;</span><span class="p">,</span> <span class="s">&#39;DQICORR&#39;</span><span class="p">,</span> <span class="s">&#39;DRIZCORR&#39;</span><span class="p">,</span>
-      <span class="s">&#39;FILTER&#39;</span><span class="p">,</span> <span class="s">&#39;FLASHCUR&#39;</span><span class="p">,</span> <span class="s">&#39;FLATCORR&#39;</span><span class="p">,</span> <span class="s">&#39;FLSHCORR&#39;</span><span class="p">,</span> <span class="s">&#39;PHOTCORR&#39;</span><span class="p">,</span> <span class="s">&#39;REFTYPE&#39;</span><span class="p">,</span> <span class="s">&#39;SAMP_SEQ&#39;</span><span class="p">,</span>
-      <span class="s">&#39;SHUTRPOS&#39;</span><span class="p">,</span> <span class="s">&#39;SUBARRAY&#39;</span><span class="p">,</span> <span class="s">&#39;SUBTYPE&#39;</span><span class="p">,</span> <span class="s">&#39;TIME-OBS&#39;</span><span class="p">],</span>
- <span class="s">&#39;wfpc2&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;INSTRUME&#39;</span><span class="p">,</span> <span class="s">&#39;ATODGAIN&#39;</span><span class="p">,</span> <span class="s">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s">&#39;FILTER1&#39;</span><span class="p">,</span> <span class="s">&#39;FILTER2&#39;</span><span class="p">,</span> <span class="s">&#39;FILTNAM1&#39;</span><span class="p">,</span> <span class="s">&#39;FILTNAM2&#39;</span><span class="p">,</span>
-        <span class="s">&#39;IMAGETYP&#39;</span><span class="p">,</span> <span class="s">&#39;LRFWAVE&#39;</span><span class="p">,</span> <span class="s">&#39;MODE&#39;</span><span class="p">,</span> <span class="s">&#39;REFTYPE&#39;</span><span class="p">,</span> <span class="s">&#39;SERIALS&#39;</span><span class="p">,</span> <span class="s">&#39;SHUTTER&#39;</span><span class="p">,</span> <span class="s">&#39;TIME-OBS&#39;</span><span class="p">]</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;acs&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;INSTRUME&#39;</span><span class="p">,</span> <span class="s1">&#39;APERTURE&#39;</span><span class="p">,</span> <span class="s1">&#39;ATODCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;BIASCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;CCDAMP&#39;</span><span class="p">,</span> <span class="s1">&#39;CCDCHIP&#39;</span><span class="p">,</span>
+     <span class="s1">&#39;CCDGAIN&#39;</span><span class="p">,</span> <span class="s1">&#39;CRCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;DARKCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s1">&#39;DETECTOR&#39;</span><span class="p">,</span> <span class="s1">&#39;DQICORR&#39;</span><span class="p">,</span>
+     <span class="s1">&#39;DRIZCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;FILTER1&#39;</span><span class="p">,</span> <span class="s1">&#39;FILTER2&#39;</span><span class="p">,</span> <span class="s1">&#39;FLASHCUR&#39;</span><span class="p">,</span> <span class="s1">&#39;FLATCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;FLSHCORR&#39;</span><span class="p">,</span>
+     <span class="s1">&#39;FW1OFFST&#39;</span><span class="p">,</span> <span class="s1">&#39;FW2OFFST&#39;</span><span class="p">,</span> <span class="s1">&#39;FWSOFFST&#39;</span><span class="p">,</span> <span class="s1">&#39;GLINCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;LTV1&#39;</span><span class="p">,</span> <span class="s1">&#39;LTV2&#39;</span><span class="p">,</span> <span class="s1">&#39;NAXIS1&#39;</span><span class="p">,</span>
+     <span class="s1">&#39;NAXIS2&#39;</span><span class="p">,</span> <span class="s1">&#39;OBSTYPE&#39;</span><span class="p">,</span> <span class="s1">&#39;PCTECORR&#39;</span><span class="p">,</span> <span class="s1">&#39;PHOTCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;REFTYPE&#39;</span><span class="p">,</span> <span class="s1">&#39;RPTCORR&#39;</span><span class="p">,</span>
+     <span class="s1">&#39;SHADCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;SHUTRPOS&#39;</span><span class="p">,</span> <span class="s1">&#39;TIME-OBS&#39;</span><span class="p">,</span> <span class="s1">&#39;XCORNER&#39;</span><span class="p">,</span> <span class="s1">&#39;YCORNER&#39;</span><span class="p">],</span>
+<span class="s1">&#39;cos&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;INSTRUME&#39;</span><span class="p">,</span> <span class="s1">&#39;ALGNCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;BADTCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;BRSTCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s1">&#39;DEADCORR&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DETECTOR&#39;</span><span class="p">,</span> <span class="s1">&#39;EXPTYPE&#39;</span><span class="p">,</span> <span class="s1">&#39;FLATCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;FLUXCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;LIFE_ADJ&#39;</span><span class="p">,</span> <span class="s1">&#39;OBSMODE&#39;</span><span class="p">,</span> <span class="s1">&#39;OBSTYPE&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;OPT_ELEM&#39;</span><span class="p">,</span> <span class="s1">&#39;REFTYPE&#39;</span><span class="p">,</span> <span class="s1">&#39;TDSCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;TIME-OBS&#39;</span><span class="p">,</span> <span class="s1">&#39;TRCECORR&#39;</span><span class="p">,</span> <span class="s1">&#39;WALKCORR&#39;</span><span class="p">],</span>
+<span class="s1">&#39;nicmos&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;INSTRUME&#39;</span><span class="p">,</span> <span class="s1">&#39;CAMERA&#39;</span><span class="p">,</span> <span class="s1">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s1">&#39;FILTER&#39;</span><span class="p">,</span> <span class="s1">&#39;NREAD&#39;</span><span class="p">,</span> <span class="s1">&#39;OBSMODE&#39;</span><span class="p">,</span> <span class="s1">&#39;READOUT&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;REFTYPE&#39;</span><span class="p">,</span> <span class="s1">&#39;SAMP_SEQ&#39;</span><span class="p">,</span> <span class="s1">&#39;TIME-OBS&#39;</span><span class="p">],</span>
+ <span class="s1">&#39;stis&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;INSTRUME&#39;</span><span class="p">,</span> <span class="s1">&#39;APERTURE&#39;</span><span class="p">,</span> <span class="s1">&#39;BINAXIS1&#39;</span><span class="p">,</span> <span class="s1">&#39;BINAXIS2&#39;</span><span class="p">,</span> <span class="s1">&#39;CCDAMP&#39;</span><span class="p">,</span> <span class="s1">&#39;CCDGAIN&#39;</span><span class="p">,</span> <span class="s1">&#39;CCDOFFST&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;CENWAVE&#39;</span><span class="p">,</span> <span class="s1">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s1">&#39;DETECTOR&#39;</span><span class="p">,</span> <span class="s1">&#39;OBSTYPE&#39;</span><span class="p">,</span> <span class="s1">&#39;OPT_ELEM&#39;</span><span class="p">,</span> <span class="s1">&#39;REFTYPE&#39;</span><span class="p">,</span> <span class="s1">&#39;TIME-OBS&#39;</span><span class="p">],</span>
+ <span class="s1">&#39;wfc3&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;INSTRUME&#39;</span><span class="p">,</span> <span class="s1">&#39;APERTURE&#39;</span><span class="p">,</span> <span class="s1">&#39;ATODCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;BIASCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;BINAXIS1&#39;</span><span class="p">,</span> <span class="s1">&#39;BINAXIS2&#39;</span><span class="p">,</span> <span class="s1">&#39;CCDAMP&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;CCDGAIN&#39;</span><span class="p">,</span> <span class="s1">&#39;CHINJECT&#39;</span><span class="p">,</span> <span class="s1">&#39;DARKCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s1">&#39;DETECTOR&#39;</span><span class="p">,</span> <span class="s1">&#39;DQICORR&#39;</span><span class="p">,</span> <span class="s1">&#39;DRIZCORR&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;FILTER&#39;</span><span class="p">,</span> <span class="s1">&#39;FLASHCUR&#39;</span><span class="p">,</span> <span class="s1">&#39;FLATCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;FLSHCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;PHOTCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;REFTYPE&#39;</span><span class="p">,</span> <span class="s1">&#39;SAMP_SEQ&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;SHUTRPOS&#39;</span><span class="p">,</span> <span class="s1">&#39;SUBARRAY&#39;</span><span class="p">,</span> <span class="s1">&#39;SUBTYPE&#39;</span><span class="p">,</span> <span class="s1">&#39;TIME-OBS&#39;</span><span class="p">],</span>
+ <span class="s1">&#39;wfpc2&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;INSTRUME&#39;</span><span class="p">,</span> <span class="s1">&#39;ATODGAIN&#39;</span><span class="p">,</span> <span class="s1">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s1">&#39;FILTER1&#39;</span><span class="p">,</span> <span class="s1">&#39;FILTER2&#39;</span><span class="p">,</span> <span class="s1">&#39;FILTNAM1&#39;</span><span class="p">,</span> <span class="s1">&#39;FILTNAM2&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;IMAGETYP&#39;</span><span class="p">,</span> <span class="s1">&#39;LRFWAVE&#39;</span><span class="p">,</span> <span class="s1">&#39;MODE&#39;</span><span class="p">,</span> <span class="s1">&#39;REFTYPE&#39;</span><span class="p">,</span> <span class="s1">&#39;SERIALS&#39;</span><span class="p">,</span> <span class="s1">&#39;SHUTTER&#39;</span><span class="p">,</span> <span class="s1">&#39;TIME-OBS&#39;</span><span class="p">]</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -382,7 +380,7 @@ best references for particular datasets.  Each parameter set corresponds to a
 data set ID.  A list of the valid dataset IDs with respect to a particular CRDS
 context (or date) can be obtained as follows.</p>
 <p>To obtain current best references specify the context using a date:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">get_dataset_ids</span><span class="p">(</span><span class="s">&quot;2016-01-01T00:00:00&quot;</span><span class="p">,</span> <span class="s">&quot;miri&quot;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_dataset_ids</span><span class="p">(</span><span class="s2">&quot;2016-01-01T00:00:00&quot;</span><span class="p">,</span> <span class="s2">&quot;miri&quot;</span><span class="p">)</span>
 <span class="go">[&#39;JW80500017001_02101_00001.MIRIFUSHORT:JW80500017001_02101_00001.MIRIFUSHORT&#39;,</span>
 <span class="go"> &#39;J80500020001_02101_00001.MIRIFUSHORT:JW80500020001_02101_00001.MIRIFUSHORT&#39;,</span>
 <span class="go"> &#39;JW80500018001_02101_00001.MIRIFUSHORT:JW80500018001_02101_00001.MIRIFUSHORT&#39;,</span>
@@ -396,7 +394,7 @@ context (or date) can be obtained as follows.</p>
 </pre></div>
 </div>
 <p>Alternately the abstract default context can be specified as &#8220;&lt;project&gt;-operational&#8221;, as in:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">get_dataset_ids</span><span class="p">(</span><span class="s">&quot;jwst-operational&quot;</span><span class="p">,</span> <span class="s">&quot;miri&quot;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_dataset_ids</span><span class="p">(</span><span class="s2">&quot;jwst-operational&quot;</span><span class="p">,</span> <span class="s2">&quot;miri&quot;</span><span class="p">)</span>
 <span class="go">[&#39;JW80500017001_02101_00001.MIRIFUSHORT:JW80500017001_02101_00001.MIRIFUSHORT&#39;,</span>
 <span class="go"> &#39;J80500020001_02101_00001.MIRIFUSHORT:JW80500020001_02101_00001.MIRIFUSHORT&#39;,</span>
 <span class="go"> &#39;JW80500018001_02101_00001.MIRIFUSHORT:JW80500018001_02101_00001.MIRIFUSHORT&#39;,</span>
@@ -410,13 +408,13 @@ context (or date) can be obtained as follows.</p>
 </pre></div>
 </div>
 <p>Dataset IDs have a grammar like this for HST:</p>
-<div class="highlight-python"><div class="highlight"><pre>&lt;product_id&gt; : &lt;exposure_id&gt;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">product_id</span><span class="o">&gt;</span> <span class="p">:</span> <span class="o">&lt;</span><span class="n">exposure_id</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 <p>Dataset IDs currently have a grammar like this for JWST:</p>
-<div class="highlight-python"><div class="highlight"><pre>&lt;id&gt;     :=  &lt;whole&gt;:&lt;part&gt;
-&lt;whole&gt;  :=  &lt;filesetname&gt;:&lt;detector&gt;
-&lt;part&gt;   :=  &lt;filesetname&gt;:&lt;detector&gt;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="nb">id</span><span class="o">&gt;</span>     <span class="p">:</span><span class="o">=</span>  <span class="o">&lt;</span><span class="n">whole</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">part</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">whole</span><span class="o">&gt;</span>  <span class="p">:</span><span class="o">=</span>  <span class="o">&lt;</span><span class="n">filesetname</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">detector</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">part</span><span class="o">&gt;</span>   <span class="p">:</span><span class="o">=</span>  <span class="o">&lt;</span><span class="n">filesetname</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">detector</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 <p>As can be seen above, currently JWST IDs are redundant and &lt;whole&gt; and &lt;part&gt;
@@ -447,7 +445,7 @@ to compute best references associated with the specified dataset ids:</p>
 <p><em>ids</em> is a list of archive dataset id strings as shown above.   A maximum of 200 IDs should be requested per call.</p>
 <p><em>datasets_since</em> is an optional cut-off date for datasets.  If specified, only datasets acquired after that date are returned.</p>
 <p>An example call using the CRDS Python client is:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">get_dataset_headers_by_id</span><span class="p">(</span><span class="s">&quot;2016-01-01&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;JW96090001004_03101_00001.NRCB2&#39;</span><span class="p">],</span> <span class="bp">None</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_dataset_headers_by_id</span><span class="p">(</span><span class="s2">&quot;2016-01-01&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;JW96090001004_03101_00001.NRCB2&#39;</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span>
 <span class="go">{&#39;JW96090001004_03101_00001.NRCB2&#39;: {&#39;META.EXPOSURE.READPATT&#39;: &#39;BRIGHT1&#39;,</span>
 <span class="go"> &#39;META.EXPOSURE.TYPE&#39;: &#39;NRC_IMAGE&#39;,</span>
 <span class="go"> &#39;META.INSTRUMENT.CHANNEL&#39;: &#39;SHORT&#39;,</span>
@@ -477,7 +475,7 @@ Ultimately the first half will identify a group of exposures and the second
 half will identify a single exposure in the group.  A maximum of 200 ids should
 be requested per call.</p>
 <p>An examople call using the CRDS Python client is:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">get_aui_best_references</span><span class="p">(</span><span class="s">&quot;2016-01-01&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;JW82500001003_02102_00001.NRCA1&#39;</span><span class="p">,</span><span class="s">&#39;JW82500001003_02102_00001.NRCA3&#39;</span><span class="p">])</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_aui_best_references</span><span class="p">(</span><span class="s2">&quot;2016-01-01&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;JW82500001003_02102_00001.NRCA1&#39;</span><span class="p">,</span><span class="s1">&#39;JW82500001003_02102_00001.NRCA3&#39;</span><span class="p">])</span>
 <span class="go">{&#39;JW82500001003_02102_00001.NRCA1&#39;: [True,</span>
 <span class="go">  [&#39;jwst_nircam_ipc_0001.fits&#39;,</span>
 <span class="go">   &#39;jwst_nircam_linearity_0020.fits&#39;,</span>
@@ -516,7 +514,7 @@ successfully&#8221;.</p>
 was successful, the second value of the pair is a list of file names.  If the
 ID was unsuccessful, the second value of the pair is a string describing the
 error:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">get_aui_best_references</span><span class="p">(</span><span class="s">&quot;2016-01-01&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;JW96090001004_03101_00001.NRCB5&#39;</span><span class="p">])</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_aui_best_references</span><span class="p">(</span><span class="s2">&quot;2016-01-01&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;JW96090001004_03101_00001.NRCB5&#39;</span><span class="p">])</span>
 <span class="go">{&#39;JW96090001004_03101_00001.NRCB5&#39;: [False,</span>
 <span class="go">  &quot;NOT FOUND dataset ID does not exist &#39;JW96090001004_03101_00001.NRCB5&#39;&quot;]}</span>
 </pre></div>
@@ -529,16 +527,16 @@ only those types that could be successfully assigned with the given context
 silently dropped.</p>
 <p>Under the hood the <em>get_aui_best_references()</em> function is a language agnostic JSONRPC call
 which can be called from the UNIX command line by e.g. &#8220;curl&#8221; as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre>% curl -i -X POST -d &#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;method&quot;: &quot;get_aui_best_references&quot;, &quot;params&quot;: [&quot;2016-01-01&quot;, [&quot;JW80500017001_02101_00001.MIRIFUSHORT&quot;]], &quot;id&quot;: 1}&#39; https://jwst-crds.stsci.edu/json/
-HTTP/1.1 200 OK
-Date: Mon, 25 Jul 2016 20:03:13 GMT
-Vary: Cookie
-X-Frame-Options: SAMEORIGIN
-Content-Type: application/json-rpc
-Via: 1.1 jwst-crds.stsci.edu
-Transfer-Encoding: chunked
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">curl</span> <span class="o">-</span><span class="n">i</span> <span class="o">-</span><span class="n">X</span> <span class="n">POST</span> <span class="o">-</span><span class="n">d</span> <span class="s1">&#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;method&quot;: &quot;get_aui_best_references&quot;, &quot;params&quot;: [&quot;2016-01-01&quot;, [&quot;JW80500017001_02101_00001.MIRIFUSHORT&quot;]], &quot;id&quot;: 1}&#39;</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">jwst</span><span class="o">-</span><span class="n">crds</span><span class="o">.</span><span class="n">stsci</span><span class="o">.</span><span class="n">edu</span><span class="o">/</span><span class="n">json</span><span class="o">/</span>
+<span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span> <span class="mi">200</span> <span class="n">OK</span>
+<span class="n">Date</span><span class="p">:</span> <span class="n">Mon</span><span class="p">,</span> <span class="mi">25</span> <span class="n">Jul</span> <span class="mi">2016</span> <span class="mi">20</span><span class="p">:</span><span class="mi">03</span><span class="p">:</span><span class="mi">13</span> <span class="n">GMT</span>
+<span class="n">Vary</span><span class="p">:</span> <span class="n">Cookie</span>
+<span class="n">X</span><span class="o">-</span><span class="n">Frame</span><span class="o">-</span><span class="n">Options</span><span class="p">:</span> <span class="n">SAMEORIGIN</span>
+<span class="n">Content</span><span class="o">-</span><span class="n">Type</span><span class="p">:</span> <span class="n">application</span><span class="o">/</span><span class="n">json</span><span class="o">-</span><span class="n">rpc</span>
+<span class="n">Via</span><span class="p">:</span> <span class="mf">1.1</span> <span class="n">jwst</span><span class="o">-</span><span class="n">crds</span><span class="o">.</span><span class="n">stsci</span><span class="o">.</span><span class="n">edu</span>
+<span class="n">Transfer</span><span class="o">-</span><span class="n">Encoding</span><span class="p">:</span> <span class="n">chunked</span>
 
-{&quot;error&quot;: null, &quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;id&quot;: 1, &quot;result&quot;: {&quot;JW80500017001_02101_00001.MIRIFUSHORT&quot;: [true, [&quot;jwst_miri_ipc_0005.fits&quot;, &quot;jwst_miri_fringe_0018.fits&quot;, &quot;jwst_miri_linearity_0010.fits&quot;, &quot;jwst_miri_distortion_0010.asdf&quot;, &quot;jwst_miri_specwcs_0003.asdf&quot;, &quot;jwst_miri_drizpars_0001.fits&quot;, &quot;jwst_miri_v2v3_0003.asdf&quot;, &quot;jwst_miri_wavelengthrange_0001.asdf&quot;, &quot;jwst_miri_regions_0003.asdf&quot;, &quot;jwst_miri_wcsregions_0001.json&quot;, &quot;jwst_miri_flat_0036.fits&quot;, &quot;jwst_miri_saturation_0013.fits&quot;, &quot;jwst_miri_photom_0011.fits&quot;, &quot;jwst_miri_dark_0031.fits&quot;, &quot;jwst_miri_gain_0004.fits&quot;, &quot;jwst_miri_straymask_0006.fits&quot;, &quot;jwst_miri_reset_0018.fits&quot;, &quot;jwst_miri_lastframe_0018.fits&quot;, &quot;jwst_miri_mask_0013.fits&quot;, &quot;jwst_miri_readnoise_0005.fits&quot;]]}}
+<span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;jsonrpc&quot;</span><span class="p">:</span> <span class="s2">&quot;1.0&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;JW80500017001_02101_00001.MIRIFUSHORT&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">true</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;jwst_miri_ipc_0005.fits&quot;</span><span class="p">,</span> <span class="s2">&quot;jwst_miri_fringe_0018.fits&quot;</span><span class="p">,</span> <span class="s2">&quot;jwst_miri_linearity_0010.fits&quot;</span><span class="p">,</span> <span class="s2">&quot;jwst_miri_distortion_0010.asdf&quot;</span><span class="p">,</span> <span class="s2">&quot;jwst_miri_specwcs_0003.asdf&quot;</span><span class="p">,</span> <span class="s2">&quot;jwst_miri_drizpars_0001.fits&quot;</span><span class="p">,</span> <span class="s2">&quot;jwst_miri_v2v3_0003.asdf&quot;</span><span class="p">,</span> <span class="s2">&quot;jwst_miri_wavelengthrange_0001.asdf&quot;</span><span class="p">,</span> <span class="s2">&quot;jwst_miri_regions_0003.asdf&quot;</span><span class="p">,</span> <span class="s2">&quot;jwst_miri_wcsregions_0001.json&quot;</span><span class="p">,</span> <span class="s2">&quot;jwst_miri_flat_0036.fits&quot;</span><span class="p">,</span> <span class="s2">&quot;jwst_miri_saturation_0013.fits&quot;</span><span class="p">,</span> <span class="s2">&quot;jwst_miri_photom_0011.fits&quot;</span><span class="p">,</span> <span class="s2">&quot;jwst_miri_dark_0031.fits&quot;</span><span class="p">,</span> <span class="s2">&quot;jwst_miri_gain_0004.fits&quot;</span><span class="p">,</span> <span class="s2">&quot;jwst_miri_straymask_0006.fits&quot;</span><span class="p">,</span> <span class="s2">&quot;jwst_miri_reset_0018.fits&quot;</span><span class="p">,</span> <span class="s2">&quot;jwst_miri_lastframe_0018.fits&quot;</span><span class="p">,</span> <span class="s2">&quot;jwst_miri_mask_0013.fits&quot;</span><span class="p">,</span> <span class="s2">&quot;jwst_miri_readnoise_0005.fits&quot;</span><span class="p">]]}}</span>
 </pre></div>
 </div>
 </div>
@@ -564,12 +562,12 @@ that the definitions of software versions should be relatively stable and
 additive as new contexts are generated.</p>
 <p>An example call using the CRDS Python client shows the conceptual
 nature of the interface,  the functional inputs and outputs:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">versions_obj</span> <span class="o">=</span> <span class="n">get_system_versions</span><span class="p">(</span><span class="s">&quot;0.6.0noop.dev307&quot;</span><span class="p">,</span> <span class="s">&quot;null&quot;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">versions_obj</span> <span class="o">=</span> <span class="n">get_system_versions</span><span class="p">(</span><span class="s2">&quot;0.6.0noop.dev307&quot;</span><span class="p">,</span> <span class="s2">&quot;null&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Printing the Python client return object in JSON format gives a more
 language agnostic view of the conceptual return value:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">versions_obj</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">versions_obj</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 <span class="go">{</span>
 <span class="go">&quot;CAL_VER&quot;: &quot;0.6.0noop.dev307&quot;,</span>
 <span class="go">&quot;author&quot;: &quot;Warren J. Hack&quot;,</span>
@@ -610,31 +608,31 @@ translate master version names.  Alternately, the value associated with
 &#8220;jwst-versions&#8221; (or &#8220;null&#8221;) can be redefined on the CRDS server.</p>
 <p>The following curl command line shows the full expansion of the same service
 example wrapped in the JSONRPC protocol in a language agnostic way:</p>
-<div class="highlight-python"><div class="highlight"><pre>curl -i -X POST -d &#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;method&quot;: &quot;get_system_versions&quot;, &quot;params&quot;: [&quot;0.6.0noop.dev307&quot;,&quot;null&quot;], &quot;id&quot;: 1}&#39; https://jwst-crds-dit.stsci.edu/json/
-HTTP/1.1 200 OK
-Date: Wed, 24 Aug 2016 22:33:04 GMT
-Vary: Cookie
-X-Frame-Options: SAMEORIGIN
-Content-Type: application/json-rpc
-Via: 1.1 jwst-crds-dit.stsci.edu
-Transfer-Encoding: chunked
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">i</span> <span class="o">-</span><span class="n">X</span> <span class="n">POST</span> <span class="o">-</span><span class="n">d</span> <span class="s1">&#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;method&quot;: &quot;get_system_versions&quot;, &quot;params&quot;: [&quot;0.6.0noop.dev307&quot;,&quot;null&quot;], &quot;id&quot;: 1}&#39;</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">jwst</span><span class="o">-</span><span class="n">crds</span><span class="o">-</span><span class="n">dit</span><span class="o">.</span><span class="n">stsci</span><span class="o">.</span><span class="n">edu</span><span class="o">/</span><span class="n">json</span><span class="o">/</span>
+<span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span> <span class="mi">200</span> <span class="n">OK</span>
+<span class="n">Date</span><span class="p">:</span> <span class="n">Wed</span><span class="p">,</span> <span class="mi">24</span> <span class="n">Aug</span> <span class="mi">2016</span> <span class="mi">22</span><span class="p">:</span><span class="mi">33</span><span class="p">:</span><span class="mi">04</span> <span class="n">GMT</span>
+<span class="n">Vary</span><span class="p">:</span> <span class="n">Cookie</span>
+<span class="n">X</span><span class="o">-</span><span class="n">Frame</span><span class="o">-</span><span class="n">Options</span><span class="p">:</span> <span class="n">SAMEORIGIN</span>
+<span class="n">Content</span><span class="o">-</span><span class="n">Type</span><span class="p">:</span> <span class="n">application</span><span class="o">/</span><span class="n">json</span><span class="o">-</span><span class="n">rpc</span>
+<span class="n">Via</span><span class="p">:</span> <span class="mf">1.1</span> <span class="n">jwst</span><span class="o">-</span><span class="n">crds</span><span class="o">-</span><span class="n">dit</span><span class="o">.</span><span class="n">stsci</span><span class="o">.</span><span class="n">edu</span>
+<span class="n">Transfer</span><span class="o">-</span><span class="n">Encoding</span><span class="p">:</span> <span class="n">chunked</span>
 
-{&quot;error&quot;: null, &quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;id&quot;: 1, &quot;result&quot;: {&quot;reftype&quot;: &quot;CALVER&quot;, &quot;author&quot;: &quot;Warren J. Hack&quot;, &quot;versions&quot;: {&quot;TweakRegStep&quot;: &quot;0.1.0&quot;, &quot;SubtractImagesStep&quot;: null, &quot;RSCD_Step&quot;: null, &quot;CubeBuildStep&quot;: null, &quot;Extract1dStep&quot;: null, &quot;AmiAnalyzeStep&quot;: &quot;0.7.0.dev&quot;, &quot;Extract2dStep&quot;: null, &quot;BackgroundStep&quot;: null, &quot;SuperBiasStep&quot;: null, &quot;DarkCurrentStep&quot;: null, &quot;Combine1dStep&quot;: null, &quot;SaturationStep&quot;: null, &quot;LinearityStep&quot;: null, &quot;DQInitStep&quot;: null, &quot;ImprintStep&quot;: null, &quot;OutlierDetectionStep&quot;: null, &quot;AssignWcsStep&quot;: null, &quot;KlipStep&quot;: null, &quot;StackRefsStep&quot;: null, &quot;TweakregCatalogStep&quot;: null, &quot;SourceCatalogStep&quot;: null, &quot;PersistenceStep&quot;: null, &quot;StraylightStep&quot;: null, &quot;IPCStep&quot;: null, &quot;FlatFieldStep&quot;: null, &quot;ResetStep&quot;: null, &quot;RefPixStep&quot;: null, &quot;ResampleStep&quot;: null, &quot;AmiAverageStep&quot;: &quot;0.7.0.dev&quot;, &quot;FringeStep&quot;: null, &quot;AlignRefsStep&quot;: null, &quot;LastFrameStep&quot;: null, &quot;JumpStep&quot;: null, &quot;EmissionStep&quot;: null, &quot;WfsCombineStep&quot;: null, &quot;AmiNormalizeStep&quot;: &quot;0.7.0.dev&quot;, &quot;SkyMatchStep&quot;: &quot;0.1.0&quot;, &quot;PhotomStep&quot;: null, &quot;RampFitStep&quot;: null, &quot;HlspStep&quot;: null}, &quot;instrument&quot;: &quot;SYSTEM&quot;, &quot;descrip&quot;: &quot;JWST calibration processing step version reference file&quot;, &quot;CAL_VER&quot;: &quot;0.6.0noop.dev307&quot;, &quot;history&quot;: &quot;Created by cal_ver_steps version 0.7.0.dev&quot;}}
+<span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;jsonrpc&quot;</span><span class="p">:</span> <span class="s2">&quot;1.0&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;reftype&quot;</span><span class="p">:</span> <span class="s2">&quot;CALVER&quot;</span><span class="p">,</span> <span class="s2">&quot;author&quot;</span><span class="p">:</span> <span class="s2">&quot;Warren J. Hack&quot;</span><span class="p">,</span> <span class="s2">&quot;versions&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;TweakRegStep&quot;</span><span class="p">:</span> <span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span> <span class="s2">&quot;SubtractImagesStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;RSCD_Step&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;CubeBuildStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;Extract1dStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;AmiAnalyzeStep&quot;</span><span class="p">:</span> <span class="s2">&quot;0.7.0.dev&quot;</span><span class="p">,</span> <span class="s2">&quot;Extract2dStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;BackgroundStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;SuperBiasStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;DarkCurrentStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;Combine1dStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;SaturationStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;LinearityStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;DQInitStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;ImprintStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;OutlierDetectionStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;AssignWcsStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;KlipStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;StackRefsStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;TweakregCatalogStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;SourceCatalogStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;PersistenceStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;StraylightStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;IPCStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;FlatFieldStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;ResetStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;RefPixStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;ResampleStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;AmiAverageStep&quot;</span><span class="p">:</span> <span class="s2">&quot;0.7.0.dev&quot;</span><span class="p">,</span> <span class="s2">&quot;FringeStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;AlignRefsStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;LastFrameStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;JumpStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;EmissionStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;WfsCombineStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;AmiNormalizeStep&quot;</span><span class="p">:</span> <span class="s2">&quot;0.7.0.dev&quot;</span><span class="p">,</span> <span class="s2">&quot;SkyMatchStep&quot;</span><span class="p">:</span> <span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span> <span class="s2">&quot;PhotomStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;RampFitStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;HlspStep&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">},</span> <span class="s2">&quot;instrument&quot;</span><span class="p">:</span> <span class="s2">&quot;SYSTEM&quot;</span><span class="p">,</span> <span class="s2">&quot;descrip&quot;</span><span class="p">:</span> <span class="s2">&quot;JWST calibration processing step version reference file&quot;</span><span class="p">,</span> <span class="s2">&quot;CAL_VER&quot;</span><span class="p">:</span> <span class="s2">&quot;0.6.0noop.dev307&quot;</span><span class="p">,</span> <span class="s2">&quot;history&quot;</span><span class="p">:</span> <span class="s2">&quot;Created by cal_ver_steps version 0.7.0.dev&quot;</span><span class="p">}}</span>
 </pre></div>
 </div>
 <p>This example shows the structure of a response string for a query with an error,
 &#8220;result&#8221; is set to null and &#8220;error&#8221; describes the problem in more detail,  most
 notably with the response.error.message string:</p>
-<div class="highlight-python"><div class="highlight"><pre>% curl -i -X POST -d &#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;method&quot;: &quot;get_system_versions&quot;, &quot;params&quot;: [&quot;an,invalid(version)&quot;,&quot;null&quot;], &quot;id&quot;: 1}&#39; https://jwst-crds-dit.stsci.edu/json/
-HTTP/1.1 200 OK
-Date: Wed, 24 Aug 2016 22:23:11 GMT
-Vary: Cookie
-X-Frame-Options: SAMEORIGIN
-Content-Type: application/json-rpc
-Via: 1.1 jwst-crds-dit.stsci.edu
-Transfer-Encoding: chunked
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">curl</span> <span class="o">-</span><span class="n">i</span> <span class="o">-</span><span class="n">X</span> <span class="n">POST</span> <span class="o">-</span><span class="n">d</span> <span class="s1">&#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;method&quot;: &quot;get_system_versions&quot;, &quot;params&quot;: [&quot;an,invalid(version)&quot;,&quot;null&quot;], &quot;id&quot;: 1}&#39;</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">jwst</span><span class="o">-</span><span class="n">crds</span><span class="o">-</span><span class="n">dit</span><span class="o">.</span><span class="n">stsci</span><span class="o">.</span><span class="n">edu</span><span class="o">/</span><span class="n">json</span><span class="o">/</span>
+<span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span> <span class="mi">200</span> <span class="n">OK</span>
+<span class="n">Date</span><span class="p">:</span> <span class="n">Wed</span><span class="p">,</span> <span class="mi">24</span> <span class="n">Aug</span> <span class="mi">2016</span> <span class="mi">22</span><span class="p">:</span><span class="mi">23</span><span class="p">:</span><span class="mi">11</span> <span class="n">GMT</span>
+<span class="n">Vary</span><span class="p">:</span> <span class="n">Cookie</span>
+<span class="n">X</span><span class="o">-</span><span class="n">Frame</span><span class="o">-</span><span class="n">Options</span><span class="p">:</span> <span class="n">SAMEORIGIN</span>
+<span class="n">Content</span><span class="o">-</span><span class="n">Type</span><span class="p">:</span> <span class="n">application</span><span class="o">/</span><span class="n">json</span><span class="o">-</span><span class="n">rpc</span>
+<span class="n">Via</span><span class="p">:</span> <span class="mf">1.1</span> <span class="n">jwst</span><span class="o">-</span><span class="n">crds</span><span class="o">-</span><span class="n">dit</span><span class="o">.</span><span class="n">stsci</span><span class="o">.</span><span class="n">edu</span>
+<span class="n">Transfer</span><span class="o">-</span><span class="n">Encoding</span><span class="p">:</span> <span class="n">chunked</span>
 
-{&quot;error&quot;: {&quot;message&quot;: &quot;OtherError: Invalid version string,  must be 1-128 chars of A-Z, a-z, 0-9, ., -, _&quot;, &quot;code&quot;: 500, &quot;data&quot;: null, &quot;name&quot;: &quot;OtherError&quot;}, &quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;id&quot;: 1, &quot;result&quot;: null}
+<span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;OtherError: Invalid version string,  must be 1-128 chars of A-Z, a-z, 0-9, ., -, _&quot;</span><span class="p">,</span> <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;OtherError&quot;</span><span class="p">},</span> <span class="s2">&quot;jsonrpc&quot;</span><span class="p">:</span> <span class="s2">&quot;1.0&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">}</span>
 </pre></div>
 </div>
 </div>
@@ -662,7 +660,7 @@ POSTed using a JSON serialization scheme.   Example absolute server URLs are:</p
 <p>JSONRPC requests are made by POST&#8217;ing a set of variables to the appropriate URL.</p>
 <p>An example CRDS service request can be demonstrated in a language agnostic way
 using the UNIX command line utility curl:</p>
-<div class="highlight-python"><div class="highlight"><pre>% curl -i -X POST -d &#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;method&quot;: &quot;get_default_context&quot;, &quot;params&quot;: [&quot;jwst&quot;], &quot;id&quot;: 1}&#39; https://jwst-crds.stsci.edu/json/
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">curl</span> <span class="o">-</span><span class="n">i</span> <span class="o">-</span><span class="n">X</span> <span class="n">POST</span> <span class="o">-</span><span class="n">d</span> <span class="s1">&#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;method&quot;: &quot;get_default_context&quot;, &quot;params&quot;: [&quot;jwst&quot;], &quot;id&quot;: 1}&#39;</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">jwst</span><span class="o">-</span><span class="n">crds</span><span class="o">.</span><span class="n">stsci</span><span class="o">.</span><span class="n">edu</span><span class="o">/</span><span class="n">json</span><span class="o">/</span>
 </pre></div>
 </div>
 <p>The <em>jsonrpc</em> attribute is used to specify the version of the JSONRPC standard
@@ -676,7 +674,7 @@ environments.</p>
 <div class="section" id="generic-response">
 <h3>Generic Response<a class="headerlink" href="#generic-response" title="Permalink to this headline">¶</a></h3>
 <p>The response returned by the server for the above request is the following JSON:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&quot;error&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s">&quot;jsonrpc&quot;</span><span class="p">:</span> <span class="s">&quot;1.0&quot;</span><span class="p">,</span> <span class="s">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&quot;result&quot;</span><span class="p">:</span> <span class="s">&quot;jwst_0000.pmap&quot;</span><span class="p">}</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;jsonrpc&quot;</span><span class="p">:</span> <span class="s2">&quot;1.0&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="s2">&quot;jwst_0000.pmap&quot;</span><span class="p">}</span>
 </pre></div>
 </div>
 </div>
@@ -697,7 +695,7 @@ and test environments upon request.</p>
 </div>
 <p>An example dialog for get_best_references from the CRDS jsonrpc demo page is
 shown here with FITS parkey names:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">jsonrpc</span><span class="o">.</span><span class="n">get_best_references</span><span class="p">(</span><span class="s">&quot;jwst_0000.pmap&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;INSTRUME&#39;</span><span class="p">:</span><span class="s">&#39;FGS&#39;</span><span class="p">,</span><span class="s">&#39;DETECTOR&#39;</span><span class="p">:</span><span class="s">&#39;FGS1&#39;</span><span class="p">,</span> <span class="s">&#39;FILTER&#39;</span><span class="p">:</span><span class="s">&#39;ANY&#39;</span><span class="p">},</span> <span class="n">null</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">jsonrpc</span><span class="o">.</span><span class="n">get_best_references</span><span class="p">(</span><span class="s2">&quot;jwst_0000.pmap&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;INSTRUME&#39;</span><span class="p">:</span><span class="s1">&#39;FGS&#39;</span><span class="p">,</span><span class="s1">&#39;DETECTOR&#39;</span><span class="p">:</span><span class="s1">&#39;FGS1&#39;</span><span class="p">,</span> <span class="s1">&#39;FILTER&#39;</span><span class="p">:</span><span class="s1">&#39;ANY&#39;</span><span class="p">},</span> <span class="n">null</span><span class="p">)</span>
 <span class="go">Requesting -&gt;</span>
 <span class="go">{&quot;id&quot;:&quot;jsonrpc&quot;, &quot;params&quot;:[&quot;jwst_0000.pmap&quot;, {&quot;INSTRUME&quot;:&quot;FGS&quot;, &quot;DETECTOR&quot;:&quot;FGS1&quot;, &quot;FILTER&quot;:&quot;ANY&quot;}, null], &quot;method&quot;:&quot;get_best_references&quot;, &quot;jsonrpc&quot;:&quot;1.0&quot;}</span>
 <span class="go">Deferred(12, unfired)</span>
@@ -706,7 +704,7 @@ shown here with FITS parkey names:</p>
 </pre></div>
 </div>
 <p>And the same query is here with JWST data model parkey names:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">jsonrpc</span><span class="o">.</span><span class="n">get_best_references</span><span class="p">(</span><span class="s">&quot;jwst_0000.pmap&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;META.INSTRUMENT.TYPE&#39;</span><span class="p">:</span><span class="s">&#39;FGS&#39;</span><span class="p">,</span><span class="s">&#39;META.INSTRUMENT.DETECTOR&#39;</span><span class="p">:</span><span class="s">&#39;FGS1&#39;</span><span class="p">,</span> <span class="s">&#39;META.INSTRUMENT.FILTER&#39;</span><span class="p">:</span><span class="s">&#39;ANY&#39;</span><span class="p">},</span> <span class="n">null</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">jsonrpc</span><span class="o">.</span><span class="n">get_best_references</span><span class="p">(</span><span class="s2">&quot;jwst_0000.pmap&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;META.INSTRUMENT.TYPE&#39;</span><span class="p">:</span><span class="s1">&#39;FGS&#39;</span><span class="p">,</span><span class="s1">&#39;META.INSTRUMENT.DETECTOR&#39;</span><span class="p">:</span><span class="s1">&#39;FGS1&#39;</span><span class="p">,</span> <span class="s1">&#39;META.INSTRUMENT.FILTER&#39;</span><span class="p">:</span><span class="s1">&#39;ANY&#39;</span><span class="p">},</span> <span class="n">null</span><span class="p">)</span>
 <span class="go">Requesting -&gt;</span>
 <span class="go">{&quot;id&quot;:&quot;jsonrpc&quot;, &quot;params&quot;:[&quot;jwst_0000.pmap&quot;, {&quot;META.INSTRUMENT.TYPE&quot;:&quot;FGS&quot;, &quot;META.INSTRUMENT.DETECTOR&quot;:&quot;FGS1&quot;, &quot;META.INSTRUMENT.FILTER&quot;:&quot;ANY&quot;}, null], &quot;method&quot;:&quot;get_best_references&quot;, &quot;jsonrpc&quot;:&quot;1.0&quot;}</span>
 <span class="go">Deferred(14, unfired)</span>
@@ -736,12 +734,12 @@ shown here with FITS parkey names:</p>
         <li class="right" >
           <a href="web_site_use.html" title="Using the CRDS Web Site"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.0.8 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.0 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2015, STScI.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright 2015, STScI.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.
     </div>
   </body>
 </html>

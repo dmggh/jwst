@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>About Mappings &mdash; crds 7.0.8 documentation</title>
+    <title>About Mappings &#8212; crds 7.1.0 documentation</title>
     
     <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,17 +14,18 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '7.0.8',
+        VERSION:     '7.1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="crds 7.0.8 documentation" href="index.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Using the CRDS Web Site" href="web_site_use.html" />
     <link rel="prev" title="Core Library Functions" href="core_library_functions.html" /> 
   </head>
@@ -41,7 +42,7 @@
         <li class="right" >
           <a href="core_library_functions.html" title="Core Library Functions"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.0.8 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.0 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -123,21 +124,18 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/rmap_syntax.txt"
+      <li><a href="_sources/rmap_syntax.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -165,15 +163,15 @@ precludes writing a parser for CRDS mappings in some other language.</p>
 <h2>Naming<a class="headerlink" href="#naming" title="Permalink to this headline">¶</a></h2>
 <p>The CRDS HST mapping prototypes which are generated from information scraped from
 the CDBS web site are named with the forms:</p>
-<div class="highlight-python"><div class="highlight"><pre>&lt;observatory&gt; .pmap                               e.g. hst.pmap
-&lt;observatory&gt; _ &lt;instrument&gt; .imap                e.g. hst_acs.imap
-&lt;observatory&gt; _ &lt;instrument&gt; _ &lt;filekind&gt; .rmap   e.g. hst_acs_darkfile.rmap
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">observatory</span><span class="o">&gt;</span> <span class="o">.</span><span class="n">pmap</span>                               <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">hst</span><span class="o">.</span><span class="n">pmap</span>
+<span class="o">&lt;</span><span class="n">observatory</span><span class="o">&gt;</span> <span class="n">_</span> <span class="o">&lt;</span><span class="n">instrument</span><span class="o">&gt;</span> <span class="o">.</span><span class="n">imap</span>                <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">hst_acs</span><span class="o">.</span><span class="n">imap</span>
+<span class="o">&lt;</span><span class="n">observatory</span><span class="o">&gt;</span> <span class="n">_</span> <span class="o">&lt;</span><span class="n">instrument</span><span class="o">&gt;</span> <span class="n">_</span> <span class="o">&lt;</span><span class="n">filekind</span><span class="o">&gt;</span> <span class="o">.</span><span class="n">rmap</span>   <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">hst_acs_darkfile</span><span class="o">.</span><span class="n">rmap</span>
 </pre></div>
 </div>
 <p>The names of subsequent derived mappings include a version number:</p>
-<div class="highlight-python"><div class="highlight"><pre>&lt;observatory&gt; _ &lt;version&gt; .pmap                               e.g. hst_00001.pmap
-&lt;observatory&gt; _ &lt;instrument&gt; _ &lt;version&gt; .imap                e.g. hst_acs_00047.imap
-&lt;observatory&gt; _ &lt;instrument&gt; _ &lt;filekind&gt; _ &lt;version&gt; .rmap   e.g. hst_acs_darkfile_00012.rmap
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">observatory</span><span class="o">&gt;</span> <span class="n">_</span> <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span> <span class="o">.</span><span class="n">pmap</span>                               <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">hst_00001</span><span class="o">.</span><span class="n">pmap</span>
+<span class="o">&lt;</span><span class="n">observatory</span><span class="o">&gt;</span> <span class="n">_</span> <span class="o">&lt;</span><span class="n">instrument</span><span class="o">&gt;</span> <span class="n">_</span> <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span> <span class="o">.</span><span class="n">imap</span>                <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">hst_acs_00047</span><span class="o">.</span><span class="n">imap</span>
+<span class="o">&lt;</span><span class="n">observatory</span><span class="o">&gt;</span> <span class="n">_</span> <span class="o">&lt;</span><span class="n">instrument</span><span class="o">&gt;</span> <span class="n">_</span> <span class="o">&lt;</span><span class="n">filekind</span><span class="o">&gt;</span> <span class="n">_</span> <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span> <span class="o">.</span><span class="n">rmap</span>   <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">hst_acs_darkfile_00012</span><span class="o">.</span><span class="n">rmap</span>
 </pre></div>
 </div>
 </div>
@@ -199,27 +197,27 @@ structure consisting of top-level selectors and sub-selectors.</p>
 <div class="section" id="pipeline-mappings-pmap">
 <h2>Pipeline Mappings (.pmap)<a class="headerlink" href="#pipeline-mappings-pmap" title="Permalink to this headline">¶</a></h2>
 <p>A sample pipeline mapping for HST looks like:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s">&#39;name&#39;</span> <span class="p">:</span> <span class="s">&#39;hst.pmap&#39;</span><span class="p">,</span>
-    <span class="s">&#39;derived_from&#39;</span> <span class="p">:</span> <span class="s">&#39;created by hand 12-23-2011&#39;</span><span class="p">,</span>
-    <span class="s">&#39;mapping&#39;</span> <span class="p">:</span> <span class="s">&#39;PIPELINE&#39;</span><span class="p">,</span>
-    <span class="s">&#39;observatory&#39;</span> <span class="p">:</span> <span class="s">&#39;HST&#39;</span><span class="p">,</span>
-    <span class="s">&#39;parkey&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="s">&#39;INSTRUME&#39;</span><span class="p">,),</span>
-    <span class="s">&#39;description&#39;</span> <span class="p">:</span> <span class="s">&#39;Initially generated on 12-23-2011&#39;</span><span class="p">,</span>
-    <span class="s">&#39;sha1sum&#39;</span> <span class="p">:</span> <span class="s">&#39;e2c6392fd2731df1e8d933bd990f3fd313a813db&#39;</span><span class="p">,</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst.pmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;derived_from&#39;</span> <span class="p">:</span> <span class="s1">&#39;created by hand 12-23-2011&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;mapping&#39;</span> <span class="p">:</span> <span class="s1">&#39;PIPELINE&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;observatory&#39;</span> <span class="p">:</span> <span class="s1">&#39;HST&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;parkey&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;INSTRUME&#39;</span><span class="p">,),</span>
+    <span class="s1">&#39;description&#39;</span> <span class="p">:</span> <span class="s1">&#39;Initially generated on 12-23-2011&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;sha1sum&#39;</span> <span class="p">:</span> <span class="s1">&#39;e2c6392fd2731df1e8d933bd990f3fd313a813db&#39;</span><span class="p">,</span>
 <span class="p">}</span>
 
-<span class="n">comment</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;This is an optional mapping section used to add multiline commentary,</span>
-<span class="s">perhaps to describe mapping evolution or unusual behaviors.</span>
-<span class="s">&quot;&quot;&quot;</span>
+<span class="n">comment</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;This is an optional mapping section used to add multiline commentary,</span>
+<span class="s2">perhaps to describe mapping evolution or unusual behaviors.</span>
+<span class="s2">&quot;&quot;&quot;</span>
 
 <span class="n">selector</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s">&#39;ACS&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_acs.imap&#39;</span><span class="p">,</span>
-    <span class="s">&#39;COS&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos.imap&#39;</span><span class="p">,</span>
-    <span class="s">&#39;NICMOS&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_nicmos.imap&#39;</span><span class="p">,</span>
-    <span class="s">&#39;STIS&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_stis.imap&#39;</span><span class="p">,</span>
-    <span class="s">&#39;WFC3&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_wfc3.imap&#39;</span><span class="p">,</span>
-    <span class="s">&#39;WFPC2&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_wfpc2.imap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ACS&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_acs.imap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;COS&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos.imap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;NICMOS&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_nicmos.imap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;STIS&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_stis.imap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;WFC3&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_wfc3.imap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;WFPC2&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_wfpc2.imap&#39;</span><span class="p">,</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -229,34 +227,34 @@ mapping file.</p>
 <div class="section" id="instrument-mappings-imap">
 <h2>Instrument Mappings (.imap)<a class="headerlink" href="#instrument-mappings-imap" title="Permalink to this headline">¶</a></h2>
 <p>A sample instrument mapping for HST&#8217;s COS instrument looks like:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s">&#39;derived_from&#39;</span> <span class="p">:</span> <span class="s">&#39;scraped 2011-12-23 11:57:10&#39;</span><span class="p">,</span>
-    <span class="s">&#39;description&#39;</span> <span class="p">:</span> <span class="s">&#39;Initially generated on 2011-12-23 11:57:10&#39;</span><span class="p">,</span>
-    <span class="s">&#39;instrument&#39;</span> <span class="p">:</span> <span class="s">&#39;COS&#39;</span><span class="p">,</span>
-    <span class="s">&#39;mapping&#39;</span> <span class="p">:</span> <span class="s">&#39;INSTRUMENT&#39;</span><span class="p">,</span>
-    <span class="s">&#39;name&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos.imap&#39;</span><span class="p">,</span>
-    <span class="s">&#39;observatory&#39;</span> <span class="p">:</span> <span class="s">&#39;HST&#39;</span><span class="p">,</span>
-    <span class="s">&#39;parkey&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="s">&#39;REFTYPE&#39;</span><span class="p">,),</span>
-    <span class="s">&#39;sha1sum&#39;</span> <span class="p">:</span> <span class="s">&#39;800fb1567cb5bed4031402c7396aeb86c5e1db61&#39;</span><span class="p">,</span>
-    <span class="s">&#39;source_url&#39;</span> <span class="p">:</span> <span class="s">&#39;http://www.stsci.edu/hst/observatory/cdbs/SIfileInfo/COS/reftablequeryindex&#39;</span><span class="p">,</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;derived_from&#39;</span> <span class="p">:</span> <span class="s1">&#39;scraped 2011-12-23 11:57:10&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;description&#39;</span> <span class="p">:</span> <span class="s1">&#39;Initially generated on 2011-12-23 11:57:10&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;instrument&#39;</span> <span class="p">:</span> <span class="s1">&#39;COS&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;mapping&#39;</span> <span class="p">:</span> <span class="s1">&#39;INSTRUMENT&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;name&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos.imap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;observatory&#39;</span> <span class="p">:</span> <span class="s1">&#39;HST&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;parkey&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;REFTYPE&#39;</span><span class="p">,),</span>
+    <span class="s1">&#39;sha1sum&#39;</span> <span class="p">:</span> <span class="s1">&#39;800fb1567cb5bed4031402c7396aeb86c5e1db61&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;source_url&#39;</span> <span class="p">:</span> <span class="s1">&#39;http://www.stsci.edu/hst/observatory/cdbs/SIfileInfo/COS/reftablequeryindex&#39;</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="n">selector</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s">&#39;badttab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_badttab.rmap&#39;</span><span class="p">,</span>
-    <span class="s">&#39;bpixtab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_bpixtab.rmap&#39;</span><span class="p">,</span>
-    <span class="s">&#39;brftab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_brftab.rmap&#39;</span><span class="p">,</span>
-    <span class="s">&#39;brsttab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_brsttab.rmap&#39;</span><span class="p">,</span>
-    <span class="s">&#39;deadtab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_deadtab.rmap&#39;</span><span class="p">,</span>
-    <span class="s">&#39;disptab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_disptab.rmap&#39;</span><span class="p">,</span>
-    <span class="s">&#39;flatfile&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_flatfile.rmap&#39;</span><span class="p">,</span>
-    <span class="s">&#39;fluxtab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_fluxtab.rmap&#39;</span><span class="p">,</span>
-    <span class="s">&#39;geofile&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_geofile.rmap&#39;</span><span class="p">,</span>
-    <span class="s">&#39;lamptab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_lamptab.rmap&#39;</span><span class="p">,</span>
-    <span class="s">&#39;phatab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_phatab.rmap&#39;</span><span class="p">,</span>
-    <span class="s">&#39;spwcstab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_spwcstab.rmap&#39;</span><span class="p">,</span>
-    <span class="s">&#39;tdstab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_tdstab.rmap&#39;</span><span class="p">,</span>
-    <span class="s">&#39;wcptab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_wcptab.rmap&#39;</span><span class="p">,</span>
-    <span class="s">&#39;xtractab&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_xtractab.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;badttab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_badttab.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;bpixtab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_bpixtab.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;brftab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_brftab.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;brsttab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_brsttab.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;deadtab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_deadtab.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;disptab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_disptab.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;flatfile&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_flatfile.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;fluxtab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_fluxtab.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;geofile&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_geofile.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;lamptab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_lamptab.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;phatab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_phatab.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;spwcstab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_spwcstab.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;tdstab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_tdstab.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;wcptab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_wcptab.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;xtractab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_xtractab.rmap&#39;</span><span class="p">,</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -269,24 +267,24 @@ keyword which will record the best reference selection.</p>
 <div class="section" id="reference-mappings-rmap">
 <h2>Reference Mappings (.rmap)<a class="headerlink" href="#reference-mappings-rmap" title="Permalink to this headline">¶</a></h2>
 <p>A sample reference mapping for HST COS DEADTAB looks like:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s">&#39;derived_from&#39;</span> <span class="p">:</span> <span class="s">&#39;scraped 2011-12-23 11:54:56&#39;</span><span class="p">,</span>
-    <span class="s">&#39;description&#39;</span> <span class="p">:</span> <span class="s">&#39;Initially generated on 2011-12-23 11:54:56&#39;</span><span class="p">,</span>
-    <span class="s">&#39;filekind&#39;</span> <span class="p">:</span> <span class="s">&#39;DEADTAB&#39;</span><span class="p">,</span>
-    <span class="s">&#39;instrument&#39;</span> <span class="p">:</span> <span class="s">&#39;COS&#39;</span><span class="p">,</span>
-    <span class="s">&#39;mapping&#39;</span> <span class="p">:</span> <span class="s">&#39;REFERENCE&#39;</span><span class="p">,</span>
-    <span class="s">&#39;name&#39;</span> <span class="p">:</span> <span class="s">&#39;hst_cos_deadtab.rmap&#39;</span><span class="p">,</span>
-    <span class="s">&#39;observatory&#39;</span> <span class="p">:</span> <span class="s">&#39;HST&#39;</span><span class="p">,</span>
-    <span class="s">&#39;parkey&#39;</span> <span class="p">:</span> <span class="p">((</span><span class="s">&#39;DETECTOR&#39;</span><span class="p">,),</span> <span class="p">(</span><span class="s">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s">&#39;TIME-OBS&#39;</span><span class="p">)),</span>
-    <span class="s">&#39;sha1sum&#39;</span> <span class="p">:</span> <span class="s">&#39;e27984a6441d8aaa7cd28ead2267a6be4c3a153b&#39;</span><span class="p">,</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;derived_from&#39;</span> <span class="p">:</span> <span class="s1">&#39;scraped 2011-12-23 11:54:56&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;description&#39;</span> <span class="p">:</span> <span class="s1">&#39;Initially generated on 2011-12-23 11:54:56&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;filekind&#39;</span> <span class="p">:</span> <span class="s1">&#39;DEADTAB&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;instrument&#39;</span> <span class="p">:</span> <span class="s1">&#39;COS&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;mapping&#39;</span> <span class="p">:</span> <span class="s1">&#39;REFERENCE&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;name&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_deadtab.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;observatory&#39;</span> <span class="p">:</span> <span class="s1">&#39;HST&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;parkey&#39;</span> <span class="p">:</span> <span class="p">((</span><span class="s1">&#39;DETECTOR&#39;</span><span class="p">,),</span> <span class="p">(</span><span class="s1">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s1">&#39;TIME-OBS&#39;</span><span class="p">)),</span>
+    <span class="s1">&#39;sha1sum&#39;</span> <span class="p">:</span> <span class="s1">&#39;e27984a6441d8aaa7cd28ead2267a6be4c3a153b&#39;</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="n">selector</span> <span class="o">=</span> <span class="n">Match</span><span class="p">({</span>
-    <span class="p">(</span><span class="s">&#39;FUV&#39;</span><span class="p">,)</span> <span class="p">:</span> <span class="n">UseAfter</span><span class="p">({</span>
-        <span class="s">&#39;1996-10-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s">&#39;s7g1700gl_dead.fits&#39;</span><span class="p">,</span>
+    <span class="p">(</span><span class="s1">&#39;FUV&#39;</span><span class="p">,)</span> <span class="p">:</span> <span class="n">UseAfter</span><span class="p">({</span>
+        <span class="s1">&#39;1996-10-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s1">&#39;s7g1700gl_dead.fits&#39;</span><span class="p">,</span>
     <span class="p">}),</span>
-    <span class="p">(</span><span class="s">&#39;NUV&#39;</span><span class="p">,)</span> <span class="p">:</span> <span class="n">UseAfter</span><span class="p">({</span>
-        <span class="s">&#39;1996-10-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s">&#39;s7g1700ql_dead.fits&#39;</span><span class="p">,</span>
+    <span class="p">(</span><span class="s1">&#39;NUV&#39;</span><span class="p">,)</span> <span class="p">:</span> <span class="n">UseAfter</span><span class="p">({</span>
+        <span class="s1">&#39;1996-10-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s1">&#39;s7g1700ql_dead.fits&#39;</span><span class="p">,</span>
     <span class="p">}),</span>
 <span class="p">})</span>
 </pre></div>
@@ -298,35 +296,35 @@ various dataset header keywords.</p>
 <h2>Active Header Fields<a class="headerlink" href="#active-header-fields" title="Permalink to this headline">¶</a></h2>
 <p>Many rmap header fields are passive metadata.   A number of optional rmap header fields,  however,  actively affect
 best reference lookups and results:</p>
-<div class="highlight-python"><div class="highlight"><pre>header = {
-          ...,
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
+          <span class="o">...</span><span class="p">,</span>
 
-    &#39;parkey&#39; : ((&#39;DETECTOR&#39;,), (&#39;DATE-OBS&#39;, &#39;TIME-OBS&#39;)),
+    <span class="s1">&#39;parkey&#39;</span> <span class="p">:</span> <span class="p">((</span><span class="s1">&#39;DETECTOR&#39;</span><span class="p">,),</span> <span class="p">(</span><span class="s1">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s1">&#39;TIME-OBS&#39;</span><span class="p">)),</span>
 
-    &#39;extra_keys&#39; : (&#39;XCORNER&#39;, &#39;YCORNER&#39;, &#39;CCDCHIP&#39;),
+    <span class="s1">&#39;extra_keys&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;XCORNER&#39;</span><span class="p">,</span> <span class="s1">&#39;YCORNER&#39;</span><span class="p">,</span> <span class="s1">&#39;CCDCHIP&#39;</span><span class="p">),</span>
 
-    &#39;reffile_switch&#39; : &#39;BIASCORR&#39;,
+    <span class="s1">&#39;reffile_switch&#39;</span> <span class="p">:</span> <span class="s1">&#39;BIASCORR&#39;</span><span class="p">,</span>
 
-    &#39;reffile_required&#39; : &#39;YES&#39;,
+    <span class="s1">&#39;reffile_required&#39;</span> <span class="p">:</span> <span class="s1">&#39;YES&#39;</span><span class="p">,</span>
 
-    &#39;rmap_relevance&#39; : &#39;((DETECTOR != &quot;SBC&quot;) and (BIASCORR != &quot;OMIT&quot;))&#39;,
-    &#39;rmap_omit&#39; : &#39;((DETECTOR != &quot;SBC&quot;) and (BIASCORR != &quot;OMIT&quot;))&#39;,
+    <span class="s1">&#39;rmap_relevance&#39;</span> <span class="p">:</span> <span class="s1">&#39;((DETECTOR != &quot;SBC&quot;) and (BIASCORR != &quot;OMIT&quot;))&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;rmap_omit&#39;</span> <span class="p">:</span> <span class="s1">&#39;((DETECTOR != &quot;SBC&quot;) and (BIASCORR != &quot;OMIT&quot;))&#39;</span><span class="p">,</span>
 
-    &#39;parkey_relevance&#39; : {
-        &#39;binaxis1&#39; : &#39;(DETECTOR == &quot;UVIS&quot;)&#39;,
-        &#39;binaxis2&#39; : &#39;(DETECTOR == &quot;UVIS&quot;)&#39;,
-        &#39;ccdgain&#39; : &#39;(DETECTOR == &quot;IR&quot;)&#39;,
-        &#39;samp_seq&#39; : &#39;(DETECTOR == &quot;IR&quot;)&#39;,
-        &#39;subtype&#39; : &#39;(DETECTOR == &quot;IR&quot;)&#39;,
-    },
+    <span class="s1">&#39;parkey_relevance&#39;</span> <span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;binaxis1&#39;</span> <span class="p">:</span> <span class="s1">&#39;(DETECTOR == &quot;UVIS&quot;)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;binaxis2&#39;</span> <span class="p">:</span> <span class="s1">&#39;(DETECTOR == &quot;UVIS&quot;)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ccdgain&#39;</span> <span class="p">:</span> <span class="s1">&#39;(DETECTOR == &quot;IR&quot;)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;samp_seq&#39;</span> <span class="p">:</span> <span class="s1">&#39;(DETECTOR == &quot;IR&quot;)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;subtype&#39;</span> <span class="p">:</span> <span class="s1">&#39;(DETECTOR == &quot;IR&quot;)&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
 
-    &#39;hooks&#39; : {
-        &#39;fallback_header&#39; : &#39;fallback_header_acs_biasfile_v2&#39;,
-        &#39;precondition_header&#39; : &#39;precondition_header_acs_biasfile_v2&#39;,
-    },
+    <span class="s1">&#39;hooks&#39;</span> <span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;fallback_header&#39;</span> <span class="p">:</span> <span class="s1">&#39;fallback_header_acs_biasfile_v2&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;precondition_header&#39;</span> <span class="p">:</span> <span class="s1">&#39;precondition_header_acs_biasfile_v2&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
 
-          ...,
-}
+          <span class="o">...</span><span class="p">,</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <div class="section" id="required-parameters">
@@ -484,13 +482,13 @@ match candidates that cannot possibly match.</p>
 <h4>Parameter Tuples and Simple Matches<a class="headerlink" href="#parameter-tuples-and-simple-matches" title="Permalink to this headline">¶</a></h4>
 <p>The CRDS Match operator typically matches a dataset header against a tuple which defines multiple parameter values whose
 names are specified in the rmap header <code class="xref py py-obj docutils literal"><span class="pre">parkey</span></code>:</p>
-<div class="highlight-python"><div class="highlight"><pre>(&quot;UVIS&quot;, &quot;F122LP&quot;)   :  &#39;some_file_or_nested_selection&#39;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;UVIS&quot;</span><span class="p">,</span> <span class="s2">&quot;F122LP&quot;</span><span class="p">)</span>   <span class="p">:</span>  <span class="s1">&#39;some_file_or_nested_selection&#39;</span>
 </pre></div>
 </div>
 <p>Alternately,  for simple use cases the Match operator can match against single
 strings,  which is a simplified syntax for a 1-tuple:</p>
-<div class="highlight-python"><div class="highlight"><pre>&#39;UVIS&#39;  :  &#39;some_file_or_nested_selection&#39;
-(&#39;UVIS&#39;,) : &#39;this_is_the_equivalent_one_tuple&#39;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="s1">&#39;UVIS&#39;</span>  <span class="p">:</span>  <span class="s1">&#39;some_file_or_nested_selection&#39;</span>
+<span class="p">(</span><span class="s1">&#39;UVIS&#39;</span><span class="p">,)</span> <span class="p">:</span> <span class="s1">&#39;this_is_the_equivalent_one_tuple&#39;</span>
 </pre></div>
 </div>
 </div>
@@ -504,15 +502,15 @@ Relationals, between, N/A, and Substitutions.</p>
 <h4>Or |<a class="headerlink" href="#or" title="Permalink to this headline">¶</a></h4>
 <p>Many CRDS match expressions consist of a series of match patterns separated by vertical bars.   The vertical bar is read
 as &#8220;or&#8221; and means that a match occurs if either pattern matches that dataset header.   For example, the expression:</p>
-<div class="highlight-python"><div class="highlight"><pre>(&quot;either_this|that&quot;,&quot;1|2|3&quot;)  : &quot;some_file.fits&quot;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;either_this|that&quot;</span><span class="p">,</span><span class="s2">&quot;1|2|3&quot;</span><span class="p">)</span>  <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
 </pre></div>
 </div>
 <p>will match:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">(</span><span class="s">&quot;either_this&quot;</span><span class="p">,</span> <span class="s">&quot;2&quot;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;either_this&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>and also:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">(</span><span class="s">&quot;that&quot;</span><span class="p">,</span> <span class="s">&quot;1&quot;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;that&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -520,7 +518,7 @@ as &#8220;or&#8221; and means that a match occurs if either pattern matches that
 <h4>Wild Cards *<a class="headerlink" href="#wild-cards" title="Permalink to this headline">¶</a></h4>
 <p>By default,  * is interpreted in CRDS as a glob pattern,  much like UNIX shell file name matching.  * matches any
 sequence of characters.  The expression:</p>
-<div class="highlight-python"><div class="highlight"><pre>(&quot;F*122&quot;,) : &quot;some_file.fits&quot;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;F*122&quot;</span><span class="p">,)</span> <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
 </pre></div>
 </div>
 <p>will match any value starting with &#8220;F&#8221; and ending with &#8220;122&#8221;.</p>
@@ -529,7 +527,7 @@ sequence of characters.  The expression:</p>
 <h4>Regular Expressions<a class="headerlink" href="#regular-expressions" title="Permalink to this headline">¶</a></h4>
 <p>CRDS can match on true regular expressions.   A true regular expression match is
 triggered by bracketing the match in parentheses ():</p>
-<div class="highlight-python"><div class="highlight"><pre>(&quot;(^F[^13]22$)&quot;,)  : &quot;some_file.fits&quot;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;(^F[^13]22$)&quot;</span><span class="p">,)</span>  <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
 </pre></div>
 </div>
 <p>The above corresponds to matching the regular expression &#8220;^F[^1234]22$&#8221; (note that the bracketing parentheses within the
@@ -541,7 +539,7 @@ expression will match values starting with &#8220;F&#8221;, followed by any char
 <p>A literal expression is bracketed with curly braces {} and is matched without
 any interpretation whatsoever.   Hence,  special characters like * or | are
 interpreted literally rather than as ors or wildcards.  The expression:</p>
-<div class="highlight-python"><div class="highlight"><pre>(&quot;{F|*G}&quot;,) : &quot;some_file.fits&quot;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;{F|*G}&quot;</span><span class="p">,)</span> <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
 </pre></div>
 </div>
 <p>matches the value &#8220;F|*G&#8221; as opposed to &#8220;F&#8221; or anything ending with &#8220;G&#8221;.</p>
@@ -551,11 +549,11 @@ interpreted literally rather than as ors or wildcards.  The expression:</p>
 <p>Relational expressions are bracketed by the pound character #.   Relational
 expressions do numerical comparisons on the header value to determine a match.
 Relational expressions have implicit variables and support the operators:</p>
-<div class="highlight-python"><div class="highlight"><pre>&gt; &gt;= &lt; &lt;= == and or
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="o">&gt;=</span> <span class="o">&lt;</span> <span class="o">&lt;=</span> <span class="o">==</span> <span class="ow">and</span> <span class="ow">or</span>
 </pre></div>
 </div>
 <p>The expression:</p>
-<div class="highlight-python"><div class="highlight"><pre>(&quot;# &gt;1 and &lt;37 #&quot;,)  : &quot;some_file.fits&quot;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;# &gt;1 and &lt;37 #&quot;</span><span class="p">,)</span>  <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
 </pre></div>
 </div>
 <p>will match any number greater than 1 and less than 37.</p>
@@ -565,17 +563,17 @@ Relational expressions have implicit variables and support the operators:</p>
 <p>A special relational operator &#8220;between&#8221; is used to simply express a range
 of numbers &gt;= to the lower bound and &lt; the upper bound,  similar to Python
 slicing:</p>
-<div class="highlight-python"><div class="highlight"><pre>(&quot;between 1  47&quot;,) : &quot;some_file.fits&quot;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;between 1  47&quot;</span><span class="p">,)</span> <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
 </pre></div>
 </div>
 <p>will match any number greater than or equal to 1 and less than 47.   This is
 equivalent to:</p>
-<div class="highlight-python"><div class="highlight"><pre>(&quot;# &gt;=1 and &lt;47 #&quot;,) : &quot;some_file.fits&quot;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;# &gt;=1 and &lt;47 #&quot;</span><span class="p">,)</span> <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
 </pre></div>
 </div>
 <p>Note that &#8220;between&#8221; matches sensibly stack into a complete range.  The expressions:</p>
-<div class="highlight-python"><div class="highlight"><pre>(&quot;between 1 47&quot;,) : &quot;some_file.fits&quot;
-(&quot;between 47 90&quot;, ) : &quot;another_file.fits&quot;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;between 1 47&quot;</span><span class="p">,)</span> <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
+<span class="p">(</span><span class="s2">&quot;between 47 90&quot;</span><span class="p">,</span> <span class="p">)</span> <span class="p">:</span> <span class="s2">&quot;another_file.fits&quot;</span>
 </pre></div>
 </div>
 <p>provide complete coverage for the range between 1 and 90.</p>
@@ -585,7 +583,7 @@ equivalent to:</p>
 <p>Some rmaps have match tuple values of &#8220;N/A&#8221;,  or Not Applicable.
 A value of N/A is matched as a special version of &#8220;*&#8221;, matching anything,  but
 not affecting the &#8220;weight&#8221; of the match:</p>
-<div class="highlight-python"><div class="highlight"><pre>(&#39;HRC&#39;, &#39;N/A&#39;) :  &quot;some_file.fits&quot;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s1">&#39;HRC&#39;</span><span class="p">,</span> <span class="s1">&#39;N/A&#39;</span><span class="p">)</span> <span class="p">:</span>  <span class="s2">&quot;some_file.fits&quot;</span>
 </pre></div>
 </div>
 <p>There are a couple uses for N/A parameters.    First,  sometimes a parameter is
@@ -600,7 +598,7 @@ that <em>are</em> used in the match.</p>
 <h4>NOT Expressions<a class="headerlink" href="#not-expressions" title="Permalink to this headline">¶</a></h4>
 <p>It&#8217;s possible to match the negation of match expressions by pre-pending &#8220;NOT &#8221;
 to the unnegated expression.   For example:</p>
-<div class="highlight-python"><div class="highlight"><pre>(&#39;not HRC&#39;, &#39;N/A&#39;) :  &quot;not_some_file.fits&quot;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s1">&#39;not HRC&#39;</span><span class="p">,</span> <span class="s1">&#39;N/A&#39;</span><span class="p">)</span> <span class="p">:</span>  <span class="s2">&quot;not_some_file.fits&quot;</span>
 </pre></div>
 </div>
 <p>The weight of a negated expression is the opposite of unnegated weight of the
@@ -613,15 +611,15 @@ duplicate rmap rules.  In order to support WFC3 biasfile conventions,  CRDS
 rmaps permit the definition of meta-match-values which correspond to a set of
 actual dataset header values. For instance,  when an rmap header contains a
 &#8220;substitutions&#8221; field like this:</p>
-<div class="highlight-python"><div class="highlight"><pre>&#39;substitutions&#39; : {
-    &#39;CCDAMP&#39; : {
-        &#39;G280_AMPS&#39; : (&#39;ABCD&#39;, &#39;A&#39;, &#39;B&#39;, &#39;C&#39;, &#39;D&#39;, &#39;AC&#39;, &#39;AD&#39;, &#39;BC&#39;, &#39;BD&#39;),
-    },
-},
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="s1">&#39;substitutions&#39;</span> <span class="p">:</span> <span class="p">{</span>
+    <span class="s1">&#39;CCDAMP&#39;</span> <span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;G280_AMPS&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;ABCD&#39;</span><span class="p">,</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;AC&#39;</span><span class="p">,</span> <span class="s1">&#39;AD&#39;</span><span class="p">,</span> <span class="s1">&#39;BC&#39;</span><span class="p">,</span> <span class="s1">&#39;BD&#39;</span><span class="p">),</span>
+    <span class="p">},</span>
+<span class="p">},</span>
 </pre></div>
 </div>
 <p>then a match tuple line like the following could be written:</p>
-<div class="highlight-python"><div class="highlight"><pre>(&#39;UVIS&#39;, &#39;G280_AMPS&#39;, &#39;1.5&#39;, &#39;1.0&#39;, &#39;1.0&#39;, &#39;G280-REF&#39;, &#39;T&#39;) : UseAfter({
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s1">&#39;UVIS&#39;</span><span class="p">,</span> <span class="s1">&#39;G280_AMPS&#39;</span><span class="p">,</span> <span class="s1">&#39;1.5&#39;</span><span class="p">,</span> <span class="s1">&#39;1.0&#39;</span><span class="p">,</span> <span class="s1">&#39;1.0&#39;</span><span class="p">,</span> <span class="s1">&#39;G280-REF&#39;</span><span class="p">,</span> <span class="s1">&#39;T&#39;</span><span class="p">)</span> <span class="p">:</span> <span class="n">UseAfter</span><span class="p">({</span>
 </pre></div>
 </div>
 <p>Here the value of G280_AMPS works like this:  first,   reference files listed
@@ -663,14 +661,14 @@ corresponding reference filenames.   UseAfter finds the greatest date-time which
 is less than or equal to ( &lt;= ) EXPSTART of a dataset.   Unlike
 reference file and dataset timestamp values,  all CRDS rmaps represent times in
 the single format shown in the rmap example below:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">selector</span> <span class="o">=</span> <span class="n">Match</span><span class="p">({</span>
-   <span class="p">(</span><span class="s">&#39;HRC&#39;</span><span class="p">,)</span> <span class="p">:</span> <span class="n">UseAfter</span><span class="p">({</span>
-       <span class="s">&#39;1991-01-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s">&#39;j4d1435hj_a2d.fits&#39;</span><span class="p">,</span>
-       <span class="s">&#39;1992-01-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s">&#39;kcb1734ij_a2d.fits&#39;</span><span class="p">,</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">selector</span> <span class="o">=</span> <span class="n">Match</span><span class="p">({</span>
+   <span class="p">(</span><span class="s1">&#39;HRC&#39;</span><span class="p">,)</span> <span class="p">:</span> <span class="n">UseAfter</span><span class="p">({</span>
+       <span class="s1">&#39;1991-01-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s1">&#39;j4d1435hj_a2d.fits&#39;</span><span class="p">,</span>
+       <span class="s1">&#39;1992-01-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s1">&#39;kcb1734ij_a2d.fits&#39;</span><span class="p">,</span>
    <span class="p">}),</span>
-   <span class="p">(</span><span class="s">&#39;WFC&#39;</span><span class="p">,)</span> <span class="p">:</span> <span class="n">UseAfter</span><span class="p">({</span>
-       <span class="s">&#39;1991-01-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s">&#39;kcb1734hj_a2d.fits&#39;</span><span class="p">,</span>
-       <span class="s">&#39;2008-01-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s">&#39;t3n1116mj_a2d.fits&#39;</span><span class="p">,</span>
+   <span class="p">(</span><span class="s1">&#39;WFC&#39;</span><span class="p">,)</span> <span class="p">:</span> <span class="n">UseAfter</span><span class="p">({</span>
+       <span class="s1">&#39;1991-01-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s1">&#39;kcb1734hj_a2d.fits&#39;</span><span class="p">,</span>
+       <span class="s1">&#39;2008-01-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s1">&#39;t3n1116mj_a2d.fits&#39;</span><span class="p">,</span>
    <span class="p">}),</span>
 <span class="p">})</span>
 </pre></div>
@@ -685,10 +683,10 @@ file is &#8216;kcb1734ij_a2d.fits&#8217;</p>
 <h3>SelectVersion<a class="headerlink" href="#selectversion" title="Permalink to this headline">¶</a></h3>
 <p>The SelectVersion() rmap operator uses a software version and various relations
 to make a selection:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">selector</span> <span class="o">=</span> <span class="n">SelectVersion</span><span class="p">({</span>
-   <span class="s">&#39;&lt;3.1&#39;</span><span class="p">:</span>    <span class="s">&#39;cref_flatfield_65.fits&#39;</span><span class="p">,</span>
-   <span class="s">&#39;&lt;5&#39;</span><span class="p">:</span>      <span class="s">&#39;cref_flatfield_73.fits&#39;</span><span class="p">,</span>
-   <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="s">&#39;cref_flatfield_123.fits&#39;</span><span class="p">,</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">selector</span> <span class="o">=</span> <span class="n">SelectVersion</span><span class="p">({</span>
+   <span class="s1">&#39;&lt;3.1&#39;</span><span class="p">:</span>    <span class="s1">&#39;cref_flatfield_65.fits&#39;</span><span class="p">,</span>
+   <span class="s1">&#39;&lt;5&#39;</span><span class="p">:</span>      <span class="s1">&#39;cref_flatfield_73.fits&#39;</span><span class="p">,</span>
+   <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="s1">&#39;cref_flatfield_123.fits&#39;</span><span class="p">,</span>
 <span class="p">})</span>
 </pre></div>
 </div>
@@ -700,10 +698,10 @@ versions are examined in sorted order.</p>
 <h3>ClosestTime<a class="headerlink" href="#closesttime" title="Permalink to this headline">¶</a></h3>
 <p>The ClosestTime() rmap operator does a lookup on a series of times and selects
 the closest time which either precedes or follows the given parameter value:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">selector</span> <span class="o">=</span> <span class="n">ClosestTime</span><span class="p">({</span>
-     <span class="s">&#39;2017-04-24 00:00:00&#39;</span><span class="p">:</span>  <span class="s">&quot;cref_flatfield_123.fits&quot;</span><span class="p">,</span>
-     <span class="s">&#39;2018-02-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s">&quot;cref_flatfield_222.fits&quot;</span><span class="p">,</span>
-     <span class="s">&#39;2019-04-15 00:00:00&#39;</span><span class="p">:</span>  <span class="s">&quot;cref_flatfield_123.fits&quot;</span><span class="p">,</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">selector</span> <span class="o">=</span> <span class="n">ClosestTime</span><span class="p">({</span>
+     <span class="s1">&#39;2017-04-24 00:00:00&#39;</span><span class="p">:</span>  <span class="s2">&quot;cref_flatfield_123.fits&quot;</span><span class="p">,</span>
+     <span class="s1">&#39;2018-02-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s2">&quot;cref_flatfield_222.fits&quot;</span><span class="p">,</span>
+     <span class="s1">&#39;2019-04-15 00:00:00&#39;</span><span class="p">:</span>  <span class="s2">&quot;cref_flatfield_123.fits&quot;</span><span class="p">,</span>
 <span class="p">})</span>
 </pre></div>
 </div>
@@ -714,10 +712,10 @@ the closest time which either precedes or follows the given parameter value:</p>
 <p>The GeometricallyNearest() selector applies a distance relation between a
 numerical parameter and the match values.   The match value which is closest to
 the supplied parameter is chosen:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">selector</span> <span class="o">=</span> <span class="n">GeomtricallyNearest</span><span class="p">({</span>
-    <span class="mf">1.2</span> <span class="p">:</span> <span class="s">&quot;cref_flatfield_120.fits&quot;</span><span class="p">,</span>
-    <span class="mf">1.5</span> <span class="p">:</span> <span class="s">&quot;cref_flatfield_124.fits&quot;</span><span class="p">,</span>
-    <span class="mf">5.0</span> <span class="p">:</span> <span class="s">&quot;cref_flatfield_137.fits&quot;</span><span class="p">,</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">selector</span> <span class="o">=</span> <span class="n">GeomtricallyNearest</span><span class="p">({</span>
+    <span class="mf">1.2</span> <span class="p">:</span> <span class="s2">&quot;cref_flatfield_120.fits&quot;</span><span class="p">,</span>
+    <span class="mf">1.5</span> <span class="p">:</span> <span class="s2">&quot;cref_flatfield_124.fits&quot;</span><span class="p">,</span>
+    <span class="mf">5.0</span> <span class="p">:</span> <span class="s2">&quot;cref_flatfield_137.fits&quot;</span><span class="p">,</span>
 <span class="p">})</span>
 </pre></div>
 </div>
@@ -727,15 +725,15 @@ the supplied parameter is chosen:</p>
 <h3>Bracket<a class="headerlink" href="#bracket" title="Permalink to this headline">¶</a></h3>
 <p>The Bracket() selector is unusual because it returns the pair of selections which
 enclose the supplied parameter value:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">selector</span> <span class="o">=</span> <span class="n">Bracket</span><span class="p">({</span>
-    <span class="mf">1.2</span><span class="p">:</span> <span class="s">&quot;cref_flatfield_120.fits&quot;</span><span class="p">,</span>
-    <span class="mf">1.5</span><span class="p">:</span> <span class="s">&quot;cref_flatfield_124.fits&quot;</span><span class="p">,</span>
-    <span class="mf">5.0</span><span class="p">:</span> <span class="s">&quot;cref_flatfield_137.fits&quot;</span><span class="p">,</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">selector</span> <span class="o">=</span> <span class="n">Bracket</span><span class="p">({</span>
+    <span class="mf">1.2</span><span class="p">:</span> <span class="s2">&quot;cref_flatfield_120.fits&quot;</span><span class="p">,</span>
+    <span class="mf">1.5</span><span class="p">:</span> <span class="s2">&quot;cref_flatfield_124.fits&quot;</span><span class="p">,</span>
+    <span class="mf">5.0</span><span class="p">:</span> <span class="s2">&quot;cref_flatfield_137.fits&quot;</span><span class="p">,</span>
 <span class="p">})</span>
 </pre></div>
 </div>
 <p>Here,  a parameter value of 1.3 returns the value:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">(</span><span class="s">&#39;cref_flatfield_120.fits&#39;</span><span class="p">,</span> <span class="s">&#39;cref_flatfield_124.fits&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s1">&#39;cref_flatfield_120.fits&#39;</span><span class="p">,</span> <span class="s1">&#39;cref_flatfield_124.fits&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -760,12 +758,12 @@ enclose the supplied parameter value:</p>
         <li class="right" >
           <a href="core_library_functions.html" title="Core Library Functions"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.0.8 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.0 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2015, STScI.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright 2015, STScI.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.
     </div>
   </body>
 </html>

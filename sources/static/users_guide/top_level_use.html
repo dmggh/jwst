@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Library Use &mdash; crds 7.0.8 documentation</title>
+    <title>Library Use &#8212; crds 7.1.0 documentation</title>
     
     <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,17 +14,18 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '7.0.8',
+        VERSION:     '7.1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="crds 7.0.8 documentation" href="index.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Core Library Functions" href="core_library_functions.html" />
     <link rel="prev" title="Command Line Tools" href="command_line_tools.html" /> 
   </head>
@@ -41,7 +42,7 @@
         <li class="right" >
           <a href="command_line_tools.html" title="Command Line Tools"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.0.8 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.0 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -67,21 +68,18 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/top_level_use.txt"
+      <li><a href="_sources/top_level_use.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -109,8 +107,8 @@ context,  and optionally a list of the reference types for which reference files
 are to be determined,  getreferences() will determine best references,  cache
 them on the local file system,  and return a mapping from reference types to
 reference file paths:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">getreferences</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">reftypes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ignore_cache</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-                  <span class="n">observatory</span><span class="o">=</span><span class="s">&quot;jwst&quot;</span><span class="p">):</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">getreferences</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">reftypes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ignore_cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                  <span class="n">observatory</span><span class="o">=</span><span class="s2">&quot;jwst&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Return the mapping from the requested `reftypes` to their</span>
 <span class="sd">    corresponding best reference file paths appropriate for a dataset</span>
 <span class="sd">    described by `parameters` with CRDS rules defined by `context`::</span>
@@ -173,7 +171,7 @@ reference file paths:</p>
 currently in operational use.   When no</p>
 <p>The default context defines the matching rules used to determine best
 reference files for a given set of parameters:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">get_default_context</span><span class="p">():</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_default_context</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Return the name of the latest pipeline mapping in use for processing</span>
 <span class="sd">    files.</span>
 
@@ -206,12 +204,12 @@ reference files for a given set of parameters:</p>
         <li class="right" >
           <a href="command_line_tools.html" title="Command Line Tools"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.0.8 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.0 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2015, STScI.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright 2015, STScI.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.
     </div>
   </body>
 </html>

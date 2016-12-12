@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Using the CRDS Web Site &mdash; crds 7.0.8 documentation</title>
+    <title>Using the CRDS Web Site &#8212; crds 7.1.0 documentation</title>
     
     <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,17 +14,18 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '7.0.8',
+        VERSION:     '7.1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="crds 7.0.8 documentation" href="index.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Web Services" href="web_services.html" />
     <link rel="prev" title="About Mappings" href="rmap_syntax.html" /> 
   </head>
@@ -41,7 +42,7 @@
         <li class="right" >
           <a href="rmap_syntax.html" title="About Mappings"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.0.8 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.0 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -120,21 +121,18 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/web_site_use.txt"
+      <li><a href="_sources/web_site_use.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -152,7 +150,7 @@ and distribution of CRDS reference and mappings files.   Functions on the CRDS
 website are either public functions which do not require authentication or private
 functions which require a CRDS login account.</p>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_index.png"><img alt="home page of CRDS website" src="_images/web_index.png" style="width: 472.0px; height: 471.0px;" /></a>
+<a class="reference internal image-reference" href="_images/web_index.png"><img alt="home page of CRDS website" src="_images/web_index.png" style="width: 617.0px; height: 444.5px;" /></a>
 </div>
 <p>Functions annotated with the word (alpha) are partially completed components of
 a future build which may prove useful now.</p>
@@ -175,12 +173,12 @@ file.</p>
 the pipeline associated with a CRDS server. Clicking on the <em>(more)</em> link will bring up
 the entire context history as a separate page as shown below:</p>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_context_history.png"><img alt="History of CRDS operational contexts" src="_images/web_context_history.png" style="width: 471.0px; height: 269.0px;" /></a>
+<a class="reference internal image-reference" href="_images/web_context_history.png"><img alt="History of CRDS operational contexts" src="_images/web_context_history.png" style="width: 615.5px; height: 430.5px;" /></a>
 </div>
 <p>Clicking on a <em>context</em> link (the .pmap name) opens a page containing the Historical References
 for some point in the past,  similar to the Operational References display:</p>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_context_table.png"><img alt="CRDS historical references display" src="_images/web_context_table.png" style="width: 477.0px; height: 464.0px;" /></a>
+<a class="reference internal image-reference" href="_images/web_context_table.png"><img alt="CRDS historical references display" src="_images/web_context_table.png" style="width: 614.5px; height: 442.0px;" /></a>
 </div>
 <p>References are displayed in accordion panels for each instrument.   Opening the panel for
 an instrument displays the reference types of that instrument.  Opening the panel for a type
@@ -189,10 +187,14 @@ reference file brings up the CRDS browser page with the known details for that r
 <div class="section" id="differencing-contexts">
 <h3>Differencing contexts<a class="headerlink" href="#differencing-contexts" title="Permalink to this headline">¶</a></h3>
 <p>Click the <em>diff</em> checkbox for any two contexts in the history and then click the diff button
-at the top of the diff column.   This will display a difference page with an accorion panel
-for each file which differed between the two contexts:</p>
+at the top of the diff column:</p>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_context_difference.png"><img alt="CRDS context differences" src="_images/web_context_difference.png" style="width: 471.5px; height: 468.5px;" /></a>
+<a class="reference internal image-reference" href="_images/web_context_diff_1.png"><img alt="CRDS context diff request" src="_images/web_context_diff_1.png" style="width: 534.5px; height: 346.0px;" /></a>
+</div>
+<p>This will display a difference page with an accorion panel for each file which
+differed between the two contexts:</p>
+<div class="figure">
+<a class="reference internal image-reference" href="_images/web_context_diff_2.png"><img alt="CRDS context diff request" src="_images/web_context_diff_2.png" style="width: 605.5px; height: 409.5px;" /></a>
 </div>
 <p>Each file accordion opens into two accordions which display different views of the differences,
 logical or textual.  The logical differences display a table of matching parameters and files
@@ -212,7 +214,7 @@ a single dataset with respect to one CRDS context.   Best references are based
 upon a CRDS context and the parameters of the dataset as determined by the
 dataset file itself or a database catalog entry.</p>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_dataset_bestrefs.png"><img alt="dataset based best references input page" src="_images/web_dataset_bestrefs.png" style="width: 476.5px; height: 288.5px;" /></a>
+<a class="reference internal image-reference" href="_images/web_dataset_bestrefs.png"><img alt="dataset based best references input page" src="_images/web_dataset_bestrefs.png" style="width: 601.0px; height: 396.5px;" /></a>
 </div>
 <div class="section" id="context">
 <h4>Context<a class="headerlink" href="#context" title="Permalink to this headline">¶</a></h4>
@@ -241,7 +243,7 @@ be retrieved from the catalog.</p>
 <div class="section" id="dataset-best-references-results">
 <h4>Dataset Best References Results<a class="headerlink" href="#dataset-best-references-results" title="Permalink to this headline">¶</a></h4>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_dataset_bestrefs_results.png"><img alt="dataset based best references results page" src="_images/web_dataset_bestrefs_results.png" style="width: 473.0px; height: 468.0px;" /></a>
+<a class="reference internal image-reference" href="_images/web_dataset_bestrefs_results.png"><img alt="dataset based best references results page" src="_images/web_dataset_bestrefs_results.png" style="width: 632.5px; height: 415.5px;" /></a>
 </div>
 <p>The results page for dataset best references displays the input parameters which
 were extracted from the dataset header on the right side of the page.</p>
@@ -250,46 +252,43 @@ were extracted from the dataset header on the right side of the page.</p>
 </div>
 <div class="section" id="explore-best-references">
 <h3>Explore Best References<a class="headerlink" href="#explore-best-references" title="Permalink to this headline">¶</a></h3>
-<p>Explore Best References supports entering best references parameters directly
-rather than extracting them from a dataset or catalog.   Explore best references
-is essentially a sand box which lets someone evaluate what CRDS will do given
-particular parameter values.  The explorer currently lists all parameters
-which might be relevant to any mode of an instrument and has no knowledge of
-default values.</p>
+<p>Explore best references is a sand box that enables evaluating what CRDS will do
+given hand picked parameter values.  Explore Best References supports entering
+best references parameters directly via menus or write-in text boxes rather
+than extracting them from a dataset or catalog.</p>
 <p>The first phase of exploration is to choose a pipeline context and instrument
-which will be used to define parameter choices:</p>
+which will be used to define menu driven parameter choices:</p>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_explore_bestrefs.png"><img alt="user input based best references" src="_images/web_explore_bestrefs.png" style="width: 474.0px; height: 247.0px;" /></a>
+<a class="reference internal image-reference" href="_images/web_explore_bestrefs.png"><img alt="user input based best references" src="_images/web_explore_bestrefs.png" style="width: 592.5px; height: 368.5px;" /></a>
 </div>
 <p>The second phase is to enter the parameters of a dataset which are relevant
 to best references selection.</p>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_explore_bestrefs_parameters.png"><img alt="user input based best references" src="_images/web_explore_bestrefs_parameters.png" style="width: 470.5px; height: 434.0px;" /></a>
+<a class="reference internal image-reference" href="_images/web_explore_bestrefs_parameters.png"><img alt="user input based best references" src="_images/web_explore_bestrefs_parameters.png" style="width: 578.0px; height: 361.5px;" /></a>
 </div>
+<p>The parameter menus are driven by CRDS rules and do not capture every possible
+parameter value.  Text box inputs augment and override the menu inputs to
+support entering parameter values not listed in the menus.</p>
 <p>The entered parameters are evaluated with respect to the given pipeline context
 and best references are determined.   The results are similar or identical to
 the <em>Dataset Best References</em> results.</p>
 </div>
 <div class="section" id="browse-database">
 <h3>Browse Database<a class="headerlink" href="#browse-database" title="Permalink to this headline">¶</a></h3>
-<p>The <em>Browse Database</em> feature enables examining the metadata and computable
-properties of CRDS reference and mapping files.</p>
+<p>The <em>Browse Database</em> feature enables examining the metadata and properties of
+CRDS reference and mapping files.</p>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_browse_database.png"><img alt="database browse filter page" src="_images/web_browse_database.png" style="width: 471.5px; height: 248.0px;" /></a>
+<a class="reference internal image-reference" href="_images/web_browse_database.png"><img alt="database browse filter page" src="_images/web_browse_database.png" style="width: 582.0px; height: 360.0px;" /></a>
 </div>
-<p>The first phase is to enter a number of filters to narrow the number or variety
-of files which are displayed.   Leaving any filter at the default value of *
-renders that constraint irrelevant and all possible files are displayed with
-respect to that constraint.   The result of the first phase is a table of files
-which matched the filters showing their basic properties.</p>
+<p>The first phase selects and filters files for top level display, one file per
+table row.  Leave filter settings as * to skip that constraint.</p>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_browse_database_files.png"><img alt="database browse filter page" src="_images/web_browse_database_files.png" style="width: 476.5px; height: 457.5px;" /></a>
+<a class="reference internal image-reference" href="_images/web_browse_database_files.png"><img alt="database browse filter page" src="_images/web_browse_database_files.png" style="width: 589.0px; height: 378.5px;" /></a>
 </div>
-<p>The second phase is initiated by clicking on the filename link of any file
-displayed in the table from the first phase.   Clicking on a filename link switches
-to a detailed view of that file only:</p>
+<p>All file details for a single file can be displayed by clicking the filename
+link in the tabular display.</p>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_browse_database_details.png"><img alt="database browse details page" src="_images/web_browse_database_details.png" style="width: 473.5px; height: 203.0px;" /></a>
+<a class="reference internal image-reference" href="_images/web_browse_database_details.png"><img alt="database browse details page" src="_images/web_browse_database_details.png" style="width: 572.0px; height: 237.0px;" /></a>
 </div>
 <p>The file details page has a number of accordion panes which open when you
 click on them.  All file types have these generic panes:</p>
@@ -301,57 +300,54 @@ click on them.  All file types have these generic panes:</p>
 </ul>
 <p>Reference files have these additional panes:</p>
 <ul class="simple">
-<li>Certify Results - shows the results of crds.certify run on this reference now.</li>
 <li>Lookup Patterns - lists the parameters sets which lead to this reference.</li>
 </ul>
 </div>
 <div class="section" id="recent-activity">
 <h3>Recent Activity<a class="headerlink" href="#recent-activity" title="Permalink to this headline">¶</a></h3>
-<p>The <em>Recent Activity</em> view shows a table of the actions on CRDS files which
-are tracked.  Only actions which change the states of files in some way are
-tracked:</p>
+<p>The <em>Recent Activity</em> view shows a table of the tracked actions on CRDS files:</p>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_recent_activity.png"><img alt="database browse details page" src="_images/web_recent_activity.png" style="width: 474.5px; height: 246.5px;" /></a>
+<a class="reference internal image-reference" href="_images/web_recent_activity.png"><img alt="database browse details page" src="_images/web_recent_activity.png" style="width: 584.5px; height: 349.5px;" /></a>
 </div>
 <p>The first page lists a number of constraints which can be used to choose
 activities of interest.   To ignore any constraint,  leave it set at the default
 value of *.   The result of the activity search is a table of matching actions:</p>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_recent_activity_results.png"><img alt="database browse details page" src="_images/web_recent_activity_results.png" style="width: 474.5px; height: 401.0px;" /></a>
+<a class="reference internal image-reference" href="_images/web_recent_activity_results.png"><img alt="database browse details page" src="_images/web_recent_activity_results.png" style="width: 589.5px; height: 371.5px;" /></a>
 </div>
-<p>The details vary by the type of action,  in this case showing the original name
-of a file prior to submission to CRDS and the assignment of its official name.</p>
+<p>The default filter of *.pmap previews contexts that have been submitted but
+not yet selected for operational use in the pipeline.</p>
 </div>
 </div>
 <div class="section" id="private-functions">
 <h2>Private Functions<a class="headerlink" href="#private-functions" title="Permalink to this headline">¶</a></h2>
-<p>The following functions are restricted to users with accounts on the CRDS website
-and support the submission of new reference and mapping files and maintenance
-of the overall site.   Private functions are only visible to users who have
-successfully logged in.</p>
+<p>The following functions are restricted to authenicated users:</p>
+<ul class="simple">
+<li>file submissions</li>
+<li>context selection</li>
+</ul>
 <div class="section" id="login-and-instrument-locking">
 <h3>Login and Instrument Locking<a class="headerlink" href="#login-and-instrument-locking" title="Permalink to this headline">¶</a></h3>
-<p>Typical batch file submissions automatically generate instrument and pipeline context
-files,  as well as .rmaps.   To preclude the possibility of multiple users submitting
-files from the same instrument at the same time,  and possibly creating conflicting
-rules,  users lock instruments when they log in.</p>
+<p>File submissions require locking an instrument to prevent multiple submitters
+from accidentally submitting the same files and/or simultaneously modifying the
+same .rmap:</p>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_login.png"><img alt="login page with instrument locking" src="_images/web_login.png" style="width: 472.5px; height: 229.0px;" /></a>
+<a class="reference internal image-reference" href="_images/web_login.png"><img alt="login page with instrument locking" src="_images/web_login.png" style="width: 583.5px; height: 328.0px;" /></a>
 </div>
 <p>When a user logs in,  the instrument they&#8217;ve locked and the time remaining on the
 lock are displayed below the login (now logout) button:</p>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_logged_in.png"><img alt="logged in page with count down timer" src="_images/web_logged_in.png" style="width: 470.5px; height: 471.0px;" /></a>
+<a class="reference internal image-reference" href="_images/web_logged_in.png"><img alt="logged in page with count down timer" src="_images/web_logged_in.png" style="width: 575.0px; height: 352.5px;" /></a>
 </div>
 <p>The time displayed is the relative time remaining on the lock reservation,  nominally
-around 4 hours with the current server configuration.</p>
-<p>When the user performs an action on the website,  their lock timer is reset to its maximum value.
-As time passes without action,  the lock timer counts down.  When the lock timer reaches zero,
-the lock is automatically released and any on-going file submission is cancelled.   Files which
-have been uploaded for a cancelled submission are left in the upload area.</p>
-<p>Other users who attempt to login while an instrument is locked will be denied.</p>
+around 4 hours.</p>
+<p>When the user performs an action on the website,  their lock timer is reset to its maximum value.</p>
+<p>Other users who attempt to login for the same instrument while it is locked
+will be denied.</p>
 <p>When a file submission is being performed,  it must be <em>confirmed</em> within the timeout period
 or the file submission will be cancelled.</p>
+<p>When a lock timer expires, any on-going submission is automatically cancelled
+and the lock is dropped to enable another submitter to cut-in.</p>
 <p>Care should be taken with the locking mechanism and file submissions.  <strong>DO NOT</strong>:</p>
 <ul class="simple">
 <li>Don&#8217;t login from multiple browsers or sites.   The last browser/site you log in from will steal the
@@ -367,7 +363,7 @@ and confirm or cancel each file submission before proceeding with the next.</li>
 <h3>Certify Files<a class="headerlink" href="#certify-files" title="Permalink to this headline">¶</a></h3>
 <p><em>Certify File</em> runs crds.certify on the files in the ingest directory.</p>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_certify_file.png"><img alt="certify file inputs" src="_images/web_certify_file.png" style="width: 478.0px; height: 404.0px;" /></a>
+<a class="reference internal image-reference" href="_images/web_certify_file.png"><img alt="certify file inputs" src="_images/web_certify_file.png" style="width: 568.5px; height: 323.5px;" /></a>
 </div>
 <p>If the certified file is a reference table,  the specified context is used to
 locate a comparison file.</p>
@@ -382,9 +378,9 @@ also supports reversing the decision and marking it good once more.</p>
 <li>Make the clean context operational using Set Context.</li>
 <li>Mark the prospective bad files actually bad using Mark Bad Files.</li>
 </ol>
-<p>Following this procedure maintains the invariant that the operational context
-contains no known bad files.   The designation as bad files does not take
-effect until any local CRDS cache is synchronized with the server.</p>
+<p>This procedure maintains the invariant that the operational pipeline context
+contains no known bad files.  The designation as bad files does not take effect
+until the pipeline CRDS cache is synchronized with the server.</p>
 <p>Creating a clean context can be done in arbitrary ways,  but the two most
 common ways will likely be:</p>
 <ol class="arabic simple">
@@ -392,22 +388,20 @@ common ways will likely be:</p>
 <li>Use Delete References to generate a new context without the bad files.</li>
 </ol>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_mark_files_bad.png"><img alt="mark files bad inputs" src="_images/web_mark_files_bad.png" style="width: 476.0px; height: 281.0px;" /></a>
+<a class="reference internal image-reference" href="_images/web_mark_files_bad.png"><img alt="mark files bad inputs" src="_images/web_mark_files_bad.png" style="width: 568.0px; height: 312.5px;" /></a>
 </div>
 <p>Marking a rules file (mapping) as bad implicitly marks all the files
 which refer to it as bad.  Hence,  marking a .rmap as bad will make
 any .imap which refers to it bad as well,  and will also taint all .pmaps
 which refer to the bad .imaps.   Whenever a rules file is marked bad,
-a warning is issued when the containing context is used.</p>
-<p>Marking a reference file as bad is a more precise technique which invalidates
-only that reference in every context that includes it.  Warnings are issued
-related to the bad reference only when the reference is actually recommended by
-CRDS.</p>
-<p>By default, recommendation of bad files is an error.  The default
-behaviour can be overrideden, allowing use of bad rules or references with a
-warning, by setting environment variables: <em>CRDS_ALLOW_BAD_RULES</em> and/or
-<em>CRDS_ALLOW_BAD_REFERENCES</em> or by using command line switches for
-crds.bestrefs: <em>&#8211;allow-bad-rules</em> and <em>&#8211;allow-bad-references</em>.</p>
+it becomes an error to use the containing context.</p>
+<p>Marking a reference file as bad only invalidates that reference in every
+context that includes it.  An error is issued for a bad reference only when
+it is actually recommended by CRDS,  it is not an error to use the containing
+context.</p>
+<p>By default, recommendation of bad references or use of bad rules  is an error.
+The default behaviour can be overridden by setting environment variables:
+<em>CRDS_ALLOW_BAD_RULES</em> and/or <em>CRDS_ALLOW_BAD_REFERENCES</em>.</p>
 </div>
 <div class="section" id="delete-references">
 <h3>Delete References<a class="headerlink" href="#delete-references" title="Permalink to this headline">¶</a></h3>
@@ -416,7 +410,7 @@ a context generating a new context.  Delete References provides one
 straightforward way to generate clean rules prior to marking the deleted files
 as bad.</p>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_delete_references.png"><img alt="delete references" src="_images/web_delete_references.png" style="width: 664.0px; height: 269.5px;" /></a>
+<a class="reference internal image-reference" href="_images/web_delete_references.png"><img alt="delete references" src="_images/web_delete_references.png" style="width: 568.5px; height: 371.5px;" /></a>
 </div>
 <p>Delete References does not remove the files from CRDS, it only removes them
 from the specified set of rules.  The references remain available under any
@@ -436,7 +430,7 @@ which does not contain them already.  Add References is the inverse of Delete
 References and generates new CRDS rules without requiring the resubmission of
 files to CRDS.</p>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_add_references.png"><img alt="add references" src="_images/web_add_references.png" style="width: 643.0px; height: 267.0px;" /></a>
+<a class="reference internal image-reference" href="_images/web_add_references.png"><img alt="add references" src="_images/web_add_references.png" style="width: 565.5px; height: 389.0px;" /></a>
 </div>
 <p>Add references can be used to undo the effects of Delete References in a
 perhaps distant descendant context containing other changes.  Add references
@@ -454,40 +448,39 @@ carried over by Add References,  only the reference files themselves.</p>
 </div>
 <div class="section" id="set-context">
 <h3>Set Context<a class="headerlink" href="#set-context" title="Permalink to this headline">¶</a></h3>
-<p><em>Set Context</em> enables setting the operational and edit contexts.</p>
+<p><em>Set Context</em> enables setting the operational, edit, and versions contexts.</p>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_set_context.png"><img alt="set context inputs" src="_images/web_set_context.png" style="width: 473.0px; height: 349.0px;" /></a>
+<a class="reference internal image-reference" href="_images/web_set_context.png"><img alt="set context inputs" src="_images/web_set_context.png" style="width: 564.5px; height: 382.5px;" /></a>
 </div>
-<p>CRDS enables contexts to be pre-positioned before their adoption as the default
-for processing by the pipeline.  Only by using Set Context will an available
-context become the default for processing.</p>
-<p>Setting the operational context makes the specified context the default for
-processing coordinated by this server.  Setting the operational context creates
-a new entry at the top of the Context History.</p>
-<p>Setting the edit context makes the specified context the default starting point
-for future contexts created during file submission.</p>
+<p>CRDS enables contexts to be distributed before their adoption as the pipeline default.
+Set Context is used to select the default pipeline (operational) context.</p>
+<p>Setting the operational context changes state on the CRDS server which must be
+subsequently sync&#8217;ed to remote pipelines and users.</p>
+<p>Setting the <em>operational</em> context creates a new entry at the top of the Context
+History.</p>
+<p>Setting the <em>edit</em> context sets the default starting point for future file
+submissions.</p>
+<p>Setting the <em>versions</em> context defines the context used to locate the SYSTEM
+CALVER reference file used to define calibration software component versions.</p>
 </div>
 <div class="section" id="batch-submit-references">
 <h3>Batch Submit References<a class="headerlink" href="#batch-submit-references" title="Permalink to this headline">¶</a></h3>
 <p><em>Batch Submit References</em> is intended to handle the majority of CRDS reference
-submissions with a high degree of automation.   This page accepts a number of
-reference files and metadata which is applied to all of them.   The specified
-reference files are checked on the server using crds.certify and if they pass
-are submitted to CRDS.   All of the submitted references must be of the same
-reference type,  i.e. controlled by the same .rmap file.   Tabular reference
-files are checked with respect to the derivation context by crds.certify.</p>
+submissions, both checking and ingesting files and automatically generating the
+corresponding CRDS rules updates.  It accepts a number of reference files and
+metadata which applies to all of them.</p>
+<p>The specified reference files are checked on the server using crds.certify and
+if they pass are submitted to CRDS.</p>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_batch_submit_references.png"><img alt="batch reference submission inputs" src="_images/web_batch_submit_references.png" style="width: 475.0px; height: 328.0px;" /></a>
+<a class="reference internal image-reference" href="_images/web_batch_submit_references.png"><img alt="batch reference submission inputs" src="_images/web_batch_submit_references.png" style="width: 566.5px; height: 439.5px;" /></a>
 </div>
 <div class="section" id="upload-files">
 <h4>Upload Files<a class="headerlink" href="#upload-files" title="Permalink to this headline">¶</a></h4>
 <p>The first task involved with <em>Batch Submit References</em> is transferring the
-submitted files to the server.  For CRDS build-2,  there are two approaches for
-getting files on the server,  web based and shell based.   Both approaches
-involve transferring files to an ingest directory in the CRDS filestore.  Each
-CRDS user will have their own ingest directory.   Initially the only user is
-&#8220;test&#8221;.   This section applies equally to all of the file submission pages that
-have an <em>Upload Files</em> accordion.</p>
+submitted files to the server.  There are two approaches for getting files on
+the server, web based and shell based.  Each CRDS user has their own ingest
+directory.  This section applies equally to all of the file submission pages
+that have an <em>Upload Files</em> accordion.</p>
 <div class="section" id="web-approach">
 <h5>Web Approach<a class="headerlink" href="#web-approach" title="Permalink to this headline">¶</a></h5>
 <p>On the file submission pages,  the <em>Upload Files</em> accordion opens to support
@@ -498,46 +491,31 @@ uploading submitted files to a user&#8217;s CRDS ingest directory via the browse
 <p>Uploading files is accomplished by:</p>
 <ul class="simple">
 <li>Opening the accordion panel by clicking on it.</li>
-<li>Add files to the upload list by clicking on the <em>Add Files...</em> button.  Alternately for modern browsers (Chrome) drag-and-drop files from your desktop to the upload accordion.</li>
-<li>Click <em>Start Upload</em> to initiate the file transfer.   You should see a progress bar(s) showing the status of the upload(s).   When the upload successfully completes the buttons will change to <em>delete</em>.</li>
+<li>Add files to the upload list by clicking on the <em>Add Files...</em> button.</li>
+<li>Click <em>Start Upload</em> to initiate the file transfer.   When the upload successfully completes the buttons will change to <em>delete</em>.</li>
 <li>Click <em>Delete</em> for any file added by mistake or for failed uploads.</li>
 <li>Click <em>Cancel Upload</em> to abort a file transfer during the upload.</li>
 <li>Close the accordion panel by clicking on it.</li>
 </ul>
 <p><strong>IMPORTANT</strong>  Just adding files to the file list does not upload them.   You
-must click <em>Start upload</em> to initiate the file transfer.   In the screenshot above,
-the file with the <em>delete</em> button next to it is already on the server in the
-ingest directory.   The files with <em>start</em> and <em>cancel</em> buttons next to them have
-only been declared as candidates for upload.   To finish uploading all 3 files,
-check <em>select all</em> and click <em>Start upload</em>.</p>
+must click <em>Start upload</em> to initiate the file transfer.</p>
 </div>
 <div class="section" id="shell-approach">
 <h5>Shell Approach<a class="headerlink" href="#shell-approach" title="Permalink to this headline">¶</a></h5>
 <p>In the shell approach a user must login to UNIX (in some fashion) and transfer
-files into their CRDS ingest directory manually.   The nominal approach
-for doing this is to use the cp or scp commands.   For instance,  from my home,
-having already set up ssh and scp access, I might say:</p>
-<div class="highlight-python"><div class="highlight"><pre>% scp /this_delivery/*.fits   dmsinsvm.stsci.edu:/ifs/crds/hst/test/server_files/ingest/mcmaster
+files into their CRDS ingest directory manually.   For instance:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">scp</span> <span class="o">/</span><span class="n">this_delivery</span><span class="o">/*.</span><span class="n">fits</span>   <span class="n">dmsinsvm</span><span class="o">.</span><span class="n">stsci</span><span class="o">.</span><span class="n">edu</span><span class="p">:</span><span class="o">/</span><span class="n">ifs</span><span class="o">/</span><span class="n">crds</span><span class="o">/</span><span class="n">hst</span><span class="o">/</span><span class="n">ops</span><span class="o">/</span><span class="n">server_files</span><span class="o">/</span><span class="n">ingest</span><span class="o">/&lt;</span><span class="n">username</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 <p>to copy references into my ingest directory <em>as-if</em> I had uploaded them through
 the uploads panel.</p>
-<p>Abstractly this is:</p>
-<div class="highlight-python"><div class="highlight"><pre>% scp &lt;submitted reference files...&gt;   &lt;host&gt;:/ifs/crds/hst/&lt;pipeline&gt;/server_files/ingest&lt;crds_username&gt;
-</pre></div>
-</div>
-<p>where pipeline is &#8216;test&#8217; or &#8216;ops&#8217;.</p>
-<p>The submitted reference files should now be in the ingest directory for <em>HST</em> test server
-user <em>mcmaster</em>.   Once the files are in the ingest directory,  the CRDS web server
-will behave as if they had been uploaded through web interface.  Refreshing the
-file submission web page should make manually copied files show up in the
-<em>Upload Files</em> accordion.</p>
-<p>The purpose of using cp or scp is to improve the efficiency and reliability of
-the file transfers should those become an issue.  Telecommuters working offsite by VPN
-would face a situation where submitted files are downloaded to their home computer via
-VPN and then uploaded to the CRDS server via their browser.</p>
-<p>Files transferred to the ingest directory via shell should
-still be removeable using the <em>Upload Files</em> delete buttons.</p>
+<p>The submitted reference files should now be your ingest directory on the server
+and the CRDS server will behave as if they had been uploaded through web
+interface.  Refreshing the file submission web page should make manually copied
+files show up in the <em>Upload Files</em> accordion.</p>
+<p>Using cp or scp improves the efficiency and reliability of file transfers
+should that become an issue.  Telecommuters working offsite by VPN can use this
+technique to avoid inefficient transfers.</p>
 </div>
 </div>
 <div class="section" id="derive-from-context">
@@ -647,7 +625,7 @@ future submissions.</p>
 references.   No mappings are generated to refer to the submitted files.
 Submitted references must still pass through crds.certify.</p>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_submit_references.png"><img alt="create contexts inputs" src="_images/web_submit_references.png" style="width: 483.0px; height: 332.0px;" /></a>
+<a class="reference internal image-reference" href="_images/web_submit_references.png"><img alt="create contexts inputs" src="_images/web_submit_references.png" style="width: 570.0px; height: 451.5px;" /></a>
 </div>
 </div>
 <div class="section" id="submit-mappings">
@@ -658,7 +636,7 @@ which refer to files from <em>Submit References</em> and with fewer restrictions
 allowable changes.   Typically only .rmaps are submitted this way.   Mappings
 submitted this way must also pass through crds.certify.</p>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/web_submit_mappings.png"><img alt="create contexts inputs" src="_images/web_submit_mappings.png" style="width: 485.0px; height: 302.0px;" /></a>
+<a class="reference internal image-reference" href="_images/web_submit_mappings.png"><img alt="create contexts inputs" src="_images/web_submit_mappings.png" style="width: 565.0px; height: 452.0px;" /></a>
 </div>
 <div class="section" id="mapping-change-procedure">
 <h4>Mapping Change Procedure<a class="headerlink" href="#mapping-change-procedure" title="Permalink to this headline">¶</a></h4>
@@ -678,24 +656,22 @@ crds.certify.   Where possible match values are validated against CRDS .tpn
 files or JWST data model schema.</p>
 <p>3. Run crds.certify on the resulting mapping, using the current operational
 context as the point of comparison:</p>
-<div class="highlight-python"><div class="highlight"><pre>% python -m crds.certify ./jwst_miri_dark_0004.rmap  --comparison-context jwst-operational
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">certify</span> <span class="o">./</span><span class="n">jwst_miri_dark_0004</span><span class="o">.</span><span class="n">rmap</span>  <span class="o">--</span><span class="n">comparison</span><span class="o">-</span><span class="n">context</span> <span class="n">jwst</span><span class="o">-</span><span class="n">operational</span>
 </pre></div>
 </div>
 <p>4. During iteration, run crds.checksum on the mapping to update the internal
 sha1sum if you wish to load the context into Python to do interactive tests
 with the .rmap:</p>
-<div class="highlight-python"><div class="highlight"><pre>% python -m crds.checksum ./jwst_miri_dark_0004.rmap
-% python
-</pre></div>
-</div>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">crds</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">crds</span><span class="o">.</span><span class="n">get_cached_mapping</span><span class="p">(</span><span class="s">&quot;./jwst_miri_dark_0004.rmap&quot;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">checksum</span> <span class="o">./</span><span class="n">jwst_miri_dark_0004</span><span class="o">.</span><span class="n">rmap</span>
+<span class="o">%</span> <span class="n">python</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">crds</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">r</span> <span class="o">=</span> <span class="n">crds</span><span class="o">.</span><span class="n">get_cached_mapping</span><span class="p">(</span><span class="s2">&quot;./jwst_miri_dark_0004.rmap&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The internal checksum can also be used to verify upload integrity when you
 finally submit the file to CRDS, an out-of-date checksum or corrupted file will
 generate a warning.   Alternately:</p>
-<div class="highlight-python"><div class="highlight"><pre>% setenv CRDS_IGNORE_MAPPING_CHECKSUMS 1
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">setenv</span> <span class="n">CRDS_IGNORE_MAPPING_CHECKSUMS</span> <span class="mi">1</span>
 </pre></div>
 </div>
 <p>to suppress mapping load errors due to invalid checksums during development.</p>
@@ -722,12 +698,12 @@ generate a warning.   Alternately:</p>
         <li class="right" >
           <a href="rmap_syntax.html" title="About Mappings"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.0.8 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.0 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2015, STScI.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright 2015, STScI.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.
     </div>
   </body>
 </html>
