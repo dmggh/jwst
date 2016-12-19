@@ -68,6 +68,11 @@
             <p class="hint">.e.g. I9ZF01010</p>
           {% endif %}
         </td>
+        <td>
+        {% if mock_params %}
+        <span class="label label-sm red">&nbsp;&nbsp;[MOCKED ARCV PARAMS {{mock_params}}]</span>
+        {% endif %}          
+        </td>
       </tr>
     </table>
     
