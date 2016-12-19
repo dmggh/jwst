@@ -927,7 +927,7 @@ class FileBlobRepairMixin(object):
             with log.error_on_exception("Failed repairing HST activation date for", repr(name)):
                 if data_file.is_geis_data(name):
                     name = data_file.get_conjugate(name)
-                from crds.server.interactive import database
+                from crds.server.xhst import database
                 info = database.get_reference_info(self.instrument, name)
                 self.activation_date = timestamp.parse_date(info["opus_load_date"])
 
@@ -938,7 +938,7 @@ class FileBlobRepairMixin(object):
             with log.error_on_exception("Failed repairing HST useafter date for", repr(name)):
                 if data_file.is_geis_data(name):
                     name = data_file.get_conjugate(name)
-                from crds.server.interactive import database
+                from crds.server.xhst import database
                 info = database.get_reference_info(self.instrument, name)
                 self.useafter_date = timestamp.parse_date(info["useafter_date"])
 

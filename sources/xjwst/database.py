@@ -87,7 +87,7 @@ def deferred_load_mock_parameters():
 def mock_params(instrument, date):
     params = deferred_load_mock_parameters()
     if params is not None:
-        params = filter_by_instrument(instrument, MOCK_PARAMETERS)
+        params = filter_by_instrument(instrument, params)
         params = filter_by_date(date, params)
     else:
         params = {}
@@ -179,14 +179,19 @@ def get_dataset_headers_by_id(context, dataset_ids):
     return headers
 
 def mock_params_by_ids(context, dataset_ids):
+    """Return fake parameter sets for each ID in `dataset_ids`.
+    Where normally `context` may affect available parameters,  in this
+    case it is ignored.
+    """
     params = deferred_load_mock_parameters()
     if params:
         selected_params = {}
         for dataset_id in dataset_ids:
             try:
-                selected_params[dataset_id] = params[dataset_id]
+                selected_params[dataset_id] = dict(params[dataset_id])
             except:
                 selected_params[dataset_id] = "NOT FOUND no parameter set for dataset."
+        return selected_params
     else:
         return {}
 
