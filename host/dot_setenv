@@ -47,7 +47,7 @@ switch ($CRDS_SERVER)
        breaksw
 
        case pljwstcrdsv1:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda-2
+        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda-3
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE ops
         # setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
@@ -73,9 +73,9 @@ switch ($CRDS_SERVER)
        breaksw
 
        case iljwdmsbcrdsv1:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_16
+        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda-3
         setenv CRDS_PROJECT jwst
-        setenv CRDS_USECASE b5it
+        setenv CRDS_USECASE bit
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu"
         setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
        breaksw
