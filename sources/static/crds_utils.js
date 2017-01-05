@@ -71,7 +71,7 @@ crds.poll_lock_status = function () {
             } else {
                 fail_message = "LOCK TIMEOUT: " + json.instrument;
             };
-            $('#contents').html("<br/><br/><br/><h3 class='red' style='font-size: 1.5em;' align='center' >" + fail_message + " When ready to continue,  log out and log back in.");
+            $('#contents').html("<br/><br/><br/><h3 class='red' style='font-size: 1.5em;' align='center' >" + fail_message + " To continue,  log out and log back in.");
             $('.locked_instrument').html("");
             $('.lock_timer').html("");
             clearInterval(crds.lock_timer_interval);
