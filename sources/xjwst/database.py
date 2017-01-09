@@ -87,6 +87,8 @@ def deferred_load_mock_parameters():
 def mock_params(instrument, date):
     params = deferred_load_mock_parameters()
     if params is not None:
+        if instrument.lower() == "system":
+            return []
         params = filter_by_instrument(instrument, params)
         params = filter_by_date(date, params)
     else:
@@ -115,6 +117,8 @@ def get_dataset_ids(instrument, datasets_since=None):
         datasets_since = "1900-01-01 00:00:00"
     _check_instrument(instrument)
     _check_date(datasets_since)
+    if instrument.lower() == "system":
+        return []
     params = mock_params(instrument, datasets_since)
     if params:
         return params.keys()
