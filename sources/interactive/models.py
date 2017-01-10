@@ -1196,14 +1196,16 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
         `condition`ing the value.
         """
         try:
-            value = self.get_one_of_metadata_field(keywords, condition)
-            value = sanitizer(value)
-            setattr(self, model_field, value)
+            value = self.get_one_of_metadata_field(keywords, condition, default)
         except Exception as exc:
-            log.error("Setting field '%s' for '%s' failed: '%s'" % (model_field, (self.uploaded_as, self.name), exc))
-            setattr(self, model_field, default)
+            value = default
+            log.error("Setting field '%s' for '%s' to default '%s' since fetch failed: '%s'" % (model_field, (self.uploaded_as, self.name), default, exc))
+        else:
+            value = sanitizer(value)
+            log.info("Setting field '%s' for '%s' to '%s'." % (model_field, (self.uploaded_as, self.name), value))
+        setattr(self, model_field, value)
 
-    def get_one_of_metadata_field(self, keywords, condition):
+    def get_one_of_metadata_field(self, keywords, condition, default):
         """Search the file corresponding to `self` for the first value of a
         keyword in `keywords` that is not None and optionally `condition` the
         value before returning it.  Return None if no keyword value is found.
@@ -1216,7 +1218,7 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
         for keyword in keywords:
             with log.verbose_on_exception("Fetching keyword", srepr(keyword), "from", srepr(filename)):
                 return data_file.getval(read_from, keyword, condition=condition)
-        return None
+        return default
 
     def add_slow_fields(self, allow_duplicates=False, sha1sum=None):
         """Add catalog fields from this file which potentially take a long time to add,  like
