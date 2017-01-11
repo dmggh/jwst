@@ -1,11 +1,12 @@
 """Baseline mappings are installed as a CRDS package.  Print out where.
 """
+from __future__ import print_function
 
 import sys
 import os.path
 
 import crds
-import crds.utils as utils
+from crds import utils
 
 def get_mapping_dir(observatory):
     dir = os.path.dirname(crds.__file__)
@@ -14,5 +15,6 @@ def get_mapping_dir(observatory):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print >>sys.stderr, "usage: " + sys.argv[0] + " [hst|jwst]"
-    print get_mapping_dir(sys.argv[1])
+        print("usage: " + sys.argv[0] + " [hst|jwst]", file=sys.stderr)
+        sys.exit(-1)
+    print(get_mapping_dir(sys.argv[1]))

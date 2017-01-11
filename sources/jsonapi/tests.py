@@ -13,11 +13,10 @@ import re
 from django.test import TransactionTestCase
 
 import crds
-import crds.config
 
 from crds import pysh, rmap, selectors, log, pysh, heavy_client, timestamp, utils
-import crds.client as client
-import crds.server.config as server_config
+from crds.client import api
+from crds.server import config as server_config
 from crds.server.interactive import models as imodels
 from crds.server.jsonapi import views
 
@@ -35,7 +34,7 @@ class ServiceApiBase(object):
         pysh.sh("mkdir -p ${CRDS_PATH}", raise_on_error=True)
         os.environ.pop("CRDS_MAPPATH", None)
         os.environ.pop("CRDS_REFPATH", None)
-        client.set_crds_server(server_config.CRDS_URL)
+        api.set_crds_server(server_config.CRDS_URL)
     
     @classmethod
     def tearDownClass(self, *args, **keys):
@@ -53,7 +52,7 @@ class ServiceApiBase(object):
 
     def get_bestrefs(self, reftypes=[]):
         header = self.get_header()
-        return client.get_best_references(self.pmap, header, reftypes)
+        return api.get_best_references(self.pmap, header, reftypes)
 
     def purge_mappings(self):
         pysh.sh("rm -rf " + self.CRDS_PATH)        
@@ -62,7 +61,7 @@ class ServiceApiBase(object):
         pysh.sh("rm -rf " + self.CRDS_PATH)
 
     def test_client_dump_mappings(self):
-        client.dump_mappings(self.pmap)
+        api.dump_mappings(self.pmap)
         self.purge_mappings()
 
     def _check_bestrefs(self, bestrefs, reftypes):    
@@ -80,22 +79,22 @@ class ServiceApiBase(object):
         self._check_bestrefs(bestrefs, self.requested_types)
 
     def test_client_dump_references(self):
-        client.dump_references(self.pmap, [self.test_reference])
+        api.dump_references(self.pmap, [self.test_reference])
         self.purge_references()
 
     def test_client_cache_best_references(self):
-        client.get_best_references(self.pmap, self.get_header())
+        api.get_best_references(self.pmap, self.get_header())
         self.purge_references()
 
     def test_client_get_url(self):
-        url = client.get_url(self.pmap, self.test_reference)
+        url = api.get_url(self.pmap, self.test_reference)
 
     def test_client_get_default_context(self):
-        context = client.get_default_context(self.observatory)
+        context = api.get_default_context(self.observatory)
         self.assertIn(".pmap", context)
         
     def test_client_list_mappings(self):
-        client.list_mappings(server_config.observatory, "*.rmap")
+        api.list_mappings(server_config.observatory, "*.rmap")
         
     def getreferences(self, *args, **keys):
         # get_processing_mode is cached to avoid repeat network traffic
@@ -173,7 +172,7 @@ class ServiceApiBase(object):
             bestrefs = self.getreferences(header, reftypes=["foo"])
     
     def test_get_server_info(self):
-        info = client.get_server_info()
+        info = api.get_server_info()
         assert info["operational_context"].endswith(".pmap")
         assert info["edit_context"].endswith(".pmap")
         assert re.match("\d+\.\d+(\.\d+)?(dev)?", info["crds_version"]["str"])
@@ -185,13 +184,13 @@ class ServiceApiBase(object):
         try:
             # mess up server
             log.set_verbose(True)
-            old_url = client.get_crds_server()
-            client.set_crds_server("http://foo.bar")
+            old_url = api.get_crds_server()
+            api.set_crds_server("http://foo.bar")
             # attempt fallback using cached files and status
             self.test_getreferences_defaults()
         finally:
             os.environ["CRDS_MODE"] = "auto"
-            client.set_crds_server(old_url)
+            api.set_crds_server(old_url)
             log.set_verbose(False)
     
     def test_getreferences_fallback_auto(self):
@@ -236,35 +235,35 @@ class ServiceApiBase(object):
         self.getreferences_fallup("remote", ignore_cache=True)
 
     def test_get_context_by_date(self):
-        context = client.get_context_by_date(self.context_date)
+        context = api.get_context_by_date(self.context_date)
         assert context.endswith(".pmap")
             
     def test_get_context_by_date_obs(self):
-        context = client.get_context_by_date(self.context_date_obs)
+        context = api.get_context_by_date(self.context_date_obs)
         assert context.endswith(".pmap")
 
     def test_get_context_by_date_instr(self):
-        context = client.get_context_by_date(self.context_date_instr)
+        context = api.get_context_by_date(self.context_date_instr)
         assert context.endswith(".imap")
             
     def test_get_context_by_date_filekind(self):
-        context = client.get_context_by_date(self.context_date_filekind)
+        context = api.get_context_by_date(self.context_date_filekind)
         assert context.endswith(".rmap")
             
     def test_get_context_by_date_fail(self):
         with self.assertRaisesRegexp(crds.CrdsError, "UnknownContextError"):
-            context = client.get_context_by_date("bad time format")
+            context = api.get_context_by_date("bad time format")
 
     def test_get_context_by_date_edit(self):
-        context = client.get_context_by_date(self.observatory + "-edit")
+        context = api.get_context_by_date(self.observatory + "-edit")
         assert context.endswith(".pmap")
         
     def test_get_context_by_date_operational(self):
-        context = client.get_context_by_date(self.observatory + "-operational")
+        context = api.get_context_by_date(self.observatory + "-operational")
         assert context.endswith(".pmap")
 
     def test_get_required_parkeys(self):
-        parkeys = client.get_required_parkeys(self.pmap)
+        parkeys = api.get_required_parkeys(self.pmap)
         assert isinstance(parkeys, dict)
         for instr in parkeys:
             assert instr in imodels.INSTRUMENTS
@@ -273,7 +272,7 @@ class ServiceApiBase(object):
                 assert isinstance(parkey, str)
 
     def test_get_context_history(self):
-        history = client.get_context_history(self.observatory)
+        history = api.get_context_history(self.observatory)
             
     def xxx_push_context(self):
         model_name = self.observatory + "-test-operational-echo"
@@ -281,23 +280,23 @@ class ServiceApiBase(object):
         key = str(remote.key)
         assert remote.context == self.pmap and remote.observatory == self.observatory and remote.kind == "operational", \
             "Remote context initial state is incorrect"
-        client.push_remote_context(self.observatory,"operational", key, self.pmap1)
+        api.push_remote_context(self.observatory,"operational", key, self.pmap1)
         remote = imodels.RemoteContextModel.objects.get(name=model_name)
         assert remote.context == self.pmap1 and remote.observatory == self.observatory and remote.kind == "operational" and key == str(remote.key), \
             "Remote context final state is incorrect"
 
     def test_client_get_best_references_by_ids(self):
-        bestrefs = client.get_best_references_by_ids(self.pmap, self.dataset_ids)
+        bestrefs = api.get_best_references_by_ids(self.pmap, self.dataset_ids)
 
         # File counts below are trip-wires with a shaky rational basis,  don't
         # loose sleep if the actual value deviates from the provided range,  just
         # take note and update.
     def test_client_get_mapping_names(self):
-        mappings = client.get_mapping_names(self.pmap)
+        mappings = api.get_mapping_names(self.pmap)
         self.failUnless(50 < len(mappings) < 200)
         
     def test_client_get_reference_names(self):
-        references = client.get_reference_names(self.pmap)
+        references = api.get_reference_names(self.pmap)
         self.failUnless(self.min_reference_count < len(references))
 
 # ===========================================================================
@@ -448,8 +447,8 @@ if server_config.observatory == "jwst":
         #     }
 
         def _get_aui_best_references_for_specifier(self, specifier):
-            ids = client.get_dataset_ids(specifier, "miri")
-            refs = client.get_aui_best_references(specifier, ids[:10])
+            ids = api.get_dataset_ids(specifier, "miri")
+            refs = api.get_aui_best_references(specifier, ids[:10])
             return refs
 
         def test_get_aui_bestrefs_date(self):
@@ -459,6 +458,6 @@ if server_config.observatory == "jwst":
             refs = self._get_aui_best_references_for_specifier(self.pmap)
         
         def test_get_system_versions(self):
-            versions = client.get_system_versions("0.6.0noop.dev331", "jwst_0209.pmap")
+            versions = api.get_system_versions("0.6.0noop.dev331", "jwst_0209.pmap")
 
 

@@ -15,9 +15,9 @@ from django.shortcuts import render as django_render
 import django.utils.encoding
 
 import crds
-from crds import (rmap, utils, log, data_file)
-from crds.server import (config)
-import crds.server.jsonapi.views as jviews
+from crds import rmap, utils, log, data_file
+from crds.server import config
+from crds.server.jsonapi import views as jviews
 from crds.server.interactive import models as imodels
 
 register = template.Library()

@@ -8,7 +8,7 @@ import os.path
 from django.test import TransactionTestCase, TestCase
 
 from crds import (rmap, utils, pysh, log)
-import crds.config as lconfig
+from crds import config as lconfig
 
 from crds.server import settings
 from crds.server import config as sconfig

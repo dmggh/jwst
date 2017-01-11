@@ -15,7 +15,7 @@ import traceback
 from crds import log, rmap, pysh
 from crds.cmdline import Script
 
-import crds.server.config
+from crds.server import config as sconfig
 from crds.server.interactive import models, submit
 
 import django
@@ -83,7 +83,7 @@ Does not move, rename, or deliver files.
         """
         django.setup()
 
-        if "sqlite" in crds.server.config.dbtype:
+        if "sqlite" in sconfig.dbtype:
             hack_sqlite3_performance()
         if self.args.deliver:
             self.args.state = "delivered"

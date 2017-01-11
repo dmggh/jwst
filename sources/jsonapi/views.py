@@ -25,14 +25,14 @@ from crds.server.interactive import models as imodels
 from crds.server.interactive import versions
 from crds.server.interactive.common import DATASET_ID_RE, FITS_KEY_RE, FITS_VAL_RE, LIST_GLOB_RE
 from crds.server.interactive.common import INSTRUMENT_RE, FIELD_RE
-import crds.server.config as sconfig    # server parameters
+from crds.server import config as sconfig    # server config file
 
 from crds.server.jpoll import views as jviews
 from crds.server.interactive import submit
 
 from crds.client import proxy
 from crds import rmap, utils, log, timestamp, pysh, python23, heavy_client, exceptions
-import crds.config                     # generic client/server
+from crds import config                     # client config file
 from crds.config import FILE_RE, check_filename
 import crds
 
@@ -54,7 +54,7 @@ def get_jsonrpc_template_vars():
 
 def create_url(observatory, filename):
     """Create a CRDS server URL for a filename,  i.e. a URL including possible checking."""
-    if crds.config.is_mapping(filename):
+    if config.is_mapping(filename):
         url = sconfig.CRDS_MAPPING_URL + filename
     else:
         url = sconfig.CRDS_REFERENCE_URL + filename
@@ -62,7 +62,7 @@ def create_url(observatory, filename):
 
 def create_unchecked_url(observatory, filename):
     """Create an archive URL for a filename.   Simple file download URL."""
-    if crds.config.is_mapping(filename):
+    if config.is_mapping(filename):
         url = sconfig.CRDS_UNCHECKED_MAPPING_URL + filename
     else:
         url = sconfig.CRDS_UNCHECKED_REFERENCE_URL + filename
@@ -168,8 +168,8 @@ def check_context(context, observatory=None):
         observatory = sconfig.observatory
     else:
         observatory = check_observatory(observatory)
-    if not crds.config.is_mapping(context):  # this is for speed, to short circuit most checking
-        if not crds.config.is_mapping_spec(context):  # this is for more clarity
+    if not config.is_mapping(context):  # this is for speed, to short circuit most checking
+        if not config.is_mapping_spec(context):  # this is for more clarity
             raise UnknownContextError("Context parameter '{0}' is not a .pmap, .imap, or .rmap file"
                                       " or a valid date based context specification.", context)
         context = _check_date_based_context(context, observatory)
@@ -178,7 +178,7 @@ def check_context(context, observatory=None):
                                      " supported by this server.   Switch servers or contexts.", 
                                      context, sconfig.observatory)
     _blob = check_known_file(context)
-    if not crds.config.is_mapping(context):
+    if not config.is_mapping(context):
         raise UnknownContextError("Context parameter '{0}' is not a known CRDS .pmap, .imap, or .rmap file.", context)
     return context
 
@@ -187,11 +187,11 @@ def _check_date_based_context(context, observatory):
     translate it into a literal .pmap, .imap, or .rmap name.   Otherwise return `context` unchanged.
     """
     instrument = filekind = None
-    match = crds.config.CONTEXT_DATETIME_RE.match(context)
+    match = config.CONTEXT_DATETIME_RE.match(context)
     if match:
         context = _pmap_from_date(context, observatory)
     else:        
-        match = crds.config.CONTEXT_RE.match(context)
+        match = config.CONTEXT_RE.match(context)
         if match:
             obs_instr_kind = match.group("context")[:-1]
             parts = obs_instr_kind.split("-")
@@ -232,7 +232,7 @@ def _pmap_from_date(date, observatory):
 def check_context_date(date):
     """Verify the format of simple context datetime string `date` and return a datetime.datetime object."""
     try:
-        if not crds.config.CONTEXT_DATETIME_RE.match(date):
+        if not config.CONTEXT_DATETIME_RE.match(date):
             raise Exception("Forced date error")
         return timestamp.parse_date(date)
     except Exception:
@@ -969,7 +969,7 @@ def get_system_versions(request, master_version, context):
     log.set_verbose()
     references = rmap.get_best_references(context, header, condition=True, include=["calver"])
     calver_name = references["calver"]
-    if not calver_name.startswith("NOT FOUND") and crds.config.is_reference(calver_name):
+    if not calver_name.startswith("NOT FOUND") and config.is_reference(calver_name):
         calver_reference = crds.locate_file(references["calver"], imodels.OBSERVATORY)
         with open(calver_reference) as handle:
             contents = json.load(handle)

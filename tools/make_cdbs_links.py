@@ -8,7 +8,7 @@ of CDBS.
 import sys, os, shutil, re
 
 from crds import config, log, rmap, utils
-import crds.hst.locate as locate
+from crds.hst import locate
 
 def main(used_references):
     if not used_references:

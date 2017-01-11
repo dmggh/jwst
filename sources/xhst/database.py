@@ -16,8 +16,8 @@ from crds import rmap, log, utils, timestamp, config
 from crds.server.interactive import models, common
 from crds.server import config as sconfig
 
-import crds.hst, crds.hst.locate
-from crds.hst import reftypes
+from crds import hst
+from crds.hst import locate, reftypes
 
 HERE = os.path.dirname(__file__) or "."
 HEADER_TABLES = HERE + "/db_header_tables.dat"

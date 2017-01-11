@@ -22,7 +22,7 @@ from crds.log import srepr
 
 from crds.server.config import observatory as OBSERVATORY
 from crds.server.config import table_prefix as TABLE_PREFIX
-import crds.server.config as config
+from crds.server import config
 
 from . import common
 from . import json_ext
