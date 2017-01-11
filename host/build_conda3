@@ -1,0 +1,43 @@
+#! /bin/tcsh -fx
+
+setenv CONDA_NAME crds_conda3-3
+
+setenv CRDS_STACK ${CRDS}/crds_stacks/$CONDA_NAME
+setenv META_PREFIX ${CRDS_STACK}
+setenv MINICONDA https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+
+cd ${CRDS}/crds_stacks
+rm -rf ${CRDS_STACK}.old
+mv ${CRDS_STACK} ${CRDS_STACK}.old
+rm -rf installer4
+cp -r /eng/ssb/crds/installer4 .
+cd installer4/build
+
+rm -f *.err
+./meta clean >& /dev/null
+
+# Set up miniconda
+wget $MINICONDA  -O ./miniconda.sh
+bash ./miniconda.sh -b -p $CRDS_STACK
+rm miniconda.sh
+setenv PATH ${CRDS_STACK}/bin:${PATH}
+rehash 
+conda update --yes conda
+
+conda install --yes --file http://ssb.stsci.edu/conda/jwstdp-0.7.0rc/jwstdp-0.7.0rc3-linux-py35.0.txt
+conda remove --yes crds
+
+./meta install @crds2  |& tee ${CRDS_STACK}/crds2.err
+./meta install jwst |& tee ${CRDS_STACK}/jwst.err
+./meta clean >& /dev/null
+
+rehash
+
+git status  |& tee ${CRDS_STACK}/git.status
+git log --stat |& tee ${CRDS_STACK}/git.log
+conda list |& tee ${CRDS_STACK}/conda.list
+
+
+# Install the entire base to get mercurial... for this.
+# ../src/pull_local
+
