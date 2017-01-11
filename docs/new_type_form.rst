@@ -41,7 +41,7 @@ TYPE CREATOR
 TABLE  (YES / NO?)
 ------------------
 
-CORRELATION PARAMETER NAME (eg. HST CORR keyword?)
+CORRECTION KEYWORD NAME (eg. HST CORR keyword?)
 --------------------------------------------------
 
 **More Advanced**
