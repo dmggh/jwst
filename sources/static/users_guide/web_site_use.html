@@ -656,13 +656,13 @@ crds.certify.   Where possible match values are validated against CRDS .tpn
 files or JWST data model schema.</p>
 <p>3. Run crds.certify on the resulting mapping, using the current operational
 context as the point of comparison:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">certify</span> <span class="o">./</span><span class="n">jwst_miri_dark_0004</span><span class="o">.</span><span class="n">rmap</span>  <span class="o">--</span><span class="n">comparison</span><span class="o">-</span><span class="n">context</span> <span class="n">jwst</span><span class="o">-</span><span class="n">operational</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">certify</span> <span class="o">./</span><span class="n">jwst_miri_dark_0004</span><span class="o">.</span><span class="n">rmap</span>  <span class="o">--</span><span class="n">comparison</span><span class="o">-</span><span class="n">context</span> <span class="n">jwst</span><span class="o">-</span><span class="n">operational</span>
 </pre></div>
 </div>
 <p>4. During iteration, run crds.checksum on the mapping to update the internal
 sha1sum if you wish to load the context into Python to do interactive tests
 with the .rmap:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">checksum</span> <span class="o">./</span><span class="n">jwst_miri_dark_0004</span><span class="o">.</span><span class="n">rmap</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">checksum</span> <span class="o">./</span><span class="n">jwst_miri_dark_0004</span><span class="o">.</span><span class="n">rmap</span>
 <span class="o">%</span> <span class="n">python</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">crds</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">r</span> <span class="o">=</span> <span class="n">crds</span><span class="o">.</span><span class="n">get_cached_mapping</span><span class="p">(</span><span class="s2">&quot;./jwst_miri_dark_0004.rmap&quot;</span><span class="p">)</span>
@@ -703,7 +703,7 @@ generate a warning.   Alternately:</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2015, STScI.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.
     </div>
   </body>
 </html>

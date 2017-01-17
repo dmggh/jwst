@@ -126,12 +126,12 @@ and how reference files are checked.</p>
 <h2>Important Modules<a class="headerlink" href="#important-modules" title="Permalink to this headline">¶</a></h2>
 <p>There are really two important modules which anyone doing low-level and non-
 networked CRDS development will first be concerned with:</p>
-<ul>
+<ul class="simple">
 <li><dl class="first docutils">
 <dt>crds.rmap module</dt>
 <dd><dl class="first last docutils">
 <dt>&#8211; defines classes which load and operate on mapping files</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li>Mapping</li>
 <li>PipelineContext (.pmap)</li>
 <li>InstrumentContext (.imap),</li>
@@ -139,7 +139,7 @@ networked CRDS development will first be concerned with:</p>
 </ul>
 </dd>
 <dt>&#8211; defines get_cached_mapping() function</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li>loads and caches a Mapping or subclass instances from files,
 typically this is a recursive process loading pipeline or instrument
 contexts as well as all associated reference mappings.</li>
@@ -156,7 +156,7 @@ file transfers.</li>
 <dt>crds.selectors module</dt>
 <dd><dl class="first last docutils">
 <dt>&#8211; defines classes implementing best reference logic</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li>MatchSelector</li>
 <li>UseAfterSelector</li>
 <li>Other experimental Selector classes</li>
@@ -333,7 +333,7 @@ while you iterate on new versions of the mapping:</p>
 <h3>Adding Checksums<a class="headerlink" href="#adding-checksums" title="Permalink to this headline">¶</a></h3>
 <p>Once you&#8217;ve finished your masterpiece ReferenceMapping,  it can be sealed with
 a checksum like this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">checksum</span> <span class="o">/</span><span class="n">where</span><span class="o">/</span><span class="n">it</span><span class="o">/</span><span class="n">really</span><span class="o">/</span><span class="ow">is</span><span class="o">/</span><span class="n">hst_acs_my_masterpiece</span><span class="o">.</span><span class="n">rmap</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">checksum</span> <span class="o">/</span><span class="n">where</span><span class="o">/</span><span class="n">it</span><span class="o">/</span><span class="n">really</span><span class="o">/</span><span class="ow">is</span><span class="o">/</span><span class="n">hst_acs_my_masterpiece</span><span class="o">.</span><span class="n">rmap</span>
 </pre></div>
 </div>
 </div>
@@ -363,7 +363,7 @@ a checksum like this:</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2015, STScI.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.
     </div>
   </body>
 </html>

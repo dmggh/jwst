@@ -53,6 +53,7 @@
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Command Line Tools</a><ul>
+<li><a class="reference internal" href="#crds-convenience-wrapper">crds Convenience Wrapper</a></li>
 <li><a class="reference internal" href="#specifying-file-paths">Specifying File Paths</a></li>
 <li><a class="reference internal" href="#crds-bestrefs">crds.bestrefs</a><ul>
 <li><a class="reference internal" href="#file-oriented-best-references">File Oriented Best References</a></li>
@@ -116,17 +117,39 @@
 <p>Using the command line tools requires a local installation of the CRDS library.
 Some of the command line tools also interact with the CRDS server in order to
 implement their functionality.</p>
+<div class="section" id="crds-convenience-wrapper">
+<h2>crds Convenience Wrapper<a class="headerlink" href="#crds-convenience-wrapper" title="Permalink to this headline">¶</a></h2>
+<p>DEPRECATED original command line syntax, e.g. for the list command:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">list</span> <span class="o">--</span><span class="n">config</span>
+</pre></div>
+</div>
+<p>NEW command line syntax, e.g.:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="nb">list</span> <span class="o">--</span><span class="n">config</span>
+</pre></div>
+</div>
+<p>Internally the &#8216;crds&#8217; wrapper launches a command similar to the original
+&#8216;-m&#8217; syntax.   However, aside from easier typing,  the &#8216;crds&#8217; wrapper
+hides internal structural details of the CRDS package.</p>
+<p>For a list of available commands do:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="o">--</span><span class="n">help</span>
+</pre></div>
+</div>
+<p>for detail on a single command do, e.g.:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="nb">list</span> <span class="o">--</span><span class="n">help</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="specifying-file-paths">
 <h2>Specifying File Paths<a class="headerlink" href="#specifying-file-paths" title="Permalink to this headline">¶</a></h2>
 <p>The command line tools operate on CRDS reference and mapping files in various
 ways.  To specify a file in your local CRDS file cache,  as defined by CRDS_PATH,
 use no path on the file:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">diff</span> <span class="n">hst</span><span class="o">.</span><span class="n">pmap</span>  <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span>  <span class="c1"># assumes paths in CRDS cache</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">diff</span> <span class="n">hst</span><span class="o">.</span><span class="n">pmap</span>  <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span>  <span class="c1"># assumes paths in CRDS cache</span>
 </pre></div>
 </div>
 <p>To specify a particular file which is not located in your cache,  give at least
 a relative path to the file, ./ will do:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">diff</span> <span class="o">/</span><span class="n">some</span><span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">hst</span><span class="o">.</span><span class="n">pmap</span> <span class="o">./</span><span class="n">hst_0002</span><span class="o">.</span><span class="n">pmap</span>   <span class="c1"># uses given paths</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">diff</span> <span class="o">/</span><span class="n">some</span><span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">hst</span><span class="o">.</span><span class="n">pmap</span> <span class="o">./</span><span class="n">hst_0002</span><span class="o">.</span><span class="n">pmap</span>   <span class="c1"># uses given paths</span>
 </pre></div>
 </div>
 </div>
@@ -239,14 +262,14 @@ for a set of FITS files, dataset ids,  or instruments:</p>
 <h3>File Oriented Best References<a class="headerlink" href="#file-oriented-best-references" title="Permalink to this headline">¶</a></h3>
 <p>The most common end-user use case for crds.bestrefs is to assign best references to the header keywords of
 dataset FITS files.   This can be done as follows:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">bestrefs</span> <span class="o">--</span><span class="n">update</span><span class="o">-</span><span class="n">bestrefs</span> <span class="o">--</span><span class="n">sync</span><span class="o">-</span><span class="n">references</span><span class="o">=</span><span class="mi">1</span> <span class="o">--</span><span class="n">files</span> <span class="n">j8bt05njq_raw</span><span class="o">.</span><span class="n">fits</span> <span class="n">j8bt06o6q_raw</span><span class="o">.</span><span class="n">fits</span> <span class="n">j8bt09jcq_raw</span><span class="o">.</span><span class="n">fits</span> <span class="o">...</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">bestrefs</span> <span class="o">--</span><span class="n">update</span><span class="o">-</span><span class="n">bestrefs</span> <span class="o">--</span><span class="n">sync</span><span class="o">-</span><span class="n">references</span><span class="o">=</span><span class="mi">1</span> <span class="o">--</span><span class="n">files</span> <span class="n">j8bt05njq_raw</span><span class="o">.</span><span class="n">fits</span> <span class="n">j8bt06o6q_raw</span><span class="o">.</span><span class="n">fits</span> <span class="n">j8bt09jcq_raw</span><span class="o">.</span><span class="n">fits</span> <span class="o">...</span>
 </pre></div>
 </div>
 <p>which will use the CRDS rules currently operational in the pipeline and download any required CRDS rules and reference files
 to your CRDS cache automatically.   No download should occur for previously cached files or the default group readonly reference
 cache.</p>
 <p>A specific historical set of CRDS rules can be used by specifying &#8211;new-context:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">bestrefs</span> <span class="o">--</span><span class="n">new</span><span class="o">-</span><span class="n">context</span> <span class="n">hst_0294</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">update</span><span class="o">-</span><span class="n">bestrefs</span> <span class="o">--</span><span class="n">sync</span><span class="o">-</span><span class="n">references</span><span class="o">=</span><span class="mi">1</span> <span class="o">--</span><span class="n">files</span> <span class="n">j8bt05njq_raw</span><span class="o">.</span><span class="n">fits</span> <span class="o">...</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">bestrefs</span> <span class="o">--</span><span class="n">new</span><span class="o">-</span><span class="n">context</span> <span class="n">hst_0294</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">update</span><span class="o">-</span><span class="n">bestrefs</span> <span class="o">--</span><span class="n">sync</span><span class="o">-</span><span class="n">references</span><span class="o">=</span><span class="mi">1</span> <span class="o">--</span><span class="n">files</span> <span class="n">j8bt05njq_raw</span><span class="o">.</span><span class="n">fits</span> <span class="o">...</span>
 </pre></div>
 </div>
 </div>
@@ -265,7 +288,7 @@ required to process those datasets.</p>
 <ol class="arabic">
 <li><p class="first">To find best references for a list of files do something like this:</p>
 <blockquote>
-<div><p>% python -m crds.bestrefs &#8211;new-context hst.pmap &#8211;file j8bt05njq_raw.fits j8bt06o6q_raw.fits j8bt09jcq_raw.fits</p>
+<div><p>% crds bestrefs &#8211;new-context hst.pmap &#8211;file j8bt05njq_raw.fits j8bt06o6q_raw.fits j8bt09jcq_raw.fits</p>
 </div></blockquote>
 </li>
 </ol>
@@ -273,19 +296,19 @@ required to process those datasets.</p>
 <ol class="arabic" start="2">
 <li><p class="first">To find best references for a list of catalog dataset ids do something like this:</p>
 <blockquote>
-<div><p>% python -m crds.bestrefs &#8211;new-context hst.pmap &#8211;datasets j8bt05njq j8bt06o6q j8bt09jcq</p>
+<div><p>% crds bestrefs &#8211;new-context hst.pmap &#8211;datasets j8bt05njq j8bt06o6q j8bt09jcq</p>
 </div></blockquote>
 </li>
 <li><p class="first">To do mass scale testing for all cataloged datasets for a particular instrument(s) do:</p>
 <blockquote>
-<div><p>% python -m crds.bestrefs &#8211;new-context hst.pmap &#8211;instruments acs</p>
+<div><p>% crds bestrefs &#8211;new-context hst.pmap &#8211;instruments acs</p>
 </div></blockquote>
 </li>
 <li><p class="first">To do mass scale testing for all supported instruments for all cataloged datasets do:</p>
 <blockquote>
-<div><p>% python -m crds.bestrefs &#8211;new-context hst.pmap &#8211;all-instruments</p>
+<div><p>% crds bestrefs &#8211;new-context hst.pmap &#8211;all-instruments</p>
 <p>or to test for differences between two contexts</p>
-<p>% python -m crds.bestrefs &#8211;new-context hst_0002.pmap &#8211;old-context hst_0001.pmap &#8211;all-instruments</p>
+<p>% crds bestrefs &#8211;new-context hst_0002.pmap &#8211;old-context hst_0001.pmap &#8211;all-instruments</p>
 </div></blockquote>
 </li>
 </ol>
@@ -313,7 +336,7 @@ cases the prior best references are recorded static values,  not dynamically com
 <p>crds.bestrefs supports several output modes for bestrefs and comparison results to standard out.</p>
 <p>If &#8211;print-affected is specified,  crds.bestrefs will print out the name of any file for which at least one update for
 one reference type was recommended.   This is essentially a list of files to be reprocessed with new references.:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">bestrefs</span> <span class="o">--</span><span class="n">new</span><span class="o">-</span><span class="n">context</span> <span class="n">hst</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">files</span> <span class="n">j8bt05njq_raw</span><span class="o">.</span><span class="n">fits</span> <span class="n">j8bt06o6q_raw</span><span class="o">.</span><span class="n">fits</span> <span class="n">j8bt09jcq_raw</span><span class="o">.</span><span class="n">fits</span> \
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">bestrefs</span> <span class="o">--</span><span class="n">new</span><span class="o">-</span><span class="n">context</span> <span class="n">hst</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">files</span> <span class="n">j8bt05njq_raw</span><span class="o">.</span><span class="n">fits</span> <span class="n">j8bt06o6q_raw</span><span class="o">.</span><span class="n">fits</span> <span class="n">j8bt09jcq_raw</span><span class="o">.</span><span class="n">fits</span> \
     <span class="o">--</span><span class="n">compare</span><span class="o">-</span><span class="n">source</span><span class="o">-</span><span class="n">bestrefs</span> <span class="o">--</span><span class="nb">print</span><span class="o">-</span><span class="n">affected</span>
 <span class="n">j8bt05njq_raw</span><span class="o">.</span><span class="n">fits</span>
 <span class="n">j8bt06o6q_raw</span><span class="o">.</span><span class="n">fits</span>
@@ -324,7 +347,7 @@ one reference type was recommended.   This is essentially a list of files to be 
 <div class="section" id="update-modes">
 <h3>Update Modes<a class="headerlink" href="#update-modes" title="Permalink to this headline">¶</a></h3>
 <p>crds.bestrefs initially supports one mode for updating the best reference recommendations recorded in data files:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">bestrefs</span> <span class="o">--</span><span class="n">new</span><span class="o">-</span><span class="n">context</span> <span class="n">hst</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">files</span> <span class="n">j8bt05njq_raw</span><span class="o">.</span><span class="n">fits</span> <span class="n">j8bt06o6q_raw</span><span class="o">.</span><span class="n">fits</span> <span class="n">j8bt09jcq_raw</span><span class="o">.</span><span class="n">fits</span> \
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">bestrefs</span> <span class="o">--</span><span class="n">new</span><span class="o">-</span><span class="n">context</span> <span class="n">hst</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">files</span> <span class="n">j8bt05njq_raw</span><span class="o">.</span><span class="n">fits</span> <span class="n">j8bt06o6q_raw</span><span class="o">.</span><span class="n">fits</span> <span class="n">j8bt09jcq_raw</span><span class="o">.</span><span class="n">fits</span> \
     <span class="o">--</span><span class="n">compare</span><span class="o">-</span><span class="n">source</span><span class="o">-</span><span class="n">bestrefs</span> <span class="o">--</span><span class="n">update</span><span class="o">-</span><span class="n">bestrefs</span>
 </pre></div>
 </div>
@@ -415,7 +438,7 @@ files before deleting them.</p>
 <li><p class="first">Syncing Specific Files</p>
 <blockquote>
 <div><p>Downloading an explicit list of files can be done by like this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">sync</span>  <span class="o">--</span><span class="n">files</span> <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span> <span class="n">hst_acs_darkfile_0037</span><span class="o">.</span><span class="n">fits</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span>  <span class="o">--</span><span class="n">files</span> <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span> <span class="n">hst_acs_darkfile_0037</span><span class="o">.</span><span class="n">fits</span>
 </pre></div>
 </div>
 <p>this will download only those two files.</p>
@@ -425,17 +448,17 @@ files before deleting them.</p>
 <blockquote>
 <div><p>Typically syncing CRDS files is done with respect to particular CRDS contexts:</p>
 <p>Synced contexts can be explicitly listed:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">sync</span>  <span class="o">--</span><span class="n">contexts</span> <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span> <span class="n">hst_0002</span><span class="o">.</span><span class="n">pmap</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span>  <span class="o">--</span><span class="n">contexts</span> <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span> <span class="n">hst_0002</span><span class="o">.</span><span class="n">pmap</span>
 </pre></div>
 </div>
 <p>this will recursively download all the mappings referred to by .pmaps 0001 and 0002.</p>
 <p>Synced contexts can be specified as a numerical range:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">sync</span> <span class="o">--</span><span class="nb">range</span> <span class="mi">1</span><span class="p">:</span><span class="mi">3</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span> <span class="o">--</span><span class="nb">range</span> <span class="mi">1</span><span class="p">:</span><span class="mi">3</span>
 </pre></div>
 </div>
 <p>this will also recursively download all the mappings referred to by .pmaps 0001, 002, 0003.</p>
 <p>Synced contexts can be specified as &#8211;all contexts:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">sync</span> <span class="o">--</span><span class="nb">all</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span> <span class="o">--</span><span class="nb">all</span>
 </pre></div>
 </div>
 <p>this will recursively download all CRDS mappings for all time.</p>
@@ -445,7 +468,7 @@ files before deleting them.</p>
 <blockquote>
 <div><p>Because complete reference downloads can be enormous,  you must explicitly specify when
 you wish to fetch the references which are enumerated in particular CRDS rules:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">sync</span>  <span class="o">--</span><span class="n">contexts</span> <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span> <span class="n">hst_0002</span><span class="o">.</span><span class="n">pmap</span>  <span class="o">--</span><span class="n">fetch</span><span class="o">-</span><span class="n">references</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span>  <span class="o">--</span><span class="n">contexts</span> <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span> <span class="n">hst_0002</span><span class="o">.</span><span class="n">pmap</span>  <span class="o">--</span><span class="n">fetch</span><span class="o">-</span><span class="n">references</span>
 </pre></div>
 </div>
 <p>will download all the references mentioned by contexts 0001 and 0002.</p>
@@ -458,11 +481,11 @@ the entire pipeline,  e.g. hst_cos_0002.imap or hst_cos_proftab_0001.rmap</p>
 <li><p class="first">Removing Unused Files</p>
 <blockquote>
 <div><p>CRDS rules from <strong>unspecified</strong> contexts can be removed like this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">sync</span>  <span class="o">--</span><span class="n">contexts</span> <span class="n">hst_0004</span><span class="o">.</span><span class="n">pmap</span> <span class="n">hst_0005</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">purge</span><span class="o">-</span><span class="n">mappings</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span>  <span class="o">--</span><span class="n">contexts</span> <span class="n">hst_0004</span><span class="o">.</span><span class="n">pmap</span> <span class="n">hst_0005</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">purge</span><span class="o">-</span><span class="n">mappings</span>
 </pre></div>
 </div>
 <p>while this would remove references which are <em>not</em> in contexts 4 or 5:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">sync</span>  <span class="o">--</span><span class="n">contexts</span> <span class="n">hst_0004</span><span class="o">.</span><span class="n">pmap</span> <span class="n">hst_0005</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">purge</span><span class="o">-</span><span class="n">references</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span>  <span class="o">--</span><span class="n">contexts</span> <span class="n">hst_0004</span><span class="o">.</span><span class="n">pmap</span> <span class="n">hst_0005</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">purge</span><span class="o">-</span><span class="n">references</span>
 </pre></div>
 </div>
 <p>Again, both of these commands remove cached files which are not specified or implied.</p>
@@ -471,7 +494,7 @@ the entire pipeline,  e.g. hst_cos_0002.imap or hst_cos_proftab_0001.rmap</p>
 <li><p class="first">References for Dataset Files</p>
 <blockquote>
 <div><p>References required by particular dataset files can be cached like this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">sync</span>  <span class="o">--</span><span class="n">contexts</span> <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span> <span class="n">hst_0002</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="n">files</span>  <span class="o">&lt;</span><span class="n">dataset_files</span><span class="o">...&gt;</span> <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">acs_J8D219010</span><span class="o">.</span><span class="n">fits</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span>  <span class="o">--</span><span class="n">contexts</span> <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span> <span class="n">hst_0002</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="n">files</span>  <span class="o">&lt;</span><span class="n">dataset_files</span><span class="o">...&gt;</span> <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">acs_J8D219010</span><span class="o">.</span><span class="n">fits</span>
 </pre></div>
 </div>
 <p>This will fetch all the references required to support the listed datasets for contexts 0001 and 0002.</p>
@@ -481,7 +504,7 @@ the entire pipeline,  e.g. hst_cos_0002.imap or hst_cos_proftab_0001.rmap</p>
 <li><p class="first">References for Dataset Ids</p>
 <blockquote>
 <div><p>References for particular dataset ids can be cached like this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">sync</span>  <span class="o">--</span><span class="n">contexts</span> <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span> <span class="n">hst_0002</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="n">ids</span>  <span class="o">&lt;</span><span class="n">ids</span><span class="o">...&gt;</span>  <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">J6M915030</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span>  <span class="o">--</span><span class="n">contexts</span> <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span> <span class="n">hst_0002</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="n">ids</span>  <span class="o">&lt;</span><span class="n">ids</span><span class="o">...&gt;</span>  <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">J6M915030</span>
 </pre></div>
 </div>
 <p>This will fetch all the references required to support the listed dataset ids for contexts 0001 and 0002.</p>
@@ -490,7 +513,7 @@ the entire pipeline,  e.g. hst_cos_0002.imap or hst_cos_proftab_0001.rmap</p>
 <li><p class="first">Checking and Repairing Large Caches</p>
 <blockquote>
 <div><p>Large Institutional caches can be checked and/or repaired like this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">sync</span> <span class="o">--</span><span class="n">contexts</span> <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">fetch</span><span class="o">-</span><span class="n">references</span> <span class="o">--</span><span class="n">check</span><span class="o">-</span><span class="n">sha1sum</span> <span class="o">--</span><span class="n">repair</span><span class="o">-</span><span class="n">files</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span> <span class="o">--</span><span class="n">contexts</span> <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">fetch</span><span class="o">-</span><span class="n">references</span> <span class="o">--</span><span class="n">check</span><span class="o">-</span><span class="n">sha1sum</span> <span class="o">--</span><span class="n">repair</span><span class="o">-</span><span class="n">files</span>
 </pre></div>
 </div>
 <p>will download all the files in hst_0001.pmap not already present.</p>
@@ -507,11 +530,11 @@ takes 5-10 minutes,  sufficient for a quick check but not foolproof.</p>
 <div><p>The simplest approach for &#8220;repairing&#8221; a small cache is to delete it and resync.   One might do this
 after making temporary modifications to cached files to return to the archived version:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>% rm -rf $CRDS_PATH
-% python -m crds.sync  -- ...  # repeat whatever syncs you did to cache files of interest
+% crds sync  -- ...  # repeat whatever syncs you did to cache files of interest
 </pre></div>
 </div>
 <p>A more complicated but also more precise approach can operate only on files already in the CRDS cache:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>% python -m crds.sync --repair-files --check-sha1sum --files `python -m crds.list --all --cached-mappings --cached-references`
+<div class="highlight-default"><div class="highlight"><pre><span></span>% crds sync --repair-files --check-sha1sum --files `crds list --all --cached-mappings --cached-references`
 </pre></div>
 </div>
 <p>This approach works by using the crds.list command to dump the file names of all files in the CRDS cache
@@ -526,7 +549,7 @@ to detect files which have changed in contents but not in length.</p>
 <blockquote>
 <div><p>crds.sync can be used to remove the files from specific contexts which have been marked as &#8220;bad&#8221;.</p>
 <blockquote>
-<div><p>% python -m crds.sync &#8211;contexts hst_0001.pmap &#8211;fetch-references &#8211;check-files &#8211;purge-rejected &#8211;purge-blacklisted</p>
+<div><p>% crds sync &#8211;contexts hst_0001.pmap &#8211;fetch-references &#8211;check-files &#8211;purge-rejected &#8211;purge-blacklisted</p>
 </div></blockquote>
 <p>would first sync the cache downloading all the files in hst_0001.pmap.  Both mappings and references would then
 be checked for correct length.   Files reported as rejected or blacklisted by the server would be removed.</p>
@@ -539,11 +562,11 @@ for a telescope in a single directory,  e.g. references/hst.   <em>instrument</e
 which name instruments or legacy environment variables,  e.g. acs or jref.</p>
 <p>Newly created caches will default to the <em>instrument</em> organization.  To migrate a legacy cache with a flat single
 directory layout to the new structure,  sync with &#8211;organize=instrument:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">sync</span> <span class="o">--</span><span class="n">organize</span><span class="o">=</span><span class="n">instrument</span> <span class="o">--</span><span class="n">verbose</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span> <span class="o">--</span><span class="n">organize</span><span class="o">=</span><span class="n">instrument</span> <span class="o">--</span><span class="n">verbose</span>
 </pre></div>
 </div>
 <p>To migrate to the flat structure,  use &#8211;organize=flat:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">sync</span> <span class="o">--</span><span class="n">organize</span><span class="o">=</span><span class="n">flat</span> <span class="o">--</span><span class="n">verbose</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span> <span class="o">--</span><span class="n">organize</span><span class="o">=</span><span class="n">flat</span> <span class="o">--</span><span class="n">verbose</span>
 </pre></div>
 </div>
 <p>While reorganizing, if CRDS makes note of &#8220;junk files&#8221; in your cache which are
@@ -607,27 +630,27 @@ the file it replaces looking for new or missing table rows.</p>
 </div>
 </li>
 <li><p class="first">crds.certify is normally invoked as, e.g.:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">certify</span> <span class="o">--</span><span class="n">comparison</span><span class="o">-</span><span class="n">context</span><span class="o">=</span><span class="n">hst_0027</span><span class="o">.</span><span class="n">pmap</span>   <span class="n">some_reference</span><span class="o">.</span><span class="n">fits</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">certify</span> <span class="o">--</span><span class="n">comparison</span><span class="o">-</span><span class="n">context</span><span class="o">=</span><span class="n">hst_0027</span><span class="o">.</span><span class="n">pmap</span>   <span class="n">some_reference</span><span class="o">.</span><span class="n">fits</span>
 
-<span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">certify</span> <span class="n">hst</span><span class="o">.</span><span class="n">pmap</span>
+<span class="o">%</span> <span class="n">crds</span> <span class="n">certify</span> <span class="n">hst</span><span class="o">.</span><span class="n">pmap</span>
 </pre></div>
 </div>
 </li>
 <li><p class="first">To run crds.certify on a reference(s) to verify basic file format and parameter constraints:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">certify</span> <span class="o">--</span><span class="n">comparison</span><span class="o">-</span><span class="n">context</span><span class="o">=</span><span class="n">hst_0027</span><span class="o">.</span><span class="n">pmap</span>   <span class="n">some_reference</span><span class="o">.</span><span class="n">fits</span><span class="o">...</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">certify</span> <span class="o">--</span><span class="n">comparison</span><span class="o">-</span><span class="n">context</span><span class="o">=</span><span class="n">hst_0027</span><span class="o">.</span><span class="n">pmap</span>   <span class="n">some_reference</span><span class="o">.</span><span class="n">fits</span><span class="o">...</span>
 </pre></div>
 </div>
 <p>If some_reference.fits is a table,  a comparison table will be found in the comparison context, if appropriate.</p>
 </li>
 <li><p class="first">For recursively checking CRDS rules do this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">certify</span> <span class="n">hst_0311</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">comparison</span><span class="o">-</span><span class="n">context</span><span class="o">=</span><span class="n">hst_0312</span><span class="o">.</span><span class="n">pmap</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">certify</span> <span class="n">hst_0311</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">comparison</span><span class="o">-</span><span class="n">context</span><span class="o">=</span><span class="n">hst_0312</span><span class="o">.</span><span class="n">pmap</span>
 </pre></div>
 </div>
 <p>If a comparison context is defined, checked mappings will be compared against their peers (if they exist) in
 the comparison context.  Many classes of mapping differences will result in warnings.</p>
 </li>
 <li><p class="first">For reference table checks,  a comparison reference can also be specified directly rather than inferred from context:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">certify</span> <span class="n">some_reference</span><span class="o">.</span><span class="n">fits</span> <span class="o">--</span><span class="n">comparison</span><span class="o">-</span><span class="n">reference</span><span class="o">=</span><span class="n">old_reference_version</span><span class="o">.</span><span class="n">fits</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">certify</span> <span class="n">some_reference</span><span class="o">.</span><span class="n">fits</span> <span class="o">--</span><span class="n">comparison</span><span class="o">-</span><span class="n">reference</span><span class="o">=</span><span class="n">old_reference_version</span><span class="o">.</span><span class="n">fits</span>
 </pre></div>
 </div>
 </li>
@@ -694,7 +717,7 @@ the full match path to each bottom level change.   crds.diff &#8211;help yields:
 
 <span class="n">For</span> <span class="n">example</span><span class="p">:</span>
 
-    <span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">diff</span> <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span>  <span class="n">hst_0005</span><span class="o">.</span><span class="n">pmap</span>  <span class="o">--</span><span class="n">mapping</span><span class="o">-</span><span class="n">text</span><span class="o">-</span><span class="n">diffs</span> <span class="o">--</span><span class="n">primitive</span><span class="o">-</span><span class="n">diffs</span>
+    <span class="o">%</span> <span class="n">crds</span> <span class="n">diff</span> <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span>  <span class="n">hst_0005</span><span class="o">.</span><span class="n">pmap</span>  <span class="o">--</span><span class="n">mapping</span><span class="o">-</span><span class="n">text</span><span class="o">-</span><span class="n">diffs</span> <span class="o">--</span><span class="n">primitive</span><span class="o">-</span><span class="n">diffs</span>
 
 <span class="n">Will</span> <span class="n">recursively</span> <span class="n">produce</span> <span class="n">logical</span><span class="p">,</span> <span class="n">textual</span><span class="p">,</span> <span class="ow">and</span> <span class="n">FITS</span> <span class="n">diffs</span> <span class="k">for</span> <span class="nb">all</span> <span class="n">changes</span> <span class="n">between</span> <span class="n">the</span> <span class="n">two</span> <span class="n">contexts</span><span class="o">.</span>
 
@@ -705,9 +728,9 @@ the full match path to each bottom level change.   crds.diff &#8211;help yields:
 <p>For standard CRDS filenames,  crds.diff can guess the observatory.   For
 non-standard names,  the observatory needs to be specified.  crds.diff can be
 invoked like:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">diff</span>   <span class="n">jwst_nircam_dark_0010</span><span class="o">.</span><span class="n">fits</span>  <span class="n">jwst_nircam_dark_0011</span><span class="o">.</span><span class="n">fits</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">diff</span>   <span class="n">jwst_nircam_dark_0010</span><span class="o">.</span><span class="n">fits</span>  <span class="n">jwst_nircam_dark_0011</span><span class="o">.</span><span class="n">fits</span>
 
-<span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">diff</span>  <span class="n">jwst_0001</span><span class="o">.</span><span class="n">pmap</span>   <span class="n">jwst_0002</span><span class="o">.</span><span class="n">pmap</span>
+<span class="o">%</span> <span class="n">crds</span> <span class="n">diff</span>  <span class="n">jwst_0001</span><span class="o">.</span><span class="n">pmap</span>   <span class="n">jwst_0002</span><span class="o">.</span><span class="n">pmap</span>
 <span class="p">((</span><span class="s1">&#39;hst.pmap&#39;</span><span class="p">,</span> <span class="s1">&#39;hst_0004.pmap&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;hst_acs.imap&#39;</span><span class="p">,</span> <span class="s1">&#39;hst_acs_0004.imap&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;hst_acs_darkfile.rmap&#39;</span><span class="p">,</span> <span class="s1">&#39;hst_acs_darkfile_0003.rmap&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;WFC&#39;</span><span class="p">,</span> <span class="s1">&#39;A|ABCD|AD|B|BC|C|D&#39;</span><span class="p">,</span> <span class="s1">&#39;0.5|1.0|1.4|2.0&#39;</span><span class="p">),</span> <span class="s1">&#39;2011-03-16 23:34:35&#39;</span><span class="p">,</span> <span class="s2">&quot;replaced &#39;v441434ej_drk.fits&#39; with &#39;hst_acs_darkfile_0003.fits&#39;&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -776,8 +799,8 @@ and, for the common combinations between the tables, whether the rest of the
 rows are equivalent or not.</p>
 <p>Examples:</p>
 <blockquote>
-<div><p>% python -m crds.rowdiff s9m1329lu_off.fits s9518396u_off.fits</p>
-<p>% python -m rowdiff s9m1329lu_off.fits s9518396u_off.fits &#8211;mode-fields=detchip,obsdate</p>
+<div><p>% crds rowdiff s9m1329lu_off.fits s9518396u_off.fits</p>
+<p>% crds rowdiff s9m1329lu_off.fits s9518396u_off.fits &#8211;mode-fields=detchip,obsdate</p>
 </div></blockquote>
 </div>
 <div class="section" id="crds-uses">
@@ -785,7 +808,7 @@ rows are equivalent or not.</p>
 <p>crds.uses searches the files in the local cache for mappings which refer to the
 specified files.  Since the <strong>local cache</strong> is used only mappings present in the
 local cache will be included in the results given.  crds.uses is invoked as:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">uses</span> <span class="o">&lt;</span><span class="n">observatory</span><span class="o">=</span><span class="n">hst</span><span class="o">|</span><span class="n">jwst</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">mapping</span> <span class="ow">or</span> <span class="n">reference</span><span class="o">&gt;...</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">uses</span> <span class="o">&lt;</span><span class="n">observatory</span><span class="o">=</span><span class="n">hst</span><span class="o">|</span><span class="n">jwst</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">mapping</span> <span class="ow">or</span> <span class="n">reference</span><span class="o">&gt;...</span>
 </pre></div>
 </div>
 <p>e.g.:</p>
@@ -813,7 +836,7 @@ local cache will be included in the results given.  crds.uses is invoked as:</p>
 
 <span class="n">crds</span><span class="o">.</span><span class="n">uses</span> <span class="n">can</span> <span class="n">be</span> <span class="n">invoked</span> <span class="n">like</span> <span class="n">this</span><span class="p">:</span>
 
-<span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">uses</span> <span class="o">--</span><span class="n">files</span> <span class="n">n3o1022ij_drk</span><span class="o">.</span><span class="n">fits</span> <span class="o">--</span><span class="n">hst</span>
+<span class="o">%</span> <span class="n">crds</span> <span class="n">uses</span> <span class="o">--</span><span class="n">files</span> <span class="n">n3o1022ij_drk</span><span class="o">.</span><span class="n">fits</span> <span class="o">--</span><span class="n">hst</span>
 <span class="n">hst</span><span class="o">.</span><span class="n">pmap</span>
 <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span>
 <span class="n">hst_0002</span><span class="o">.</span><span class="n">pmap</span>
@@ -833,14 +856,14 @@ local cache will be included in the results given.  crds.uses is invoked as:</p>
 <span class="o">...</span>
 <span class="n">hst_acs_darkfile_0005</span><span class="o">.</span><span class="n">rmap</span>
 
-<span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">uses</span> <span class="o">--</span><span class="n">files</span> <span class="n">n3o1022ij_drk</span><span class="o">.</span><span class="n">fits</span> <span class="o">--</span><span class="nb">print</span><span class="o">-</span><span class="n">datasets</span> <span class="o">--</span><span class="n">hst</span>
+<span class="o">%</span> <span class="n">crds</span> <span class="n">uses</span> <span class="o">--</span><span class="n">files</span> <span class="n">n3o1022ij_drk</span><span class="o">.</span><span class="n">fits</span> <span class="o">--</span><span class="nb">print</span><span class="o">-</span><span class="n">datasets</span> <span class="o">--</span><span class="n">hst</span>
 <span class="n">J8BA0HRPQ</span>
 <span class="n">J8BA0IRTQ</span>
 <span class="n">J8BA0JRWQ</span>
 <span class="n">J8BA0KT4Q</span>
 <span class="n">J8BA0LIJQ</span>
 
-<span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">uses</span> <span class="o">--</span><span class="n">files</span> <span class="nd">@dropped</span> <span class="o">--</span><span class="n">hst</span> <span class="o">--</span><span class="nb">print</span><span class="o">-</span><span class="n">datasets</span> <span class="o">--</span><span class="n">include</span><span class="o">-</span><span class="n">used</span>
+<span class="o">%</span> <span class="n">crds</span> <span class="n">uses</span> <span class="o">--</span><span class="n">files</span> <span class="nd">@dropped</span> <span class="o">--</span><span class="n">hst</span> <span class="o">--</span><span class="nb">print</span><span class="o">-</span><span class="n">datasets</span> <span class="o">--</span><span class="n">include</span><span class="o">-</span><span class="n">used</span>
 <span class="n">vb41934lj_bia</span><span class="o">.</span><span class="n">fits</span> <span class="n">JA7P21A2Q</span>
 <span class="n">vb41934lj_bia</span><span class="o">.</span><span class="n">fits</span> <span class="n">JA7P21A4Q</span>
 <span class="n">vb41934lj_bia</span><span class="o">.</span><span class="n">fits</span> <span class="n">JA7P21A6Q</span>
@@ -888,30 +911,30 @@ reference files:</p>
 </pre></div>
 </div>
 <p>crds.matches can dump reference file match cases with respect to particular contexts:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">matches</span>  <span class="o">--</span><span class="n">contexts</span> <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">files</span> <span class="n">lc41311jj_pfl</span><span class="o">.</span><span class="n">fits</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">matches</span>  <span class="o">--</span><span class="n">contexts</span> <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">files</span> <span class="n">lc41311jj_pfl</span><span class="o">.</span><span class="n">fits</span>
 <span class="n">lc41311jj_pfl</span><span class="o">.</span><span class="n">fits</span> <span class="p">:</span> <span class="n">ACS</span> <span class="n">PFLTFILE</span> <span class="n">DETECTOR</span><span class="o">=</span><span class="s1">&#39;WFC&#39;</span> <span class="n">CCDAMP</span><span class="o">=</span><span class="s1">&#39;A|ABCD|AC|AD|B|BC|BD|C|D&#39;</span> <span class="n">FILTER1</span><span class="o">=</span><span class="s1">&#39;F625W&#39;</span> <span class="n">FILTER2</span><span class="o">=</span><span class="s1">&#39;POL0V&#39;</span> <span class="n">DATE</span><span class="o">-</span><span class="n">OBS</span><span class="o">=</span><span class="s1">&#39;1997-01-01&#39;</span> <span class="n">TIME</span><span class="o">-</span><span class="n">OBS</span><span class="o">=</span><span class="s1">&#39;00:00:00&#39;</span>
 
-<span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">matches</span> <span class="o">--</span><span class="n">contexts</span> <span class="n">hst</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">files</span> <span class="n">lc41311jj_pfl</span><span class="o">.</span><span class="n">fits</span> <span class="o">--</span><span class="n">omit</span><span class="o">-</span><span class="n">parameter</span><span class="o">-</span><span class="n">names</span> <span class="o">--</span><span class="n">brief</span><span class="o">-</span><span class="n">paths</span>
+<span class="o">%</span> <span class="n">crds</span> <span class="n">matches</span> <span class="o">--</span><span class="n">contexts</span> <span class="n">hst</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">files</span> <span class="n">lc41311jj_pfl</span><span class="o">.</span><span class="n">fits</span> <span class="o">--</span><span class="n">omit</span><span class="o">-</span><span class="n">parameter</span><span class="o">-</span><span class="n">names</span> <span class="o">--</span><span class="n">brief</span><span class="o">-</span><span class="n">paths</span>
 <span class="n">lc41311jj_pfl</span><span class="o">.</span><span class="n">fits</span> <span class="p">:</span>  <span class="s1">&#39;WFC&#39;</span> <span class="s1">&#39;A|ABCD|AC|AD|B|BC|BD|C|D&#39;</span> <span class="s1">&#39;F625W&#39;</span> <span class="s1">&#39;POL0V&#39;</span> <span class="s1">&#39;1997-01-01&#39;</span> <span class="s1">&#39;00:00:00&#39;</span>
 
-<span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">matches</span> <span class="o">--</span><span class="n">contexts</span> <span class="n">hst</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">files</span> <span class="n">lc41311jj_pfl</span><span class="o">.</span><span class="n">fits</span> <span class="o">--</span><span class="nb">tuple</span><span class="o">-</span><span class="nb">format</span>
+<span class="o">%</span> <span class="n">crds</span> <span class="n">matches</span> <span class="o">--</span><span class="n">contexts</span> <span class="n">hst</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">files</span> <span class="n">lc41311jj_pfl</span><span class="o">.</span><span class="n">fits</span> <span class="o">--</span><span class="nb">tuple</span><span class="o">-</span><span class="nb">format</span>
 <span class="n">lc41311jj_pfl</span><span class="o">.</span><span class="n">fits</span> <span class="p">:</span> <span class="p">((</span><span class="s1">&#39;OBSERVATORY&#39;</span><span class="p">,</span> <span class="s1">&#39;HST&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;INSTRUMENT&#39;</span><span class="p">,</span> <span class="s1">&#39;ACS&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;FILEKIND&#39;</span><span class="p">,</span> <span class="s1">&#39;PFLTFILE&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;DETECTOR&#39;</span><span class="p">,</span> <span class="s1">&#39;WFC&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;CCDAMP&#39;</span><span class="p">,</span> <span class="s1">&#39;A|ABCD|AC|AD|B|BC|BD|C|D&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;FILTER1&#39;</span><span class="p">,</span> <span class="s1">&#39;F625W&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;FILTER2&#39;</span><span class="p">,</span> <span class="s1">&#39;POL0V&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s1">&#39;1997-01-01&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;TIME-OBS&#39;</span><span class="p">,</span> <span class="s1">&#39;00:00:00&#39;</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>crds.matches can dump database matching parameters for specified datasets with respect to specified contexts:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">matches</span> <span class="o">--</span><span class="n">datasets</span> <span class="n">JBANJOF3Q</span> <span class="o">--</span><span class="n">minimize</span><span class="o">-</span><span class="n">headers</span> <span class="o">--</span><span class="n">contexts</span> <span class="n">hst_0048</span><span class="o">.</span><span class="n">pmap</span> <span class="n">hst_0044</span><span class="o">.</span><span class="n">pmap</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">matches</span> <span class="o">--</span><span class="n">datasets</span> <span class="n">JBANJOF3Q</span> <span class="o">--</span><span class="n">minimize</span><span class="o">-</span><span class="n">headers</span> <span class="o">--</span><span class="n">contexts</span> <span class="n">hst_0048</span><span class="o">.</span><span class="n">pmap</span> <span class="n">hst_0044</span><span class="o">.</span><span class="n">pmap</span>
 <span class="n">JBANJOF3Q</span> <span class="p">:</span> <span class="n">hst_0044</span><span class="o">.</span><span class="n">pmap</span> <span class="p">:</span> <span class="n">APERTURE</span><span class="o">=</span><span class="s1">&#39;WFC1-2K&#39;</span> <span class="n">ATODCORR</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span> <span class="n">BIASCORR</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span> <span class="n">CCDAMP</span><span class="o">=</span><span class="s1">&#39;B&#39;</span> <span class="n">CCDCHIP</span><span class="o">=</span><span class="s1">&#39;1.0&#39;</span> <span class="n">CCDGAIN</span><span class="o">=</span><span class="s1">&#39;2.0&#39;</span> <span class="n">CRCORR</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span> <span class="n">DARKCORR</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span> <span class="n">DATE</span><span class="o">-</span><span class="n">OBS</span><span class="o">=</span><span class="s1">&#39;2010-01-31&#39;</span> <span class="n">DETECTOR</span><span class="o">=</span><span class="s1">&#39;WFC&#39;</span> <span class="n">DQICORR</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span> <span class="n">DRIZCORR</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span> <span class="n">FILTER1</span><span class="o">=</span><span class="s1">&#39;F502N&#39;</span> <span class="n">FILTER2</span><span class="o">=</span><span class="s1">&#39;F660N&#39;</span> <span class="n">FLASHCUR</span><span class="o">=</span><span class="s1">&#39;OFF&#39;</span> <span class="n">FLATCORR</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span> <span class="n">FLSHCORR</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span> <span class="n">FW1OFFST</span><span class="o">=</span><span class="s1">&#39;0.0&#39;</span> <span class="n">FW2OFFST</span><span class="o">=</span><span class="s1">&#39;0.0&#39;</span> <span class="n">FWSOFFST</span><span class="o">=</span><span class="s1">&#39;0.0&#39;</span> <span class="n">GLINCORR</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span> <span class="n">INSTRUME</span><span class="o">=</span><span class="s1">&#39;ACS&#39;</span> <span class="n">LTV1</span><span class="o">=</span><span class="s1">&#39;-2048.0&#39;</span> <span class="n">LTV2</span><span class="o">=</span><span class="s1">&#39;-1.0&#39;</span> <span class="n">NUMCOLS</span><span class="o">=</span><span class="s1">&#39;UNDEFINED&#39;</span> <span class="n">NUMROWS</span><span class="o">=</span><span class="s1">&#39;UNDEFINED&#39;</span> <span class="n">OBSTYPE</span><span class="o">=</span><span class="s1">&#39;INTERNAL&#39;</span> <span class="n">PCTECORR</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span> <span class="n">PHOTCORR</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span> <span class="n">REFTYPE</span><span class="o">=</span><span class="s1">&#39;UNDEFINED&#39;</span> <span class="n">SHADCORR</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span> <span class="n">SHUTRPOS</span><span class="o">=</span><span class="s1">&#39;B&#39;</span> <span class="n">TIME</span><span class="o">-</span><span class="n">OBS</span><span class="o">=</span><span class="s1">&#39;01:07:14.960000&#39;</span> <span class="n">XCORNER</span><span class="o">=</span><span class="s1">&#39;1.0&#39;</span> <span class="n">YCORNER</span><span class="o">=</span><span class="s1">&#39;2072.0&#39;</span>
 <span class="n">JBANJOF3Q</span> <span class="p">:</span> <span class="n">hst_0048</span><span class="o">.</span><span class="n">pmap</span> <span class="p">:</span> <span class="n">APERTURE</span><span class="o">=</span><span class="s1">&#39;WFC1-2K&#39;</span> <span class="n">ATODCORR</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span> <span class="n">BIASCORR</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span> <span class="n">CCDAMP</span><span class="o">=</span><span class="s1">&#39;B&#39;</span> <span class="n">CCDCHIP</span><span class="o">=</span><span class="s1">&#39;1.0&#39;</span> <span class="n">CCDGAIN</span><span class="o">=</span><span class="s1">&#39;2.0&#39;</span> <span class="n">CRCORR</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span> <span class="n">DARKCORR</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span> <span class="n">DATE</span><span class="o">-</span><span class="n">OBS</span><span class="o">=</span><span class="s1">&#39;2010-01-31&#39;</span> <span class="n">DETECTOR</span><span class="o">=</span><span class="s1">&#39;WFC&#39;</span> <span class="n">DQICORR</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span> <span class="n">DRIZCORR</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span> <span class="n">FILTER1</span><span class="o">=</span><span class="s1">&#39;F502N&#39;</span> <span class="n">FILTER2</span><span class="o">=</span><span class="s1">&#39;F660N&#39;</span> <span class="n">FLASHCUR</span><span class="o">=</span><span class="s1">&#39;OFF&#39;</span> <span class="n">FLATCORR</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span> <span class="n">FLSHCORR</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span> <span class="n">FW1OFFST</span><span class="o">=</span><span class="s1">&#39;0.0&#39;</span> <span class="n">FW2OFFST</span><span class="o">=</span><span class="s1">&#39;0.0&#39;</span> <span class="n">FWSOFFST</span><span class="o">=</span><span class="s1">&#39;0.0&#39;</span> <span class="n">GLINCORR</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span> <span class="n">INSTRUME</span><span class="o">=</span><span class="s1">&#39;ACS&#39;</span> <span class="n">LTV1</span><span class="o">=</span><span class="s1">&#39;-2048.0&#39;</span> <span class="n">LTV2</span><span class="o">=</span><span class="s1">&#39;-1.0&#39;</span> <span class="n">NAXIS1</span><span class="o">=</span><span class="s1">&#39;2070.0&#39;</span> <span class="n">NAXIS2</span><span class="o">=</span><span class="s1">&#39;2046.0&#39;</span> <span class="n">OBSTYPE</span><span class="o">=</span><span class="s1">&#39;INTERNAL&#39;</span> <span class="n">PCTECORR</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span> <span class="n">PHOTCORR</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span> <span class="n">REFTYPE</span><span class="o">=</span><span class="s1">&#39;UNDEFINED&#39;</span> <span class="n">SHADCORR</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span> <span class="n">SHUTRPOS</span><span class="o">=</span><span class="s1">&#39;B&#39;</span> <span class="n">TIME</span><span class="o">-</span><span class="n">OBS</span><span class="o">=</span><span class="s1">&#39;01:07:14.960000&#39;</span> <span class="n">XCORNER</span><span class="o">=</span><span class="s1">&#39;1.0&#39;</span> <span class="n">YCORNER</span><span class="o">=</span><span class="s1">&#39;2072.0&#39;</span>
 </pre></div>
 </div>
 <p>crds.matches can be invoked in various ways with different output formatting:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">matches</span>  <span class="o">--</span><span class="n">contexts</span> <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">files</span> <span class="n">lc41311jj_pfl</span><span class="o">.</span><span class="n">fits</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">matches</span>  <span class="o">--</span><span class="n">contexts</span> <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">files</span> <span class="n">lc41311jj_pfl</span><span class="o">.</span><span class="n">fits</span>
 <span class="n">lc41311jj_pfl</span><span class="o">.</span><span class="n">fits</span> <span class="p">:</span> <span class="n">ACS</span> <span class="n">PFLTFILE</span> <span class="n">DETECTOR</span><span class="o">=</span><span class="s1">&#39;WFC&#39;</span> <span class="n">CCDAMP</span><span class="o">=</span><span class="s1">&#39;A|ABCD|AC|AD|B|BC|BD|C|D&#39;</span> <span class="n">FILTER1</span><span class="o">=</span><span class="s1">&#39;F625W&#39;</span> <span class="n">FILTER2</span><span class="o">=</span><span class="s1">&#39;POL0V&#39;</span> <span class="n">DATE</span><span class="o">-</span><span class="n">OBS</span><span class="o">=</span><span class="s1">&#39;1997-01-01&#39;</span> <span class="n">TIME</span><span class="o">-</span><span class="n">OBS</span><span class="o">=</span><span class="s1">&#39;00:00:00&#39;</span>
 
-<span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">matches</span> <span class="o">--</span><span class="n">contexts</span> <span class="n">hst</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">files</span> <span class="n">lc41311jj_pfl</span><span class="o">.</span><span class="n">fits</span> <span class="o">--</span><span class="n">omit</span><span class="o">-</span><span class="n">parameter</span><span class="o">-</span><span class="n">names</span> <span class="o">--</span><span class="n">brief</span><span class="o">-</span><span class="n">paths</span>
+<span class="o">%</span> <span class="n">crds</span> <span class="n">matches</span> <span class="o">--</span><span class="n">contexts</span> <span class="n">hst</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">files</span> <span class="n">lc41311jj_pfl</span><span class="o">.</span><span class="n">fits</span> <span class="o">--</span><span class="n">omit</span><span class="o">-</span><span class="n">parameter</span><span class="o">-</span><span class="n">names</span> <span class="o">--</span><span class="n">brief</span><span class="o">-</span><span class="n">paths</span>
 <span class="n">lc41311jj_pfl</span><span class="o">.</span><span class="n">fits</span> <span class="p">:</span>  <span class="s1">&#39;WFC&#39;</span> <span class="s1">&#39;A|ABCD|AC|AD|B|BC|BD|C|D&#39;</span> <span class="s1">&#39;F625W&#39;</span> <span class="s1">&#39;POL0V&#39;</span> <span class="s1">&#39;1997-01-01&#39;</span> <span class="s1">&#39;00:00:00&#39;</span>
 
-<span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">matches</span> <span class="o">--</span><span class="n">contexts</span> <span class="n">hst</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">files</span> <span class="n">lc41311jj_pfl</span><span class="o">.</span><span class="n">fits</span> <span class="o">--</span><span class="nb">tuple</span><span class="o">-</span><span class="nb">format</span>
+<span class="o">%</span> <span class="n">crds</span> <span class="n">matches</span> <span class="o">--</span><span class="n">contexts</span> <span class="n">hst</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">files</span> <span class="n">lc41311jj_pfl</span><span class="o">.</span><span class="n">fits</span> <span class="o">--</span><span class="nb">tuple</span><span class="o">-</span><span class="nb">format</span>
 <span class="n">lc41311jj_pfl</span><span class="o">.</span><span class="n">fits</span> <span class="p">:</span> <span class="p">((</span><span class="s1">&#39;OBSERVATORY&#39;</span><span class="p">,</span> <span class="s1">&#39;HST&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;INSTRUMENT&#39;</span><span class="p">,</span> <span class="s1">&#39;ACS&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;FILEKIND&#39;</span><span class="p">,</span> <span class="s1">&#39;PFLTFILE&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;DETECTOR&#39;</span><span class="p">,</span> <span class="s1">&#39;WFC&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;CCDAMP&#39;</span><span class="p">,</span> <span class="s1">&#39;A|ABCD|AC|AD|B|BC|BD|C|D&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;FILTER1&#39;</span><span class="p">,</span> <span class="s1">&#39;F625W&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;FILTER2&#39;</span><span class="p">,</span> <span class="s1">&#39;POL0V&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s1">&#39;1997-01-01&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;TIME-OBS&#39;</span><span class="p">,</span> <span class="s1">&#39;00:00:00&#39;</span><span class="p">))</span>
 </pre></div>
 </div>
@@ -963,7 +986,7 @@ tuning it to the more limited case of updating FITS dataset headers with best re
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2015, STScI.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.
     </div>
   </body>
 </html>

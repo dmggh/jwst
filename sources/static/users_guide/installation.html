@@ -247,7 +247,7 @@ and reference files.  contains command line utility programs.</li>
 other larger calibration software installations.  As such, if you already have
 HST or JWST calibration software you may also have CRDS.</p>
 <p>To check for CRDS try:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ python -m crds.list --version
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ crds list --version
 7.0.5, master, c95d1cc
 </pre></div>
 </div>
@@ -369,7 +369,7 @@ to calibrate datasets to their metadata headers.</p>
 <h2>CRDS bestrefs for HST<a class="headerlink" href="#crds-bestrefs-for-hst" title="Permalink to this headline">¶</a></h2>
 <p>CRDS provides the crds.bestrefs program for updating dataset headers for HST with the current
 best references.   Running bestrefs for HST is accomplished via:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">bestrefs</span> <span class="o">--</span><span class="n">files</span> <span class="n">dataset</span><span class="o">*.</span><span class="n">fits</span> <span class="o">--</span><span class="n">update</span><span class="o">-</span><span class="n">bestrefs</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">bestrefs</span> <span class="o">--</span><span class="n">files</span> <span class="n">dataset</span><span class="o">*.</span><span class="n">fits</span> <span class="o">--</span><span class="n">update</span><span class="o">-</span><span class="n">bestrefs</span>
 </pre></div>
 </div>
 <p>This command updates the files specified by dataset*.fits with the names of the latest best
@@ -480,10 +480,10 @@ to this:</p>
 </div>
 <p>After syncing this will provide access to CRDS test files and rules in a local cache:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Fetch all the test rules</span>
-<span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">sync</span> <span class="o">--</span><span class="nb">all</span>
+<span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span> <span class="o">--</span><span class="nb">all</span>
 
 <span class="c1"># Fetch specifically listed test references</span>
-<span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">sync</span> <span class="o">--</span><span class="n">files</span> <span class="o">&lt;</span><span class="n">test_references_only_the_test_server_has</span><span class="o">...&gt;</span>
+<span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span> <span class="o">--</span><span class="n">files</span> <span class="o">&lt;</span><span class="n">test_references_only_the_test_server_has</span><span class="o">...&gt;</span>
 </pre></div>
 </div>
 <p>Testing reference type changes (new keywords, new values or value restrictions,
@@ -509,7 +509,7 @@ care about:</p>
 </pre></div>
 </div>
 <p>For <strong>HST</strong>, to fetch the references required to process some FITS datasets:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">bestrefs</span> <span class="o">--</span><span class="n">files</span> <span class="n">dataset</span><span class="o">*.</span><span class="n">fits</span> <span class="o">--</span><span class="n">sync</span><span class="o">-</span><span class="n">references</span><span class="o">=</span><span class="mi">1</span>  <span class="o">--</span><span class="n">update</span><span class="o">-</span><span class="n">bestrefs</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">bestrefs</span> <span class="o">--</span><span class="n">files</span> <span class="n">dataset</span><span class="o">*.</span><span class="n">fits</span> <span class="o">--</span><span class="n">sync</span><span class="o">-</span><span class="n">references</span><span class="o">=</span><span class="mi">1</span>  <span class="o">--</span><span class="n">update</span><span class="o">-</span><span class="n">bestrefs</span>
 </pre></div>
 </div>
 <p>For <strong>JWST</strong>, CRDS is directly integrated with the calibration step code and
@@ -559,11 +559,11 @@ setenv uref_linux $uref
 existing CRDS cache.   These organizations determine whether or not
 reference files are partitioned into instrument-specific sub-directories.</p>
 <p>To switch from flat to by-instrument:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">sync</span> <span class="o">--</span><span class="n">organize</span><span class="o">=</span><span class="n">instrument</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">crds</span> <span class="n">sync</span> <span class="o">--</span><span class="n">organize</span><span class="o">=</span><span class="n">instrument</span>
 </pre></div>
 </div>
 <p>To switch from by-instrument to flat:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">sync</span> <span class="o">--</span><span class="n">organize</span><span class="o">=</span><span class="n">flat</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">crds</span> <span class="n">sync</span> <span class="o">--</span><span class="n">organize</span><span class="o">=</span><span class="n">flat</span>
 </pre></div>
 </div>
 </div>
@@ -717,7 +717,7 @@ proceed immediately after fail.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2015, STScI.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.
     </div>
   </body>
 </html>
