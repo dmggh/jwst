@@ -64,6 +64,9 @@ def resolve_ips(line):
 
 def process_file(file_in):
     for line in file_in:
+        line = resolve_ips(line)
+        if ", referer:" in line:
+            line = line[:line.index(", referer:")] + "\n"
         print(resolve_ips(line), end="")
 
 def main():
