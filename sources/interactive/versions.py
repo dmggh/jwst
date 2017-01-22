@@ -13,7 +13,7 @@ MODULE_LIST = (
     'numpy',
     # 'scipy',
 
-    'crds',
+    'crds.core',
     'crds.server',
 
     'pyodbc',

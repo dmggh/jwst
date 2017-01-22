@@ -2346,6 +2346,7 @@ def get_archive_url(archive_name, filelist):
 
 @error_trap("base.html")
 @superuser_login_required
+@log_view
 def version_info(request):
     """Output a page with a table of software component versions."""
     return crds_render(request, "version_info.html", {
