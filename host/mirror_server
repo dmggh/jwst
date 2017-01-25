@@ -53,6 +53,9 @@ echo "-----------------------------------------------------"
 echo "Restoring pickles from $mirrored_server_url"
 echo "-----------------------------------------------------"
 cd ${CRDS}/CRDS_server
+
+# XXXX assumes canonical cache structure
+rm -fv ${CRDS_PATH}/pickles/${CRDS_PROJECT}/*
 python -m crds.sync --all --clear-pickles --save-pickles --verbose --stats
 
 # This checks the consistency of the database and server cache and delivery areas
