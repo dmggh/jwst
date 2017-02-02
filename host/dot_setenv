@@ -116,7 +116,7 @@ setenv PASS_INVALID_VALUES 1
 # CRDS setting to keep SSB JWST data model warnings from being re-mapped to errors.
 # setenv CRDS_ALLOW_SCHEMA_VIOLATIONS 1
 
-setenv PATH ${CRDS}/CRDS_server/host:${CRDS_STACK}/bin:/usr/kerberos/bin:/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin
+setenv PATH ${CRDS}/python/bin:${CRDS}/CRDS_server/host:${CRDS_STACK}/bin:/usr/kerberos/bin:/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin
 # /usr/stsci/Python-2.7.4/bin:
 
 setenv LD_LIBRARY_PATH ${CRDS_STACK}/lib # :/usr/stsci/Python-2.7.4/lib

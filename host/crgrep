@@ -2,7 +2,7 @@
 set dir=`dirname $0`
 cd $dir
 set dir=`pwd`
-crds
+crdsd
 ./clean
 
 $dir/pygrep . $*

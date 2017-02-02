@@ -56,7 +56,7 @@ alias BYE logout
 #
 
 #  Source code areas
-alias crds       "cd ${CRDS}/CRDS"
+alias crdsd       "cd ${CRDS}/CRDS"
 alias server     "cd ${CRDS}/CRDS_server"
 alias stack      "cd /eng/ssb/crds/installer4/build"
 alias installer "cd ${CRDS}/crds_stacks/installer4/build"
