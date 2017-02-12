@@ -38,6 +38,7 @@ from crds import (rmap, utils, timestamp, uses, matches, log, config)
 from crds import (data_file, pysh)
 from crds import heavy_client
 from crds import CrdsError
+from crds.certify import reftypes
 import crds
 
 from . import (models, web_certify, web_difference, submit, versions, locks, html, mail)
@@ -1806,9 +1807,9 @@ def browse_known_file(request, filename):
     ld_tpn_text = tpn_text = ""
     if not rmap.is_mapping(filename):
         with log.error_on_exception("Failed loading TPN constraints for", srepr(filename)):
-            tpn_text = utils.get_locator_module(blob.observatory).reference_name_to_tpn_text(filename)
+            tpn_text = reftypes.get_types_object(blob.observatory).reference_name_to_tpn_text(filename)
         with log.error_on_exception("Failed loading LD_TPN constraints for", srepr(filename)):
-            ld_tpn_text = utils.get_locator_module(blob.observatory).reference_name_to_ld_tpn_text(filename)
+            tpn_text = reftypes.get_types_object(blob.observatory).reference_name_to_tpn_text(filename)
 
     return crds_render(request, "browse_results.html", {
              "fileblob" : blob,
