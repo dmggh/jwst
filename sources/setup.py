@@ -92,7 +92,7 @@ PACKAGE_DATA[''].extend(static_files)
 # DATA_FILES = [("", static_files)]
 
 setup(name="crds.server",
-      version= "7.0.0",
+      version= "7.1.0",
       description="Python based Calibration Reference Data System,  best reference file web service",
       author="Todd Miller",
       author_email="jmiller@stsci.edu",
