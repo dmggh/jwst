@@ -47,7 +47,7 @@ switch ($CRDS_SERVER)
        breaksw
 
        case pljwstcrdsv1:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda-3
+        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda-2
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE ops
         # setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"

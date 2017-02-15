@@ -17,8 +17,8 @@ system_status
 echo "=========================================================="
 echo "Stack Build"
 echo "=========================================================="
-host/build_conda >& ${CRDS_CRON}/build_conda.${ETAIL}
-tail -100 ${CRDS_CRON}/build_conda.${ETAIL}
+host/build_conda-fixed >& ${CRDS_CRON}/build_conda-fixed.${ETAIL}
+tail -100 ${CRDS_CRON}/build_conda-fixed.${ETAIL}
     
 if ( "$CRDS_USECASE" != "ops" ) then
     echo "==========================================================="
