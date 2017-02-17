@@ -9,6 +9,11 @@
 cd $CRDS/CRDS_server
 source env.csh
 
+if ( -f $CRDS/CRDS_server/CRDS_SERVER_OFFLINE ) then
+    echo "Unit tests are running, skipping reprocessing checks."
+    exit 0
+endif
+
 echo "Monitoring reprocessing opportunities based on context changes."
 
 # if (${CRDS_PROJECT} == "jwst") then
