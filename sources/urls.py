@@ -72,7 +72,8 @@ urlpatterns = patterns('',
     # (r'^upload/alt_new/$', 'crds.server.interactive.views.upload_alt_new', {}, 'upload-alt-new'),
 
     url(r'^batch_submit_references/$', 'crds.server.interactive.views.batch_submit_references'),
-    url(r'^submit_confirm/$', 'crds.server.interactive.views.submit_confirm'),
+
+    url(r'^submit_confirm/(?P<button>confirm|cancel|timeout)/(?P<results_id>{0})/$'.format(UUID_RE_STR), 'crds.server.interactive.views.submit_confirm'),
 
     url(r'^delete/reference/$', 'crds.server.interactive.views.delete_references'),
     url(r'^add_existing/reference/$', 'crds.server.interactive.views.add_existing_references'),

@@ -35,17 +35,15 @@
                 text: "CONFIRMING...  This may take a minute or so to update the database.",
                  css: {color: "green"},
             });
-            $.ajax.get({url: "/submit_confirm/?button=confirm&results_id={{results_id}}"});
-            // window.location.href = "/submit_confirm/?button=confirm&results_id={{results_id}}";
+            $.ajax.get({url: "/login?next=/submit_confirm/confirm/{{results_id}}/"});
         } else {
             crds.set_info_box({
                 text: "CANCELLING... This may take a minute or so to update the database.",
                  css: {color: "red"},
             });
-            $.ajax.get({url: "/submit_confirm/?button=cancel&results_id={{results_id}}"});
-            // window.location.href = "/submit_confirm/?button=cancel&results_id={{results_id}}";
+            window.location.href = "/login?next=/submit_confirm/cancel/{{results_id}}/";
         };
-        return true;
+        return false;
     };
     
     crds.lock_timeout_action = function () {

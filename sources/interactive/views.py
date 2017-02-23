@@ -1319,7 +1319,7 @@ def batch_submit_references_post(request):
 @group_required("file_submission")
 # critical to omit:   @instrument_lock_required
 # @ilr will get a new lock.  critical that lock not expire prior to confirm.
-def submit_confirm(request): #, button, results_id):
+def submit_confirm(request, button, results_id): #, button, results_id):
     """Accept or discard proposed files from various file upload and
     generation mechanisms.
     """
