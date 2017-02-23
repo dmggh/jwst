@@ -12,10 +12,9 @@
     
     <div id="confirm_or_cancel">
         <h2>Confirm or Cancel Submission</h2>
-        <form method="post" action="/submit_confirm/" enctype="multipart/form-data"
-            class="jpoll_ajax_html_form"
-            onsubmit='return crds.submit_confirm_or_cancel();' >  {% csrf_token %}    
-            <input type='hidden' name='results_id' value="{{results_id}}" />
+        <form method="post" onsubmit='return crds.submit_confirm_or_cancel();' 
+              class="jpoll_ajax_html_form"
+              >  {% csrf_token %}    
             <input type="submit" name="button" value="confirm" class="green">
             <input type="submit" name="button" value="cancel"  class="red">
         </form>
@@ -25,7 +24,6 @@
  
 <script type="application/javascript">
 
-    
     var submit_kind;    
     $("input[type='submit']").click(function () { submit_kind = this.value; });
 
@@ -37,11 +35,15 @@
                 text: "CONFIRMING...  This may take a minute or so to update the database.",
                  css: {color: "green"},
             });
+            $.ajax.get({url: "/submit_confirm/?button=confirm&results_id={{results_id}}"});
+            // window.location.href = "/submit_confirm/?button=confirm&results_id={{results_id}}";
         } else {
             crds.set_info_box({
                 text: "CANCELLING... This may take a minute or so to update the database.",
                  css: {color: "red"},
             });
+            $.ajax.get({url: "/submit_confirm/?button=cancel&results_id={{results_id}}"});
+            // window.location.href = "/submit_confirm/?button=cancel&results_id={{results_id}}";
         };
         return true;
     };

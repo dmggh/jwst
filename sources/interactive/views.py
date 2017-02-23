@@ -1,4 +1,3 @@
-
 """This module defines the Django view functions which respond to HTTP requests
 and return HTTP response objects.
 """
@@ -266,8 +265,7 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
     statuses = ["*"] + models.FILE_STATUS_MAP.keys()
     statuses.remove("uploaded")
 
-    locked = get_locked_instrument(request)
-    locked = locked if locked else ""
+    locked = get_locked_instrument(request) or ""
 
     rdict = {   # standard template variables
         "observatory" : models.OBSERVATORY,
@@ -566,7 +564,7 @@ def log_view(func):
 # 3. Database-based locks are refreshed whenever the session is refreshed.
 # This is achieved by providing lock refreshing middleware.  Any interactive use of the site causes refresh.
 #
-# 4. Both Sessions and locks expire 36 hours after the last access by the logged in user.
+# 4. Both Sessions and locks expire 4 hours after the last access by the logged in user.
 #
 # 5. Logging out releases locks owned by a user.
 #
@@ -628,15 +626,12 @@ def lock_login_receiver(sender, **keys):
             with log.info_on_exception("login releasing locks failed"):
                 locks.release_locks(user=user)
 
-            del_locked_instrument(request)
-
             # log.info("Login receiver acquiring '%s' instrument lock for user '%s' session '%s'." %
             # (instrument, user, request.session.session_key))
             try:
                 locks.acquire(user=user, type="instrument", name=instrument,
                               timeout=settings.CRDS_LOCK_ACQUIRE_TIMEOUT,
                               max_age=settings.CRDS_MAX_LOCK_AGE)
-                set_locked_instrument(request, instrument)
             except locks.ResourceLockedError:
                 django.contrib.auth.logout(request)
                 owner = locks.owner_of(name=instrument, type="instrument")
@@ -654,17 +649,15 @@ def lock_logout_receiver(sender, **keys):
         request = keys["request"]
         user = str(keys["user"])
         locks.release_locks(user=user)
-    del_locked_instrument(request)
 
 user_logged_out.connect(lock_logout_receiver, dispatch_uid="lock_logout_receiver")
 
 @login_required
 def lock_status(request):
     """AJAX view to return state of user lock."""
-    status = locks.get_lock_status(type="instrument",
+    status = locks.get_lock_status(type="instrument", 
                                    user=str(request.user))
     return HttpResponse(json.dumps(status), content_type='application/json')
-
 
 def instrument_lock_required(func):
     """Decorator to ensure a user still owns an un-expired lock defined by their session data."""
@@ -673,34 +666,19 @@ def instrument_lock_required(func):
         assert request.user.is_authenticated(), "You must log in."
         instrument = get_locked_instrument(request)
         user = str(request.user)
-        if instrument is not None:
-            locks.verify_locked(type="instrument", name=instrument, user=user)
-        else:
-            if not request.user.is_superuser:
-                raise CrdsError("You can't access this function without logging in for a particular instrument.")
+        if not (instrument or request.user.is_superuser):
+            raise CrdsError("You can't access this function without logging in for a particular instrument.")
         return func(request, *args, **keys)
     _wrapped.func_name = func.func_name
     return _wrapped
 
 def get_locked_instrument(request):
     """Based on the request,  return the instrument locked inside @instrument_lock_required."""
-    locked = request.session.get("locked_instrument", None)
-    if locked is not None:
-        assert locked in models.INSTRUMENTS, "Invalid instrument in session store: " + srepr(locked)
+    if request.user.is_authenticated():
+        locked = locks.instrument_of(user=str(request.user))
+    else:
+        locked = None
     return locked
-
-def set_locked_instrument(request, instrument):
-    """Record which instrument is locked relative to this request."""
-    if instrument is not None:
-        assert instrument in models.INSTRUMENTS, \
-            "Failed setting locked instrument in session store to invalid value: " + srepr(instrument)
-    request.session["locked_instrument"] = instrument
-
-def del_locked_instrument(request):
-    """Remove any trace of a locked instrument."""
-    if hasattr(request, "session") and "locked_instrument" in request.session:
-        with log.info_on_exception("forgetting locked instrument failed"):
-            del request.session["locked_instrument"]
 
 # ===========================================================================
 
@@ -1341,7 +1319,7 @@ def batch_submit_references_post(request):
 @group_required("file_submission")
 # critical to omit:   @instrument_lock_required
 # @ilr will get a new lock.  critical that lock not expire prior to confirm.
-def submit_confirm(request):
+def submit_confirm(request): #, button, results_id):
     """Accept or discard proposed files from various file upload and
     generation mechanisms.
     """
@@ -1377,7 +1355,6 @@ def submit_confirm(request):
     elif button == "timeout":
         disposition = "lock timeout"
         locks.release_locks(user=request.user)
-        del_locked_instrument(request)
 
     confirmed = (disposition == "confirmed")
     if confirmed:
