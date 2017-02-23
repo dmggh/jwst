@@ -109,6 +109,9 @@ urlpatterns = patterns('',
     url(r'^display_result/(?P<results_id>{0})$'.format(UUID_RE_STR), 
         'crds.server.interactive.views.display_result'),
                        
+    url(r'^authenticated_result/(?P<results_id>{0})$'.format(UUID_RE_STR), 
+        'crds.server.interactive.views.authenticated_result'),
+                       
     url(r'^edit_context_history/(?P<history_id>\d+)/{0}/$'.format(FILE_RE_STR), 
         'crds.server.interactive.views.edit_context_history'),                    
                          

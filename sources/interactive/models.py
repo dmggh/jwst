@@ -1679,6 +1679,11 @@ class RepeatableResultBlob(BlobModel):
         "Return the URL which can be used to display this persistent result."
         return config.CRDS_URL + "/display_result/" + str(self.uuid)
 
+    @property
+    def authenticated_url(self):
+        "Return the URL which can be used to display this persistent result."
+        return config.CRDS_URL + "/authenticated_result/" + str(self.uuid)
+
 # =============================================================================
 
 # ============================================================================
