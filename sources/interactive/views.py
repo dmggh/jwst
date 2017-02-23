@@ -652,11 +652,11 @@ def lock_logout_receiver(sender, **keys):
 
 user_logged_out.connect(lock_logout_receiver, dispatch_uid="lock_logout_receiver")
 
-@login_required
-def lock_status(request):
+# @login_required
+def lock_status(request, user=None):
     """AJAX view to return state of user lock."""
     status = locks.get_lock_status(type="instrument", 
-                                   user=str(request.user))
+                                   user=user or str(request.user))
     return HttpResponse(json.dumps(status), content_type='application/json')
 
 def instrument_lock_required(func):
@@ -1332,12 +1332,15 @@ def batch_submit_references_post(request):
 @log_view
 @login_required
 @group_required("file_submission")
-# critical to omit:   @instrument_lock_required
+@instrument_lock_required   
 # @ilr will get a new lock.  critical that lock not expire prior to confirm.
+# @ilr will also prevent someone not holding the lock from
 def submit_confirm(request): #, button, results_id):
     """Accept or discard proposed files from various file upload and
     generation mechanisms.
     """
+    if not request.user.is_authenticated():
+        raise CrdsError("You must be logged in to confirm or cancel file submissions.")
     button = validate(request, "button", "confirm|cancel|timeout")
     results_id = validate(request, "results_id", common.UUID_RE)
     locked_instrument = get_locked_instrument(request)
@@ -1355,6 +1358,11 @@ def submit_confirm(request): #, button, results_id):
     else:
         repeatable_model.set_par("disposition", "finalizing")
         repeatable_model.save()
+    
+    should_still_be_locked = result.get("should_still_be_locked", None) 
+    if should_still_be_locked != locked_instrument:
+        raise CrdsError("This submissions is locked by", repr(should_still_be_locked), 
+                        "but you hold lock", repr(locked_instrument))
 
     usr = str(request.user)
     if not request.user.is_superuser:

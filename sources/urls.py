@@ -12,7 +12,7 @@ from crds.server.jpoll.views import JPOLL_KEY_RE_STR
 from crds.server import settings, config
 from crds.server.interactive.common import UUID_RE_STR
 
-from crds.config import FILE_RE_STR
+from crds.config import FILE_RE_STR, USER_NAME_RE_STR
 
 # XXX Cached views must be completely defined by the URL
 # XXX GET/POST parameters and cookies don't count to differentiate pages.
@@ -41,7 +41,7 @@ urlpatterns = patterns('',
     url(r'^login/$', 'crds.server.interactive.views.login'),          
     url(r'^logout/$', 'crds.server.interactive.views.logout'),
     url(r'^set_password/$', 'crds.server.interactive.views.set_password'),          
-    url(r'^lock_status/$', 'crds.server.interactive.views.lock_status'),         
+    url(r'^lock_status/((?P<user>{0})/)?$'.format(USER_NAME_RE_STR), 'crds.server.interactive.views.lock_status'),         
     
     url(r'^monitor/(?P<process_key>{0})/$'.format(JPOLL_KEY_RE_STR), 'crds.server.interactive.views.monitor_process'),
 
