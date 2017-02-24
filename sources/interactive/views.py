@@ -1330,15 +1330,17 @@ def batch_submit_references_post(request):
 @profile("submit_confirm_post.stats")
 @error_trap("base.html")
 @log_view
-@login_required
+# @login_required  (since this drops and re-acquires lock,  don't use.)
 @group_required("file_submission")
-@instrument_lock_required   
-# @ilr will get a new lock.  critical that lock not expire prior to confirm.
-# @ilr will also prevent someone not holding the lock from
+@instrument_lock_required  # ensures authenticated,  has instrument lock of submission.
+# however,  instrument lock can be dropped and reacquired unless locking changes to
+# make every lock unique and @ilr verifies it's the *same* lock.
 def submit_confirm(request): #, button, results_id):
     """Accept or discard proposed files from various file upload and
     generation mechanisms.
     """
+    # don't rely on locking mechanisms to verify this since @login_required is turned off
+    # and locking may change.
     if not request.user.is_authenticated():
         raise CrdsError("You must be logged in to confirm or cancel file submissions.")
     button = validate(request, "button", "confirm|cancel|timeout")
