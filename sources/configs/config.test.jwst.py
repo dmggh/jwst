@@ -62,4 +62,5 @@ FORCE_REMOTE_MODE = False
 ARCHIVE_PARAMETER_SERVICE_URL = "https://undefined-archive-parameter-service.stsci.edu:8888/crds"
 CRDS_MOCK_ARCHIVE_PARAMETERS = "jwst-b7-params-dit-20161209.json"
 
-# CRDS_STATUS_TO_ADDRESSES = ["crds-servers@stsci.edu", "redcat@stsci.edu"]
+CRDS_STATUS_TO_ADDRESSES = ["jmiller@stsci.edu", "rij@stsci.edu"]
+

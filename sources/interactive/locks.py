@@ -300,6 +300,18 @@ def owner_of(name, type=None):
             return lock.user
     return "unknown"
 
+def instrument_of(user):
+    """Return the instrument name associated with any lock associated with `user`."""
+    locks = filter_locks(user=user, type="instrument")
+    if not locks:
+        return None
+    assert len(locks) == 1, "User {} has mode than one instrument lock.".format(user)
+    lock = locks[0]
+    if lock.is_expired:
+        return None
+    else:
+        return lock.name
+
 def get_lock_status(user, name=None, type=None):
     """Return a status dictionary about this lock."""
     locks = filter_locks(user=user, type=type, name=name)

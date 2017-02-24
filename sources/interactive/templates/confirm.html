@@ -9,7 +9,8 @@
     {% block head_overrides %}
         {% include "jpoll/jpoll_head_overrides.html" %}
     {% endblock %} 
-    
+
+    {% if is_authenticated %}
     <div id="confirm_or_cancel">
         <h2>Confirm or Cancel Submission</h2>
         <form method="post" action="/submit_confirm/" enctype="multipart/form-data"
@@ -20,11 +21,10 @@
             <input type="submit" name="button" value="cancel"  class="red">
         </form>
     </div>
-    
+    {% endif %}
 {% endif %}
  
 <script type="application/javascript">
-
     
     var submit_kind;    
     $("input[type='submit']").click(function () { submit_kind = this.value; });
