@@ -16,6 +16,6 @@ class ResetLockExpirationMiddleware(object):
             user = getattr(request, "user", None)
             if user and user.is_authenticated():
                 instrument = views.get_locked_instrument(request)
-                if instrument and instrument != "none":
+                if instrument:
                     with log.info_on_exception("failed resetting lock expiration"):
                         locks.reset_expiry(type="instrument", name=instrument, user=str(user))

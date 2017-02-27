@@ -124,7 +124,7 @@ class FileSubmission(object):
             # raise RuntimeError("Unforseen event!!!")
             return result
         except Exception as exc:
-            self.push_status("FAILED: " + str(exc))
+            self.push_done(1, str(exc))
             self.cleanup_failed_submission()
             raise
         
@@ -165,6 +165,16 @@ class FileSubmission(object):
         if self.status_channel is not None:
             log.info("push_status: " + repr(message))
             self.status_channel.write(message)
+            self.status_channel.flush()
+
+    def push_done(self, status, *message):
+        """Push done  message to the user's client,  nominally a browser which
+        picks up the messages from Django via AJAX polling in the jpoll app.
+        """
+        message = " ".join(message)
+        if self.status_channel is not None:
+            log.info("push_done: " + repr(message))
+            self.status_channel.done(status, message)
             self.status_channel.flush()
 
     def ordered_files(self):

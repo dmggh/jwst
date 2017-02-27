@@ -83,7 +83,12 @@ class CrdsLock(object):
     def is_expired(self):
         self._get_locks(return_expired=True)
         return self._resource_lock.is_expired
-    
+
+    @property
+    def lock_id(self):
+        self._get_locks()
+        return " - ".join([self.type, self.name, self.user, self._user_lock.created_on.isoformat("T")])
+
     @property
     def time_remaining(self):
         self._get_locks()
@@ -176,25 +181,22 @@ class CrdsLock(object):
         if self.user:
             self._user_lock = self._get_existing(self.user_lock, return_expired)
         
-    def _check_unbroken(self, lock_name, lock, datestr=None):
-        if datestr:
-            datestr = str(datestr)
-        if (datestr and datestr != lock.created_on and datestr != str(self.created_on)):
-            log.error("User " + repr(self.user) + " lost and re-acquired lock " + repr(lock_name), 
-                      "datestr", datestr, "lock datestr", lock.created_on)
-            raise BrokenLockError("User " + repr(self.user) + " lost and re-acquired lock " + repr(lock_name))            
- 
-    def verify_locked(self, datestr=None):
+    def verify_locked(self, lock_id):
         """Ensure that both components of this lock are still held."""
         self._get_locks()
-        self._check_unbroken(self.resource_lock, self._resource_lock, datestr)
-        if self.user:
-            self._check_unbroken(self.user_lock, self._user_lock, datestr)
+        if self.is_expired:
+            raise BrokenLockError("Lock", repr(self.lock_id), "held by", repr(self.user), 
+                                  "has expired.")
+        if self.lock_id != lock_id:
+            raise BrokenLockError("Lock", repr(self.lock_id), "now held by", repr(self.user), 
+                                  "does not match starting lock", repr(lock_id))
         return True
     
     def reset_expiry(self):
         """Verify this lock is still locked and reset the expiry dates of both halves."""
-        self.verify_locked()
+        if self.is_expired:
+            raise BrokenLockError("Lock", repr(self.lock_id), "held by", repr(self.user), 
+                                  "has expired.")
         now = datetime.datetime.now()
         self._set_max_age(self._resource_lock, now)
         if self._user_lock:
@@ -206,9 +208,6 @@ class CrdsLock(object):
         delta += datetime.timedelta(seconds=self.max_age)
         lock.max_age = int(delta.total_seconds())
         lock.save()
-        new_expire = lock.created_on + datetime.timedelta(seconds=lock.max_age)
-        # log.info("New lock duration", new_expire-now)
-        # self._std_info("reset expiry", lock.locked_object)
 
     def delete(self):
         """Remove supporting lock objects from database.  NOTE:  this is not __del__
@@ -220,7 +219,7 @@ class CrdsLock(object):
         with log.error_on_exception("Failed deleting user lock for", repr(self)):
             if self._user_lock is not None:
                 self._user_lock.delete()
-    
+
 def acquire(name, type="", user="", timeout=NEVER, max_age=settings.CRDS_MAX_LOCK_AGE):
     """Acquire the locks associated with `name` and `type` on behalf of `user`.   Fail after `timeout` seconds
     if the lock is already locked, defaulting to waiting forever.  The acquired lock will expire
@@ -236,18 +235,12 @@ def release(name, type="", user=""):
     lock.release()
     return lock
     
-def verify_locked(name, type="", user="", datestr=None):
-    """Ensure that `user` owns the locks associated with `name` and `type`."""
-    lock = CrdsLock(user=user, type=type, name=name)
-    lock.verify_locked(datestr)
-    return lock
-
-def get_lock_datestr(name, type="", user=""):
-    """Get the creation date string of the specified lock."""
-    if name is None or name == "none":
-        return ""
-    lock = verify_locked(name, type=type, user=user)
-    return str(lock.created_on)
+def verify_locked(user, type, lock_id):
+    """Ensure that `user` owns lock with `lock_id` associated with `type` (e.g. 'instrument')."""
+    for lock in filter_locks(user=user, type=type):
+        lock.verify_locked(lock_id)
+        return lock
+    raise BrokenLockError("User", repr(self.user), "does not hold any locks of type", repr(type))
 
 def reset_expiry(name, type="", user=""):
     """Reset the expiration timer on locks associated with `name`, `type`, and `user`."""
@@ -293,24 +286,33 @@ def release_locks(name=None, user=None, type=None):
     for lock in filter_locks(name=name, type=type, user=user):
         lock.release()
         
-def owner_of(name, type=None):
-    """Return the owner of the first CrdsLock found with the specified `name` and `type`, or 'unknown'."""
-    for lock in filter_locks(name=name, type=type):
-        if not lock.is_expired:
-            return lock.user
-    return "unknown"
-
-def instrument_of(user):
-    """Return the instrument name associated with any lock associated with `user`."""
-    locks = filter_locks(user=user, type="instrument")
+def get_lock(**keys):
+    """Return the lock object of any lock of `type` held by `user`."""
+    locks = [lock for lock in filter_locks(**keys) if not lock.is_expired]
     if not locks:
         return None
-    assert len(locks) == 1, "User {} has mode than one instrument lock.".format(user)
+    assert len(locks) == 1, "Multiple locks found."
     lock = locks[0]
     if lock.is_expired:
         return None
     else:
+        return lock
+
+def owner_of(name, type=None):
+    """Return the owner of the first CrdsLock found with the specified `name` and `type`, or 'unknown'."""
+    lock = get_lock(name=name, type=type)
+    if lock:
+        return lock.user
+    else:
+        return "unknown"
+
+def instrument_of(user):
+    """Return the owner of the first CrdsLock found with the specified `name` and `type`, or 'unknown'."""
+    lock = get_lock(user=user, type="instrument")
+    if lock:
         return lock.name
+    else:
+        return "unknown"
 
 def get_lock_status(user, name=None, type=None):
     """Return a status dictionary about this lock."""
@@ -354,18 +356,16 @@ def verify_instrument_locked_files(user, locked_instrument, filepaths, observato
     that the instrument is still locked.
     
     user                   username or Django User
-    locked_instrument      name of instrument
+    locked_instrument      .lock_id of user's instrument lock
     filepaths              paths of submitted files
     observatory            name of observatory, 'hst' or 'jwst'
     """
-    if locked_instrument is None:
+    if not locked_instrument:
         log.info("Operating in unlocked mode.")
         return
-    verify_locked(user=str(user), type="instrument", name=locked_instrument)
+    lock = verify_locked(user=str(user), type="instrument", lock_id=locked_instrument)
     for path in filepaths:
         instrument, _filekind = utils.get_file_properties(observatory, path)
-        assert instrument == locked_instrument, \
-            "Instrument Mismatch:  Logged in for '%s'. Submitted files for '%s'." % (locked_instrument, instrument)
+        assert instrument == lock.name, \
+            "Instrument Mismatch:  Logged in for '%s'. Submitted files for '%s'." % (lock.name, instrument)
      
-
-        

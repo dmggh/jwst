@@ -47,7 +47,11 @@ jpoll.done = function(time, result) {
     jpoll.log("DONE (built-in): " + result.result);
     jpoll.stop();
     jpoll.channel = null;
-    window.location = result.result
+    if (result.status != 1) {
+       window.location = result.result;
+    } else {   // FAILED
+       jpoll.log_message(time, "FAILED: " + result.result);
+    };
 };
 
 // Function which handles a successful response.
@@ -154,7 +158,7 @@ jpoll.pull_messages = function() {
                     jpoll.log_message(msg.time, msg.data);
                     break;
                 case "done" :
-                    jpoll.done(msg.time, msg.data);
+					jpoll.done(msg.time, msg.data);
                     break;
             };
         };

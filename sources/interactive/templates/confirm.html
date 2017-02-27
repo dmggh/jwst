@@ -12,13 +12,17 @@
 
     {% if is_authenticated %}
     <div id="confirm_or_cancel">
-        <h2>Confirm or Cancel Submission</h2>
+        <h3>Confirm or Cancel Submission</h3>
         <form method="post" action="/submit_confirm/" enctype="multipart/form-data"
             class="jpoll_ajax_html_form"
             onsubmit='return crds.submit_confirm_or_cancel();' >  {% csrf_token %}    
             <input type='hidden' name='results_id' value="{{results_id}}" />
-            <input type="submit" name="button" value="confirm" class="green">
-            <input type="submit" name="button" value="cancel"  class="red">
+            <input type="submit" name="button" value="confirm" class="green"
+                   title="Approve submission results and proceed with delivery.">
+            <input type="submit" name="button" value="cancel"  class="red"
+                   title="Discard this submission.">
+            <input type="submit" name="button" value="force"  class="orange"
+                   title="Ignore locks and originating user.  Approve submission, may lead to collisions.">
         </form>
     </div>
     {% endif %}
@@ -32,7 +36,7 @@
     crds.submit_confirm_or_cancel = function () {
         $("input[type='submit']").hide();
         // crds.setup_status_display("Confirmation Status");
-        if (submit_kind == "confirm") {
+        if (submit_kind == "confirm" || submit_kind == "force") {
             crds.set_info_box({
                 text: "CONFIRMING...  This may take a minute or so to update the database.",
                  css: {color: "green"},

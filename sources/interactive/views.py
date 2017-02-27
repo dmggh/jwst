@@ -265,8 +265,6 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
     statuses = ["*"] + models.FILE_STATUS_MAP.keys()
     statuses.remove("uploaded")
 
-    locked = get_locked_instrument(request) or ""
-
     rdict = {   # standard template variables
         "observatory" : models.OBSERVATORY,
 
@@ -289,7 +287,7 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
         "deliverer_user" : "*",
         "current_path" : request.get_full_path(),
 
-        "locked_instrument" : locked,
+        "locked_instrument" : get_locked_instrument(request),
 
         "username" : str(request.user),
 
@@ -621,13 +619,11 @@ def lock_login_receiver(sender, **keys):
     if "instrument" in request.POST:
         instrument = validate(request, "instrument", models.INSTRUMENTS + ["none"])
         if instrument != "none":
-            # log.info("Login receiver releasing all instrument locks for user '%s' session '%s'." %
-            #  (user, request.session.session_key))
-            with log.info_on_exception("login releasing locks failed"):
-                locks.release_locks(user=user)
-
-            # log.info("Login receiver acquiring '%s' instrument lock for user '%s' session '%s'." %
-            # (instrument, user, request.session.session_key))
+            if get_lock(request):
+                if locks.instrument_of(user) == instrument:
+                    return
+                else:
+                    locks.release_locks(user=user)
             try:
                 locks.acquire(user=user, type="instrument", name=instrument,
                               timeout=settings.CRDS_LOCK_ACQUIRE_TIMEOUT,
@@ -664,7 +660,7 @@ def instrument_lock_required(func):
     def _wrapped(request, *args, **keys):
         """instrument_log_required wrapper function."""
         assert request.user.is_authenticated(), "You must log in."
-        instrument = get_locked_instrument(request)
+        instrument = get_instrument_lock_id(request)
         user = str(request.user)
         if not (instrument or request.user.is_superuser):
             raise CrdsError("You can't access this function without logging in for a particular instrument.")
@@ -672,13 +668,23 @@ def instrument_lock_required(func):
     _wrapped.func_name = func.func_name
     return _wrapped
 
-def get_locked_instrument(request):
-    """Based on the request,  return the instrument locked inside @instrument_lock_required."""
+def get_lock(request, type="instrument"):
+    """Return the lock of `type` associated with `request.user`."""
     if request.user.is_authenticated():
-        locked = locks.instrument_of(user=str(request.user))
+        lock = locks.get_lock(user=str(request.user), type=type)
     else:
-        locked = None
-    return locked
+        lock = None
+    return lock
+
+def get_instrument_lock_id(request):
+    """Return the ID of the instrument lock reserved by request.user."""
+    lock = get_lock(request)
+    return lock.lock_id if lock else ""
+
+def get_locked_instrument(request):
+    """Return the name of the instrument locked by request.user or ''."""
+    lock = get_lock(request)
+    return lock.name if lock else ""
 
 # ===========================================================================
 
@@ -1266,7 +1272,7 @@ def batch_submit_references_post(request):
     auto_rename = checkbox(request, "auto_rename")
     compare_old_reference = checkbox(request, "compare_old_reference")
     _remove_dir, uploaded_files = get_files(request)
-    locked_instrument = get_locked_instrument(request)
+    locked_instrument = get_instrument_lock_id(request)
 
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
@@ -1333,8 +1339,6 @@ def batch_submit_references_post(request):
 # @login_required  (since this drops and re-acquires lock,  don't use.)
 @group_required("file_submission")
 @instrument_lock_required  # ensures authenticated,  has instrument lock of submission.
-# however,  instrument lock can be dropped and reacquired unless locking changes to
-# make every lock unique and @ilr verifies it's the *same* lock.
 def submit_confirm(request): #, button, results_id):
     """Accept or discard proposed files from various file upload and
     generation mechanisms.
@@ -1343,9 +1347,10 @@ def submit_confirm(request): #, button, results_id):
     # and locking may change.
     if not request.user.is_authenticated():
         raise CrdsError("You must be logged in to confirm or cancel file submissions.")
-    button = validate(request, "button", "confirm|cancel|timeout")
+
+    button = validate(request, "button", "confirm|cancel|force")
     results_id = validate(request, "results_id", common.UUID_RE)
-    locked_instrument = get_locked_instrument(request)
+    locked_instrument = get_instrument_lock_id(request)
 
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
@@ -1357,31 +1362,31 @@ def submit_confirm(request): #, button, results_id):
 
     if result.get("disposition", None):
         raise CrdsError("This submission was already confirmed or cancelled.")
-    else:
-        repeatable_model.set_par("disposition", "finalizing")
-        repeatable_model.save()
-    
-    should_still_be_locked = result.get("should_still_be_locked", None) 
-    if should_still_be_locked != locked_instrument:
-        raise CrdsError("This submissions is locked by", repr(should_still_be_locked), 
-                        "but you hold lock", repr(locked_instrument))
 
     usr = str(request.user)
-    if not request.user.is_superuser:
+    if button != "force":
         assert usr == result.user, "User mismatch: file Submitter='%s' and Confirmer='%s' don't match." % (usr, result.user)
 
+    should_still_be_locked = result.get("should_still_be_locked", None) 
+    if (button=="confirm") and should_still_be_locked and should_still_be_locked != locked_instrument:
+        raise locks.BrokenLockError("BROKEN LOCK: Original submission lock", repr(should_still_be_locked), 
+                                    "does not match current lock", repr(locked_instrument), 
+                                    ".  Use 'force' to confirm anyway.")
+
+    repeatable_model.set_par("disposition", "finalizing")
+    repeatable_model.save()
+    
     new_file_map = dict(result.new_file_map)
     new_files = new_file_map.values()
 
     if button == "confirm":   # assume confirmed unless lock fails
         disposition = "confirmed"
+    elif button == "force":   # assume confirmed unless lock fails
+        disposition = "forced"
     elif button == "cancel":
         disposition = "cancelled"
-    elif button == "timeout":
-        disposition = "lock timeout"
-        locks.release_locks(user=request.user)
 
-    confirmed = (disposition == "confirmed")
+    confirmed = (disposition in ["confirmed", "forced"])
     if confirmed:
 
         final_pmap, context_map, collision_list = submit.submit_confirm_core(
@@ -1472,7 +1477,7 @@ def delete_references_post(request):
     deleted_files = validate(request, "deleted_files", is_known_file_list)
     uploaded_files = { fname:rmap.locate_file(fname, models.OBSERVATORY) for fname in deleted_files }
 
-    locked_instrument = get_locked_instrument(request)
+    locked_instrument = get_instrument_lock_id(request)
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
     pmap = crds.get_symbolic_mapping(pmap_name)
@@ -1535,7 +1540,7 @@ def add_existing_references_post(request):
     added_files = validate(request, "added_files", is_known_file_list)
     uploaded_files = { fname:rmap.locate_file(fname, models.OBSERVATORY) for fname in added_files }
 
-    locked_instrument = get_locked_instrument(request)
+    locked_instrument = get_instrument_lock_id(request)
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
     pmap = crds.get_symbolic_mapping(pmap_name)
@@ -1659,7 +1664,7 @@ def submit_files_post(request, crds_filetype):
     creator = validate(request, "creator", common.PERSON_RE)
     change_level = validate(request, "change_level", models.CHANGE_LEVELS)
     _remove_dir, uploaded_files = get_files(request)
-    locked_instrument = get_locked_instrument(request)
+    locked_instrument = get_instrument_lock_id(request)
 
     assert not generate_contexts or locked_instrument or request.user.is_superuser,  \
         "Can't generate contexts in unlocked mode."
