@@ -5,6 +5,7 @@ SMTP/LMTP setup.  It is an unauthenticated send,  easy.
 import sys 
 import smtplib
 import os.path
+import re
 
 from email.mime.text import MIMEText
 
@@ -14,7 +15,7 @@ from crds.server import config as sconfig
 # =============================================================================================
 
 GENERIC_STARTED_BODY = """
-SUBMITTED '{results_kind}' for '{username}'.
+SUBMITTED '{results_kind}' by '{username}'.
 
 Monitor at: 
 -----------
@@ -29,7 +30,7 @@ Monitor at:
 # =============================================================================================
 
 GENERIC_READY_BODY = """
-{status} '{results_kind}' for '{username}'.
+{status} '{results_kind}' by '{username}'.
 
 Review/Confirm at:
 ------------------
@@ -44,7 +45,7 @@ Review/Confirm at:
 # =============================================================================================
 
 GENERIC_CONFIRMED_BODY = """
-{disposition} '{results_kind}' for '{username}'.
+{disposition} '{results_kind}' by '{username}'.
 
 Final Results:
 --------------
@@ -61,7 +62,11 @@ Final Results:
 
 def mail(from_address, to_addresses, subject, body, **keys):
     """Basic API for sending e-mails,  only tested with simple @-style email names."""
-    msg = MIMEText(body.format(**keys))
+    body = body.format(**keys)
+    while "\n\n\n" in body:
+        body = body.replace("\n\n\n","\n\n")
+    msg = MIMEText(body)
+
     msg['Subject'] = subject
     msg['From'] = from_address
     msg['To'] = "; ".join(to_addresses)
@@ -82,8 +87,11 @@ def crds_notification(subject=None, from_address=None, to_addresses=None, body=N
                       description="", **keys):
         # with log.error_on_exception("Failed sending results e-mail"):
 
-        subject = subject or (status + " " + results_kind + " for " + username)
+        subject = subject or (status + " " + results_kind + " by " + username)
         subject = "CRDS " + sconfig.observatory.upper() + " " + sconfig.server_usecase.upper() + " " + subject
+
+        if "disposition" in keys:
+            keys["disposition"] = keys["disposition"].upper()
 
         from_address = from_address or sconfig.CRDS_STATUS_FROM_ADDRESS
         to_addresses = to_addresses or sconfig.CRDS_STATUS_TO_ADDRESSES[:]
