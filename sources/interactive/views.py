@@ -712,7 +712,7 @@ def display_result(request, results_id):
     except Exception, exc:
         raise CrdsError("Error loading result", results_id, ":", str(exc))
     pars = result.parameters
-    if pars.requires_authentication and not request.user.is_authenticated():
+    if pars.get("requires_authentication", False) and not request.user.is_authenticated():
         CrdsError("You must be logged in to view this page.")
     pars["results_id"] = results_id  # needed to implement "disposition", confirmed or cancelled.
     return crds_render(request, result.page_template, pars)
