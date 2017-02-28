@@ -332,11 +332,12 @@ def get_lock_status(user, name=None, type=None):
             except:
                 name = "unknown"
             return { "name" : name, "user": user, "type":type, "status" : "error",
-                    "exception": str(exc)
+                     "is_expired": "no longer holds lock" in str(exc),
+                     "exception": str(exc)
                     }
     else:
         return { "name": "", "user": user, "type": type, "status" : "error", 
-                "exception": "no lock found."}
+                 "exception": "no lock found."}
 
 def get_expired_locks():
     """Return a list of expired CrdsLocks."""
