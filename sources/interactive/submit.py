@@ -311,7 +311,7 @@ class FileSubmission(object):
         names for their replacements.
         """
         new_name_map = {}
-        for old in [self.pmap_name] + updates.keys():
+        for old in [self.final_pmap] + updates.keys():
             instrument, filekind = self.get_file_properties(old)
             extension = os.path.splitext(old)[-1]
             new_name_map[old] = new_map = self.get_new_name(instrument, filekind, extension)
