@@ -66,7 +66,7 @@ crds.poll_lock_status = function () {
             $(".locked_instrument").html(json.user + " " + json.name);
         } else {
             var fail_message;
-            $('.locked_instrument').html("<span class='red'>LOCK LOST</span>");
+            $('.locked_instrument').html("<span class='red'>LOCK DROPPED</span>");
             $('.lock_timer').html("");
             clearInterval(crds.lock_timer_interval);
             if (crds.lock_timeout_action) {
