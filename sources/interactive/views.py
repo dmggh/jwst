@@ -1366,17 +1366,20 @@ def submit_confirm(request): #, button, results_id):
     if result.get("disposition", None):
         raise CrdsError("This submission was already confirmed or cancelled.")
 
+    should_still_be_locked = result.get("should_still_be_locked", None) 
+    locked_instrument = locks.instrument_from_lock_id(should_still_be_locked)
+    username = str(request.user)
     if button == "confirm":
-        usr = str(request.user)
-        assert usr == result.user, "User mismatch: file Submitter='%s' and Confirmer='%s' don't match." % (usr, result.user)
-        should_still_be_locked = result.get("should_still_be_locked", None) 
+        assert username == result.user, "User mismatch: file Submitter='%s' and Confirmer='%s' don't match." % (username, result.user)
         if should_still_be_locked and should_still_be_locked != instrument_lock_id:
             raise locks.BrokenLockError("BROKEN LOCK: Original submission lock", repr(should_still_be_locked), 
                                         "does not match current lock", repr(instrument_lock_id), 
                                         ".  Use 'force' to confirm anyway.")
-    # elif button == "cancel":
-    #     lock = get_lock(request)
-    #     assert 
+    elif button == "cancel":
+        my_locked_instrument = locks.instrument_of(username)
+        if result.user != username and my_locked_instrument != locked_instrument:
+            raise CrdsError("You locked", repr(my_locked_instrument), "but must own lock for", 
+                            repr(locked_instrument), "to cancel this submission.")
 
     repeatable_model.set_par("disposition", "finalizing")
     repeatable_model.save()
