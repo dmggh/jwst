@@ -1275,7 +1275,7 @@ def batch_submit_references_post(request):
     auto_rename = checkbox(request, "auto_rename")
     compare_old_reference = checkbox(request, "compare_old_reference")
     _remove_dir, uploaded_files = get_files(request)
-    locked_instrument = get_instrument_lock_id(request)
+    instrument_lock_id = get_instrument_lock_id(request)
 
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
@@ -1289,7 +1289,7 @@ def batch_submit_references_post(request):
     bsr = submit.BatchReferenceSubmission(pmap_name, uploaded_files, description,
         user=request.user, creator=creator, change_level=change_level,
         auto_rename=auto_rename, compare_old_reference=compare_old_reference,
-        locked_instrument=locked_instrument, status_channel = jpoll_handler)
+        instrument_lock_id=instrument_lock_id, status_channel = jpoll_handler)
 
     disposition, new_references_map, new_mappings_map, reference_certs, mapping_certs, \
         mapping_diffs, collision_list = bsr.submit()
@@ -1315,7 +1315,7 @@ def batch_submit_references_post(request):
 
                 "diff_results" : mapping_diffs,
 
-                "should_still_be_locked" : locked_instrument,
+                "should_still_be_locked" : instrument_lock_id,
                 "requires_locking" : True,
 
                 "more_submits" : "/batch_submit_references/",
@@ -1353,7 +1353,7 @@ def submit_confirm(request): #, button, results_id):
 
     button = validate(request, "button", "confirm|cancel|force")
     results_id = validate(request, "results_id", common.UUID_RE)
-    locked_instrument = get_instrument_lock_id(request)
+    instrument_lock_id = get_instrument_lock_id(request)
 
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
@@ -1370,9 +1370,9 @@ def submit_confirm(request): #, button, results_id):
         usr = str(request.user)
         assert usr == result.user, "User mismatch: file Submitter='%s' and Confirmer='%s' don't match." % (usr, result.user)
         should_still_be_locked = result.get("should_still_be_locked", None) 
-        if should_still_be_locked and should_still_be_locked != locked_instrument:
+        if should_still_be_locked and should_still_be_locked != instrument_lock_id:
             raise locks.BrokenLockError("BROKEN LOCK: Original submission lock", repr(should_still_be_locked), 
-                                        "does not match current lock", repr(locked_instrument), 
+                                        "does not match current lock", repr(instrument_lock_id), 
                                         ".  Use 'force' to confirm anyway.")
     # elif button == "cancel":
     #     lock = get_lock(request)
@@ -1396,7 +1396,7 @@ def submit_confirm(request): #, button, results_id):
 
         final_pmap, context_map, collision_list = submit.submit_confirm_core(
                 confirmed, result.submission_kind, result.description,
-                new_files, result.context_rmaps, result.user,  result.pmap, result.pmap_mode, locked_instrument)
+                new_files, result.context_rmaps, result.user,  result.pmap, result.pmap_mode, instrument_lock_id)
 
         repeatable_model.set_par("original_pmap", result.pmap)
         repeatable_model.set_par("pmap", final_pmap)
@@ -1487,7 +1487,7 @@ def delete_references_post(request):
     deleted_files = validate(request, "deleted_files", is_known_file_list)
     uploaded_files = { fname:rmap.locate_file(fname, models.OBSERVATORY) for fname in deleted_files }
 
-    locked_instrument = get_instrument_lock_id(request)
+    instrument_lock_id = get_instrument_lock_id(request)
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
     pmap = crds.get_symbolic_mapping(pmap_name)
@@ -1496,7 +1496,7 @@ def delete_references_post(request):
         assert deleted in pmap_references, "File " + repr(deleted) + " does not appear in context " + repr(pmap.name)
 
     drs = submit.DeleteReferenceSubmission(pmap_name, uploaded_files, description,
-        user=request.user, locked_instrument=locked_instrument, status_channel=jpoll_handler)
+        user=request.user, instrument_lock_id=instrument_lock_id, status_channel=jpoll_handler)
     disposition, new_mappings_map, mapping_certs, mapping_diffs, collision_list = drs.submit()
 
     del_results = {
@@ -1516,7 +1516,7 @@ def delete_references_post(request):
 
                 "collision_list" : collision_list,
 
-                "should_still_be_locked" : locked_instrument,
+                "should_still_be_locked" : instrument_lock_id,
                 "requires_locking" : True,
                 "more_submits" : "/delete/reference/",
                 "disposition": disposition,
@@ -1550,7 +1550,7 @@ def add_existing_references_post(request):
     added_files = validate(request, "added_files", is_known_file_list)
     uploaded_files = { fname:rmap.locate_file(fname, models.OBSERVATORY) for fname in added_files }
 
-    locked_instrument = get_instrument_lock_id(request)
+    instrument_lock_id = get_instrument_lock_id(request)
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
     pmap = crds.get_symbolic_mapping(pmap_name)
@@ -1561,7 +1561,7 @@ def add_existing_references_post(request):
         assert not blob.rejected and not blob.blacklisted,  "File " + repr(added) + " is bad or contains bad files."
 
     ars = submit.AddExistingReferenceSubmission(pmap_name, uploaded_files, description,
-                                                user=request.user, locked_instrument=locked_instrument,
+                                                user=request.user, instrument_lock_id=instrument_lock_id,
                                                 status_channel=jpoll_handler)
     disposition, new_mappings_map, mapping_certs, mapping_diffs, collision_list = ars.submit()
 
@@ -1582,7 +1582,7 @@ def add_existing_references_post(request):
 
                 "collision_list" : collision_list,
 
-                "should_still_be_locked" : locked_instrument,
+                "should_still_be_locked" : instrument_lock_id,
                 "requires_locking" : True,
 
                 "more_submits" : "/add/reference/",
@@ -1674,16 +1674,16 @@ def submit_files_post(request, crds_filetype):
     creator = validate(request, "creator", common.PERSON_RE)
     change_level = validate(request, "change_level", models.CHANGE_LEVELS)
     _remove_dir, uploaded_files = get_files(request)
-    locked_instrument = get_instrument_lock_id(request)
+    instrument_lock_id = get_instrument_lock_id(request)
 
-    assert not generate_contexts or locked_instrument or request.user.is_superuser,  \
+    assert not generate_contexts or instrument_lock_id or request.user.is_superuser,  \
         "Can't generate contexts in unlocked mode."
 
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
     simple = submit.SimpleFileSubmission(pmap_name, uploaded_files, description, user=request.user,
         creator=creator, change_level=change_level, auto_rename=auto_rename,
-        compare_old_reference=compare_old_reference, locked_instrument=locked_instrument,
+        compare_old_reference=compare_old_reference, instrument_lock_id=instrument_lock_id,
         status_channel=jpoll_handler)
 
     disposition, certify_results, new_file_map, collision_list, context_rmaps = \
@@ -1705,7 +1705,7 @@ def submit_files_post(request, crds_filetype):
                 "certify_results" : certify_results,
                 "more_submits" : "/submit/" + crds_filetype + "/",
                 "requires_locking" : generate_contexts,
-                "should_still_be_locked": locked_instrument,
+                "should_still_be_locked": instrument_lock_id,
 
                 "disposition" : disposition,
     }

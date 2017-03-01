@@ -72,7 +72,7 @@ class FileSubmission(object):
     
     def __init__(self, pmap_name, uploaded_files, description, user, creator="UNKNOWN",
                  change_level="SEVERE", auto_rename=True, compare_old_reference=False,
-                 locked_instrument=None, status_channel=None, pmap_mode=None):
+                 instrument_lock_id=None, status_channel=None, pmap_mode=None):
         self.pmap_name = pmap_name
         self.pmap_mode = pmap_mode
         self.final_pmap = None   # pmap_mode/pmap_name evaluated at confirmation time.
@@ -88,7 +88,7 @@ class FileSubmission(object):
         self.change_level = change_level
         self.auto_rename = auto_rename
         self.compare_old_reference = compare_old_reference
-        self.locked_instrument = locked_instrument
+        self.instrument_lock_id = instrument_lock_id
         self.status_channel = status_channel
         self.added_files = []
 
@@ -337,7 +337,7 @@ class FileSubmission(object):
     def verify_instrument_lock(self):
         """Ensure that all the submitted files correspond to the locked instrument."""
         paths = dict(self.uploaded_files).values()
-        locks.verify_instrument_locked_files(self.user, self.locked_instrument, paths, self.observatory)
+        locks.verify_instrument_locked_files(self.user, self.instrument_lock_id, paths, self.observatory)
         
     def get_collision_list(self, newfiles):
         """Return the collision list associated with newfiles and push a status message."""
@@ -742,7 +742,7 @@ class SimpleFileSubmission(FileSubmission):
 # ------------------------------------------------------------------------------------------------
         
 def submit_confirm_core(confirmed, submission_kind, description, new_files, context_rmaps, user, pmap_name, pmap_mode,
-                        locked_instrument, related_files=None):
+                        instrument_lock_id, related_files=None):
     """Handle the confirm/cancel decision of a file submission.  If context_rmaps is not [],  then it's a list
     of .rmaps from which to generate new contexts.   
     """
@@ -771,7 +771,7 @@ def submit_confirm_core(confirmed, submission_kind, description, new_files, cont
     if confirmed:
         if context_rmaps:
             # Instrument lock required since we're generating a new .imap from context_rmaps.
-            # locks.verify_instrument_locked_files(user, locked_instrument, paths, blob.observatory)
+            # locks.verify_instrument_locked_files(user, instrument_lock_id, paths, blob.observatory)
             # context_rmaps aren't necessarily in new_file_map and may be existing files.  So they only
             # specify changes to `pmap_name`,  not file deliveries.
             submission = FileSubmission(pmap_name, uploaded_files=None, description=description, user=user, creator="crds", 
