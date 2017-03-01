@@ -89,6 +89,14 @@ class CrdsLock(object):
         self._get_locks()
         return " - ".join([self.type, self.name, self.user, self._user_lock.created_on.isoformat("T")])
 
+    @classmethod
+    def name_from_lock_id(cls, lock_id):
+        """Given a `lock_id`,  return the embedded .name attribute."""
+        if not lock_id:
+            return ""
+        parts = lock_id.split("-")
+        return parts[1].strip()
+
     @property
     def time_remaining(self):
         self._get_locks()
@@ -241,6 +249,10 @@ def verify_locked(user, type, lock_id):
         lock.verify_locked(lock_id)
         return lock
     raise BrokenLockError("User", repr(self.user), "does not hold any locks of type", repr(type))
+
+def instrument_from_lock_id(lock_id):
+    """Given  a lock_id,  return the embedded instrument name."""
+    return CrdsLock.name_from_lock_id(lock_id)
 
 def reset_expiry(name, type="", user=""):
     """Reset the expiration timer on locks associated with `name`, `type`, and `user`."""

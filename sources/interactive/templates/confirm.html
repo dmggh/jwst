@@ -34,25 +34,39 @@
     $("input[type='submit']").click(function () { submit_kind = this.value; });
 
     crds.submit_confirm_or_cancel = function () {
-        $("input[type='submit']").hide();
         // crds.setup_status_display("Confirmation Status");
+        if (submit_kind == "force") {
+            if (!confirm("CAUTION: Forcing confirmation can lead to colliding deliveries.")) {
+               return false;
+            };
+        }
         if (submit_kind == "confirm" || submit_kind == "force") {
             crds.set_info_box({
                 text: "CONFIRMING...  This may take a minute or so to update the database.",
                  css: {color: "green"},
             });
         } else {
+            if (!confirm("Abort submission?")) {
+                return false;
+            };
             crds.set_info_box({
                 text: "CANCELLING... This may take a minute or so to update the database.",
                  css: {color: "red"},
             });
         };
+        $("input[type='submit']").hide();
         return true;
     };
     
     crds.lock_timeout_action = function () {
-        console.log("lock timeout cancel action;  no action");
-        // window.location = "/submit_confirm/?button=timeout&results_id={{results_id}}";
+        $("input[value='confirm']").hide();
+        $("input[value='cancel']").hide();
+        $("input[value='force']").hide();
+        $.ajax({url:"/logout/"});
+        crds.set_info_box({
+           text: "LOCK LOST...  Log back in to cancel or force delivery.",
+           css: {color: "red"},
+        });
     };
 
 </script>

@@ -107,7 +107,7 @@ CACHES = {
 
 # Session management, logins and expiration
 
-CRDS_MAX_LOCK_AGE = 60*60*4   # 4 hours,  refreshed every request
+CRDS_MAX_LOCK_AGE = 60*60*4  # 4 hours,  refreshed every request
 CRDS_LOCK_ACQUIRE_TIMEOUT = 2 # seconds
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False    # closing browser will *not* kill submission,  problem with JPOLL
