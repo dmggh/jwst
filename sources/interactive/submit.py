@@ -450,7 +450,7 @@ class FileSubmission(object):
             except Exception:
                 raise CrdsError("Can't determine instrument or file type for " + srepr(original_name) + " at " + 
                                 repr(uploaded_path))
-            if self.locked_instrument:
+            if self.instrument_lock_id:
                 if seen_instrument is None:
                     seen_instrument = instrument
                 else:
