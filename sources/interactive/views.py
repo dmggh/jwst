@@ -776,6 +776,9 @@ def login(request):
         server_usecase = sconfig.server_usecase.lower())
     return django_login(request, "login.html", extra_context=extras)
 
+
+@log_view
+@login_required
 def logout(request):
     """View to get rid of authentication state and become nobody again."""
     django.contrib.auth.logout(request)
@@ -1363,15 +1366,17 @@ def submit_confirm(request): #, button, results_id):
     if result.get("disposition", None):
         raise CrdsError("This submission was already confirmed or cancelled.")
 
-    usr = str(request.user)
-    if button != "force":
+    if button == "confirm":
+        usr = str(request.user)
         assert usr == result.user, "User mismatch: file Submitter='%s' and Confirmer='%s' don't match." % (usr, result.user)
-
-    should_still_be_locked = result.get("should_still_be_locked", None) 
-    if (button=="confirm") and should_still_be_locked and should_still_be_locked != locked_instrument:
-        raise locks.BrokenLockError("BROKEN LOCK: Original submission lock", repr(should_still_be_locked), 
-                                    "does not match current lock", repr(locked_instrument), 
-                                    ".  Use 'force' to confirm anyway.")
+        should_still_be_locked = result.get("should_still_be_locked", None) 
+        if should_still_be_locked and should_still_be_locked != locked_instrument:
+            raise locks.BrokenLockError("BROKEN LOCK: Original submission lock", repr(should_still_be_locked), 
+                                        "does not match current lock", repr(locked_instrument), 
+                                        ".  Use 'force' to confirm anyway.")
+    # elif button == "cancel":
+    #     lock = get_lock(request)
+    #     assert 
 
     repeatable_model.set_par("disposition", "finalizing")
     repeatable_model.save()
@@ -1379,9 +1384,9 @@ def submit_confirm(request): #, button, results_id):
     new_file_map = dict(result.new_file_map)
     new_files = new_file_map.values()
 
-    if button == "confirm":   # assume confirmed unless lock fails
+    if button == "confirm":  
         disposition = "confirmed"
-    elif button == "force":   # assume confirmed unless lock fails
+    elif button == "force":  
         disposition = "forced"
     elif button == "cancel":
         disposition = "cancelled"
@@ -1452,6 +1457,11 @@ def submit_confirm(request): #, button, results_id):
         repeatable_url = result.abs_repeatable_url,
         **confirm_results)
 
+    if button == "force":
+        with log.error_on_exception("Failed releasing locks after FORCE confirm."):
+            instrument = locks.instrument_of(str(request.user))
+            locks.release_locks(name=instrument, type="instrument")
+    
     return redirect_jpoll_result(result, jpoll_handler)
 
 # ===========================================================================

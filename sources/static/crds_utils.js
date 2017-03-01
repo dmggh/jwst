@@ -66,13 +66,7 @@ crds.poll_lock_status = function () {
             $(".locked_instrument").html(json.user + " " + json.name);
         } else {
             var fail_message;
-            if (json.status != "ok") {
-                fail_message = "LOCK FAILED: " + json.exception;
-            } else {
-                fail_message = "LOCK TIMEOUT: " + json.instrument;
-            };
-            $('#contents').html("<br/><br/><br/><h3 class='red' style='font-size: 1.5em;' align='center' >" + fail_message + " To continue,  log out and log back in.");
-            $('.locked_instrument').html("");
+            $('.locked_instrument').html("<span class='red'>LOCK LOST</span>");
             $('.lock_timer').html("");
             clearInterval(crds.lock_timer_interval);
             if (crds.lock_timeout_action) {
