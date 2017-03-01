@@ -1375,11 +1375,11 @@ def submit_confirm(request): #, button, results_id):
             raise locks.BrokenLockError("BROKEN LOCK: Original submission lock", repr(should_still_be_locked), 
                                         "does not match current lock", repr(instrument_lock_id), 
                                         ".  Use 'force' to confirm anyway.")
-    elif button == "cancel":
+    elif button in ["cancel", "force"]:
         my_locked_instrument = locks.instrument_of(username)
-        if result.user != username and my_locked_instrument != locked_instrument:
+        if my_locked_instrument != locked_instrument:
             raise CrdsError("You locked", repr(my_locked_instrument), "but must own lock for", 
-                            repr(locked_instrument), "to cancel this submission.")
+                            repr(locked_instrument), "to cancel or force this submission.")
 
     repeatable_model.set_par("disposition", "finalizing")
     repeatable_model.save()
@@ -1460,10 +1460,9 @@ def submit_confirm(request): #, button, results_id):
         repeatable_url = result.abs_repeatable_url,
         **confirm_results)
 
-    if button == "force":
-        with log.error_on_exception("Failed releasing locks after FORCE confirm."):
-            instrument = locks.instrument_of(str(request.user))
-            locks.release_locks(name=instrument, type="instrument")
+    with log.error_on_exception("Failed releasing locks after confirm/cancel/force."):
+        instrument = locks.instrument_of(str(request.user))
+        locks.release_locks(name=instrument, type="instrument")
     
     return redirect_jpoll_result(result, jpoll_handler)
 
