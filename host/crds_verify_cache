@@ -57,5 +57,6 @@ echo "==========================================================================
 python -m crds.sync --check-sha1sum --all --readonly-cache --verbose --stats
 
 # mappings + references,  no sha1sum
-python -m crds.sync --check-files --all --fetch-references --readonly-cache --verbose --stats
+python -m crds.sync --check-files --all --fetch-references --readonly-cache --verbose --stats $*
+
 
