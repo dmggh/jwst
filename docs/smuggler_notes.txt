@@ -9,7 +9,7 @@ to download the auth application database models.
 
 Access the link:
 
-       https://jwst-crds.stsci.edu/admin/auth/load
+       https://jwst-crds.stsci.edu/admin/load
 
 to upload .json from a prior download.
 
