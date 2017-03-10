@@ -110,6 +110,10 @@ def file_exists(filename):
 def split(string, delimiter="\n"):
     return string.split(delimiter)
 
+@register.filter
+def human_format_number(number):
+    return utils.human_format_number(number)
+
 # ===========================================================================
 
 @register.filter(is_safe=True)
