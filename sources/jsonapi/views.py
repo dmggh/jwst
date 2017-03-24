@@ -689,7 +689,10 @@ def get_context_by_date(request, date, observatory):
         observatory = sconfig.observatory
     else:
         observatory = check_observatory(observatory)
-    return check_context(date, observatory)
+    try:
+        return check_context(date, observatory)
+    except exceptions.IrrelevantReferenceTypeError:
+        return "N/A"
 
 # ===========================================================================================================
 
