@@ -13,6 +13,8 @@ log.remove_console_handler()
 from crds.server.config import install_dir, DEBUG, DEBUG_EXTRAS, FILE_UPLOAD_TEMP_DIR, crds_server_dir
 from crds.server.crds_database import DATABASES
 
+TEMPLATE_DEBUG = DEBUG
+
 ALLOWED_HOSTS = ['*']
 
 USE_X_FORWARDED_HOST = True
@@ -114,7 +116,6 @@ SESSION_SAVE_EVERY_REQUEST = False         # reset expiry every view
 
 MIDDLEWARE_CLASSES = (
     # must precede middleware which assumes CSRF already dealt with
-    'django.middleware.security.SecurityMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
@@ -134,31 +135,16 @@ if DEBUG_EXTRAS:
 
 ROOT_URLCONF = 'crds.server.urls'
 
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'APP_DIRS': True,
-        'DIRS': [
-            crds_server_dir + "/templates",
-            crds_server_dir + "/interactive/templates",
-            crds_server_dir + "/fileupload/templates",
-            crds_server_dir + "/jsonapi/templates",
-            crds_server_dir + "/jpoll/templates",
-            ],
-        'OPTIONS': {
-             'debug': DEBUG,
-             'context_processors' : [
-                'django.contrib.auth.context_processors.auth',
-                'django.template.context_processors.debug',
-                'django.template.context_processors.i18n',
-                'django.template.context_processors.media',
-                'django.template.context_processors.static',
-                'django.template.context_processors.tz',
-                'django.contrib.messages.context_processors.messages',
-                ]
-             }
-    },
-]
+TEMPLATE_DIRS = (
+    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+    # Always use forward slashes, even on Windows.
+    # Don't forget to use absolute paths, not relative paths.
+    crds_server_dir + "/templates",
+    crds_server_dir + "/interactive/templates",
+    crds_server_dir + "/fileupload/templates",
+    crds_server_dir + "/jsonapi/templates",
+    crds_server_dir + "/jpoll/templates",
+)
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -186,6 +172,8 @@ INSTALLED_APPS = (
 )
 
 # TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+
 
 if DEBUG_EXTRAS:
     INSTALLED_APPS += (
