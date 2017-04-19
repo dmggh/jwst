@@ -47,8 +47,13 @@ def main():
     verbose = options.verbose or (len(extensions) + len(args) > 2)
 
     for fname in args:
-        observatory = utils.file_to_observatory(fname)
-        fpath = config.locate_file(fname, observatory)
+        fpath = None
+        with log.error_on_exception("Error locating pathless file"):
+            observatory = utils.file_to_observatory(fname)
+            
+            fpath = config.locate_file(fname, observatory)
+        if fpath is None:
+            continue
         if fname != fpath:
             log.info("Locating", repr(fname), "at", repr(fpath), "in CRDS cache.")
         dump_header(fpath, extensions, verbose=verbose)

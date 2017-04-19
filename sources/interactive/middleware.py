@@ -14,7 +14,7 @@ class ResetLockExpirationMiddleware(object):
         # Other interactive views clear lock timeout
         if "lock_status" not in request.path and "jpoll" not in request.path:
             user = getattr(request, "user", None)
-            if user and user.is_authenticated():
+            if user and user.is_authenticated:
                 instrument = views.get_locked_instrument(request)
                 if instrument:
                     with log.info_on_exception("failed resetting lock expiration"):

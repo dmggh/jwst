@@ -7,6 +7,8 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'crds.server.settings'
 
 from django.core.wsgi import get_wsgi_application
 
+import warnings
+
 '''
 def application(environ, start_response):
     status = '200 OK'
@@ -18,6 +20,8 @@ def application(environ, start_response):
 
     return [output]
 '''
+
+# warnings.filterwarnings("warn", category=DeprecationWarning)
 
 try:
     application = get_wsgi_application()
