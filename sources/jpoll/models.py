@@ -121,7 +121,7 @@ class MessageModel(models.Model):
     class Meta:
         db_table = "jpoll_message"
 
-    channel = models.ForeignKey(ChannelModel)
+    channel = models.ForeignKey(ChannelModel, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
     type = models.CharField(max_length = 16, help_text = "type of message.", default="")
     json = models.TextField(help_text  = "JSON contents of message.", default="")

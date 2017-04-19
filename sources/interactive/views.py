@@ -24,7 +24,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 import django.utils.safestring as safestring
 import django.utils
 from django.utils.html import format_html, format_html_join
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 import django.contrib.auth
 import django.contrib.auth.models
@@ -248,8 +248,8 @@ def crds_render_html(request, template, dict_=None, requires_pmaps=False):
     rdict = get_rendering_dict(request, dict_=dict_, requires_pmaps=requires_pmaps)
     # Generate a first pass of the response HTML.
     loaded_template = loader.get_template(template)
-    context = RequestContext(request, rdict)
-    html_str = loaded_template.render(context)
+    # context = RequestContext(request, rdict)
+    html_str = loaded_template.render(rdict, request)
     # Remove file paths and fix temporary names with client side names
     uploaded_pairs = rdict.get("uploaded_file_names", get_uploaded_filepaths(request))
     html_str = squash_file_paths(html_str, uploaded_pairs)
@@ -322,7 +322,7 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
 
     # This is only for the purpose of showing/hiding logout, super user options.
     # Still,  do it last making it harder to trick.
-    rdict["is_authenticated"] = request.user.is_authenticated()
+    rdict["is_authenticated"] = request.user.is_authenticated
     rdict["is_superuser"] = request.user.is_superuser
 
     return rdict
@@ -402,7 +402,7 @@ def handle_known_or_uploaded_file(request, modevar, knownvar, uploadvar):
         original_name = validate(request, knownvar, is_known_file)
         filepath = get_known_filepath(original_name)
     else:
-        assert request.user.is_authenticated(), \
+        assert request.user.is_authenticated, \
             "file uploads are only available for authenticated users."
         ufile = get_uploaded_file(request, uploadvar)
         filepath = ufile.temporary_file_path()
@@ -426,7 +426,7 @@ def get_uploaded_file(request, formvar):
     screening the original filename for legality.  Handles
     <input type='file'>, part 1.
     """
-    assert request.user.is_authenticated(), \
+    assert request.user.is_authenticated, \
         "file uploads are only available for authenticated users."
     try:
         ufile = request.FILES[formvar]
@@ -586,7 +586,7 @@ def superuser_login_required(func):
 def group_required(*group_names):
     """Requires user membership in at least one of the groups passed in."""
     def in_groups(u):
-        if u.is_authenticated():
+        if u.is_authenticated:
             if bool(u.groups.filter(name__in=group_names)) | u.is_superuser:
                 return True
         return False
@@ -659,7 +659,7 @@ def instrument_lock_required(func):
     """Decorator to ensure a user still owns an un-expired lock defined by their session data."""
     def _wrapped(request, *args, **keys):
         """instrument_log_required wrapper function."""
-        assert request.user.is_authenticated(), "You must log in."
+        assert request.user.is_authenticated, "You must log in."
         instrument = get_instrument_lock_id(request)
         user = str(request.user)
         if not (instrument or request.user.is_superuser):
@@ -670,7 +670,7 @@ def instrument_lock_required(func):
 
 def get_lock(request, type="instrument"):
     """Return the lock of `type` associated with `request.user`."""
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         lock = locks.get_lock(user=str(request.user), type=type)
     else:
         lock = None
@@ -718,7 +718,7 @@ def display_result(request, results_id):
     except Exception, exc:
         raise CrdsError("Error loading result", results_id, ":", str(exc))
     pars = result.parameters
-    if pars.get("requires_authentication", False) and not request.user.is_authenticated():
+    if pars.get("requires_authentication", False) and not request.user.is_authenticated:
         CrdsError("You must be logged in to view this page.")
     pars["results_id"] = results_id  # needed to implement "disposition", confirmed or cancelled.
     return crds_render(request, result.page_template, pars)
@@ -1348,7 +1348,7 @@ def submit_confirm(request): #, button, results_id):
     """
     # don't rely on locking mechanisms to verify this since @login_required is turned off
     # and locking may change.
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         raise CrdsError("You must be logged in to confirm or cancel file submissions.")
 
     button = validate(request, "button", "confirm|cancel|force")
@@ -2131,7 +2131,7 @@ def browse_db_post(request):
     table_json = cached_browse_table(tuple(sorted(filters.items())),
                                      select_bad_files=select_bad_files,
                                      show_defects=show_defects,
-                                     authenticated=request.user.is_authenticated())
+                                     authenticated=request.user.is_authenticated)
 
     if start_date != "*":
         filters["delivery_date_start"] = timestamp.format_date(filters.pop("delivery_date__gte"))

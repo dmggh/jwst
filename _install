@@ -260,8 +260,8 @@ fi
 (./save_version >sources/svn_version.py; cd sources; python setup.py install --force --home $install_dir/python |& grep -v /static |& grep -v /test_data |& grep -v /templates)
 
 # SYNC the Django database for the CRDS server & catalog
-(cd $install_dir/python/lib/python/crds/server ; python manage.py syncdb)
-echo "Done syncing db"
+# (cd $install_dir/python/lib/python/crds/server ; python manage.py syncdb)
+# echo "Done syncing db"
 
 ###
 ### tell the user what we did

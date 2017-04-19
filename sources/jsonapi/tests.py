@@ -293,11 +293,11 @@ class ServiceApiBase(object):
         # take note and update.
     def test_client_get_mapping_names(self):
         mappings = api.get_mapping_names(self.pmap)
-        self.failUnless(50 < len(mappings) < 200)
+        self.assertTrue(50 < len(mappings) < 200)
         
     def test_client_get_reference_names(self):
         references = api.get_reference_names(self.pmap)
-        self.failUnless(self.min_reference_count < len(references))
+        self.assertTrue(self.min_reference_count < len(references))
 
 # ===========================================================================
 # ===========================================================================
@@ -407,6 +407,7 @@ if server_config.observatory == "jwst":
             "meta.instrument.detector" : "NIRISS",
             "meta.instrument.filter" : "CLEAR",
             "meta.subarray.name" : "FULL",
+            "meta.exposure.type" : "NIS_IMAGE",
         }
         
         instr_key = "meta.instrument.name"
