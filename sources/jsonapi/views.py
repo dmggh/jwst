@@ -11,6 +11,7 @@ import gzip
 import os.path
 import glob
 import json
+import traceback
 
 from jsonrpc import jsonrpc_method
 from jsonrpc.exceptions import Error
@@ -384,6 +385,38 @@ def check_username(username):
     except Exception:
         raise InvalidUserError("The specified CRDS server username " + repr(username) + " is invalid.")
     return username
+
+# ===========================================================================
+
+def log_view(func):
+    """log() captures view inputs, output, and response to a log file.
+    It should be called inside any error_trap() decorator so that it
+    executes before error_trap() absorbs many exceptions.
+    """
+    def dolog(request, *args, **keys):
+        """trap() is bound to the func parameter of decorator()."""
+        log.info() # start with blank line to make concat logs readable
+        log.info("REQUEST:", request.path, request.method, "ajax="+str(request.is_ajax()))
+        if request.GET:
+            log.info("GET:",   repr(request.GET))
+        if request.POST:
+            log.info("POST:",  repr(request.POST))
+        try:
+            response = func(request, *args, **keys)
+            return response
+        except Exception, exc:
+            log.info("EXCEPTION REPR:", repr(exc))
+            log.info("EXCEPTION STR:", str(exc))
+            log.info("EXCEPTION TRACEBACK:")
+            info = sys.exc_info()
+            tb_list = traceback.extract_tb(info[2])
+            for line in traceback.format_list(tb_list):
+                log.info(line.strip(), time=False)
+            raise
+        finally:
+            pass
+    dolog.func_name = func.func_name
+    return dolog
 
 # ===========================================================================
 

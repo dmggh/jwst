@@ -24,7 +24,10 @@ setenv PATH ${CRDS_STACK}/bin:${PATH}
 rehash 
 # conda update --quiet --yes conda
 
-conda install --quiet --yes --file ${CRDS}/CRDS_server/host/conda.pljwstcrdsv1.crds_conda-2.txt
+# conda install --quiet --yes --file ${CRDS}/CRDS_server/host/conda.pljwstcrdsv1.crds_conda-2.txt
+
+conda install --quiet --yes --file ${CRDS}/CRDS_server/host/${CONDA_NAME}.txt
+
 # conda install --quiet --yes --file http://ssb.stsci.edu/conda/jwstdp-0.7.0rc/jwstdp-0.7.0rc2-linux-py27.0.txt
 conda remove --quiet --yes crds
 
