@@ -141,6 +141,7 @@ TEMPLATES = [
         'DIRS': [
             crds_server_dir + "/templates",
             crds_server_dir + "/interactive/templates",
+            crds_server_dir + "/interactive/templates/registration",
             crds_server_dir + "/fileupload/templates",
             crds_server_dir + "/jsonapi/templates",
             crds_server_dir + "/jpoll/templates",
