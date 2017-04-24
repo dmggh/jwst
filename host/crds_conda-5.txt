@@ -145,7 +145,7 @@ https://repo.continuum.io/pkgs/free/linux-64/mysql-connector-python-2.0.4-py27_0
 https://repo.continuum.io/pkgs/free/linux-64/mysql-python-1.2.5-py27_0.tar.bz2
 
 https://repo.continuum.io/pkgs/free/linux-64/pycosat-0.6.1-py27_0.tar.bz2
-https://repo.continuum.io/pkgs/free/linux-64/pycrypto-2.6.1-py27_0.tar.bz2
+# https://repo.continuum.io/pkgs/free/linux-64/pycrypto-2.6.1-py27_0.tar.bz2
 https://repo.continuum.io/pkgs/free/linux-64/pylint-1.5.4-py27_1.tar.bz2
 https://repo.continuum.io/pkgs/free/linux-64/pyodbc-3.0.10-py27_1.tar.bz2
 
