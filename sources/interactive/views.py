@@ -2421,7 +2421,7 @@ def mark_bad_post(request):
 
 def check_bad_file(blacklist_root):
     """Make sure `blacklist_root` does not appear in the operational context."""
-    pmap_name = models.get_default_context(models.OBSERVATORY, "edit")
+    pmap_name = models.get_default_context(models.OBSERVATORY, "operational")
     pmap = crds.get_symbolic_mapping(pmap_name)
     assert blacklist_root not in pmap.mapping_names() + pmap.reference_names(), \
         "File '{}' is in the current operational context '{}'.  Create a new context which does not contain " \
