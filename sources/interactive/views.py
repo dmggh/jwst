@@ -774,7 +774,7 @@ def login(request):
         observatory = models.OBSERVATORY,
         instruments = models.INSTRUMENTS + ["none"],
         server_usecase = sconfig.server_usecase.lower())
-    return django_login(request, "login.html", extra_context=extras)
+    return django_login(request, "registration/login.html", extra_context=extras)
 
 
 @log_view

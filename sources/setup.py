@@ -50,6 +50,7 @@ PACKAGE_DATA = {
     '': [ 
         "templates/*",
         "interactive/templates/*",
+        "interactive/templates/registration/*",
         "interactive/*.dat",
         "xhst/*.dat",
         "xjwst/*.dat",
