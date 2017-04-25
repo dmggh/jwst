@@ -62,10 +62,10 @@ urlpatterns = [
     
     url(r'^submit/(?P<crds_filetype>reference|mapping)/$', crds.server.interactive.views.submit_files),
     
-    url(r'^upload/list/$', crds.server.interactive.views.upload_list), #, {}, 'upload-list'),
-    url(r'^upload/new/$', crds.server.interactive.views.upload_new), #, {}, 'upload-new'),
+    url(r'^upload/list/$', crds.server.interactive.views.upload_list, name="upload-list"), #, {}, 'upload-list'),
+    url(r'^upload/new/$', crds.server.interactive.views.upload_new, name="upload-new"), #, {}, 'upload-new'),
     url(r'^upload/delete/(?P<filename>{0})$'.format(FILE_RE_STR),
-        crds.server.interactive.views.upload_delete), #, {}, 'upload-delete'),
+        crds.server.interactive.views.upload_delete, name="upload-delete"), #, {}, 'upload-delete'),
               
     # url(r'^upload/alt_new/$', 'crds.server.interactive.views.upload_alt_new'), # {}, 'upload-alt-new'),
 
