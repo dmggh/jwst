@@ -21,7 +21,7 @@ echo "============================================================"
 echo "Database backup"
 echo "============================================================"
 ./manage dbbackup
-set backup_file=`ls -1 ${BACKUP_DIR}/*.mysql | tail -1`
+set backup_file=`ls -1 ${BACKUP_DIR}/*.dump | tail -1`
 chmod 600 $backup_file
 cp $backup_file ${DATED_BACKUP_DIR}/backup.${TAIL}.mysql
 gzip ${DATED_BACKUP_DIR}/backup.${TAIL}.mysql
