@@ -32,6 +32,7 @@ rm $backup_file
 cd ${DATED_BACKUP_DIR}  
 rpm -qa >rpms.${TAIL}.txt
 gzip rpms.${TAIL}.txt
+conda list >conda.${TAIL}.txt
 
 echo "============================================================"
 echo "Tarring server directories."

@@ -43,8 +43,9 @@ USE_I18N = True
 USE_L10N = True
 
 # Django dbbackup settings
-DBBACKUP_STORAGE = 'dbbackup.storage.filesystem_storage'
-DBBACKUP_FILESYSTEM_DIRECTORY = install_dir + "/server/db_backups"
+DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
+DBBACKUP_STORAGE_OPTIONS = {'location': install_dir + "/server/db_backups"}
+# DBBACKUP_FILESYSTEM_DIRECTORY = install_dir + "/server/db_backups"
     
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/"
