@@ -31,7 +31,7 @@ echo "-----------------------------------------------------"
 echo "Restoring database from $database_backup_file"
 echo "-----------------------------------------------------"
 cd ${CRDS}/CRDS_server
-./manage dbrestore -f $database_backup_file
+./manage dbrestore --noinput --input-file $database_backup_file -v3 --database default # crds_${CRDS_PROJECT}_${CRDS_USECASE}
 
 # This synchronizes the local cache to the master server
 setenv CRDS_SERVER_URL $mirrored_server_url
