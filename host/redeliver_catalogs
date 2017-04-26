@@ -2,9 +2,14 @@
 #-*-python-*-
 import os, os.path, sys
 
+import django
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "crds.server.settings")
+django.setup()
+
 from crds import rmap, log, pysh
 from crds.server import config
-from crds.server.interactive import submit, models
+from crds.server.interactive import models
+from crds.server.interactive import submit
 
 def find_undelivered_catalogs():
     """Look through the file database for files in state 'delivered'.
@@ -90,6 +95,7 @@ def relink_filelist(files):
 
 def main():
     pysh.usage("[--find-undelivered-catalogs] | --catalogs [<catalogs_to_redeliver...>] | --filelist <deliver_dir_filelist>", 1)
+
     if "--find-undelivered-catalogs" in sys.argv:
         sys.argv.remove("--find-undelivered-catalogs")
         catalogs = find_undelivered_catalogs()

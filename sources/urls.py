@@ -151,7 +151,7 @@ urlpatterns += [
 
 if config.DEBUG:
     urlpatterns += [
-        url(r'^/debug_command/$', crds.server.interactive.views.debug_command),
+        url(r'^debug_command/$', crds.server.interactive.views.debug_command),
         #         (r'^get_archive/(?P<filename>{0})$'.format(FILE_RE_STR),
         #             'crds.server.interactive.views.get_archive'),
         
