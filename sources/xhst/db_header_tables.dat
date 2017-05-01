@@ -67,6 +67,8 @@
          'shadcorr': 'acs_ref_data.acr_shadcorr',
          'shadfile': 'acs_ref_data.acr_shadfile',
          'shutrpos': 'acs_a_data.aca_shutrpos',
+         'snkcfile' : 'acs_ref_data.snkfile',
+         'sinkcorr' : 'acs_ref_data.sinkcorr',
          'spottab': 'acs_ref_data.acr_spottab',
          'xcorner': 'acs_a_data.aca_xcorner',
          'ycorner': 'acs_a_data.aca_ycorner'},
@@ -84,6 +86,8 @@
          'deadcorr': 'cos_ref_data.csr_deadcorr',
          'deadtab': 'cos_ref_data.csr_deadtab',
          'detector': 'cos_ref_data.csr_detector',
+         'dgeocorr' : 'cos_ref_data.csr_dgeocorr',
+         'dgeofile' : 'cos_ref_data.csr_dgeofile',
          'disptab': 'cos_ref_data.csr_disptab',
          'expstart': 'cos_ref_data.csr_expstart',
          'exptype': 'cos_a_data.csa_exptype',
@@ -109,6 +113,13 @@
          'tdstab': 'cos_ref_data.csr_tdstab',
          'walkcorr': 'cos_ref_data.csr_walkcorr',
          'walktab': 'cos_ref_data.csr_walktab',
+
+         'xwlkcorr': 'cos_ref_data.csr_xwlkcorr',
+         'xwlkfile': 'cos_ref_data.csr_xwlkfile',
+
+         'ywlkcorr': 'cos_ref_data.csr_ywlkcorr',
+         'ywlkfile': 'cos_ref_data.csr_ywlkfile',
+
          'wcptab': 'cos_ref_data.csr_wcptab',
          'xtractab': 'cos_ref_data.csr_xtractab'},
  'nicmos': {'asn_id': 'assoc_member.asm_asn_id',

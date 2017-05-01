@@ -42,8 +42,8 @@
   <p>NOTE: If you have installed CRDS,  you can certify files locally like this:
   </p>
 
-  <pre>% python -m crds.certify ./hst_acs_biasfile_0001.rmap</pre> 
-  <pre>% python -m crds.certify --comparison-context=hst.pmap  --dump-provenance ./myfile.fits</pre>
+  <pre>% crds certify ./hst_acs_biasfile_0001.rmap</pre> 
+  <pre>% crds certify --comparison-context=hst.pmap  --dump-provenance ./myfile.fits</pre>
   
   <p>NOTE: certification of context files,  i.e. pmaps and imaps, is a transitive 
     check so it may certify many mappings and can be slow.
