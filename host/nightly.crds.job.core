@@ -14,18 +14,25 @@ ls -lt $HOME/isolate.*
 
 system_status
 
-echo "=========================================================="
-echo "Stack Build"
-echo "=========================================================="
-host/build_conda-fixed >& ${CRDS_CRON}/build_conda-fixed.${ETAIL}
-tail -100 ${CRDS_CRON}/build_conda-fixed.${ETAIL}
-    
-if ( "$CRDS_USECASE" != "ops" ) then
+if ( ( "$CRDS_USECASE" == "dev" ) || ( "$CRDS_USECASE" == "bit" ) ) then
+    echo "=========================================================="
+    echo "Stack Build"
+    echo "=========================================================="
+    host/build_conda-fixed >& ${CRDS_CRON}/build_conda-fixed.${ETAIL}
+    tail -100 ${CRDS_CRON}/build_conda-fixed.${ETAIL}
+
     echo "==========================================================="
     echo "Server re-install and re-start"
     echo "==========================================================="
     ./rerun >& ${CRDS_CRON}/rerun.${ETAIL}
     tail -100 ${CRDS_CRON}/rerun.${ETAIL}
+else
+    echo "==========================================================="
+    echo "Server restart"
+    echo "==========================================================="
+    ./stop >& ${CRDS_CRON}/restart.${ETAIL}
+    sleep 10
+    ./start >>& ${CRDS_CRON}/restart.${ETAIL}
 endif
 
 echo "============================================================"
