@@ -6,19 +6,28 @@
     {% block head_additions %} 
     {% endblock %}
     
-    <link  href="/static/jquery-ui-1.8.14/css/smoothness/jquery-ui-1.8.14.custom.css" rel="stylesheet" />
-    <script src="/static/jquery-ui-1.8.14/js/jquery-1.7.1.min.js" type="text/javascript"></script>
-    <script src="/static/jquery-ui-1.8.14/js/jquery-ui-1.8.14.custom.min.js" type="text/javascript"></script>
+    {# ======================================================================================== #}
+
+    {# NOTE:  order jQuery, jQuery-migrate, bootstrap, jQuery-ui is required #}
+
+    <link rel="stylesheet" href="/static/bootstrap-3.3.6-dist/css/bootstrap.css">      
+    <link type="text/css" rel="stylesheet" href="/static/style.css" />
+    <link  href="/static/jquery-ui-1.12.1.custom/jquery-ui.css" rel="stylesheet" />
+    <link  href="/static/jquery-ui-1.12.1.custom/jquery-ui.structure.css" rel="stylesheet" />
+    <link  href="/static/jquery-ui-1.12.1.custom/jquery-ui.theme.css" rel="stylesheet" />
+
+    <script src="/static/jquery-ui-1.12.1.custom/external/jquery/jquery.js" type="text/javascript"></script>
+    <script>$.uiBackCompat = true;  $.migrateTrace = true;</script>
+    <script src="/static/jquery-migrate-1.4.1.js" type="text/javascript"></script>
+    <script src="/static/bootstrap-3.3.6-dist/js/bootstrap.js"></script>
+    <script src="/static/jquery-ui-1.12.1.custom/jquery-ui.js" type="text/javascript"></script>
+    <script>jQuery.migrateTrace=true;</script>
+
+    {# ======================================================================================== #}
 
     <script src="/static/crds_utils.js" type="text/javascript" language="javascript"></script> 
     <script src="/static/fits-fc9b1946ff.js" type="text/javascript" charset="utf-8"></script>
 
-    {# Bootstrap CSS Styles #}
-    <link rel="stylesheet" href="/static/bootstrap-3.3.6-dist/css/bootstrap.min.css">
-    <script src="/static/bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
-      
-    <link type="text/css" rel="stylesheet" href="/static/style.css" />
-    
     <meta name="robots" content="noindex">
 
     {% block head_overrides %}

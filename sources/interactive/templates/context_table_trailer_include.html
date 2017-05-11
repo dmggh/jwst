@@ -2,9 +2,10 @@
 $(function () {
     $("#contents").hide();
     $(".accordion").accordion({
-        change: function( event, ui ) {
+        heightStyle: "content",
+        activate: function( event, ui ) {
             console.log(event);
-            var div = $(ui.newContent).children("div.rmap_tag");
+            var div = $(ui.newPanel).children("div.rmap_tag");
             if (div.html()) {
                 console.log("table already intialized")
                 return;
@@ -21,12 +22,13 @@ $(function () {
                 url : url,
                 context: document.body
             }).done(function (json) {
+                console.log("accordion activate done.");
                 json.aLengthMenu = [[100, 200, 500, 1000, 2000, 5000, -1], [100, 200, 500, 1000, 2000, 5000, "All"]];
                 json.iDisplayLength = 200;
                 div.hide();
                 div.html("<table><thead></thead><tbody></tbody></table>");
                 div.children()
-                    .css({"font-size":"0.7em"})
+                    .css({"font-size":"0.7em", "width":"100%;"})
                     .dataTable(json);
                 $("#diff_button").css({"font-weight":"bold"});
                 div.show();

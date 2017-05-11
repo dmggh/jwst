@@ -197,7 +197,7 @@ crds.html_unescape = function (escaped) {
 };
 
 crds.html_escape = function (text) {
-    'use strict';
+	'use strict';
     var chr = {
         '"': '&quot;', '&': '&amp;', "'": '&#39;',
         '/': '&#47;',  '<': '&lt;',  '>': '&gt;'
@@ -208,7 +208,7 @@ crds.html_escape = function (text) {
 $(function() {
     // tune jquery-ui accordions to be closed at start.
     $( ".accordion" ).accordion({
-             autoHeight: false,
+             heightStyle: "content",
              collapsible: true,
              active:false,
      });

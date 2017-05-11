@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
 {% block head_overrides %}
-    <link type="text/css" rel="stylesheet" href="/static/crds_tables.css" />
-    <link type="text/css" rel="stylesheet" href="/static/datatables/jquery.dataTables.css" />
-    <script type="text/javascript" language="javascript" src="/static/datatables/jquery.dataTables.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="/static/crds_tables.css" /> 
+    <link type="text/css" rel="stylesheet" href="/static/datatables/datatables.css" />
+    <script type="text/javascript" language="javascript" src="/static/datatables/datatables.js"></script>
 {% endblock head_overrides %}
 
 
@@ -19,6 +19,7 @@
                 "iDisplayLength" : -1,                  
             });
             $(table).show();
+            $(table).attr({"class":"display"});
         });
     }); 
 </script>
