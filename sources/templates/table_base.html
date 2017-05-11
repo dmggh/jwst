@@ -13,6 +13,7 @@
         var tables = $(".crds_data_table");
         tables.each(function (index, table) {
             $(table).hide();
+            $(table).attr({"class":"display cell-border"});
             $(table).css({"font-size":"0.7em"});
             $(table).dataTable({
                 "aLengthMenu": [[50, 500, 5000, -1], [50, 500, 5000, "All"]],
