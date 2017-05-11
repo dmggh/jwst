@@ -32,7 +32,7 @@ else
     echo "==========================================================="
     ./stop >& ${CRDS_CRON}/restart.${ETAIL}
     sleep 10
-    ./start >>& ${CRDS_CRON}/restart.${ETAIL}
+    ./run >>& ${CRDS_CRON}/restart.${ETAIL}
 endif
 
 echo "============================================================"
