@@ -11,6 +11,6 @@ header = {
 
 selector = Match({
     ('MIRIFULONG', 'ANY') : 'jwst_miri_amplifier_0000.fits',
-    ('MIRIFUSHORT', 'F122') : 'jwst_miri_amplifier_0001.fits',
+    ('MIRIFUSHORT', 'F2550WR') : 'jwst_miri_amplifier_0001.fits',
     ('MIRIMAGE', 'ANY') : 'jwst_miri_amplifier_0000.fits',
 })
