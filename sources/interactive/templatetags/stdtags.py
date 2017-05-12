@@ -217,7 +217,7 @@ def accordion(parser, token):
 
 accordion_template = """
 <div class="accordion">
-    <h3><a href="#">{0}</a></h3>
+    <h3>{0}</h3>
     <div>
     {1}
     </div>

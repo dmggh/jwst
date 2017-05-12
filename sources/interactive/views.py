@@ -839,9 +839,10 @@ class JSONResponse(HttpResponse):
 def upload_new(request, template="upload_new_input.html"):
     """Support adding new files to the upload area."""
     if request.method == "GET":
-        return crds_render(request, template)
+        return HttpResponseRedirect('/upload/list/')  # secure
+        # return crds_render(request, template)
     else:
-        file_ = get_uploaded_file(request, 'file')
+        file_ = get_uploaded_file(request, 'files')
         file_local_dir = str(request.user)
         config.check_filename(file_.name)
         assert re.match("[A-Za-z0-9_]+", file_local_dir), "Invalid file_local_dir " + srepr(file_local_dir)
@@ -852,7 +853,8 @@ def upload_new(request, template="upload_new_input.html"):
         utils.ensure_dir_exists(ingest_path, mode=0770)
         log.info("Linking", file_.temporary_file_path(), "to", ingest_path)
         os.link(file_.temporary_file_path(), ingest_path)
-        data = [json_file_details(file_.name, file_.temporary_file_path())]
+        # return HttpResponseRedirect('/upload/list/')  # secure 
+        data = {"files" : [json_file_details(file_.name, file_.temporary_file_path())] }
         response = JSONResponse(data, {}, response_content_type(request))
         response['Content-Disposition'] = 'inline; filename=files.json'
         return response
@@ -863,8 +865,8 @@ def json_file_details(filename, filepath):
             # 'url': settings.MEDIA_URL + "pictures/" + f.name.replace(" ", "_"),
             # 'thumbnail_url': settings.MEDIA_URL + "pictures/" + f.name.replace(" ", "_"),
             'size' : os.stat(filepath).st_size,
-            'delete_url': reverse('upload-delete', args=[filename]),
-            'delete_type': "DELETE"}
+            'deleteUrl': reverse('upload-delete', args=[filename]),
+            'deleteType': "DELETE"}
 
 @error_trap("base.html")
 @log_view
@@ -880,7 +882,7 @@ def upload_list(request, _template="upload_new_input.html"):
     except Exception:
         ingest_paths = []
         log.info("Failed globbing ingest files.")
-    data = [ json_file_details(name, ingest_paths[name]) for name in ingest_paths ]
+    data = {"files" : [ json_file_details(name, ingest_paths[name]) for name in ingest_paths ] }
     response = JSONResponse(data, {}, response_content_type(request))
     response['Content-Disposition'] = 'inline; filename=files.json'
     return response
@@ -896,7 +898,7 @@ def upload_delete(request, filename):
         response['Content-Disposition'] = 'inline; filename=files.json'
         return response
     else:
-        return HttpResponseRedirect('/upload/new')  # secure
+        return HttpResponseRedirect('/upload/new/')  # secure
 
 def _upload_delete(request, filename):
     """Worker function for upload_delete."""

@@ -50,7 +50,7 @@ def webify_matching_keys(keys, normal_length):
     """
     webified = []
     for key in keys:
-        webified.append(", ".join(key.split("|")) if not selectors.esoteric_key(key) else key)
+        webified.append(", ".join(selectors.glob_list(key)))
     try:
         webified += ["--"] * (normal_length - len(webified) - 1)
     except Exception:
