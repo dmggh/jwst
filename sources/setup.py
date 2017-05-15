@@ -70,17 +70,11 @@ PACKAGE_DATA = {
         "fileupload/static/img/*.png",
         "fileupload/static/img/*.gif",
         "fileupload/static/js/*.js",
+        "fileupload/static/js/*.js.map",
         "fileupload/templates/*.html",
         "fileupload/templates/fileupload/*.html",
         ],
     }
-
-# static_dirs = open("static_dirs.txt").read().splitlines()
-# static_files = []
-# for sdir in static_dirs:
-#     static_files.extend([os.path.join(sdir, file) for 
-#                          file in os.listdir(sdir) if 
-#                          os.path.isfile(os.path.join(sdir, file))])
 
 static_files = ["static_dirs.txt"]
 for root, dirs, files in os.walk("static"):

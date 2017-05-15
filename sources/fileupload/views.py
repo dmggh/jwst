@@ -40,7 +40,7 @@ class PictureDeleteView(DeleteView):
             response['Content-Disposition'] = 'inline; filename=files.json'
             return response
         else:
-            return HttpResponseRedirect('/upload/new')
+            return HttpResponseRedirect('/upload/new/')
 
 class JSONResponse(HttpResponse):
     """JSON response class."""

@@ -3,6 +3,13 @@
 cd ${CRDS_INSTALL_DIR}/CRDS_server
 source env.csh
 python <<EOF
+import os
+
+import django
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "crds.server.settings")
+django.setup()
+
 from crds.server.interactive import models
+
 models.clear_cache()
 EOF
