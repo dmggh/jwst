@@ -127,7 +127,7 @@
       manual .pmap update as a second separate submission.
     </li>
     <li>New .pmaps not created by CRDS require manually updating
-      the EDIT context using Set Context.
+      the Editing Context using Set Context.
     </li>
   </ul>
 
@@ -163,12 +163,12 @@
       </ul>
     </li>
     <li>Confirm your submission</li>
-    <li>Use Set Context to update the <bold>EDIT context</bold> to this .pmap
-      as the default starting point for subsequent file submissions.
-    </li>
     <li>From here onward,  this should be a normal file submission,  with
       corrsponding processes to archive the files,  Set Context the default
       OPERATIONAL context,  and sync the pipeline's CRDS cache.
+    </li>
+    <li>Use Set Context to update the <bold>EDIT context</bold> to this .pmap
+      as the default starting point for subsequent file submissions.
     </li>
   </ol>
   {% endaccordion %}
@@ -177,13 +177,22 @@
   <p>The default starting point for new rules (Derive From Context) is defined by the
     Editing Context.
   </p>
-  <p>When Generate Contexts is ON,  CRDS automatically sets the EDIT
-    context to the generated .pmap.
+
+  <p>When Generate Contexts is ON,  CRDS automatically sets the Editing
+    Context to the generated .pmap.
   </p>
+
   <p>When Generate Contexts is OFF and a .pmap is manually updated, the Set
     Context page can/must be used to update the Editing Context so that future
     submissions will derive from the new .pmap by default.
   </p>
+
+  <p>The Set Context page can be used to update either the Operational or
+    Editing Context.  When updating the Editing Context, you may need to open
+    the context selection accordion and type in the name of the new .pmap in
+    User Specified.  Verify that the correct .pmap is being set.
+  </p>
+
   {% endaccordion %}
   
   {% endaccordion %}
