@@ -1,4 +1,6 @@
-{% extends "base.html" %}
+/{% extends "base.html" %}
+
+{% load stdtags %}
 
 {% block head_additions %}
     {% include "fileupload/picture_form_head_additions.html" %}
@@ -103,3 +105,89 @@
 {% endblock help %}
 
 
+{% block bottom_help %}
+
+{% include "bluebar.html" %}
+
+<div>
+
+  </br>
+  {% accordion "Procedures for manual .pmap and .imap updates" %}
+  <ul>
+    <li>At times it's necessary to change top level CRDS mappings without
+    changing .rmaps.
+    </li>
+    <li>Submit Mappings does not support Generate Contexts for .imap-only (or
+      .pmap-only) submissions.
+    </li>
+    <li>Submit Mappings does not support submitting inter-linked .imaps and
+      .pmaps in the same submission.
+    </li>
+    <li>To perform a manual .imap update,  you must also perform a
+      manual .pmap update as a second separate submission.
+    </li>
+    <li>New .pmaps not created by CRDS require manually updating
+      the EDIT context using Set Context.
+    </li>
+  </ul>
+
+  {% accordion "Manual .imap update:" %}
+  <ol>
+    <li>Identify the baseline context to derive from.</li>
+    <li>Within that .pmap,  identify the .imap to modify.
+    <li>Download or copy the identified .imap</li>
+    <li>Manually edit the .imap to make your required changes, e.g. removing a
+      type or setting a type to N/A.
+    </li>
+    <li>Submit the .imap using Submit Mappings with:
+      <ul>
+        <li>Generate Contexts OFF</li>
+        <li>Auto-rename ON</li>
+      </ul>
+    </li>
+    <li>Confirm your submission</li>
+    <li>Follow the procedure for manually updating a .pmap to refer to
+      your newly named .imap
+    </li>
+  </ol>
+  {% endaccordion %}
+    
+  {% accordion "Manual .pmap update:" %}
+  <ol>
+    <li>Download or copy the .pmap you wish to start from</li>
+    <li>Manually edit the .pmap to make any required changes</li>
+    <li>Submit the .pmap using Submit Mappings with:
+      <ul>
+        <li>Generate Contexts OFF</li>
+        <li>Auto-rename ON</li>
+      </ul>
+    </li>
+    <li>Confirm your submission</li>
+    <li>Use Set Context to update the <bold>EDIT context</bold> to this .pmap
+      as the default starting point for subsequent file submissions.
+    </li>
+    <li>From here onward,  this should be a normal file submission,  with
+      corrsponding processes to archive the files,  Set Context the default
+      OPERATIONAL context,  and sync the pipeline's CRDS cache.
+    </li>
+  </ol>
+  {% endaccordion %}
+  
+ {% accordion "Manually update the EDIT context." %}
+  <p>The default starting point for new rules (Derive From Context) is defined by the
+    Editing Context.
+  </p>
+  <p>When Generate Contexts is ON,  CRDS automatically sets the EDIT
+    context to the generated .pmap.
+  </p>
+  <p>When Generate Contexts is OFF and a .pmap is manually updated, the Set
+    Context page can/must be used to update the Editing Context so that future
+    submissions will derive from the new .pmap by default.
+  </p>
+  {% endaccordion %}
+  
+  {% endaccordion %}
+
+</div>
+
+{% endblock bottom_help %}
