@@ -2,6 +2,7 @@
 
 # set BACKUP_DIR=/eng/ssb/crds/latest_backups
 set BACKUP_DIR=/crds/data1/${CRDS_SERVER}/server/db_backups/eng_crds
+rm -f ${BACKUP_DIR}
 ln -s /eng/ssb/crds/latest_backups ${BACKUP_DIR}
 # $HOME/backups
 
