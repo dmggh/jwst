@@ -13,6 +13,7 @@
     <table border="1" id="recent_activity_table" class="crds_data_table">
         <thead>
             <tr>
+                 <th>#</th>
                 <th>Date</th>
 		{% if is_superuser %}
                    <th>Naming</th>
@@ -30,6 +31,7 @@
         <tbody>
             {% for activity in filtered_activities %}
             <tr>
+                <td>{{forloop.counter}}</td>
                 <td>{{activity.date|minutes}}</td>
 		{% if is_superuser %}
                    <td>CRDS {{activity.filename|browse}} uploaded from {{fileblobs|lookup:activity.filename|lookup:"uploaded_as"|darkgreen}}</td>
