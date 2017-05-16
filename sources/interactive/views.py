@@ -81,14 +81,16 @@ def check_value(value, pattern, msg):
     return value
 
 
-def validate(request, variable, pattern):
+def validate(request, variable, pattern, default=None):
     """Check a `variable` from `request`,  ensuring that it meets the
     check_value() conditions specified by `pattern`.  Use GET or POST
     depending on request type.
     """
     variables = request.GET if request.method == "GET" else request.POST
     try:
-        value = str(variables[variable]).strip()
+        value = str(variables[variable] if default is None 
+                    else variables.get(variable, default)
+                    ).strip()
     except:
         raise FieldError("Undefined parameter " + repr(variable))
     return check_value(value, pattern, "Invalid value " + srepr(value) + " for " + srepr(variable))
@@ -1989,25 +1991,25 @@ def browsify_geis(filename, browsed_file):
 @error_trap("recent_activity_input.html")
 @log_view
 # @login_required
-def recent_activity(request):
+def recent_activity_input(request):
     """recent_activity displays records from the AuditBlob database."""
-    if request.method == "GET":
-        return crds_render(request, "recent_activity_input.html")
-    else:
-        return recent_activity_post(request)
+    return crds_render(request, "recent_activity_input.html")
 
-@profile("recent_activity.stats")
-def recent_activity_post(request):
+@error_trap("recent_activity_input.html")
+@log_view
+@profile("recent_activity_query.stats")
+def recent_activity_query(request):
     """View fragment handling recent_activity POST case."""
-    action = validate(request, "action", models.AUDITED_ACTIONS+[r"\*"])
-    observatory = validate(request, "observatory", models.OBSERVATORIES+[r"\*"])
-    instrument = validate(request, "instrument", models.INSTRUMENTS+[r"\*"])
-    filekind = validate(request, "filekind", models.FILEKINDS+[r"\*"])
-    extension = validate(request, "extension", models.EXTENSIONS+[r"\*"])
-    filename = validate(request, "filename", r"[A-Za-z0-9_.\*]+")
-    user = validate(request, "deliverer_user", r"[A-Za-z0-9_.\*]+")
-    start_date = validate(request, "start_date", parse_date)
-    stop_date = validate(request, "stop_date", parse_date)
+
+    action = validate(request, "action", models.AUDITED_ACTIONS+[r"\*"], "*")
+    observatory = validate(request, "observatory", models.OBSERVATORIES+[r"\*"], "*")
+    instrument = validate(request, "instrument", models.INSTRUMENTS+[r"\*"], "*")
+    filekind = validate(request, "filekind", models.FILEKINDS+[r"\*"], "*")
+    extension = validate(request, "extension", models.EXTENSIONS+[r"\*"], ".pmap")
+    filename = validate(request, "filename", r"[A-Za-z0-9_.\*]+", "*")
+    user = validate(request, "deliverer_user", r"[A-Za-z0-9_.\*]+", "*")
+    start_date = validate(request, "start_date", parse_date, "*")
+    stop_date = validate(request, "stop_date", parse_date, "*")
 
     if "*" not in [start_date, stop_date]:
         assert stop_date >= start_date,  "Stop date precedes start date,  no matches possible."
