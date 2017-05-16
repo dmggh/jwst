@@ -342,11 +342,11 @@ class InteractiveBase(TransactionTestCase):
         self.assert_no_errors(response)
     
     def test_recent_activity_get(self):
-        response = self.client.get("/recent_activity/")
+        response = self.client.get("/recent_activity_input/")
         self.assert_no_errors(response)
 
     def test_recent_activity_post(self):
-        response = self.client.post("/recent_activity/", {
+        response = self.client.post("/recent_activity_query/", {
                 "action" : "new context",
                 "observatory" : "*",
                 "instrument" : "*",
