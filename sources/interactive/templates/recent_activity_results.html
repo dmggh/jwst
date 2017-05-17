@@ -10,9 +10,11 @@
     
     <br/>
 
-    <table border="1" id="recent_activity_table" class="crds_data_table">
+    <table border="1" id="recent_activity_table" class="crds_data_table table
+                                                        table-striped table-bordered">
         <thead>
             <tr>
+                <th>#</th>
                 <th>Date</th>
 		{% if is_superuser %}
                    <th>Naming</th>
@@ -30,6 +32,7 @@
         <tbody>
             {% for activity in filtered_activities %}
             <tr>
+                <td>{{forloop.counter}}</td>
                 <td>{{activity.date|minutes}}</td>
 		{% if is_superuser %}
                    <td>CRDS {{activity.filename|browse}} uploaded from {{fileblobs|lookup:activity.filename|lookup:"uploaded_as"|darkgreen}}</td>
@@ -60,6 +63,7 @@
             $(table).dataTable({
                 bAutoWidth : false,
                 aoColumns : [
+                   {sWidth : "5%"},
                    {sWidth : "10%"},
                    {sWidth : "10%"},
                    {sWidth : "10%"},
@@ -70,13 +74,14 @@
                    {sWidth : "35%"},
                  ],
                 aLengthMenu : [[50, 500, 5000, -1], [50, 500, 5000, "All"]],
-                order: [[ 0, "desc" ]] 
-               iDisplayLength : -1,                  
+                order: [[ 0, "desc" ]],
+                iDisplayLength : -1
             });
             $(table).show();
         });
         $("td").css({"text-align" : "center"});
         $("#contents").show();
+        // $('.crds_data_table').DataTable();
     }); 
 </script>
 {% endblock body_trailer %}

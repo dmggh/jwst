@@ -54,7 +54,8 @@ urlpatterns = [
     url(r'^difference/$',   crds.server.interactive.views.difference_files),
     url(r'^difference/{0}/{1}/$'.format(FILE_RE_STR, FILE_RE_STR), 
         crds_cacher(crds.server.interactive.views.difference_files)),
-    url(r'^recent_activity/$', crds.server.interactive.views.recent_activity),        
+    url(r'^recent_activity_input/$', crds.server.interactive.views.recent_activity_input),              # form
+    url(r'^recent_activity_query/$', crds.server.interactive.views.recent_activity_query),  # GET or POST query
     url(r'^delivery_status/$', crds.server.interactive.views.delivery_status),        
     url(r'^old_results/$', crds.server.interactive.views.old_results),        
     
