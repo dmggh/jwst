@@ -261,6 +261,8 @@
           'nlinfile': 'wfc3_ref_data.w3r_nlinfile',
           'obsmode': 'wfc3_science.w3s_obsmode',
           'oscntab': 'wfc3_ref_data.w3r_oscntab',
+          'pctecorr' : 'wfc3_ref_data.w3r_pctecorr',
+          'pctetab' : 'wfc3_ref_data.w3r_pctetab',
           'pfltfile': 'wfc3_ref_data.w3r_pfltfile',
           'photcorr': 'wfc3_ref_data.w3r_photcorr',
           'samp_seq': 'wfc3_ref_data.w3r_samp_seq',
