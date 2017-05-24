@@ -237,9 +237,9 @@
 $(function () {
     $("#contents").hide();
     $(".accordion").accordion({
-        change: function( event, ui ) {
+        activate: function( event, ui ) {
             console.log(event);
-            var div = $(ui.newContent).children("div.uses_tag");
+            var div = $(ui.newPanel).children("div.uses_tag");
             if (!div) { 
                return; 
             };
