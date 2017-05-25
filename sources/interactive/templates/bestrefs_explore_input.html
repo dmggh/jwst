@@ -25,10 +25,13 @@
                     {% endfor %} 
                 </select>
             {% else %}
-                <input type='text' name='{{key}}' id='{{key|split:"."|join:"_"}}' value="*" />
+                <input type='text' name='{{key}}'
+                id='{{key|split:"."|join:"_"}}' value="*" 
+                title="A menu of valid choices for this parameter is not
+                available.  Make up a value or enter * to ignore."/>
             {% endif %}
           </td>
-          <td width="25%">
+          <td width="25%" title="Enter a value to override the menu.  Clear to revert to menu.">
             {% if choices %}
                 <input type='text' name='{{key}}_text' id='{{key|split:"."|join:"_"}}_text' value='' />
             {% endif %}

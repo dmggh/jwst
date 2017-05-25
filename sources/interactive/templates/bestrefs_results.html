@@ -13,10 +13,11 @@
 
     <div class="row">
         <div class="col-md-4">
-            <h3>New Context</h3>
+            <h3 title="Version of CRDS rules used to determine best references.">New Context</h3>
             <p>{{context_name|gray}}</p>
 
-            <h3>Input Parameters</h3>
+            <h3 title="Dataset parameters from archive database used to compute
+            best references">Input Parameters</h3>
             <table width="100%">
 
             {% for key, val in header_items %}
@@ -56,8 +57,10 @@
         </div>
     
         <div class="col-md-8">
-            <h3>Best Reference Results</h3>
-            <table class="bestrefs_table" style="width:100%;"<>
+            <h3 title="These downloads are intended for debug and quick reference.  
+            See the front page topic 'Using the command line' for information
+            on automatic downloads of complete sets of reference files.">Best Reference Results</h3>
+            <table class="bestrefs_table" style="width:100%;">
               <thead class="bestrefs_header">
                 <tr>
                   {% if old_bestrefs_items %}
@@ -89,7 +92,7 @@
                      {% endif %}
                   {% endif %}
                   {% if fname|file_exists %}
-                    <td class="bestrefs_data" width="20%">
+                    <td class="bestrefs_data" width="20%" title="File details">
                          {{fname|browse}}
                     </td>
                   {% else %}
@@ -105,7 +108,7 @@
                   </td>
                   {% endif %}
                   {% if fname|file_exists %}
-                    <td class="bestrefs_data" width="20%">
+                    <td class="bestrefs_data" width="20%" title="Obtain the reference.">
                       {{fname|download_link|safe}}
                     </td>
                   {% endif %}
@@ -119,7 +122,8 @@
 {% endblock contents_both %}
 
 {% block contents_bottom %}
-    <div id="bestrefs_debug_output_container">
+    <div id="bestrefs_debug_output_container" title="Debug trace of best
+                                                     references lookup.">
       <br/>
     {% accordion  "Best References Debug Output" %}
       <pre id="bestrefs_debug_output">
@@ -133,8 +137,11 @@
     <div class="panel panel-default">
         <div class="panel-body">
     
-        <p><b class="red" >No match found.</b>  No best reference is defined for the given type. 
-        CRDS did not rule the type as not applicable for this parameter set.
+        <p><b class="red" >No match found.</b>  No best reference could be
+        found for the given type and parameter set.   CRDS did not rule the 
+        type as not applicable for this parameter set.   This is an error
+        and typically indicates missing reference coverage,  CRDS rmap/rules
+        errors,  or parameter set errors.
 
         <p><p><b class="red">n/a</b>  The type is not applicable for the given matching parameters.
         
@@ -147,7 +154,6 @@
 
 {% block bottom_help %}
     <div id="bestrefs_diagnostics_disclaimer" sytle="color: darkgray;">
-      </br>
       {% include "bestrefs_bottom_help.html" %}
     </div>
 {% endblock bottom_help %}
