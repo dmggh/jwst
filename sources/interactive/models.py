@@ -891,20 +891,20 @@ class FileBlobRepairMixin(object):
         self.set_metadata_field("aperture", ["APERTURE", "META.APERTURE.NAME"])  # aperture_keyword from FileBlobModel multiple inheritance
         
     def repair_useafter_date(self):
-        self.set_metadata_field("useafter_date", ["USEAFTER", "META.REFFILE.USEAFTER"], 
+        self.set_metadata_field("useafter_date", ["USEAFTER", "META.USEAFTER", "META.REFFILE.USEAFTER"], 
                                 timestamp.parse_date, default=DEFAULT_USEAFTER_DATE)
 
     def repair_reference_file_type(self):
-        self.set_metadata_field("reference_file_type", ["REFTYPE", "META.REFFILE.TYPE"])
+        self.set_metadata_field("reference_file_type", ["REFTYPE", "META.REFTYPE", "META.REFFILE.TYPE"])
 
     def repair_pedigree(self):
-        self.set_metadata_field("pedigree", ["PEDIGREE", "META.REFFILE.PEDIGREE"])
+        self.set_metadata_field("pedigree", ["PEDIGREE", "META.PEDIGREE", "META.REFFILE.PEDIGREE"])
         if self.observatory == "jwst" and not self.pedigree:
             log.warning("Using JWST default PEDIGREE of DUMMY.")
             self.pedigree = "DUMMY"
 
     def repair_comment(self):
-        self.set_metadata_field("comment", ["DESCRIP", "DESCRIPTION", "META.REFFILE.DESCRIPTION"])
+        self.set_metadata_field("comment", ["DESCRIP", "DESCRIPTION", "META.DESCRIPTION", "META.REFFILE.DESCRIPTION"])
 
     def repair_delivery_date(self):
         delivery_date = [ audit.date for audit in AuditBlob.filter(filename=self.name) 
@@ -912,7 +912,7 @@ class FileBlobRepairMixin(object):
         self.delivery_date = delivery_date
 
     def repair_history(self):
-        self.set_metadata_field("history", ["HISTORY", "META.REFFILE.HISTORY"], condition=False)
+        self.set_metadata_field("history", ["HISTORY", "META.HISTORY", "META.REFFILE.HISTORY"], condition=False)
 
     if OBSERVATORY == "hst":
         def repair_activation_date(self):
@@ -1184,12 +1184,12 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
         """Extract metadata from the cataloged file and store it in the model.  Use the 
         value from the first keyword found.
         """
-        self.set_metadata_field("pedigree", ["PEDIGREE", "META.REFFILE.PEDIGREE"])
-        self.set_metadata_field("reference_file_type", ["REFTYPE", "META.REFFILE.TYPE"])
-        self.set_metadata_field("useafter_date", ["USEAFTER", "META.REFFILE.USEAFTER"], timestamp.parse_date, default=DEFAULT_USEAFTER_DATE)
-        self.set_metadata_field("comment", ["DESCRIP", "DESCRIPTION", "META.REFFILE.DESCRIPTION"], condition=False) # displayed as DESCRIPTION, stored as comment in models
+        self.set_metadata_field("pedigree", ["PEDIGREE", "META.PEDIGREE", "META.REFFILE.PEDIGREE"])
+        self.set_metadata_field("reference_file_type", ["REFTYPE", "META.REFTYPE", "META.REFFILE.TYPE"])
+        self.set_metadata_field("useafter_date", ["USEAFTER", "META.USEAFTER", "META.REFFILE.USEAFTER"], timestamp.parse_date, default=DEFAULT_USEAFTER_DATE)
+        self.set_metadata_field("comment", ["DESCRIP", "DESCRIPTION", "META.DESCRIPTION", "META.REFFILE.DESCRIPTION"], condition=False) # displayed as DESCRIPTION, stored as comment in models
         self.set_metadata_field("aperture", ["APERTURE", "META.APERTURE.NAME"])
-        self.set_metadata_field("history", ["HISTORY", "META.REFFILE.HISTORY"], condition=False)
+        self.set_metadata_field("history", ["HISTORY", "META.HISTORY", "META.REFFILE.HISTORY"], condition=False)
 
     def set_metadata_field(self, model_field, keywords, sanitizer=lambda x: x, condition=True, default="none"):
         """Set `model_field` to the first of `keywords` found, optionally santizing the value, or
@@ -1216,8 +1216,10 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
         else:
             read_from = self.pathname
         for keyword in keywords:
-            with log.verbose_on_exception("Fetching keyword", srepr(keyword), "from", srepr(filename)):
-                return data_file.getval(read_from, keyword, condition=condition)
+            with log.error_on_exception("Fetching keyword", srepr(keyword), "from", srepr(filename)):
+                val = data_file.getval(read_from, keyword, condition=condition)
+                if val != "UNDEFINED":
+                    return val
         return default
 
     def add_slow_fields(self, allow_duplicates=False, sha1sum=None):
