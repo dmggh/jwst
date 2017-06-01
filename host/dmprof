@@ -1,0 +1,25 @@
+#! /usr/bin/env python
+
+from crds.core.pysh import *
+
+usage("<stats_file>  [<ncalls/pattern>  [<sort_type]]", 1, 3,
+      
+      help="""
+
+Dump the profile recorded in `stats_file` optionally limiting the dump to the
+top `ncalls` or function name `pattern`, defaulting to the top 50 functions.
+If `sort_type` is specified it can be any of the types valid in Python's pstat
+module such as cumtime, tottime, ncalls.  Unlike pstats, the default
+`sort_type` in dmpprof is cumtime.
+
+""")
+
+stats_file = arg(1)
+ncalls = arg(2, 50, int)
+sort_type = arg(3, "cumtime")
+
+import pstats
+stats = pstats.Stats(stats_file)
+stats.strip_dirs()
+stats.sort_stats(sort_type)
+stats.print_stats(ncalls)
