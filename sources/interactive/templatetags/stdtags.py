@@ -125,7 +125,7 @@ def browse(name):
 @stringfilter
 def browsify(string, fileblobs):
     try:
-        return re.sub(r"'([A-Za-z0-9\._]+)'[\,\]]", 
+        return re.sub(r"\[?'([A-Za-z0-9\._]+)'[\,\]]", 
                       lambda x: _browse(x,fileblobs), string)
     except Exception:
         return string
@@ -134,18 +134,19 @@ def _browse(match, fileblobs):
     quoted_name = match.group(0)
     parts = quoted_name.split("'")
     crds_name = parts[1]
+    quoted_name = crds_name # XXX hack
     if crds_name.endswith(".cat"):
-        return quoted_name
+        return "<tr><td>{0}</td><td></td></tr>".format(quoted_name)
     else:
         crds_name = parts[1]
         try:
             uploaded_as = fileblobs[crds_name].uploaded_as
             if uploaded_as == crds_name and crds_name.endswith(".rmap"):
                 uploaded_as = fileblobs[crds_name].derived_from
-            return (format_html("<br/>'{0}' &nbsp;-->&nbsp; ", uploaded_as ) +
-                    format_html("<a href='/browse/{0}'>{1}</a>", crds_name, quoted_name))
+            return (format_html("<tr><td>{0}</td>", uploaded_as ) + 
+                    format_html("<td><a href='/browse/{0}'>{1}</a></td></tr>", crds_name, quoted_name))
         except Exception:
-                format_html("<a href='/browse/{0}'>{1}</a>", crds_name, quoted_name)
+            format_html("<tr><td><a href='/browse/{0}'>{1}</a></td><td></td></tr>", crds_name, quoted_name)
 
 @register.filter
 @stringfilter
