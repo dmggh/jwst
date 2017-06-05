@@ -34,17 +34,13 @@
             <tr>
                 <td>{{forloop.counter}}</td>
                 <td>{{activity.date|minutes}}</td>
-		{% if is_superuser %}
-                   <td>CRDS {{activity.filename|browse}} uploaded from {{fileblobs|lookup:activity.filename|lookup:"uploaded_as"|darkgreen}}</td>
-		{% else %}
-                   <td>{{activity.filename|browse}}</td>
-		{% endif %}
+                <td>{{activity.filename|browse}} uploaded from {{fileblobs|lookup:activity.filename|lookup:"uploaded_as"|darkgreen}}</td>
                 <td>{{activity.action}}</td>
                 {% if is_authenticated %}
                    <td>{{activity.user}}</td>
                 {% endif %}
                 <td>{{activity.why}}</td>
-                <td>{{activity.details|browsify|safe}}</td>
+                <td>{{activity.details|browsify:fileblobs|safe}}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -64,14 +60,14 @@
                 bAutoWidth : false,
                 aoColumns : [
                    {sWidth : "5%"},
-                   {sWidth : "10%"},
+                   {sWidth : "8%"},
                    {sWidth : "10%"},
                    {sWidth : "10%"},
                    {% if is_authenticated %}
                    {sWidth : "6%"},
                    {% endif %}
-                   {sWidth : "28%"},
-                   {sWidth : "35%"},
+                   {sWidth : "22%"},
+                   {sWidth : "43%"},
                  ],
                 aLengthMenu : [[50, 500, 5000, -1], [50, 500, 5000, "All"]],
                 iDisplayLength : -1

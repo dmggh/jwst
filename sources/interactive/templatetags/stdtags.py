@@ -123,19 +123,29 @@ def browse(name):
 
 @register.filter(is_safe=True)
 @stringfilter
-def browsify(string):
+def browsify(string, fileblobs):
     try:
-        return re.sub(r"'([A-Za-z0-9\._]+)'[\,\]]", _browse, string)
+        return re.sub(r"'([A-Za-z0-9\._]+)'[\,\]]", 
+                      lambda x: _browse(x,fileblobs), string)
     except Exception:
         return string
 
-def _browse(match):
-    name = match.group(0)
-    parts = name.split("'")
-    if parts[1].endswith(".cat"):
-        return name
+def _browse(match, fileblobs):
+    quoted_name = match.group(0)
+    parts = quoted_name.split("'")
+    crds_name = parts[1]
+    if crds_name.endswith(".cat"):
+        return quoted_name
     else:
-        return format_html("<a href='/browse/{0}'>{1}</a>", parts[1], name)
+        crds_name = parts[1]
+        try:
+            uploaded_as = fileblobs[crds_name].uploaded_as
+            if uploaded_as == crds_name and crds_name.endswith(".rmap"):
+                uploaded_as = fileblobs[crds_name].derived_from
+            return (format_html("<br/>'{0}' &nbsp;-->&nbsp; ", uploaded_as ) +
+                    format_html("<a href='/browse/{0}'>{1}</a>", crds_name, quoted_name))
+        except Exception:
+                format_html("<a href='/browse/{0}'>{1}</a>", crds_name, quoted_name)
 
 @register.filter
 @stringfilter
