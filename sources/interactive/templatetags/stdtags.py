@@ -121,6 +121,12 @@ def human_format_number(number):
 def browse(name):
     return format_html("<a href='/browse/{0}'>{1}</a>", name, name)
 
+
+@register.filter(is_safe=True)
+@stringfilter
+def context_table(pmap):
+    return format_html('<a href="/context_table/{0}">{0}</a>', pmap, pmap)
+
 @register.filter(is_safe=True)
 @stringfilter
 def browsify(string, fileblobs):
