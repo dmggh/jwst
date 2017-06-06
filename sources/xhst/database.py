@@ -2,6 +2,9 @@
 unixODBC,  and FreeTDS,  to get dataset headers from the HST DADSOPS 
 catalog.
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 import pprint
 import getpass
 from collections import OrderedDict, defaultdict, namedtuple
@@ -107,7 +110,7 @@ def explore_dadops_assocs(cat=None):
                         list(set(assoc)-set(assoc_hdrs.keys()))[:5],
                         list(set(unassoc)-set(unassoc_hdrs.keys()))[:5])
 
-        print instr, stats[instr]
+        print(instr, stats[instr])
 
     return stats
 
@@ -647,7 +650,7 @@ def get_dataset_headers_by_instrument(instrument, datasets_since=None):
         igen = get_instrument_gen(instrument)
         extra_clauses = [ igen.get_expstart_clause(datasets_since) ] if datasets_since else []
         return igen.get_headers(extra_clauses, extra_clauses)
-    except Exception, exc:
+    except Exception as exc:
         raise RuntimeError("Error accessing catalog for instrument" + repr(instrument) + ":" + str(exc))
 
 # ---------------------------------------------------------------------------------------------------------
@@ -713,7 +716,7 @@ def get_dataset_headers_by_id(context, dataset_ids):
             headers = igen.get_headers(
                 unassoc_extra_clauses = unassoc_clauses,
                 assoc_extra_clauses = assoc_clauses)
-        except Exception, exc:
+        except Exception as exc:
             raise RuntimeError("Error accessing catalog for instrument " + repr(instrument) + ":" + str(exc))
         all_headers.update(headers)
 
@@ -978,7 +981,7 @@ def get_reference_info(instrument, reference):
         instrument = "wfpc2"
     refops = get_reffile_ops()
     gen = refops.make_dicts(instrument.lower() + "_file", where="WHERE file_name='{}'".format(reference.lower()))
-    return gen.next()
+    return next(gen)
 
 # ----------------------------------------------------------------------------------------------------------
 def get_normalized_ids(dataset_ids):

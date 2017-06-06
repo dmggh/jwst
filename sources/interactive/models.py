@@ -1,4 +1,7 @@
 """Database models for crds.server.interactive."""
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 
 import os
 import os.path
@@ -43,19 +46,19 @@ def crds_cached(f):
     """
     # @common.profile(f.__name__ + ".stats")
     def wrapper(*args, **keys):
-        raw_key = __name__ + "_" + f.func_name + "_" + str(args + tuple(sorted(keys.items())))
+        raw_key = __name__ + "_" + f.__name__ + "_" + str(args + tuple(sorted(keys.items())))
         raw_key = raw_key.replace("(","_").replace(")","_").replace("'","").replace(",","_").replace(" ","")
         key = utils.str_checksum(raw_key)
         val = retrieve_cache(key)
         if val is not None:
-            log.verbose("crds_cached", f.func_name, raw_key, key, "HIT")
+            log.verbose("crds_cached", f.__name__, raw_key, key, "HIT")
         else:
             val = f(*args, **keys)
-            log.info("crds_cached", f.func_name, raw_key, key, "MISS")
+            log.info("crds_cached", f.__name__, raw_key, key, "MISS")
             store_cache(key, val)
         return val
     wrapper.__doc__ = f.__doc__
-    wrapper.func_name = f.func_name
+    wrapper.__name__ = f.__name__
     return wrapper
 
 def clear_cache():
@@ -738,9 +741,9 @@ def repair_defects(defect_map, verbose=True):
         repair_map[name] = (blob, defects, repairs, failed)
         if verbose:
             for repair in repairs:
-                print name, repairs[repair]
+                print(name, repairs[repair])
             for failure in failed:
-                print name, failed[failure]
+                print(name, failed[failure])
     clear_cache()
     return repair_map
     
@@ -805,7 +808,7 @@ class FileBlobRepairMixin(object):
                         defects.append("BAD {} = '{}'".format(field, getattr(self, field)))
                     except:
                         defects.append("BAD {}".format(field))
-            except Exception, exc:
+            except Exception as exc:
                 defects.append("BAD {} defect test failed: {}".format(field, str(exc)))
         if verify_checksum and not self.checksum_ok:  # slow
             defects.append("BAD sha1sum = '{}' vs. computed = '{}'".format(self.sha1sum, self.compute_checksum()))
@@ -840,7 +843,7 @@ class FileBlobRepairMixin(object):
                         repairs[field] = "REPAIRED '{}' from '{}' to '{}'".format(field, old, new)
                     else:
                         raise RuntimeError("no change from fixer")
-                except Exception, exc:
+                except Exception as exc:
                     failed[field] = "failed repairing '{}' from '{}' exception: '{}'".format(field, old, str(exc))
             else:
                 failed[field] = "NO FIXER for '{}'.".format(field)
@@ -1257,7 +1260,7 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
             checksum = utils.checksum(self.pathname)
             log.verbose("Computed checksum for", repr(self.moniker), "as", repr(checksum))
             return checksum
-        except Exception, exc:
+        except Exception as exc:
             log.error("Computing sha1sum of", repr(self.moniker), "failed:", str(exc))
             return "checksum failed: " + str(exc)
 
@@ -1288,7 +1291,7 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
             instrument, filekind = utils.get_file_properties(observatory, permanent_location)
             blob.instrument = instrument
             blob.filekind = filekind
-        except Exception, exc:
+        except Exception as exc:
             log.warning("Adding file with instrument and filekind UNKNOWN for file", 
                         repr(permanent_location), ":", str(exc))
             blob.instrument = blob.fileind = "unknown"
@@ -1430,7 +1433,7 @@ def add_crds_file(observatory, upload_name, permanent_location,
 
     # Set file permissions to read only.
     try:
-        os.chmod(permanent_location, 0444)
+        os.chmod(permanent_location, 0o444)
     except:
         pass
     return blob
@@ -1479,7 +1482,7 @@ def transitive_blacklist(blacklist_root, badflag, observatory=OBSERVATORY):
                 blacklist(also_blacklisted)
             elif badflag == "ok":
                 unblacklist(also_blacklisted)
-        except Exception, exc:
+        except Exception as exc:
             log.warning("Blacklist operation failed: ", str(exc))
 
     return all_blacklisted

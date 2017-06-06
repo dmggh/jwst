@@ -1,5 +1,8 @@
 """This script is used in the analysis of DADSOPS associations and type patterns.
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 
 from collections import defaultdict
 from pprint import pprint as pp
@@ -69,14 +72,14 @@ def scan_missing(classified):
     busted_types = set()
     busted_instruments = set()
     for count, sample, pattern in classified:
-        print "-"*100
-        print "**scanning**", count, sample, pattern
+        print("-"*100)
+        print("**scanning**", count, sample, pattern)
         missing, found, assocs = get_missing(sample)
         if missing:
-            print "**found**   ", count, sample, len(found), len(assocs), found, pattern
-            print "**missing** ", count, sample, len(missing), len(assocs), missing, pattern
+            print("**found**   ", count, sample, len(found), len(assocs), found, pattern)
+            print("**missing** ", count, sample, len(missing), len(assocs), missing, pattern)
             if not len(found):
-                print "**bust**", count, sample, pattern
+                print("**bust**", count, sample, pattern)
                 busted_count += count
                 for (type, member) in missing:
                     busted_types.add(typ)
@@ -88,29 +91,29 @@ def scan_missing(classified):
     return missing_count, sorted(list(missing_types)), busted_count, sorted(list(busted_types))
 
 def main():
-    print "=" * 100
+    print("=" * 100)
     types = get_unique_assoc_types()
-    print "There are", len(types), "unique assoc member types:\n", types
+    print("There are", len(types), "unique assoc member types:\n", types)
     classified = classify_assoc_patterns()
-    print
-    print
-    print "=" * 100
-    print "There are", len(classified), "different assoc type patterns."
-    print "=" * 100
-    print "%-20s | %10s | %s" % ("assocs-using-pattern",  "sample-id", "unique-type-pattern")
-    print "=" * 100
+    print()
+    print()
+    print("=" * 100)
+    print("There are", len(classified), "different assoc type patterns.")
+    print("=" * 100)
+    print("%-20s | %10s | %s" % ("assocs-using-pattern",  "sample-id", "unique-type-pattern"))
+    print("=" * 100)
     for tup in classified:
-        print "%-20s | %10s | %s" % tup
-    print
-    print
-    print "=" * 100
+        print("%-20s | %10s | %s" % tup)
+    print()
+    print()
+    print("=" * 100)
     missing_count, missing_types, busted_count, busted_types = scan_missing(classified)
-    print "=" * 100
-    print "There are", missing_count, "patterns with unrepresented exposures."
-    print "These", len(missing_types), "had missing members:\n", missing_types
-    print "=" * 100
-    print "There are", busted_count, "patterns with unrepresented exposures."
-    print "These", len(busted_types), "had missing members:\n", busted_types
+    print("=" * 100)
+    print("There are", missing_count, "patterns with unrepresented exposures.")
+    print("These", len(missing_types), "had missing members:\n", missing_types)
+    print("=" * 100)
+    print("There are", busted_count, "patterns with unrepresented exposures.")
+    print("These", len(busted_types), "had missing members:\n", busted_types)
 
 if __name__ == "__main__":
     main()

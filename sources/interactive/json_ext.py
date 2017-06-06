@@ -1,6 +1,9 @@
 """Minor extensions to JSON encoding/decoding to support serializing repeatable
 results, particularly crds.refactor "actions".
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 
 import json
 

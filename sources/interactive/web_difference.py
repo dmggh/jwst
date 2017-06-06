@@ -1,4 +1,7 @@
 """Handles web presentation of CRDS file differences."""
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 
 import os.path
 import re
@@ -128,7 +131,7 @@ def mapping_logical_diffs(file1_orig, file2_orig, file1, file2):
         # Get logical difference tuples
         ldiffs = map1.difference(map2, include_header_diffs=True)
         result = ldiffs, []
-    except Exception, exc:
+    except Exception as exc:
         file1, file2 = map(os.path.basename, [file1, file2])
         exc = str(exc).replace(file1, file1_orig).replace(file2, file2_orig)
         result = [], ["ERROR: " + html.escape(exc) ]
@@ -153,7 +156,7 @@ def mapping_text_diffs(logical_diffs):
                 if  key not in diff_map:
                     try:
                         diffs = textual_diff(file1_orig, file2_orig, file1_path, file2_path)
-                    except Exception, exc:
+                    except Exception as exc:
                         diffs = html.escape("diffs failed: " + str(exc))
                     diff_map[key] = diffs
     return diff_map

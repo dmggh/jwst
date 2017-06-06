@@ -1,6 +1,9 @@
 """This module defines the Django view functions which respond to HTTP requests
 and return HTTP response objects.
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 
 # Create your views here.
 import sys
@@ -70,7 +73,7 @@ def check_value(value, pattern, msg):
     if isinstance(pattern, type(check_value)):
         try:
             return pattern(value)
-        except AssertionError, exc:
+        except AssertionError as exc:
             raise FieldError(format_html(msg + " : " + str(exc)))
     elif isinstance(pattern, list):
         for choice in pattern:
@@ -119,7 +122,7 @@ def is_pmap(filename):
     """
     try:
         return is_mapping(filename, r"\.pmap")
-    except Exception, exc:
+    except Exception as exc:
         raise CrdsError("Invalid pmap: " + str(exc))
 
 def is_imap(filename):
@@ -448,7 +451,7 @@ def get_files(request):
         if rmap.is_mapping(file_):
             # this will fail for user-scp'ed ingests.  but... maybe file already writeable.
             with log.warn_on_exception("Failed setting file mode on", repr(file_)):
-                os.chmod(uploads[file_], 0660)
+                os.chmod(uploads[file_], 0o660)
     if not uploads:
         raise CrdsError("No input files were specified.")
     return path, uploads
@@ -505,7 +508,7 @@ def error_trap(template):
                 msg = format_html("ERROR: internal server error")
             pars = dict(keys.items() + [("error_message", msg)])
             return crds_render(request, template, pars, requires_pmaps=True)
-        trap.func_name = func.func_name
+        trap.__name__ = func.__name__
         return trap
     return decorator
 
@@ -533,10 +536,10 @@ def log_view(func):
             response = func(request, *args, **keys)
 #            log.info("RESPONSE:\n" + response.content, stdout=None)
             return response
-        except locks.LockingError, exc:  # Skip the traceback for these,  remove manually for debug to log tracebacks
+        except locks.LockingError as exc:  # Skip the traceback for these,  remove manually for debug to log tracebacks
             log.error("Locking error: " + str(exc))
             raise
-        except Exception, exc:
+        except Exception as exc:
             log.info("EXCEPTION REPR:", repr(exc))
             log.info("EXCEPTION STR:", str(exc))
             log.info("EXCEPTION TRACEBACK:")
@@ -547,7 +550,7 @@ def log_view(func):
             raise
         finally:
             pass
-    dolog.func_name = func.func_name
+    dolog.__name__ = func.__name__
     return dolog
 
 # ===========================================================================
@@ -581,7 +584,7 @@ def superuser_login_required(func):
         if not request.user.is_superuser:
             raise CrdsError(str(request.user) + " is not a super user.")
         return func(request, *args, **keys)
-    _inner.func_name = func.func_name
+    _inner.__name__ = func.__name__
     return _inner
 
 
@@ -667,7 +670,7 @@ def instrument_lock_required(func):
         if not (instrument or request.user.is_superuser):
             raise CrdsError("You can't access this function without logging in for a particular instrument.")
         return func(request, *args, **keys)
-    _wrapped.func_name = func.func_name
+    _wrapped.__name__ = func.__name__
     return _wrapped
 
 def get_lock(request, type="instrument"):
@@ -717,7 +720,7 @@ def display_result(request, results_id):
     """
     try:
         result = models.RepeatableResultBlob.load(results_id)
-    except Exception, exc:
+    except Exception as exc:
         raise CrdsError("Error loading result", results_id, ":", str(exc))
     pars = result.parameters
     if pars.get("requires_authentication", False) and not request.user.is_authenticated:
@@ -852,7 +855,7 @@ def upload_new(request, template="upload_new_input.html"):
         with log.verbose_on_exception("Failed removing", repr(ingest_path)):
             pysh.sh("rm -f ${ingest_path}")   #  secure, constructed path
             log.info("Removed existing", repr(ingest_path))
-        utils.ensure_dir_exists(ingest_path, mode=0770)
+        utils.ensure_dir_exists(ingest_path, mode=0o770)
         log.info("Linking", file_.temporary_file_path(), "to", ingest_path)
         os.link(file_.temporary_file_path(), ingest_path)
         # return HttpResponseRedirect('/upload/list/')  # secure 
@@ -1364,7 +1367,7 @@ def submit_confirm(request): #, button, results_id):
     try:
         repeatable_model = models.RepeatableResultBlob.load(results_id)
         result = repeatable_model.parameters
-    except Exception, exc:
+    except Exception as exc:
         raise CrdsError("Error fetching result: " + results_id + " : " + str(exc))
 
     if result.get("disposition", None):
@@ -1868,7 +1871,7 @@ def browsify_file(filename, browsed_file):
     try:
         browsifier = globals()["browsify_" + filetype]
         file_contents = browsifier(filename, browsed_file)
-    except Exception, exc:
+    except Exception as exc:
         log.error("browsify_file failed: ", str(exc))
         file_contents = "<pre class='error'>Content display for '{}' not available</pre>".format(
             os.path.basename(filename))
@@ -1916,7 +1919,7 @@ def browsify_finfo(filename, browsed_file):
     output = ""
     try:
         fits_info = finfo(browsed_file)[1] + "\n"
-    except Exception, exc:
+    except Exception as exc:
         output += format_html("<p class='error'>FITS info unavailable: '{0}'</p>", exc)
     else:
         output += "<p><b>FITS Info</b></p>\n"
@@ -2273,7 +2276,7 @@ def stream_response_generator(filename):
         while True:
             try:
                 data = infile.read(2**24)
-            except IOError, exc:
+            except IOError as exc:
                 raise CrdsError("reading known CRDS file " + srepr(filename) +
                                 " : " + str(exc))
             if not len(data):
@@ -2337,7 +2340,7 @@ def create_archive(request, arch_extension):
             for filename, path in files.items():
                 tar.add(path, arcname=filename)
             tar.close()
-            os.chmod(bundle_path, 0640)
+            os.chmod(bundle_path, 0o640)
     return bundle_path
 
 def cached_bundle_path(request, arch_extension):
@@ -2672,7 +2675,7 @@ def get_context_table_parameters(pmap):
             "pmap" : pmap_dict,
             "mapping_type" : pmap_dict["header"]["mapping"],
         }
-    except Exception, exc:
+    except Exception as exc:
         log.error("Failure in get_context_table_parameters:", str(exc))
         return {}
 

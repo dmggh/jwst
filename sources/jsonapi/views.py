@@ -1,6 +1,8 @@
 """This module defines JSON-RPC views and checking functions in the django-json-rpc paradigm."""
 
 from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
 
 import sys
 import base64
@@ -404,7 +406,7 @@ def log_view(func):
         try:
             response = func(request, *args, **keys)
             return response
-        except Exception, exc:
+        except Exception as exc:
             log.info("EXCEPTION REPR:", repr(exc))
             log.info("EXCEPTION STR:", str(exc))
             log.info("EXCEPTION TRACEBACK:")
@@ -415,7 +417,7 @@ def log_view(func):
             raise
         finally:
             pass
-    dolog.func_name = func.func_name
+    dolog.__name__ = func.__name__
     return dolog
 
 # ===========================================================================
@@ -879,7 +881,7 @@ def compose_affected_datasets_response(observatory, computation_dir):
     try:
         status_file = os.path.join(computation_dir, "bestrefs.status")
         bestrefs_status = int(open(status_file).read().strip())
-    except Exception, exc:
+    except Exception as exc:
         bestrefs_status = "FAILED: " + str(exc)
 
     try:

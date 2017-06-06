@@ -26,6 +26,9 @@ WARNING:  this module overrides builtin functions:
  map
  object
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 
 class _Tag(object):
     """Represents an HTML tag of the same name,  and when called
@@ -152,4 +155,4 @@ def _test():
     return doctest.testmod(doctest_html)
 
 if __name__ == "__main__":
-    print _test()
+    print(_test())

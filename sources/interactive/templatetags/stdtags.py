@@ -1,6 +1,9 @@
 """This module maps rendering functions in common.widgets onto
 Django template tags so they can be used from HTML.
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 
 import sys
 import os.path
@@ -251,7 +254,7 @@ class AccordionNode(template.Node):
             else:
                 try:
                     resolved = template.Variable(word).resolve(context)
-                except Exception, exc:
+                except Exception as exc:
                     log.info("Accordion tag failed resolving: ", repr(word), "under context", repr(context))
                     raise
             title_words.append(resolved)
@@ -301,7 +304,7 @@ class TipNode(template.Node):
             else:
                 try:
                     resolved = template.Variable(word).resolve(context)
-                except Exception, exc:
+                except Exception as exc:
                     log.info("Accordion tag failed resolving: ", 
                              repr(word), "under context", repr(context))
                     raise

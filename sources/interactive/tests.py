@@ -1,4 +1,7 @@
 """Unit tests to exercise the interactive portions of the CRDS server."""
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 
 import sys
 import os
@@ -95,8 +98,8 @@ class InteractiveBase(TransactionTestCase):
         try:
             self.user.save() 
             self.user2.save()   
-        except Exception, exc:
-            print "failed user save:", str(exc)
+        except Exception as exc:
+            print("failed user save:", str(exc))
         self.ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, str(self.user))
         self.fake_database_files(list(set([self.pmap, self.pmap2])))
         models.set_default_context(self.pmap, skip_history=True)
@@ -190,9 +193,9 @@ class InteractiveBase(TransactionTestCase):
             # self.assertNotIn("Error", response.content)
             if msg is not None:
                 self.assertIn(msg, response.content)
-        except Exception, exc:
-            print >>sys.stderr, str(exc)
-            print >>sys.stderr, response.content
+        except Exception as exc:
+            print(str(exc), file=sys.stderr)
+            print(response.content, file=sys.stderr)
             raise
         
     def assert_has_error(self, response, msg=None, status=200):
@@ -201,9 +204,9 @@ class InteractiveBase(TransactionTestCase):
             self.assertIn("ERROR", response.content)
             if msg is not None:
                 self.assertIn(msg, response.content)
-        except Exception, exc:
-            print >>sys.stderr, str(exc)
-            print >> sys.stderr, response.content
+        except Exception as exc:
+            print(str(exc), file=sys.stderr)
+            print(response.content, file=sys.stderr)
             raise
 
     def test_index(self):
@@ -270,8 +273,8 @@ class InteractiveBase(TransactionTestCase):
         try:
             log.info("testing add_files_to_ingest_dir:  linking ingest", ingest_file, "to", filepath)
             shutil.copy(filepath, ingest_file)
-            os.chmod(ingest_file, 0666)
-        except Exception, exc:
+            os.chmod(ingest_file, 0o666)
+        except Exception as exc:
             log.info("failed to add file:", str(exc))
         
     def test_mark_bad_get(self):
@@ -890,7 +893,7 @@ else:  # JWST
             response = self.client.post("/certify/", {
                     "pmap_mode": "pmap_edit",
                     }, follow=True)
-            print "certify post FITS response:", response.content
+            print("certify post FITS response:", response.content)
             self.assert_no_errors(response)
             self.assertNotIn("ERROR", response.content)
             self.assertEqual(response.content.count("OK"), 2)

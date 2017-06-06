@@ -1,6 +1,7 @@
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
-from django.db import models
+__svn_version__ = 'exported'
 
-# Create your models here.
+__full_svn_info__ = '''
+'''

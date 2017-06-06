@@ -2,6 +2,9 @@
 Aside from output capture to strings,  handles weird web naming/path issues and temporaries...
 while making the output look sane.
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 
 import os.path
 import re
@@ -104,7 +107,7 @@ def do_certify_file(original_name, certifypath, check_references=False, filemap=
             trap_exceptions=False, original_name=original_name,
             context=context, observatory=models.OBSERVATORY,
             run_fitsverify=True)
-    except Exception, exc:
+    except Exception as exc:
         raise CrdsError("Certifying " + srepr(original_name) + ": " + str(exc))
 
     if check_references and rmap.is_mapping(original_name):
@@ -147,7 +150,7 @@ def get_blacklists(original_name, certifypath, ignore_self=True, files=None):
         blacklisted_by = set()
         try:
             mapping = rmap.fetch_mapping(certifypath, ignore_checksum=True)
-        except Exception, exc:
+        except Exception as exc:
             raise CrdsError("Error loading " + srepr(original_name) + " : " + str(exc))
         if files is None:
             files = models.get_fileblob_map(mapping.observatory)

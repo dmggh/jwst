@@ -40,6 +40,9 @@ of errors and/or warnings.
 10. Removal of delivered files from ingest area.
 11. Presentation of final result,  including an emphatic summary of errors and/or warnings.
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 import os
 import tempfile
 import shutil
@@ -485,7 +488,7 @@ class FileSubmission(object):
         """
         try:
             return self._modify_and_add_rmaps(old_rmaps, cached_references)
-        except Exception, exc:
+        except Exception as exc:
             raise CrdsError("Generation of new rmaps failed: " + str(exc))
 
     def _modify_and_add_rmaps(self, old_rmaps, cached_references):
@@ -861,7 +864,7 @@ class Delivery(object):
         paths = self.delivered_paths
         try:
             catalog_link = self.deliver_make_links(catalog, paths)
-        except Exception, exc:
+        except Exception as exc:
             self.deliver_remove_fail(catalog, paths)
             raise CrdsError("Delivery failed: " + str(exc))
         self.update_file_blobs(catalog_link)
@@ -946,7 +949,7 @@ class Delivery(object):
                 dest = site +"/" + os.path.basename(filename)
                 try:
                     os.link(filename, dest)
-                except Exception, exc:
+                except Exception as exc:
                     raise CrdsError("failed to link " + srepr(filename) + " to " + srepr(dest) + " : " + str(exc))
         master_catalog_link = os.path.join(dirs[0], os.path.basename(catalog))
         return master_catalog_link

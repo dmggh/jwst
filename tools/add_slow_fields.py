@@ -1,6 +1,9 @@
 """This script initializes the slow fields of the database blobs for the
 specified file basenames.
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 import sys
 import traceback
 
@@ -20,7 +23,7 @@ def add_slow_fields(files):
             blob = file_map[file]
             blob.thaw()
             blob.add_slow_fields()
-        except Exception, exc:
+        except Exception as exc:
             log.info("Skipping non-existent file", repr(file), ":", str(exc))
             continue
                 
@@ -42,5 +45,5 @@ def main(files):
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
-        print >> sys.stderr, "usage: add_slow_fields.py <files...>"
+        print("usage: add_slow_fields.py <files...>", file=sys.stderr)
     main(sys.argv[1:])

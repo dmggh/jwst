@@ -5,6 +5,9 @@ config.locate_reference().   locate_server_reference() knows about CDBS file pat
 point of this script is to make standard CRDS paths work on the server without copying all
 of CDBS.
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 import sys, os, shutil, re
 
 from crds import config, log, rmap, utils
@@ -33,14 +36,14 @@ def copy_or_link(filename, cdbs_path, crds_path):
             log.info("Skipping existing", repr(filename))
             return
         try:
-            utils.ensure_dir_exists(crds_path, mode=0755)
+            utils.ensure_dir_exists(crds_path, mode=0o755)
             if "--copy" in sys.argv:
                 log.info("Copying", repr(cdbs_path), "-->", repr(crds_path))
                 shutil.copyfile(cdbs_path, crds_path)
             else:
                 log.info("Linking", repr(cdbs_path), "-->", repr(crds_path))
                 os.symlink(cdbs_path, crds_path)
-        except Exception, exc:
+        except Exception as exc:
             log.error("Error for",repr(crds_path),"-->",repr(cdbs_path),":",str(exc))
 
 if __name__ == "__main__":

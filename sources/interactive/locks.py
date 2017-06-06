@@ -31,6 +31,9 @@ cannot get-and-set the same lock at the same time.
 
 A solid alternative to django-locking would be to use file locks on a local file system.
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 
 import time
 import datetime
@@ -175,7 +178,7 @@ class CrdsLock(object):
         """
         try:
             lock = Lock.objects.get(locked_object=lock_name)
-        except Exception, _exc:
+        except Exception as _exc:
             log.info("_get_existing: " + str(_exc))
             lock = None
         broken = BrokenLockError("User " + repr(self.user) + " no longer holds lock " + repr(lock_name))

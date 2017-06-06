@@ -1,6 +1,9 @@
 """Update the context history date created for the specified contexts to the specified date.
 Assumes each context appears in the history only once,  this is a hack for setting up dev installations.
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 import sys
 
 from crds import timestamp, log
@@ -21,7 +24,7 @@ def main(context, datestr):
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        print "usage: ", sys.argv[0], "<context> <YYYY-MM-DDTHH:MM:SS>" 
+        print("usage: ", sys.argv[0], "<context> <YYYY-MM-DDTHH:MM:SS>") 
         sys.exit(-1)
     main(sys.argv[1], sys.argv[2])
 

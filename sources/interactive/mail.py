@@ -1,6 +1,9 @@
 """This module supports sending e-mails from the CRDS servers using the basic VM
 SMTP/LMTP setup.  It is an unauthenticated send,  easy.
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 
 import sys 
 import smtplib

@@ -8,6 +8,9 @@ deliveries from files already assumed good and in the CRDS cache.
 File delivery is included because that's a normal part of bootstrapping CRDS
 from generated files.
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 
 import os.path
 import traceback
@@ -138,7 +141,7 @@ Does not move, rename, or deliver files.
                 models.mirror_filename_counters(self.observatory, path)
                 added.append(path)
                 file_map[file] = blob
-            except Exception, exc:
+            except Exception as exc:
                 log.error("Add FAILED for", repr(path), ":", str(exc))
                 traceback.print_exc()
                 continue
