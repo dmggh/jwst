@@ -57,11 +57,19 @@
         </div>
     
         <div class="col-md-8">
-            <h3 title="These downloads are intended for debug and quick reference.  
-            See the front page topic 'Using the command line' for information
-            on automatic downloads of complete sets of reference files.">Best Reference Results</h3>
             <table class="bestrefs_table" style="width:100%;">
               <thead class="bestrefs_header">
+                <tr>
+                  <td>
+                    <h3 title="These downloads are intended for debug and quick reference.  
+                               See the front page topic 'Using the command line' for information
+                               on automatic downloads of complete sets of reference files.">Best References</h3>
+                  </td>
+                  <td>
+                    <br/>
+                    <input type="checkbox" name="hide_na" id="hide_na">Toggle N/A</input>
+                  </td>
+                </tr>
                 <tr>
                   {% if old_bestrefs_items %}
                      <th class="bestrefs_header">Type</th>
@@ -78,7 +86,7 @@
               </thead>
               <tbody>
               {% for reftype, fname in bestrefs_items %}
-                <tr>
+                <tr class="data_row">
                   <td class="bestrefs_header" width="30%">
                     {{reftype}}
                   </td>
@@ -119,6 +127,16 @@
         </div>
     </div>         
 </div>
+
+<script>
+  $("#hide_na").click(function() {
+      console.log("hide_na.");
+      // console.log($("td:contains('n/a')"));
+      // console.log($("td:contains('n/a')").parent());
+      $("td:contains('n/a')").parent().toggle();
+  });
+</script>
+
 {% endblock contents_both %}
 
 {% block contents_bottom %}

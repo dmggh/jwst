@@ -4,7 +4,8 @@
 
 {% for pitem in pmap.selections %}
     {% accordion  "<span class='bootstrap_a'>" pitem.0 "</span>" %}
-        <p><a href="/browse/{{pitem.1.header.name}}" class="browse_a">{{pitem.1.header.name}}</a></p><br/>
+        <p><span><a href="/browse/{{pitem.1.header.name}}"
+        class="browse_a">{{pitem.1.header.name}}</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type='checkbox' class='hide_na'>Toggle N/A</input></span></p><br/>
         {% for iitem in pitem.1.selections %}
             {% if iitem.1.name != "N/A" %}
                {% accordion "<span class='bootstrap_a'>" iitem.0 "</span> ---- <span class='green'>"  iitem.1.text_descr "</span>" %}
@@ -22,3 +23,9 @@
 
 {% include "diff_col_trailer.html" %}
 
+<script>
+  $(".hide_na").click(function(){
+      console.log("hide_na");
+      $(".accordion div > div > p:contains('N/A')").parent().parent().toggle();
+  });
+</script>
