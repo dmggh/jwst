@@ -34,13 +34,13 @@
             <tr>
                 <td>{{forloop.counter}}</td>
                 <td>{{activity.date|minutes}}</td>
-                <td>{{activity.filename|browse}} uploaded from {{fileblobs|lookup:activity.filename|lookup:"uploaded_as"|darkgreen}}</td>
+                <td>{{activity.filename|browse}}</td>
                 <td>{{activity.action}}</td>
                 {% if is_authenticated %}
                    <td>{{activity.user}}</td>
                 {% endif %}
                 <td>{{activity.why}}</td>
-                <td>
+                <td style="background-color:white;">
                   <table width='100%' class='table table-striped table-bordered'>
                     {{activity.details|browsify:fileblobs|safe}}
                   </table>
