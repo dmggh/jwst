@@ -157,6 +157,18 @@ def _browse(match, fileblobs):
         except Exception:
             format_html("<tr><td><a href='/browse/{0}'>{1}</a></td><td></td></tr>", crds_name, quoted_name)
 
+# ===========================================================================
+
+@register.filter(is_safe=True)
+@stringfilter
+def format_history(history):
+    if "\n" not in history and len(history) >= 80:
+        return format_html(history)
+    else:
+        return format_html("<pre class='simple_white'>{0}</p>", history)
+
+# ===========================================================================
+
 @register.filter
 @stringfilter
 def exists_color(name):  # handle str(datetime.datetime.now())
