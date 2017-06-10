@@ -25,7 +25,7 @@ def application(environ, start_response):
 
 try:
     application = get_wsgi_application()
-except Exception, exc:
+except Exception as exc:
     sys.stderr.write("Error in CRDS wsgi handler: " + repr(exc) + " :: " + str(exc))
     raise
 
