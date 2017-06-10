@@ -4,15 +4,15 @@
         $(function() {
             $("#diff_button").css({"font-weight":"bold"});
             crds.diff_selected_files = function () {
-                var selected = $("input:checked");
+                var selected = $(".diff_checkbox:checked");
                 if (selected.length != 2) {
                     alert("Select exactly two files to difference.");
                     return false;
                 }
                 var files = [ selected[0].value, selected[1].value];
                 files.sort();
-                $("input[name=file1]").val(files[0]);
-                $("input[name=file2]").val(files[1]);
+                $(".diff_input[name=file1]").val(files[0]);
+                $(".diff_input[name=file2]").val(files[1]);
                 crds.set_info_box({
                     text: "Differencing files...",
                      css: {color: "green"},

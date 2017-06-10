@@ -1,6 +1,6 @@
 #! /bin/tcsh -fx
 
-setenv CONDA_NAME crds_conda-6
+setenv CONDA_NAME crds_conda3-6
 
 setenv CRDS_STACK ${CRDS}/crds_stacks/$CONDA_NAME
 setenv META_PREFIX ${CRDS_STACK}
@@ -17,21 +17,16 @@ rm -f *.err
 ./meta clean >& /dev/null
 
 # Set up miniconda
-wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O ./miniconda.sh
-bash ./miniconda.sh -b -p $CRDS_STACK
+wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ./miniconda3.sh
+bash ./miniconda3.sh -b -p $CRDS_STACK
 rm miniconda.sh
 setenv PATH ${CRDS_STACK}/bin:${PATH}
 rehash 
-# conda update --quiet --yes conda
 
-# conda install --quiet --yes --file ${CRDS}/CRDS_server/host/conda.pljwstcrdsv1.crds_conda-2.txt
-
-conda install --quiet --yes --file ${CRDS}/CRDS_server/host/${CONDA_NAME}.txt
-
-# conda install --quiet --yes --file http://ssb.stsci.edu/conda/jwstdp-0.7.0rc/jwstdp-0.7.0rc2-linux-py27.0.txt
+conda install --quiet --yes --file ${CONDA_NAME}.txt
 conda remove --quiet --yes crds
 
-./meta install @crds2-fixed  |& tee ${CRDS_STACK}/crds2.err
+./meta install @crds3-fixed  |& tee ${CRDS_STACK}/crds3.err
 ./meta install jwst |& tee ${CRDS_STACK}/jwst.err
 ./meta clean >& /dev/null
 
