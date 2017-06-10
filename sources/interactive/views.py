@@ -10,7 +10,6 @@ import sys
 import os
 import os.path
 import re
-import cStringIO
 import traceback
 import tarfile
 import glob
@@ -36,7 +35,7 @@ from django.contrib.auth.decorators import user_passes_test
 
 from astropy.io import fits as pyfits
 
-from crds import (rmap, utils, timestamp, uses, matches, log, config)
+from crds import (rmap, utils, timestamp, uses, matches, log, config, python23)
 from crds import (data_file, pysh)
 from crds import heavy_client
 from crds import CrdsError
@@ -1064,7 +1063,7 @@ def _simple_header_format(hstring):
     """Enable simple line based header format where each line is of the form: <key> <value>
     """
     header = {}
-    for line in cStringIO.StringIO(str(hstring)):
+    for line in StringIO(str(hstring)):
         words = line.strip().split()
         if not words:
             continue
@@ -2689,7 +2688,7 @@ if sconfig.DEBUG:
             if mode == "eval":
                 result = eval(command, globals(), locals())   # secure,  only available for config.DEBUG
             else:
-                exec command in globals(), locals()  # secure,  only available for config.DEBUG
+                exec(command, globals(), locals())  # secure,  only available for config.DEBUG
                 result = None
         except Exception as exc:
             result = "EXCEPTION: " + str(exc)

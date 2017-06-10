@@ -4,12 +4,11 @@ from __future__ import division
 from __future__ import absolute_import
 
 import sys
-import cStringIO
 import cProfile
 import re
 import os.path
 
-from crds import log, utils
+from crds import log, utils, python23
 from crds.config import complete_re
 from crds.server.config import crds_server_log_dir
 
@@ -43,7 +42,7 @@ def capture_output(func):
         return captured output.
         """
         oldout, olderr = sys.stdout, sys.stderr
-        out = cStringIO.StringIO()
+        out = StringIO()
         sys.stdout, sys.stderr = out, out
         handler = log.add_stream_handler(out)
         try:
