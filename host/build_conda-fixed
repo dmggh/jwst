@@ -1,6 +1,6 @@
 #! /bin/tcsh -fx
 
-setenv CONDA_NAME crds_conda-5
+setenv CONDA_NAME crds_conda-6
 
 setenv CRDS_STACK ${CRDS}/crds_stacks/$CONDA_NAME
 setenv META_PREFIX ${CRDS_STACK}
@@ -39,7 +39,7 @@ rehash
 
 git status  |& tee ${CRDS_STACK}/git.status
 git log --stat |& tee ${CRDS_STACK}/git.log
-conda list |& tee ${CRDS_STACK}/conda.list
+conda list --explicit |& tee ${CRDS_STACK}/${CONDA_NAME}.txt
 
 
 # Install the entire base to get mercurial... for this.
