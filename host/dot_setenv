@@ -20,7 +20,7 @@ setenv URP_TYPE crds
 
 switch ($CRDS_SERVER)
        case dljwstcrdsv1:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda-5
+        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-6
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE dev
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
