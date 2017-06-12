@@ -352,7 +352,7 @@ def in_group(user, groups):
         {% endif %}
 
     """
-    group_list = django.utils.encoding.force_unicode(groups).split(',')
+    group_list = django.utils.encoding.force_text(groups).split(',')
     return bool(user.groups.filter(name__in=group_list).values('name'))
 
 
@@ -366,5 +366,5 @@ def endswith(string, suffix):
         ...
         {% endif %}
     """
-    suffix = django.utils.encoding.force_unicode(suffix)
+    suffix = django.utils.encoding.force_text(suffix)
     return string.endswith(suffix)
