@@ -29,7 +29,7 @@
         {% for context in context_blobs %}
             <tr class="ctx">
                 <td class="center ctx">{{context.1.delivery_date|days}}</td>
-                <td class="center ctx"><a href="/context_table/{{context.0}}">{{context.0}}</a></td>
+                <td class="center ctx">{{context.0|context_table}}</td>
                 <td class="center ctx {{hist.1.status_class}}">{{context.1.status}}</td>
                 <td class="left ctx">{{context.1.description}}</td>
                 {% if include_diff %}

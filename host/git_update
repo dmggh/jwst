@@ -2,7 +2,7 @@
 
 ./clean
 echo "-----------------------------------------------------------------------"
-git checkout -- crds/git_version.py
+git checkout -- crds/core/git_version.py
 echo "-----------------------------------------------------------------------"
 # This works for trunk but fails for a branch or tag...  which is good.
 git pull origin

@@ -121,21 +121,50 @@ def human_format_number(number):
 def browse(name):
     return format_html("<a href='/browse/{0}'>{1}</a>", name, name)
 
+
 @register.filter(is_safe=True)
 @stringfilter
-def browsify(string):
+def context_table(pmap):
+    return format_html('<a href="/context_table/{0}">{0}</a>', pmap, pmap)
+
+@register.filter(is_safe=True)
+@stringfilter
+def browsify(string, fileblobs):
     try:
-        return re.sub(r"'([A-Za-z0-9\._]+)'[\,\]]", _browse, string)
+        return re.sub(r"\[?'([A-Za-z0-9\._]+)'[\,\]]", 
+                      lambda x: _browse(x,fileblobs), string)
     except Exception:
         return string
 
-def _browse(match):
-    name = match.group(0)
-    parts = name.split("'")
-    if parts[1].endswith(".cat"):
-        return name
+def _browse(match, fileblobs):
+    quoted_name = match.group(0)
+    parts = quoted_name.split("'")
+    crds_name = parts[1]
+    quoted_name = crds_name # XXX hack
+    if crds_name.endswith(".cat"):
+        return "<tr><td>{0}</td><td></td></tr>".format(quoted_name)
     else:
-        return format_html("<a href='/browse/{0}'>{1}</a>", parts[1], name)
+        crds_name = parts[1]
+        try:
+            uploaded_as = fileblobs[crds_name].uploaded_as
+            if uploaded_as == crds_name and crds_name.endswith(".rmap"):
+                uploaded_as = fileblobs[crds_name].derived_from
+            return (format_html("<tr><td>{0}</td>", uploaded_as ) + 
+                    format_html("<td><a href='/browse/{0}'>{1}</a></td></tr>", crds_name, quoted_name))
+        except Exception:
+            format_html("<tr><td><a href='/browse/{0}'>{1}</a></td><td></td></tr>", crds_name, quoted_name)
+
+# ===========================================================================
+
+@register.filter(is_safe=True)
+@stringfilter
+def format_history(history):
+    if "\n" not in history and len(history) >= 80:
+        return format_html(history)
+    else:
+        return format_html("<pre class='simple_white'>{0}</p>", history)
+
+# ===========================================================================
 
 @register.filter
 @stringfilter
