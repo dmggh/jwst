@@ -1063,7 +1063,7 @@ def _simple_header_format(hstring):
     """Enable simple line based header format where each line is of the form: <key> <value>
     """
     header = {}
-    for line in StringIO(str(hstring)):
+    for line in python23.StringIO(str(hstring)):
         words = line.strip().split()
         if not words:
             continue

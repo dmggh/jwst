@@ -42,7 +42,7 @@ def capture_output(func):
         return captured output.
         """
         oldout, olderr = sys.stdout, sys.stderr
-        out = StringIO()
+        out = python23.StringIO()
         sys.stdout, sys.stderr = out, out
         handler = log.add_stream_handler(out)
         try:
