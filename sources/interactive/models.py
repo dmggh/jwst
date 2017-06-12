@@ -19,7 +19,7 @@ from django.db import transaction
 
 # Create your models here.
 import crds
-from crds import (timestamp, rmap, utils, refactor, log, data_file, uses, diff, checksum)
+from crds import (timestamp, rmap, utils, refactor, log, data_file, uses, diff, checksum, python23)
 from crds import CrdsError
 from crds.log import srepr
 
