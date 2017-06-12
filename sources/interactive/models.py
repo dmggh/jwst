@@ -73,10 +73,10 @@ def store_cache(key, val, chunk_size=950000):
     # return CRDS_CACHE.set(key, val)
     with log.error_on_exception("store_cache failed", repr(key)):
         pick = json_ext.dumps(val)
-        for i in xrange(0, len(pick), chunk_size):
+        for i in range(0, len(pick), chunk_size):
             chunk_key = key + "_{:02d}".format(i//chunk_size)
             chunk_data = pick[i:i+chunk_size]
-            CRDS_CACHE.set(chunk_key, chunk_data)
+            CRDS_CACHE.set(chunk_key, chunk_data.encode("utf-8"))
             log.verbose("store_cache", chunk_key, len(chunk_data))
 
 def retrieve_cache(key):
@@ -88,7 +88,7 @@ def retrieve_cache(key):
         pick = ""
         while 1:
             chunk_key = key + "_{:02d}".format(i)
-            fetch = CRDS_CACHE.get(chunk_key)
+            fetch = CRDS_CACHE.get(chunk_key)  # .decode("utf-8")
             if fetch is None:
                 break
             pick += fetch
@@ -658,14 +658,14 @@ class BlobModel(CrdsModel):
         filtered = []
         matches = dict(matches)  # copy
         model_filters = {}
-        for key in matches.keys():
+        for key in list(matches.keys()):
             if key.split("__")[0] in cls.model_fields:
                 model_filters[key] = matches.pop(key)
         for candidate in cls.objects.filter(**model_filters):
             candidate.thaw()
             for filter in matches:
                 fval = getattr(candidate, filter, None)
-                if isinstance(fval, (bool, int, float, long)):
+                if isinstance(fval, (bool, int, float, python23.long)):
                     if not matches[filter] == fval:
                         break
                 else:
@@ -719,7 +719,7 @@ def check_defects(fields=None, files=None, verify_checksum=False):
     IFF verify_checksum is True,  check the sha1sum in the FileBlob versus the cached file contents.  Slow.
     """
     map = get_fileblob_map()
-    if isinstance(files, basestring):
+    if isinstance(files, python23.string_types):
         files = rmap.list_mappings(files, OBSERVATORY) + rmap.list_references(files, OBSERVATORY)
     if files:
         map = { name : blob for (name, blob) in map.items() if name in set(files) }

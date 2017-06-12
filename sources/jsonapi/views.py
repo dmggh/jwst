@@ -267,9 +267,9 @@ def check_header(header):
     if not isinstance(header, dict):
         raise InvalidHeaderError("Header parameter is not a dictionary.")
     for key, value in header.items():
-        if not isinstance(key, basestring) or not FITS_KEY_RE.match(key):
+        if not isinstance(key, python23.string_types) or not FITS_KEY_RE.match(key):
             raise InvalidHeaderError("Bad key in header {0}", key)
-        if not isinstance(value, (basestring, int, float, bool)) or not FITS_VAL_RE.match(value):
+        if not isinstance(value, (python23.string_types, int, float, bool)) or not FITS_VAL_RE.match(value):
             raise InvalidHeaderError("Bad value in header... not a str, int, float, or bool, or illegal str: '{0}'", value)
     return header
 
@@ -282,7 +282,7 @@ def check_observatory(obs):
 
 def check_instrument(instr):
     instr = instr.lower()
-    if not isinstance(instr, basestring) or not INSTRUMENT_RE.match(instr) or instr not in imodels.INSTRUMENTS:
+    if not isinstance(instr, python23.string_types) or not INSTRUMENT_RE.match(instr) or instr not in imodels.INSTRUMENTS:
         raise InvalidInstrumentError("Mismatch between requested instrument '{0}' and server instruments '{1}'", 
                                      instr, imodels.INSTRUMENTS)
     return instr
@@ -297,7 +297,7 @@ def check_reftypes(reftypes):
     return cleaned
 
 def check_reftype(reftype):
-    if not isinstance(reftype, basestring):
+    if not isinstance(reftype, python23.string_types):
         raise InvalidReftypesError("Non-string reftype: '{0}'", reftype)
     reftype = reftype.lower()
     if reftype not in imodels.FILEKINDS:
@@ -309,7 +309,7 @@ def check_dataset_ids(datasets):
     if not isinstance(datasets, list):
         raise InvalidDatasetIds("Expected list of dataset ids.")
     for dataset in datasets:
-        if not isinstance(dataset, basestring) or not DATASET_ID_RE.match(dataset):
+        if not isinstance(dataset, python23.string_types) or not DATASET_ID_RE.match(dataset):
             raise InvalidDatasetIds("Expected datasets to be official id strings.")
         cleaned.append(dataset.upper())
     return cleaned
@@ -318,7 +318,7 @@ def check_header_map(header_map):
     if not isinstance(header_map, dict):
         raise InvalidDatasetIds("Expected object mapping dataset ids to headers: { dataset_id : { header } }.")
     for dataset, header in header_map.items():
-        if not isinstance(dataset, basestring) or (not DATASET_ID_RE.match(dataset) and not FILE_RE.match(dataset)):
+        if not isinstance(dataset, python23.string_types) or (not DATASET_ID_RE.match(dataset) and not FILE_RE.match(dataset)):
             raise InvalidDatasetIds("Bad dataset id: '{0}'", dataset)
         try:
             check_header(header)
@@ -331,7 +331,7 @@ def check_file_list(files):
         raise InvalidFileList("Expected list of filenames or None.")
     if files:
         for name in files:
-            if not isinstance(name, basestring) or not FILE_RE.match(name):
+            if not isinstance(name, python23.string_types) or not FILE_RE.match(name):
                 raise InvalidFileList("Expected list of filenames or None.")
     return files
 
@@ -340,7 +340,7 @@ def check_field_list(fields):
         raise InvalidFieldList("Expected list of fields or None.")
     if fields:
         for name in fields:
-            if not isinstance(name, basestring) or not FIELD_RE.match(name):
+            if not isinstance(name, python23.string_types) or not FIELD_RE.match(name):
                 raise InvalidFileList("Expected list of fields or None.")
     return fields
 
@@ -598,7 +598,7 @@ def get_mapping_names(request, context):
 @imodels.crds_cached
 def _get_mapping_names(context):
     """Return the list of mappings referred to by `context` or a list of contexts.""" 
-    if isinstance(context, basestring):
+    if isinstance(context, python23.string_types):
         context = [context]
     elif not isinstance(context, (list, tuple)):
         raise UnknownMappingError("Not a .pmap name or list of .pmap names")
@@ -844,7 +844,7 @@ def get_affected_datasets(request, observatory, old_context, new_context):
     except IndexError as exc:
         raise ValueError(not_ready)
     response = compose_affected_datasets_response(observatory, computation_dir)
-    if isinstance(response["bestrefs_status"], basestring) and "FAILED:" in response["bestrefs_status"]:
+    if isinstance(response["bestrefs_status"], python23.string_types) and "FAILED:" in response["bestrefs_status"]:
         raise ValueError(not_ready)
     return response
 

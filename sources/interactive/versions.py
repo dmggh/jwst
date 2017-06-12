@@ -123,6 +123,7 @@ def dynamic_import(package):
     """
     if not PACKAGE_RE.match(package):
         raise ImportError("Invalid dynamic import " + repr(package))
-    exec("import " + package + " as module", locals(), locals())
-    return module
+    namespace = {}
+    exec("import " + package + " as module", namespace, namespace)
+    return namespace["module"]
 

@@ -266,7 +266,7 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
     if dict_ is None:
         dict_ = {}
 
-    statuses = ["*"] + models.FILE_STATUS_MAP.keys()
+    statuses = ["*"] + list(models.FILE_STATUS_MAP.keys())
     statuses.remove("uploaded")
 
     rdict = {   # standard template variables
@@ -278,7 +278,7 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
         "filekind" : "*",
         "filekinds" : models.FILEKIND_TEXT_DESCR,
 
-        "extensions" : [".pmap"] + ["*"] + sorted(set(models.EXTENSIONS)-set([".pmap"])),
+        "extensions" : [".pmap"] + ["*"] + list(sorted(set(models.EXTENSIONS)-set([".pmap"]))),
         "users": ["*"] + usernames(),
 
         "status" : "*",
@@ -505,7 +505,7 @@ def error_trap(template):
             # Generic exception handler,  undescriptive,  to prevent server probing via errors
             except Exception as exc:
                 msg = format_html("ERROR: internal server error")
-            pars = dict(keys.items() + [("error_message", msg)])
+            pars = dict(list(keys.items()) + [("error_message", msg)])
             return crds_render(request, template, pars, requires_pmaps=True)
         trap.__name__ = func.__name__
         return trap
@@ -966,7 +966,7 @@ def get_recent_pmaps(last_n, pmap_edit):
 
 def pmap_label(blob, pmap_edit=None):
     """Return the text displayed to users selecting known pmaps."""
-    if isinstance(blob, basestring):
+    if isinstance(blob, python23.string_types):
         try:
             blob = models.FileBlob.load(blob)
         except LookupError:
@@ -1029,7 +1029,7 @@ def bestrefs_post(request):
             headers = jsonapi_views.get_simplified_dataset_headers_by_id(context, [dataset_name])
             first = sorted(headers.keys())[0]
             header = headers[first]
-        if isinstance(header, basestring):
+        if isinstance(header, python23.string_types):
             raise CrdsError(header)
 
     # base on the context and datset,  compute best references
@@ -1108,7 +1108,7 @@ def bestrefs_results(request, pmap, header, dataset_name=""):
 def get_bestrefs_items(recommendations):
     bestrefs_items = []
     for key, val in sorted(recommendations.items()):
-        if isinstance(val, basestring) and val.startswith("NOT FOUND"):
+        if isinstance(val, python23.string_types) and val.startswith("NOT FOUND"):
             val = val[len("NOT FOUND "):].strip()
         match = re.match(r"^(.ref\$)(.*)$", val)
         if match:
@@ -1301,7 +1301,7 @@ def batch_submit_references_post(request):
         mapping_diffs, collision_list = bsr.submit()
 
     # Map from old filenames to new filenames,  regardless of origin / purpose
-    new_file_map = new_mappings_map.items() + new_references_map.items()
+    new_file_map = list(new_mappings_map.items()) + list(new_references_map.items())
     
     status = "READY" if not disposition else disposition.upper()
 
@@ -1331,7 +1331,7 @@ def batch_submit_references_post(request):
     result = render_repeatable_result(
         request, "batch_submit_reference_results.html", bsr_results)
 
-    renamed_uploads = new_references_map.items()
+    renamed_uploads = list(new_references_map.items())
 
     mail.crds_notification(body=mail.GENERIC_READY_BODY, status=status,
             username=request.user.username, user_email=request.user.email, 
@@ -1411,7 +1411,7 @@ def submit_confirm(request): #, button, results_id):
         repeatable_model.set_par("pmap", final_pmap)
         # XXX single model save below
 
-        new_file_map = sorted(new_file_map.items() + context_map.items())
+        new_file_map = sorted(list(new_file_map.items()) + list(context_map.items()))
         generated_files = sorted([(old, new) for (old, new) in new_file_map if old not in result.uploaded_basenames])
         uploaded_files = [(old, new) for (old, new) in new_file_map if (old, new) not in generated_files]
         added_files = getattr(result, "added_files", [])
