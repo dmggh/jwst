@@ -298,7 +298,7 @@ def get_bad_files(observatory):
     # references are only rejected
     # to keep bad_files list small,  only include *rejected* files.
     # client-side,  checker must inspect current context for contained bad mappings, i.e. rejected files.
-    bad_files = [ str(blob.name) for blob in fileblobs.values() if blob.observatory==observatory and blob.rejected ]
+    bad_files = [ str(blob.name) for blob in list(fileblobs.values()) if blob.observatory==observatory and blob.rejected ]
     return sorted(bad_files)
 
 # ============================================================================
@@ -381,7 +381,7 @@ def update_activation_dates(context, activation_date, fileblob_map=None):
         fileblob_map = get_fileblob_map()
     datestr = timestamp.format_date(activation_date)
     supported_files = _active_files(context)
-    for fname, blob in fileblob_map.items():
+    for fname, blob in list(fileblob_map.items()):
         if fname in supported_files:
             if blob.activation_date.year == DEFAULT_ACTIVATION_DATE.year:
                 log.verbose("Setting activation date of '{}' to '{}'".format(fname, datestr))
@@ -397,7 +397,7 @@ def update_file_states(new_context=None, fileblob_map=None):
     active_files = _active_files(new_context)
     if fileblob_map is None:
         fileblob_map = get_fileblob_map()
-    for fname, blob in fileblob_map.items():
+    for fname, blob in list(fileblob_map.items()):
         if blob.state in TRANSITORY_STATES + ACTIVE_STATES:
             if fname in active_files or data_file.get_conjugate(fname) in active_files:
                 state = "operational"
@@ -428,7 +428,7 @@ def update_delivery_status():
     state where deliveries are working.
     """
     blobs = get_fileblob_map(state__in = TRANSITORY_STATES)
-    for blob in blobs.values():
+    for blob in list(blobs.values()):
         blob.interpret_catalog_link()
 
 def _active_files(context):
@@ -722,9 +722,9 @@ def check_defects(fields=None, files=None, verify_checksum=False):
     if isinstance(files, python23.string_types):
         files = rmap.list_mappings(files, OBSERVATORY) + rmap.list_references(files, OBSERVATORY)
     if files:
-        map = { name : blob for (name, blob) in map.items() if name in set(files) }
-    defect_map = { name :  (blob, blob.get_defects(fields=fields, verify_checksum=verify_checksum)) for (name, blob) in map.items() }
-    defect_map = { name : (blob, defects) for (name, (blob, defects)) in defect_map.items() if defects }
+        map = { name : blob for (name, blob) in list(map.items()) if name in set(files) }
+    defect_map = { name :  (blob, blob.get_defects(fields=fields, verify_checksum=verify_checksum)) for (name, blob) in list(map.items()) }
+    defect_map = { name : (blob, defects) for (name, (blob, defects)) in list(defect_map.items()) if defects }
     return defect_map
 
 def repair_defects(defect_map, verbose=True):
@@ -979,7 +979,7 @@ TRANSITORY_STATES = ["delivered","submitted","archiving"]
 ACTIVE_STATES = ["archived", "operational"]
 INACTIVE_STATES = ["uploaded", "cancelled", "archiving-failed"]
 ALL_STATES = TRANSITORY_STATES + ACTIVE_STATES + INACTIVE_STATES
-FILE_STATES = FILE_STATUS_MAP.keys()
+FILE_STATES = list(FILE_STATUS_MAP.keys())
 
 assert len(ALL_STATES) == len(set(ALL_STATES)), "Doubly-assigned or duplicate state in FileBlob state declarations."
 assert len(FILE_STATES) >= len(ALL_STATES),  "Uncategorized state in FileBlob state declarations."

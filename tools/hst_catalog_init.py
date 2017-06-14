@@ -47,7 +47,7 @@ class Initializer(object):
         with log.error_on_exception("Failed repairing", repr(blob.name)):
             defects = blob.get_defects()
             repairs, failed = blob.repair_defects(defects)
-            for rep in repairs.values() + failed.values():
+            for rep in list(repairs.values()) + list(failed.values()):
                 log.info("Repair", repr(blob.name), rep)
         if not repairs:
             blob.save()

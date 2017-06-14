@@ -16,7 +16,7 @@ class CrdsEncoder(json.JSONEncoder):
     def default(self, obj):
         if not isinstance(obj, (bool, int, float, list, tuple, dict, python23.string_types)):
             obj = dict(obj.__dict__)
-            for key, value in obj.items():
+            for key, value in list(obj.items()):
                 if isinstance(value, tuple):
                     obj[key] = list(value)
         return obj
@@ -30,7 +30,7 @@ def loads(enc):
     obj = json.loads(enc)
     if isinstance(obj, dict):    # fix str --> unicode key decoding side effect.
         pobj = {}
-        for key, val in obj.items():
+        for key, val in list(obj.items()):
             if isinstance(val, python23.string_types):
                 val = str(val)
             if isinstance(key, python23.string_types):

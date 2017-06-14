@@ -99,14 +99,14 @@ def mock_params(instrument, date):
     return params
 
 def filter_by_instrument(instrument, params):
-    return { dataset_id : header for (dataset_id, header) in params.items()
+    return { dataset_id : header for (dataset_id, header) in list(params.items())
              if get_instrument(header).upper() == instrument.upper() } 
 
 def get_instrument(header):
     return header["META.INSTRUMENT.NAME"]
 
 def filter_by_date(datasets_since, params):
-    return { dataset_id : header for (dataset_id, header) in params.items()
+    return { dataset_id : header for (dataset_id, header) in list(params.items())
              if get_date(header) >= datasets_since }
 
 def get_date(header):
@@ -124,7 +124,7 @@ def get_dataset_ids(instrument, datasets_since=None):
         return []
     params = mock_params(instrument, datasets_since)
     if params:
-        return params.keys()
+        return list(params.keys())
     else:
         return parameter_interface.get_dataset_ids(instrument, datasets_since)
 
@@ -164,7 +164,7 @@ def get_dataset_headers_by_id(context, dataset_ids):
 
     ids_by_instrument = defaultdict(list)
     for dataset in normalized_ids:
-        for detector, instrument in DETECTOR_TO_INSTRUMENT.items():
+        for detector, instrument in list(DETECTOR_TO_INSTRUMENT.items()):
             if detector.upper() in dataset.upper():
                 ids_by_instrument[instrument].append(str(dataset))
                 break
@@ -179,7 +179,7 @@ def get_dataset_headers_by_id(context, dataset_ids):
         for instr in ids_by_instrument 
         }
     
-    for instr, dids in ids_by_instrument.items():
+    for instr, dids in list(ids_by_instrument.items()):
         instr_headers = parameter_interface.get_dataset_headers_by_id(dids, matching_params[instr])
         headers.update(instr_headers)
 

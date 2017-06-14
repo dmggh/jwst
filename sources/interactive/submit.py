@@ -109,7 +109,7 @@ class FileSubmission(object):
         
     @property
     def upload_names(self):
-        return self.uploaded_files.keys()
+        return list(self.uploaded_files.keys())
 
     @property
     def obs_locate(self):
@@ -183,7 +183,7 @@ class FileSubmission(object):
     def ordered_files(self):
         """Organize uploaded file tuples in dependency order,  starting with references and ending with .pmaps."""
         rmaps, imaps, pmaps, other = [], [], [], []
-        for original_name, uploaded_path in self.uploaded_files.items():
+        for original_name, uploaded_path in list(self.uploaded_files.items()):
             if original_name.endswith(".rmap"):
                 rmaps.append((original_name, uploaded_path))
             elif original_name.endswith(".imap"):
@@ -300,11 +300,11 @@ class FileSubmission(object):
             web_certify.do_certify_file(new_loc, new_loc, context=self.final_pmap)
     
         # Create delivery records for each of the new files
-        for old_ctx, new_ctx in new_name_map.items():
+        for old_ctx, new_ctx in list(new_name_map.items()):
             self.add_crds_file(old_ctx, rmap.locate_mapping(new_ctx), update_derivation=True)
         
         # Update the edit context for the next person so they won't miss these changes,  while locked!
-        new_pmap = [ mapping for mapping in new_name_map.values() if mapping.endswith(".pmap")][0]
+        new_pmap = [ mapping for mapping in list(new_name_map.values()) if mapping.endswith(".pmap")][0]
         models.set_default_context(os.path.basename(new_pmap))
         
         return self.final_pmap, new_name_map
@@ -314,7 +314,7 @@ class FileSubmission(object):
         names for their replacements.
         """
         new_name_map = {}
-        for old in [self.final_pmap] + updates.keys():
+        for old in [self.final_pmap] + list(updates.keys()):
             instrument, filekind = self.get_file_properties(old)
             extension = os.path.splitext(old)[-1]
             new_name_map[old] = new_map = self.get_new_name(instrument, filekind, extension)
@@ -339,7 +339,7 @@ class FileSubmission(object):
     
     def verify_instrument_lock(self):
         """Ensure that all the submitted files correspond to the locked instrument."""
-        paths = dict(self.uploaded_files).values()
+        paths = list(dict(self.uploaded_files).values())
         locks.verify_instrument_locked_files(self.user, self.instrument_lock_id, paths, self.observatory)
         
     def get_collision_list(self, newfiles):
@@ -447,7 +447,7 @@ class FileSubmission(object):
         """
         groups = {}
         seen_instrument = None
-        for (original_name, uploaded_path) in self.uploaded_files.items():
+        for (original_name, uploaded_path) in list(self.uploaded_files.items()):
             try:
                 instrument, filekind = self.get_file_properties(uploaded_path)
             except Exception:
@@ -463,7 +463,7 @@ class FileSubmission(object):
             if (instrument, filekind) not in groups:
                 groups[(instrument, filekind)] = {}
             groups[(instrument, filekind)][original_name] = uploaded_path 
-        return groups.items()
+        return list(groups.items())
 
     def ensure_references(self):
         """Check for references only.   If this fails, certification will fail."""
@@ -524,7 +524,7 @@ class FileSubmission(object):
         """Certify the new rmaps from `rmap_replacement_map` relative to .pmap `context`.
         Return { old_rmap : certify_output_for_new_rmap,  ... }
         """
-        files = [(mapping, rmap.locate_mapping(mapping)) for mapping in rmap_replacement_map.values()]
+        files = [(mapping, rmap.locate_mapping(mapping)) for mapping in list(rmap_replacement_map.values())]
         new_to_old = utils.invert_dict(rmap_replacement_map)
         disposition, certify_results = web_certify.certify_file_list(files, context=context, check_references=False, # check_references=True,
                 push_status=self.push_status)
@@ -561,7 +561,7 @@ class BatchReferenceSubmission(FileSubmission):
         
         self.ensure_references()
         
-        reference_disposition, reference_certs = web_certify.certify_file_list(self.uploaded_files.items(), 
+        reference_disposition, reference_certs = web_certify.certify_file_list(list(self.uploaded_files.items()), 
             context=comparison_context, compare_old_reference=self.compare_old_reference, push_status=self.push_status)
     
         if reference_disposition == "bad files":
@@ -576,7 +576,7 @@ class BatchReferenceSubmission(FileSubmission):
         new_references_map = self.bsr_submit_references()
         
         # Generate modified rmaps using real reference names and
-        new_mappings_map = self.modify_and_add_rmaps(old_rmaps, new_references_map.values())
+        new_mappings_map = self.modify_and_add_rmaps(old_rmaps, list(new_references_map.values()))
         
         rmap_disposition, rmap_certs = self.certify_new_mapping_list(new_mappings_map, context=comparison_context)
         
@@ -584,7 +584,7 @@ class BatchReferenceSubmission(FileSubmission):
             self.cleanup_failed_submission()
             return (rmap_disposition, new_references_map, new_mappings_map, reference_certs, rmap_certs, {}, [])
 
-        collision_list = self.get_collision_list(new_mappings_map.values())
+        collision_list = self.get_collision_list(list(new_mappings_map.values()))
         
         diff_results = self.mass_differences(new_mappings_map)
         
@@ -612,7 +612,7 @@ class BatchReferenceSubmission(FileSubmission):
         log.info("Resolved old rmap as", repr(old_rmap), "based on context", repr(self.pmap.name))
         old_rmap_path = rmap.locate_mapping(old_rmap, self.observatory)
         tmp_rmap = tempfile.NamedTemporaryFile()
-        refactor.rmap_insert_references(old_rmap_path, tmp_rmap.name, uploaded_group.values())
+        refactor.rmap_insert_references(old_rmap_path, tmp_rmap.name, list(uploaded_group.values()))
         return old_rmap
     
 # .............................................................................
@@ -623,7 +623,7 @@ class BatchReferenceSubmission(FileSubmission):
         """
         # Once both references and refactoring checks out,  submit reference files
         # and collect mapping from uploaded names to official names.
-        return self.submit_file_list(self.uploaded_files.items(), "batch submit")
+        return self.submit_file_list(list(self.uploaded_files.items()), "batch submit")
 
 # .............................................................................
 
@@ -651,11 +651,11 @@ class ExistingReferenceSubmission(FileSubmission):
         old_rmaps = self.updated_rmaps()
         
         # Generate modified rmaps removing existing references named in uploaded_files
-        new_mappings_map = self.modify_and_add_rmaps(old_rmaps, self.uploaded_files.values())
+        new_mappings_map = self.modify_and_add_rmaps(old_rmaps, list(self.uploaded_files.values()))
         
         disposition, rmap_certs = self.certify_new_mapping_list(new_mappings_map, context=self.pmap_name)
         
-        collision_list = self.get_collision_list(new_mappings_map.values())
+        collision_list = self.get_collision_list(list(new_mappings_map.values()))
         
         diff_results = self.mass_differences(new_mappings_map)
         
@@ -701,7 +701,7 @@ class SimpleFileSubmission(FileSubmission):
             self.verify_instrument_lock()
         
         disposition, certify_results = web_certify.certify_file_list(
-            self.uploaded_files.items(), context=self.pmap_name, compare_old_reference=self.compare_old_reference,
+            list(self.uploaded_files.items()), context=self.pmap_name, compare_old_reference=self.compare_old_reference,
             push_status=self.push_status)
         
         if disposition == "bad files":
@@ -711,11 +711,11 @@ class SimpleFileSubmission(FileSubmission):
         # Add the files to the CRDS database as "uploaded",  pending certification and confirmation.
         new_file_map = self.submit_file_list(self.ordered_files(), "submit_files")
         
-        collision_list = self.get_collision_list(new_file_map.values())
+        collision_list = self.get_collision_list(list(new_file_map.values()))
         
         # Get rmaps  used as a basis for creating a new context.
         if generate_contexts:
-            context_rmaps = [filename for filename in new_file_map.values() if filename.endswith(".rmap")]
+            context_rmaps = [filename for filename in list(new_file_map.values()) if filename.endswith(".rmap")]
         else:
             context_rmaps = []
 
@@ -780,14 +780,14 @@ def submit_confirm_core(confirmed, submission_kind, description, new_files, cont
             submission = FileSubmission(pmap_name, uploaded_files=None, description=description, user=user, creator="crds", 
                                         pmap_mode=pmap_mode)
             final_pmap, context_name_map = submission.do_create_contexts(context_rmaps)
-            delivered_files = sorted(new_files + context_name_map.values())
+            delivered_files = sorted(new_files + list(context_name_map.values()))
         else:
             delivered_files = new_files
       
         delivery = Delivery(user, delivered_files, description, submission_kind, related_files=related_files)
         delivery.deliver()
         
-        collisions = get_collision_list(context_name_map.values())
+        collisions = get_collision_list(list(context_name_map.values()))
     else:
         destroy_file_list(new_files)
 
@@ -815,7 +815,7 @@ def create_contexts(description, context_rmaps, user, pmap_name):
     delivery = Delivery(user, delivered_files, description, "new context")
     delivery.deliver()
         
-    collisions = get_collision_list(context_name_map.values())
+    collisions = get_collision_list(list(context_name_map.values()))
 
     return  context_name_map, collisions
     
@@ -977,7 +977,7 @@ SUBMISSION_CLASSES = {
 }
 
 SUBMISSION_INFO = {
-    "submission_kinds" : SUBMISSION_CLASSES.keys(),
+    "submission_kinds" : list(SUBMISSION_CLASSES.keys()),
     # "monitor_url": sconfig.CRDS_URL + "monitor/",
     # "confirm_url": sconfig.CRDS_URL + "confirm/",
 }

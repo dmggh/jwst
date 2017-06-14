@@ -301,11 +301,11 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
     }
 
     # echo escaped inputs.
-    for key, value in request.GET.items():
+    for key, value in list(request.GET.items()):
         rdict[key] = safestring.mark_for_escaping(value)
-    for key, value in request.POST.items():
+    for key, value in list(request.POST.items()):
         rdict[key] = safestring.mark_for_escaping(value)
-    for key, value in request.FILES.items():
+    for key, value in list(request.FILES.items()):
         rdict[key] = safestring.mark_for_escaping(value)
 
     if requires_pmaps:
@@ -313,7 +313,7 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
 
     # include view outputs
     if dict_ is not None:
-        for key, value in dict_.items():
+        for key, value in list(dict_.items()):
             rdict[key] = value
 
     # Set up variables required to support django-json-rpc Javacsript
@@ -385,7 +385,7 @@ def squash_file_paths(response, uploaded_pairs):
 def get_uploaded_filepaths(request):
     """Return [ (original_name, temporary_path), ...] for uploaded files in `request`."""
     pairs = []
-    for ufile in request.FILES.values():
+    for ufile in list(request.FILES.values()):
         filepath = str(ufile.temporary_file_path())
         original_name = str(ufile.name)
         config.check_filename(original_name)
@@ -1051,7 +1051,7 @@ def header_string_to_header(hstring):
 def _dict_header_format(hstring):
     """Enable users to cut-and-paste CRDS header dump dictionaries."""
     header = ast.literal_eval(hstring)
-    for (key, value) in header.items():
+    for (key, value) in list(header.items()):
         value = utils.condition_value(value)
         if not common.FITS_KEY_RE.match(key) and common.FITS_VAL_RE.match(value):
             log.warning("Dropping illegal keyword '%s' with value '%s'." % (key, value))
@@ -1155,7 +1155,7 @@ def bestrefs_explore_post(request):
     pmap = crds.get_symbolic_mapping(context)
     instrument = validate(request, "instrument", models.INSTRUMENTS)
     valid_values = dict(pmap.get_imap(instrument).get_parkey_map())
-    for key, values in valid_values.items():
+    for key, values in list(valid_values.items()):
         if values == ["N/A"]:
             values = []
         if "CORR" not in key:
@@ -1185,7 +1185,7 @@ def bestrefs_explore_compute(request):
     pmap = crds.get_symbolic_mapping(context)
     imap = pmap.get_imap(instrument)
     header = { pmap.instrument_key : instrument.upper() }
-    pars = imap.get_parkey_map().keys()
+    pars = list(imap.get_parkey_map().keys())
     for par in pars:
         try:
             write_in =  validate(request, par + "_text", r"[A-Za-z0-9\+\-.,*/;|{}\[\]:]*")
@@ -1225,11 +1225,11 @@ def certify_post(request):
 
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
-    disposition, certify_results = web_certify.certify_file_list(uploaded_files.items(), context=comparison_context,
+    disposition, certify_results = web_certify.certify_file_list(list(uploaded_files.items()), context=comparison_context,
         compare_old_reference=compare_old_reference, push_status=jpoll_handler.write)
 
     if disposition != "bad files":
-        blacklist_results = web_certify.get_blacklist_file_list(uploaded_files.items(), all_files=all_files)
+        blacklist_results = web_certify.get_blacklist_file_list(list(uploaded_files.items()), all_files=all_files)
     else:
         blacklist_results = []
 
@@ -1285,7 +1285,7 @@ def batch_submit_references_post(request):
 
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
-    simplified_uploads = [ name for (name, path) in uploaded_files.items() ]
+    simplified_uploads = [ name for (name, path) in list(uploaded_files.items()) ]
 
     mail.crds_notification(body=mail.GENERIC_STARTED_BODY, status="STARTED",
             username=request.user.username, user_email=request.user.email, 
@@ -1310,7 +1310,7 @@ def batch_submit_references_post(request):
                 "pmap_mode" : pmap_mode,
 
                 "new_file_map" : new_file_map,
-                "uploaded_basenames" : uploaded_files.keys(),
+                "uploaded_basenames" : list(uploaded_files.keys()),
                 "submission_kind" : "batch submit",
                 "title" : "Batch Reference Submit",
                 "description" : description,
@@ -1391,7 +1391,7 @@ def submit_confirm(request): #, button, results_id):
     repeatable_model.save()
     
     new_file_map = dict(result.new_file_map)
-    new_files = new_file_map.values()
+    new_files = list(new_file_map.values())
 
     if button == "confirm":  
         disposition = "confirmed"
@@ -1419,7 +1419,7 @@ def submit_confirm(request): #, button, results_id):
 
         # rmaps specified for context generation but not uploaded or generated
         context_rmaps = [filename for filename in result.context_rmaps
-                         if filename not in dict(generated_files).values() + result.uploaded_basenames]
+                         if filename not in list(dict(generated_files).values()) + result.uploaded_basenames]
 
         confirm_results = dict(
             pmap_mode = result.pmap_mode,
@@ -1703,7 +1703,7 @@ def submit_files_post(request, crds_filetype):
 
                 "context_rmaps" : context_rmaps,
                 "new_file_map" : sorted(new_file_map.items()),
-                "uploaded_basenames" : uploaded_files.keys(),
+                "uploaded_basenames" : list(uploaded_files.keys()),
                 "submission_kind" : "submit file",
                 "title" : "Submit File",
                 "description" : description,
@@ -2336,7 +2336,7 @@ def create_archive(request, arch_extension):
         with log.error_on_exception("failed creating bundle", repr(bundle_path)):
             utils.ensure_dir_exists(bundle_path)
             tar = tarfile.open(bundle_path, mode=ARCH_MODES[arch_extension], dereference=True)
-            for filename, path in files.items():
+            for filename, path in list(files.items()):
                 tar.add(path, arcname=filename)
             tar.close()
             os.chmod(bundle_path, 0o640)
@@ -2509,7 +2509,7 @@ def get_context_pmaps(context_map):
     context_pmaps = {}
     files = models.FileBlob.objects.all()
     for file_ in files:
-        if file_.name in context_map.values():
+        if file_.name in list(context_map.values()):
             file_.thaw()
             context_pmaps[file_.name] = pmap_label(file_)
     return context_pmaps
@@ -2611,7 +2611,7 @@ def old_results(request):
     for blob in result_blobs:
         new_file_map = blob.parameters.get("new_file_map", [])
         if isinstance(new_file_map, dict):
-            new_file_map = new_file_map.items()
+            new_file_map = list(new_file_map.items())
         files = [ names[1] for names in new_file_map ]
         files += [ names[1] for names in blob.parameters.get("uploaded_files_map", [])]
         files += [ name for name in blob.parameters.get("uploaded_basename", [])]

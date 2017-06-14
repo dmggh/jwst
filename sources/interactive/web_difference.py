@@ -53,13 +53,13 @@ def difference_core(file1_orig, file2_orig, file1_path=None, file2_path=None, pu
         # filter to same type because table display requires homogeneous columns
         filtered = filter_same_type(file1_path, unfiltered)
         # logical diffs are stored as json,  make json-ify-able items
-        logical_diffs = [ diff.flat.items() for diff in filtered 
+        logical_diffs = [ list(diff.flat.items()) for diff in filtered 
                          if "header" not in diff[-1] and "different" not in diff[-1] ]
         logical_diffs = [ abbreviate_meta_pars(diff[:-1]) + [add_link(diff[-1])] for diff in logical_diffs]
         header_diffs = [ diff for diff in filtered 
                          if "header" in diff[-1] or 
                          ("different" in diff[-1] and "parameter lists" not in diff[-1]) ]
-        header_diffs = [ diff.flat.items() for diff in header_diffs if not boring_diff(diff) ]
+        header_diffs = [ list(diff.flat.items()) for diff in header_diffs if not boring_diff(diff) ]
         # map_text_diffs = mapping_text_diffs(logical_diffs)
         # Compute root files separately since they may have upload paths.
         map_text_diffs = {}

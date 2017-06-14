@@ -266,7 +266,7 @@ def check_reference(reference):
 def check_header(header):
     if not isinstance(header, dict):
         raise InvalidHeaderError("Header parameter is not a dictionary.")
-    for key, value in header.items():
+    for key, value in list(header.items()):
         if not isinstance(key, python23.string_types) or not FITS_KEY_RE.match(key):
             raise InvalidHeaderError("Bad key in header {0}", key)
         if not isinstance(value, (python23.string_types, int, float, bool)) or not FITS_VAL_RE.match(value):
@@ -317,7 +317,7 @@ def check_dataset_ids(datasets):
 def check_header_map(header_map):
     if not isinstance(header_map, dict):
         raise InvalidDatasetIds("Expected object mapping dataset ids to headers: { dataset_id : { header } }.")
-    for dataset, header in header_map.items():
+    for dataset, header in list(header_map.items()):
         if not isinstance(dataset, python23.string_types) or (not DATASET_ID_RE.match(dataset) and not FILE_RE.match(dataset)):
             raise InvalidDatasetIds("Bad dataset id: '{0}'", dataset)
         try:
@@ -535,10 +535,10 @@ def get_aui_best_references(request, date, dataset_ids):
     # checking happens in _get_best...
     complex_results = _get_best_references_by_ids(request, context, dataset_ids, reftypes=(), include_headers=False)
     simpler_results = {}
-    for dataset_id, result in complex_results.items():
+    for dataset_id, result in list(complex_results.items()):
         if result[0]:
             filenames = []
-            for typename, filename in result[1].items():
+            for typename, filename in list(result[1].items()):
                 if not filename.startswith("NOT FOUND"):
                     filenames.append(filename)
             simpler_results[dataset_id] = (True, filenames)
@@ -579,7 +579,7 @@ def get_best_references_by_header_map(request, context, headers, reftypes):
     headers = check_header_map(headers)
     reftypes = check_reftypes(reftypes)
     result = {}
-    for id, header in headers.items():
+    for id, header in list(headers.items()):
         try:
             result[id] = (True, heavy_client.hv_best_references(context, header, include=reftypes, condition=True))
         except Exception as exc:
@@ -660,11 +660,11 @@ def get_file_info_map(request, observatory, files, fields):
     fields = check_field_list(fields)
     filemap = imodels.get_fileblob_map(observatory=observatory)
     if files is None:
-        files = filemap.keys()
+        files = list(filemap.keys())
     if fields is None:
-        blob0 = filemap.values()[0]
+        blob0 = list(filemap.values())[0]
         blob0.thaw()
-        fields = blob0.info.keys()
+        fields = list(blob0.info.keys())
     result = {}
     for name in files:
         try:
@@ -673,7 +673,7 @@ def get_file_info_map(request, observatory, files, fields):
             result[name] = "NOT FOUND"
             continue
         blob.thaw()
-        result[name] = { field:value for (field, value) in blob.info.items() if field in fields }
+        result[name] = { field:value for (field, value) in list(blob.info.items()) if field in fields }
     return result
 
 MAX_HEADERS_PER_RPC = 1000

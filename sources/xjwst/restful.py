@@ -66,7 +66,7 @@ class GetService(object):
 
     def format_parameters(self, parameters):
         if isinstance(parameters, dict):
-            parameters = parameters.items()
+            parameters = list(parameters.items())
         formatted = "&".join([name + "="+ str(value) for (name, value) in parameters
                               if value is not None])
         return formatted

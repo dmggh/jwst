@@ -59,7 +59,7 @@ Does not move, rename, or deliver files.
         self.add_argument('--reinit-slow-fields', action='store_true', dest="reinit_slow_fields",
                           help='Initialize DB fields which require significant time,  like sha1sums.')
         self.add_argument('-T', '--state', default='operational',  help="CRDS server file state.", 
-                          choices=models.FILE_STATUS_MAP.keys()) 
+                          choices=list(models.FILE_STATUS_MAP.keys())) 
         self.add_argument('-D', '--description', default="Initial mass file import")
         self.add_argument('-U', '--deliverer', default="crds",  help="Username of person adding these files.")
         self.add_argument('-E', '--deliverer-email', default="support@stsci.edu")

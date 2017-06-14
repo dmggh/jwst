@@ -74,7 +74,7 @@ def get_dataset_headers_by_id(dataset_ids, matching_parameters):
         results = get_header_block(
             dataset_ids[i:min(i+max_headers, len(dataset_ids))], matching_parameters)
         total_headers.update(results)
-    total_headers = { did.upper() : header for (did, header) in total_headers.items() }
+    total_headers = { did.upper() : header for (did, header) in list(total_headers.items()) }
     for did in dataset_ids:
         if did not in total_headers:  # Bad ID format
             total_headers[did] = "NOT FOUND bad ID format for " + repr(did)
@@ -85,7 +85,7 @@ def get_dataset_headers_by_id(dataset_ids, matching_parameters):
             elif isinstance(header, python23.string_types):
                 pass
             elif isinstance(header, dict):
-                for key, value in header.items():
+                for key, value in list(header.items()):
                     if value is None:
                         header[key] = "UNDEFINED"
             else:

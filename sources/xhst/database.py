@@ -264,7 +264,7 @@ def required_keys(instr):
     pars.append("asm_member_name") 
     pars.append("asm_member_type")
     imap = crds.get_pickled_mapping(models.get_default_context(models.OBSERVATORY, "operational")).get_imap(instr)  # reviewed
-    pars.extend(imap.selections.keys())
+    pars.extend(list(imap.selections.keys()))
     return pars
 
 def gen_header_tables(datfile=HEADER_TABLES):
@@ -342,10 +342,10 @@ class HeaderGenerator(utils.Struct):
         self.instrument = instrument.lower()
         self.catalog_db = catalog_db
         self.h_to_db = header_to_db_map
-        self.db_columns = self.h_to_db.values()
+        self.db_columns = list(self.h_to_db.values())
         self.db_tables = sorted(set(column.split(".")[0] 
                                     for column in self.db_columns))
-        self.header_keys = tuple(key.upper() for key in self.h_to_db.keys())
+        self.header_keys = tuple(key.upper() for key in list(self.h_to_db.keys()))
 
     def _getter_sql(self, columns, tables, clauses=()):
         sql = "SELECT {} FROM {} ".format(
@@ -709,7 +709,7 @@ def get_dataset_headers_by_id(context, dataset_ids):
         by_instrument[instrument].append(product)
 
     all_headers = {}
-    for instrument, products in by_instrument.items():
+    for instrument, products in list(by_instrument.items()):
         try:
             igen = get_instrument_gen(instrument)
             assoc_clauses, unassoc_clauses = dataset_ids_clauses(dataset_ids, igen)
@@ -722,7 +722,7 @@ def get_dataset_headers_by_id(context, dataset_ids):
 
     products = [ cid.split(":")[0] for cid in all_headers ]
     exposures = [ cid.split(":")[1] for cid in all_headers ]
-    combined = all_headers.keys()
+    combined = list(all_headers.keys())
     found_ids  = set(products + exposures + combined)
 
     missing = [ did for did in datasets if did not in found_ids and not assoc_assoc_id(did) ]
@@ -829,7 +829,7 @@ def get_synthetic_dataset_headers_by_id(context, dataset_ids):
     id_map = get_synthetic_id_map([did.upper() for did in dataset_ids])
     source_ids = [did[0] for did in sorted(list(set(id_map.values())))]
     source_headers = get_dataset_headers_by_id(context, source_ids)
-    headers = { did : source_headers[src_id] for (did, (src_id, typ, ctype)) in id_map.items() if src_id in source_headers }
+    headers = { did : source_headers[src_id] for (did, (src_id, typ, ctype)) in list(id_map.items()) if src_id in source_headers }
     return headers
 
 # This is a table of the assoc_member.asm_member_type correspondence rules
@@ -908,7 +908,7 @@ def get_synthetic_id_map(dataset_ids):
     for did in dataset_ids:
         for (assoc, member, typ) in assocs:
             if did in [assoc, member, compound_id(assoc, member)]:
-                if typ not in CORRESPONDING_TYPE.keys():
+                if typ not in list(CORRESPONDING_TYPE.keys()):
                     ctype = typ
                     corresponding_member = member
                 else:
@@ -917,7 +917,7 @@ def get_synthetic_id_map(dataset_ids):
                 new_ids[compound_id(assoc, member)] = (compound_id(assoc, corresponding_member), typ, ctype)
 
     for did in dataset_ids:
-        for compound in new_ids.keys():
+        for compound in list(new_ids.keys()):
             if did in compound:
                 break
         else: # Add in unassociated exposures as-is

@@ -26,13 +26,13 @@ def collapse_by_asn(assocs):
 
 def collapse_by_types(collapsed):
     by_types = defaultdict(list)
-    for asn_id, types in collapsed.items():
+    for asn_id, types in list(collapsed.items()):
         by_types[tuple(types)].append(asn_id)
     return by_types
 
 def organize(by_types):
     organized = []
-    for types, ids in by_types.items():
+    for types, ids in list(by_types.items()):
         organized.append((len(ids), ids[0], types))
     return list(reversed(sorted(organized)))
 

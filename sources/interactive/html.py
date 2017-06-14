@@ -43,7 +43,7 @@ class _Tag(object):
 
     def __call__(self, contents, **attrs):
         result = "<" + self.name + " "
-        for k, v in attrs.items():
+        for k, v in list(attrs.items()):
             if k.startswith("_"):
                 k = k[1:]
             result += k + "='" + str(v) + "' "

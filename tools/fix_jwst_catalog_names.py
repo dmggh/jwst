@@ -16,7 +16,7 @@ def fix_files():
 
 
 def fix_file_blobs():
-    for (name, blob) in models.get_fileblob_map("jwst").items():
+    for (name, blob) in list(models.get_fileblob_map("jwst").items()):
         blob.catalog_link = fix_catalog_name(blob.catalog_link)
         blob.save()
 
