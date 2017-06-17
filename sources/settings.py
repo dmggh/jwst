@@ -113,6 +113,13 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False    # closing browser will *not* kill sub
 SESSION_COOKIE_AGE =  2*CRDS_MAX_LOCK_AGE  # 8 hours,  refreshed every view
 SESSION_SAVE_EVERY_REQUEST = False         # reset expiry every view
 
+#
+# Clickjacking:
+#
+# Disable nesting withing <IFRAME> to prevent deceptive/invisible overlay buttons
+#
+X_FRAME_OPTIONS = 'DENY'
+
 MIDDLEWARE_CLASSES = (
     # must precede middleware which assumes CSRF already dealt with
     'django.middleware.security.SecurityMiddleware',

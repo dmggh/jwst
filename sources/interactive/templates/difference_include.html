@@ -24,7 +24,7 @@
             
                 {% if diffs.header_diffs %}
                     {% accordion "Header Diffs" diffs.header_diffs.0.0.1 %}
-                        <table class="crds_data_table">
+                        <table border="1" class="crds_data_table table table-striped table-bordered">
                             <thead>
                                 <tr>
                                     {% for tup in diffs.header_diffs.0|slice:"1:" %}
@@ -47,7 +47,7 @@
                 
                 {% if diffs.logical_diffs %}
                     {% accordion "Logical Diff" diffs.logical_diffs.0.0.1 %}
-                        <table class="crds_data_table">
+                        <table border="1" class="crds_data_table table table-striped table-bordered">
                             <thead>
                                 <tr>
                                     {% for tup in diffs.logical_diffs.0|slice:"1:" %}

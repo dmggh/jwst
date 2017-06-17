@@ -1172,6 +1172,8 @@ def bestrefs_explore_post(request):
             "timeobs" : timeobs,
         })
 
+VALID_PARAMETER_VALUE_CHARS = r"[A-Za-z0-9\+\-\.\/\*]*"
+
 @error_trap("bestrefs_explore_input.html")
 @log_view
 def bestrefs_explore_compute(request):
@@ -1186,14 +1188,14 @@ def bestrefs_explore_compute(request):
     pars = imap.get_parkey_map().keys()
     for par in pars:
         try:
-            write_in =  validate(request, par + "_text", r"[A-Za-z0-9\+\-.,*/;|{}\[\]:]*")
+            write_in =  validate(request, par + "_text", VALID_PARAMETER_VALUE_CHARS)
         except Exception:
             write_in = None
         if write_in:
             header[par] = write_in
         else:
             header[par] = utils.condition_value(
-                validate(request, par, r"[A-Za-z0-9\+\-.,*/;|{}\[\]:]*"))
+                validate(request, par, VALID_PARAMETER_VALUE_CHARS))
     header["DATE-OBS"] = validate(request, "DATE-OBS", timestamp.DATE_RE_STR)
     header["TIME-OBS"] = validate(request, "TIME-OBS", timestamp.TIME_RE_STR)
     return bestrefs_results(request, pmap, header, instrument)
