@@ -82,7 +82,8 @@ ADMIN_MEDIA_PREFIX = '/static/'
 
 # Make this unique, and don't share it with anybody.
 # SECRET_KEY = 'zae_r-rn0arv9c_z*b41_y2qzvqgs+082)ao#6^nxsp*qf(!16'
-SECRET_KEY = 'yy776654%lkjlkjads_04344n12090++88&6$6^nxsp*qf(!32'
+SECRET_KEY = open(os.path.dirname(CATALOG_DB_PFILE) + "/session_key").read().strip()
+
 
 # XXX move SECRET_KEY to files.
 
