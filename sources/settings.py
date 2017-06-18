@@ -84,6 +84,8 @@ ADMIN_MEDIA_PREFIX = '/static/'
 # SECRET_KEY = 'zae_r-rn0arv9c_z*b41_y2qzvqgs+082)ao#6^nxsp*qf(!16'
 SECRET_KEY = 'yy776654%lkjlkjads_04344n12090++88&6$6^nxsp*qf(!32'
 
+# XXX move SECRET_KEY to files.
+
 LOGIN_URL = "/login/"
 
 FILE_UPLOAD_HANDLERS = ( 
@@ -105,13 +107,15 @@ CACHES = {
 }
 
 # Session management, logins and expiration
-
-CRDS_MAX_LOCK_AGE = 60*60*4  # 4 hours,  refreshed every request
+# With the removal of automatic submission cancellation and "forced" confirmation,  less critical.
+CRDS_MAX_LOCK_AGE = 60*60*4  # 4 hours,  refreshed every request, dropped lock enables other team members to force confirmation.
 CRDS_LOCK_ACQUIRE_TIMEOUT = 2 # seconds
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False    # closing browser will *not* kill submission,  problem with JPOLL
-SESSION_COOKIE_AGE =  2*CRDS_MAX_LOCK_AGE  # 8 hours,  refreshed every view
-SESSION_SAVE_EVERY_REQUEST = False         # reset expiry every view
+SESSION_COOKIE_AGE = 60*60*18              # 18 hours,  deterministic logout,  intended as 1 killer business day.
+SESSION_SAVE_EVERY_REQUEST = False         # don't reset expiry every view,  JPOLL would keep session open indefinitely
+
+# SESSION_COOKIE_SECURE = True             # XXXX Force https: for session related communication.  Defaults False,  set True and test.
 
 #
 # Clickjacking:
