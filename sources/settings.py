@@ -10,7 +10,7 @@ log.remove_console_handler()
 
 # ===========================================================================
 
-from crds.server.config import install_dir, DEBUG, DEBUG_EXTRAS, FILE_UPLOAD_TEMP_DIR, crds_server_dir, CATALOG_DB_PFILE
+from crds.server.config import install_dir, DEBUG, DEBUG_EXTRAS, FILE_UPLOAD_TEMP_DIR, crds_server_dir
 from crds.server.crds_database import DATABASES
 
 ALLOWED_HOSTS = ['*']
@@ -82,7 +82,7 @@ ADMIN_MEDIA_PREFIX = '/static/'
 
 # Make this unique, and don't share it with anybody.
 # SECRET_KEY = 'zae_r-rn0arv9c_z*b41_y2qzvqgs+082)ao#6^nxsp*qf(!16'
-SECRET_KEY = open(os.path.dirname(CATALOG_DB_PFILE) + "/session_key").read().strip()
+SECRET_KEY = open("/crds/data1/database/session_key").read().strip()
 
 
 # XXX move SECRET_KEY to files.

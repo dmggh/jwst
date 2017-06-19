@@ -1,5 +1,8 @@
 #! /bin/sh
 
-genuuid  >/crds/data1/database/session_key
-chmod 400 /crds/data1/database/session_key
+session_key_file=/crds/data1/database/session_key
+
+rm -f $session_key_file
+genuuid  >$session_key_file
+chmod 400 $session_key_file
 
