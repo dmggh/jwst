@@ -1,5 +1,5 @@
 #! /bin/sh
 
-uuid -m -1  >/crds/data1/database/session_key
+genuuid  >/crds/data1/database/session_key
 chmod 400 /crds/data1/database/session_key
 
