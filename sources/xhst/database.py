@@ -198,7 +198,7 @@ class DB(object):
 
         for row in self.execute("SELECT %s FROM %s %s" % (col_names, table, where)):
             undefined_and_lowercase = [str(x).lower() if x is not None else "UNDEFINED" for x in row]
-            items = zip(col_list, undefined_and_lowercase)
+            items = zip(col_list, undefined_and_lowercase)  # OK no list
             kind = OrderedDict if ordered else dict
             yield kind(items)
 

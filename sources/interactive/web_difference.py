@@ -102,7 +102,7 @@ def abbreviate_meta_pars(diffs):
     """Abreviate the JWST "META." parameter names."""
     labels, values = zip(*diffs)
     labels = catalog_fusion.fix_meta_parameters(labels)
-    return zip(labels, values)
+    return list(zip(labels, values))
 
 def boring_diff(diff):
     """Return True IFF a logical diff is more boring than normal,  i.e. routine formal header changes."""
