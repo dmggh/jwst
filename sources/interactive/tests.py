@@ -801,7 +801,7 @@ else:  # JWST
 
         observatory = "jwst"
         pmap = "jwst_0000.pmap"
-        pmap2 = "jwst_0082.pmap"
+        pmap2 = "jwst_0341.pmap"
 
         cached_contexts = [pmap, "jwst_0003.pmap", pmap2]
 
@@ -868,7 +868,7 @@ else:  # JWST
             "interactive/test_data/jwst_miri_6666.imap",
             ]
         
-        archive_dataset_id = "ASSOCIATION:JW94015004002_02109_00001.MIRIMAGE"
+        archive_dataset_id = "JW93135336001_02102_00001.MIRIFUSHORT"
 
         certify_post_fits_bad = "interactive/test_data/jwst_miri_amplifier_bad.fits"
 

@@ -25,7 +25,7 @@ from django.shortcuts import redirect
 from django.http import HttpResponse, HttpResponseRedirect
 import django.utils.safestring as safestring
 import django.utils
-from django.utils.html import format_html, format_html_join
+from django.utils.html import format_html, format_html_join, conditional_escape
 from django.urls import reverse
 
 import django.contrib.auth
@@ -302,11 +302,11 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
 
     # echo escaped inputs.
     for key, value in list(request.GET.items()):
-        rdict[key] = safestring.mark_for_escaping(value)
+        rdict[key] = conditional_escape(value)
     for key, value in list(request.POST.items()):
-        rdict[key] = safestring.mark_for_escaping(value)
+        rdict[key] = conditional_escape(value)
     for key, value in list(request.FILES.items()):
-        rdict[key] = safestring.mark_for_escaping(value)
+        rdict[key] = conditional_escape(value)
 
     if requires_pmaps:
         rdict.update(get_pmap_template_vars(dict_))
