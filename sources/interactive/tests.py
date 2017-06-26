@@ -112,7 +112,7 @@ class InteractiveBase(TransactionTestCase):
         except Exception as exc:
             print("failed user save:", str(exc))
         self.ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, str(self.user))
-        self.fake_database_files(list(set([self.pmap, self.pmap2])))
+        self.fake_database_files(list(set([self.pmap, self.pmap2, self.pmap3])))
         models.set_default_context(self.pmap, skip_history=True)
         models.set_default_context(self.pmap, state="operational")
         utils.ensure_dir_exists(os.path.join(lconfig.get_crds_refpath(self.observatory), "test.fits"))
@@ -271,7 +271,7 @@ class InteractiveBase(TransactionTestCase):
         self._set_pmap2_defaults()
         response = self.post("/bestrefs/", {
             "pmap_mode" : "pmap_text",
-            "pmap_text" : self.pmap2,
+            "pmap_text" : self.pmap3,
             "dataset_mode" : "dataset_uploaded",
             "dataset_uploaded" : open(dataset1),
             })  
@@ -689,7 +689,7 @@ if sconfig.observatory == "hst":
     class Hst(InteractiveBase):
 
         observatory = "hst"
-        pmap = pmap2 = "hst.pmap"
+        pmap = pmap2 = pmap3 = "hst.pmap"
         cached_contexts = [pmap]
         
         new_context = "interactive/test_data/hst_0027.pmap"
@@ -801,9 +801,10 @@ else:  # JWST
 
         observatory = "jwst"
         pmap = "jwst_0000.pmap"
-        pmap2 = "jwst_0341.pmap"
+        pmap2 = "jwst_0082.pmap"
+        pmap3 = "jwst_0341.pmap"
 
-        cached_contexts = [pmap, "jwst_0003.pmap", pmap2]
+        cached_contexts = [pmap, "jwst_0003.pmap", pmap2, pmap3]
 
         new_context = "interactive/test_data/jwst_0027.pmap"
         
@@ -812,6 +813,8 @@ else:  # JWST
             "jwst_0002.pmap",
             "jwst_0083.pmap",
             "jwst_0084.pmap",
+            "jwst_0342.pmap",
+            "jwst_0343.pmap",
             "jwst_miri_0001.imap",
             "jwst_miri_0002.imap",
             "jwst_nircam_0001.imap",
