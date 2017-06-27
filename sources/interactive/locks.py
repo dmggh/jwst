@@ -34,6 +34,8 @@ A solid alternative to django-locking would be to use file locks on a local file
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
+from builtins import str
+from builtins import object
 
 import time
 import datetime

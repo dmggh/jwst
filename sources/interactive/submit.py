@@ -43,6 +43,9 @@ of errors and/or warnings.
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
+from builtins import zip
+from builtins import str
+from builtins import object
 import os
 import tempfile
 import shutil
@@ -153,8 +156,8 @@ class FileSubmission(object):
     def ensure_unique_uploaded_names(self):
         """Make sure there are no duplicate names in the submitted file list."""
         # This is a sensible check for files originating on the command line.
-        uploaded_as, paths = zip(*self.uploaded_files)
-        pathmap = dict(*zip(paths, uploaded_as))
+        uploaded_as, paths = list(zip(*self.uploaded_files))
+        pathmap = dict(*list(zip(paths, uploaded_as)))
         for name in uploaded_as:
             assert uploaded_as.count(name) == 1, "File '%s' appears more than once." % name
         for path in paths:

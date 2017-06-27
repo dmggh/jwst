@@ -5,9 +5,12 @@ in pyetc.
 from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
+from builtins import str
 
 import sys
 import re
+
+from crds.core import python23
 
 MODULE_LIST = (
     'django',
@@ -69,7 +72,7 @@ def get_version(modname):
         except AttributeError:
             try:
                 ans = mod.version
-                if not isinstance(mod.version, (str, unicode)):
+                if not isinstance(mod.version, python23.string_types):
                     ans = ans()
             except AttributeError:
                 ans = 'unknown'

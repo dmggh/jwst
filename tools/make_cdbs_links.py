@@ -8,6 +8,7 @@ of CDBS.
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
+from builtins import str
 import sys, os, shutil, re
 
 from crds import config, log, rmap, utils

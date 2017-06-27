@@ -3,6 +3,8 @@
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
+from builtins import str
+from builtins import object
 
 import sys
 import json
@@ -21,7 +23,7 @@ class JpollError(Exception):
 
 class ChannelModel(models.Model):
     """An ordered series of messages associated with a unique key."""
-    class Meta:
+    class Meta(object):
         db_table = "jpoll_channel"
 
     last_returned = models.DateTimeField(auto_now_add=True, help_text="Datetime channel opened.")
@@ -122,7 +124,7 @@ class ChannelModel(models.Model):
 
 class MessageModel(models.Model):
     """Model for a single jpoll message object,  one of an ordered series on a single channel."""
-    class Meta:
+    class Meta(object):
         db_table = "jpoll_message"
 
     channel = models.ForeignKey(ChannelModel, on_delete=models.CASCADE)

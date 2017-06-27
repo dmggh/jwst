@@ -14,6 +14,9 @@ final page display to fail.
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
+from builtins import str
+from builtins import range
+from builtins import object
 
 import sys
 import time

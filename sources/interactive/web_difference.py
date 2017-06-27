@@ -2,6 +2,10 @@
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
+from builtins import zip
+from builtins import map
+from builtins import str
+from builtins import range
 
 import os.path
 import re
@@ -100,7 +104,7 @@ def add_link(diff):
 
 def abbreviate_meta_pars(diffs):
     """Abreviate the JWST "META." parameter names."""
-    labels, values = zip(*diffs)
+    labels, values = list(zip(*diffs))
     labels = catalog_fusion.fix_meta_parameters(labels)
     return list(zip(labels, values))
 
@@ -132,7 +136,7 @@ def mapping_logical_diffs(file1_orig, file2_orig, file1, file2):
         ldiffs = map1.difference(map2, include_header_diffs=True)
         result = ldiffs, []
     except Exception as exc:
-        file1, file2 = map(os.path.basename, [file1, file2])
+        file1, file2 = list(map(os.path.basename, [file1, file2]))
         exc = str(exc).replace(file1, file1_orig).replace(file2, file2_orig)
         result = [], ["ERROR: " + html.escape(exc) ]
     # log.info("mapping_logical_diffs:", log.PP(result))

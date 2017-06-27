@@ -5,6 +5,10 @@ catalog.
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
+from builtins import next
+from builtins import zip
+from builtins import str
+from builtins import object
 import pprint
 import getpass
 from collections import OrderedDict, defaultdict, namedtuple
@@ -198,7 +202,7 @@ class DB(object):
 
         for row in self.execute("SELECT %s FROM %s %s" % (col_names, table, where)):
             undefined_and_lowercase = [str(x).lower() if x is not None else "UNDEFINED" for x in row]
-            items = zip(col_list, undefined_and_lowercase)  # OK no list
+            items = list(zip(col_list, undefined_and_lowercase))  # OK no list
             kind = OrderedDict if ordered else dict
             yield kind(items)
 
@@ -358,7 +362,7 @@ class HeaderGenerator(utils.Struct):
     def _get_headers(self, sql, header_keys):
         hdrs = {}
         for sql_row in self.catalog_db.execute(sql):
-            hdr = dict(zip(header_keys, sql_row))
+            hdr = dict(list(zip(header_keys, sql_row)))
             hdr = self.condition_header(hdr)
             hdr = self.fix_hdr(hdr)
             hdrs[self.compound_id(hdr)] = hdr

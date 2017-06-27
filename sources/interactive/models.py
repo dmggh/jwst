@@ -2,6 +2,10 @@
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
+from builtins import zip
+from builtins import str
+from builtins import range
+from builtins import object
 
 import os
 import os.path
@@ -142,7 +146,7 @@ class MissingInputError(FieldError):
 # ============================================================================
 
 class CrdsModel(models.Model):
-    class Meta:
+    class Meta(object):
         abstract = True    # Collapse model inheritance for flat SQL tables
         
     name = models.CharField(max_length=64, default="", help_text="unique name of this model.",
@@ -206,7 +210,7 @@ class CounterModel(CrdsModel):
     Automatically generates a new counter if it doesn't already exist:
     use with care.
     """
-    class Meta:
+    class Meta(object):
         db_table = TABLE_PREFIX + "_counters" 
 
     counter = models.IntegerField(default=0, help_text="Value of the counter.")
@@ -313,7 +317,7 @@ CONTEXT_TYPES = ["operational", "edit", "versions"]
 
 class ContextModel(CrdsModel):
     """Keeps track of which mappings are the default."""
-    class Meta:
+    class Meta(object):
         db_table = TABLE_PREFIX + "_contexts" 
 
     model_fields = repr_list = unicode_list = CrdsModel.model_fields + ["observatory", "kind", "context"]
@@ -476,7 +480,7 @@ def get_default_context(observatory, state):
 
 class ContextHistoryModel(CrdsModel):
     """Keeps track of interval at which the specified context was active and the reason for the switch."""
-    class Meta:
+    class Meta(object):
         db_table = TABLE_PREFIX + "_context_history"
         ordering = ("start_date","context")
 
@@ -491,7 +495,7 @@ class ContextHistoryModel(CrdsModel):
     context = models.CharField(max_length=64, default="",
         help_text="name of .pmap assigned to for this kind of context.")
     
-    state = models.CharField(max_length=32, default="operational", choices=zip(CONTEXT_TYPES, CONTEXT_TYPES))
+    state = models.CharField(max_length=32, default="operational", choices=list(zip(CONTEXT_TYPES, CONTEXT_TYPES)))
     
     description = models.TextField( 
             help_text  = "Reason for the switch to this context.",
@@ -538,7 +542,7 @@ class BlobModel(CrdsModel):
     as well as a "blob" of slow fields which are easier to declare and
     don't change the database schema.
     """
-    class Meta:
+    class Meta(object):
         abstract = True    # Collapse model inheritance for flat SQL tables
 
     model_fields = CrdsModel.model_fields + ["blob"]  # field directly in database
@@ -996,14 +1000,14 @@ def SimpleCharField(choice_list, help_text, default):
     max_length = int(2**(math.ceil(math.log(length,2))+1))    
     return models.CharField( 
         max_length=max_length,
-        choices = zip(choice_list, choice_list),
+        choices = list(zip(choice_list, choice_list)),
         help_text = help_text,
         default = default)
 
 class FileBlob(BlobModel, FileBlobRepairMixin):
     """Represents a delivered file,  either a reference or a mapping."""
 
-    class Meta:
+    class Meta(object):
         db_table = TABLE_PREFIX + "_catalog" # rename SQL table from interactive_fileblob
     
     # attribute names of model data
@@ -1524,7 +1528,7 @@ class AuditBlob(BlobModel):
     """Maintains an audit trail of important actions indicating who did them,
     when, and why.
     """
-    class Meta:
+    class Meta(object):
         db_table = TABLE_PREFIX + "_actions" # rename SQL table from interactive_fileblob
         
     user = models.CharField(max_length=64, default="", help_text="user who performed this action")
@@ -1627,7 +1631,7 @@ class RepeatableResultBlob(BlobModel):
     re-rendered at later time without re-executing forms and hence back/forward 
     arrows can work to redisplay options.
     """
-    class Meta:
+    class Meta(object):
         db_table = TABLE_PREFIX + "_results" # rename SQL table
         
     repr_list = unicode_list = ["id","name", "page_template"]
@@ -1700,7 +1704,7 @@ class RemoteContextModel(CrdsModel):
     
     The remote cache is identified by it's key.
     """
-    class Meta:
+    class Meta(object):
         db_table = TABLE_PREFIX + "_remote_context" # rename SQL table
         
     repr_list = unicode_list = ["id", "name", "observatory", "kind", "context"]

@@ -1,6 +1,7 @@
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
+from builtins import object
 import datetime
 
 from django.db import models, IntegrityError
@@ -107,7 +108,7 @@ class Lock(models.Model):
 
     objects = LockManager()
 
-    class Meta:
+    class Meta(object):
         verbose_name = _('Lock')
         verbose_name_plural = _('Locks')
         ordering = ['created_on']
