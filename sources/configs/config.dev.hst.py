@@ -20,8 +20,14 @@ storage_path = '/ifs/crds/' + observatory + '/' + server_usecase
 
 CATALOG_DB_USER = "crds"
 CATALOG_DB_PFILE = "/crds/data1/database/crds.dat"
-CATALOG_DB_DSN = "GrouchoDadstest2Dsn"
-REFFILE_DB_DSN = "GrouchoReffileOpsRepDsn"
+CATALOG_DB_DSN = "HarpoDadsopsRepDsn"
+REFFILE_DB_DSN = "HarpoReffileOpsRepDsn"
+
+
+# CATALOG_DB_USER = "crds"
+# CATALOG_DB_PFILE = "/crds/data1/database/crds.dat"
+# CATALOG_DB_DSN = "GrouchoDadstest2Dsn"
+# REFFILE_DB_DSN = "GrouchoReffileOpsRepDsn"
 
 servertype = 'mod_wsgi'
 apachemod = install_root + "/lib"

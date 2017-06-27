@@ -214,7 +214,7 @@ def get_password():
     """
     if not hasattr(get_password, "_password"):
         try: # crazy scheme works with "password" or "blah password" in password file.
-            get_password._password = open(sconfig.CATALOG_DB_PFILE).read().split()[-1:][0]
+            get_password._password = open(sconfig.CATALOG_DB_PFILE).readline().split()[-1:][0]
         except:
             get_password._password = getpass.getpass("password: ")
     return get_password._password
