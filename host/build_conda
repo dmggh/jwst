@@ -1,6 +1,6 @@
 #! /bin/tcsh -fx
 
-setenv CONDA_NAME crds_conda-4
+setenv CONDA_NAME crds_conda-6
 
 setenv CRDS_STACK ${CRDS}/crds_stacks/$CONDA_NAME
 setenv META_PREFIX ${CRDS_STACK}
@@ -11,6 +11,7 @@ mv ${CRDS_STACK} ${CRDS_STACK}.old
 rm -rf installer4
 cp -r /eng/ssb/crds/installer4 .
 cd installer4/build
+git checkout $CONDA_NAME
 
 rm -f *.err
 ./meta clean >& /dev/null
@@ -21,12 +22,15 @@ bash ./miniconda.sh -b -p $CRDS_STACK
 rm miniconda.sh
 setenv PATH ${CRDS_STACK}/bin:${PATH}
 rehash 
-conda update --quiet --yes conda
 
-conda install --quiet --yes --file http://ssb.stsci.edu/conda/jwstdp-0.7.0rc/jwstdp-0.7.0rc2-linux-py27.0.txt
-conda remove --quiet --yes crds
+# conda config --add channels http://ssb.stsci.edu/astroconda
+conda config --add channels http://ssb.stsci.edu/conda-dev 
+# conda install -c http://ssb.stsci.edu/conda-dev astropy numpy scipy asdf gwcs ipython requests lxml stsci jwst --quiet --yes
+conda install stsci jwst --quiet --yes
+conda install astropy numpy scipy asdf gwcs ipython requests lxml pymysql --quiet --yes
+conda install fitsverify cfitsio --quiet --yes
 
-./meta install @crds2  |& tee ${CRDS_STACK}/crds2.err
+./meta install @crds2-fixed  |& tee ${CRDS_STACK}/crds2.err
 ./meta install jwst |& tee ${CRDS_STACK}/jwst.err
 ./meta clean >& /dev/null
 
@@ -34,7 +38,7 @@ rehash
 
 git status  |& tee ${CRDS_STACK}/git.status
 git log --stat |& tee ${CRDS_STACK}/git.log
-conda list |& tee ${CRDS_STACK}/conda.list
+conda list --explicit |& tee ${CRDS_STACK}/${CONDA_NAME}.txt
 
 
 # Install the entire base to get mercurial... for this.
