@@ -2,7 +2,7 @@
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
-from builtins import str
+# from builtins import str
 
 from django.contrib import admin
 from crds.server.interactive.models import (ContextModel, ContextHistoryModel, RemoteContextModel,

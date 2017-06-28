@@ -2,8 +2,8 @@
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
-from builtins import str
-from builtins import object
+# from builtins import str
+# from builtins import object
 
 import sys
 import os
@@ -138,7 +138,7 @@ class InteractiveBase(TransactionTestCase):
     def post(self, *args, **keys):
         raw_response = self.client.post(*args, **keys)
         response = DecodedResponse(raw_response)
-        log.info("RESPONSE:\n", response.content)
+        # log.info("RESPONSE:\n", response.content)
         return response
 
     def login(self, username="homer", locked_instrument=None, status=302):

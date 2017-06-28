@@ -1,7 +1,7 @@
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
-from builtins import str
+# from builtins import str
 debug = DEBUG = True
 DEBUG_EXTRAS = False
 
@@ -63,7 +63,7 @@ FORCE_REMOTE_MODE = False
 # ARCHIVE_PARAMETER_SERVICE_URL = "http://iljwdmsdarcv.stsci.edu:8888/crds"
 # ARCHIVE_PARAMETER_SERVICE_URL = "https://dljwdms5v1.stsci.edu:8888/crds"
 # ARCHIVE_PARAMETER_SERVICE_URL = "http://jwdmsdevvm4.stsci.edu:8888/crds"
-# ARCHIVE_PARAMETER_SERVICE_URL = "https://undefined-archive-parameter-service.stsci.edu:8888/crds"
-# CRDS_MOCK_ARCHIVE_PARAMETERS = "jwst-b7.1-bit-2017-06-17.json"
+ARCHIVE_PARAMETER_SERVICE_URL = "https://undefined-archive-parameter-service.stsci.edu:8888/crds"
+CRDS_MOCK_ARCHIVE_PARAMETERS = "jwst-b7.1-bit-2017-06-17.json"
 
-ARCHIVE_PARAMETER_SERVICE_URL = "http://iljwdmsbarcv1.stsci.edu:8888/crds"
+# ARCHIVE_PARAMETER_SERVICE_URL = "http://iljwdmsbarcv1.stsci.edu:8888/crds"

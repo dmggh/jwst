@@ -29,8 +29,8 @@ WARNING:  this module overrides builtin functions:
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
-from builtins import str
-from builtins import object
+# from builtins import str
+# from builtins import object
 
 class _Tag(object):
     """Represents an HTML tag of the same name,  and when called
