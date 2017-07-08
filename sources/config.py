@@ -1,3 +1,6 @@
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import division
 # XXXXXXXX Late imports below
 
 CRDS_STATUS_FROM_ADDRESS = "crds-servers@stsci.edu"
@@ -11,7 +14,7 @@ CRDS_STATUS_TO_ADDRESSES = ["crds-servers@stsci.edu"]
 # ^^^^^ -------------------------------------------------------------------------------------------
 # vars above this line can be overridden in site_config.py copied from configs/config.xx.yy.py
 # vvvvv -------------------------------------------------------------------------------------------
-from site_config import *
+from .site_config import *
 
 # install_dir is the server installation location,  with the exceptions of logs
 # this should be kept small.

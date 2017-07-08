@@ -1,4 +1,8 @@
 """This module supports the Django /admin/ site for CRDS."""
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+# from builtins import str
 
 from django.contrib import admin
 from crds.server.interactive.models import (ContextModel, ContextHistoryModel, RemoteContextModel,
@@ -50,7 +54,7 @@ class FileBlobAdmin(admin.ModelAdmin):
         """Repair catalog entries by restoring information from cached references. """
         for fileblob in queryset:
             repairs, failed = fileblob.repair_defects()
-            for msg in repairs.values() + failed.values():
+            for msg in list(repairs.values()) + list(failed.values()):
                 self.announce(request, "File '{}' ".format(fileblob.name) + " " + msg)
     repair_catalog.short_description = repair_catalog.__doc__
         

@@ -1,3 +1,6 @@
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 import sys
 
 from django.contrib.auth.models import User
@@ -46,6 +49,6 @@ if __name__ == "__main__":
     if 4 <= len(sys.argv) <= 6:
         adduser(*sys.argv[1:], super_user=super_user, use_existing=use_existing)
     else:
-        print >>sys.stderr, "usage: adduser.py <username> <email> <password> [<first name> [<last name>]]"
+        print("usage: adduser.py <username> <email> <password> [<first name> [<last name>]]", file=sys.stderr)
         sys.exit(-1)
 

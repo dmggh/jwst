@@ -1,4 +1,11 @@
 """Database models for crds.server.interactive."""
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+# from builtins import zip
+# from builtins import str
+# from builtins import range
+# from builtins import object
 
 import os
 import os.path
@@ -16,7 +23,7 @@ from django.db import transaction
 
 # Create your models here.
 import crds
-from crds import (timestamp, rmap, utils, refactor, log, data_file, uses, diff, checksum)
+from crds import (timestamp, rmap, utils, refactor, log, data_file, uses, diff, checksum, python23)
 from crds import CrdsError
 from crds.log import srepr
 
@@ -43,19 +50,19 @@ def crds_cached(f):
     """
     # @common.profile(f.__name__ + ".stats")
     def wrapper(*args, **keys):
-        raw_key = __name__ + "_" + f.func_name + "_" + str(args + tuple(sorted(keys.items())))
+        raw_key = __name__ + "_" + f.__name__ + "_" + str(args + tuple(sorted(keys.items())))
         raw_key = raw_key.replace("(","_").replace(")","_").replace("'","").replace(",","_").replace(" ","")
         key = utils.str_checksum(raw_key)
         val = retrieve_cache(key)
         if val is not None:
-            log.verbose("crds_cached", f.func_name, raw_key, key, "HIT")
+            log.verbose("crds_cached", f.__name__, raw_key, key, "HIT")
         else:
             val = f(*args, **keys)
-            log.info("crds_cached", f.func_name, raw_key, key, "MISS")
+            log.info("crds_cached", f.__name__, raw_key, key, "MISS")
             store_cache(key, val)
         return val
     wrapper.__doc__ = f.__doc__
-    wrapper.func_name = f.func_name
+    wrapper.__name__ = f.__name__
     return wrapper
 
 def clear_cache():
@@ -70,10 +77,10 @@ def store_cache(key, val, chunk_size=950000):
     # return CRDS_CACHE.set(key, val)
     with log.error_on_exception("store_cache failed", repr(key)):
         pick = json_ext.dumps(val)
-        for i in xrange(0, len(pick), chunk_size):
+        for i in range(0, len(pick), chunk_size):
             chunk_key = key + "_{:02d}".format(i//chunk_size)
             chunk_data = pick[i:i+chunk_size]
-            CRDS_CACHE.set(chunk_key, chunk_data)
+            CRDS_CACHE.set(chunk_key, chunk_data.encode("utf-8"))
             log.verbose("store_cache", chunk_key, len(chunk_data))
 
 def retrieve_cache(key):
@@ -85,7 +92,7 @@ def retrieve_cache(key):
         pick = ""
         while 1:
             chunk_key = key + "_{:02d}".format(i)
-            fetch = CRDS_CACHE.get(chunk_key)
+            fetch = CRDS_CACHE.get(chunk_key)  # .decode("utf-8")
             if fetch is None:
                 break
             pick += fetch
@@ -139,7 +146,7 @@ class MissingInputError(FieldError):
 # ============================================================================
 
 class CrdsModel(models.Model):
-    class Meta:
+    class Meta(object):
         abstract = True    # Collapse model inheritance for flat SQL tables
         
     name = models.CharField(max_length=64, default="", help_text="unique name of this model.",
@@ -203,7 +210,7 @@ class CounterModel(CrdsModel):
     Automatically generates a new counter if it doesn't already exist:
     use with care.
     """
-    class Meta:
+    class Meta(object):
         db_table = TABLE_PREFIX + "_counters" 
 
     counter = models.IntegerField(default=0, help_text="Value of the counter.")
@@ -295,7 +302,7 @@ def get_bad_files(observatory):
     # references are only rejected
     # to keep bad_files list small,  only include *rejected* files.
     # client-side,  checker must inspect current context for contained bad mappings, i.e. rejected files.
-    bad_files = [ str(blob.name) for blob in fileblobs.values() if blob.observatory==observatory and blob.rejected ]
+    bad_files = [ str(blob.name) for blob in list(fileblobs.values()) if blob.observatory==observatory and blob.rejected ]
     return sorted(bad_files)
 
 # ============================================================================
@@ -310,7 +317,7 @@ CONTEXT_TYPES = ["operational", "edit", "versions"]
 
 class ContextModel(CrdsModel):
     """Keeps track of which mappings are the default."""
-    class Meta:
+    class Meta(object):
         db_table = TABLE_PREFIX + "_contexts" 
 
     model_fields = repr_list = unicode_list = CrdsModel.model_fields + ["observatory", "kind", "context"]
@@ -378,7 +385,7 @@ def update_activation_dates(context, activation_date, fileblob_map=None):
         fileblob_map = get_fileblob_map()
     datestr = timestamp.format_date(activation_date)
     supported_files = _active_files(context)
-    for fname, blob in fileblob_map.items():
+    for fname, blob in list(fileblob_map.items()):
         if fname in supported_files:
             if blob.activation_date.year == DEFAULT_ACTIVATION_DATE.year:
                 log.verbose("Setting activation date of '{}' to '{}'".format(fname, datestr))
@@ -394,7 +401,7 @@ def update_file_states(new_context=None, fileblob_map=None):
     active_files = _active_files(new_context)
     if fileblob_map is None:
         fileblob_map = get_fileblob_map()
-    for fname, blob in fileblob_map.items():
+    for fname, blob in list(fileblob_map.items()):
         if blob.state in TRANSITORY_STATES + ACTIVE_STATES:
             if fname in active_files or data_file.get_conjugate(fname) in active_files:
                 state = "operational"
@@ -425,7 +432,7 @@ def update_delivery_status():
     state where deliveries are working.
     """
     blobs = get_fileblob_map(state__in = TRANSITORY_STATES)
-    for blob in blobs.values():
+    for blob in list(blobs.values()):
         blob.interpret_catalog_link()
 
 def _active_files(context):
@@ -473,7 +480,7 @@ def get_default_context(observatory, state):
 
 class ContextHistoryModel(CrdsModel):
     """Keeps track of interval at which the specified context was active and the reason for the switch."""
-    class Meta:
+    class Meta(object):
         db_table = TABLE_PREFIX + "_context_history"
         ordering = ("start_date","context")
 
@@ -488,7 +495,7 @@ class ContextHistoryModel(CrdsModel):
     context = models.CharField(max_length=64, default="",
         help_text="name of .pmap assigned to for this kind of context.")
     
-    state = models.CharField(max_length=32, default="operational", choices=zip(CONTEXT_TYPES, CONTEXT_TYPES))
+    state = models.CharField(max_length=32, default="operational", choices=list(zip(CONTEXT_TYPES, CONTEXT_TYPES)))
     
     description = models.TextField( 
             help_text  = "Reason for the switch to this context.",
@@ -535,7 +542,7 @@ class BlobModel(CrdsModel):
     as well as a "blob" of slow fields which are easier to declare and
     don't change the database schema.
     """
-    class Meta:
+    class Meta(object):
         abstract = True    # Collapse model inheritance for flat SQL tables
 
     model_fields = CrdsModel.model_fields + ["blob"]  # field directly in database
@@ -655,14 +662,14 @@ class BlobModel(CrdsModel):
         filtered = []
         matches = dict(matches)  # copy
         model_filters = {}
-        for key in matches.keys():
+        for key in list(matches.keys()):
             if key.split("__")[0] in cls.model_fields:
                 model_filters[key] = matches.pop(key)
         for candidate in cls.objects.filter(**model_filters):
             candidate.thaw()
             for filter in matches:
                 fval = getattr(candidate, filter, None)
-                if isinstance(fval, (bool, int, float, long)):
+                if isinstance(fval, (bool, int, float, python23.long)):
                     if not matches[filter] == fval:
                         break
                 else:
@@ -716,12 +723,12 @@ def check_defects(fields=None, files=None, verify_checksum=False):
     IFF verify_checksum is True,  check the sha1sum in the FileBlob versus the cached file contents.  Slow.
     """
     map = get_fileblob_map()
-    if isinstance(files, basestring):
+    if isinstance(files, python23.string_types):
         files = rmap.list_mappings(files, OBSERVATORY) + rmap.list_references(files, OBSERVATORY)
     if files:
-        map = { name : blob for (name, blob) in map.items() if name in set(files) }
-    defect_map = { name :  (blob, blob.get_defects(fields=fields, verify_checksum=verify_checksum)) for (name, blob) in map.items() }
-    defect_map = { name : (blob, defects) for (name, (blob, defects)) in defect_map.items() if defects }
+        map = { name : blob for (name, blob) in list(map.items()) if name in set(files) }
+    defect_map = { name :  (blob, blob.get_defects(fields=fields, verify_checksum=verify_checksum)) for (name, blob) in list(map.items()) }
+    defect_map = { name : (blob, defects) for (name, (blob, defects)) in list(defect_map.items()) if defects }
     return defect_map
 
 def repair_defects(defect_map, verbose=True):
@@ -738,9 +745,9 @@ def repair_defects(defect_map, verbose=True):
         repair_map[name] = (blob, defects, repairs, failed)
         if verbose:
             for repair in repairs:
-                print name, repairs[repair]
+                print(name, repairs[repair])
             for failure in failed:
-                print name, failed[failure]
+                print(name, failed[failure])
     clear_cache()
     return repair_map
     
@@ -805,7 +812,7 @@ class FileBlobRepairMixin(object):
                         defects.append("BAD {} = '{}'".format(field, getattr(self, field)))
                     except:
                         defects.append("BAD {}".format(field))
-            except Exception, exc:
+            except Exception as exc:
                 defects.append("BAD {} defect test failed: {}".format(field, str(exc)))
         if verify_checksum and not self.checksum_ok:  # slow
             defects.append("BAD sha1sum = '{}' vs. computed = '{}'".format(self.sha1sum, self.compute_checksum()))
@@ -840,7 +847,7 @@ class FileBlobRepairMixin(object):
                         repairs[field] = "REPAIRED '{}' from '{}' to '{}'".format(field, old, new)
                     else:
                         raise RuntimeError("no change from fixer")
-                except Exception, exc:
+                except Exception as exc:
                     failed[field] = "failed repairing '{}' from '{}' exception: '{}'".format(field, old, str(exc))
             else:
                 failed[field] = "NO FIXER for '{}'.".format(field)
@@ -976,7 +983,7 @@ TRANSITORY_STATES = ["delivered","submitted","archiving"]
 ACTIVE_STATES = ["archived", "operational"]
 INACTIVE_STATES = ["uploaded", "cancelled", "archiving-failed"]
 ALL_STATES = TRANSITORY_STATES + ACTIVE_STATES + INACTIVE_STATES
-FILE_STATES = FILE_STATUS_MAP.keys()
+FILE_STATES = list(FILE_STATUS_MAP.keys())
 
 assert len(ALL_STATES) == len(set(ALL_STATES)), "Doubly-assigned or duplicate state in FileBlob state declarations."
 assert len(FILE_STATES) >= len(ALL_STATES),  "Uncategorized state in FileBlob state declarations."
@@ -993,14 +1000,14 @@ def SimpleCharField(choice_list, help_text, default):
     max_length = int(2**(math.ceil(math.log(length,2))+1))    
     return models.CharField( 
         max_length=max_length,
-        choices = zip(choice_list, choice_list),
+        choices = list(zip(choice_list, choice_list)),
         help_text = help_text,
         default = default)
 
 class FileBlob(BlobModel, FileBlobRepairMixin):
     """Represents a delivered file,  either a reference or a mapping."""
 
-    class Meta:
+    class Meta(object):
         db_table = TABLE_PREFIX + "_catalog" # rename SQL table from interactive_fileblob
     
     # attribute names of model data
@@ -1257,7 +1264,7 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
             checksum = utils.checksum(self.pathname)
             log.verbose("Computed checksum for", repr(self.moniker), "as", repr(checksum))
             return checksum
-        except Exception, exc:
+        except Exception as exc:
             log.error("Computing sha1sum of", repr(self.moniker), "failed:", str(exc))
             return "checksum failed: " + str(exc)
 
@@ -1288,7 +1295,7 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
             instrument, filekind = utils.get_file_properties(observatory, permanent_location)
             blob.instrument = instrument
             blob.filekind = filekind
-        except Exception, exc:
+        except Exception as exc:
             log.warning("Adding file with instrument and filekind UNKNOWN for file", 
                         repr(permanent_location), ":", str(exc))
             blob.instrument = blob.fileind = "unknown"
@@ -1430,7 +1437,7 @@ def add_crds_file(observatory, upload_name, permanent_location,
 
     # Set file permissions to read only.
     try:
-        os.chmod(permanent_location, 0444)
+        os.chmod(permanent_location, 0o444)
     except:
         pass
     return blob
@@ -1479,7 +1486,7 @@ def transitive_blacklist(blacklist_root, badflag, observatory=OBSERVATORY):
                 blacklist(also_blacklisted)
             elif badflag == "ok":
                 unblacklist(also_blacklisted)
-        except Exception, exc:
+        except Exception as exc:
             log.warning("Blacklist operation failed: ", str(exc))
 
     return all_blacklisted
@@ -1521,7 +1528,7 @@ class AuditBlob(BlobModel):
     """Maintains an audit trail of important actions indicating who did them,
     when, and why.
     """
-    class Meta:
+    class Meta(object):
         db_table = TABLE_PREFIX + "_actions" # rename SQL table from interactive_fileblob
         
     user = models.CharField(max_length=64, default="", help_text="user who performed this action")
@@ -1624,7 +1631,7 @@ class RepeatableResultBlob(BlobModel):
     re-rendered at later time without re-executing forms and hence back/forward 
     arrows can work to redisplay options.
     """
-    class Meta:
+    class Meta(object):
         db_table = TABLE_PREFIX + "_results" # rename SQL table
         
     repr_list = unicode_list = ["id","name", "page_template"]
@@ -1697,7 +1704,7 @@ class RemoteContextModel(CrdsModel):
     
     The remote cache is identified by it's key.
     """
-    class Meta:
+    class Meta(object):
         db_table = TABLE_PREFIX + "_remote_context" # rename SQL table
         
     repr_list = unicode_list = ["id", "name", "observatory", "kind", "context"]

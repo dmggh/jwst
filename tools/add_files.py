@@ -8,6 +8,10 @@ deliveries from files already assumed good and in the CRDS cache.
 File delivery is included because that's a normal part of bootstrapping CRDS
 from generated files.
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+# from builtins import str
 
 import os.path
 import traceback
@@ -56,7 +60,7 @@ Does not move, rename, or deliver files.
         self.add_argument('--reinit-slow-fields', action='store_true', dest="reinit_slow_fields",
                           help='Initialize DB fields which require significant time,  like sha1sums.')
         self.add_argument('-T', '--state', default='operational',  help="CRDS server file state.", 
-                          choices=models.FILE_STATUS_MAP.keys()) 
+                          choices=list(models.FILE_STATUS_MAP.keys())) 
         self.add_argument('-D', '--description', default="Initial mass file import")
         self.add_argument('-U', '--deliverer', default="crds",  help="Username of person adding these files.")
         self.add_argument('-E', '--deliverer-email', default="support@stsci.edu")
@@ -138,7 +142,7 @@ Does not move, rename, or deliver files.
                 models.mirror_filename_counters(self.observatory, path)
                 added.append(path)
                 file_map[file] = blob
-            except Exception, exc:
+            except Exception as exc:
                 log.error("Add FAILED for", repr(path), ":", str(exc))
                 traceback.print_exc()
                 continue

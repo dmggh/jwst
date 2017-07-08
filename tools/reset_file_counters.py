@@ -1,5 +1,8 @@
 #! /usr/bin/env python
 #-*-python-*-
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 import os
 import glob
 
@@ -14,7 +17,7 @@ def reset_counters():
     reset_delivery_counters()
     
 def reset_fileblob_counters():
-    for blob in models.get_fileblob_map().values():
+    for blob in list(models.get_fileblob_map().values()):
         path = crds.locate_file(blob.name, models.OBSERVATORY)
         models.mirror_filename_counters(models.OBSERVATORY, path)
 

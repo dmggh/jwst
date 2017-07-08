@@ -18,8 +18,8 @@ if ( ( "$CRDS_USECASE" == "dev" ) || ( "$CRDS_USECASE" == "bit" ) ) then
     echo "=========================================================="
     echo "Stack Build"
     echo "=========================================================="
-    host/build_conda-fixed >& ${CRDS_CRON}/build_conda-fixed.${ETAIL}
-    tail -100 ${CRDS_CRON}/build_conda-fixed.${ETAIL}
+    host/build_conda3 >& ${CRDS_CRON}/build_conda.${ETAIL}
+    tail -100 ${CRDS_CRON}/build_conda.${ETAIL}
 
     echo "==========================================================="
     echo "Server re-install and re-start"

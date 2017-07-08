@@ -1,6 +1,9 @@
 """This module maps rendering functions in common.widgets onto
 Django template tags so they can be used from HTML.
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 
 import sys
 import os.path
@@ -269,7 +272,7 @@ class AccordionNode(template.Node):
             else:
                 try:
                     resolved = template.Variable(word).resolve(context)
-                except Exception, exc:
+                except Exception as exc:
                     log.info("Accordion tag failed resolving: ", repr(word), "under context", repr(context))
                     raise
             title_words.append(resolved)
@@ -319,7 +322,7 @@ class TipNode(template.Node):
             else:
                 try:
                     resolved = template.Variable(word).resolve(context)
-                except Exception, exc:
+                except Exception as exc:
                     log.info("Accordion tag failed resolving: ", 
                              repr(word), "under context", repr(context))
                     raise
@@ -349,7 +352,7 @@ def in_group(user, groups):
         {% endif %}
 
     """
-    group_list = django.utils.encoding.force_unicode(groups).split(',')
+    group_list = django.utils.encoding.force_text(groups).split(',')
     return bool(user.groups.filter(name__in=group_list).values('name'))
 
 
@@ -363,5 +366,5 @@ def endswith(string, suffix):
         ...
         {% endif %}
     """
-    suffix = django.utils.encoding.force_unicode(suffix)
+    suffix = django.utils.encoding.force_text(suffix)
     return string.endswith(suffix)

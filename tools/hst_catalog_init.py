@@ -1,3 +1,7 @@
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+# from builtins import object
 from crds import log
 
 from crds.server.interactive import models, database as db
@@ -44,7 +48,7 @@ class Initializer(object):
         with log.error_on_exception("Failed repairing", repr(blob.name)):
             defects = blob.get_defects()
             repairs, failed = blob.repair_defects(defects)
-            for rep in repairs.values() + failed.values():
+            for rep in list(repairs.values()) + list(failed.values()):
                 log.info("Repair", repr(blob.name), rep)
         if not repairs:
             blob.save()

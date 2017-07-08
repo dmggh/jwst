@@ -4,6 +4,10 @@ This module defines base classes for implementing arbitrary REST-ful HTTP querie
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+# from builtins import str
+# from builtins import object
 
 # =====================================================================
 
@@ -18,6 +22,9 @@ if sys.version_info < (3, 0, 0):
     import HTMLParser as parser_mod
     from urllib import urlencode
     from urllib2 import urlopen, Request
+    # import html.parser as parser_mod
+    # from urllib.parse import urlencode
+    # from urllib.request import urlopen, Request
 else:
     import html.parser as parser_mod
     from urllib.request import urlopen, Request
@@ -66,7 +73,7 @@ class GetService(object):
 
     def format_parameters(self, parameters):
         if isinstance(parameters, dict):
-            parameters = parameters.items()
+            parameters = list(parameters.items())
         formatted = "&".join([name + "="+ str(value) for (name, value) in parameters
                               if value is not None])
         return formatted

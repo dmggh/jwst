@@ -1,3 +1,6 @@
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 from optparse import make_option
 
 from django.core.management.base import NoArgsCommand
@@ -16,6 +19,6 @@ class Command(NoArgsCommand):
     def handle_noargs(self, **options):
         locks = Lock.objects.get_expired_locks()
         if options['dry_run']:
-            print 'Would delete %s locks' % len(locks)
+            print('Would delete %s locks' % len(locks))
         else:
             locks.delete()
