@@ -3,6 +3,8 @@
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
+# from builtins import str
+# from builtins import object
 
 import sys
 import os
@@ -38,7 +40,7 @@ class ServiceApiBase(object):
     
     @classmethod
     def tearDownClass(self, *args, **keys):
-        for (key, val) in self.old_environ.items():
+        for (key, val) in list(self.old_environ.items()):
             os.environ[key] = val
 
     def setUp(self):
@@ -72,7 +74,7 @@ class ServiceApiBase(object):
 
     def test_client_get_bestrefs_all(self):
         bestrefs = self.get_bestrefs()
-        self._check_bestrefs(bestrefs, self.expected_references().keys())
+        self._check_bestrefs(bestrefs, list(self.expected_references().keys()))
 
     def test_client_get_bestrefs_some(self):
         bestrefs = self.get_bestrefs(self.requested_types)
@@ -128,27 +130,27 @@ class ServiceApiBase(object):
 
     def test_getreferences_defaults(self, ignore_cache=False):
         bestrefs = self.getreferences(self.get_header(), ignore_cache=ignore_cache, context=self.pmap)
-        self._check_bestrefs(bestrefs, self.expected_references().keys())
+        self._check_bestrefs(bestrefs, list(self.expected_references().keys()))
 
     def test_getreferences_defaults_imap(self, ignore_cache=False):
         bestrefs = self.getreferences(self.get_header(), ignore_cache=ignore_cache, context=self.imap)
-        self._check_bestrefs(bestrefs, self.expected_references().keys())
+        self._check_bestrefs(bestrefs, list(self.expected_references().keys()))
 
     def test_getreferences_defaults_by_date(self, ignore_cache=False):
         bestrefs = self.getreferences(self.get_header(), ignore_cache=ignore_cache, context=self.pmap_date)
-        self._check_bestrefs(bestrefs, self.expected_references().keys())
+        self._check_bestrefs(bestrefs, list(self.expected_references().keys()))
 
     def test_getrecommendations_defaults(self, ignore_cache=False):
         bestrefs = self.getrecommendations(self.get_header(), ignore_cache=ignore_cache, context=self.pmap)
-        self._check_bestrefs(bestrefs, self.expected_references().keys())
+        self._check_bestrefs(bestrefs, list(self.expected_references().keys()))
 
     def test_getrecommendations_defaults_imap(self, ignore_cache=False):
         bestrefs = self.getrecommendations(self.get_header(), ignore_cache=ignore_cache, context=self.imap)
-        self._check_bestrefs(bestrefs, self.expected_references().keys())
+        self._check_bestrefs(bestrefs, list(self.expected_references().keys()))
 
     def test_getrecommendations_defaults_by_date(self, ignore_cache=False):
         bestrefs = self.getrecommendations(self.get_header(), ignore_cache=ignore_cache, context=self.pmap_date)
-        self._check_bestrefs(bestrefs, self.expected_references().keys())
+        self._check_bestrefs(bestrefs, list(self.expected_references().keys()))
 
     def test_getreferences_specific_reftypes(self):
         bestrefs = self.getreferences(self.get_header(), reftypes=self.requested_types)
@@ -353,7 +355,7 @@ if server_config.observatory == "hst":
     
         def expected_references(self):
             exp = {}
-            for key, value in {
+            for key, value in list({
              'ATODTAB': 'IREF$N9N16196I_A2D.FITS',
              'BIASFILE': 'IREF$U1R1346RI_BIA.FITS',
              'BPIXTAB': 'IREF$U5D2012LI_BPX.FITS',
@@ -364,7 +366,7 @@ if server_config.observatory == "hst":
              'MDRIZTAB': 'IREF$UBI1853QI_MDZ.FITS',
              'OSCNTAB': 'IREF$Q911321OI_OSC.FITS',
              'PFLTFILE': 'IREF$v8816168i_pfl.fits',
-            }.items():  # hack off IREF$ and switch to lower case
+            }.items()):  # hack off IREF$ and switch to lower case
                 exp[key.lower()] = value.lower().split("$")[1]
             return exp
         

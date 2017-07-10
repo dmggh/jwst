@@ -1,3 +1,6 @@
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 import config
 
 DATABASES = {
@@ -9,7 +12,7 @@ DATABASES = {
         'HOST': 'localhost',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '3306',                      # Set to empty string for default. Not used with sqlite3.
         "OPTIONS": {
-           'init_command': 'SET storage_engine=INNODB;',
+           'init_command': 'SET default_storage_engine=INNODB;',
         },
     }
 }

@@ -1,3 +1,6 @@
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
@@ -8,7 +11,7 @@ DATABASES = {
         'PORT': '23306',                      # Set to empty string for default. Not used with sqlite3.
 
         "OPTIONS": {
-           'init_command': 'SET storage_engine=INNODB;',
+           'init_command': 'SET default_storage_engine=INNODB;',
         },
     }
 }

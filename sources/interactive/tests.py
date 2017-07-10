@@ -1,4 +1,9 @@
 """Unit tests to exercise the interactive portions of the CRDS server."""
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+# from builtins import str
+# from builtins import object
 
 import sys
 import os
@@ -17,6 +22,17 @@ from crds.server.interactive import models, locks, mail
 from django.contrib.auth.models import User
 
 # pysh.set_debug(True) # XXXXX set False for production unit test use, True for development.
+
+class DecodedResponse(object):
+
+    def __init__(self, response):
+        self.response = response
+
+    def __getattr__(self, attr):
+        if attr == "content":
+            return self.response.content.decode("utf-8")
+        else:
+            return getattr(self.response, attr)
 
 class InteractiveBase(TransactionTestCase):
 
@@ -95,10 +111,10 @@ class InteractiveBase(TransactionTestCase):
         try:
             self.user.save() 
             self.user2.save()   
-        except Exception, exc:
-            print "failed user save:", str(exc)
+        except Exception as exc:
+            print("failed user save:", str(exc))
         self.ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, str(self.user))
-        self.fake_database_files(list(set([self.pmap, self.pmap2])))
+        self.fake_database_files(list(set([self.pmap, self.pmap2, self.pmap3])))
         models.set_default_context(self.pmap, skip_history=True)
         models.set_default_context(self.pmap, state="operational")
         utils.ensure_dir_exists(os.path.join(lconfig.get_crds_refpath(self.observatory), "test.fits"))
@@ -115,26 +131,31 @@ class InteractiveBase(TransactionTestCase):
             pysh.sh("/bin/rm -rf " + self.ingest_path, raise_on_error=True) # , trace_commands=True)
         locks.release_all()
             
+    def get(self, *args, **keys):
+        raw_response = self.client.get(*args, **keys)
+        return DecodedResponse(raw_response)
+
     def post(self, *args, **keys):
-        response = self.client.post(*args, **keys)
-        log.info("RESPONSE:\n", response.content)
+        raw_response = self.client.post(*args, **keys)
+        response = DecodedResponse(raw_response)
+        # log.info("RESPONSE:\n", response.content)
         return response
 
     def login(self, username="homer", locked_instrument=None, status=302):
         instrument = locked_instrument if locked_instrument else self.locked_instrument
-        response = self.client.get("/login/")
+        response = self.get("/login/")
         self.assert_no_errors(response)
-        response = self.client.post("/login/", {
+        response = self.post("/login/", {
                 "username" : username,
                 "password" : self.passwords[username],
                 "instrument" : instrument,
             })
         self.assertEqual(response.status_code, status)
-        repsponse = self.client.post("/jpoll/open_channel/")
+        repsponse = self.post("/jpoll/open_channel/")
         return response
         
     def logout(self):
-        response = self.client.post("/logout/")
+        response = self.post("/logout/")
         self.assert_no_errors(response)
         
     def remove(self, file):
@@ -190,9 +211,9 @@ class InteractiveBase(TransactionTestCase):
             # self.assertNotIn("Error", response.content)
             if msg is not None:
                 self.assertIn(msg, response.content)
-        except Exception, exc:
-            print >>sys.stderr, str(exc)
-            print >>sys.stderr, response.content
+        except Exception as exc:
+            print(str(exc), file=sys.stderr)
+            print(response.content, file=sys.stderr)
             raise
         
     def assert_has_error(self, response, msg=None, status=200):
@@ -201,21 +222,21 @@ class InteractiveBase(TransactionTestCase):
             self.assertIn("ERROR", response.content)
             if msg is not None:
                 self.assertIn(msg, response.content)
-        except Exception, exc:
-            print >>sys.stderr, str(exc)
-            print >> sys.stderr, response.content
+        except Exception as exc:
+            print(str(exc), file=sys.stderr)
+            print(response.content, file=sys.stderr)
             raise
 
     def test_index(self):
-        response = self.client.get('/')
+        response = self.get('/')
         self.assert_no_errors(response)
 
     def test_logout(self):
-        response = self.client.get("/logout/") 
+        response = self.get("/logout/") 
         self.assert_no_errors(response, status=302) #redirect
     
     def test_bestrefs(self):
-        response = self.client.get("/bestrefs/")
+        response = self.get("/bestrefs/")
         self.assert_no_errors(response)
 
     def _set_pmap2_defaults(self):
@@ -225,7 +246,7 @@ class InteractiveBase(TransactionTestCase):
     # XXX Implement bestrefs tests
     def test_bestrefs_post_archive_dataset(self):
         self._set_pmap2_defaults()
-        response = self.client.post("/bestrefs/", {
+        response = self.post("/bestrefs/", {
             "pmap_mode" : "pmap_text",
             "pmap_text" : self.pmap2,
             "dataset_mode" : "dataset_archive",
@@ -235,7 +256,7 @@ class InteractiveBase(TransactionTestCase):
     
     def test_bestrefs_post_default_context(self):
         self._set_pmap2_defaults()
-        response = self.client.post("/bestrefs/", {
+        response = self.post("/bestrefs/", {
             "pmap_mode" : "pmap_edit",
             "pmap_edit" : self.pmap2,
             "dataset_mode" : "dataset_archive",
@@ -250,9 +271,9 @@ class InteractiveBase(TransactionTestCase):
             dataset1 = "interactive/test_data/jw00001001001_01101_00001_MIRIMAGE_uncal.fits"
         self.login()
         self._set_pmap2_defaults()
-        response = self.client.post("/bestrefs/", {
+        response = self.post("/bestrefs/", {
             "pmap_mode" : "pmap_text",
-            "pmap_text" : self.pmap2,
+            "pmap_text" : self.pmap3,
             "dataset_mode" : "dataset_uploaded",
             "dataset_uploaded" : open(dataset1),
             })  
@@ -270,19 +291,19 @@ class InteractiveBase(TransactionTestCase):
         try:
             log.info("testing add_files_to_ingest_dir:  linking ingest", ingest_file, "to", filepath)
             shutil.copy(filepath, ingest_file)
-            os.chmod(ingest_file, 0666)
-        except Exception, exc:
+            os.chmod(ingest_file, 0o666)
+        except Exception as exc:
             log.info("failed to add file:", str(exc))
         
     def test_mark_bad_get(self):
         self.login()
-        response = self.client.get("/mark_bad/")
+        response = self.get("/mark_bad/")
         self.assert_no_errors(response)
 
     def test_mark_bad_post(self):
         self.login()
         self.fake_database_files(self.blacklist_files, link=True)
-        response = self.client.post("/mark_bad/", {
+        response = self.post("/mark_bad/", {
             "observatory" : self.observatory,
             "file_known" : os.path.basename(self.blacklist_files[0]),
             "badflag" : "bad",
@@ -301,14 +322,14 @@ class InteractiveBase(TransactionTestCase):
 
     def test_certify_get(self):
         self.login()
-        response = self.client.get("/certify/")
+        response = self.get("/certify/")
         self.assert_no_errors(response)
 
     def test_certify_post_rmap_uploaded(self):
         self.login()
         self.add_file_to_ingest_dir(self.certify_rmap)
         self.fake_database_files(self.certify_rmap_fits)
-        response = self.client.post("/certify/", {
+        response = self.post("/certify/", {
             "pmap_mode": "pmap_edit",
         }, follow=True)
         self.assert_no_errors(response)
@@ -317,12 +338,12 @@ class InteractiveBase(TransactionTestCase):
         self.assertEqual(response.content.count("OK"), 2)
 
     def test_difference_get(self):
-        response = self.client.get("/difference/")
+        response = self.get("/difference/")
         self.assert_no_errors(response)
 
     def test_difference_post(self):
         self.fake_database_files(self.difference_files, link=True)
-        response = self.client.post("/difference/", {
+        response = self.post("/difference/", {
             "filemode1": "file_known1",
             "file_known1" : self.difference_files[0],
             "filemode2": "file_known2",
@@ -333,7 +354,7 @@ class InteractiveBase(TransactionTestCase):
     def test_difference_post_uploaded(self):
         # self.fake_database_files(self.difference_files, link=True)
         self.login()
-        response = self.client.post("/difference/", {
+        response = self.post("/difference/", {
             "filemode1": "file_uploaded2",
             "file_uploaded1" : open(self.difference_files_uploaded[0]),
             "filemode2": "file_uploaded2",
@@ -342,11 +363,11 @@ class InteractiveBase(TransactionTestCase):
         self.assert_no_errors(response)
     
     def test_recent_activity_get(self):
-        response = self.client.get("/recent_activity_input/")
+        response = self.get("/recent_activity_input/")
         self.assert_no_errors(response)
 
     def test_recent_activity_post(self):
-        response = self.client.post("/recent_activity_query/", {
+        response = self.post("/recent_activity_query/", {
                 "action" : "new context",
                 "observatory" : "*",
                 "instrument" : "*",
@@ -361,7 +382,7 @@ class InteractiveBase(TransactionTestCase):
 
     def test_create_contexts(self):
         self.login()
-        response = self.client.get("/create_contexts/")
+        response = self.get("/create_contexts/")
         self.assert_no_errors(response)
         
     def add_1(self, name):
@@ -372,7 +393,7 @@ class InteractiveBase(TransactionTestCase):
     def test_create_contexts_post(self):
         self.login()
         self.fake_database_files(self.create_contexts_rmaps)
-        response = self.client.post("/create_contexts/", {
+        response = self.post("/create_contexts/", {
                 "pmap_mode" : "pmap_text",
                 "pmap_text" : self.pmap,
                 "rmaps" : " ".join(self.create_contexts_rmaps),
@@ -385,17 +406,17 @@ class InteractiveBase(TransactionTestCase):
         self.assertTrue(self.add_1(rmap2) in response.content)
     
     def test_browse_file(self):
-        response = self.client.get("/browse/" + self.pmap)
+        response = self.get("/browse/" + self.pmap)
         self.assert_no_errors(response)
 
     def test_browse_db_get(self):
         self.login()
-        response = self.client.get("/browse_db/")
+        response = self.get("/browse_db/")
         self.assert_no_errors(response)
 
     def test_browse_db_post(self):
         self.login()
-        response = self.client.post("/browse_db/", {
+        response = self.post("/browse_db/", {
                 "observatory" : self.observatory,
                 "instrument" : "*",
                 "filekind" : "*",
@@ -415,7 +436,7 @@ class InteractiveBase(TransactionTestCase):
         self.login()
         self.add_files_to_ingest_dir(self.batch_submit_replace_references)
         self.fake_database_files(self.certify_rmap_fits, link=True)
-        response = self.client.post("/batch_submit_references/", {
+        response = self.post("/batch_submit_references/", {
                 "pmap_mode" : "pmap_edit",
                 "creator" : "bozo",
                 "change_level" : "SEVERE",
@@ -435,7 +456,7 @@ class InteractiveBase(TransactionTestCase):
             references = self.batch_submit_insert_references
         self.add_files_to_ingest_dir(references)
         self.fake_database_files(references, link=True)
-        response = self.client.post("/batch_submit_references/", {
+        response = self.post("/batch_submit_references/", {
                 "pmap_mode" : "pmap_edit",
                 "creator" : "bozo",
                 "change_level" : "SEVERE",
@@ -460,7 +481,7 @@ class InteractiveBase(TransactionTestCase):
     
     def _confirm(self, id=1):
         blob = models.RepeatableResultBlob.get(id)
-        response = self.client.post("/submit_confirm/", {
+        response = self.post("/submit_confirm/", {
                 "results_id" : str(blob.name),
                 "button" : "confirm",
             }, follow=True)
@@ -468,7 +489,7 @@ class InteractiveBase(TransactionTestCase):
 
     def _cancel(self, id=1):
         blob = models.RepeatableResultBlob.get(id)
-        response = self.client.post("/submit_confirm/", {
+        response = self.post("/submit_confirm/", {
                 "results_id" : str(blob.name),
                 "button" : "cancel",
             }, follow=True)
@@ -517,18 +538,18 @@ class InteractiveBase(TransactionTestCase):
     
     def test_submit_references_get(self):
         self.login()
-        response = self.client.get("/submit/reference/")
+        response = self.get("/submit/reference/")
         self.assert_no_errors(response)
 
     def test_submit_mapping_get(self):
         self.login()
-        response = self.client.get("/submit/mapping/")
+        response = self.get("/submit/mapping/")
         self.assert_no_errors(response)
 
     def _submit_references_post(self):
         self.fake_database_files(self.submit_references, link=True)
         self.add_files_to_ingest_dir(self.submit_references)
-        response = self.client.post("/submit/reference/", {
+        response = self.post("/submit/reference/", {
             "observatory" : self.observatory,
             "auto_rename" : "on",
             "description" : "an identical pmap with a different name is still different",
@@ -567,7 +588,7 @@ class InteractiveBase(TransactionTestCase):
             }
         if generate_contexts:
             context["generate_contexts"] = "on"
-        response = self.client.post("/submit/mapping/", context, follow=True)
+        response = self.post("/submit/mapping/", context, follow=True)
         return rmap2, response
     
     def test_submit_mappings_post_confirm(self):
@@ -625,17 +646,17 @@ class InteractiveBase(TransactionTestCase):
     def test_display_context_history(self):
         self.login()
         models.set_default_context(self.pmap, state="operational")
-        response = self.client.get("/display_context_history/")
+        response = self.get("/display_context_history/")
         self.assert_no_errors(response)
     
     def test_context_table(self):
         models.set_default_context(self.pmap, state="operational")
-        response = self.client.get("/context_table/" + self.pmap)
+        response = self.get("/context_table/" + self.pmap)
         self.assert_no_errors(response)
 
     def test_set_context_get(self):
         self.login()
-        response = self.client.get("/set_default_context/")
+        response = self.get("/set_default_context/")
         self.assert_no_errors(response)
     
     def test_set_context_post(self):
@@ -643,7 +664,7 @@ class InteractiveBase(TransactionTestCase):
         self.install_files([self.new_context])
         self.fake_database_files([self.new_context], link=True)
         new_context = os.path.basename(self.new_context)
-        response = self.client.post("/set_default_context/", {
+        response = self.post("/set_default_context/", {
             "context_type" : "operational",
             "pmap_mode" : "pmap_text",
             "pmap_text" : new_context,
@@ -670,7 +691,7 @@ if sconfig.observatory == "hst":
     class Hst(InteractiveBase):
 
         observatory = "hst"
-        pmap = pmap2 = "hst.pmap"
+        pmap = pmap2 = pmap3 = "hst.pmap"
         cached_contexts = [pmap]
         
         new_context = "interactive/test_data/hst_0027.pmap"
@@ -739,7 +760,7 @@ if sconfig.observatory == "hst":
             self.login()
             self.add_file_to_ingest_dir(self.certify_rmap_bad)
             self.fake_database_files(self.certify_rmap_fits)
-            response = self.client.post("/certify/", {
+            response = self.post("/certify/", {
                     "pmap_mode": "pmap_edit",
                     "compare_old_reference": "checked",
                     }, follow=True)
@@ -756,7 +777,7 @@ if sconfig.observatory == "hst":
             self.login()
             self.fake_database_files([self.certify_post_fits_bad])
             self.add_file_to_ingest_dir(self.certify_post_fits_bad)
-            response = self.client.post("/certify/", {
+            response = self.post("/certify/", {
                     "pmap_mode": "pmap_edit",
                     }, follow=True)
             # print "certify post FITS response:", response.content
@@ -768,7 +789,7 @@ if sconfig.observatory == "hst":
             self.login()
             self.fake_database_files([self.certify_post_fits])
             self.add_file_to_ingest_dir(self.certify_post_fits)
-            response = self.client.post("/certify/", {
+            response = self.post("/certify/", {
                     "pmap_mode": "pmap_edit",
                     }, follow=True)
             # print "certify post FITS response:", response.content
@@ -783,8 +804,9 @@ else:  # JWST
         observatory = "jwst"
         pmap = "jwst_0000.pmap"
         pmap2 = "jwst_0082.pmap"
+        pmap3 = "jwst_0341.pmap"
 
-        cached_contexts = [pmap, "jwst_0003.pmap", pmap2]
+        cached_contexts = [pmap, "jwst_0003.pmap", pmap2, pmap3]
 
         new_context = "interactive/test_data/jwst_0027.pmap"
         
@@ -793,6 +815,8 @@ else:  # JWST
             "jwst_0002.pmap",
             "jwst_0083.pmap",
             "jwst_0084.pmap",
+            "jwst_0342.pmap",
+            "jwst_0343.pmap",
             "jwst_miri_0001.imap",
             "jwst_miri_0002.imap",
             "jwst_nircam_0001.imap",
@@ -849,7 +873,7 @@ else:  # JWST
             "interactive/test_data/jwst_miri_6666.imap",
             ]
         
-        archive_dataset_id = "ASSOCIATION:JW94015004002_02109_00001.MIRIMAGE"
+        archive_dataset_id = "JW93135336001_02102_00001.MIRIFUSHORT"
 
         certify_post_fits_bad = "interactive/test_data/jwst_miri_amplifier_bad.fits"
 
@@ -875,7 +899,7 @@ else:  # JWST
             self.login()
             self.fake_database_files([self.certify_post_fits_bad])
             self.add_file_to_ingest_dir(self.certify_post_fits_bad)
-            response = self.client.post("/certify/", {
+            response = self.post("/certify/", {
                     "pmap_mode": "pmap_edit",
                     }, follow=True)
             # print "certify post FITS response:", response.content
@@ -887,10 +911,10 @@ else:  # JWST
             self.login()
             self.fake_database_files([self.certify_post_fits])
             self.add_file_to_ingest_dir(self.certify_post_fits)
-            response = self.client.post("/certify/", {
+            response = self.post("/certify/", {
                     "pmap_mode": "pmap_edit",
                     }, follow=True)
-            print "certify post FITS response:", response.content
+            print("certify post FITS response:", response.content)
             self.assert_no_errors(response)
             self.assertNotIn("ERROR", response.content)
             self.assertEqual(response.content.count("OK"), 2)

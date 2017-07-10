@@ -1,6 +1,9 @@
 """This module supports sending e-mails from the CRDS servers using the basic VM
 SMTP/LMTP setup.  It is an unauthenticated send,  easy.
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 
 import sys 
 import smtplib
@@ -101,7 +104,7 @@ def crds_notification(subject=None, from_address=None, to_addresses=None, body=N
 
         description = label_with_text("Description:", description)
         
-        keys = dict(keys.items() + locals().items())
+        keys = dict(list(keys.items()) + list(locals().items()))
         
         keys = optional_parameter(keys, "uploaded_files")
         keys = optional_parameter(keys, "added_files")
@@ -122,7 +125,7 @@ def file_list(label, files):
     # files could be: list of filenames, list of upload items, dict of upload items
 
     if isinstance(files, dict):
-        files = files.items()
+        files = list(files.items())
 
     files_str = ""
     for name  in sorted(files):

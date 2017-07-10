@@ -26,6 +26,11 @@ WARNING:  this module overrides builtin functions:
  map
  object
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+# from builtins import str
+# from builtins import object
 
 class _Tag(object):
     """Represents an HTML tag of the same name,  and when called
@@ -40,7 +45,7 @@ class _Tag(object):
 
     def __call__(self, contents, **attrs):
         result = "<" + self.name + " "
-        for k, v in attrs.items():
+        for k, v in list(attrs.items()):
             if k.startswith("_"):
                 k = k[1:]
             result += k + "='" + str(v) + "' "
@@ -152,4 +157,4 @@ def _test():
     return doctest.testmod(doctest_html)
 
 if __name__ == "__main__":
-    print _test()
+    print(_test())

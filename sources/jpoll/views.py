@@ -12,6 +12,11 @@ final page display to fail.
 # Create your views here.
 
 from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+# from builtins import str
+# from builtins import range
+# from builtins import object
 
 import sys
 import time
@@ -102,7 +107,7 @@ def log_view(func):
             response = func(request, *args, **keys)
 #            log.info("RESPONSE:\n" + response.content, stdout=None)
             return response
-        except Exception, exc:
+        except Exception as exc:
             log.info("EXCEPTION REPR:", repr(exc))
             log.info("EXCEPTION STR:", str(exc))
             log.info("EXCEPTION TRACEBACK:")
@@ -113,7 +118,7 @@ def log_view(func):
             raise
         finally:
             pass
-    dolog.func_name = func.func_name
+    dolog.__name__ = func.__name__
     return dolog
 
 #---------------------------------------------------------------------------------------------------

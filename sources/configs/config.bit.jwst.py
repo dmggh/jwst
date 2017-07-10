@@ -1,3 +1,7 @@
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+# from builtins import str
 debug = DEBUG = True
 DEBUG_EXTRAS = False
 
@@ -55,9 +59,9 @@ CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/mappings/" + observator
 
 FORCE_REMOTE_MODE = False
 
-ARCHIVE_PARAMETER_SERVICE_URL = "http://iljwdmsbarcv.stsci.edu:8888/crds"
+ARCHIVE_PARAMETER_SERVICE_URL = "http://iljwdmsb1arcv.stsci.edu:8888/crds"
 
 # ARCHIVE_PARAMETER_SERVICE_URL = "https://undefined-archive-parameter-service.stsci.edu:8888/crds"
-# CRDS_MOCK_ARCHIVE_PARAMETERS = "jwst-b7-params-dit-20161209.json"
+# CRDS_MOCK_ARCHIVE_PARAMETERS = "jwst-b7.1-bit-2017-06-17.json"
 
 # ARCHIVE_PARAMETER_SERVICE_URL = "http://jwdmsdevvm4.stsci.edu:8888/crds"

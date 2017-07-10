@@ -1,6 +1,10 @@
 """Django database models to support the jpoll messaging system."""
 
 from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+# from builtins import str
+# from builtins import object
 
 import sys
 import json
@@ -10,6 +14,8 @@ from django.db import models
 from django.utils import html
 from django.db import transaction
 
+from crds import python23
+
 # Create your models here.
 
 class JpollError(Exception):
@@ -17,7 +23,7 @@ class JpollError(Exception):
 
 class ChannelModel(models.Model):
     """An ordered series of messages associated with a unique key."""
-    class Meta:
+    class Meta(object):
         db_table = "jpoll_channel"
 
     last_returned = models.DateTimeField(auto_now_add=True, help_text="Datetime channel opened.")
@@ -49,14 +55,14 @@ class ChannelModel(models.Model):
     
     def log(self, text):
         """Send a log message to the client."""
-        if isinstance(text, basestring):
+        if isinstance(text, python23.string_types):
             text = html.conditional_escape(text)   # Don't allow HTML in text
         self.push("log_message", text)
         
     def done(self, status, result):
         """Send a log message to the client."""
         assert isinstance(status, int), "status should be an integer"
-        if isinstance(result, basestring):
+        if isinstance(result, python23.string_types):
             result = html.conditional_escape(result)
         self.push("done", {"status":status, "result":result}) # Don't allow HTML in result
         
@@ -118,7 +124,7 @@ class ChannelModel(models.Model):
 
 class MessageModel(models.Model):
     """Model for a single jpoll message object,  one of an ordered series on a single channel."""
-    class Meta:
+    class Meta(object):
         db_table = "jpoll_message"
 
     channel = models.ForeignKey(ChannelModel, on_delete=models.CASCADE)

@@ -2,6 +2,13 @@
 unixODBC,  and FreeTDS,  to get dataset headers from the HST DADSOPS 
 catalog.
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+# from builtins import next
+# from builtins import zip
+# from builtins import str
+# from builtins import object
 import pprint
 import getpass
 from collections import OrderedDict, defaultdict, namedtuple
@@ -107,7 +114,7 @@ def explore_dadops_assocs(cat=None):
                         list(set(assoc)-set(assoc_hdrs.keys()))[:5],
                         list(set(unassoc)-set(unassoc_hdrs.keys()))[:5])
 
-        print instr, stats[instr]
+        print(instr, stats[instr])
 
     return stats
 
@@ -195,7 +202,7 @@ class DB(object):
 
         for row in self.execute("SELECT %s FROM %s %s" % (col_names, table, where)):
             undefined_and_lowercase = [str(x).lower() if x is not None else "UNDEFINED" for x in row]
-            items = zip(col_list, undefined_and_lowercase)
+            items = list(zip(col_list, undefined_and_lowercase))  # OK no list
             kind = OrderedDict if ordered else dict
             yield kind(items)
 
@@ -207,7 +214,7 @@ def get_password():
     """
     if not hasattr(get_password, "_password"):
         try: # crazy scheme works with "password" or "blah password" in password file.
-            get_password._password = open(sconfig.CATALOG_DB_PFILE).read().split()[-1:][0]
+            get_password._password = open(sconfig.CATALOG_DB_PFILE).readline().split()[-1:][0]
         except:
             get_password._password = getpass.getpass("password: ")
     return get_password._password
@@ -261,7 +268,7 @@ def required_keys(instr):
     pars.append("asm_member_name") 
     pars.append("asm_member_type")
     imap = crds.get_pickled_mapping(models.get_default_context(models.OBSERVATORY, "operational")).get_imap(instr)  # reviewed
-    pars.extend(imap.selections.keys())
+    pars.extend(list(imap.selections.keys()))
     return pars
 
 def gen_header_tables(datfile=HEADER_TABLES):
@@ -339,10 +346,10 @@ class HeaderGenerator(utils.Struct):
         self.instrument = instrument.lower()
         self.catalog_db = catalog_db
         self.h_to_db = header_to_db_map
-        self.db_columns = self.h_to_db.values()
+        self.db_columns = list(self.h_to_db.values())
         self.db_tables = sorted(set(column.split(".")[0] 
                                     for column in self.db_columns))
-        self.header_keys = tuple(key.upper() for key in self.h_to_db.keys())
+        self.header_keys = tuple(key.upper() for key in list(self.h_to_db.keys()))
 
     def _getter_sql(self, columns, tables, clauses=()):
         sql = "SELECT {} FROM {} ".format(
@@ -355,7 +362,7 @@ class HeaderGenerator(utils.Struct):
     def _get_headers(self, sql, header_keys):
         hdrs = {}
         for sql_row in self.catalog_db.execute(sql):
-            hdr = dict(zip(header_keys, sql_row))
+            hdr = dict(list(zip(header_keys, sql_row)))
             hdr = self.condition_header(hdr)
             hdr = self.fix_hdr(hdr)
             hdrs[self.compound_id(hdr)] = hdr
@@ -647,7 +654,7 @@ def get_dataset_headers_by_instrument(instrument, datasets_since=None):
         igen = get_instrument_gen(instrument)
         extra_clauses = [ igen.get_expstart_clause(datasets_since) ] if datasets_since else []
         return igen.get_headers(extra_clauses, extra_clauses)
-    except Exception, exc:
+    except Exception as exc:
         raise RuntimeError("Error accessing catalog for instrument" + repr(instrument) + ":" + str(exc))
 
 # ---------------------------------------------------------------------------------------------------------
@@ -706,20 +713,20 @@ def get_dataset_headers_by_id(context, dataset_ids):
         by_instrument[instrument].append(product)
 
     all_headers = {}
-    for instrument, products in by_instrument.items():
+    for instrument, products in list(by_instrument.items()):
         try:
             igen = get_instrument_gen(instrument)
             assoc_clauses, unassoc_clauses = dataset_ids_clauses(dataset_ids, igen)
             headers = igen.get_headers(
                 unassoc_extra_clauses = unassoc_clauses,
                 assoc_extra_clauses = assoc_clauses)
-        except Exception, exc:
+        except Exception as exc:
             raise RuntimeError("Error accessing catalog for instrument " + repr(instrument) + ":" + str(exc))
         all_headers.update(headers)
 
     products = [ cid.split(":")[0] for cid in all_headers ]
     exposures = [ cid.split(":")[1] for cid in all_headers ]
-    combined = all_headers.keys()
+    combined = list(all_headers.keys())
     found_ids  = set(products + exposures + combined)
 
     missing = [ did for did in datasets if did not in found_ids and not assoc_assoc_id(did) ]
@@ -826,7 +833,7 @@ def get_synthetic_dataset_headers_by_id(context, dataset_ids):
     id_map = get_synthetic_id_map([did.upper() for did in dataset_ids])
     source_ids = [did[0] for did in sorted(list(set(id_map.values())))]
     source_headers = get_dataset_headers_by_id(context, source_ids)
-    headers = { did : source_headers[src_id] for (did, (src_id, typ, ctype)) in id_map.items() if src_id in source_headers }
+    headers = { did : source_headers[src_id] for (did, (src_id, typ, ctype)) in list(id_map.items()) if src_id in source_headers }
     return headers
 
 # This is a table of the assoc_member.asm_member_type correspondence rules
@@ -905,7 +912,7 @@ def get_synthetic_id_map(dataset_ids):
     for did in dataset_ids:
         for (assoc, member, typ) in assocs:
             if did in [assoc, member, compound_id(assoc, member)]:
-                if typ not in CORRESPONDING_TYPE.keys():
+                if typ not in list(CORRESPONDING_TYPE.keys()):
                     ctype = typ
                     corresponding_member = member
                 else:
@@ -914,7 +921,7 @@ def get_synthetic_id_map(dataset_ids):
                 new_ids[compound_id(assoc, member)] = (compound_id(assoc, corresponding_member), typ, ctype)
 
     for did in dataset_ids:
-        for compound in new_ids.keys():
+        for compound in list(new_ids.keys()):
             if did in compound:
                 break
         else: # Add in unassociated exposures as-is
@@ -978,7 +985,7 @@ def get_reference_info(instrument, reference):
         instrument = "wfpc2"
     refops = get_reffile_ops()
     gen = refops.make_dicts(instrument.lower() + "_file", where="WHERE file_name='{}'".format(reference.lower()))
-    return gen.next()
+    return next(gen)
 
 # ----------------------------------------------------------------------------------------------------------
 def get_normalized_ids(dataset_ids):

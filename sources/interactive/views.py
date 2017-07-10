@@ -1,13 +1,16 @@
 """This module defines the Django view functions which respond to HTTP requests
 and return HTTP response objects.
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+# from builtins import str
 
 # Create your views here.
 import sys
 import os
 import os.path
 import re
-import cStringIO
 import traceback
 import tarfile
 import glob
@@ -23,7 +26,7 @@ from django.shortcuts import redirect
 from django.http import HttpResponse, HttpResponseRedirect
 import django.utils.safestring as safestring
 import django.utils
-from django.utils.html import format_html, format_html_join
+from django.utils.html import format_html, format_html_join, conditional_escape
 from django.urls import reverse
 
 import django.contrib.auth
@@ -33,7 +36,7 @@ from django.contrib.auth.decorators import user_passes_test
 
 from astropy.io import fits as pyfits
 
-from crds import (rmap, utils, timestamp, uses, matches, log, config)
+from crds import (rmap, utils, timestamp, uses, matches, log, config, python23)
 from crds import (data_file, pysh)
 from crds import heavy_client
 from crds import CrdsError
@@ -70,7 +73,7 @@ def check_value(value, pattern, msg):
     if isinstance(pattern, type(check_value)):
         try:
             return pattern(value)
-        except AssertionError, exc:
+        except AssertionError as exc:
             raise FieldError(format_html(msg + " : " + str(exc)))
     elif isinstance(pattern, list):
         for choice in pattern:
@@ -119,7 +122,7 @@ def is_pmap(filename):
     """
     try:
         return is_mapping(filename, r"\.pmap")
-    except Exception, exc:
+    except Exception as exc:
         raise CrdsError("Invalid pmap: " + str(exc))
 
 def is_imap(filename):
@@ -264,7 +267,7 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
     if dict_ is None:
         dict_ = {}
 
-    statuses = ["*"] + models.FILE_STATUS_MAP.keys()
+    statuses = ["*"] + list(models.FILE_STATUS_MAP.keys())
     statuses.remove("uploaded")
 
     rdict = {   # standard template variables
@@ -276,7 +279,7 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
         "filekind" : "*",
         "filekinds" : models.FILEKIND_TEXT_DESCR,
 
-        "extensions" : [".pmap"] + ["*"] + sorted(set(models.EXTENSIONS)-set([".pmap"])),
+        "extensions" : [".pmap"] + ["*"] + list(sorted(set(models.EXTENSIONS)-set([".pmap"]))),
         "users": ["*"] + usernames(),
 
         "status" : "*",
@@ -299,19 +302,19 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
     }
 
     # echo escaped inputs.
-    for key, value in request.GET.items():
-        rdict[key] = safestring.mark_for_escaping(value)
-    for key, value in request.POST.items():
-        rdict[key] = safestring.mark_for_escaping(value)
-    for key, value in request.FILES.items():
-        rdict[key] = safestring.mark_for_escaping(value)
+    for key, value in list(request.GET.items()):
+        rdict[key] = conditional_escape(value)
+    for key, value in list(request.POST.items()):
+        rdict[key] = conditional_escape(value)
+    for key, value in list(request.FILES.items()):
+        rdict[key] = conditional_escape(value)
 
     if requires_pmaps:
         rdict.update(get_pmap_template_vars(dict_))
 
     # include view outputs
     if dict_ is not None:
-        for key, value in dict_.items():
+        for key, value in list(dict_.items()):
             rdict[key] = value
 
     # Set up variables required to support django-json-rpc Javacsript
@@ -383,7 +386,7 @@ def squash_file_paths(response, uploaded_pairs):
 def get_uploaded_filepaths(request):
     """Return [ (original_name, temporary_path), ...] for uploaded files in `request`."""
     pairs = []
-    for ufile in request.FILES.values():
+    for ufile in list(request.FILES.values()):
         filepath = str(ufile.temporary_file_path())
         original_name = str(ufile.name)
         config.check_filename(original_name)
@@ -448,7 +451,7 @@ def get_files(request):
         if rmap.is_mapping(file_):
             # this will fail for user-scp'ed ingests.  but... maybe file already writeable.
             with log.warn_on_exception("Failed setting file mode on", repr(file_)):
-                os.chmod(uploads[file_], 0660)
+                os.chmod(uploads[file_], 0o660)
     if not uploads:
         raise CrdsError("No input files were specified.")
     return path, uploads
@@ -503,9 +506,9 @@ def error_trap(template):
             # Generic exception handler,  undescriptive,  to prevent server probing via errors
             except Exception as exc:
                 msg = format_html("ERROR: internal server error")
-            pars = dict(keys.items() + [("error_message", msg)])
+            pars = dict(list(keys.items()) + [("error_message", msg)])
             return crds_render(request, template, pars, requires_pmaps=True)
-        trap.func_name = func.func_name
+        trap.__name__ = func.__name__
         return trap
     return decorator
 
@@ -533,10 +536,10 @@ def log_view(func):
             response = func(request, *args, **keys)
 #            log.info("RESPONSE:\n" + response.content, stdout=None)
             return response
-        except locks.LockingError, exc:  # Skip the traceback for these,  remove manually for debug to log tracebacks
+        except locks.LockingError as exc:  # Skip the traceback for these,  remove manually for debug to log tracebacks
             log.error("Locking error: " + str(exc))
             raise
-        except Exception, exc:
+        except Exception as exc:
             log.info("EXCEPTION REPR:", repr(exc))
             log.info("EXCEPTION STR:", str(exc))
             log.info("EXCEPTION TRACEBACK:")
@@ -547,7 +550,7 @@ def log_view(func):
             raise
         finally:
             pass
-    dolog.func_name = func.func_name
+    dolog.__name__ = func.__name__
     return dolog
 
 # ===========================================================================
@@ -581,7 +584,7 @@ def superuser_login_required(func):
         if not request.user.is_superuser:
             raise CrdsError(str(request.user) + " is not a super user.")
         return func(request, *args, **keys)
-    _inner.func_name = func.func_name
+    _inner.__name__ = func.__name__
     return _inner
 
 
@@ -667,7 +670,7 @@ def instrument_lock_required(func):
         if not (instrument or request.user.is_superuser):
             raise CrdsError("You can't access this function without logging in for a particular instrument.")
         return func(request, *args, **keys)
-    _wrapped.func_name = func.func_name
+    _wrapped.__name__ = func.__name__
     return _wrapped
 
 def get_lock(request, type="instrument"):
@@ -717,7 +720,7 @@ def display_result(request, results_id):
     """
     try:
         result = models.RepeatableResultBlob.load(results_id)
-    except Exception, exc:
+    except Exception as exc:
         raise CrdsError("Error loading result", results_id, ":", str(exc))
     pars = result.parameters
     if pars.get("requires_authentication", False) and not request.user.is_authenticated:
@@ -852,7 +855,7 @@ def upload_new(request, template="upload_new_input.html"):
         with log.verbose_on_exception("Failed removing", repr(ingest_path)):
             pysh.sh("rm -f ${ingest_path}")   #  secure, constructed path
             log.info("Removed existing", repr(ingest_path))
-        utils.ensure_dir_exists(ingest_path, mode=0770)
+        utils.ensure_dir_exists(ingest_path, mode=0o770)
         log.info("Linking", file_.temporary_file_path(), "to", ingest_path)
         os.link(file_.temporary_file_path(), ingest_path)
         # return HttpResponseRedirect('/upload/list/')  # secure 
@@ -964,7 +967,7 @@ def get_recent_pmaps(last_n, pmap_edit):
 
 def pmap_label(blob, pmap_edit=None):
     """Return the text displayed to users selecting known pmaps."""
-    if isinstance(blob, basestring):
+    if isinstance(blob, python23.string_types):
         try:
             blob = models.FileBlob.load(blob)
         except LookupError:
@@ -1027,7 +1030,7 @@ def bestrefs_post(request):
             headers = jsonapi_views.get_simplified_dataset_headers_by_id(context, [dataset_name])
             first = sorted(headers.keys())[0]
             header = headers[first]
-        if isinstance(header, basestring):
+        if isinstance(header, python23.string_types):
             raise CrdsError(header)
 
     # base on the context and datset,  compute best references
@@ -1049,7 +1052,7 @@ def header_string_to_header(hstring):
 def _dict_header_format(hstring):
     """Enable users to cut-and-paste CRDS header dump dictionaries."""
     header = ast.literal_eval(hstring)
-    for (key, value) in header.items():
+    for (key, value) in list(header.items()):
         value = utils.condition_value(value)
         if not common.FITS_KEY_RE.match(key) and common.FITS_VAL_RE.match(value):
             log.warning("Dropping illegal keyword '%s' with value '%s'." % (key, value))
@@ -1061,7 +1064,7 @@ def _simple_header_format(hstring):
     """Enable simple line based header format where each line is of the form: <key> <value>
     """
     header = {}
-    for line in cStringIO.StringIO(str(hstring)):
+    for line in python23.StringIO(str(hstring)):
         words = line.strip().split()
         if not words:
             continue
@@ -1106,7 +1109,7 @@ def bestrefs_results(request, pmap, header, dataset_name=""):
 def get_bestrefs_items(recommendations):
     bestrefs_items = []
     for key, val in sorted(recommendations.items()):
-        if isinstance(val, basestring) and val.startswith("NOT FOUND"):
+        if isinstance(val, python23.string_types) and val.startswith("NOT FOUND"):
             val = val[len("NOT FOUND "):].strip()
         match = re.match(r"^(.ref\$)(.*)$", val)
         if match:
@@ -1153,7 +1156,7 @@ def bestrefs_explore_post(request):
     pmap = crds.get_symbolic_mapping(context)
     instrument = validate(request, "instrument", models.INSTRUMENTS)
     valid_values = dict(pmap.get_imap(instrument).get_parkey_map())
-    for key, values in valid_values.items():
+    for key, values in list(valid_values.items()):
         if values == ["N/A"]:
             values = []
         if "CORR" not in key:
@@ -1172,6 +1175,8 @@ def bestrefs_explore_post(request):
             "timeobs" : timeobs,
         })
 
+VALID_PARAMETER_VALUE_CHARS = r"[A-Za-z0-9\+\-\.\/\*]*"
+
 @error_trap("bestrefs_explore_input.html")
 @log_view
 def bestrefs_explore_compute(request):
@@ -1183,17 +1188,17 @@ def bestrefs_explore_compute(request):
     pmap = crds.get_symbolic_mapping(context)
     imap = pmap.get_imap(instrument)
     header = { pmap.instrument_key : instrument.upper() }
-    pars = imap.get_parkey_map().keys()
+    pars = list(imap.get_parkey_map().keys())
     for par in pars:
         try:
-            write_in =  validate(request, par + "_text", r"[A-Za-z0-9\+\-.,*/;|{}\[\]:]*")
+            write_in =  validate(request, par + "_text", VALID_PARAMETER_VALUE_CHARS)
         except Exception:
             write_in = None
         if write_in:
             header[par] = write_in
         else:
             header[par] = utils.condition_value(
-                validate(request, par, r"[A-Za-z0-9\+\-.,*/;|{}\[\]:]*"))
+                validate(request, par, VALID_PARAMETER_VALUE_CHARS))
     header["DATE-OBS"] = validate(request, "DATE-OBS", timestamp.DATE_RE_STR)
     header["TIME-OBS"] = validate(request, "TIME-OBS", timestamp.TIME_RE_STR)
     return bestrefs_results(request, pmap, header, instrument)
@@ -1223,11 +1228,11 @@ def certify_post(request):
 
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
-    disposition, certify_results = web_certify.certify_file_list(uploaded_files.items(), context=comparison_context,
+    disposition, certify_results = web_certify.certify_file_list(list(uploaded_files.items()), context=comparison_context,
         compare_old_reference=compare_old_reference, push_status=jpoll_handler.write)
 
     if disposition != "bad files":
-        blacklist_results = web_certify.get_blacklist_file_list(uploaded_files.items(), all_files=all_files)
+        blacklist_results = web_certify.get_blacklist_file_list(list(uploaded_files.items()), all_files=all_files)
     else:
         blacklist_results = []
 
@@ -1283,7 +1288,7 @@ def batch_submit_references_post(request):
 
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
-    simplified_uploads = [ name for (name, path) in uploaded_files.items() ]
+    simplified_uploads = [ name for (name, path) in list(uploaded_files.items()) ]
 
     mail.crds_notification(body=mail.GENERIC_STARTED_BODY, status="STARTED",
             username=request.user.username, user_email=request.user.email, 
@@ -1299,7 +1304,7 @@ def batch_submit_references_post(request):
         mapping_diffs, collision_list = bsr.submit()
 
     # Map from old filenames to new filenames,  regardless of origin / purpose
-    new_file_map = new_mappings_map.items() + new_references_map.items()
+    new_file_map = list(new_mappings_map.items()) + list(new_references_map.items())
     
     status = "READY" if not disposition else disposition.upper()
 
@@ -1308,7 +1313,7 @@ def batch_submit_references_post(request):
                 "pmap_mode" : pmap_mode,
 
                 "new_file_map" : new_file_map,
-                "uploaded_basenames" : uploaded_files.keys(),
+                "uploaded_basenames" : list(uploaded_files.keys()),
                 "submission_kind" : "batch submit",
                 "title" : "Batch Reference Submit",
                 "description" : description,
@@ -1329,7 +1334,7 @@ def batch_submit_references_post(request):
     result = render_repeatable_result(
         request, "batch_submit_reference_results.html", bsr_results)
 
-    renamed_uploads = new_references_map.items()
+    renamed_uploads = list(new_references_map.items())
 
     mail.crds_notification(body=mail.GENERIC_READY_BODY, status=status,
             username=request.user.username, user_email=request.user.email, 
@@ -1364,7 +1369,7 @@ def submit_confirm(request): #, button, results_id):
     try:
         repeatable_model = models.RepeatableResultBlob.load(results_id)
         result = repeatable_model.parameters
-    except Exception, exc:
+    except Exception as exc:
         raise CrdsError("Error fetching result: " + results_id + " : " + str(exc))
 
     if result.get("disposition", None):
@@ -1389,7 +1394,7 @@ def submit_confirm(request): #, button, results_id):
     repeatable_model.save()
     
     new_file_map = dict(result.new_file_map)
-    new_files = new_file_map.values()
+    new_files = list(new_file_map.values())
 
     if button == "confirm":  
         disposition = "confirmed"
@@ -1409,7 +1414,7 @@ def submit_confirm(request): #, button, results_id):
         repeatable_model.set_par("pmap", final_pmap)
         # XXX single model save below
 
-        new_file_map = sorted(new_file_map.items() + context_map.items())
+        new_file_map = sorted(list(new_file_map.items()) + list(context_map.items()))
         generated_files = sorted([(old, new) for (old, new) in new_file_map if old not in result.uploaded_basenames])
         uploaded_files = [(old, new) for (old, new) in new_file_map if (old, new) not in generated_files]
         added_files = getattr(result, "added_files", [])
@@ -1417,7 +1422,7 @@ def submit_confirm(request): #, button, results_id):
 
         # rmaps specified for context generation but not uploaded or generated
         context_rmaps = [filename for filename in result.context_rmaps
-                         if filename not in dict(generated_files).values() + result.uploaded_basenames]
+                         if filename not in list(dict(generated_files).values()) + result.uploaded_basenames]
 
         confirm_results = dict(
             pmap_mode = result.pmap_mode,
@@ -1701,7 +1706,7 @@ def submit_files_post(request, crds_filetype):
 
                 "context_rmaps" : context_rmaps,
                 "new_file_map" : sorted(new_file_map.items()),
-                "uploaded_basenames" : uploaded_files.keys(),
+                "uploaded_basenames" : list(uploaded_files.keys()),
                 "submission_kind" : "submit file",
                 "title" : "Submit File",
                 "description" : description,
@@ -1868,7 +1873,7 @@ def browsify_file(filename, browsed_file):
     try:
         browsifier = globals()["browsify_" + filetype]
         file_contents = browsifier(filename, browsed_file)
-    except Exception, exc:
+    except Exception as exc:
         log.error("browsify_file failed: ", str(exc))
         file_contents = "<pre class='error'>Content display for '{}' not available</pre>".format(
             os.path.basename(filename))
@@ -1916,7 +1921,7 @@ def browsify_finfo(filename, browsed_file):
     output = ""
     try:
         fits_info = finfo(browsed_file)[1] + "\n"
-    except Exception, exc:
+    except Exception as exc:
         output += format_html("<p class='error'>FITS info unavailable: '{0}'</p>", exc)
     else:
         output += "<p><b>FITS Info</b></p>\n"
@@ -2273,7 +2278,7 @@ def stream_response_generator(filename):
         while True:
             try:
                 data = infile.read(2**24)
-            except IOError, exc:
+            except IOError as exc:
                 raise CrdsError("reading known CRDS file " + srepr(filename) +
                                 " : " + str(exc))
             if not len(data):
@@ -2334,10 +2339,10 @@ def create_archive(request, arch_extension):
         with log.error_on_exception("failed creating bundle", repr(bundle_path)):
             utils.ensure_dir_exists(bundle_path)
             tar = tarfile.open(bundle_path, mode=ARCH_MODES[arch_extension], dereference=True)
-            for filename, path in files.items():
+            for filename, path in list(files.items()):
                 tar.add(path, arcname=filename)
             tar.close()
-            os.chmod(bundle_path, 0640)
+            os.chmod(bundle_path, 0o640)
     return bundle_path
 
 def cached_bundle_path(request, arch_extension):
@@ -2507,7 +2512,7 @@ def get_context_pmaps(context_map):
     context_pmaps = {}
     files = models.FileBlob.objects.all()
     for file_ in files:
-        if file_.name in context_map.values():
+        if file_.name in list(context_map.values()):
             file_.thaw()
             context_pmaps[file_.name] = pmap_label(file_)
     return context_pmaps
@@ -2609,7 +2614,7 @@ def old_results(request):
     for blob in result_blobs:
         new_file_map = blob.parameters.get("new_file_map", [])
         if isinstance(new_file_map, dict):
-            new_file_map = new_file_map.items()
+            new_file_map = list(new_file_map.items())
         files = [ names[1] for names in new_file_map ]
         files += [ names[1] for names in blob.parameters.get("uploaded_files_map", [])]
         files += [ name for name in blob.parameters.get("uploaded_basename", [])]
@@ -2672,7 +2677,7 @@ def get_context_table_parameters(pmap):
             "pmap" : pmap_dict,
             "mapping_type" : pmap_dict["header"]["mapping"],
         }
-    except Exception, exc:
+    except Exception as exc:
         log.error("Failure in get_context_table_parameters:", str(exc))
         return {}
 
@@ -2686,7 +2691,7 @@ if sconfig.DEBUG:
             if mode == "eval":
                 result = eval(command, globals(), locals())   # secure,  only available for config.DEBUG
             else:
-                exec command in globals(), locals()  # secure,  only available for config.DEBUG
+                exec(command, globals(), locals())  # secure,  only available for config.DEBUG
                 result = None
         except Exception as exc:
             result = "EXCEPTION: " + str(exc)

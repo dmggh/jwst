@@ -1,6 +1,9 @@
 """This module defines JSON-RPC views and checking functions in the django-json-rpc paradigm."""
 
 from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
+# from builtins import str
 
 import sys
 import base64
@@ -264,10 +267,10 @@ def check_reference(reference):
 def check_header(header):
     if not isinstance(header, dict):
         raise InvalidHeaderError("Header parameter is not a dictionary.")
-    for key, value in header.items():
-        if not isinstance(key, basestring) or not FITS_KEY_RE.match(key):
+    for key, value in list(header.items()):
+        if not isinstance(key, python23.string_types) or not FITS_KEY_RE.match(key):
             raise InvalidHeaderError("Bad key in header {0}", key)
-        if not isinstance(value, (basestring, int, float, bool)) or not FITS_VAL_RE.match(value):
+        if not isinstance(value, (python23.string_types, int, float, bool)) or not FITS_VAL_RE.match(value):
             raise InvalidHeaderError("Bad value in header... not a str, int, float, or bool, or illegal str: '{0}'", value)
     return header
 
@@ -280,7 +283,7 @@ def check_observatory(obs):
 
 def check_instrument(instr):
     instr = instr.lower()
-    if not isinstance(instr, basestring) or not INSTRUMENT_RE.match(instr) or instr not in imodels.INSTRUMENTS:
+    if not isinstance(instr, python23.string_types) or not INSTRUMENT_RE.match(instr) or instr not in imodels.INSTRUMENTS:
         raise InvalidInstrumentError("Mismatch between requested instrument '{0}' and server instruments '{1}'", 
                                      instr, imodels.INSTRUMENTS)
     return instr
@@ -295,7 +298,7 @@ def check_reftypes(reftypes):
     return cleaned
 
 def check_reftype(reftype):
-    if not isinstance(reftype, basestring):
+    if not isinstance(reftype, python23.string_types):
         raise InvalidReftypesError("Non-string reftype: '{0}'", reftype)
     reftype = reftype.lower()
     if reftype not in imodels.FILEKINDS:
@@ -307,7 +310,7 @@ def check_dataset_ids(datasets):
     if not isinstance(datasets, list):
         raise InvalidDatasetIds("Expected list of dataset ids.")
     for dataset in datasets:
-        if not isinstance(dataset, basestring) or not DATASET_ID_RE.match(dataset):
+        if not isinstance(dataset, python23.string_types) or not DATASET_ID_RE.match(dataset):
             raise InvalidDatasetIds("Expected datasets to be official id strings.")
         cleaned.append(dataset.upper())
     return cleaned
@@ -315,8 +318,8 @@ def check_dataset_ids(datasets):
 def check_header_map(header_map):
     if not isinstance(header_map, dict):
         raise InvalidDatasetIds("Expected object mapping dataset ids to headers: { dataset_id : { header } }.")
-    for dataset, header in header_map.items():
-        if not isinstance(dataset, basestring) or (not DATASET_ID_RE.match(dataset) and not FILE_RE.match(dataset)):
+    for dataset, header in list(header_map.items()):
+        if not isinstance(dataset, python23.string_types) or (not DATASET_ID_RE.match(dataset) and not FILE_RE.match(dataset)):
             raise InvalidDatasetIds("Bad dataset id: '{0}'", dataset)
         try:
             check_header(header)
@@ -329,7 +332,7 @@ def check_file_list(files):
         raise InvalidFileList("Expected list of filenames or None.")
     if files:
         for name in files:
-            if not isinstance(name, basestring) or not FILE_RE.match(name):
+            if not isinstance(name, python23.string_types) or not FILE_RE.match(name):
                 raise InvalidFileList("Expected list of filenames or None.")
     return files
 
@@ -338,7 +341,7 @@ def check_field_list(fields):
         raise InvalidFieldList("Expected list of fields or None.")
     if fields:
         for name in fields:
-            if not isinstance(name, basestring) or not FIELD_RE.match(name):
+            if not isinstance(name, python23.string_types) or not FIELD_RE.match(name):
                 raise InvalidFileList("Expected list of fields or None.")
     return fields
 
@@ -404,7 +407,7 @@ def log_view(func):
         try:
             response = func(request, *args, **keys)
             return response
-        except Exception, exc:
+        except Exception as exc:
             log.info("EXCEPTION REPR:", repr(exc))
             log.info("EXCEPTION STR:", str(exc))
             log.info("EXCEPTION TRACEBACK:")
@@ -415,7 +418,7 @@ def log_view(func):
             raise
         finally:
             pass
-    dolog.func_name = func.func_name
+    dolog.__name__ = func.__name__
     return dolog
 
 # ===========================================================================
@@ -533,10 +536,10 @@ def get_aui_best_references(request, date, dataset_ids):
     # checking happens in _get_best...
     complex_results = _get_best_references_by_ids(request, context, dataset_ids, reftypes=(), include_headers=False)
     simpler_results = {}
-    for dataset_id, result in complex_results.items():
+    for dataset_id, result in list(complex_results.items()):
         if result[0]:
             filenames = []
-            for typename, filename in result[1].items():
+            for typename, filename in list(result[1].items()):
                 if not filename.startswith("NOT FOUND"):
                     filenames.append(filename)
             simpler_results[dataset_id] = (True, filenames)
@@ -565,7 +568,7 @@ def get_simplified_dataset_headers_by_id(context, dataset_ids):
                 # CRDS normalized ID for is .detector
                 containing = [did2 for did2 in sorted_ids if (did in did2) or (did in did2.replace(".","_"))]
                 simplified_map[did] = header_map[containing[0]]
-            except KeyError:
+            except Exception:
                 continue
     return simplified_map
 
@@ -577,7 +580,7 @@ def get_best_references_by_header_map(request, context, headers, reftypes):
     headers = check_header_map(headers)
     reftypes = check_reftypes(reftypes)
     result = {}
-    for id, header in headers.items():
+    for id, header in list(headers.items()):
         try:
             result[id] = (True, heavy_client.hv_best_references(context, header, include=reftypes, condition=True))
         except Exception as exc:
@@ -596,7 +599,7 @@ def get_mapping_names(request, context):
 @imodels.crds_cached
 def _get_mapping_names(context):
     """Return the list of mappings referred to by `context` or a list of contexts.""" 
-    if isinstance(context, basestring):
+    if isinstance(context, python23.string_types):
         context = [context]
     elif not isinstance(context, (list, tuple)):
         raise UnknownMappingError("Not a .pmap name or list of .pmap names")
@@ -658,11 +661,11 @@ def get_file_info_map(request, observatory, files, fields):
     fields = check_field_list(fields)
     filemap = imodels.get_fileblob_map(observatory=observatory)
     if files is None:
-        files = filemap.keys()
+        files = list(filemap.keys())
     if fields is None:
-        blob0 = filemap.values()[0]
+        blob0 = list(filemap.values())[0]
         blob0.thaw()
-        fields = blob0.info.keys()
+        fields = list(blob0.info.keys())
     result = {}
     for name in files:
         try:
@@ -671,7 +674,7 @@ def get_file_info_map(request, observatory, files, fields):
             result[name] = "NOT FOUND"
             continue
         blob.thaw()
-        result[name] = { field:value for (field, value) in blob.info.items() if field in fields }
+        result[name] = { field:value for (field, value) in list(blob.info.items()) if field in fields }
     return result
 
 MAX_HEADERS_PER_RPC = 1000
@@ -842,7 +845,7 @@ def get_affected_datasets(request, observatory, old_context, new_context):
     except IndexError as exc:
         raise ValueError(not_ready)
     response = compose_affected_datasets_response(observatory, computation_dir)
-    if isinstance(response["bestrefs_status"], basestring) and "FAILED:" in response["bestrefs_status"]:
+    if isinstance(response["bestrefs_status"], python23.string_types) and "FAILED:" in response["bestrefs_status"]:
         raise ValueError(not_ready)
     return response
 
@@ -879,7 +882,7 @@ def compose_affected_datasets_response(observatory, computation_dir):
     try:
         status_file = os.path.join(computation_dir, "bestrefs.status")
         bestrefs_status = int(open(status_file).read().strip())
-    except Exception, exc:
+    except Exception as exc:
         bestrefs_status = "FAILED: " + str(exc)
 
     try:

@@ -8,3 +8,4 @@ Disallow: /bestrefs/
 Disallow: /bestrefs_explore/
 Disallow: /context_table/
 Disallow: /get/
+Disallow: /unchecked_get/
