@@ -75,7 +75,11 @@ def get_version(modname):
                 if not isinstance(mod.version, python23.string_types):
                     ans = ans()
             except AttributeError:
-                ans = 'unknown'
+                try:
+                    import pkg_resources;  
+                    ans = pkg_resources.require("crds.server")[0].version
+                except Exception:
+                    ans = 'unknown'
 
     # some modules won't give you a string
     ans = str(ans)
