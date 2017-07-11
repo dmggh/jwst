@@ -18,7 +18,7 @@ MODULE_LIST = (
     'numpy',
     # 'scipy',
 
-    'crds.core',
+    'crds',
     'crds.server',
 
     'pyodbc',
@@ -77,7 +77,7 @@ def get_version(modname):
             except AttributeError:
                 try:
                     import pkg_resources;  
-                    ans = pkg_resources.require("crds.server")[0].version
+                    ans = pkg_resources.require(modname)[0].version
                 except Exception:
                     ans = 'unknown'
 

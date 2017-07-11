@@ -1,6 +1,13 @@
 #! /usr/bin/env python
 #-*-python-*-
 
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import *
 import sys
 import re
 import datetime
@@ -28,5 +35,5 @@ for file in sys.argv[2:]:
     time = timestamp.format_date(now, "T").split(".")[0]
     now += datetime.timedelta(days=10)
     fits.setval(file, keyword, value=time, do_not_scale_image_data=True, ext=0)
-    print(file, keyword, "=", time)
+    print((file, keyword, "=", time))
 

@@ -8,6 +8,13 @@ clean up files in the catalog and delivery directories.
 When used in the context of mirroring,  --purge-delivery-errors is moot because
 the catalogs and deliveries directories are recreated.
 """
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import *
 import sys
 import os.path
 import glob
@@ -64,14 +71,14 @@ def check_files():
     missing.update(check_consistency("database", "cache", db_files, cached_files))
     missing.update(check_consistency("database", "mappings", db_files, mapping_files))
     missing.update(check_consistency("cache", "mappings", cached_files, mapping_files))
-    if union(missing.values()):
+    if union(list(missing.values())):
         log.warning("Inconsistent files:\n", log.PP(missing))
     intersections = dict()
-    for key1, files1 in missing.items():
-        for key2, files2 in missing.items():
+    for key1, files1 in list(missing.items()):
+        for key2, files2 in list(missing.items()):
             if key1 != key2 and (key2, key1) not in intersections:
                 intersections[(key1, key2)] = set(files1).intersection(set(files2))
-    if union(intersections.values()):
+    if union(list(intersections.values())):
         log.warning("Inconsitency intersections:\n", log.PP(intersections))
 
 def union(sets):
@@ -128,12 +135,12 @@ def check_catalog_files():
         if ".cat" not in file and os.path.basename(file) not in all_catalogued_files:
             # log.verbose("All catalogued files:", all_catalogued_files)
             purge_delivered_file(file, "Delivered file", repr(file), "has no corresponding catalog in delivery area.  Possibly catalog deleted without removing file link.")
-    for file in [ f for f in db_files.values() if f.state == "delivered" ]:
+    for file in [ f for f in list(db_files.values()) if f.state == "delivered" ]:
         if file.name not in all_catalogued_files:
             log.error("File", repr(file.name), "with state 'delivered' does not appear in an undelivered catalog.")
         if not os.path.exists(delivered_path(file.name)):
             log.error("File", repr(file.name), "with state 'delivered' is not linked to the delivery directory.")
-    for file in [ f for f in db_files.values() if f.state == "uploaded" ]:
+    for file in [ f for f in list(db_files.values()) if f.state == "uploaded" ]:
         log.warning("File", repr(file.name), "delivered on", file.delivery_date, "has state 'uploaded'.")
 
 def purge_delivered_file(filepath, *args, **keys):

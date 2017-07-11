@@ -1,6 +1,14 @@
 #! /usr/bin/env python
 #-*-python-*-
 from __future__ import print_function
+from __future__ import unicode_literals
+from __future__ import division
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from builtins import *
 
 import sys
 import optparse
@@ -11,10 +19,10 @@ from crds import config, log, utils
 
 def dump_header(fname, extensions=[0], verbose=False):
     if extensions == "all":
-        extensions = range(len(pyfits.open(fname)))
+        extensions = list(range(len(pyfits.open(fname))))
     for x in extensions:
         hdr = pyfits.getheader(fname, ext=x)
-        for r, val in hdr.items():
+        for r, val in list(hdr.items()):
             if verbose:
                 print(fname, "[" + str(x) + "]:", end="")
             print(r, "=", val)

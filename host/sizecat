@@ -4,6 +4,13 @@
 % sizecat <observatory> <catalog files...>
 
 """
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import *
 import sys
 
 import numpy
@@ -14,10 +21,10 @@ def main(observatory, catalogs):
     for catalog in catalogs:
         files = open(catalog).read().splitlines()
         filemap = client.get_file_info_map(observatory, files, fields=["size"])
-        total = 0L
-        for filename, fields in filemap.items():
+        total = 0
+        for filename, fields in list(filemap.items()):
             with log.error_on_exception("Can't determine size for", repr(filename), "with fields", repr(fields)):
-                total += long(fields["size"])
+                total += int(fields["size"])
         log.info("Total size for the", repr(len(files)), "files in", repr(catalog), "is", 
                  utils.human_format_number(total))
                 

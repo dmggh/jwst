@@ -1,6 +1,13 @@
 #! /usr/bin/env pysh
 #-*-python-*-
 from __future__  import print_function
+from __future__ import unicode_literals
+from __future__ import division
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import input
+from builtins import *
 
 if sys.version_info < (3,0,0):
     input = raw_input
@@ -35,7 +42,7 @@ def main():
     for modname in sys.argv[1:]:
         module = dynamic_import(modname)
         path = find_shortest_module_path(module.__file__)
-        ans = input("Remove " + repr(path) + " (yes/no)? ")
+        ans = eval(input("Remove " + repr(path) + " (yes/no)? "))
         if ans.lower().startswith("y"):
             print("Removing", path)
             sh("rm -rf ${path}")

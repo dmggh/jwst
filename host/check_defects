@@ -1,6 +1,12 @@
 #! /usr/bin/env python
 
 from __future__ import print_function
+from __future__ import unicode_literals
+from __future__ import division
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import *
 
 import sys
 import os.path
@@ -64,7 +70,7 @@ class RepairScript(cmdline.ContextsScript):
     
     def remove_ignored(self, defects):
         cleaned = {}
-        for (name, (blob, defects)) in defects.items():
+        for (name, (blob, defects)) in list(defects.items()):
             trimmed = []
             for defect in defects:
                 for field in self.args.ignore_fields:
@@ -81,7 +87,7 @@ class RepairScript(cmdline.ContextsScript):
 	return models.repair_defects(defects_map, verbose=log.get_verbose())
 
     def print_defects(self, defects_map):
-        for (name, (blob, defects)) in defects_map.items():
+        for (name, (blob, defects)) in list(defects_map.items()):
             print(name, ":", repr(defects))
 
 
