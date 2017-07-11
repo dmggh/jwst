@@ -1,5 +1,12 @@
 #! /usr/bin/env python
 #-*-python-*-
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import *
 import os, os.path, sys
 
 import django
@@ -18,7 +25,7 @@ def find_undelivered_catalogs():
     """
     log.info("Searching for 'delivered' files.")
     catalogs = set()
-    for name, blob in models.get_fileblob_map().items():
+    for name, blob in list(models.get_fileblob_map().items()):
         if blob.state == "delivered":
             blob.thaw()
             catalogs.add(os.path.basename(blob.catalog_link))
