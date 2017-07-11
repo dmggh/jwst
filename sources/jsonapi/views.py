@@ -829,6 +829,7 @@ MAX_BESTREFS_ERR_LINES = 1000
 # monitor_reprocessing script as a JSON object/struct.
 #
 
+# @log_view
 @jsonrpc_method('get_affected_datasets(observatory=String, old_context=Object, new_context=Object)')
 def get_affected_datasets(request, observatory, old_context, new_context):
     observatory = check_observatory(observatory)   #  XXXX observatory ignored
@@ -923,7 +924,7 @@ def get_compressed_file(filepath):
     if os.path.exists(filepath):
         return open(filepath).read()
     elif os.path.exists(filepath + ".gz"):
-        contents = gzip.open(filepath + ".gz", "rb").read()
+        contents = gzip.open(filepath + ".gz", "rb").read().decode("utf-8")
     else:
         raise IOError("File not found: " + str(repr(filepath)))
     return contents
