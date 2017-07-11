@@ -19,7 +19,7 @@ import pyodbc
 from django.utils import html
 
 import crds
-from crds import rmap, log, utils, timestamp, config
+from crds import rmap, log, utils, timestamp, config, exceptions
 from crds.server.interactive import models, common
 from crds.server import config as sconfig
 
@@ -144,7 +144,7 @@ def dataset_to_instrument(dataset):
     try:
         return IPPPSSOOT_INSTR[instr]
     except KeyError:
-        raise ValueError("Can't determine instrument for dataset " + repr(dataset))
+        raise exceptions.CrdsError("Can't determine instrument for dataset " + repr(dataset))
 
 class DB(object):
     """This is a basic raw interface to a database, exposing tables, columns, and SQL.
