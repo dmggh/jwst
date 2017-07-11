@@ -1,6 +1,13 @@
 #! /usr/bin/env python
 #-*-python-*-
 
+from __future__ import print_function
+from __future__ import unicode_literals
+from __future__ import division
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import *
 import sys
 
 from crds.pysh import *
@@ -25,19 +32,19 @@ def main(lines, nlines):
         snipped = lines[:nlines] + ["... snip ..."] + lines[-nlines:]
 
     if warnings:
-        print "........................... First {} Warnings .........................................".format(MAX_WARNINGS)
-        print "\n".join(warnings)
+        print("........................... First {} Warnings .........................................".format(MAX_WARNINGS))
+        print("\n".join(warnings))
     else:
-        print "........................... No Warnings     ........................................."
+        print("........................... No Warnings     .........................................")
 
     if errors:
-        print "........................... First {} Errors .........................................".format(MAX_ERRORS)
-        print "\n".join(errors)
+        print("........................... First {} Errors .........................................".format(MAX_ERRORS))
+        print("\n".join(errors))
     else:
-        print "........................... No Errors       ........................................."
+        print("........................... No Errors       .........................................")
 
-    print "........................... Snipped Output  ........................................."
-    print "\n".join(snipped)
+    print("........................... Snipped Output  .........................................")
+    print("\n".join(snipped))
 
 if __name__ == "__main__":
    usage("<logfile> [pre-and-post-snip-lines]", 1, 2)
