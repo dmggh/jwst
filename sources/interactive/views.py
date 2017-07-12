@@ -1265,7 +1265,6 @@ def batch_submit_references(request):
     if request.method == "GET":
         return crds_render(request, "batch_submit_reference_input.html", {
                            "compare_old_reference" : "checked",
-                           "auto_rename":""
                           }, requires_pmaps=True)
     else:
         return batch_submit_references_post(request)
@@ -1664,7 +1663,6 @@ def submit_files(request, crds_filetype):
                     "page_title_help" : page_title_help,
                     "compare_old_reference" : "checked",
                     "generate_contexts" : "checked",
-                    "auto_rename":""
                 }, requires_pmaps=True)
     else:
         return submit_files_post(request, crds_filetype)
