@@ -59,7 +59,7 @@
                                 {% for ldiff in diffs.logical_diffs %}
                                 <tr>
                                     {% for tup in ldiff|slice:"1:" %}
-                                        <td> {{tup.1}} </td>
+                                        <td> {{tup.1|comma_or_patterns}} </td>
                                     {% endfor %}
                                 </tr>
                                 {% endfor %}

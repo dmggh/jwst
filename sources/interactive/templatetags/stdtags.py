@@ -217,6 +217,16 @@ def download_link(filename):
     except Exception:
         return conditional_escape("[no download link]")
 
+@register.filter
+def comma_or_patterns(pattern):
+    """Replace pattern values that contain or-bars with the comma seperated list
+    of discrete values.
+    """
+    if "|" in pattern:
+        return ", ".join(pattern.replace(" "*2, " ").split("|"))
+    else:
+        return pattern
+
 # Filter for accessing dictionary using variable
 @register.filter
 def lookup(d, key):
