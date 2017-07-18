@@ -1385,7 +1385,7 @@ def submit_confirm(request): #, button, results_id):
                                         ".  Use 'force' to confirm anyway.")
     elif button in ["cancel", "force"]:
         my_locked_instrument = locks.instrument_of(username)
-        if my_locked_instrument != locked_instrument:
+        if locked_instrument and my_locked_instrument != locked_instrument:
             raise CrdsError("You locked", repr(my_locked_instrument), "but must own lock for", 
                             repr(locked_instrument), "to cancel or force this submission.")
 
