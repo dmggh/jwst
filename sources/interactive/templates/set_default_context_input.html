@@ -88,6 +88,7 @@
         crds.set_context_display("operational");
         
         crds.warn_delay = function () {
+            $("input[type=submit]").hide();
             crds.set_info_box({text: "Switching operational context now."});
             crds.append_info_box({
                     text: "This may take a few minutes to update file activation dates.",
