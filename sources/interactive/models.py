@@ -398,19 +398,21 @@ def update_file_states(new_context=None, fileblob_map=None):
     if new_context is None:
         new_context = get_default_context(OBSERVATORY, "operational")
         log.info("Updating for operational files in", repr(new_context))
-    active_files = _active_files(new_context)
     if fileblob_map is None:
         fileblob_map = get_fileblob_map()
+    active_files = _active_files(new_context)
     for fname, blob in list(fileblob_map.items()):
         if blob.state in TRANSITORY_STATES + ACTIVE_STATES:
+            old_state = blob.state
             if fname in active_files or data_file.get_conjugate(fname) in active_files:
                 state = "operational"
+            elif old_state == "archived":
+                state = "archived"   # was archived,  but not operational now == still archived.
             else:
-                old_state = blob.state
                 state = blob.interpret_catalog_link()
-                if old_state != state:
-                    log.verbose("Changing state of '{}' from '{}' to '{}'".format(blob.name, old_state, state))
-            _update_file_state(blob, state)
+            if old_state != state:
+                log.verbose("Changing state of '{}' from '{}' to '{}'".format(blob.name, old_state, state))
+                _update_file_state(blob, state)
         elif blob.state in INACTIVE_STATES:
             log.info("Skipping", repr(blob.name), "in state", repr(blob.state))
         else:
