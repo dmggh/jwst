@@ -772,7 +772,7 @@ from django.contrib.auth.views import login as django_login
 
 # @profile("login.stats")
 @error_trap("base.html")
-@log_view
+# @log_view   XXX security,  expose password?
 def login(request):
     """CRDS login view function,  sets and tests session cookie."""
     extras = dict(
@@ -790,7 +790,7 @@ def logout(request):
     return redirect("/") # secure
 
 @error_trap("set_password.html")
-@log_view
+# @log_view    XXX security,  expose password?
 @login_required
 def set_password(request):
     """Support changing a user's own password."""
@@ -1385,7 +1385,7 @@ def submit_confirm(request): #, button, results_id):
                                         ".  Use 'force' to confirm anyway.")
     elif button in ["cancel", "force"]:
         my_locked_instrument = locks.instrument_of(username)
-        if my_locked_instrument != locked_instrument:
+        if locked_instrument and my_locked_instrument != locked_instrument:
             raise CrdsError("You locked", repr(my_locked_instrument), "but must own lock for", 
                             repr(locked_instrument), "to cancel or force this submission.")
 

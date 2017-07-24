@@ -39,11 +39,10 @@ class RepairScript(cmdline.ContextsScript):
         self.add_argument('--ignore-fields', nargs="*", dest="ignore_fields", default=(),
             help="Fields to ignore.")
 	
-	# Could support file determination similar sync:  --all --references --files etc.
-
-	super(RepairScript, self).add_args()
-
+        # Could support file determination similar sync:  --all --references --files etc.
         
+        super(RepairScript, self).add_args()
+
     def main(self):
         """Repair files."""
         import django
@@ -84,12 +83,11 @@ class RepairScript(cmdline.ContextsScript):
 
     def repair_defects(self, defects_map):
         log.info("Repairing", len(defects_map), "files database model defects.")
-	return models.repair_defects(defects_map, verbose=log.get_verbose())
+        return models.repair_defects(defects_map, verbose=log.get_verbose())
 
     def print_defects(self, defects_map):
         for (name, (blob, defects)) in list(defects_map.items()):
             print(name, ":", repr(defects))
-
 
 if __name__ == "__main__":
     RepairScript()()
