@@ -1,8 +1,7 @@
 #! /bin/sh 
 
-source $HOME/.profile
-
-crdsd
+# crdsd
+cd $CRDS/CRDS
 ./clean
 
 pygrep . $*
