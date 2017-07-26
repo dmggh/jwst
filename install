@@ -1,10 +1,17 @@
-#! /bin/csh
+#! /bin/bash
 
-cp host/dot_setenv ~/.setenv
-cp host/dot_alias ~/.alias
+# The tcsh and bash init approaches that follow are intended to be
+# equivalent.  Both are needed during the transition period from
+# tcsh to bash.
 
-source ~/.setenv
-source ~/.alias
+# Original RC scripts based on STScI checkenv and tcsh, obsolete
+cp host/dot_setenv $HOME/.setenv
+cp host/dot_alias $HOME/.alias
+
+# Revised approach based on no-checkenv and using bash
+cp host/dot_bashrc $HOME/.bashrc
+
+. $HOME/.bashrc
+
 ./_install $*
-
 
