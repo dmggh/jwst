@@ -80,6 +80,14 @@ switch ($CRDS_SERVER)
         setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
        breaksw
 
+       case iljwdmsbcrds:
+        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-6
+        setenv CRDS_PROJECT jwst
+        setenv CRDS_USECASE bit
+        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu"
+        setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
+       breaksw
+
        case iljwdmsccrdsv1:
         setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda
         setenv CRDS_PROJECT jwst
@@ -130,6 +138,8 @@ endif
 setenv apachemod ${CRDS_STACK}/lib/apache/
 
 setenv EDITOR emacs
+
+source .alias
 
 # printenv | grep CRDS
 
