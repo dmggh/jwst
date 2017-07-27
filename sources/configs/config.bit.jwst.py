@@ -5,7 +5,7 @@ from __future__ import absolute_import
 debug = DEBUG = True
 DEBUG_EXTRAS = False
 
-HOST = "iljwdmsbcrdsv1"
+HOST = "iljwdmsbcrds"
 PROXY = "jwst-crds-bit"
 observatory = 'jwst'
 server_usecase ="bit"
