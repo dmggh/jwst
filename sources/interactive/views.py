@@ -40,10 +40,10 @@ from django.contrib.auth.views import login as django_login
 from astropy.io import fits as pyfits
 
 import crds
-from crds import uses, matches
+from crds import uses, matches, data_file
 from crds import CrdsError
 from crds.core import (rmap, utils, timestamp, log, config, python23)
-from crds.core import (data_file, pysh, heavy_client)
+from crds.core import (pysh, heavy_client)
 from crds.certify import reftypes
 
 from crds.server.jpoll import views as jpoll_views
