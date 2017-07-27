@@ -1,19 +1,25 @@
-"""This module is used to render some portion of the contents of a reference file
-as HTML for the server reference file details page.
+"""This module is used to render some portion of the contents of a reference
+file as HTML for the server reference file details page.
 """
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
 # from builtins import str
 
+# ---------------------------------------------------------------------------------
+
 import os
 import os.path
 import re
 import tempfile
 
+# ---------------------------------------------------------------------------------
+
 from django.utils.html import format_html, format_html_join
 
 from astropy.io import fits as pyfits
+
+# ---------------------------------------------------------------------------------
 
 import crds
 from crds.core import config, log, pysh
@@ -22,6 +28,8 @@ from crds import data_file
 from .common import srepr, capture_output
 
 from . import models
+
+# ---------------------------------------------------------------------------------
 
 def browsify_file(filename, browsed_file):
     """Return the HTML rendering of `filename` for use in the file details Content panel"""
