@@ -923,47 +923,22 @@ class FileBlobRepairMixin(object):
     def repair_history(self):
         self.set_metadata_field("history", ["HISTORY", "META.HISTORY", "META.REFFILE.HISTORY"], condition=False)
 
-    if OBSERVATORY == "hst":
-        def repair_activation_date(self):
-            if self.type == "mapping":
-                for hist in reversed(get_context_history()):  # find earliest pmap which uses mapping
-                    pmap = crds.get_cached_mapping(hist.context)
-                    if self.name in pmap.mapping_names():
-                        self.activation_date = hist.start_date
-                        break
-                return
-            name = self.name
-            with log.error_on_exception("Failed repairing HST activation date for", repr(name)):
-                if data_file.is_geis_data(name):
-                    name = data_file.get_conjugate(name)
-                from crds.server.xhst import database
-                info = database.get_reference_info(self.instrument, name)
-                self.activation_date = timestamp.parse_date(info["opus_load_date"])
+    def repair_activation_date(self):
+        for hist in reversed(get_context_history()):  # find earliest pmap which uses mapping
+            pmap = crds.get_cached_mapping(hist.context)
+            names = pmap.mapping_names() + pmap.reference_names()
+            if self.name in names:
+                self.activation_date = hist.start_date
+                break
 
-        def repair_useafter_date(self):
-            if self.type == "mapping":
-                return
-            name = self.name
-            with log.error_on_exception("Failed repairing HST useafter date for", repr(name)):
-                if data_file.is_geis_data(name):
-                    name = data_file.get_conjugate(name)
-                from crds.server.xhst import database
-                info = database.get_reference_info(self.instrument, name)
-                self.useafter_date = timestamp.parse_date(info["useafter_date"])
+    if OBSERVATORY == "hst":
 
         bad_field_checks["aperture"] = lambda self: self.aperture=="none" and self.type != "mapping" and self.instrument != "wfpc2"
 
     elif OBSERVATORY == "jwst":  #===========================================================
 
-        def repair_activation_date(self):
-            for hist in reversed(get_context_history()):  # find earliest pmap which uses mapping
-                pmap = crds.get_cached_mapping(hist.context)
-                names = pmap.mapping_names() + pmap.reference_names()
-                if self.name in names:
-                    self.activation_date = hist.start_date
-                    break
-            return
-
+        pass
+    
 # ============================================================================
 
 PEDIGREES = ["INFLIGHT", "GROUND", "DUMMY", "MODEL"]   # note: INFLIGHT include date
@@ -1219,13 +1194,9 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
         keyword in `keywords` that is not None and optionally `condition` the
         value before returning it.  Return None if no keyword value is found.
         """
-        filename = self.uploaded_as or self.name
-        if data_file.is_geis_data(self.pathname):
-            read_from = self.pathname[:-1] + "h"
-        else:
-            read_from = self.pathname
+        read_from = self.uploaded_as or self.name
         for keyword in keywords:
-            with log.error_on_exception("Fetching keyword", srepr(keyword), "from", srepr(filename)):
+            with log.error_on_exception("Fetching keyword", srepr(keyword), "from", srepr(read_from)):
                 val = data_file.getval(read_from, keyword, condition=condition)
                 if val != "UNDEFINED":
                     return val

@@ -254,9 +254,6 @@ class FileSubmission(object):
         with log.error_on_exception("Failed chmod'ing cached file", srepr(permanent_location)):
             os.chmod(permanent_location, 0o444)
         
-#        data_file.setval("COMMENT", "Header parameters of this file only reflect the original CRDS assignment rules.")
-#        data_file.setval("COMMENT", "The CRDS rules,  which can change independently, define how this file is assigned now.")
-    
         # Make a database record for this file.
         self.add_crds_file(original_name, permanent_location, sha1sum=sha1sum)
         
