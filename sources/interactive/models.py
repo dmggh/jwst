@@ -1194,9 +1194,13 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
         keyword in `keywords` that is not None and optionally `condition` the
         value before returning it.  Return None if no keyword value is found.
         """
-        read_from = self.uploaded_as or self.name
+        filename = self.uploaded_as or self.name
+        if data_file.is_geis_data(self.pathname):
+            read_from = self.pathname[:-1] + "h"
+        else:
+            read_from = self.pathname
         for keyword in keywords:
-            with log.error_on_exception("Fetching keyword", srepr(keyword), "from", srepr(read_from)):
+            with log.error_on_exception("Fetching keyword", srepr(keyword), "from", srepr(filename)):
                 val = data_file.getval(read_from, keyword, condition=condition)
                 if val != "UNDEFINED":
                     return val
