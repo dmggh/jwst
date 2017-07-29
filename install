@@ -1,10 +1,17 @@
-#! /bin/csh
+#! /bin/tcsh
 
-cp host/dot_setenv ~/.setenv
-cp host/dot_alias ~/.alias
+# Transition to bash postponed for now.
 
-source ~/.setenv
-source ~/.alias
+# Original RC scripts based on STScI checkenv and tcsh, obsolete
+# Adapted to no-checkenv by linking .cshrc to checkenv's .setenv
+cp host/dot_setenv $HOME/.setenv
+cp host/dot_alias $HOME/.alias
+rm -f ~/.cshrc
+ln -s $HOME/.setenv $HOME/.cshrc
+
+# Revised approach based on no-checkenv and using bash
+# cp host/dot_bashrc $HOME/.bashrc
+# . $HOME/.bashrc
+
 ./_install $*
-
 
