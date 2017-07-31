@@ -356,7 +356,7 @@ def check_key(key):
     return key
 
 def check_pipeline_name(pipeline):
-    if not re.match(r"\w+", pipeline):
+    if not re.match(r"(\w|/)+", pipeline):
         raise InvalidPipelineName("The specified pipeline name is invalid.")
     return pipeline
 
