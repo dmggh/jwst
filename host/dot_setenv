@@ -1,11 +1,5 @@
 #-*-sh-*-
 
-# WARNING
-# WARNING  this script *instance* is a common shared element across all CRDS servers.
-# WARNING  screwing up this one file can potentially take down all 6 servers since
-# WARNING  ${HOME} is shared.
-# WARNING
-
 limit stacksize 64000k
 # limit memorylocked 512k
 
@@ -17,6 +11,15 @@ setenv XDG_CONFIG_HOME $CRDS/xdg_config
 mkdir -p $XDG_CONFIG_HOME/astropy
 
 setenv URP_TYPE crds
+
+# Key controlling server tracking of remote pipeline context sync.
+# Due to pipeline setup simplicity,  same key used by both HST and JWST
+# pipelines,  differentiated by targeted server.
+# Ironically key for less important /grp/crds/cache is fully differentiated
+# by project.   These keys are currently standardized by project as
+# the server database is mirrored from OPS on down.  Differentiating keys
+# by usecase would require a post-mirroring database tweak.
+setenv CRDS_PIPELINE_CACHE_KEY 12ca7bb2-dd3b-444a-8e6e-d8fd0bf559ed
 
 switch ($CRDS_SERVER)
        case dljwstcrdsv1:
@@ -60,7 +63,6 @@ switch ($CRDS_SERVER)
         setenv CRDS_PROJECT hst
         setenv CRDS_USECASE ops
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
-        setenv CRDS_PIPELINE_CACHE_KEY 12ca7bb2-dd3b-444a-8e6e-d8fd0bf559ed
         setenv CRDS_GRP_CACHE_KEY 78b96cd6-4295-4215-89ff-a588b2ea831a
        breaksw
 
@@ -73,6 +75,14 @@ switch ($CRDS_SERVER)
        breaksw
 
        case iljwdmsbcrdsv1:
+        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-6
+        setenv CRDS_PROJECT jwst
+        setenv CRDS_USECASE bit
+        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu"
+        setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
+       breaksw
+
+       case iljwdmsbcrds:
         setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-6
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE bit
@@ -130,6 +140,8 @@ endif
 setenv apachemod ${CRDS_STACK}/lib/apache/
 
 setenv EDITOR emacs
+
+source ${HOME}/.alias
 
 # printenv | grep CRDS
 
