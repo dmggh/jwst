@@ -19,7 +19,7 @@ import pyodbc
 from django.utils import html
 
 import crds
-from crds import rmap, log, utils, timestamp, config, exceptions
+from crds import rmap, log, utils, timestamp, config
 from crds.server.interactive import models, common
 from crds.server import config as sconfig
 
@@ -144,7 +144,7 @@ def dataset_to_instrument(dataset):
     try:
         return IPPPSSOOT_INSTR[instr]
     except KeyError:
-        raise exceptions.CrdsError("Can't determine instrument for dataset " + repr(dataset))
+        raise crds.CrdsError("Can't determine instrument for dataset " + repr(dataset))
 
 class DB(object):
     """This is a basic raw interface to a database, exposing tables, columns, and SQL.
@@ -655,7 +655,7 @@ def get_dataset_headers_by_instrument(instrument, datasets_since=None):
         extra_clauses = [ igen.get_expstart_clause(datasets_since) ] if datasets_since else []
         return igen.get_headers(extra_clauses, extra_clauses)
     except Exception as exc:
-        raise RuntimeError("Error accessing catalog for instrument" + repr(instrument) + ":" + str(exc))
+        raise crds.CrdsError("Error accessing catalog for instrument" + repr(instrument) + ":" + str(exc))
 
 # ---------------------------------------------------------------------------------------------------------
 """
@@ -721,7 +721,7 @@ def get_dataset_headers_by_id(context, dataset_ids):
                 unassoc_extra_clauses = unassoc_clauses,
                 assoc_extra_clauses = assoc_clauses)
         except Exception as exc:
-            raise RuntimeError("Error accessing catalog for instrument " + repr(instrument) + ":" + str(exc))
+            raise crds.CrdsError("Error accessing catalog for instrument " + repr(instrument) + ":" + str(exc))
         all_headers.update(headers)
 
     products = [ cid.split(":")[0] for cid in all_headers ]

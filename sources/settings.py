@@ -128,7 +128,7 @@ SESSION_SAVE_EVERY_REQUEST = False         # don't reset expiry every view,  JPO
 #
 X_FRAME_OPTIONS = 'DENY'
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     # must precede middleware which assumes CSRF already dealt with
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -143,8 +143,8 @@ MIDDLEWARE_CLASSES = (
 )
 
 if DEBUG_EXTRAS:
-    MIDDLEWARE_CLASSES += (  
-    'sugar.middleware.speedtracer.SpeedTracerMiddleware',
+    MIDDLEWARE += (  
+    # 'sugar.middleware.speedtracer.SpeedTracerMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     )
 
