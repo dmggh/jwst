@@ -9,14 +9,20 @@ from crds import log
 from . import locks, views
 
 class ResetLockExpirationMiddleware(object):
-    """Manage lock expirations."""
-    
-    def process_request(self, request):
-        """For every request,  if there is an authenticated user,  reset the expiration
-        dates on all the locks they own.
-        """
+    """Manage instrument lock timeouts for all views except lock polling and
+    JSONRPC services.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+        # One-time configuration and initialization.
+
+    def __call__(self, request):
+        # Code to be executed for each request before
+        # the view (and later middleware) are called.
+
         # Don't reset lock expiry for (1) lock status poll or (2) log message polling
-        # Other interactive views clear lock timeout
+        # via JSONRPC for command line tools.  Other interactive views clear lock timeout.
         if "lock_status" not in request.path and "jpoll" not in request.path:
             user = getattr(request, "user", None)
             if user and user.is_authenticated:
@@ -24,3 +30,11 @@ class ResetLockExpirationMiddleware(object):
                 if instrument:
                     with log.info_on_exception("failed resetting lock expiration"):
                         locks.reset_expiry(type="instrument", name=instrument, user=str(user))
+
+        response = self.get_response(request)
+
+        # Code to be executed for each request/response after
+        # the view is called.
+
+        return response
+
