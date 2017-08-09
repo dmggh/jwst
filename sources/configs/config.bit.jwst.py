@@ -5,7 +5,7 @@ from __future__ import absolute_import
 debug = DEBUG = True
 DEBUG_EXTRAS = False
 
-HOST = "iljwdmsbcrdsv1"
+HOST = "iljwdmsbcrds"
 PROXY = "jwst-crds-bit"
 observatory = 'jwst'
 server_usecase ="bit"
@@ -59,7 +59,7 @@ CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/mappings/" + observator
 
 FORCE_REMOTE_MODE = False
 
-ARCHIVE_PARAMETER_SERVICE_URL = "http://iljwdmsb1arcv.stsci.edu:8888/crds"
+ARCHIVE_PARAMETER_SERVICE_URL = "http://iljwdmsbarcv1.stsci.edu:8888/crds"
 
 # ARCHIVE_PARAMETER_SERVICE_URL = "https://undefined-archive-parameter-service.stsci.edu:8888/crds"
 # CRDS_MOCK_ARCHIVE_PARAMETERS = "jwst-b7.1-bit-2017-06-17.json"

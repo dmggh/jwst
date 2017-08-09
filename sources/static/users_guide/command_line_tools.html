@@ -124,11 +124,11 @@ implement their functionality.</p>
 <div class="section" id="crds-convenience-wrapper">
 <h2>crds Convenience Wrapper<a class="headerlink" href="#crds-convenience-wrapper" title="Permalink to this headline">¶</a></h2>
 <p>DEPRECATED original command line syntax, e.g. for the list command:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">list</span> <span class="o">--</span><span class="n">config</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">list</span> <span class="o">--</span><span class="n">status</span>
 </pre></div>
 </div>
 <p>NEW command line syntax, e.g.:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="nb">list</span> <span class="o">--</span><span class="n">config</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="nb">list</span> <span class="o">--</span><span class="n">status</span>
 </pre></div>
 </div>
 <p>Internally the &#8216;crds&#8217; wrapper launches a command similar to the original
@@ -145,27 +145,24 @@ hides internal structural details of the CRDS package.</p>
 </div>
 <div class="section" id="specifying-file-paths">
 <h2>Specifying File Paths<a class="headerlink" href="#specifying-file-paths" title="Permalink to this headline">¶</a></h2>
-<p>The command line tools operate on CRDS reference and mapping files in various
-ways.</p>
+<p>The command line tools operate on CRDS reference and mapping files both inside
+and outside the CRDS cache.   Files specified without a path are assumed to be
+in the CRDS cache.   Files specified with an explicit absolute or relative
+path can be located anywhere.   See examples below.</p>
 <div class="section" id="in-the-crds-cache">
 <h3>In the CRDS cache<a class="headerlink" href="#in-the-crds-cache" title="Permalink to this headline">¶</a></h3>
-<p>To specify a file in the CRDS file cache, as defined by CRDS_PATH, use no path
-on the file:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">diff</span> <span class="n">hst</span><span class="o">.</span><span class="n">pmap</span>  <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span>  <span class="c1"># assumes paths in CRDS cache</span>
+<p>To specify a file inside the CRDS file cache, use no path on the file:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">diff</span> <span class="n">hst</span><span class="o">.</span><span class="n">pmap</span>  <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span>  <span class="c1"># assumes paths, and nested paths, are</span>
+<span class="ow">in</span> <span class="n">CRDS</span> <span class="n">cache</span>
 </pre></div>
 </div>
-<p>A full hierarchical set of CRDS rules is tricky to construct.  Hence, end-users
-will most likely only test mappings in a public CRDS cache.</p>
-<p>Rmaps are easier to test in isolation so they referring to personal copies
-in the current working directory is more of an option:</p>
-<blockquote>
-<div>% crds diff ./hst_acs_darkfile_0250.rmap  ./hst_acs_darkfile_0251.rmap</div></blockquote>
+<p>This is the default and aligns with the behavior of CRDS rules files.</p>
 </div>
 <div class="section" id="in-the-current-directory">
 <h3>In the current directory<a class="headerlink" href="#in-the-current-directory" title="Permalink to this headline">¶</a></h3>
-<p>To specify a particular file which is not located in your cache,  use an
-explicit relative or absolute path:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">diff</span> <span class="o">/</span><span class="n">some</span><span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">hst</span><span class="o">.</span><span class="n">pmap</span> <span class="o">./</span><span class="n">hst_0002</span><span class="o">.</span><span class="n">pmap</span>   <span class="c1"># uses given paths</span>
+<p>To specify a file which is not located in the CRDS cache, use an explicit
+relative or absolute path:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">diff</span> <span class="o">./</span><span class="n">hst_acs_darkfile_0250</span><span class="o">.</span><span class="n">rmap</span>  <span class="o">./</span><span class="n">hst_acs_darkfile_0251</span><span class="o">.</span><span class="n">rmap</span>
 </pre></div>
 </div>
 <p>In this example,  the ./ is critical for telling CRDS to use the file in
