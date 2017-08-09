@@ -105,7 +105,15 @@ def get_or_post(request, variable):
 
 def checkbox(request, variable):
     """Return the boolean value of checkbox `variable` with <input> in standard idiom."""
-    return bool(get_or_post(request, variable))
+    val = get_or_post(request, variable)
+    return interpret_checkbox(val)
+
+def interpret_checkbox(val):
+    """Convert checkbox value string into bool."""
+    if val in ["False","false","FALSE","0","F",""]:
+        return False
+    else:
+        return True
 
 def parse_date(datestr):
     """Validate a `datestr` form input and return it as a datetime."""
