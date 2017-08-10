@@ -1,16 +1,22 @@
 header = {
-    'derived_from' : 'cloning tool 0.03b (2012-09-11)',
+    'derived_from' : 'jwst_miri_amplifier_9999.rmap',
     'filekind' : 'AMPLIFIER',
     'instrument' : 'MIRI',
     'mapping' : 'REFERENCE',
     'name' : 'jwst_miri_amplifier_9999.rmap',
     'observatory' : 'JWST',
-    'parkey' : (('META.INSTRUMENT.DETECTOR', 'META.INSTRUMENT.FILTER'),),
-    'sha1sum' : '4f9c217c5396e303a4101a61738ec5f38026b491',
+    'parkey' : (('META.INSTRUMENT.DETECTOR', 'META.INSTRUMENT.FILTER'), ('META.OBSERVATION.DATE', 'META.OBSERVATION.TIME')),
+    'sha1sum' : '6c7404aec58e9e41bf30db093196a3f12a63d80a',
 }
 
 selector = Match({
-    ('MIRIFULONG', 'ANY') : 'jwst_miri_amplifier_0000.fits',
-    ('MIRIFUSHORT', 'F2550WR') : 'jwst_miri_amplifier_0001.fits',
-    ('MIRIMAGE', 'ANY') : 'jwst_miri_amplifier_0000.fits',
+    ('MIRIFULONG', 'ANY') : UseAfter({
+        '1900-01-01 00:00:00' : 'jwst_miri_amplifier_0000.fits',
+    }),
+    ('MIRIFUSHORT', 'F2550WR') : UseAfter({
+        '1900-01-01 00:00:00' : 'jwst_miri_amplifier_0001.fits',
+    }),
+    ('MIRIMAGE', 'ANY') : UseAfter({
+        '1900-01-01 00:00:00' : 'jwst_miri_amplifier_0002.fits',
+    }),
 })
