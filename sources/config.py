@@ -8,6 +8,7 @@ CRDS_STATUS_FROM_ADDRESS = "crds-servers@stsci.edu"
 INGEST_HOST = "pldmsins1.stsci.edu"
 
 CRDS_MOCK_ARCHIVE_PARAMETERS = None
+ARCHIVE_PARAMETER_SERVICE_URL = "https://undefined-archive-parameter-service.stsci.edu"
 
 CRDS_STATUS_TO_ADDRESSES = ["crds-servers@stsci.edu"]
 
