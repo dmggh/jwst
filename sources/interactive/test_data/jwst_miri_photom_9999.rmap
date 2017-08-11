@@ -1,14 +1,17 @@
 header = {
-    'derived_from' : 'cloning tool 0.03b (2012-09-11)',
+    'classes' : ('Match', 'UseAfter'),
+    'derived_from' : 'jwst_miri_photom_9999.rmap',
     'filekind' : 'PHOTOM',
     'instrument' : 'MIRI',
     'mapping' : 'REFERENCE',
     'name' : 'jwst_miri_photom_0000.rmap',
     'observatory' : 'JWST',
-    'parkey' : (('META.INSTRUMENT.DETECTOR', 'META.INSTRUMENT.FILTER'),),
-    'sha1sum' : '196c88d3e70255b0ed143cc159a20a50bb2cab75',
+    'parkey' : (('META.INSTRUMENT.DETECTOR', 'META.INSTRUMENT.FILTER'), ('META.OBSERVATION.DATE', 'META.OBSERVATION.TIME')),
+    'sha1sum' : '3d5ec61a3d1b0403274abaad82c5f40ca52db003',
 }
 
 selector = Match({
-    ('MIRIMAGE', 'ANY') : 'jwst_miri_photom_0000.fits',
+    ('MIRIMAGE', 'ANY') : UseAfter({
+        '1900-01-01 00:00:00' : 'jwst_miri_photom_0000.fits',
+    }),
 })

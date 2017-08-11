@@ -67,7 +67,7 @@ def crds_cached(f):
 
 def clear_cache():
     """Clear the crds core cache used for storing."""
-    log.info("Clearing Django crds_cache (nominally memcached).")
+    # log.info("Clearing Django crds_cache (nominally memcached).")
     CRDS_CACHE.clear()
 
 # multi-chunk due to 1M limit in memcached and pymemcached and possibly Django

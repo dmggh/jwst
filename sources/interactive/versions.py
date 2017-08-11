@@ -8,9 +8,11 @@ from __future__ import absolute_import
 # from builtins import str
 
 import sys
+import os
 import re
+import os.path
 
-from crds.core import python23
+from crds.core import python23, pysh
 
 MODULE_LIST = (
     'django',
@@ -40,13 +42,10 @@ def get_all_versions( mods = MODULE_LIST ):
     v_dict = { modname:get_version(modname) for modname in mods }
 
     # ... the python interpreter
-    v_dict['python'] = {
-        'str'   : sys.version.split(' ')[0],
-        'rev'   : '',
-        'svnurl': '',
-        'file'  : sys.prefix
-    }
-
+    v_dict['python'] = get_python_version()
+    v_dict['linux']  = get_linux_version()
+    v_dict['mod_wsgi']  = get_mod_wsgi_version()
+    v_dict['apache'] = get_apache_version()
     return v_dict
 
 
@@ -112,6 +111,61 @@ def get_version(modname):
         }
     return vers
 
+
+
+def get_python_version():
+    """Return information about Python version"""
+    return {
+        'str'   : sys.version.split(' ')[0],
+        'rev'   : '',
+        'svnurl': '',
+        'file'  : sys.prefix
+    }
+
+def get_linux_version():
+    """Return information about Linux kernel version"""
+    try:
+        version = pysh.out("/bin/uname -a").split()[2]
+    except Exception:
+        version = "unknown"
+    return {
+        'str'   : version,
+        'rev'   : '',
+        'svnurl': '',
+        'file'  : '',
+    }
+
+def get_mod_wsgi_version():
+    """Return information about mod_wsgi version"""
+    try:  #  lib/python.xx/site-packages/crds/server
+        module_dir = os.path.join(os.environ["CRDS"], "lib")
+        version = pysh.lines('cd %s;  /usr/bin/strings mod_wsgi.so | grep -w -A 1 "wsgi_init"' % module_dir)[1]
+    except Exception:
+        version = "unknown"
+    return {
+        'str'   : version,
+        'rev'   : '',
+        'svnurl': '',
+        'file'  : '',
+    }
+
+def get_apache_version():
+    """Return information about mod_wsgi version
+
+    /sbin/httpd -v
+    Server version: Apache/2.4.6 (Red Hat Enterprise Linux)
+    Server built:   Mar  8 2017 05:09:47
+    """
+    try:
+        version = pysh.lines("/sbin/httpd -v")[0].split("/")[1].split(" ")[0]
+    except Exception:
+        version = "unknown"
+    return {
+        'str'   : version,
+        'rev'   : '',
+        'svnurl': '',
+        'file'  : '',
+    }
 
 # Basically permit dotted identifiers, not worrying about invalid
 # package specifiers or what is being imported, but ensuring that

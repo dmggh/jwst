@@ -41,6 +41,10 @@ class InteractiveBase(TransactionTestCase):
     @classmethod
     def setUpClass(cls):
         
+        print()
+        print("="*80)
+        print()
+
         log.info("Setting up tests:", cls.__name__)
 
         super(InteractiveBase, cls).setUpClass()
@@ -89,13 +93,21 @@ class InteractiveBase(TransactionTestCase):
     @classmethod
     def tearDownClass(cls):
         super(InteractiveBase, cls).tearDownClass()
-        os.environ["CRDS_PATH"] = sconfig.install_root
+        CRDS_PATH = os.environ["CRDS_PATH"] = sconfig.install_root + "/test"
+        print()
+        print("="*80)
+        print()
 
     @classmethod
     def copy_test_mappings(cls):
+        CRDS_PATH = os.environ["CRDS_PATH"] = sconfig.install_root + "/test"
         mappings = "{" + ",".join(cls._cached_mapping_names) + "}"
         pysh.sh("cp -f ${REAL_MAPPING_DIR}/${mappings} ${CRDS_PATH}/mappings/%s" % cls.observatory, 
                 raise_on_error=True) # , trace_commands=True)
+        for mapping in cls.mapping_overrides:
+            mapping = os.path.abspath(os.path.join(os.getcwd(), mapping))
+            pysh.sh("cp -f %s ${CRDS_PATH}/mappings/%s" % (mapping, cls.observatory),
+                    raise_on_error=True) # , trace_commands=True)
 
     passwords = {
         "homer" : "simposon",
@@ -130,6 +142,8 @@ class InteractiveBase(TransactionTestCase):
         if self.ingested:
             pysh.sh("/bin/rm -rf " + self.ingest_path, raise_on_error=True) # , trace_commands=True)
         locks.release_all()
+        print("-"*80)
+        print()
             
     def get(self, *args, **keys):
         raw_response = self.client.get(*args, **keys)
@@ -556,6 +570,7 @@ class InteractiveBase(TransactionTestCase):
             "change_level" : "SEVERE",
             "creator" : "Somebody else",
             "pmap_mode" : "pmap_edit",
+            "generate_contexts" : False,
             }, follow=True)
         self.assert_no_errors(response)
         for ref in self.submit_references:
@@ -695,6 +710,9 @@ if sconfig.observatory == "hst":
         cached_contexts = [pmap]
         
         new_context = "interactive/test_data/hst_0027.pmap"
+
+        mapping_overrides = [
+            ]
         
         delete_list = [
             "hst_0001.pmap",
@@ -810,6 +828,14 @@ else:  # JWST
 
         new_context = "interactive/test_data/jwst_0027.pmap"
         
+        mapping_overrides = [
+            "interactive/test_data/jwst_miri_amplifier_0000.rmap",
+            "interactive/test_data/jwst_miri_amplifier_9999.rmap",
+            "interactive/test_data/jwst_miri_photom_0000.rmap",
+            "interactive/test_data/jwst_miri_photom_0666.rmap",
+            "interactive/test_data/jwst_miri_photom_9999.rmap",
+            ]
+
         delete_list = [
             "jwst_0001.pmap",
             "jwst_0002.pmap",
@@ -855,7 +881,9 @@ else:  # JWST
 
         submit_rmap = "interactive/test_data/jwst_miri_amplifier_9999.rmap"
         submit_references = ["interactive/test_data/jwst_miri_amplifier_0000.fits",
-                             "interactive/test_data/jwst_miri_amplifier_0001.fits"]        
+                             "interactive/test_data/jwst_miri_amplifier_0001.fits",
+                             "interactive/test_data/jwst_miri_amplifier_0002.fits",
+                             ]        
         locked_instrument = "miri"
 
         batch_submit_replace_references = ["interactive/test_data/jwst_miri_amplifier_0000.fits",

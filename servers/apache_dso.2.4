@@ -10,9 +10,10 @@
 # Example:
 # LoadModule foo_module modules/mod_foo.so
 #
+LoadModule slotmem_shm_module  modules/mod_slotmem_shm.so
 LoadModule access_compat_module modules/mod_access_compat.so
 LoadModule auth_basic_module modules/mod_auth_basic.so
-LoadModule auth_digest_module modules/mod_auth_digest.so
+# LoadModule auth_digest_module modules/mod_auth_digest.so
 LoadModule authn_core_module modules/mod_authn_core.so
 LoadModule authn_file_module modules/mod_authn_file.so
 # LoadModule authn_alias_module modules/mod_authn_alias.so
