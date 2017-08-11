@@ -41,6 +41,10 @@ class InteractiveBase(TransactionTestCase):
     @classmethod
     def setUpClass(cls):
         
+        print()
+        print("="*80)
+        print()
+
         log.info("Setting up tests:", cls.__name__)
 
         super(InteractiveBase, cls).setUpClass()
@@ -90,6 +94,9 @@ class InteractiveBase(TransactionTestCase):
     def tearDownClass(cls):
         super(InteractiveBase, cls).tearDownClass()
         CRDS_PATH = os.environ["CRDS_PATH"] = sconfig.install_root + "/test"
+        print()
+        print("="*80)
+        print()
 
     @classmethod
     def copy_test_mappings(cls):
@@ -135,6 +142,8 @@ class InteractiveBase(TransactionTestCase):
         if self.ingested:
             pysh.sh("/bin/rm -rf " + self.ingest_path, raise_on_error=True) # , trace_commands=True)
         locks.release_all()
+        print("-"*80)
+        print()
             
     def get(self, *args, **keys):
         raw_response = self.client.get(*args, **keys)
@@ -561,6 +570,7 @@ class InteractiveBase(TransactionTestCase):
             "change_level" : "SEVERE",
             "creator" : "Somebody else",
             "pmap_mode" : "pmap_edit",
+            "generate_contexts" : False,
             }, follow=True)
         self.assert_no_errors(response)
         for ref in self.submit_references:
