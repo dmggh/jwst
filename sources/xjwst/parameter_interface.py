@@ -66,9 +66,16 @@ def get_header_block(dataset_ids, matching_parameters):
     return headers(CRDSHeaderQueryInput=dict(
             datasetIds=dataset_ids, parameters=matching_parameters))
 
+def _normal_id(did):
+    """Convert dataset id `did` to all upper case and form <did>:<did> if
+    if it is not already a two part id.
+    """
+    did = did.upper()
+    return did if ":" in did else did + ":" + did
+
 def get_dataset_headers_by_id(dataset_ids, matching_parameters):
     """Fetch the `matching_parameters for the specified `dataset_ids."""
-    dataset_ids = [ did.upper() for did in dataset_ids ]
+    dataset_ids = [ _normal_id(did)  for did in dataset_ids ]
     matching_parameters = [ par.upper() for par in matching_parameters ]
     max_headers = max_header_block_size()
     total_headers = {}
