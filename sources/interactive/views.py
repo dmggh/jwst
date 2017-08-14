@@ -114,7 +114,7 @@ def checkbox(request, variable):
 
 def interpret_checkbox(val):
     """Convert checkbox value string into bool."""
-    if val in ["False","false","FALSE","0","F",""]:
+    if val in ["False","false","FALSE","0","0.0","F","",0,None,0.0]:
         return False
     else:
         return True
