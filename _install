@@ -254,6 +254,7 @@ esac
 if [ "$CRDS_USECASE" != "django" ]
 then
     rm -rf $CRDS_INSTALL_DIR/python/lib/python/crds*
+    rm -rf $CRDS/static
 fi
 
 #  INSTALL CORE CRDS CLIENT LIBRARY

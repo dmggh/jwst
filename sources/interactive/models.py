@@ -897,23 +897,23 @@ class FileBlobRepairMixin(object):
         self.filekind = utils.get_file_properties(utils.file_to_observatory(self.pathname), self.pathname)[1]
         
     def repair_aperture(self):
-        self.set_metadata_field("aperture", ["APERTURE", "META.APERTURE.NAME"])  # aperture_keyword from FileBlobModel multiple inheritance
+        self.set_metadata_field("aperture", ["APERTURE", "META.APERTURE.NAME", "APERNAME"])  # aperture_keyword from FileBlobModel multiple inheritance
         
     def repair_useafter_date(self):
-        self.set_metadata_field("useafter_date", ["USEAFTER", "META.USEAFTER", "META.REFFILE.USEAFTER"], 
+        self.set_metadata_field("useafter_date", ["USEAFTER", "META.USEAFTER"], 
                                 timestamp.parse_date, default=DEFAULT_USEAFTER_DATE)
 
     def repair_reference_file_type(self):
-        self.set_metadata_field("reference_file_type", ["REFTYPE", "META.REFTYPE", "META.REFFILE.TYPE"])
+        self.set_metadata_field("reference_file_type", ["REFTYPE", "META.REFTYPE"])
 
     def repair_pedigree(self):
-        self.set_metadata_field("pedigree", ["PEDIGREE", "META.PEDIGREE", "META.REFFILE.PEDIGREE"])
+        self.set_metadata_field("pedigree", ["PEDIGREE", "META.PEDIGREE"])
         if self.observatory == "jwst" and not self.pedigree:
             log.warning("Using JWST default PEDIGREE of DUMMY.")
             self.pedigree = "DUMMY"
 
     def repair_comment(self):
-        self.set_metadata_field("comment", ["DESCRIP", "DESCRIPTION", "META.DESCRIPTION", "META.REFFILE.DESCRIPTION"])
+        self.set_metadata_field("comment", ["DESCRIP", "DESCRIPTION", "META.DESCRIPTION"])
 
     def repair_delivery_date(self):
         delivery_date = [ audit.date for audit in AuditBlob.filter(filename=self.name) 
@@ -921,49 +921,24 @@ class FileBlobRepairMixin(object):
         self.delivery_date = delivery_date
 
     def repair_history(self):
-        self.set_metadata_field("history", ["HISTORY", "META.HISTORY", "META.REFFILE.HISTORY"], condition=False)
+        self.set_metadata_field("history", ["HISTORY", "META.HISTORY",], condition=False)
+
+    def repair_activation_date(self):
+        for hist in reversed(get_context_history()):  # find earliest pmap which uses mapping
+            pmap = crds.get_cached_mapping(hist.context)
+            names = pmap.mapping_names() + pmap.reference_names()
+            if self.name in names:
+                self.activation_date = hist.start_date
+                break
 
     if OBSERVATORY == "hst":
-        def repair_activation_date(self):
-            if self.type == "mapping":
-                for hist in reversed(get_context_history()):  # find earliest pmap which uses mapping
-                    pmap = crds.get_cached_mapping(hist.context)
-                    if self.name in pmap.mapping_names():
-                        self.activation_date = hist.start_date
-                        break
-                return
-            name = self.name
-            with log.error_on_exception("Failed repairing HST activation date for", repr(name)):
-                if data_file.is_geis_data(name):
-                    name = data_file.get_conjugate(name)
-                from crds.server.xhst import database
-                info = database.get_reference_info(self.instrument, name)
-                self.activation_date = timestamp.parse_date(info["opus_load_date"])
-
-        def repair_useafter_date(self):
-            if self.type == "mapping":
-                return
-            name = self.name
-            with log.error_on_exception("Failed repairing HST useafter date for", repr(name)):
-                if data_file.is_geis_data(name):
-                    name = data_file.get_conjugate(name)
-                from crds.server.xhst import database
-                info = database.get_reference_info(self.instrument, name)
-                self.useafter_date = timestamp.parse_date(info["useafter_date"])
 
         bad_field_checks["aperture"] = lambda self: self.aperture=="none" and self.type != "mapping" and self.instrument != "wfpc2"
 
     elif OBSERVATORY == "jwst":  #===========================================================
 
-        def repair_activation_date(self):
-            for hist in reversed(get_context_history()):  # find earliest pmap which uses mapping
-                pmap = crds.get_cached_mapping(hist.context)
-                names = pmap.mapping_names() + pmap.reference_names()
-                if self.name in names:
-                    self.activation_date = hist.start_date
-                    break
-            return
-
+        pass
+    
 # ============================================================================
 
 PEDIGREES = ["INFLIGHT", "GROUND", "DUMMY", "MODEL"]   # note: INFLIGHT include date
@@ -1193,12 +1168,12 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
         """Extract metadata from the cataloged file and store it in the model.  Use the 
         value from the first keyword found.
         """
-        self.set_metadata_field("pedigree", ["PEDIGREE", "META.PEDIGREE", "META.REFFILE.PEDIGREE"])
-        self.set_metadata_field("reference_file_type", ["REFTYPE", "META.REFTYPE", "META.REFFILE.TYPE"])
-        self.set_metadata_field("useafter_date", ["USEAFTER", "META.USEAFTER", "META.REFFILE.USEAFTER"], timestamp.parse_date, default=DEFAULT_USEAFTER_DATE)
-        self.set_metadata_field("comment", ["DESCRIP", "DESCRIPTION", "META.DESCRIPTION", "META.REFFILE.DESCRIPTION"], condition=False) # displayed as DESCRIPTION, stored as comment in models
-        self.set_metadata_field("aperture", ["APERTURE", "META.APERTURE.NAME"])
-        self.set_metadata_field("history", ["HISTORY", "META.HISTORY", "META.REFFILE.HISTORY"], condition=False)
+        self.set_metadata_field("pedigree", ["PEDIGREE", "META.PEDIGREE",])
+        self.set_metadata_field("reference_file_type", ["REFTYPE", "META.REFTYPE",])
+        self.set_metadata_field("useafter_date", ["USEAFTER", "META.USEAFTER",], timestamp.parse_date, default=DEFAULT_USEAFTER_DATE)
+        self.set_metadata_field("comment", ["DESCRIP", "DESCRIPTION", "META.DESCRIPTION"], condition=False) # displayed as DESCRIPTION, stored as comment in models
+        self.set_metadata_field("aperture", ["APERTURE", "META.APERTURE.NAME", "APERNAME"])
+        self.set_metadata_field("history", ["HISTORY", "META.HISTORY",], condition=False)
 
     def set_metadata_field(self, model_field, keywords, sanitizer=lambda x: x, condition=True, default="none"):
         """Set `model_field` to the first of `keywords` found, optionally santizing the value, or
