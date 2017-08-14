@@ -278,6 +278,11 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
     statuses = ["*"] + list(models.FILE_STATUS_MAP.keys())
     statuses.remove("uploaded")
 
+    try:
+        live_params = sconfig.ARCHIVE_PARAMETER_SERVICE_URL.split(":")[1][2:].split(".")[0]
+    except Exception:
+        live_params = "unknown"
+
     rdict = {   # standard template variables
         "observatory" : models.OBSERVATORY,
 
@@ -307,6 +312,7 @@ def get_rendering_dict(request, dict_=None, requires_pmaps=False):
         "auto_rename" : models.OBSERVATORY == "jwst",
         "server_usecase" :  sconfig.server_usecase.lower(),
         "mock_params" : sconfig.CRDS_MOCK_ARCHIVE_PARAMETERS,
+        "live_params" : live_params,
     }
 
     # echo escaped inputs.

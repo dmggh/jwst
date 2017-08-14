@@ -70,7 +70,10 @@
         </td>
         <td>
         {% if mock_params %}
-        <span class="label label-sm red">&nbsp;&nbsp;[MOCKED ARCV PARAMS {{mock_params}}]</span>
+        <span class="label label-sm red">&nbsp;&nbsp;[MOCKED ARCV PARAMS
+        {{mock_params}}]</span>
+        {% else %}
+        <span class="label label-sm green">&nbsp;&nbsp;[LIVE {{live_params}}]
         {% endif %}          
         </td>
       </tr>
