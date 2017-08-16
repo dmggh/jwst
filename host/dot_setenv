@@ -6,7 +6,12 @@ limit stacksize 64000k
 setenv  CRDS_SERVER `uname -n | cut -d'.' -f1`
 
 # CRDS and CRDS_STACK,  same pattern,  different dirs,  override below as needed
-setenv CRDS /crds/data1/${CRDS_SERVER}
+setenv SERVER_LOCAL /crds/data1/${CRDS_SERVER}
+setenv CRDS /crds/data1/server_local
+# if (! -d $CRDS) then
+#     ln -s $SERVER_LOCAL $CRDS
+# endif
+
 setenv XDG_CONFIG_HOME $CRDS/xdg_config
 mkdir -p $XDG_CONFIG_HOME/astropy
 
@@ -109,12 +114,17 @@ endsw
 
 setenv META_PREFIX ${CRDS_STACK}
 
-setenv CRDS_IFS /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}
+setenv CRDS_SERVER_ISILON /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}
+setenv CRDS_IFS  /crds/data1/server_isilon
 setenv CRDS_FILE_CACHE ${CRDS_IFS}/file_cache
 setenv CRDS_SERVER_FILES ${CRDS_IFS}/server_files
 setenv CRDS_CRON {$CRDS}/server/logs/cron
 setenv CRDS_LOG_TIME 1
 setenv CRDS_USE_PICKLED_CONTEXTS 1
+
+# if (! -d $CRDS_IFS ) then
+#     ln -s $CRDS_SERVER_ISILON   $CRDS_IFS
+# endif
 
 # Enabling both of the below permits non-compliant keyword values (according to 
 # SSB JWST data model schema) to be certied with a warning and added to rmaps.

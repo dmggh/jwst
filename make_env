@@ -16,6 +16,16 @@ fi
 
 server_mode=$1; shift
 
+if [ ! -d $CRDS ]
+then
+    ln -s $SERVER_LOCAL $CRDS
+fi
+
+if [ ! -d $CRDS ]
+then
+    ln -s $CRDS_SERVER_ISILON   $CRDS_IFS
+fi
+
 export SERVER_SOURCES=sources   # CRDS_server/sources
 
 config="sources/configs/config.${server_mode}.${observatory}.py"
