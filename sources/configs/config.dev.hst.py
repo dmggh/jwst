@@ -30,7 +30,6 @@ REFFILE_DB_DSN = "HarpoReffileOpsRepDsn"
 # REFFILE_DB_DSN = "GrouchoReffileOpsRepDsn"
 
 servertype = 'mod_wsgi'
-apachemod = install_root + "/lib"
 dbtype = 'mysql'
 
 PYSYN_CDBS = ""

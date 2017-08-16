@@ -19,7 +19,6 @@ port = 8001
 # storage_path = '/ifs/crds/' + observatory + '/' + server_usecase
 
 servertype = 'mod_wsgi'
-apachemod = install_root + "/lib"
 dbtype = 'mysql'
 
 PYSYN_CDBS = ""
