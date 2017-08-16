@@ -13,10 +13,10 @@ CRDS_SERVER_IP = "130.167.252.84"
 port = 8001
 
 # This is a VM-related storage partition used as server space
-install_root = '/crds/data1/' + HOST
+# install_root = '/crds/data1/' + HOST
 
 # This is a Isilon storage /crds/hst/production used as file space
-storage_path = '/ifs/crds/' + observatory + '/' + server_usecase
+# storage_path = '/ifs/crds/' + observatory + '/' + server_usecase
 
 CATALOG_DB_USER = "crds"
 CATALOG_DB_PFILE = "/crds/data1/database/crds.dat"

@@ -12,10 +12,20 @@ ARCHIVE_PARAMETER_SERVICE_URL = "https://undefined-archive-parameter-service.sts
 
 CRDS_STATUS_TO_ADDRESSES = ["crds-servers@stsci.edu"]
 
+# This is a VM-related storage partition used as server space
+install_root = '/crds/data1/server_local'
+
+# This is Isilon storage used to store deliveries, uploads, and the file cache.   Logical location
+storage_path = '/crds/data1/server_isilon'
+apachemod = install_root + "/lib"
+
 # ^^^^^ -------------------------------------------------------------------------------------------
 # vars above this line can be overridden in site_config.py copied from configs/config.xx.yy.py
 # vvvvv -------------------------------------------------------------------------------------------
 from .site_config import *
+
+# This is Isilon storage used to store deliveries, uploads, and the file cache.  Physical location
+isilon_storage_path = '/ifs/crds/' + observatory + '/' + server_usecase
 
 # install_dir is the server installation location,  with the exceptions of logs
 # this should be kept small.
