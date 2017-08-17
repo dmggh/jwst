@@ -61,8 +61,9 @@ CRDS_CATALOG_DIR = server_files + "/catalogs"
 # Dir the file upload hanlder stores temporary large uploaded files.
 FILE_UPLOAD_TEMP_DIR = server_files + "/uploads"
 
-# Dir where deliverers can scp files for ingest.
-CRDS_INGEST_DIR = server_files + "/ingest"
+# Dir where deliverers can scp files for ingest.  Requires absolute
+# isilon path to work with command line file submissions.
+CRDS_INGEST_DIR = isilon_storage_path + "/server_files/ingest"
 
 # Dir where dynamic mapping bundles are kept.
 CRDS_ARCHIVE_CACHE_DIR = server_files + "/archive_cache"
