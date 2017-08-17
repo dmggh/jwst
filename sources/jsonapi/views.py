@@ -802,7 +802,7 @@ def _get_sqlite_db(observatory):
     observatory = check_observatory(observatory)
     db_path = crds_db.dump_sqlite_db(observatory)
     db = open(db_path,"rb").read()
-    return base64.b64encode(zlib.compress(db))
+    return base64.b64encode(zlib.compress(db)).decode('ascii')
 
 # ===============================================================
 
