@@ -1,4 +1,4 @@
-#! /bin/tcsh -f -x
+#! /bin/tcsh -f
 
 setenv CRDS_PATH /grp/crds/cache
 
