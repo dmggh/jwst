@@ -3,6 +3,8 @@ from __future__ import print_function
 from __future__ import division
 # XXXXXXXX Late imports below
 
+from .site_config import observatory, server_usecase
+
 CRDS_STATUS_FROM_ADDRESS = "crds-servers@stsci.edu"
 
 INGEST_HOST = "pldmsins1.stsci.edu"
@@ -15,6 +17,8 @@ CRDS_STATUS_TO_ADDRESSES = ["crds-servers@stsci.edu"]
 # This is a VM-related storage partition used as server space
 install_root = '/crds/data1/server_local'
 
+apachemod = install_root + "/lib"
+
 # This is Isilon storage used to store deliveries, uploads, and the file cache.   Logical location
 # storage_path = '/crds/data1/server_isilon'
 # Originally intended as abstract link above,  too many issues to be worth it, now identical to physical
@@ -22,8 +26,6 @@ storage_path = '/ifs/crds/' + observatory + '/' + server_usecase
 
 # This is Isilon storage used to store deliveries, uploads, and the file cache.  Physical location
 isilon_storage_path = '/ifs/crds/' + observatory + '/' + server_usecase
-
-apachemod = install_root + "/lib"
 
 # ^^^^^ -------------------------------------------------------------------------------------------
 # vars above this line can be overridden in site_config.py copied from configs/config.xx.yy.py
