@@ -16,16 +16,19 @@ CRDS_STATUS_TO_ADDRESSES = ["crds-servers@stsci.edu"]
 install_root = '/crds/data1/server_local'
 
 # This is Isilon storage used to store deliveries, uploads, and the file cache.   Logical location
-storage_path = '/crds/data1/server_isilon'
+# storage_path = '/crds/data1/server_isilon'
+# Originally intended as abstract link above,  too many issues to be worth it, now identical to physical
+storage_path = '/ifs/crds/' + observatory + '/' + server_usecase
+
+# This is Isilon storage used to store deliveries, uploads, and the file cache.  Physical location
+isilon_storage_path = '/ifs/crds/' + observatory + '/' + server_usecase
+
 apachemod = install_root + "/lib"
 
 # ^^^^^ -------------------------------------------------------------------------------------------
 # vars above this line can be overridden in site_config.py copied from configs/config.xx.yy.py
 # vvvvv -------------------------------------------------------------------------------------------
 from .site_config import *
-
-# This is Isilon storage used to store deliveries, uploads, and the file cache.  Physical location
-isilon_storage_path = '/ifs/crds/' + observatory + '/' + server_usecase
 
 # install_dir is the server installation location,  with the exceptions of logs
 # this should be kept small.
@@ -35,11 +38,11 @@ install_dir= install_root
 # out with the same structure as a cache created by crds.sync but this is not strictly
 # enforced.  Testing with jsonapi populates it further as a normal cache.
 # possibly multi-terabyte if complete and not linked to other storage
-CRDS_PATH = storage_path + "/file_cache"
+CRDS_PATH = isilon_storage_path + "/file_cache"
 
 # server_files is where server upload and delivery related files are kept
 # possibly hundreds of gigabytes
-server_files = storage_path + "/server_files"
+server_files = isilon_storage_path + "/server_files"
 
 ref_path= CRDS_PATH + '/references'
 map_path= CRDS_PATH + '/mappings'
