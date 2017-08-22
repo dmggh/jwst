@@ -34,7 +34,8 @@ conda install astropy numpy scipy asdf gwcs ipython requests lxml pymysql --quie
 # conda install --quiet --yes --file ${CRDS}/CRDS_server/host/${CONDA_NAME}.pkgs
 
 # conda install --quiet --yes --file http://ssb.stsci.edu/conda/jwstdp-0.7.0rc/jwstdp-0.7.0rc2-linux-py27.0.txt
-# conda remove --quiet --yes --force crds jwst
+
+conda remove --quiet --yes --force cfitsio fitsverify
 
 ./meta install @crds3-fixed  |& tee ${CRDS_STACK}/crds3.err
 ./meta install jwst |& tee ${CRDS_STACK}/jwst.err

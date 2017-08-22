@@ -139,7 +139,7 @@ setenv PASS_INVALID_VALUES 1
 setenv PATH ${CRDS}/python/bin:${CRDS}/CRDS_server/host:${CRDS_STACK}/bin:/usr/kerberos/bin:/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin
 # /usr/stsci/Python-2.7.4/bin:
 
-setenv LD_LIBRARY_PATH ${CRDS_STACK}/lib # :/usr/stsci/Python-2.7.4/lib
+# setenv LD_LIBRARY_PATH ${CRDS_STACK}/lib # :/usr/stsci/Python-2.7.4/lib
 
 if ! $?PYTHONPATH then
     setenv PYTHONPATH ${CRDS_STACK}/lib/python

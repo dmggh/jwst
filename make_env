@@ -51,16 +51,9 @@ export PYTHONPATH
 PATH=$install_dir/python/bin:$install_dir/bin:$PATH
 export PATH
 
-LD_LIBRARY_PATH=$install_dir/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH
-
 (
         echo '#! /bin/csh'
         echo 'setenv PYTHONPATH '$PYTHONPATH
-        if [ "$LD_LIBRARY_PATH" != "" ]
-        then
-                echo 'setenv LD_LIBRARY_PATH '${LD_LIBRARY_PATH}
-        fi
         echo 'unsetenv DJANGO_SETTINGS_MODULE PYSYN_CDBS CRDS_DJANGO_SERVER'
 	echo 'setenv SERVER_PORT '$port
 	echo 'setenv PATH '$PATH
