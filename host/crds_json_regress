@@ -19,7 +19,7 @@ test than a context-to-context comparison because it can detect differences prod
 
 --update will replace the historical results in the .json files with results from the current context.
 
---strict is equivalent to --compare-cdbs --na-differences-matter --undefined-differences-matter.
+--strict is equivalent to --na-differences-matter --undefined-differences-matter.
 """)
 
 context = sys.argv[1]
@@ -36,6 +36,6 @@ if "--strict" in sys.argv:
 else:
     strict = ""
 
-pysh.sh("crds_instrument_iter 'python -m crds.bestrefs --dump-cmdline --compare-source-bestrefs --new-context CONTEXT ' ${context} " +
-        " --load-pickle INSTRUMENT.json --profile=profile_INSTRUMENT.stats ${update} ${strict} --stats --dump-unique-errors " + " ".join(sys.argv[2:]))
+pysh.sh("crds_instrument_iter 'python -m crds.bestrefs --dump-cmdline --new-context CONTEXT ' ${context} " +
+        " --load-pickle INSTRUMENT.json --profile=profile_INSTRUMENT.stats ${update} ${strict} --regress --dump-cmdline" + " ".join(sys.argv[2:]))
 
