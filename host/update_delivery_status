@@ -1,0 +1,43 @@
+#! /usr/bin/env python
+"""This script looks for inconsitencies between the server database, 
+server file cache at CRDS_PATH, and the server catalogs and deliveries directories.
+
+When used to maintain a single server,  the switch --purge-delivery-errors can
+clean up files in the catalog and delivery directories.
+
+When used in the context of mirroring,  --purge-delivery-errors is moot because
+the catalogs and deliveries directories are recreated.
+"""
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import *
+import sys
+import os.path
+import glob
+import re
+
+import django
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "crds.server.settings")
+django.setup()
+
+from crds import rmap, log
+from crds.server import config
+from crds.server.interactive import models as imodels
+
+
+
+def main():
+    if "--verbose" in sys.argv:
+        log.set_verbose()
+
+    imodels.update_delivery_status()
+
+    log.standard_status()
+
+if __name__ == "__main__":
+    main()
+
