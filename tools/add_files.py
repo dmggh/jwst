@@ -16,13 +16,15 @@ from __future__ import absolute_import
 import os.path
 import traceback
 
+import django
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "crds.server.settings")
+django.setup()
+
 from crds import log, rmap, pysh
 from crds.cmdline import Script
 
 from crds.server import config as sconfig
 from crds.server.interactive import models, submit
-
-import django
 
 def hack_sqlite3_performance():
     """These pragmas make a huge difference on Fedora 15.  Mac OS-X seems to
@@ -112,7 +114,8 @@ Does not move, rename, or deliver files.
                     log.warning("Skipping existing file", repr(path))
                 else:
                     log.info("Installing", path, "in CRDS cache.")
-                    pysh.sh("cp ${path} ${cache_location}")
+                    pysh.sh("cp ${path} ${cache_location}", 
+                            trace_commands=True, trace_exceptions=True, raise_on_error=True)
             
             file = os.path.basename(path)
             if file in file_map:
