@@ -7,7 +7,7 @@ setenv DATETAG `date "+%Y-%m-%d-%H%M%S"`
 setenv TAIL ${CRDS_PROJECT}.${CRDS_USECASE}
 setenv ETAIL ${TAIL}.err
 
-setenv BACKUP_DIR /crds/data1/${CRDS_SERVER}/server/db_backups
+setenv BACKUP_DIR ${CRDS}/server/db_backups
 setenv DATED_BACKUP_DIR ${BACKUP_DIR}/${DATETAG}
 
 setenv SHARED_LATEST_BACKUPS /eng/ssb/crds/latest_backups
