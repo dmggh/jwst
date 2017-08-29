@@ -11,7 +11,7 @@ from __future__ import absolute_import
 # from builtins import str
 import sys, os, shutil, re
 
-from crds import config, log, rmap, utils
+from crds.core import config, log, rmap, utils
 from crds.hst import locate
 
 def main(used_references):

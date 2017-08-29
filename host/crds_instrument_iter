@@ -11,7 +11,8 @@ from builtins import *
 import sys
 
 import crds
-from crds import pysh, client
+from crds.core import pysh
+from crds import client
 
 def main(base_command, context, args):
     """Run `base_command`"""

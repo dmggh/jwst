@@ -5,7 +5,7 @@ from __future__ import division
 from __future__ import absolute_import
 import sys
 
-from crds import heavy_client, log, pysh, timestamp
+from crds.core import heavy_client, log, pysh, timestamp
 
 def context_updated(observatory):
     """Check the cache and server to see if the operational context

@@ -13,8 +13,8 @@ import django
 from crds.server import config as sconfig
 from crds.server.interactive import (models, submit)
 
-from crds import (rmap, log)
-from crds.config import locate_file
+from crds.core import (rmap, log)
+from crds.core.config import locate_file
 
 def add_slow_fields(files):
     """Add the slow fields to the fileblobs for the basenames listed in `files`."""

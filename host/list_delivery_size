@@ -9,7 +9,7 @@ standard_library.install_aliases()
 from builtins import *
 import os, sys
 
-from crds import utils, log, config
+from crds.core import utils, log, config
 
 def size_catalog(cat_path):
     total = 0

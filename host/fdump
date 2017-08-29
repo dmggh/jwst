@@ -11,7 +11,7 @@ from builtins import *
 import sys
 from astropy.io import fits
 
-from crds.config import locate_file
+from crds.core.config import locate_file
 
 if len(sys.argv) == 1:
         print("usage:", sys.argv[0], "<fits file> [<extension>=0 [<2D array index expr> = '']] [--sumarray_off] [--line_width <width>]")

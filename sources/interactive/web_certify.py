@@ -12,8 +12,9 @@ import re
 
 from django.utils import html
 
-from crds import rmap, certify, log, config
-from crds import CrdsError
+from crds.core import rmap, log, config
+from crds.core.exceptions import CrdsError
+from crds import certify
 
 from . import models
 from .common import capture_output, srepr, html_colorize_log

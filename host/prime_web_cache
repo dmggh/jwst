@@ -13,7 +13,8 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "crds.server.settings")
 django.setup()
 
 import crds
-from crds import pysh, heavy_client, log, list
+from crds.core import pysh, heavy_client, log
+from crds import list
 
 from crds.server import config
 

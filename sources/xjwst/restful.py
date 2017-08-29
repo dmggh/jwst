@@ -31,10 +31,10 @@ else:
 
 # =====================================================================
 
-from crds import log, config, python23
+from crds.core import log, config, python23
 from crds.client import proxy
 
-from crds.exceptions import ServiceError
+from crds.core.exceptions import ServiceError
 
 # =====================================================================
 

@@ -6,7 +6,7 @@ from __future__ import division
 from __future__ import absolute_import
 import tempfile
 
-from crds import pysh, config
+from crds.core import pysh, config
 from crds.server.crds_database import DATABASES
 
 def dump_sqlite_db(observatory):

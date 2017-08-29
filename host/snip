@@ -10,7 +10,7 @@ standard_library.install_aliases()
 from builtins import *
 import sys
 
-from crds.pysh import *
+from crds.core.pysh import *
 
 MAX_WARNINGS = 20
 MAX_ERRORS = 20

@@ -13,7 +13,7 @@ import django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "crds.server.settings")
 django.setup()
 
-from crds import rmap, log, pysh
+from crds.core import rmap, log, pysh
 from crds.server import config
 from crds.server.interactive import models
 from crds.server.interactive import submit

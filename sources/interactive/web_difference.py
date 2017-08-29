@@ -12,7 +12,7 @@ import re
 
 from django.utils import html
 
-from crds import rmap, pysh, config
+from crds.core  import rmap, pysh, config
 from crds.server.interactive import catalog_fusion
 
 GEIS_HEADER_RE = r"\w+(\.r\dh)"

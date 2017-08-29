@@ -9,8 +9,8 @@ import cProfile
 import re
 import os.path
 
-from crds import log, utils, python23
-from crds.config import complete_re
+from crds.core import log, utils, python23
+from crds.core.config import complete_re
 from crds.server.config import crds_server_log_dir
 
 # ===================================================================
