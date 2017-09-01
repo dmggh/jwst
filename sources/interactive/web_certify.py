@@ -86,7 +86,7 @@ def _captured_certify(original_name, uploaded_path, context=None, compare_old_re
             # NOTE: There is some overlap between these checks and those crds.certify can do.
             # Checking for file existence this ways is faster than checking the file system.
             for filename in ctx.reference_names():
-                if filename not in filemap:
+                if filename not in filemap or filemap[filename].state not in models.USEABLE_STATES:
                     log.error("File '%s' is not known to CRDS." % filename)
                 else:
                     if filemap[filename].blacklisted:

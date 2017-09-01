@@ -956,9 +956,17 @@ FILE_STATUS_MAP = OrderedDict([
     ("bad", "red")  # blacklisted or rejected
 ])
 
-TRANSITORY_STATES = ["delivered","submitted","archiving"]
+# In CRDS but on the way into the archive.
+TRANSITORY_STATES = ["delivered","submitted","archiving", "archiving-failed"]
+
+# Either obsolete but retained in CRDS and the archive or in operational use in the pipeline.
 ACTIVE_STATES = ["archived", "operational"]
-INACTIVE_STATES = ["uploaded", "cancelled", "archiving-failed"]
+
+# Eventually,  such files are useable and can be referred to by mappings accepted now
+USEABLE_STATES = ACTIVE_STATES + TRANSITORY_STATES
+           
+INACTIVE_STATES = ["uploaded", "cancelled"]
+
 ALL_STATES = TRANSITORY_STATES + ACTIVE_STATES + INACTIVE_STATES
 FILE_STATES = list(FILE_STATUS_MAP.keys())
 

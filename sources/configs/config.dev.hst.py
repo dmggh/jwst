@@ -68,3 +68,5 @@ CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/mappings/" + observator
 
 FORCE_REMOTE_MODE = False
 
+CRDS_STATUS_TO_ADDRESSES = ["jmiller@stsci.edu"]
+
