@@ -9,10 +9,9 @@ standard_library.install_aliases()
 from builtins import *
 
 from astropy.io import fits
-from crds.pysh import *
-from crds import pysh
+from crds.core.pysh import *
 
-pysh.usage("<keyword> [extension] <filenames...>", 2, 2**20)
+usage("<keyword> [extension] <filenames...>", 2, 2**20)
 
 if re.match("^\d+$", sys.argv[2]):
    extension = int(sys.argv[2])

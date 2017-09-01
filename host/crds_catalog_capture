@@ -8,7 +8,7 @@ standard_library.install_aliases()
 from builtins import *
 import sys
 
-from crds import pysh, log
+from crds.core import pysh, log
 
 pysh.usage("<context>  [--no-update] [--strict] [--compare-source-bestrefs] [bestrefs parameters...]", 1, help="""
 

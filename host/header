@@ -16,7 +16,8 @@ from builtins import *
 import os
 import sys
 
-from crds import cmdline, data_file, log
+from crds.core import cmdline, log
+from crds import data_file
 
 # ==============================================================================================================
     

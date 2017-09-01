@@ -14,8 +14,8 @@ import datetime
 
 from astropy.io import fits
 
-from crds.pysh import *
-from crds import timestamp
+from crds.core.pysh import *
+from crds.core import timestamp
 
 usage("<unique-keyword> <FITS files...>", 1, help="""
 

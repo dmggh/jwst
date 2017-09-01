@@ -15,7 +15,7 @@ import optparse
 
 import astropy.io.fits as pyfits
 
-from crds import config, log, utils
+from crds.core import config, log, utils
 
 def dump_header(fname, extensions=[0], verbose=False):
     if extensions == "all":

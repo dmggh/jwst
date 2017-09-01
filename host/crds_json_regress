@@ -10,7 +10,7 @@ standard_library.install_aliases()
 from builtins import *
 import sys
 
-from crds import pysh
+from crds.core import pysh
 
 pysh.usage("<context> [--update] [--strict] [bestrefs parameters...]", min_args=1, help="""
 
@@ -37,5 +37,5 @@ else:
     strict = ""
 
 pysh.sh("crds_instrument_iter 'python -m crds.bestrefs --dump-cmdline --new-context CONTEXT ' ${context} " +
-        " --load-pickle INSTRUMENT.json --profile=profile_INSTRUMENT.stats ${update} ${strict} --regress --dump-cmdline" + " ".join(sys.argv[2:]))
+        " --load-pickle INSTRUMENT.json --profile=profile_INSTRUMENT.stats ${update} ${strict} --regress --dump-cmdline " + " ".join(sys.argv[2:]))
 

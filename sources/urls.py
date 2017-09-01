@@ -15,7 +15,7 @@ from crds.server.jpoll.views import JPOLL_KEY_RE_STR
 from crds.server import settings, config
 from crds.server.interactive.common import UUID_RE_STR
 
-from crds.config import FILE_RE_STR, USER_NAME_RE_STR
+from crds.core.config import FILE_RE_STR, USER_NAME_RE_STR
 
 # XXX Cached views must be completely defined by the URL
 # XXX GET/POST parameters and cookies don't count to differentiate pages.

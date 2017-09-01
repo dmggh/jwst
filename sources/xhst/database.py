@@ -19,7 +19,7 @@ import pyodbc
 from django.utils import html
 
 import crds
-from crds import rmap, log, utils, timestamp, config
+from crds.core import rmap, log, utils, timestamp, config
 from crds.server.interactive import models, common
 from crds.server import config as sconfig
 

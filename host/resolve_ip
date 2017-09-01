@@ -34,7 +34,7 @@ import re
 import pprint
 from collections import Counter
 
-from crds import pysh
+from crds.core import pysh
 
 # Output from "host" command
 # Host 84.252.167.30.in-addr.arpa. not found: 3(NXDOMAIN)

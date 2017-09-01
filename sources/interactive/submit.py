@@ -54,7 +54,12 @@ import glob
 from django.contrib.auth.models import User
 
 import crds
-from crds import (log, rmap, utils, refactor, newcontext, CrdsError, config, uniqname, naming)
+from crds.core import log, rmap, utils
+from crds.core import config, naming
+from crds.refactoring import refactor, newcontext
+from crds.misc import uniqname
+from crds.exceptions import CrdsError
+
 from . import models, web_certify, web_difference, locks
 from .common import srepr
 from crds.server import config as sconfig

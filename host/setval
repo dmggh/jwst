@@ -9,7 +9,7 @@ standard_library.install_aliases()
 from builtins import *
 
 from astropy.io import fits
-from crds import pysh
+from crds.core import pysh
 
 pysh.usage("<filename> <keyword> [<value> [<extension>]]", 2, 4)
 

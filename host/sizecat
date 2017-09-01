@@ -15,7 +15,7 @@ import sys
 
 import numpy
 
-from crds import log, client, utils
+from crds.core import log, client, utils
 
 def main(observatory, catalogs):
     for catalog in catalogs:

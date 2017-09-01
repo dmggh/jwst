@@ -17,8 +17,9 @@ import pyodbc
 from django.utils import html
 
 import crds
-from crds import log, utils, timestamp, config
-from crds import bestrefs, rmap, jwst
+from crds.core import log, utils, timestamp, config, rmap
+from crds import bestrefs
+from crds import jwst
 
 from crds.server.interactive import models, common
 from crds.server.interactive import views as iviews

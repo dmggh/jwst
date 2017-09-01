@@ -10,7 +10,7 @@ import re
 
 import crds
 from crds.server.interactive import models, html
-from crds import config, selectors, python23
+from crds.core import config, python23, selectors
 
 #
 # catalog fields are an item list mapping FileBlob attributes to web page column labels

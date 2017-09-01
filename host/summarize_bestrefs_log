@@ -10,7 +10,7 @@ from builtins import *
 
 import sys
 
-from crds import pysh
+from crds.core import pysh
 
 def main():
     pysh.usage("<log_file>", 1)

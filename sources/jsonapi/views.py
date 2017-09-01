@@ -35,9 +35,9 @@ from crds.server.jpoll import views as jviews
 from crds.server.interactive import submit
 
 from crds.client import proxy
-from crds import rmap, utils, log, timestamp, pysh, python23, heavy_client, exceptions
-from crds import config                     # client config file
-from crds.config import FILE_RE, check_filename
+from crds.core import rmap, utils, log, timestamp, pysh, python23, heavy_client, exceptions
+from crds.core import config                     # client config file
+from crds.core.config import FILE_RE, check_filename
 import crds
 
 # ===========================================================================
