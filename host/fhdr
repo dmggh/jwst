@@ -17,7 +17,7 @@ import astropy.io.fits as pyfits
 
 from crds.core import config, log, utils
 
-def dump_header(fname, extensions=[0], verbose=False):
+def dump_header(fname, extensions=[0], verbose=False, include_types=False):
     if extensions == "all":
         extensions = list(range(len(pyfits.open(fname))))
     for x in extensions:
@@ -25,6 +25,8 @@ def dump_header(fname, extensions=[0], verbose=False):
         for r, val in list(hdr.items()):
             if verbose:
                 print(fname, "[" + str(x) + "]:", end="")
+            if include_types:
+                val = repr(val) + " " + type(val).__name__
             print(r, "=", val)
 
 def main():
@@ -36,8 +38,12 @@ def main():
     parser.add_option("-v","--verbose",dest="verbose",
                       help="show file and extension on each line.",
                       action="store_true",
-                      default=False)              
+                      default=False)
     parser.add_option("-a","--all",dest="all_extensions",
+                      help="show file and extension on each line.",
+                      action="store_true",
+                      default=False)              
+    parser.add_option("-t","--include-types",dest="include_types",
                       help="show file and extension on each line.",
                       action="store_true",
                       default=False)              
@@ -54,6 +60,8 @@ def main():
 
     verbose = options.verbose or (len(extensions) + len(args) > 2)
 
+    include_types = options.include_types
+    
     for fname in args:
         fpath = None
         with log.error_on_exception("Error locating pathless file"):
@@ -64,7 +72,7 @@ def main():
             continue
         if fname != fpath:
             log.info("Locating", repr(fname), "at", repr(fpath), "in CRDS cache.")
-        dump_header(fpath, extensions, verbose=verbose)
+        dump_header(fpath, extensions, verbose=verbose, include_types=include_types)
 
 if __name__ == "__main__":
     main()
