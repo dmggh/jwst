@@ -20,8 +20,14 @@ port = 8001
 
 CATALOG_DB_USER = "crds"
 CATALOG_DB_PFILE = "/crds/data1/database/crds.dat"
-CATALOG_DB_DSN = "GrouchoDadstest2Dsn"   # Datatest2 database
-REFFILE_DB_DSN = "GrouchoReffileOpsRepDsn"
+CATALOG_DB_DSN = "HarpoDadsopsRepDsn"
+REFFILE_DB_DSN = "HarpoReffileOpsRepDsn"
+
+
+# CATALOG_DB_USER = "crds"
+# CATALOG_DB_PFILE = "/crds/data1/database/crds.dat"
+# CATALOG_DB_DSN = "GrouchoDadstest2Dsn"   # Datatest2 database
+# REFFILE_DB_DSN = "GrouchoReffileOpsRepDsn"
 
 servertype = 'mod_wsgi'
 dbtype = 'mysql'

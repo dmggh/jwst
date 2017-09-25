@@ -1,0 +1,120 @@
+#! /usr/bin/env python
+
+"""This script is used to update redundant description fields in the server
+database for file, audit, and history models.
+"""
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+
+# ============================================================================
+
+import sys
+import os
+
+# ============================================================================
+
+import django
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "crds.server.settings")
+django.setup()
+
+# ============================================================================
+
+from crds.core import log, cmdline
+
+from crds.server.interactive import models
+
+# ============================================================================
+
+class FixDescripScript(cmdline.Script):
+    """Command line script for updating redundant database file and audit description
+    fields.
+    """
+
+    description = """
+    Use --match to define FileBlob and AuditBlobs to operate on.
+
+    Use --full-replacement to define a string to replace the description field with
+    in its entirety.
+    """
+    
+    epilog = """    
+    """
+    
+    def add_args(self):
+        self.add_argument('--match', type=str, default=None,
+            help="Description sub-string to match to define items to operate on.")
+
+        self.add_argument('--full-replacement', type=str, default=None,
+            help="Complete description to use to replace description in matched items.")
+
+        self.add_argument('--file-blobs', action="store_true",
+            help="When true, operate on FileBlob objects. (File Details.)")
+      
+        self.add_argument('--audit-blobs', action="store_true",
+            help="When true, operate on AuditBlob objects (Recent Activity).")
+      
+        self.add_argument('--context-history', action="store_true",
+            help="When true, operate on ContextHistory objects (Context Displays).")
+      
+    def main(self):
+
+        with log.error_on_exception(" FAILED"):
+
+            if self.args.file_blobs:
+                files = self.get_file_blobs()
+                if self.args.full_replacement:
+                    self.set_file_blobs(files)
+                else:
+                    self.print_models(files)
+
+            if self.args.audit_blobs:
+                audits = self.get_audit_blobs()
+                if self.args.full_replacement:
+                    self.set_audit_blobs(audits)
+                else:
+                    self.print_models(audits)
+
+            if self.args.context_history:
+                histories = self.get_history_models()
+                if self.args.full_replacement:
+                    self.set_history_models(histories)
+                else:
+                    self.print_models(histories)
+
+        return log.errors()
+
+    def get_file_blobs(self):
+        return list(models.get_fileblob_map(description__icontains=self.args.match).values())
+
+    def set_file_blobs(self, models):
+        for model in models:
+            print("Setting", repr(model))
+            model.load(model.name)
+            model.description = self.args.full_replacement
+            model.save()
+        
+    def set_audit_blobs(self, models):
+        for model in models:
+            print("Setting", repr(model))
+            model.why = self.args.full_replacement
+            model.save()
+        
+    def get_audit_blobs(self):
+        return list(models.AuditBlob.filter(why__icontains=self.args.match))
+
+    def get_history_models(self):
+        return list(models.ContextHistoryModel.objects.filter(description__icontains=self.args.match))
+
+    def set_history_models(self, models):
+        for model in models:
+            print("Setting", repr(model))
+            model.description = self.args.full_replacement
+            model.save()
+        
+    def print_models(self, models):
+        for model in models:
+            print(repr(model))
+
+if __name__ == "__main__":
+    sys.exit(FixDescripScript()())
