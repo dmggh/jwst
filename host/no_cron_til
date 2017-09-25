@@ -8,5 +8,5 @@ crontab </dev/null
 
 echo "Scheduling cron restart for" $*
 at $* <<EOF
-   ( source $HOME/.setenv; cd $CRDS/CRDS_server; source env.csh;  crontab <host/crontab;  crontab -l) | mail -r crds-servers@stsci.edu -s "no_cron_til cron restart"  crds-servers@stsci.edu
+   ( source $HOME/.setenv; cd $CRDS/CRDS_server; source env.csh;  crontab <host/crontab;  crontab -l) | mail -r crds-servers@stsci.edu -s "no_cron_til cron restart for $CRDS_PROJECT $CRDS_USECASE"  crds-servers@stsci.edu
 EOF
