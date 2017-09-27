@@ -925,7 +925,10 @@ def get_synthetic_id_map(dataset_ids):
             if did in compound:
                 break
         else: # Add in unassociated exposures as-is
-            new_ids[compound_id(did, did)] = (compound_id(did, did), "UNASSOC", "UNASSOC")
+            if ":" not in did:
+                new_ids[compound_id(did, did)] = (compound_id(did, did), "UNASSOC", "UNASSOC")
+            else:
+                new_ids[did] = (did, "UNASSOC", "UNASSOC")
 
     return new_ids
 
