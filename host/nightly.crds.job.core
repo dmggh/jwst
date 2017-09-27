@@ -18,7 +18,7 @@ if ( ( "$CRDS_USECASE" == "dev" ) || ( "$CRDS_USECASE" == "bit" ) ) then
     echo "=========================================================="
     echo "Disabling Cron for max 90 minutes"
     echo "=========================================================="
-    no_cron_til now + 90 minutes  # backup in case script is killed
+    # no_cron_til now + 90 minutes  # backup in case script is killed
     crontab </dev/null
 
     echo "=========================================================="
