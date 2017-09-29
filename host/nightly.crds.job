@@ -10,20 +10,20 @@ echo "==========================================================="
 echo "CRDS git status"
 echo "==========================================================="
 cd ${CRDS}/CRDS
-echo "UPDATING SUBVERSION for CRDS"
+echo "UPDATING GIT for CRDS"
 # svn update --accept theirs-full
 ./clean
 git_update
 
 echo "==========================================================="
-echo "CRDS_server subversion status"
+echo "CRDS_server git status"
 echo "==========================================================="
 cd ${CRDS}/CRDS_server
-echo "UPDATING SUBVERSION for CRDS_server"
-svn update --accept theirs-full
-svn status
-svn info
-svn diff
+echo "Checking GIT for CRDS_server"
+git status
+git remote -v
+git branch
+# git pull origin
 
 echo "==========================================================="
 echo "Re-installing server"
