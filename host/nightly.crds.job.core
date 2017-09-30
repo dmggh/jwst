@@ -14,7 +14,7 @@ ls -lt $HOME/isolate.*
 
 system_status
 
-if ( ( "$CRDS_USECASE" == "dev" ) || ( "$CRDS_USECASE" == "bit" ) ) then
+if ( ( "$CRDS_USECASE" == "dev" ) ) then
     echo "=========================================================="
     echo "Disabling Cron for max 90 minutes"
     echo "=========================================================="

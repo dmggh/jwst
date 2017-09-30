@@ -7,7 +7,7 @@ setenv TAIL ${CRDS_PROJECT}.${CRDS_USECASE}
 setenv ETAIL ${TAIL}.err
 
 echo "==========================================================="
-echo "CRDS git status"
+echo "CRDS client git status"
 echo "==========================================================="
 cd ${CRDS}/CRDS
 echo "UPDATING GIT for CRDS"
@@ -16,7 +16,7 @@ echo "UPDATING GIT for CRDS"
 git_update
 
 echo "==========================================================="
-echo "CRDS_server git status"
+echo "CRDS server git status"
 echo "==========================================================="
 cd ${CRDS}/CRDS_server
 echo "Checking GIT for CRDS_server"
@@ -32,20 +32,20 @@ echo "==========================================================="
 tail -200 install.${ETAIL}
 
 echo "==========================================================="
-echo "Post-reinstall CRDS subversion status"
+echo "Post-reinstall CRDS client git status"
 echo "==========================================================="
 cd ${CRDS}/CRDS
 ./clean
 git_update
 
 echo "==========================================================="
-echo "Post-reinstall CRDS_server subversion status"
+echo "Post-reinstall CRDS server git status"
 echo "==========================================================="
 cd ${CRDS}/CRDS_server
 echo "UPDATING SUBVERSION for CRDS_server"
-svn status
-svn info
-svn diff
+git status
+git remote -v
+git branch
 
 echo "==========================================================="
 echo "Updating crontab"
