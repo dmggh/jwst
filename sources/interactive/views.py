@@ -637,6 +637,14 @@ def lock_login_receiver(sender, **keys):
     request = keys["request"]
     user = str(keys["user"])
 
+    with log.error_on_exception("Failed creating ingest directory."):
+        ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, str(request.user))
+        if not os.path.exists(ingest_path):
+            log.info("Creating ingest directory for", repr(user))
+            os.mkdir(ingest_path, 0o770)
+        else:
+            log.info("Ingest directory already exists for", repr(user))
+
     if "instrument" in request.POST:
         instrument = validate(request, "instrument", models.INSTRUMENTS + ["none"])
         if instrument != "none":
