@@ -6,7 +6,8 @@ from __future__ import division
 from __future__ import absolute_import
 # from builtins import str
 
-# Create your views here.
+# ===========================================================================
+
 import sys
 import os
 import os.path
@@ -20,13 +21,15 @@ import fnmatch
 import ast
 import tempfile
 
+# ===========================================================================
+
 # from django.http import HttpResponse
 from django.template import loader, RequestContext
 from django.shortcuts import redirect
 from django.http import HttpResponse, HttpResponseRedirect
 import django.utils.safestring as safestring
 import django.utils
-from django.utils.html import format_html, format_html_join, conditional_escape
+from django.utils.html import conditional_escape
 from django.urls import reverse
 
 import django.contrib.auth
@@ -37,7 +40,11 @@ from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.signals import user_logged_in, user_logged_out
 from django.contrib.auth.views import login as django_login
 
+# ===========================================================================
+
 from astropy.io import fits as pyfits
+
+# ===========================================================================
 
 import crds
 from crds import uses, matches, data_file
@@ -46,10 +53,14 @@ from crds.core import (rmap, utils, timestamp, log, config, python23)
 from crds.core import (pysh, heavy_client)
 from crds.certify import reftypes
 
+# ===========================================================================
+
 from crds.server.jpoll import views as jpoll_views
 from crds.server.jsonapi import views as jsonapi_views
 from crds.server import settings
 from crds.server import config as sconfig
+
+# ===========================================================================
 
 from . import (models, web_certify, web_difference, submit, versions, locks, html, mail)
 from . import common
@@ -57,7 +68,7 @@ from . import catalog_fusion
 from . import browsify_file
 from .templatetags import stdtags
 from .models import FieldError, MissingInputError
-from .common import capture_output, srepr, profile, complete_re
+from .common import capture_output, srepr, profile, complete_re, crds_format_html
 
 HERE = os.path.dirname(__file__) or "./"
 
@@ -77,14 +88,14 @@ def check_value(value, pattern, msg):
     if isinstance(pattern, type(check_value)):
         try:
             return pattern(value)
-        except AssertionError as exc:
-            raise FieldError(format_html(msg + " : " + str(exc)))
+        except Exception as exc:
+            raise FieldError(msg)
     elif isinstance(pattern, list):
         for choice in pattern:
-            assert "|" not in choice, format_html("Found | in choice " + srepr(choice) + " seen as regex special char")
+            assert "|" not in choice, "Found | in choice " + srepr(choice) + " seen as regex special char"
         pattern = config.complete_re("|".join(pattern))
     if not re.match(pattern, value):
-        raise FieldError(format_html(msg))
+        raise FieldError(msg)
     return value
 
 
@@ -520,10 +531,10 @@ def error_trap(template):
             try:
                 return func(request, *args, **keys)
             except (AssertionError, CrdsError, FieldError) as exc:
-                msg = format_html("ERROR: {0}", str(exc))
+                msg = crds_format_html("ERROR: " + str(exc))
             # Generic exception handler,  undescriptive,  to prevent server probing via errors
             except Exception as exc:
-                msg = format_html("ERROR: internal server error")
+                msg = crds_format_html("ERROR: internal server error")
             pars = dict(list(keys.items()) + [("error_message", msg)])
             return crds_render(request, template, pars, requires_pmaps=True)
         trap.__name__ = func.__name__
