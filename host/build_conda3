@@ -37,9 +37,13 @@ conda install astropy numpy scipy asdf gwcs ipython requests lxml pymysql --quie
 
 conda remove --quiet --yes --force cfitsio fitsverify
 
+conda install --yes --quiet setuptools
+
 ./meta install @crds3-fixed  |& tee ${CRDS_STACK}/crds3.err
 ./meta install jwst |& tee ${CRDS_STACK}/jwst.err
 ./meta install cfitsio fitsverify |& tee fitsverify.err
+conda uninstall --yes --quiet pkg-config pkgconfig
+./meta install mod_wsgi-master
 ./meta clean >& /dev/null
 
 rehash

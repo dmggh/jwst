@@ -227,6 +227,16 @@ def comma_or_patterns(pattern):
     else:
         return pattern
 
+@register.filter
+def colorize_diff(pattern):
+    """Replace pattern values that contain or-bars with the comma seperated list
+    of discrete values.
+    """
+    pattern = re.sub(r"(replaced)",r"<span class='orange'>\1</span>", pattern)
+    pattern = re.sub(r"(added)",r"<span class='green'>\1</span>", pattern)
+    pattern = re.sub(r"(deleted)",r"<span class='red'>\1</span>", pattern)
+    return pattern
+
 # Filter for accessing dictionary using variable
 @register.filter
 def lookup(d, key):

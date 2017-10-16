@@ -14,12 +14,24 @@ ls -lt $HOME/isolate.*
 
 system_status
 
-if ( ( "$CRDS_USECASE" == "dev" ) || ( "$CRDS_USECASE" == "bit" ) ) then
+if ( ( "$CRDS_USECASE" == "dev" ) ) then
+    echo "=========================================================="
+    echo "Disabling Cron for max 90 minutes"
+    echo "=========================================================="
+    # no_cron_til now + 90 minutes  # backup in case script is killed
+    crontab </dev/null
+
     echo "=========================================================="
     echo "Stack Build"
     echo "=========================================================="
     host/build_conda3 >& ${CRDS_CRON}/build_conda.${ETAIL}
     tail -100 ${CRDS_CRON}/build_conda.${ETAIL}
+
+    echo "=========================================================="
+    echo "Re-enabling Cron now"
+    echo "=========================================================="
+    crontab <host/crontab
+    crontab -l
 
     echo "==========================================================="
     echo "Server re-install and re-start"

@@ -4,10 +4,19 @@ from __future__ import division
 from __future__ import absolute_import
 # from builtins import str
 
+# ===================================================================
+
 import sys
 import cProfile
 import re
 import os.path
+
+# ===================================================================
+
+from django.utils.html import conditional_escape
+from django.utils.safestring import mark_safe
+
+# ===================================================================
 
 from crds.core import log, utils, python23
 from crds.core.config import complete_re
@@ -114,3 +123,8 @@ def colorize_line(line):
     line = re.sub("CRDS\s+[\-\:]\s+WARNING", "CRDS - <span class='orange'>WARNING</span>", line)
     return line
 
+# ===================================================================
+
+def crds_format_html(msg):
+    """Similar to Django's format_html but skips string formatting that will crash on {} etc."""
+    return mark_safe(conditional_escape(msg))
