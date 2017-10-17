@@ -6,7 +6,7 @@
     >Set Context</h2>
 <form method="post" action="/set_default_context/"
       enctype="multipart/form-data" 
-      onsubmit="return crds.warn_delay();" >  {% csrf_token %}
+      onsubmit="return crds.validate_set_context(this);" >  {% csrf_token %}
   
   <div  title="Choose type of context to set, operational (pipeline) or edit">
     <h3>Select:</h3>
@@ -45,7 +45,8 @@
     <br/>
   </div>
   
-  <input class="btn btn-primary" type="submit" value="Set Default Context" />
+  <input class="btn btn-primary" type="submit" value="Set Default Context"/>
+
 </form>
 
 <br/><br/>
@@ -81,21 +82,32 @@
                 "{{pmap.0}}" : "{{pmap.1}}",
             {% endfor %}
         };
+
         crds.set_context_display = function(value) {
 	    console.log("set_context_display " + value);
             $('#context_display').html(crds.context_pmaps[crds.context_map[value]]);
         };
         crds.set_context_display("operational");
         
-        crds.warn_delay = function () {
+        crds.validate_set_context = function () {
+            console.log("Validating set context.");
+            if (!crds.validate_select_pmap()) {
+               return false;
+            };
+            console.log("Validating description.");
+            if (!$("#description").val()) {
+                alert("Did you add a Description?");
+                return false;
+            };
             $("input[type=submit]").hide();
-            crds.set_info_box({text: "Switching operational context now."});
+            crds.set_info_box({text: "Switching context now."});
             crds.append_info_box({
                     text: "This may take a few minutes to update file activation dates.",
                     css: {color: "darkblue"},
                     });
             return true;
         };
+
     </script>
     
 {% endblock contents_both %}
