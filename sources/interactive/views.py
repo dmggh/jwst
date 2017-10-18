@@ -1500,6 +1500,7 @@ def submit_confirm(request): #, button, results_id):
         username = request.user.username, user_email = request.user.email, 
         results_kind = repeatable_model.parameters["submission_kind"],
         repeatable_url = result.abs_repeatable_url,
+        to_addresses  = sconfig.CRDS_STATUS_CONFIRM_ADDRESSES,
         **confirm_results)
 
     with log.error_on_exception("Failed releasing locks after confirm/cancel/force."):
