@@ -13,6 +13,7 @@ CRDS_MOCK_ARCHIVE_PARAMETERS = None
 ARCHIVE_PARAMETER_SERVICE_URL = "https://undefined-archive-parameter-service.stsci.edu"
 
 CRDS_STATUS_TO_ADDRESSES = ["crds-servers@stsci.edu"]
+CRDS_STATUS_CONFIRM_ADDRESSES =  ["crds-servers@stsci.edu", "crds_datamng@stsci.edu"]
 
 # This is a VM-related storage partition used as server space
 install_root = '/crds/data1/server_local'

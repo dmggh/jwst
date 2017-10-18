@@ -79,10 +79,18 @@
         {% else %}
             <p class='error'>Submission Discarded: {{disposition}}</p>
         {% endif %}
+
     </div>
     
     {% include "collision_explain.html" %}
     
+    {% if prior_results_url %}
+    <h3>Confirmation Page:</h3>
+    <a href="{{prior_results_url}}">{{prior_results_url}}</a>
+    <br/>
+    <br/>
+    {% endif %}
+
     {% if more_submits %}
         <div>
             <style scoped>

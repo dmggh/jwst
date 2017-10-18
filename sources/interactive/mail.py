@@ -54,11 +54,16 @@ Final Results:
 --------------
 {repeatable_url}
 
+Confirm/Cancel Url:
+-------------------
+{prior_results_url}
+
 {description}
 {uploaded_files}
 {added_files}
 {deleted_files}
 {generated_files}
+
 """
 
 # =============================================================================================
