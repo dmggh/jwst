@@ -10,7 +10,7 @@
 #                determined from the input data quality arrays.
 #
 # Note:
-#  In this module, comments on the 'first read','second read', etc are 1-based.
+# In this module, comments on the 'first read','second read', etc are 1-based.
 
 from __future__ import division
 import time
