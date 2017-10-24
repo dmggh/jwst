@@ -25,7 +25,7 @@ PYSYN_CDBS = ""
 
 # These are the file states which are available for download or rpc.
 # XXX TODO restrict to archived or operational
-CRDS_DISTRIBUTION_STATES =  [ "archived", "operational", "delivered", "submitted", "archiving"]
+CRDS_DISTRIBUTION_STATES =  [ "archived", "operational",] # "delivered", "submitted", "archiving"]
 
 # The primary URL used by end-users which passes through a proxy which
 # assigns more user-friendly URLs based on standard ports 443.
@@ -50,11 +50,11 @@ CRDS_MAPPING_URL   = CRDS_URL + "get/"
 
 # These may get redirected to the archive or a static file server
 
-CRDS_UNCHECKED_REFERENCE_URL = CRDS_URL + "unchecked_get/references/" + observatory + "/"
-CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/mappings/" + observatory + "/"
+# CRDS_UNCHECKED_REFERENCE_URL = CRDS_URL + "unchecked_get/references/" + observatory + "/"
+# CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/mappings/" + observatory + "/"
 
-# CRDS_UNCHECKED_REFERENCE_URL = "https://iwjwdmsbauiwebv.stsci.edu/portal/Download/file/JWST/reference/"
-# CRDS_UNCHECKED_MAPPING_URL = "https://iwjwdmsbauiwebv.stsci.edu/portal/Download/file/JWST/reference/"
+CRDS_UNCHECKED_REFERENCE_URL = "https://iwjwdmsbauiweb.stsci.edu/portal/Download/file/JWST/reference/"
+CRDS_UNCHECKED_MAPPING_URL = "https://iwjwdmsbauiweb.stsci.edu/portal/Download/file/JWST/reference/"
 
 FORCE_REMOTE_MODE = False
 
