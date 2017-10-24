@@ -54,11 +54,16 @@ Final Results:
 --------------
 {repeatable_url}
 
+Confirm/Cancel Url:
+-------------------
+{prior_results_url}
+
 {description}
 {uploaded_files}
 {added_files}
 {deleted_files}
 {generated_files}
+
 """
 
 # =============================================================================================
@@ -88,7 +93,7 @@ def crds_notification(subject=None, from_address=None, to_addresses=None, body=N
                       username="anonymous", user_email=None, files=("none",), results_kind=None, 
                       added_files=[], deleted_files=[], uploaded_files=[], generated_files=[],
                       description="", **keys):
-        # with log.error_on_exception("Failed sending results e-mail"):
+    with log.error_on_exception("Failed sending CRDS notification e-mail"):
 
         subject = subject or (status + " " + results_kind + " by " + username)
         subject = "CRDS " + sconfig.observatory.upper() + " " + sconfig.server_usecase.upper() + " " + subject

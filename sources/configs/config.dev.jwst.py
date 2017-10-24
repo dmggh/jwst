@@ -67,3 +67,7 @@ CRDS_MOCK_ARCHIVE_PARAMETERS = "jwst-b7.1-iljwdmsbarcv1-2017-09-18.json"
 # ARCHIVE_PARAMETER_SERVICE_URL = "http://iljwdmsbarcv1.stsci.edu:8888/crds"
 
 # ARCHIVE_PARAMETER_SERVICE_URL = "http://dljwdmsv2.stsci.edu:8888/crds"
+
+CRDS_STATUS_TO_ADDRESSES = ["jmiller@stsci.edu"]
+CRDS_STATUS_CONFIRM_ADDRESSES  = ["jmiller@stsci.edu"]
+
