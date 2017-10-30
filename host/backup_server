@@ -16,6 +16,12 @@ setenv SHARED_LATEST_BACKUPS /eng/ssb/crds/latest_backups
 
 mkdir -p ${DATED_BACKUP_DIR}
 
+# ensure database is consistent with pending deliveries
+echo "============================================================"
+echo "Updating delivery status"
+echo "============================================================"
+update_delivery_status
+
 # Run the django-dbbackup based CRDS server database backup
 # This generates a unique dated backup on /crds/data1/..., but only
 # copies to a generic single night's backup to ${HOME}/backups

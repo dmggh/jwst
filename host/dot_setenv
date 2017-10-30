@@ -3,6 +3,8 @@
 limit stacksize 64000k
 # limit memorylocked 512k
 
+setenv TZ 'America/New_York'
+
 setenv  CRDS_SERVER `uname -n | cut -d'.' -f1`
 
 # CRDS and CRDS_STACK,  same pattern,  different dirs,  override below as needed
