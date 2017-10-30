@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>CRDS User Manual &#8212; crds 7.1.4 documentation</title>
-    
+    <title>CRDS User Manual &#8212; crds 7.1.6 documentation</title>
     <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '7.1.4',
+        VERSION:     '7.1.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -28,7 +25,7 @@
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Package Overview" href="installation.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -38,7 +35,7 @@
         <li class="right" >
           <a href="installation.html" title="Package Overview"
              accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">crds 7.1.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">crds 7.1.6 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -81,7 +78,7 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Package Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html#installation">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#installation-via-astroconda">Installation via AstroConda</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="installation.html#install-continuum-s-anaconda">Install Continuum&#8217;s Anaconda</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#install-continuum-s-anaconda">Install Continuum’s Anaconda</a></li>
 <li class="toctree-l3"><a class="reference internal" href="installation.html#set-up-astroconda-astronomy-specific-packages">Set up AstroConda astronomy specific packages</a></li>
 <li class="toctree-l3"><a class="reference internal" href="installation.html#install-crds-astroconda-contributed-package">Install CRDS AstroConda Contributed Package</a></li>
 </ul>
@@ -110,7 +107,8 @@
 <li class="toctree-l3"><a class="reference internal" href="installation.html#onsite-crds-testing">Onsite CRDS Testing</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#setup-for-offsite-use">Setup for Offsite Use</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#setup-for-offsite-use">Setup for Offsite Use</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#crds-cache-locking">CRDS Cache Locking</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="installation.html#additional-hst-settings">Additional HST Settings</a></li>
 <li class="toctree-l3"><a class="reference internal" href="installation.html#jwst-context">JWST Context</a></li>
 </ul>
@@ -203,6 +201,16 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="reference_conventions.html">Reference File Conventions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference_conventions.html#supported-crds-file-formats">Supported CRDS file formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference_conventions.html#required-keywords-and-properties">Required Keywords and Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference_conventions.html#keywords-for-new-file-formats">Keywords For New File Formats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference_conventions.html#boilerplate-keywords">Boilerplate Keywords</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference_conventions.html#matching-keyword-patterns">Matching Keyword Patterns</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="web_site_use.html">Using the CRDS Web Site</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="web_site_use.html#operational-references">Operational References</a></li>
 <li class="toctree-l2"><a class="reference internal" href="web_site_use.html#context-history-more">Context History (more)</a><ul>
@@ -253,7 +261,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="web_services.html#jsonrpc-protocol">JSONRPC Protocol</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="web_services.html#sample-url-s">Sample URL&#8217;s</a></li>
+<li class="toctree-l3"><a class="reference internal" href="web_services.html#sample-url-s">Sample URL’s</a></li>
 <li class="toctree-l3"><a class="reference internal" href="web_services.html#generic-request">Generic Request</a></li>
 <li class="toctree-l3"><a class="reference internal" href="web_services.html#generic-response">Generic Response</a></li>
 <li class="toctree-l3"><a class="reference internal" href="web_services.html#error-handling">Error Handling</a></li>
@@ -290,12 +298,12 @@
         <li class="right" >
           <a href="installation.html" title="Package Overview"
              >next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">crds 7.1.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">crds 7.1.6 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2015, STScI.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>
 </html>

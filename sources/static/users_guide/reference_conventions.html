@@ -1,0 +1,482 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Reference File Conventions &#8212; crds 7.1.6 documentation</title>
+    <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '7.1.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Using the CRDS Web Site" href="web_site_use.html" />
+    <link rel="prev" title="About Mappings" href="rmap_syntax.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="web_site_use.html" title="Using the CRDS Web Site"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="rmap_syntax.html" title="About Mappings"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.6 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/stsci_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Reference File Conventions</a><ul>
+<li><a class="reference internal" href="#supported-crds-file-formats">Supported CRDS file formats</a></li>
+<li><a class="reference internal" href="#required-keywords-and-properties">Required Keywords and Properties</a><ul>
+<li><a class="reference internal" href="#keywords-for-new-file-formats">Keywords For New File Formats</a></li>
+<li><a class="reference internal" href="#boilerplate-keywords">Boilerplate Keywords</a></li>
+<li><a class="reference internal" href="#matching-keyword-patterns">Matching Keyword Patterns</a><ul>
+<li><a class="reference internal" href="#discrete-real-values">Discrete/Real Values</a></li>
+<li><a class="reference internal" href="#hst-conditional-pattern-substitutions">HST Conditional Pattern Substitutions</a></li>
+<li><a class="reference internal" href="#jwst-pattern-keywords">JWST Pattern Keywords</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="rmap_syntax.html"
+                        title="previous chapter">About Mappings</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="web_site_use.html"
+                        title="next chapter">Using the CRDS Web Site</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/reference_conventions.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="reference-file-conventions">
+<h1>Reference File Conventions<a class="headerlink" href="#reference-file-conventions" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="supported-crds-file-formats">
+<h2>Supported CRDS file formats<a class="headerlink" href="#supported-crds-file-formats" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li>FITS</li>
+<li>ASDF</li>
+<li>JSON</li>
+<li>YAML</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="required-keywords-and-properties">
+<h2>Required Keywords and Properties<a class="headerlink" href="#required-keywords-and-properties" title="Permalink to this headline">¶</a></h2>
+<p>Reference files specify metadata as keyword values that CRDS can check and that
+CRDS can also generally use to perform automatic update rmap updates, adding
+references to rmaps based on keyword values.  In essence, each reference file
+is required to specify the instrument configurations for which it is the best
+reference file.</p>
+<div class="section" id="keywords-for-new-file-formats">
+<h3>Keywords For New File Formats<a class="headerlink" href="#keywords-for-new-file-formats" title="Permalink to this headline">¶</a></h3>
+<p>Newer file formats used for JWST such as ASDF and JSON have equivalent
+“keywords” that are generally organized hierarchically in a reference’s
+metadata tree.</p>
+<p>For JWST, the calibration code defines file format schema which show the
+correspondence between “data model path” and more primitive representations
+like FITS keywords: <a class="reference external" href="https://github.com/STScI-JWST/jwst/tree/master/jwst/datamodels/schemas">Data Models Schema</a></p>
+<p>The schema also describe related facts such as parameter
+type and valid values.  For instance,  the model path:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">META</span><span class="o">.</span><span class="n">INSTRUMENT</span><span class="o">.</span><span class="n">DETECTOR</span>
+</pre></div>
+</div>
+<p>is equivalent to the FITS keyword:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">DETECTOR</span>
+</pre></div>
+</div>
+<p>while:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">META</span><span class="o">.</span><span class="n">INSTRUMENT</span><span class="o">.</span><span class="n">NAME</span>
+</pre></div>
+</div>
+<p>corresponds to:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">INSTRUME</span>
+</pre></div>
+</div>
+<p>To isolate CRDS from physical file formats for JWST, CRDS generally uses data
+model paths to refer to metadata, by convention CRDS converts them to all upper
+case.</p>
+<p>For ASDF, the equivalent metadata might be hierarchically encoded as:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">meta</span><span class="p">:</span>
+   <span class="n">instrument</span><span class="p">:</span>
+       <span class="n">detector</span><span class="p">:</span> <span class="n">NRS1</span>
+       <span class="n">name</span><span class="p">:</span> <span class="n">NIRSPEC</span>
+</pre></div>
+</div>
+<p>In this case, the keyword DETECTOR does not exist at all in ASDF, but the model
+path still does.</p>
+</div>
+<div class="section" id="boilerplate-keywords">
+<h3>Boilerplate Keywords<a class="headerlink" href="#boilerplate-keywords" title="Permalink to this headline">¶</a></h3>
+<p>Both the HST and JWST projects define a small set of required keywords that
+define reference file provenance information,  shown here in FITS format for
+simplicity:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="27%" />
+<col width="36%" />
+<col width="38%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">FITS</th>
+<th class="head">DATAMODELS</th>
+<th class="head">VALUES</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>TELESCOP</td>
+<td>META.TELESCOPE</td>
+<td>HST, JWST</td>
+</tr>
+<tr class="row-odd"><td>INSTRUME</td>
+<td>META.INSTRUMENT.NAME</td>
+<td>MIRI</td>
+</tr>
+<tr class="row-even"><td>REFTYPE (JWST)</td>
+<td>META.REFERENCE.TYPE</td>
+<td>DARK</td>
+</tr>
+<tr class="row-odd"><td>FILETYPE (HST)</td>
+<td>&#160;</td>
+<td>BIAS</td>
+</tr>
+<tr class="row-even"><td>USEAFTER</td>
+<td>META.USEAFTER</td>
+<td>2017-10-01T00:00:00</td>
+</tr>
+<tr class="row-odd"><td>AUTHOR (JWST)</td>
+<td>META.AUTHOR</td>
+<td>Homer Simpson</td>
+</tr>
+<tr class="row-even"><td>PEDIGREE</td>
+<td>META.PEDIGREE</td>
+<td>DUMMY, GROUND, FLIGHT</td>
+</tr>
+<tr class="row-odd"><td>HISTORY</td>
+<td>META.HISTORY</td>
+<td>File creation notes</td>
+</tr>
+<tr class="row-even"><td>COMMENT (HST)</td>
+<td>&#160;</td>
+<td>Additional notes</td>
+</tr>
+<tr class="row-odd"><td>DESCRIP</td>
+<td>META.DESCRIPTION</td>
+<td>Brief description</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="matching-keyword-patterns">
+<h3>Matching Keyword Patterns<a class="headerlink" href="#matching-keyword-patterns" title="Permalink to this headline">¶</a></h3>
+<p>To support automatic rmap updates, any keyword used to assign best references
+must be added to the reference metadata.  For example, if a FITS reference type
+uses DETECTOR to help assign a reference in the rmap, the reference file is
+<em>required</em> to define DETECTOR or P_DETECT.</p>
+<div class="section" id="discrete-real-values">
+<h4>Discrete/Real Values<a class="headerlink" href="#discrete-real-values" title="Permalink to this headline">¶</a></h4>
+<p>Very often the applicability of a reference file can be defined by a single
+discrete real world value, or by a simple one word wild card such as ANY or
+N/A:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">META</span><span class="o">.</span><span class="n">INSTRUMENT</span><span class="o">.</span><span class="n">DETECTOR</span> <span class="o">=</span> <span class="n">NRS1</span>
+</pre></div>
+</div>
+<p>Where applicable, a discrete valued keyword will describe the instrument
+configuration used to create the reference file.</p>
+</div>
+<div class="section" id="hst-conditional-pattern-substitutions">
+<h4>HST Conditional Pattern Substitutions<a class="headerlink" href="#hst-conditional-pattern-substitutions" title="Permalink to this headline">¶</a></h4>
+<p>Sometimes it is useful to apply one reference file to a number of specific real
+world keyword values, i.e. some limited set of readout patterns, not merely the
+single valued instrument configuration used to obtain the reference data.</p>
+<p>HST used hidden substituion rules built into CDBS and CRDS to describe patterns
+of values not suitable for FITS keywords:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;acs&#39;</span><span class="p">:</span> <span class="p">{</span>
+       <span class="s1">&#39;APERTURE&#39;</span><span class="p">:</span> <span class="p">{</span>
+           <span class="s2">&quot;DETECTOR==&#39;WFC&#39; and APERTURE==&#39;ANY_FULL&#39; and DATE_OBS &lt; &#39;2016-09-25&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;NONE|WFC|WFC-FIX|WFC1|WFC1-CTE|WFC1-FIX|WFC1-IRAMP|WFC1-MRAMP|WFC2|WFC2-FIX|WFC2-MRAMP|WFC2-ORAMP|WFCENTER|WFC1A-512|WFC1B-512|WFC2C-512|WFC2D-512|WFC1A-1K|WFC1B-1K|WFC2C-1K|WFC2D-1K|WFC1A-2K|WFC1B-2K|WFC2C-2K|WFC2D-2K&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;DETECTOR==&#39;WFC&#39; and APERTURE==&#39;ANY_FULL&#39; and DATE_OBS &gt;= &#39;2016-09-25&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;NONE|WFC|WFC-FIX|WFC1|WFC1-CTE|WFC1-FIX|WFC1-IRAMP|WFC1-MRAMP|WFC2|WFC2-FIX|WFC2-MRAMP|WFC2-ORAMP|WFCENTER|WFC1A-512|WFC1B-512|WFC2C-512|WFC2D-512|WFC1A-1K|WFC1B-1K|WFC2C-1K|WFC2D-1K|WFC1A-2K|WFC1B-2K|WFC2C-2K|WFC2D-2K|WFC1-POL0V|WFC1-POL60V|WFC1-POL120V|WFC1-POL0UV|WFC1-POL60UV|WFC1-POL120UV|WFC1-IRAMPQ|WFC1-MRAMPQ|WFC2-MRAMPQ|WFC2-ORAMPQ|WFC1-SMFL|WFC2-SMFL&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;DETECTOR==&#39;WFC&#39; and APERTURE==&#39;ANY_WFC1_2K&#39; and DATE_OBS &lt; &#39;2016-09-25&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;WFC1-2K|WFC1-POL0UV|WFC1-POL0V|WFC1-POL120UV|WFC1-POL120V|WFC1-POL60UV|WFC1-POL60V|WFC1-IRAMPQ|WFC1-MRAMPQ|WFC1-SMFL&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;DETECTOR==&#39;WFC&#39; and APERTURE==&#39;ANY_WFC1_2K&#39; and DATE_OBS &gt;= &#39;2016-09-25&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;WFC1-2K&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;DETECTOR==&#39;WFC&#39; and APERTURE==&#39;ANY_WFC2_2K&#39; and DATE_OBS &lt; &#39;2016-09-25&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;WFC2-2K|WFC2-POL0UV|WFC2-POL0V|WFC2-POL120UV|WFC2-POL120V|WFC2-POL60UV|WFC2-POL60V|WFC2-MRAMPQ|WFC2-ORAMPQ|WFC2-SMFL&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;DETECTOR==&#39;WFC&#39; and APERTURE==&#39;ANY_WFC2_2K&#39; and DATE_OBS &gt;= &#39;2016-09-25&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;WFC2-2K&#39;</span><span class="p">,</span>
+       <span class="p">},</span>
+       <span class="s1">&#39;CCDAMP&#39;</span><span class="p">:</span> <span class="p">{</span>
+           <span class="s2">&quot;DETECTOR==&#39;HRC&#39; and CCDAMP==&#39;ANY&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;A|ABCD|AD|B|BC|C|D&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;DETECTOR==&#39;WFC&#39; and CCDAMP==&#39;ABCDALL&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;A|ABCD|B|C|D&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;DETECTOR==&#39;WFC&#39; and CCDAMP==&#39;ANY&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;A|ABCD|AD|B|BC|C|D&#39;</span><span class="p">,</span>
+           <span class="p">},</span>
+       <span class="s1">&#39;CCDGAIN&#39;</span><span class="p">:</span> <span class="p">{</span>
+           <span class="s2">&quot;DETECTOR==&#39;HRC&#39; and CCDGAIN==&#39;-1&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;1.0|2.0|4.0|8.0&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;DETECTOR==&#39;WFC&#39; and CCDGAIN==&#39;-1&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;0.5|1.0|1.4|2.0&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;DETECTOR in [&#39;WFC&#39;, &#39;HRC&#39;] and CCDGAIN==&#39;-999&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;1.0|2.0|4.0|8.0&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;DETECTOR in [&#39;WFC&#39;, &#39;HRC&#39;] and CCDGAIN==&#39;-999.0&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;1.0|2.0|4.0|8.0&#39;</span><span class="p">,</span>
+           <span class="p">},</span>
+        <span class="s1">&#39;FILTER1&#39;</span><span class="p">:</span> <span class="p">{</span>
+           <span class="s2">&quot;DETECTOR==&#39;HRC&#39; and FILTER1==&#39;ANY&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;CLEAR1S|F475W|F502N|F550M|F555W|F606W|F625W|F658N|F658N|F775W|F850LP|F892N|G800L|POL0UV|POL120UV|POL60UV&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;DETECTOR==&#39;SBC&#39; and FILTER1==&#39;ANY&#39; and OBSTYPE==&#39;IMAGING&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;BLOCK1|BLOCK2|BLOCK3|BLOCK4|F115LP|F122M|F125LP|F140LP|F150LP|F165LP&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;DETECTOR==&#39;SBC&#39; and FILTER1==&#39;ANY&#39; and OBSTYPE==&#39;SPECTROSCOPIC&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;PR110L|PR130L&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;DETECTOR==&#39;WFC&#39; and FILTER1==&#39;ANY&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;CLEAR1L|F475W|F502N|F550M|F555W|F606W|F625W|F658N|F775W|F850LP|F892N|G800L|POL0UV|POL120UV|POL60UV&#39;</span><span class="p">},</span>
+       <span class="s1">&#39;FILTER2&#39;</span><span class="p">:</span> <span class="p">{</span>
+           <span class="s2">&quot;DETECTOR==&#39;HRC&#39; and FILTER2==&#39;ANY&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;CLEAR2L|CLEAR2S|F220W|F250W|F330W|F344N|F435W|F660N|F814W|FR388N|FR459M|FR505N|FR656N|FR914M|POL0V|POL120V|POL60V|PR200L&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;DETECTOR==&#39;WFC&#39; and FILTER2==&#39;ANY&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;CLEAR2L|F330W|F435W|F660N|F814W|FR1016N|FR388N|FR423N|FR459M|FR462N|FR505N|FR551N|FR601N|FR647M|FR656N|FR716N|FR782N|FR853N|FR914M|FR931N|POL0V|POL120V|POL60V&#39;</span><span class="p">},</span>
+       <span class="s1">&#39;FLASHCUR&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;FLASHCUR==&#39;ANY&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;HIGH|LOW|MED&#39;</span><span class="p">},</span>
+       <span class="s1">&#39;LRFWAVE&#39;</span> <span class="p">:</span> <span class="p">{</span>
+           <span class="s2">&quot;LRFWAVE == &#39;3774.0&#39;&quot;</span> <span class="p">:</span> <span class="s1">&#39;between 3710 3826&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;LRFWAVE == &#39;3880.0&#39;&quot;</span> <span class="p">:</span> <span class="s1">&#39;between 3826 3936&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;LRFWAVE == &#39;3992.0&#39;&quot;</span> <span class="p">:</span> <span class="s1">&#39;between 3936 4051&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;LRFWAVE == &#39;4105.0&#39;&quot;</span> <span class="p">:</span> <span class="s1">&#39;between 4051 4167&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;LRFWAVE == &#39;4230.0&#39;&quot;</span> <span class="p">:</span> <span class="s1">&#39;between 4167 4296&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;LRFWAVE == &#39;4362.0&#39;&quot;</span> <span class="p">:</span> <span class="s1">&#39;between 4296 4421&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;LRFWAVE == &#39;4488.0&#39;&quot;</span> <span class="p">:</span> <span class="s1">&#39;between 4421 4554&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;LRFWAVE == &#39;4620.0&#39;&quot;</span> <span class="p">:</span> <span class="s1">&#39;between 4554 4686&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;LRFWAVE == &#39;4752.0&#39;&quot;</span> <span class="p">:</span> <span class="s1">&#39;between 4686 4821&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;LRFWAVE == &#39;5038.0&#39;&quot;</span> <span class="p">:</span> <span class="s1">&#39;between 4821 5271&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;LRFWAVE == &#39;5491.0&#39;&quot;</span> <span class="p">:</span> <span class="s1">&#39;between 5271 5751&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;LRFWAVE == &#39;5998.0&#39;&quot;</span> <span class="p">:</span> <span class="s1">&#39;between 5751 6271&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;LRFWAVE == &#39;6505.0&#39;&quot;</span> <span class="p">:</span> <span class="s1">&#39;between 6271 6851&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;LRFWAVE == &#39;7205.0&#39;&quot;</span> <span class="p">:</span> <span class="s1">&#39;between 6851 7471&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;LRFWAVE == &#39;7836.0&#39;&quot;</span> <span class="p">:</span> <span class="s1">&#39;between 7471 8161&#39;</span><span class="p">,</span>
+           <span class="p">},</span>
+       <span class="s1">&#39;OBSTYPE&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;DETECTOR==&#39;HRC&#39; and FILTER1==&#39;G800L&#39; and OBSTYPE==&#39;ANY&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;CORONAGRAPHIC|IMAGING&#39;</span><span class="p">},</span>
+       <span class="s1">&#39;NAXIS1&#39;</span><span class="p">:</span> <span class="p">{</span>
+           <span class="s2">&quot;DETECTOR==&#39;WFC&#39; and APERTURE==&#39;ANY_FULL&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;ANY&#39;</span><span class="p">,</span>
+           <span class="p">},</span>
+       <span class="s1">&#39;NAXIS2&#39;</span><span class="p">:</span> <span class="p">{</span>
+           <span class="s2">&quot;DETECTOR==&#39;WFC&#39; and APERTURE==&#39;ANY_FULL&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;ANY&#39;</span><span class="p">,</span>
+           <span class="p">},</span>
+       <span class="s1">&#39;LTV1&#39;</span><span class="p">:</span> <span class="p">{</span>
+           <span class="s2">&quot;DETECTOR==&#39;WFC&#39; and APERTURE==&#39;ANY_FULL&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;ANY&#39;</span><span class="p">,</span>
+           <span class="p">},</span>
+       <span class="s1">&#39;LTV2&#39;</span><span class="p">:</span> <span class="p">{</span>
+           <span class="s2">&quot;DETECTOR==&#39;WFC&#39; and APERTURE==&#39;ANY_FULL&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;ANY&#39;</span><span class="p">,</span>
+           <span class="p">},</span>
+       <span class="s1">&#39;SHUTRPOS&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;SHUTRPOS==&#39;ANY&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;A|B&#39;</span><span class="p">},</span>
+       <span class="p">},</span>
+<span class="s1">&#39;cos&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;LIFE_ADJ&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;LIFE_ADJ==&#39;-11&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;-1.0|1.0&#39;</span><span class="p">,</span>
+                     <span class="s2">&quot;LIFE_ADJ==&#39;-11.0&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;-1.0|1.0&#39;</span><span class="p">},</span>
+        <span class="s1">&#39;OPT_ELEM&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;DETECTOR==&#39;FUV&#39; and OPT_ELEM==&#39;ANY&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;G130M|G140L|G160M&#39;</span><span class="p">,</span>
+                     <span class="s2">&quot;DETECTOR==&#39;NUV&#39; and OPT_ELEM==&#39;ANY&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;G185M|G225M|G230L|G285M|MIRRORA|MIRRORB&#39;</span><span class="p">}},</span>
+<span class="s1">&#39;stis&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;APERTURE&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;OBSTYPE==&#39;IMAGING&#39; and OPT_ELEM==&#39;MIRCUV&#39; and APERTURE==&#39;ANY&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;25MAMA|2X2|6X6|F25NDQ1|F25NDQ2|F25NDQ3|F25NDQ4&#39;</span><span class="p">,</span>
+                      <span class="s2">&quot;OBSTYPE==&#39;IMAGING&#39; and OPT_ELEM==&#39;MIRFUV&#39; and APERTURE==&#39;ANY&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;F25LYA|F25ND3|F25ND5|F25NDQ|F25NDQ1|F25NDQ2|F25NDQ3|F25NDQ4|F25QTZ|F25SRF2&#39;</span><span class="p">,</span>
+                      <span class="s2">&quot;OBSTYPE==&#39;IMAGING&#39; and OPT_ELEM==&#39;MIRNUV&#39; and APERTURE==&#39;ANY&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;25MAMA|2X2|6X6|F25CIII|F25CN182|F25CN270|F25MGII|F25ND3|F25ND5|F25NDQ|F25NDQ1|F25NDQ2|F25NDQ3|F25NDQ4|F25QTZ|F25SRF2&#39;</span><span class="p">,</span>
+                      <span class="s2">&quot;OBSTYPE==&#39;IMAGING&#39; and OPT_ELEM==&#39;MIRVIS&#39; and APERTURE==&#39;ANY&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;0.05X29|0.05X31NDA|0.05X31NDB|0.09X29|0.1X0.03|0.1X0.06|0.1X0.09|0.1X0.2|0.2X0.05ND|0.2X0.06|0.2X0.06FPA|0.2X0.06FPB|0.2X0.06FPC|0.2X0.06FPD|0.2X0.06FPE|0.2X0.09|0.2X0.2|0.2X0.2FPA|0.2X0.2FPB|0.2X0.2FPC|0.2X0.2FPD|0.2X0.2FPE|0.2X0.5|0.2X29|0.3X0.05ND|0.3X0.06|0.3X0.09|0.3X0.2|0.5X0.5|1X0.06|1X0.2|25MAMA|2X2|31X0.05NDA|31X0.05NDB|31X0.05NDC|36X0.05N45|36X0.05P45|36X0.6N45|36X0.6P45|50CCD|50CORON|52X0.05|52X0.05F1|52X0.05F2|52X0.1|52X0.1B0.5|52X0.1B1.0|52X0.1B3.0|52X0.1F1|52X0.1F2|52X0.2|52X0.2F1|52X0.2F2|52X0.5|52X0.5F1|52X0.5F2|52X2|52X2F1|52X2F2|6X0.06|6X0.2|6X0.5|6X6|F25CIII|F25CN182|F25CN270|F25LYA|F25MGII|F25ND3|F25ND5|F25NDQ|F25NDQ1|F25NDQ2|F25NDQ3|F25NDQ4|F25QTZ|F25SRF2|F28X50LP|F28X50OII|F28X50OIII&#39;</span><span class="p">},</span>
+         <span class="s1">&#39;CCDAMP&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;CCDAMP==&#39;ANY&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;A|B|C|D&#39;</span><span class="p">},</span>
+         <span class="s1">&#39;CCDGAIN&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;CCDGAIN==&#39;-1&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;1.0|2.0|4.0|8.0&#39;</span><span class="p">},</span>
+         <span class="s1">&#39;CENWAVE&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;OBSTYPE==&#39;SPECTROSCOPIC&#39; and OPT_ELEM==&#39;E140H&#39; and CENWAVE==&#39;-1&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;1234.0|1271.0|1307.0|1343.0|1380.0|1416.0|1453.0|1489.0|1526.0|1562.0|1598.0&#39;</span><span class="p">,</span>
+                     <span class="s2">&quot;OBSTYPE==&#39;SPECTROSCOPIC&#39; and OPT_ELEM==&#39;E140M&#39; and CENWAVE==&#39;-1&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;1425.0&#39;</span><span class="p">,</span>
+                     <span class="s2">&quot;OBSTYPE==&#39;SPECTROSCOPIC&#39; and OPT_ELEM==&#39;E230H&#39; and CENWAVE==&#39;-1&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;1763.0|1813.0|1863.0|1913.0|1963.0|2013.0|2063.0|2113.0|2163.0|2213.0|2263.0|2313.0|2363.0|2413.0|2463.0|2513.0|2563.0|2613.0|2663.0|2713.0|2762.0|2812.0|2862.0|2912.0|2962.0|3012.0&#39;</span><span class="p">,</span>
+                     <span class="s2">&quot;OBSTYPE==&#39;SPECTROSCOPIC&#39; and OPT_ELEM==&#39;E230M&#39; and CENWAVE==&#39;-1&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;1978.0|2124.0|2269.0|2415.0|2561.0|2707.0&#39;</span><span class="p">,</span>
+                     <span class="s2">&quot;OBSTYPE==&#39;SPECTROSCOPIC&#39; and OPT_ELEM==&#39;G140L&#39; and CENWAVE==&#39;-1&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;1425.0|1575.0&#39;</span><span class="p">,</span>
+                     <span class="s2">&quot;OBSTYPE==&#39;SPECTROSCOPIC&#39; and OPT_ELEM==&#39;G140M&#39; and CENWAVE==&#39;-1&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;1173.0|1218.0|1222.0|1272.0|1321.0|1371.0|1387.0|1400.0|1420.0|1470.0|1518.0|1540.0|1550.0|1567.0|1616.0|1640.0|1665.0|1714.0&#39;</span><span class="p">,</span>
+                     <span class="s2">&quot;OBSTYPE==&#39;SPECTROSCOPIC&#39; and OPT_ELEM==&#39;G230L&#39; and CENWAVE==&#39;-1&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;2376.0&#39;</span><span class="p">,</span>
+                     <span class="s2">&quot;OBSTYPE==&#39;SPECTROSCOPIC&#39; and OPT_ELEM==&#39;G230LB&#39; and CENWAVE==&#39;-1&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;2375.0&#39;</span><span class="p">,</span>
+                     <span class="s2">&quot;OBSTYPE==&#39;SPECTROSCOPIC&#39; and OPT_ELEM==&#39;G230M&#39; and CENWAVE==&#39;-1&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;1687.0|1769.0|1851.0|1884.0|1933.0|2014.0|2095.0|2176.0|2257.0|2338.0|2419.0|2499.0|2579.0|2600.0|2659.0|2739.0|2800.0|2818.0|2828.0|2898.0|2977.0|3055.0&#39;</span><span class="p">,</span>
+                     <span class="s2">&quot;OBSTYPE==&#39;SPECTROSCOPIC&#39; and OPT_ELEM==&#39;G230MB&#39; and CENWAVE==&#39;-1&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;1713.0|1854.0|1995.0|2135.0|2276.0|2416.0|2557.0|2697.0|2794.0|2836.0|2976.0|3115.0&#39;</span><span class="p">,</span>
+                     <span class="s2">&quot;OBSTYPE==&#39;SPECTROSCOPIC&#39; and OPT_ELEM==&#39;G430L&#39; and CENWAVE==&#39;-1&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;4300.0&#39;</span><span class="p">,</span>
+                     <span class="s2">&quot;OBSTYPE==&#39;SPECTROSCOPIC&#39; and OPT_ELEM==&#39;G430M&#39; and CENWAVE==&#39;-1&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;3165.0|3305.0|3423.0|3680.0|3843.0|3936.0|4194.0|4451.0|4706.0|4781.0|4961.0|5093.0|5216.0|5471.0&#39;</span><span class="p">,</span>
+                     <span class="s2">&quot;OBSTYPE==&#39;SPECTROSCOPIC&#39; and OPT_ELEM==&#39;G750L&#39; and CENWAVE==&#39;-1&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;7751.0|8975.0&#39;</span><span class="p">,</span>
+                     <span class="s2">&quot;OBSTYPE==&#39;SPECTROSCOPIC&#39; and OPT_ELEM==&#39;G750M&#39; and CENWAVE==&#39;-1&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;10363.0|5734.0|6094.0|6252.0|6581.0|6768.0|7283.0|7795.0|8311.0|8561.0|8825.0|9286.0|9336.0|9806.0|9851.0&#39;</span><span class="p">,</span>
+                     <span class="s2">&quot;OBSTYPE==&#39;SPECTROSCOPIC&#39; and OPT_ELEM==&#39;PRISM&#39; and CENWAVE==&#39;-1&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;1200.0|2125.0&#39;</span><span class="p">,</span>
+                     <span class="s2">&quot;OBSTYPE==&#39;SPECTROSCOPIC&#39; and OPT_ELEM==&#39;X140H&#39; and CENWAVE==&#39;-1&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;1232.0|1269.0|1305.0|1341.0|1378.0|1414.0|1451.0|1487.0|1523.0|1560.0|1587.0&#39;</span><span class="p">,</span>
+                     <span class="s2">&quot;OBSTYPE==&#39;SPECTROSCOPIC&#39; and OPT_ELEM==&#39;X140M&#39; and CENWAVE==&#39;-1&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;1425.0&#39;</span><span class="p">,</span>
+                     <span class="s2">&quot;OBSTYPE==&#39;SPECTROSCOPIC&#39; and OPT_ELEM==&#39;X230H&#39; and CENWAVE==&#39;-1&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;1760.0|1810.0|1860.0|1910.0|1960.0|2010.0|2060.0|2110.0|2160.0|2210.0|2261.0|2310.0|2360.0|2410.0|2460.0|2511.0|2560.0|2610.0|2660.0|2710.0|2760.0|2810.0|2860.0|2910.0|2960.0|3010.0&#39;</span><span class="p">,</span>
+                     <span class="s2">&quot;OBSTYPE==&#39;SPECTROSCOPIC&#39; and OPT_ELEM==&#39;X230M&#39; and CENWAVE==&#39;-1&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;1975.0|2122.0|2268.0|2414.0|2560.0|2703.0&#39;</span><span class="p">},</span>
+         <span class="s1">&#39;DETECTOR&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;DETECTOR==&#39;ANY&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;CCD|FUV-MAMA|NUV-MAMA&#39;</span><span class="p">},</span>
+         <span class="s1">&#39;OBSTYPE&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;OBSTYPE==&#39;ANY&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;IMAGING|SPECTROSCOPIC&#39;</span><span class="p">},</span>
+         <span class="s1">&#39;OPT_ELEM&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;OBSTYPE==&#39;IMAGING&#39; and OPT_ELEM==&#39;ANY&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;MIRCUV|MIRFUV|MIRNUV|MIRVIS&#39;</span><span class="p">,</span>
+                      <span class="s2">&quot;OBSTYPE==&#39;SPECTROSCOPIC&#39; and OPT_ELEM==&#39;ANY&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;E140H|E140M|E230H|E230M|G140L|G140M|G230L|G230LB|G230M|G230MB|G430L|G430M|G750L|G750M|PRISM|X140H|X140M|X230H|X230M&#39;</span><span class="p">}},</span>
+<span class="s1">&#39;wfc3&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;APERTURE&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;DETECTOR==&#39;UVIS&#39; and BINAXIS1==&#39;1&#39; and BINAXIS2==&#39;1&#39; and APERTURE==&#39;CHIP1_SUB_NOCORNERS&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;UVIS1-2K4-SUB|UVIS1-M512-SUB&#39;</span><span class="p">,</span>
+                      <span class="s2">&quot;DETECTOR==&#39;UVIS&#39; and BINAXIS1==&#39;1&#39; and BINAXIS2==&#39;1&#39; and APERTURE==&#39;CHIP2_SUB_NOCORNERS&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;UVIS2-2K4-SUB|UVIS2-M512-SUB&#39;</span><span class="p">,</span>
+                      <span class="s2">&quot;DETECTOR==&#39;UVIS&#39; and BINAXIS1==&#39;1&#39; and BINAXIS2==&#39;1&#39; and APERTURE==&#39;CUSTOM_SUBARRAYS&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;G280-REF|UVIS|UVIS-CENTER|UVIS-FIX|UVIS-QUAD|UVIS-QUAD-FIX|UVIS1|UVIS1-FIX|UVIS2|UVIS2-FIX&#39;</span><span class="p">,</span>
+                      <span class="s2">&quot;DETECTOR==&#39;UVIS&#39; and BINAXIS1==&#39;1&#39; and BINAXIS2==&#39;1&#39; and APERTURE==&#39;FULLFRAME_2AMP&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;UVIS|UVIS-CENTER|UVIS-FIX|UVIS1|UVIS1-FIX|UVIS2|UVIS2-FIX&#39;</span><span class="p">,</span>
+                      <span class="s2">&quot;DETECTOR==&#39;UVIS&#39; and BINAXIS1==&#39;1&#39; and BINAXIS2==&#39;1&#39; and APERTURE==&#39;FULLFRAME_4AMP&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;G280-REF|UVIS|UVIS-CENTER|UVIS-FIX|UVIS-IR-FIX|UVIS-QUAD|UVIS-QUAD-FIX|UVIS1|UVIS1-FIX|UVIS2|UVIS2-FIX|UVIS2-C512C-CTE|UVIS2-C1K1C-CTE&#39;</span><span class="p">,</span>
+                      <span class="s2">&quot;DETECTOR==&#39;UVIS&#39; and BINAXIS1==&#39;1&#39; and BINAXIS2==&#39;1&#39; and APERTURE==&#39;QUAD_CORNER_SUBARRAYS&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;UVIS-QUAD-SUB|UVIS1-2K2A-SUB|UVIS1-2K2B-SUB|UVIS1-C512A-SUB|UVIS1-C512B-SUB|UVIS2-2K2C-SUB|UVIS2-2K2D-SUB|UVIS2-C1K1C-SUB|UVIS2-C512C-SUB|UVIS2-C512D-SUB|UVIS2-M1K1C-SUB|UVIS2-M512C-SUB&#39;</span><span class="p">,</span>
+                      <span class="s2">&quot;DETECTOR==&#39;UVIS&#39; and BINAXIS1==&#39;2&#39; and BINAXIS2==&#39;2&#39; and APERTURE==&#39;ANY&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;G280-REF|UVIS|UVIS-CENTER|UVIS-FIX|UVIS-IR-FIX|UVIS-QUAD|UVIS-QUAD-FIX|UVIS1|UVIS1-FIX|UVIS2|UVIS2-FIX&#39;</span><span class="p">,</span>
+                      <span class="s2">&quot;DETECTOR==&#39;UVIS&#39; and BINAXIS1==&#39;3&#39; and BINAXIS2==&#39;3&#39; and APERTURE==&#39;ANY&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;G280-REF|UVIS|UVIS-CENTER|UVIS-FIX|UVIS-IR-FIX|UVIS-QUAD|UVIS-QUAD-FIX|UVIS1|UVIS1-FIX|UVIS2|UVIS2-FIX&#39;</span><span class="p">},</span>
+         <span class="s1">&#39;CCDAMP&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;CCDAMP==&#39;ANY&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;A|ABCD|AC|AD|B|BC|BD|C|D&#39;</span><span class="p">,</span>
+                    <span class="s2">&quot;CCDAMP==&#39;SINGLE_AMP&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;A|B|C|D&#39;</span><span class="p">},</span>
+         <span class="s1">&#39;CCDGAIN&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;DETECTOR==&#39;IR&#39; and CCDGAIN==&#39;-1&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;2.0|2.5|3.0|4.0&#39;</span><span class="p">,</span>
+                     <span class="s2">&quot;DETECTOR==&#39;IR&#39; and CCDGAIN==&#39;-1.&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;2.0|2.5|3.0|4.0&#39;</span><span class="p">,</span>
+                     <span class="s2">&quot;DETECTOR==&#39;UVIS&#39; and CCDGAIN==&#39;-1&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;1.0|1.5|2.0|4.0&#39;</span><span class="p">,</span>
+                     <span class="s2">&quot;DETECTOR==&#39;UVIS&#39; and CCDGAIN==&#39;-1.&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;1.0|1.5|2.0|4.0&#39;</span><span class="p">},</span>
+         <span class="s1">&#39;CHINJECT&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;CHINJECT==&#39;ANY&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;CONT|LINE10|LINE17|LINE25|NONE&#39;</span><span class="p">},</span>
+         <span class="s1">&#39;FILTER&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;DETECTOR==&#39;IR&#39; and FILTER==&#39;ANY&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;BLANK|F093W|F098M|F105W|F110W|F125W|F126N|F127M|F128N|F130N|F132N|F139M|F140W|F153M|F160W|F164N|F167N&#39;</span><span class="p">,</span>
+                    <span class="s2">&quot;DETECTOR==&#39;UVIS&#39; and FILTER==&#39;ANY&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;CLEAR|F200LP|F218W|F225W|F275W|F280N|F300X|F336W|F343N|F350LP|F373N|F390M|F390W|F395N|F410M|F438W|F467M|F469N|F475W|F475X|F487N|F502N|F547M|F555W|F588N|F600LP|F606W|F621M|F625W|F631N|F645N|F656N|F657N|F658N|F665N|F673N|F680N|F689M|F763M|F775W|F814W|F845M|F850LP|F953N|FQ232N|FQ243N|FQ378N|FQ387N|FQ422M|FQ436N|FQ437N|FQ492N|FQ508N|FQ575N|FQ619N|FQ634N|FQ672N|FQ674N|FQ727N|FQ750N|FQ889N|FQ906N|FQ924N|FQ937N&#39;</span><span class="p">},</span>
+         <span class="s1">&#39;SAMP_SEQ&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;SAMP_SEQ==&#39;ANY&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;MIF1200|MIF1500|MIF600|MIF900|NONE|RAPID|SPARS10|SPARS100|SPARS200|SPARS25|SPARS350|SPARS50|STEP100|STEP200|STEP25|STEP400|STEP50|UNKNOWN&#39;</span><span class="p">}}}</span>
+</pre></div>
+</div>
+<p>The HST substition patterns above are of the form:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">instrument</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">keyword</span><span class="o">&gt;</span>
+        <span class="o">&lt;</span><span class="n">condition1</span><span class="o">&gt;</span> <span class="p">:</span> <span class="o">&lt;</span><span class="n">substitution1</span><span class="o">&gt;</span>
+        <span class="o">&lt;</span><span class="n">condition2</span><span class="o">&gt;</span> <span class="p">:</span> <span class="o">&lt;</span><span class="n">substitution2</span><span class="o">&gt;</span>
+        <span class="o">...</span>
+</pre></div>
+</div>
+<p>For each rmap update for <em>instrument</em>,  for each matching <em>keyword</em>,  each
+<em>condition</em> is evaluated with respect to the reference file header.  If the
+<em>condition</em> is <em>True</em> then the corresponding <em>substitution</em> is used to
+replace the value of <em>keyword</em> for the purposes of updating the rmap.</p>
+</div>
+<div class="section" id="jwst-pattern-keywords">
+<h4>JWST Pattern Keywords<a class="headerlink" href="#jwst-pattern-keywords" title="Permalink to this headline">¶</a></h4>
+<p>JWST uses a more explicit approach where patterns are specified directly via
+reference metadata.  The CAL code data models define optional keywords
+beginning with <em>P_</em> that can have or-ed values.</p>
+<p>For instance,  in FITS parlance:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">P_DETECT</span> <span class="o">=</span> <span class="n">NRCA1</span> <span class="o">|</span> <span class="n">NRCA4</span> <span class="o">|</span>
+</pre></div>
+</div>
+<p>means that the reference file should be used for both DETECTOR=NRCA1 and
+DETECTOR=NRCA4.</p>
+<p>Typically the <em>P_</em> keyword name is truncated to the FITS 8 character limit as
+needed.</p>
+<p>The trailing <code class="docutils literal"><span class="pre">|-bar</span></code> is required to satisfy the calibration code data model
+schema checks of allowed patterns.</p>
+<p>If no pattern keyword is defined, CRDS will use the equivalent normal keyword
+specified to update the matching rules.</p>
+<p>In terms of datamodels paths, the above value would be specified similarly:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">META</span><span class="o">.</span><span class="n">INSTRUMENT</span><span class="o">.</span><span class="n">P_DETECTOR</span> <span class="o">=</span> <span class="n">NRCA1</span> <span class="o">|</span> <span class="n">NRCA4</span> <span class="o">|</span>
+</pre></div>
+</div>
+<p>The following table defines the pattern keywords currently supported for JWST:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="23%" />
+<col width="57%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">FITS</th>
+<th class="head"><code class="docutils literal"><span class="pre">P_</span></code> FITS</th>
+<th class="head"><code class="docutils literal"><span class="pre">P_</span></code> DATAMODELS</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>EXP_TYPE</td>
+<td>P_EXP_TY</td>
+<td>META.EXPOSURE.P_EXPTYPE</td>
+</tr>
+<tr class="row-odd"><td>BAND</td>
+<td>P_BAND</td>
+<td>META.INSTRUMENT.P_BAND</td>
+</tr>
+<tr class="row-even"><td>DETECTOR</td>
+<td>P_DETECT</td>
+<td>META.INSTRUMENT.P_DETECTOR</td>
+</tr>
+<tr class="row-odd"><td>CHANNEL</td>
+<td>P_CHANNE</td>
+<td>META.INSTRUMENT.P_CHANNEL</td>
+</tr>
+<tr class="row-even"><td>FILTER</td>
+<td>P_FILTER</td>
+<td>META.INSTRUMENT.P_FILTER</td>
+</tr>
+<tr class="row-odd"><td>GRATING</td>
+<td>P_GRATIN</td>
+<td>META.INSTRUMENT.P_GRATING</td>
+</tr>
+<tr class="row-even"><td>PUPIL</td>
+<td>P_PUPIL</td>
+<td>META.INSTRUMENT.P_PUPIL</td>
+</tr>
+<tr class="row-odd"><td>MODULE</td>
+<td>P_MODULE</td>
+<td>META.INSTRUMENT.MODULE</td>
+</tr>
+<tr class="row-even"><td>SUBARRAY</td>
+<td>P_SUBARR</td>
+<td>META.SUBARRAY.P_SUBARRAY</td>
+</tr>
+<tr class="row-odd"><td>READPATT</td>
+<td>P_READPA</td>
+<td>META.EXPOSURE.P_READPATT</td>
+</tr>
+</tbody>
+</table>
+<p>Each <code class="docutils literal"><span class="pre">P_</span></code> keyword is explicitly defined in CRDS code as well as the CAL code
+data models.  Relative to HST substitutions, the advantage of the JWST <code class="docutils literal"><span class="pre">P_</span></code>
+keywords is that the pattern values can be defined in arbitrary combinations
+in the reference files instead of CRDS code.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="web_site_use.html" title="Using the CRDS Web Site"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="rmap_syntax.html" title="About Mappings"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.6 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2015, STScI.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+  </body>
+</html>

@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Command Line Tools &#8212; crds 7.1.4 documentation</title>
-    
+    <title>Command Line Tools &#8212; crds 7.1.6 documentation</title>
     <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '7.1.4',
+        VERSION:     '7.1.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -29,7 +26,7 @@
     <link rel="next" title="Library Use" href="top_level_use.html" />
     <link rel="prev" title="Package Overview" href="installation.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -42,7 +39,7 @@
         <li class="right" >
           <a href="installation.html" title="Package Overview"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.6 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -131,8 +128,8 @@ implement their functionality.</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="nb">list</span> <span class="o">--</span><span class="n">status</span>
 </pre></div>
 </div>
-<p>Internally the &#8216;crds&#8217; wrapper launches a command similar to the original
-&#8216;-m&#8217; syntax.   However, aside from easier typing,  the &#8216;crds&#8217; wrapper
+<p>Internally the ‘crds’ wrapper launches a command similar to the original
+‘-m’ syntax.   However, aside from easier typing,  the ‘crds’ wrapper
 hides internal structural details of the CRDS package.</p>
 <p>For a list of available commands do:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="o">--</span><span class="n">help</span>
@@ -284,7 +281,7 @@ dataset FITS files.   This can be done as follows:</p>
 <p>which will use the CRDS rules currently operational in the pipeline and download any required CRDS rules and reference files
 to your CRDS cache automatically.   No download should occur for previously cached files or the default group readonly reference
 cache.</p>
-<p>A specific historical set of CRDS rules can be used by specifying &#8211;new-context:</p>
+<p>A specific historical set of CRDS rules can be used by specifying –new-context:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">bestrefs</span> <span class="o">--</span><span class="n">new</span><span class="o">-</span><span class="n">context</span> <span class="n">hst_0294</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">update</span><span class="o">-</span><span class="n">bestrefs</span> <span class="o">--</span><span class="n">sync</span><span class="o">-</span><span class="n">references</span><span class="o">=</span><span class="mi">1</span> <span class="o">--</span><span class="n">files</span> <span class="n">j8bt05njq_raw</span><span class="o">.</span><span class="n">fits</span> <span class="o">...</span>
 </pre></div>
 </div>
@@ -292,7 +289,7 @@ cache.</p>
 <div class="section" id="new-context">
 <h3>New Context<a class="headerlink" href="#new-context" title="Permalink to this headline">¶</a></h3>
 <p>crds.bestrefs always computes best references with respect to a context which can be explicitly specified with the
-&#8211;new-context parameter.    If &#8211;new-context is not specified,  the default operational context is determined by
+–new-context parameter.    If –new-context is not specified,  the default operational context is determined by
 consulting the CRDS server or looking in the local cache.</p>
 </div>
 <div class="section" id="lookup-parameter-sources">
@@ -300,11 +297,11 @@ consulting the CRDS server or looking in the local cache.</p>
 <p>The two primary modes for bestrefs involve the source of reference file matching parameters.   Conceptually
 lookup parameters are always associated with particular datasets and used to identify the references
 required to process those datasets.</p>
-<p>The options &#8211;files, &#8211;datasets, &#8211;instruments, and &#8211;all-instruments determine the source of lookup parameters:</p>
+<p>The options –files, –datasets, –instruments, and –all-instruments determine the source of lookup parameters:</p>
 <ol class="arabic">
 <li><p class="first">To find best references for a list of files do something like this:</p>
 <blockquote>
-<div><p>% crds bestrefs &#8211;new-context hst.pmap &#8211;file j8bt05njq_raw.fits j8bt06o6q_raw.fits j8bt09jcq_raw.fits</p>
+<div><p>% crds bestrefs –new-context hst.pmap –file j8bt05njq_raw.fits j8bt06o6q_raw.fits j8bt09jcq_raw.fits</p>
 </div></blockquote>
 </li>
 </ol>
@@ -312,37 +309,37 @@ required to process those datasets.</p>
 <ol class="arabic" start="2">
 <li><p class="first">To find best references for a list of catalog dataset ids do something like this:</p>
 <blockquote>
-<div><p>% crds bestrefs &#8211;new-context hst.pmap &#8211;datasets j8bt05njq j8bt06o6q j8bt09jcq</p>
+<div><p>% crds bestrefs –new-context hst.pmap –datasets j8bt05njq j8bt06o6q j8bt09jcq</p>
 </div></blockquote>
 </li>
 <li><p class="first">To do mass scale testing for all cataloged datasets for a particular instrument(s) do:</p>
 <blockquote>
-<div><p>% crds bestrefs &#8211;new-context hst.pmap &#8211;instruments acs</p>
+<div><p>% crds bestrefs –new-context hst.pmap –instruments acs</p>
 </div></blockquote>
 </li>
 <li><p class="first">To do mass scale testing for all supported instruments for all cataloged datasets do:</p>
 <blockquote>
-<div><p>% crds bestrefs &#8211;new-context hst.pmap &#8211;all-instruments</p>
+<div><p>% crds bestrefs –new-context hst.pmap –all-instruments</p>
 <p>or to test for differences between two contexts</p>
-<p>% crds bestrefs &#8211;new-context hst_0002.pmap &#8211;old-context hst_0001.pmap &#8211;all-instruments</p>
+<p>% crds bestrefs –new-context hst_0002.pmap –old-context hst_0001.pmap –all-instruments</p>
 </div></blockquote>
 </li>
 </ol>
 </div>
 <div class="section" id="comparison-modes">
 <h3>Comparison Modes<a class="headerlink" href="#comparison-modes" title="Permalink to this headline">¶</a></h3>
-<p>The &#8211;old-context and &#8211;compare-source-bestrefs parameters define the best references comparison mode.  Each names
+<p>The –old-context and –compare-source-bestrefs parameters define the best references comparison mode.  Each names
 the origin of a set of prior recommendations and implicitly requests a comparison to the recommendations from
-the newly computed bestrefs determined by &#8211;new-context.</p>
+the newly computed bestrefs determined by –new-context.</p>
 <div class="section" id="context-to-context">
 <h4>Context-to-Context<a class="headerlink" href="#context-to-context" title="Permalink to this headline">¶</a></h4>
-<p>&#8211;old-context can be used to specify a second context for which bestrefs are dynamically computed; &#8211;old-context
-implies that a bestrefs comparison will be made with &#8211;new-context.   If &#8211;old-context is not specified,  it
+<p>–old-context can be used to specify a second context for which bestrefs are dynamically computed; –old-context
+implies that a bestrefs comparison will be made with –new-context.   If –old-context is not specified,  it
 defaults to None.</p>
 </div>
 <div class="section" id="prior-source-recommendations">
 <h4>Prior Source Recommendations<a class="headerlink" href="#prior-source-recommendations" title="Permalink to this headline">¶</a></h4>
-<p>&#8211;compare-source-bestrefs requests that the bestrefs from &#8211;new-context be compared to the bestrefs which are
+<p>–compare-source-bestrefs requests that the bestrefs from –new-context be compared to the bestrefs which are
 recorded with the lookup parameter data,  either in the file headers of data files,  or in the catalog.   In both
 cases the prior best references are recorded static values,  not dynamically computed bestrefs.</p>
 </div>
@@ -350,7 +347,7 @@ cases the prior best references are recorded static values,  not dynamically com
 <div class="section" id="output-modes">
 <h3>Output Modes<a class="headerlink" href="#output-modes" title="Permalink to this headline">¶</a></h3>
 <p>crds.bestrefs supports several output modes for bestrefs and comparison results to standard out.</p>
-<p>If &#8211;print-affected is specified,  crds.bestrefs will print out the name of any file for which at least one update for
+<p>If –print-affected is specified,  crds.bestrefs will print out the name of any file for which at least one update for
 one reference type was recommended.   This is essentially a list of files to be reprocessed with new references.:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">bestrefs</span> <span class="o">--</span><span class="n">new</span><span class="o">-</span><span class="n">context</span> <span class="n">hst</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">files</span> <span class="n">j8bt05njq_raw</span><span class="o">.</span><span class="n">fits</span> <span class="n">j8bt06o6q_raw</span><span class="o">.</span><span class="n">fits</span> <span class="n">j8bt09jcq_raw</span><span class="o">.</span><span class="n">fits</span> \
     <span class="o">--</span><span class="n">compare</span><span class="o">-</span><span class="n">source</span><span class="o">-</span><span class="n">bestrefs</span> <span class="o">--</span><span class="nb">print</span><span class="o">-</span><span class="n">affected</span>
@@ -370,7 +367,7 @@ one reference type was recommended.   This is essentially a list of files to be 
 </div>
 <div class="section" id="verbosity">
 <h3>Verbosity<a class="headerlink" href="#verbosity" title="Permalink to this headline">¶</a></h3>
-<p>crds.bestrefs has &#8211;verbose and &#8211;verbosity=N parameters which can increase the amount of informational
+<p>crds.bestrefs has –verbose and –verbosity=N parameters which can increase the amount of informational
 and debug output.</p>
 </div>
 <div class="section" id="bad-files">
@@ -378,7 +375,7 @@ and debug output.</p>
 <p>CRDS files can be designated as scientifically invalid on the CRDS server by the CRDS team.   Knowledge of bad
 files is synchronized to remote caches by crds.bestrefs and crds.sync.  By default, attempting to use bad rules or
 assign bad references will generate errors and fail.   crds.bestrefs supports two command line switches,
-<em>&#8212;allow-bad-rules</em> and <em>&#8212;allow-bad-references</em> to override the default handling of bad files and enable their
+<em>—allow-bad-rules</em> and <em>—allow-bad-references</em> to override the default handling of bad files and enable their
 use with warnings.  Environment variables <strong>CRDS_ALLOW_BAD_RULES</strong> and <strong>CRDS_ALLOW_BAD_REFERENCES</strong> can also be
 set to 1 to establish warnings rather than errors as the default.</p>
 </div>
@@ -446,7 +443,7 @@ set to 1 to establish warnings rather than errors as the default.</p>
 <li><p class="first">Dry-Running Cache Changes</p>
 <blockquote>
 <div><p>Since CRDS cache operations can involve significant network downloads,  as a general note,
-crds.sync can be run with <em>&#8212;readonly-cache &#8212;verbose</em> switches to better determine what
+crds.sync can be run with <em>—readonly-cache —verbose</em> switches to better determine what
 the effects of any command should be.   This can be used to gauge download sizes or list
 files before deleting them.</p>
 </div></blockquote>
@@ -473,7 +470,7 @@ files before deleting them.</p>
 </pre></div>
 </div>
 <p>this will also recursively download all the mappings referred to by .pmaps 0001, 002, 0003.</p>
-<p>Synced contexts can be specified as &#8211;all contexts:</p>
+<p>Synced contexts can be specified as –all contexts:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span> <span class="o">--</span><span class="nb">all</span>
 </pre></div>
 </div>
@@ -543,7 +540,7 @@ takes 5-10 minutes,  sufficient for a quick check but not foolproof.</p>
 </li>
 <li><p class="first">Checking Smaller Caches,  Identifying Foreign Files</p>
 <blockquote>
-<div><p>The simplest approach for &#8220;repairing&#8221; a small cache is to delete it and resync.   One might do this
+<div><p>The simplest approach for “repairing” a small cache is to delete it and resync.   One might do this
 after making temporary modifications to cached files to return to the archived version:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>% rm -rf $CRDS_PATH
 % crds sync  -- ...  # repeat whatever syncs you did to cache files of interest
@@ -557,15 +554,15 @@ after making temporary modifications to cached files to return to the archived v
 and then using the crds.sync command to check exactly those files.</p>
 <p>Since crds.list will print the name of any file in the cache,  not just files from CRDS,  the second approach can
 also be used to detect (most likely test) files which are not from CRDS.</p>
-<p>For smaller caches <em>&#8211;check-sha1sum</em> is likekly to be less of a performance/runtime issue and should be used
+<p>For smaller caches <em>–check-sha1sum</em> is likekly to be less of a performance/runtime issue and should be used
 to detect files which have changed in contents but not in length.</p>
 </div></blockquote>
 </li>
 <li><p class="first">Removing Blacklisted or Rejected Files</p>
 <blockquote>
-<div><p>crds.sync can be used to remove the files from specific contexts which have been marked as &#8220;bad&#8221;.</p>
+<div><p>crds.sync can be used to remove the files from specific contexts which have been marked as “bad”.</p>
 <blockquote>
-<div><p>% crds sync &#8211;contexts hst_0001.pmap &#8211;fetch-references &#8211;check-files &#8211;purge-rejected &#8211;purge-blacklisted</p>
+<div><p>% crds sync –contexts hst_0001.pmap –fetch-references –check-files –purge-rejected –purge-blacklisted</p>
 </div></blockquote>
 <p>would first sync the cache downloading all the files in hst_0001.pmap.  Both mappings and references would then
 be checked for correct length.   Files reported as rejected or blacklisted by the server would be removed.</p>
@@ -577,18 +574,18 @@ be checked for correct length.   Files reported as rejected or blacklisted by th
 for a telescope in a single directory,  e.g. references/hst.   <em>instrument</em> segregates references into subdirectories
 which name instruments or legacy environment variables,  e.g. acs or jref.</p>
 <p>Newly created caches will default to the <em>instrument</em> organization.  To migrate a legacy cache with a flat single
-directory layout to the new structure,  sync with &#8211;organize=instrument:</p>
+directory layout to the new structure,  sync with –organize=instrument:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span> <span class="o">--</span><span class="n">organize</span><span class="o">=</span><span class="n">instrument</span> <span class="o">--</span><span class="n">verbose</span>
 </pre></div>
 </div>
-<p>To migrate to the flat structure,  use &#8211;organize=flat:</p>
+<p>To migrate to the flat structure,  use –organize=flat:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span> <span class="o">--</span><span class="n">organize</span><span class="o">=</span><span class="n">flat</span> <span class="o">--</span><span class="n">verbose</span>
 </pre></div>
 </div>
-<p>While reorganizing, if CRDS makes note of &#8220;junk files&#8221; in your cache which are
+<p>While reorganizing, if CRDS makes note of “junk files” in your cache which are
 obstructing the process of reorganizing, you can allow CRDS to delete the junk
-by adding &#8211;organize-delete-junk.</p>
-<p>The &#8211;organize switches are intended to be used only on inactive file caches
+by adding –organize-delete-junk.</p>
+<p>The –organize switches are intended to be used only on inactive file caches
 when calibration software is not running and actively using CRDS.</p>
 </div></blockquote>
 </li>
@@ -601,7 +598,7 @@ matching parameter values.   For reference files,  crds.certify also performs ch
 of the FITS format and when given a context,  and will compare the given file against
 the file it replaces looking for new or missing table rows.</p>
 <ul>
-<li><p class="first">crds certify &#8211;help yields:</p>
+<li><p class="first">crds certify –help yields:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">homer</span><span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">workspace_crds</span><span class="o">/</span><span class="n">CRDS</span><span class="o">/</span><span class="n">crds</span><span class="o">/</span><span class="n">certify</span><span class="o">.</span><span class="n">py</span>
    <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">d</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">r</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">a</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">e</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">p</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">x</span> <span class="n">COMPARISON_CONTEXT</span><span class="p">]</span>
    <span class="p">[</span><span class="o">-</span><span class="n">y</span> <span class="n">COMPARISON_REFERENCE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">s</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dump</span><span class="o">-</span><span class="n">unique</span><span class="o">-</span><span class="n">errors</span><span class="p">]</span>
@@ -670,8 +667,8 @@ the comparison context.  Many classes of mapping differences will result in warn
 </pre></div>
 </div>
 </li>
-<li><p class="first">For more information on the checks being performed,  use &#8211;verbose or &#8211;verbosity=N where N &gt; 50.</p>
-<p>% crds certify ./some_reference.fits &#8211;comparison-reference=old_reference_version.fits &#8211;run-fitsverify &#8211;dump-provenance &#8211;verbose</p>
+<li><p class="first">For more information on the checks being performed,  use –verbose or –verbosity=N where N &gt; 50.</p>
+<p>% crds certify ./some_reference.fits –comparison-reference=old_reference_version.fits –run-fitsverify –dump-provenance –verbose</p>
 </li>
 <li><p class="first">Invoking crds.certify on a context mapping recursively certifies all sub-mappings.</p>
 </li>
@@ -682,7 +679,7 @@ the comparison context.  Many classes of mapping differences will result in warn
 <p>crds.diff compares two reference or mapping files and reports differences.  For
 references crds.diff is currently a thin wrapper around fitsdiff but may expand.</p>
 <p>For CRDS mappings crds.diff performs a recursive logical difference which shows
-the full match path to each bottom level change.   crds.diff &#8211;help yields:</p>
+the full match path to each bottom level change.   crds.diff –help yields:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Difference</span> <span class="n">CRDS</span> <span class="n">mapping</span> <span class="ow">or</span> <span class="n">reference</span> <span class="n">files</span><span class="o">.</span>
 
 <span class="n">positional</span> <span class="n">arguments</span><span class="p">:</span>
@@ -761,9 +758,9 @@ Non-tabular extensions are ignored.</p>
 <blockquote>
 <div><dl class="docutils">
 <dt>usage: rowdiff.py [-J] [-H]</dt>
-<dd>[&#8211;ignore-fields IGNORE_FIELDS]
-[&#8211;fields FIELDS]
-[&#8211;mode-fields MODE_FIELDS] old_file new_file</dd>
+<dd>[–ignore-fields IGNORE_FIELDS]
+[–fields FIELDS]
+[–mode-fields MODE_FIELDS] old_file new_file</dd>
 </dl>
 <p>Perform FITS table difference by rows</p>
 <dl class="docutils">
@@ -800,12 +797,12 @@ new_file                Second FITS table to compare</dd>
 </div></blockquote>
 <p>The FITS data to be compared are required to be similar: they must have
 the same number of extensions and the types of extensions must match.</p>
-<p>The parameters &#8211;fields and &#8211;ignore-fields define which columns
+<p>The parameters –fields and –ignore-fields define which columns
 are compared between each table extension. These are mutually
 exclusive parameters and an error will generate if both are specified.</p>
 <p>First a summary of the changes between the table extension is given.
 Then, row-by-row difference is given, using unified diff syntax.</p>
-<p>The parameter &#8211;mode-fields initiates a different algorithm.
+<p>The parameter –mode-fields initiates a different algorithm.
 Here, it is presumed the tabular data contains columns that can essentially
 be treated as keys upon with rows are selected. The fields specified are those
 key columns.</p>
@@ -817,7 +814,7 @@ rows are equivalent or not.</p>
 <p>Examples:</p>
 <blockquote>
 <div><p>% crds rowdiff s9m1329lu_off.fits s9518396u_off.fits</p>
-<p>% crds rowdiff s9m1329lu_off.fits s9518396u_off.fits &#8211;mode-fields=detchip,obsdate</p>
+<p>% crds rowdiff s9m1329lu_off.fits s9518396u_off.fits –mode-fields=detchip,obsdate</p>
 </div></blockquote>
 </div>
 <div class="section" id="crds-uses">
@@ -998,12 +995,12 @@ tuning it to the more limited case of updating FITS dataset headers with best re
         <li class="right" >
           <a href="installation.html" title="Package Overview"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.6 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2015, STScI.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>
 </html>

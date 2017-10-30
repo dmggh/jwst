@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Using the CRDS Web Site &#8212; crds 7.1.4 documentation</title>
-    
+    <title>Using the CRDS Web Site &#8212; crds 7.1.6 documentation</title>
     <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '7.1.4',
+        VERSION:     '7.1.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -27,9 +24,9 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Web Services" href="web_services.html" />
-    <link rel="prev" title="About Mappings" href="rmap_syntax.html" /> 
+    <link rel="prev" title="Reference File Conventions" href="reference_conventions.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -40,9 +37,9 @@
           <a href="web_services.html" title="Web Services"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="rmap_syntax.html" title="About Mappings"
+          <a href="reference_conventions.html" title="Reference File Conventions"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.6 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -113,8 +110,8 @@
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="rmap_syntax.html"
-                        title="previous chapter">About Mappings</a></p>
+  <p class="topless"><a href="reference_conventions.html"
+                        title="previous chapter">Reference File Conventions</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="web_services.html"
                         title="next chapter">Web Services</a></p>
@@ -158,7 +155,7 @@ a future build which may prove useful now.</p>
 <h2>Operational References<a class="headerlink" href="#operational-references" title="Permalink to this headline">¶</a></h2>
 <p>The <em>Operational References</em> table displays the references which are currently in use
 by the pipeline associated with this web site.   The operational context is displayed
-as a link &#8216;(under context &lt;link&gt;)&#8217; immediately below Operational References.  Clicking
+as a link ‘(under context &lt;link&gt;)’ immediately below Operational References.  Clicking
 the link opens a details browser for that CRDS .pmap reference assignment rules file.
 The operational context is the latest context in the Context History,  the one in
 active use for pipeline processing by default.</p>
@@ -334,7 +331,7 @@ same .rmap:</p>
 <div class="figure">
 <a class="reference internal image-reference" href="_images/web_login.png"><img alt="login page with instrument locking" src="_images/web_login.png" style="width: 583.5px; height: 328.0px;" /></a>
 </div>
-<p>When a user logs in,  the instrument they&#8217;ve locked and the time remaining on the
+<p>When a user logs in,  the instrument they’ve locked and the time remaining on the
 lock are displayed below the login (now logout) button:</p>
 <div class="figure">
 <a class="reference internal image-reference" href="_images/web_logged_in.png"><img alt="logged in page with count down timer" src="_images/web_logged_in.png" style="width: 575.0px; height: 352.5px;" /></a>
@@ -350,12 +347,12 @@ or the file submission will be cancelled.</p>
 and the lock is dropped to enable another submitter to cut-in.</p>
 <p>Care should be taken with the locking mechanism and file submissions.  <strong>DO NOT</strong>:</p>
 <ul class="simple">
-<li>Don&#8217;t login from multiple browsers or sites.   The last browser/site you log in from will steal the
+<li>Don’t login from multiple browsers or sites.   The last browser/site you log in from will steal the
 lock from the original login, cancel any original file submission,  and force a logout in the original browser.</li>
-<li>Don&#8217;t leave the page during an ongoing file submission,  wait for it to finish.   Opening other browser
+<li>Don’t leave the page during an ongoing file submission,  wait for it to finish.   Opening other browser
 tabs should be fine.</li>
-<li>Don&#8217;t attempt to login for more than one instrument at a time.  One user is assigned one and only one lock.</li>
-<li>Don&#8217;t attempt to perform multiple file submissions for the same instrument at the same time.  Finish
+<li>Don’t attempt to login for more than one instrument at a time.  One user is assigned one and only one lock.</li>
+<li>Don’t attempt to perform multiple file submissions for the same instrument at the same time.  Finish
 and confirm or cancel each file submission before proceeding with the next.</li>
 </ul>
 </div>
@@ -455,7 +452,7 @@ carried over by Add References,  only the reference files themselves.</p>
 <p>CRDS enables contexts to be distributed before their adoption as the pipeline default.
 Set Context is used to select the default pipeline (operational) context.</p>
 <p>Setting the operational context changes state on the CRDS server which must be
-subsequently sync&#8217;ed to remote pipelines and users.</p>
+subsequently sync’ed to remote pipelines and users.</p>
 <p>Setting the <em>operational</em> context creates a new entry at the top of the Context
 History.</p>
 <p>Setting the <em>edit</em> context sets the default starting point for future file
@@ -484,14 +481,14 @@ that have an <em>Upload Files</em> accordion.</p>
 <div class="section" id="web-approach">
 <h5>Web Approach<a class="headerlink" href="#web-approach" title="Permalink to this headline">¶</a></h5>
 <p>On the file submission pages,  the <em>Upload Files</em> accordion opens to support
-uploading submitted files to a user&#8217;s CRDS ingest directory via the browser.</p>
+uploading submitted files to a user’s CRDS ingest directory via the browser.</p>
 <div class="figure">
 <a class="reference internal image-reference" href="_images/web_upload_files.png"><img alt="file upload accordion" src="_images/web_upload_files.png" style="width: 374.5px; height: 203.0px;" /></a>
 </div>
 <p>Uploading files is accomplished by:</p>
 <ul class="simple">
 <li>Opening the accordion panel by clicking on it.</li>
-<li>Add files to the upload list by clicking on the <em>Add Files...</em> button.</li>
+<li>Add files to the upload list by clicking on the <em>Add Files…</em> button.</li>
 <li>Click <em>Start Upload</em> to initiate the file transfer.   When the upload successfully completes the buttons will change to <em>delete</em>.</li>
 <li>Click <em>Delete</em> for any file added by mistake or for failed uploads.</li>
 <li>Click <em>Cancel Upload</em> to abort a file transfer during the upload.</li>
@@ -575,7 +572,7 @@ input is irrelevant and ignored.</p>
 <li><em>Starting Context</em> is the context this submission derove from.</li>
 <li><em>Generated New Mappings</em> lists the new mapping files which provide the generated context for using the submitted references.</li>
 <li><em>Actions on Rmap</em> provides two accordions showing how the rmap controlling the submitted references was modified.   The logical differences accordion has a table of actions,  either <em>insert</em> for completely new files or <em>replace</em> for files which replaced an existing file.   The text differences are essentially output from UNIX <em>diff</em> for the old and new rmaps.</li>
-<li><em>Certify Results</em> has an accordion panel for each submitted reference file which contains the results from crds.certify.   The submitted name of each file is listed first,  followed by any official name of the file assigned by CRDS.   The status of the certification can be &#8220;OK&#8221; or &#8220;Warnings&#8221;.   Warnings should be reviewed by opening the accorion panel.</li>
+<li><em>Certify Results</em> has an accordion panel for each submitted reference file which contains the results from crds.certify.   The submitted name of each file is listed first,  followed by any official name of the file assigned by CRDS.   The status of the certification can be “OK” or “Warnings”.   Warnings should be reviewed by opening the accorion panel.</li>
 </ul>
 <p><strong>IMPORTANT</strong>  The results page only indicates the files which will be added to
 CRDS if the submission is <em>confirmed</em>.   Prior to confirmation of the submission,
@@ -631,7 +628,7 @@ Submitted references must still pass through crds.certify.</p>
 <div class="section" id="submit-mappings">
 <h3>Submit Mappings<a class="headerlink" href="#submit-mappings" title="Permalink to this headline">¶</a></h3>
 <p><em>Submit Mappings</em> provides a basic interface for submitting a list of mapping
-files which don&#8217;t have to be related.   This can be used to submit context files
+files which don’t have to be related.   This can be used to submit context files
 which refer to files from <em>Submit References</em> and with fewer restrictions on
 allowable changes.   Typically only .rmaps are submitted this way.   Mappings
 submitted this way must also pass through crds.certify.</p>
@@ -643,10 +640,10 @@ submitted this way must also pass through crds.certify.</p>
 <p>The nominal process used to modify CRDS mappings is to:</p>
 <p>1. Download the mapping to be used as a baseline for the revised version.
 Leave the name as-is.  The download can be accomplished by using the crds.sync
-tool to download the file to a local cache, or by browsing to the file&#8217;s
+tool to download the file to a local cache, or by browsing to the file’s
 details page and using the <em>download</em> link near the top of the page.  Likewise
 the source file can be copied directly from the shared on site default
-readonly cache.   This download, don&#8217;t rename, upload process is used to
+readonly cache.   This download, don’t rename, upload process is used to
 automatically maintain the derivation history of mappings in their headers,
 the name field is progagated down to the derived_from field to track the
 source mapping prior to renaming the new mapping.</p>
@@ -696,14 +693,14 @@ generate a warning.   Alternately:</p>
           <a href="web_services.html" title="Web Services"
              >next</a> |</li>
         <li class="right" >
-          <a href="rmap_syntax.html" title="About Mappings"
+          <a href="reference_conventions.html" title="Reference File Conventions"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.6 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2015, STScI.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>
 </html>

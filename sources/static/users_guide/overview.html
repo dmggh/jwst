@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Package Overview &#8212; crds 7.1.4 documentation</title>
-    
+    <title>Package Overview &#8212; crds 7.1.6 documentation</title>
     <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '7.1.4',
+        VERSION:     '7.1.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -27,14 +24,14 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.6 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -75,7 +72,7 @@ files (e.g. darks, biases) for HST and JWST.   Relative to its predecessor
 CDBS,  the scope of CRDS is considerably broader.</p>
 <p>Primary Function:  Reference File Assignment</p>
 <hr class="docutils" />
-<p>Like it&#8217;s predecessor, the primary function of CRDS is to assign the
+<p>Like it’s predecessor, the primary function of CRDS is to assign the
 appropriate reference files to datasets so that they can be
 calibrated.  Datasets are assigned based on properties of the
 reference files (nominally instrument configurations for which they
@@ -103,7 +100,7 @@ the CDBS database was a single state system, effectively a one way
 trap door, so as new references arrived CDBS lost the capability of
 reproducing past results.</p>
 <p>2. Because CRDS rules are encoded as plain text specifications, they
-are more transparent to human readers. User&#8217;s can merely glance at the
+are more transparent to human readers. User’s can merely glance at the
 rules files, or more generally, glance at the re-rendering of the
 rules files on the CRDS web servers.</p>
 <p>An important if obvious point to make is that the sets of calibration
@@ -118,7 +115,7 @@ adding new references to the system and archive.  CDBS was based on a
 series of command line scripts used to ingest files.  CRDS is based on
 web servers that support uploading files.  One challenge of the web
 interface is the sheer size of file deliveries, at times requiring
-support for dozens or hundreds of files and 10&#8217;s of gigabytes of data.</p>
+support for dozens or hundreds of files and 10’s of gigabytes of data.</p>
 <p>File Certification</p>
 <hr class="docutils" />
 <p>In both systems, a certifier program is used to check basic properties
@@ -131,7 +128,7 @@ tracked.  In CDBS this meant adding files to the reference file
 database that tracked both file metadata and assignment criteria. In
 CRDS this means incrementally generating a new version of rules files
 as well as adding select information to a smaller metadata-only
-database.  Once in CRDS, files don&#8217;t change, they are tracked
+database.  Once in CRDS, files don’t change, they are tracked
 bit-for-bit with checksums to ensure repeatability and exposed only
 through personal downloads or readonly caches.</p>
 <p>Archive Submission</p>
@@ -140,7 +137,7 @@ through personal downloads or readonly caches.</p>
 and tracking systems, both CDBS (now retired) and CRDS pass the files
 along to downstream archive systems.  An extended chain of systems is
 involved but the immediate CRDS delivery interface is known as the
-&#8220;CRDS pipeline.&#8221;   The CRDS pipeline is typically left running but
+“CRDS pipeline.”   The CRDS pipeline is typically left running but
 can be started/stopped by pipeline operators manually.</p>
 <p>New Features of CRDS (Controlled state transistions, history, file distribution, reprocessing, web services, web displays, differencing)</p>
 <hr class="docutils" />
@@ -158,16 +155,16 @@ datasets or complete versions of rules.</p>
 <p>Distributed files are cached by client systems and so in principle are
 downloaded only once.  For the single researcher use case, small sets
 of applicable files can be dynamically downloaded as they are defined
-or updated by CRDS.  For the pipeline use case, the pipeline&#8217;s CRDS
+or updated by CRDS.  For the pipeline use case, the pipeline’s CRDS
 cache can be updated with the complete of available references. This
 scheme works without the need for the replication of, distribution of,
 or authenticated connection to a database.  Although the JWST archive
 interface continues to support an intuitive shopping cart design, the
 CRDS scheme supports automatic incremental updates and obviates the to
 construct tarballs that are effectively unbounded in size.</p>
-<p>Pipeline cache synchronization is managed by a CRDS &#8220;sync&#8221; tool which
+<p>Pipeline cache synchronization is managed by a CRDS “sync” tool which
 is further wrapped by shellscript that handles pipeline concurrency
-issues.  It is possible to update the pipeline&#8217;s CRDS cache in parallel
+issues.  It is possible to update the pipeline’s CRDS cache in parallel
 with pipeline processing of multiple concurrent jobs.</p>
 <p>End user on-demand cache synchronization is performed either by the
 CRDS bestrefs tool (HST) or by built-in features of the JWST
@@ -216,7 +213,7 @@ databases, running relevant parameter sets through past and present
 CRDS rules, and indentifying differences in assigned references.   Those
 datasets for which reference files change become candidates for reprocessing.</p>
 <p>Unlike many systems, despite its complexity the CRDS reprocessing
-system is fully autonomous, triggered by the pipeline operator&#8217;s
+system is fully autonomous, triggered by the pipeline operator’s
 activation of a new set of rules.  As rules are updated, the required
 CRDS computation occurs, the results are captured permanently and
 distributed to the pipeline and remote institutions.</p>
@@ -228,7 +225,7 @@ distributed to the pipeline and remote institutions.</p>
 <p>The CRDS web servers provide an accurate rendition of the current and
 past file assignment criteria in a tabular format.  While it looks
 obvious, the thing of note is that such a system simply did not exist
-with CDBS, and it&#8217;s clear that human maintained tables, while
+with CDBS, and it’s clear that human maintained tables, while
 potentially adding more subjective content, become obsolete as formal
 systems almost overnight.  In contrast CRDS is entirely self-maintaining.</p>
 <p>As part of maintaining versioned rules,  CRDS also provides tracks and
@@ -260,12 +257,12 @@ at least initially, not available elsewere.</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.6 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2015, STScI.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>
 </html>

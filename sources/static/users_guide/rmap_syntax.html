@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>About Mappings &#8212; crds 7.1.4 documentation</title>
-    
+    <title>About Mappings &#8212; crds 7.1.6 documentation</title>
     <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '7.1.4',
+        VERSION:     '7.1.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -26,10 +23,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Using the CRDS Web Site" href="web_site_use.html" />
+    <link rel="next" title="Reference File Conventions" href="reference_conventions.html" />
     <link rel="prev" title="Core Library Functions" href="core_library_functions.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -37,12 +34,12 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="web_site_use.html" title="Using the CRDS Web Site"
+          <a href="reference_conventions.html" title="Reference File Conventions"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="core_library_functions.html" title="Core Library Functions"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.6 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -119,8 +116,8 @@
   <p class="topless"><a href="core_library_functions.html"
                         title="previous chapter">Core Library Functions</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="web_site_use.html"
-                        title="next chapter">Using the CRDS Web Site</a></p>
+  <p class="topless"><a href="reference_conventions.html"
+                        title="next chapter">Reference File Conventions</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -177,10 +174,10 @@ the CDBS web site are named with the forms:</p>
 </div>
 <div class="section" id="basic-structure">
 <h2>Basic Structure<a class="headerlink" href="#basic-structure" title="Permalink to this headline">¶</a></h2>
-<p>All mappings have the same basic structure consisting of a &#8220;header&#8221; section followed by a &#8220;selector&#8221; section.</p>
+<p>All mappings have the same basic structure consisting of a “header” section followed by a “selector” section.</p>
 <div class="section" id="header">
 <h3>header<a class="headerlink" href="#header" title="Permalink to this headline">¶</a></h3>
-<p>The header provides meta data describing the mapping.  A critical field in the mapping header is the &#8220;parkey&#8221;
+<p>The header provides meta data describing the mapping.  A critical field in the mapping header is the “parkey”
 field which names the dataset parameters (nominally FITS keywords or JWST data model names) which are used by
 the selector to do a best references lookup.</p>
 </div>
@@ -221,12 +218,12 @@ structure consisting of top-level selectors and sub-selectors.</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>A pipeline mapping matches the dataset &#8220;INSTRUME&#8221; header keyword against its selector to look up an instrument
+<p>A pipeline mapping matches the dataset “INSTRUME” header keyword against its selector to look up an instrument
 mapping file.</p>
 </div>
 <div class="section" id="instrument-mappings-imap">
 <h2>Instrument Mappings (.imap)<a class="headerlink" href="#instrument-mappings-imap" title="Permalink to this headline">¶</a></h2>
-<p>A sample instrument mapping for HST&#8217;s COS instrument looks like:</p>
+<p>A sample instrument mapping for HST’s COS instrument looks like:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;derived_from&#39;</span> <span class="p">:</span> <span class="s1">&#39;scraped 2011-12-23 11:57:10&#39;</span><span class="p">,</span>
     <span class="s1">&#39;description&#39;</span> <span class="p">:</span> <span class="s1">&#39;Initially generated on 2011-12-23 11:57:10&#39;</span><span class="p">,</span>
@@ -261,7 +258,7 @@ mapping file.</p>
 <p>Instrument mappings match the desired reference file type against the reference mapping which can be used to determine a
 best reference recommendation for a particular dataset.  An instrument mapping lists all possible reference types for
 all modes of the instrument,  some of which may not be appropriate for a particular mode.   The selector key of an
-instrument mapping is the value of a reference file header keyword &#8220;REFTYPE&#8221;,  and is the name of the dataset header
+instrument mapping is the value of a reference file header keyword “REFTYPE”,  and is the name of the dataset header
 keyword which will record the best reference selection.</p>
 </div>
 <div class="section" id="reference-mappings-rmap">
@@ -331,7 +328,7 @@ best reference lookups and results:</p>
 <h3>Required Parameters<a class="headerlink" href="#required-parameters" title="Permalink to this headline">¶</a></h3>
 <p>Required matching parameters for computing best references are defined by the union of 3 header fields:  <em>parkey</em>,
 <em>extra_keys</em>, and  <em>reffile_switch</em>.   There is no requirement to use all 3 forms,  the latter two forms were added
-to model and emulate aspects of HST&#8217;s CDBS system,  the precursor to CRDS.</p>
+to model and emulate aspects of HST’s CDBS system,  the precursor to CRDS.</p>
 <div class="section" id="parkey">
 <h4>parkey<a class="headerlink" href="#parkey" title="Permalink to this headline">¶</a></h4>
 <p>The primary location for defining best references matching parameters is the <em>parkey</em> field.</p>
@@ -340,10 +337,10 @@ seen in pipeline and instrument mappings above.</p>
 <p>In reference mappings,  the header <em>parkey</em> field is a tuple of tuples.  Each stage of the nested selector
 consumes the next tuple of header keys.  The same parameter set and matching structure is shared by all sections
 of a single rmap.   For mode-specific parameters,  two approaches are availble:  use a separate .rmap for each
-parameter combination, or fill in unused parameters for a particular mode with the value &#8216;N/A&#8217;.</p>
+parameter combination, or fill in unused parameters for a particular mode with the value ‘N/A’.</p>
 <p>For the HST COS DEADTAB example above,   the Match operator matches against the value of the dataset keyword
-&#8216;DETECTOR&#8217;.   Based on that match, the selected UseAfter operator matches against the dataset&#8217;s &#8216;DATE-OBS&#8217; and
-&#8216;TIME-OBS&#8217; keywords to lookup the name of a reference file.</p>
+‘DETECTOR’.   Based on that match, the selected UseAfter operator matches against the dataset’s ‘DATE-OBS’ and
+‘TIME-OBS’ keywords to lookup the name of a reference file.</p>
 <p>There is no default for parkey.</p>
 </div>
 <div class="section" id="extra-keys">
@@ -352,14 +349,14 @@ parameter combination, or fill in unused parameters for a particular mode with t
 rmap header expressions and hook functions to influence matching.  Listing parameters in extra_keys ensures that the
 CRDS infrastructure will request the parameters from the server or dataset files and make them available during best
 references computations and logical expression evaluation.   All parameters used in logical expressions must be
-explicitly defined and listed.   Undefined parameters are evaluated with the value &#8216;UNDEFINED&#8217;.</p>
+explicitly defined and listed.   Undefined parameters are evaluated with the value ‘UNDEFINED’.</p>
 <p>If omitted, <em>extra_keys</em> defaults to (),  no extra keys.</p>
 </div>
 <div class="section" id="reffile-switch">
 <h4>reffile_switch<a class="headerlink" href="#reffile-switch" title="Permalink to this headline">¶</a></h4>
-<p>Nominally names a dataset keyword generally of the form &lt;type&gt;CORR with keyword values &#8216;PERFORM&#8217; and &#8216;OMIT&#8217;.</p>
-<p>If <em>reffile_switch</em> is not &#8216;NONE&#8217;,  it specifies an extra keyword value is to fetch from the dataset.</p>
-<p>If <em>reffile_switch</em> is omitted or &#8216;NONE&#8217;,  no keyword value is fetched from the dataset.</p>
+<p>Nominally names a dataset keyword generally of the form &lt;type&gt;CORR with keyword values ‘PERFORM’ and ‘OMIT’.</p>
+<p>If <em>reffile_switch</em> is not ‘NONE’,  it specifies an extra keyword value is to fetch from the dataset.</p>
+<p>If <em>reffile_switch</em> is omitted or ‘NONE’,  no keyword value is fetched from the dataset.</p>
 <p>The runtime checking <em>reffile_switch</em> is used for must be explicitly implemented as part of an <em>rmap_relevance</em> or
 <em>rmap_omit</em> expression as seen in the example header; <em>reffile_switch</em> only specifies an extra parameter to fetch
 for use in logical expressions and matching.  It is logically equivalent to adding the parameter to <em>extra_keys</em>.</p>
@@ -380,38 +377,38 @@ arbitrary Python function calls are not permitted.</li>
 <div class="section" id="reffile-required">
 <h3>reffile_required<a class="headerlink" href="#reffile-required" title="Permalink to this headline">¶</a></h3>
 <p>Defines what should happen if an rmap lookup cannot find a match for a particular reference type.</p>
-<p><em>reffile_required</em> has legal values &#8216;YES&#8217;, &#8216;NO&#8217;, and &#8216;NONE&#8217;.</p>
-<p>If <em>reffile_required</em> is &#8216;YES&#8217;, failing to find a match results in an exception and/or ERROR.</p>
-<p>If <em>reffile_required</em> is &#8216;NONE&#8217;, CDBS did not define <em>reffile_required</em> for this type, so it is assumed to be required.</p>
-<p>If <em>reffile_required</em> is &#8216;NO&#8217;,  failing to find a match results in assigning the value &#8216;N/A&#8217; rather than failing.</p>
+<p><em>reffile_required</em> has legal values ‘YES’, ‘NO’, and ‘NONE’.</p>
+<p>If <em>reffile_required</em> is ‘YES’, failing to find a match results in an exception and/or ERROR.</p>
+<p>If <em>reffile_required</em> is ‘NONE’, CDBS did not define <em>reffile_required</em> for this type, so it is assumed to be required.</p>
+<p>If <em>reffile_required</em> is ‘NO’,  failing to find a match results in assigning the value ‘N/A’ rather than failing.</p>
 </div>
 <div class="section" id="rmap-relevance">
 <h3>rmap_relevance<a class="headerlink" href="#rmap-relevance" title="Permalink to this headline">¶</a></h3>
 <p><em>rmap_relevance</em> is a logical expression which is evaluated in the context of dataset header variables.</p>
 <p>If <em>rmap_relevance</em> evaluates to True, then a full match is performed and the resulting bestref is returned.</p>
-<p>If <em>rmap_relevance</em> evaluates to False, then the match is short circuited and &#8216;N/A&#8217; is assigned.</p>
+<p>If <em>rmap_relevance</em> evaluates to False, then the match is short circuited and ‘N/A’ is assigned.</p>
 </div>
 <div class="section" id="parkey-relevance">
 <h3>parkey_relevance<a class="headerlink" href="#parkey-relevance" title="Permalink to this headline">¶</a></h3>
 <p><em>parkey_relevance</em> defines a mapping from dataset matching parameters to logical expressions.</p>
 <p><em>parkey_relevance</em> is evaluated in the context of the entire set of matching parameters and mutates
-the specified parameter to &#8216;N/A&#8217; if the expression evaluates to False,  i.e. the parameter is not relevant
+the specified parameter to ‘N/A’ if the expression evaluates to False,  i.e. the parameter is not relevant
 in the context of the other parameter values.</p>
-<p>When a parameter value of &#8216;N/A&#8217; is used for matching, the parameter is effectively ignored.</p>
+<p>When a parameter value of ‘N/A’ is used for matching, the parameter is effectively ignored.</p>
 </div>
 <div class="section" id="hooks">
 <h3>hooks<a class="headerlink" href="#hooks" title="Permalink to this headline">¶</a></h3>
 <p>The <em>hooks</em> header section defines functions which are used for special case processing for complex reference
-assignments.   The existing hooks were devised to emulate similar special case handling performed by CRDS&#8217;s
+assignments.   The existing hooks were devised to emulate similar special case handling performed by CRDS’s
 predecessor system CDBS.</p>
 <p>The original &lt;100 series of HST rules had implicit hooks.  CRDS rules &gt;200 have hooks which are explicitly
-named in the &#8216;hooks&#8217; section of the header which indicates that customized matching is being performed.   Running
-crds.bestrefs with &#8211;verbosity=60 wil issue log messages describing hook operations.</p>
+named in the ‘hooks’ section of the header which indicates that customized matching is being performed.   Running
+crds.bestrefs with –verbosity=60 wil issue log messages describing hook operations.</p>
 <p>new hook functions can only be added with a new release of CRDS code.   hook functions have versioned names and should
 never be modified after use in operations since that would change the meaning of historical .rmaps.  Instead,  a new
 hook function should be added and the .rmap header modified to assign it.</p>
-<p>hook functions can be &#8216;unplugged&#8217; in an operational .rmap by setting the value of the hook to &#8216;none&#8217;.  Removing the
-&#8216;hooks&#8217; section of the .rmap header, or removing individual hook names, currently results in reversion to &lt;100 series
+<p>hook functions can be ‘unplugged’ in an operational .rmap by setting the value of the hook to ‘none’.  Removing the
+‘hooks’ section of the .rmap header, or removing individual hook names, currently results in reversion to &lt;100 series
 .rmap behavior and the original implicit hook functions.</p>
 <div class="section" id="precondition-header">
 <h4>precondition_header<a class="headerlink" href="#precondition-header" title="Permalink to this headline">¶</a></h4>
@@ -501,7 +498,7 @@ Relationals, between, N/A, and Substitutions.</p>
 <div class="section" id="or">
 <h4>Or |<a class="headerlink" href="#or" title="Permalink to this headline">¶</a></h4>
 <p>Many CRDS match expressions consist of a series of match patterns separated by vertical bars.   The vertical bar is read
-as &#8220;or&#8221; and means that a match occurs if either pattern matches that dataset header.   For example, the expression:</p>
+as “or” and means that a match occurs if either pattern matches that dataset header.   For example, the expression:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;either_this|that&quot;</span><span class="p">,</span><span class="s2">&quot;1|2|3&quot;</span><span class="p">)</span>  <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
 </pre></div>
 </div>
@@ -521,7 +518,7 @@ sequence of characters.  The expression:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;F*122&quot;</span><span class="p">,)</span> <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
 </pre></div>
 </div>
-<p>will match any value starting with &#8220;F&#8221; and ending with &#8220;122&#8221;.</p>
+<p>will match any value starting with “F” and ending with “122”.</p>
 </div>
 <div class="section" id="regular-expressions">
 <h4>Regular Expressions<a class="headerlink" href="#regular-expressions" title="Permalink to this headline">¶</a></h4>
@@ -530,9 +527,9 @@ triggered by bracketing the match in parentheses ():</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;(^F[^13]22$)&quot;</span><span class="p">,)</span>  <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
 </pre></div>
 </div>
-<p>The above corresponds to matching the regular expression &#8220;^F[^1234]22$&#8221; (note that the bracketing parentheses within the
+<p>The above corresponds to matching the regular expression “^F[^1234]22$” (note that the bracketing parentheses within the
 string are removed.)   Regular expression syntax is explained in the Python documentation for the re module. The above
-expression will match values starting with &#8220;F&#8221;, followed by any character which is not &#8220;1&#8221; or &#8220;3&#8221; followed by &#8220;22&#8221;.</p>
+expression will match values starting with “F”, followed by any character which is not “1” or “3” followed by “22”.</p>
 </div>
 <div class="section" id="literal-expressions">
 <h4>Literal Expressions<a class="headerlink" href="#literal-expressions" title="Permalink to this headline">¶</a></h4>
@@ -542,7 +539,7 @@ interpreted literally rather than as ors or wildcards.  The expression:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;{F|*G}&quot;</span><span class="p">,)</span> <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
 </pre></div>
 </div>
-<p>matches the value &#8220;F|*G&#8221; as opposed to &#8220;F&#8221; or anything ending with &#8220;G&#8221;.</p>
+<p>matches the value “F|*G” as opposed to “F” or anything ending with “G”.</p>
 </div>
 <div class="section" id="relational-expressions">
 <h4>Relational Expressions<a class="headerlink" href="#relational-expressions" title="Permalink to this headline">¶</a></h4>
@@ -560,7 +557,7 @@ Relational expressions have implicit variables and support the operators:</p>
 </div>
 <div class="section" id="between">
 <h4>Between<a class="headerlink" href="#between" title="Permalink to this headline">¶</a></h4>
-<p>A special relational operator &#8220;between&#8221; is used to simply express a range
+<p>A special relational operator “between” is used to simply express a range
 of numbers &gt;= to the lower bound and &lt; the upper bound,  similar to Python
 slicing:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;between 1  47&quot;</span><span class="p">,)</span> <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
@@ -571,7 +568,7 @@ equivalent to:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;# &gt;=1 and &lt;47 #&quot;</span><span class="p">,)</span> <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
 </pre></div>
 </div>
-<p>Note that &#8220;between&#8221; matches sensibly stack into a complete range.  The expressions:</p>
+<p>Note that “between” matches sensibly stack into a complete range.  The expressions:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;between 1 47&quot;</span><span class="p">,)</span> <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
 <span class="p">(</span><span class="s2">&quot;between 47 90&quot;</span><span class="p">,</span> <span class="p">)</span> <span class="p">:</span> <span class="s2">&quot;another_file.fits&quot;</span>
 </pre></div>
@@ -580,9 +577,9 @@ equivalent to:</p>
 </div>
 <div class="section" id="n-a">
 <h4>N/A<a class="headerlink" href="#n-a" title="Permalink to this headline">¶</a></h4>
-<p>Some rmaps have match tuple values of &#8220;N/A&#8221;,  or Not Applicable.
-A value of N/A is matched as a special version of &#8220;*&#8221;, matching anything,  but
-not affecting the &#8220;weight&#8221; of the match:</p>
+<p>Some rmaps have match tuple values of “N/A”,  or Not Applicable.
+A value of N/A is matched as a special version of “*”, matching anything,  but
+not affecting the “weight” of the match:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s1">&#39;HRC&#39;</span><span class="p">,</span> <span class="s1">&#39;N/A&#39;</span><span class="p">)</span> <span class="p">:</span>  <span class="s2">&quot;some_file.fits&quot;</span>
 </pre></div>
 </div>
@@ -590,13 +587,13 @@ not affecting the &#8220;weight&#8221; of the match:</p>
 irrelevant in the context of the other parameters.   So for an rmap which covers
 multiple instrument modes,  a parameter may not apply to all modes. Second,
 sometimes a parameter is relevant to custom lookup code,  but is not used by the
-match directly.  In this second case,   the &#8220;N/A&#8221; parameter may be used by custom
+match directly.  In this second case,   the “N/A” parameter may be used by custom
 header preconditioning code to assist in mutating the other parameter values
 that <em>are</em> used in the match.</p>
 </div>
 <div class="section" id="not-expressions">
 <h4>NOT Expressions<a class="headerlink" href="#not-expressions" title="Permalink to this headline">¶</a></h4>
-<p>It&#8217;s possible to match the negation of match expressions by pre-pending &#8220;NOT &#8221;
+<p>It’s possible to match the negation of match expressions by pre-pending “NOT ”
 to the unnegated expression.   For example:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s1">&#39;not HRC&#39;</span><span class="p">,</span> <span class="s1">&#39;N/A&#39;</span><span class="p">)</span> <span class="p">:</span>  <span class="s2">&quot;not_some_file.fits&quot;</span>
 </pre></div>
@@ -610,7 +607,7 @@ expression: -1 -&gt; 1, 1 -&gt; -1, 0 -&gt; 0.</p>
 duplicate rmap rules.  In order to support WFC3 biasfile conventions,  CRDS
 rmaps permit the definition of meta-match-values which correspond to a set of
 actual dataset header values. For instance,  when an rmap header contains a
-&#8220;substitutions&#8221; field like this:</p>
+“substitutions” field like this:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="s1">&#39;substitutions&#39;</span> <span class="p">:</span> <span class="p">{</span>
     <span class="s1">&#39;CCDAMP&#39;</span> <span class="p">:</span> <span class="p">{</span>
         <span class="s1">&#39;G280_AMPS&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;ABCD&#39;</span><span class="p">,</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;AC&#39;</span><span class="p">,</span> <span class="s1">&#39;AD&#39;</span><span class="p">,</span> <span class="s1">&#39;BC&#39;</span><span class="p">,</span> <span class="s1">&#39;BD&#39;</span><span class="p">),</span>
@@ -638,9 +635,9 @@ discarding match tuples which cannot possibly match. After examining all
 parameters,   CRDS is left with a list of candidate matches.</p>
 <p>For each literal, *, or regular expression parameter that matched,  CRDS
 increases its sense of the goodness of the match by 1.   For each N/A that was
-ignored, CRDS doesn&#8217;t change the weight of the match.   The highest ranked match
+ignored, CRDS doesn’t change the weight of the match.   The highest ranked match
 is the one CRDS chooses as best.   When more than one match tuple has the same
-highest rank, we call this an &#8220;ambiguous&#8221; match.   Ambiguous matches will
+highest rank, we call this an “ambiguous” match.   Ambiguous matches will
 either be merged,  or treated as errors/exceptions that cause the match to fail.
 Talk about ambiguity.</p>
 <p>For the initial HST rmaps, there are a number of match cases which overlap,
@@ -673,11 +670,11 @@ the single format shown in the rmap example below:</p>
 <span class="p">})</span>
 </pre></div>
 </div>
-<p>In the above mapping,  when the detector is HRC,  if the dataset&#8217;s date/time
+<p>In the above mapping,  when the detector is HRC,  if the dataset’s date/time
 is before 1991-01-01,  there is no match.   If the date/time is between
-1991-01-01 and 1992-01-01,  the reference file &#8216;j4d1435hj_a2d.fits&#8217; is matched.
+1991-01-01 and 1992-01-01,  the reference file ‘j4d1435hj_a2d.fits’ is matched.
 If the dataset date/time is 1992-01-01 or after,  the recommended reference
-file is &#8216;kcb1734ij_a2d.fits&#8217;</p>
+file is ‘kcb1734ij_a2d.fits’</p>
 </div>
 <div class="section" id="selectversion">
 <h3>SelectVersion<a class="headerlink" href="#selectversion" title="Permalink to this headline">¶</a></h3>
@@ -705,7 +702,7 @@ the closest time which either precedes or follows the given parameter value:</p>
 <span class="p">})</span>
 </pre></div>
 </div>
-<p>So a parameter of &#8216;2017-04-25 00:00:00&#8217; would select &#8216;cref_flatfield_123.fits&#8217;.</p>
+<p>So a parameter of ‘2017-04-25 00:00:00’ would select ‘cref_flatfield_123.fits’.</p>
 </div>
 <div class="section" id="geometricallynearest">
 <h3>GeometricallyNearest<a class="headerlink" href="#geometricallynearest" title="Permalink to this headline">¶</a></h3>
@@ -719,7 +716,7 @@ the supplied parameter is chosen:</p>
 <span class="p">})</span>
 </pre></div>
 </div>
-<p>In this case,  a value of 1.3 would match &#8216;cref_flatfield_120.fits&#8217;.</p>
+<p>In this case,  a value of 1.3 would match ‘cref_flatfield_120.fits’.</p>
 </div>
 <div class="section" id="bracket">
 <h3>Bracket<a class="headerlink" href="#bracket" title="Permalink to this headline">¶</a></h3>
@@ -753,17 +750,17 @@ enclose the supplied parameter value:</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="web_site_use.html" title="Using the CRDS Web Site"
+          <a href="reference_conventions.html" title="Reference File Conventions"
              >next</a> |</li>
         <li class="right" >
           <a href="core_library_functions.html" title="Core Library Functions"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.6 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2015, STScI.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>
 </html>

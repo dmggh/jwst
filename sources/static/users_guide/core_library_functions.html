@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Core Library Functions &#8212; crds 7.1.4 documentation</title>
-    
+    <title>Core Library Functions &#8212; crds 7.1.6 documentation</title>
     <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '7.1.4',
+        VERSION:     '7.1.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -29,7 +26,7 @@
     <link rel="next" title="About Mappings" href="rmap_syntax.html" />
     <link rel="prev" title="Library Use" href="top_level_use.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -42,7 +39,7 @@
         <li class="right" >
           <a href="top_level_use.html" title="Library Use"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.6 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -111,12 +108,12 @@ observatory packages define how mappings are named, where they are placed,
 and how reference files are checked.</p>
 <div class="section" id="overview-of-features">
 <h2>Overview of Features<a class="headerlink" href="#overview-of-features" title="Permalink to this headline">¶</a></h2>
-<p>Using the crds package it&#8217;s possible to:</p>
+<p>Using the crds package it’s possible to:</p>
 <ul class="simple">
 <li>Load and operate on rmaps</li>
 <li>Determine best reference files for a dataset</li>
 <li>Check mapping syntax and verify checksum</li>
-<li>Certify that a mapping and all it&#8217;s dependencies exist and are valid</li>
+<li>Certify that a mapping and all it’s dependencies exist and are valid</li>
 <li>Certify that a reference file meets important constraints</li>
 <li>Add checksums to mappings</li>
 <li>Determine the closure of mappings which reference a particular file.</li>
@@ -130,7 +127,7 @@ networked CRDS development will first be concerned with:</p>
 <li><dl class="first docutils">
 <dt>crds.rmap module</dt>
 <dd><dl class="first last docutils">
-<dt>&#8211; defines classes which load and operate on mapping files</dt>
+<dt>– defines classes which load and operate on mapping files</dt>
 <dd><ul class="first last">
 <li>Mapping</li>
 <li>PipelineContext (.pmap)</li>
@@ -138,7 +135,7 @@ networked CRDS development will first be concerned with:</p>
 <li>ReferenceMapping (.rmap)</li>
 </ul>
 </dd>
-<dt>&#8211; defines get_cached_mapping() function</dt>
+<dt>– defines get_cached_mapping() function</dt>
 <dd><ul class="first last">
 <li>loads and caches a Mapping or subclass instances from files,
 typically this is a recursive process loading pipeline or instrument
@@ -155,7 +152,7 @@ file transfers.</li>
 <li><dl class="first docutils">
 <dt>crds.selectors module</dt>
 <dd><dl class="first last docutils">
-<dt>&#8211; defines classes implementing best reference logic</dt>
+<dt>– defines classes implementing best reference logic</dt>
 <dd><ul class="first last">
 <li>MatchSelector</li>
 <li>UseAfterSelector</li>
@@ -180,25 +177,25 @@ active object version by loading the file:</p>
 </pre></div>
 </div>
 <p>The load_mapping() function will take any mapping and instantiate it and all of
-it&#8217;s child mappings into various nested Mapping subclasses:  PipelineContext,
+it’s child mappings into various nested Mapping subclasses:  PipelineContext,
 InstrumentContext, or ReferenceMapping.</p>
 <p>Loading an rmap implicitly screens it for invalid syntax and requires that the
-rmap&#8217;s checksum (sha1sum) be valid by default.</p>
+rmap’s checksum (sha1sum) be valid by default.</p>
 <p>Since HST has on the order of 70  mappings, this is a fairly slow process
 requiring a couple seconds to execute.  In order to speed up repeated access to
-the same Mapping,  there&#8217;s a mapping cache maintained by the rmap module and
+the same Mapping,  there’s a mapping cache maintained by the rmap module and
 accessed like this:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hst</span> <span class="o">=</span> <span class="n">rmap</span><span class="o">.</span><span class="n">get_cached_mapping</span><span class="p">(</span><span class="s2">&quot;hst.pmap&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The behavior of the cached mapping is identical to the &#8220;loaded&#8221; mapping and
+<p>The behavior of the cached mapping is identical to the “loaded” mapping and
 subsequent calls are nearly instant.</p>
 </div>
 <div class="section" id="seeing-referenced-names">
 <h3>Seeing Referenced Names<a class="headerlink" href="#seeing-referenced-names" title="Permalink to this headline">¶</a></h3>
 <p>CRDS Mapping classes all know how to show you the files referenced by themselves
 and their descendents.   The ACS instrument context has a reference mapping for
-each of it&#8217;s associated file kinds:</p>
+each of it’s associated file kinds:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">acs</span> <span class="o">=</span> <span class="n">rmap</span><span class="o">.</span><span class="n">get_cached_mapping</span><span class="p">(</span><span class="s2">&quot;hst_acs.imap&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">acs</span><span class="o">.</span><span class="n">mapping_names</span><span class="p">()</span>
 <span class="go">[&#39;hst_acs.imap&#39;,</span>
@@ -233,7 +230,7 @@ each of it&#8217;s associated file kinds:</p>
 <p>The primary function of CRDS is the computation of best reference files based
 upon a dictionary of dataset metadata.   Hence,  both an InstrumentContext and a
 ReferenceMapping can meaningfully return the best references for a dataset based
-upon a parameter dictionary.   It&#8217;s possible define a header as any Python
+upon a parameter dictionary.   It’s possible define a header as any Python
 dictionary provided you have sufficient knowledge of the parameters:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span> <span class="n">hdr</span> <span class="o">=</span> <span class="p">{</span> <span class="o">...</span> <span class="n">what</span> <span class="n">matters</span> <span class="n">most</span> <span class="o">...</span> <span class="p">}</span>
 </pre></div>
@@ -285,8 +282,8 @@ the best references for <em>all</em> filekinds for that instrument:</p>
 </pre></div>
 </div>
 <p>In the above results,  FITS files are the recommended best references,  while
-a value of &#8220;NOT FOUND n/a&#8221; indicates that no result was expected for the current
-instrument mode as defined in the header.   Other values of &#8220;NOT FOUND xxx&#8221;
+a value of “NOT FOUND n/a” indicates that no result was expected for the current
+instrument mode as defined in the header.   Other values of “NOT FOUND xxx”
 include an error message xxx which hints at why no result was found,  such as
 an invalid dataset parameter value or simply a matching failure.</p>
 <p>You can ask a ReferenceMapping for the best reference for single the filekind
@@ -305,7 +302,7 @@ instrument of that dataset:</p>
 </pre></div>
 </div>
 <p>Here it is critical to call get_minimum_header on the pipeline context, hst,
-because this will make it include the &#8220;INSTRUME&#8221; parameter needed to choose
+because this will make it include the “INSTRUME” parameter needed to choose
 the ACS instrument.</p>
 </div>
 </div>
@@ -319,7 +316,7 @@ contents are intact.</p>
 <h3>Ignoring Checksums!<a class="headerlink" href="#ignoring-checksums" title="Permalink to this headline">¶</a></h3>
 <p>Ordinarily,  during pipeline operations,  ignoring checksums should not be done.
 Ironically though,  the first thing you may want to do as a developer is ignore
-the checksum while you load a mapping you&#8217;ve edited:</p>
+the checksum while you load a mapping you’ve edited:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">rmap</span><span class="o">.</span><span class="n">load_mapping</span><span class="p">(</span><span class="s2">&quot;hst.pmap&quot;</span><span class="p">,</span> <span class="n">ignore_checksum</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -331,7 +328,7 @@ while you iterate on new versions of the mapping:</p>
 </div>
 <div class="section" id="adding-checksums">
 <h3>Adding Checksums<a class="headerlink" href="#adding-checksums" title="Permalink to this headline">¶</a></h3>
-<p>Once you&#8217;ve finished your masterpiece ReferenceMapping,  it can be sealed with
+<p>Once you’ve finished your masterpiece ReferenceMapping,  it can be sealed with
 a checksum like this:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">checksum</span> <span class="o">/</span><span class="n">where</span><span class="o">/</span><span class="n">it</span><span class="o">/</span><span class="n">really</span><span class="o">/</span><span class="ow">is</span><span class="o">/</span><span class="n">hst_acs_my_masterpiece</span><span class="o">.</span><span class="n">rmap</span>
 </pre></div>
@@ -358,12 +355,12 @@ a checksum like this:</p>
         <li class="right" >
           <a href="top_level_use.html" title="Library Use"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.6 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2015, STScI.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>
 </html>

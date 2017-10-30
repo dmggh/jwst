@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Web Services &#8212; crds 7.1.4 documentation</title>
-    
+    <title>Web Services &#8212; crds 7.1.6 documentation</title>
     <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '7.1.4',
+        VERSION:     '7.1.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -29,7 +26,7 @@
     <link rel="next" title="CRDS Database Access" href="database.html" />
     <link rel="prev" title="Using the CRDS Web Site" href="web_site_use.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -42,7 +39,7 @@
         <li class="right" >
           <a href="web_site_use.html" title="Using the CRDS Web Site"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.6 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -75,7 +72,7 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#jsonrpc-protocol">JSONRPC Protocol</a><ul>
-<li><a class="reference internal" href="#sample-url-s">Sample URL&#8217;s</a><ul>
+<li><a class="reference internal" href="#sample-url-s">Sample URL’s</a><ul>
 <li><a class="reference internal" href="#jwst-url">JWST URL</a></li>
 <li><a class="reference internal" href="#hst-url">HST URL</a></li>
 </ul>
@@ -145,7 +142,7 @@ server for retrieval by <em>get_remote_context()</em>.</p>
 <h3>Centralized Default<a class="headerlink" href="#centralized-default" title="Permalink to this headline">¶</a></h3>
 <p><strong>get_default_context(observatory)</strong></p>
 <p>get_default_context() returns the name of the context which is
-currently in use by default in the archive pipeline, e.g. &#8216;jwst_0001.pmap&#8217;.
+currently in use by default in the archive pipeline, e.g. ‘jwst_0001.pmap’.
 This value is set and maintained on the CRDS Server.   The actual pipeline context
 differs from this commanded valuer until the pipeline is synchronized with the CRDS
 server using cron_sync.</p>
@@ -156,18 +153,18 @@ server using cron_sync.</p>
 </pre></div>
 </div>
 <p>See the explanation of JSONRPC requests and responses below for a language and library
-neutral example of calling the same CRDS web service using the command line program &#8220;curl&#8221;.</p>
+neutral example of calling the same CRDS web service using the command line program “curl”.</p>
 </div>
 <div class="section" id="pipeline-echo">
 <h3>Pipeline Echo<a class="headerlink" href="#pipeline-echo" title="Permalink to this headline">¶</a></h3>
 <p><strong>get_remote_context(observatory, pipeline_name)</strong></p>
 <p>get_remote_context() returns the name of the context last reported as
-synced by the specified <em>pipeline_name</em> (e.g. &#8216;jwst-ops-pipeline&#8217;).  This is
-the value stored in a pipeline&#8217;s CRDS cache and echoed back to the CRDS server
+synced by the specified <em>pipeline_name</em> (e.g. ‘jwst-ops-pipeline’).  This is
+the value stored in a pipeline’s CRDS cache and echoed back to the CRDS server
 when the cache is synchronized.  Since this value is inapplicable if a pipeline
-is run in &#8220;remote&#8221; mode computing best references on the CRDS Server, the
+is run in “remote” mode computing best references on the CRDS Server, the
 generally preferred value is from get_default_context() since it always
-reflects the intended operational context regardless of the pipeline&#8217;s CRDS
+reflects the intended operational context regardless of the pipeline’s CRDS
 mode.</p>
 <p>The actual default context for a pipeline can be obtained as follows:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span> <span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">CRDS</span> <span class="k">import</span> <span class="n">client</span>
@@ -281,7 +278,7 @@ type names onto recommended reference file names.</p>
 although any archived CRDS context file can be specified.</p>
 <p>The <em>header</em> parameter of get_best_references is nominally a JSON object which
 maps CRDS parkey names onto dataset file header values.   CRDS parkey names can
-be located by browsing reference mappings (.rmap&#8217;s) and looking at the <em>parkey</em>
+be located by browsing reference mappings (.rmap’s) and looking at the <em>parkey</em>
 header parameter of the rmap.</p>
 <p>For JWST,  the rmap parkeys (matching parameter names) are currently specified
 as JWST stpipe data model dotted identifiers.  Example JSON for the get_best_references
@@ -310,7 +307,7 @@ returned with the value <em>NOT FOUND n/a</em>.</p>
 </div>
 <p>Because <strong>get_best_references</strong> determines references for a list of types,  lookup
 errors are reported by setting the value of a reference type to
-&#8220;NOT FOUND &#8221; + error_message.   A value of &#8220;NOT FOUND n/a&#8221; indicates that CRDS
+“NOT FOUND ” + error_message.   A value of “NOT FOUND n/a” indicates that CRDS
 determined that a particular reference type does not apply to the given
 parameter set.</p>
 </div>
@@ -330,7 +327,7 @@ datasets:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="n">dataset_id</span> <span class="p">:</span> <span class="n">best_references</span><span class="p">,</span> <span class="o">...</span> <span class="p">}</span>
 </pre></div>
 </div>
-<p>Where <em>dataset_id</em> is nominally an HST IPPPSSOOT id (e.g. &#8216;I9ZF01010&#8217;) or JWST
+<p>Where <em>dataset_id</em> is nominally an HST IPPPSSOOT id (e.g. ‘I9ZF01010’) or JWST
 dataset identifier (TBD).  Since <em>dataset_id</em> is only a keyword not used in best
 references computations, it can be any unique abstract identifier consisting of
 alphanumeric characters, period, colon, hyphen, or plus sign of 128 characters
@@ -393,7 +390,7 @@ context (or date) can be obtained as follows.</p>
 <span class="go"> &#39;JW80500018001_02101_00003.MIRIFUSHORT:JW80500018001_02101_00003.MIRIFUSHORT&#39;]</span>
 </pre></div>
 </div>
-<p>Alternately the abstract default context can be specified as &#8220;&lt;project&gt;-operational&#8221;, as in:</p>
+<p>Alternately the abstract default context can be specified as “&lt;project&gt;-operational”, as in:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_dataset_ids</span><span class="p">(</span><span class="s2">&quot;jwst-operational&quot;</span><span class="p">,</span> <span class="s2">&quot;miri&quot;</span><span class="p">)</span>
 <span class="go">[&#39;JW80500017001_02101_00001.MIRIFUSHORT:JW80500017001_02101_00001.MIRIFUSHORT&#39;,</span>
 <span class="go"> &#39;J80500020001_02101_00001.MIRIFUSHORT:JW80500020001_02101_00001.MIRIFUSHORT&#39;,</span>
@@ -420,9 +417,9 @@ context (or date) can be obtained as follows.</p>
 <p>As can be seen above, currently JWST IDs are redundant and &lt;whole&gt; and &lt;part&gt;
 are identical.  However, conceptually the IDs have that relationship and may be
 further elaborated and differentiated in later builds (post-jwst-build-7).  In
-such a case,  several exposure level IDs (&lt;parts&gt;&#8217;s) might have an identical
+such a case,  several exposure level IDs (&lt;parts&gt;’s) might have an identical
 common root (&lt;whole&gt;).</p>
-<p>In both cases it&#8217;s possible to specify either half of an ID returned by
+<p>In both cases it’s possible to specify either half of an ID returned by
 get_dataset_ids() to request matching parameters or best references using the
 services below.</p>
 <p>For HST requesting parameters using only the &lt;product_id&gt; returns the
@@ -468,9 +465,9 @@ during the course of development; use get_dataset_ids() documented above to
 obtain up-to-date example IDs.</p>
 <p><em>date</em> is a date-based CRDS context specifier, e.g.: jwst_0192.pmap,
 2015-05-25T00:00:27, jwst-operational</p>
-<p><em>ids</em> is a list of valid archive dataset ids.  For JWST it&#8217;s currently natural
+<p><em>ids</em> is a list of valid archive dataset ids.  For JWST it’s currently natural
 and supported to use either half (currently identical) of the dataset IDs as
-specified in get_dataset_ids() above.  Using a &#8220;half-ID&#8221; is shown below.
+specified in get_dataset_ids() above.  Using a “half-ID” is shown below.
 Ultimately the first half will identify a group of exposures and the second
 half will identify a single exposure in the group.  A maximum of 200 ids should
 be requested per call.</p>
@@ -508,8 +505,8 @@ be requested per call.</p>
 </pre></div>
 </div>
 <p>The value returned is a mapping from dataset ids to a pair of values.  The
-first value of the id result pair is a boolean with the sense &#8220;completed
-successfully&#8221;.</p>
+first value of the id result pair is a boolean with the sense “completed
+successfully”.</p>
 <p>The second value has a variable type depending on the boolean value.  If the ID
 was successful, the second value of the pair is a list of file names.  If the
 ID was unsuccessful, the second value of the pair is a string describing the
@@ -526,7 +523,7 @@ only those types that could be successfully assigned with the given context
 (date) and parameter set. Types which are assigned the value N/A are also
 silently dropped.</p>
 <p>Under the hood the <em>get_aui_best_references()</em> function is a language agnostic JSONRPC call
-which can be called from the UNIX command line by e.g. &#8220;curl&#8221; as follows:</p>
+which can be called from the UNIX command line by e.g. “curl” as follows:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">curl</span> <span class="o">-</span><span class="n">i</span> <span class="o">-</span><span class="n">X</span> <span class="n">POST</span> <span class="o">-</span><span class="n">d</span> <span class="s1">&#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;method&quot;: &quot;get_aui_best_references&quot;, &quot;params&quot;: [&quot;2016-01-01&quot;, [&quot;JW80500017001_02101_00001.MIRIFUSHORT&quot;]], &quot;id&quot;: 1}&#39;</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">jwst</span><span class="o">-</span><span class="n">crds</span><span class="o">.</span><span class="n">stsci</span><span class="o">.</span><span class="n">edu</span><span class="o">/</span><span class="n">json</span><span class="o">/</span>
 <span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span> <span class="mi">200</span> <span class="n">OK</span>
 <span class="n">Date</span><span class="p">:</span> <span class="n">Mon</span><span class="p">,</span> <span class="mi">25</span> <span class="n">Jul</span> <span class="mi">2016</span> <span class="mi">20</span><span class="p">:</span><span class="mi">03</span><span class="p">:</span><span class="mi">13</span> <span class="n">GMT</span>
@@ -556,7 +553,7 @@ calibration software release and used to select a particular versions reference
 file within a CRDS context.</p>
 <p><em>context</em> is a CRDS context name which is used to interpret <em>master_version</em> to
 define the versions reference file corresponding to an overall s/w
-release. Typically the string &#8220;null&#8221; should be used to select the current CRDS
+release. Typically the string “null” should be used to select the current CRDS
 versions translation context in use in the JWST pipeline.  It is anticipated
 that the definitions of software versions should be relatively stable and
 additive as new contexts are generated.</p>
@@ -587,25 +584,25 @@ language agnostic view of the conceptual return value:</p>
 <span class="go">}</span>
 </pre></div>
 </div>
-<p>where ... indicates that the full contents of the object are not being
+<p>where … indicates that the full contents of the object are not being
 displayed.</p>
-<p>The alternative abstract context identifier &#8220;jwst-versions&#8221; may be used en lieu
-of &#8220;null&#8221;.  The translation of the &#8220;jwst-versions&#8221; identifier is maintained on
-the CRDS server as a more literal context name such as &#8220;jwst_0059.pmap&#8221;.  The
-value associated with &#8220;jwst-versions&#8221; or &#8220;null&#8221; will nominally be updated on
+<p>The alternative abstract context identifier “jwst-versions” may be used en lieu
+of “null”.  The translation of the “jwst-versions” identifier is maintained on
+the CRDS server as a more literal context name such as “jwst_0059.pmap”.  The
+value associated with “jwst-versions” or “null” will nominally be updated on
 the CRDS server whenever a new master version is defined.</p>
-<p>The intended purpose of the &#8220;jwst-versions&#8221; tag is to name the most capable
+<p>The intended purpose of the “jwst-versions” tag is to name the most capable
 context for use in translating calibration master versions.  Unlike the
-abstract name &#8220;jwst-operational&#8221; that describes the default context used to
-define calibration references, it is anticipated that &#8220;jwst-versions&#8221; will
+abstract name “jwst-operational” that describes the default context used to
+define calibration references, it is anticipated that “jwst-versions” will
 never or rarely ever revert to older versions of CRDS rules.  This is because
-&#8220;version facts&#8221; should not in general change once they&#8217;re defined, 0.6.0 should
-mean the same thing in every epoch, whereas it&#8217;s valid for calibration
+“version facts” should not in general change once they’re defined, 0.6.0 should
+mean the same thing in every epoch, whereas it’s valid for calibration
 reference assignments to change over time.</p>
 <p>Nevertheless, in the case of anomalous situations related to CAL_VER, alternate
 CRDS contexts may be explicitly named to specify different rules by which to
 translate master version names.  Alternately, the value associated with
-&#8220;jwst-versions&#8221; (or &#8220;null&#8221;) can be redefined on the CRDS server.</p>
+“jwst-versions” (or “null”) can be redefined on the CRDS server.</p>
 <p>The following curl command line shows the full expansion of the same service
 example wrapped in the JSONRPC protocol in a language agnostic way:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">i</span> <span class="o">-</span><span class="n">X</span> <span class="n">POST</span> <span class="o">-</span><span class="n">d</span> <span class="s1">&#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;method&quot;: &quot;get_system_versions&quot;, &quot;params&quot;: [&quot;0.6.0noop.dev307&quot;,&quot;null&quot;], &quot;id&quot;: 1}&#39;</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">jwst</span><span class="o">-</span><span class="n">crds</span><span class="o">-</span><span class="n">dit</span><span class="o">.</span><span class="n">stsci</span><span class="o">.</span><span class="n">edu</span><span class="o">/</span><span class="n">json</span><span class="o">/</span>
@@ -621,7 +618,7 @@ example wrapped in the JSONRPC protocol in a language agnostic way:</p>
 </pre></div>
 </div>
 <p>This example shows the structure of a response string for a query with an error,
-&#8220;result&#8221; is set to null and &#8220;error&#8221; describes the problem in more detail,  most
+“result” is set to null and “error” describes the problem in more detail,  most
 notably with the response.error.message string:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">curl</span> <span class="o">-</span><span class="n">i</span> <span class="o">-</span><span class="n">X</span> <span class="n">POST</span> <span class="o">-</span><span class="n">d</span> <span class="s1">&#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;method&quot;: &quot;get_system_versions&quot;, &quot;params&quot;: [&quot;an,invalid(version)&quot;,&quot;null&quot;], &quot;id&quot;: 1}&#39;</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">jwst</span><span class="o">-</span><span class="n">crds</span><span class="o">-</span><span class="n">dit</span><span class="o">.</span><span class="n">stsci</span><span class="o">.</span><span class="n">edu</span><span class="o">/</span><span class="n">json</span><span class="o">/</span>
 <span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span> <span class="mi">200</span> <span class="n">OK</span>
@@ -640,7 +637,7 @@ notably with the response.error.message string:</p>
 <div class="section" id="jsonrpc-protocol">
 <h2>JSONRPC Protocol<a class="headerlink" href="#jsonrpc-protocol" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="sample-url-s">
-<h3>Sample URL&#8217;s<a class="headerlink" href="#sample-url-s" title="Permalink to this headline">¶</a></h3>
+<h3>Sample URL’s<a class="headerlink" href="#sample-url-s" title="Permalink to this headline">¶</a></h3>
 <p>The base URL used for making CRDS JSONRPC method calls is essentially <em>/json/</em>.
 All further information,  including the method name and the parameters,  are
 POSTed using a JSON serialization scheme.   Example absolute server URLs are:</p>
@@ -657,7 +654,7 @@ POSTed using a JSON serialization scheme.   Example absolute server URLs are:</p
 </div>
 <div class="section" id="generic-request">
 <h3>Generic Request<a class="headerlink" href="#generic-request" title="Permalink to this headline">¶</a></h3>
-<p>JSONRPC requests are made by POST&#8217;ing a set of variables to the appropriate URL.</p>
+<p>JSONRPC requests are made by POST’ing a set of variables to the appropriate URL.</p>
 <p>An example CRDS service request can be demonstrated in a language agnostic way
 using the UNIX command line utility curl:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">curl</span> <span class="o">-</span><span class="n">i</span> <span class="o">-</span><span class="n">X</span> <span class="n">POST</span> <span class="o">-</span><span class="n">d</span> <span class="s1">&#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;method&quot;: &quot;get_default_context&quot;, &quot;params&quot;: [&quot;jwst&quot;], &quot;id&quot;: 1}&#39;</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">jwst</span><span class="o">-</span><span class="n">crds</span><span class="o">.</span><span class="n">stsci</span><span class="o">.</span><span class="n">edu</span><span class="o">/</span><span class="n">json</span><span class="o">/</span>
@@ -687,7 +684,7 @@ text about the error.</p>
 <div class="section" id="demo-page">
 <h3>Demo Page<a class="headerlink" href="#demo-page" title="Permalink to this headline">¶</a></h3>
 <p>The CRDS servers support demoing the JSONRPC services and calling them interactively
-by visiting the URL <em>.../json/browse/</em>.  This facility is available in development
+by visiting the URL <em>…/json/browse/</em>.  This facility is available in development
 and test environments upon request.</p>
 <p>The resulting page is shown here:</p>
 <div class="figure">
@@ -734,12 +731,12 @@ shown here with FITS parkey names:</p>
         <li class="right" >
           <a href="web_site_use.html" title="Using the CRDS Web Site"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.6 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2015, STScI.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>
 </html>

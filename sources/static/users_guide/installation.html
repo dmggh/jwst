@@ -1,20 +1,17 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Package Overview &#8212; crds 7.1.4 documentation</title>
-    
+    <title>Package Overview &#8212; crds 7.1.6 documentation</title>
     <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '7.1.4',
+        VERSION:     '7.1.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -29,7 +26,7 @@
     <link rel="next" title="Command Line Tools" href="command_line_tools.html" />
     <link rel="prev" title="CRDS User Manual" href="index.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -42,7 +39,7 @@
         <li class="right" >
           <a href="index.html" title="CRDS User Manual"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.6 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -55,7 +52,7 @@
 <li><a class="reference internal" href="#">Package Overview</a></li>
 <li><a class="reference internal" href="#installation">Installation</a><ul>
 <li><a class="reference internal" href="#installation-via-astroconda">Installation via AstroConda</a><ul>
-<li><a class="reference internal" href="#install-continuum-s-anaconda">Install Continuum&#8217;s Anaconda</a></li>
+<li><a class="reference internal" href="#install-continuum-s-anaconda">Install Continuum’s Anaconda</a></li>
 <li><a class="reference internal" href="#set-up-astroconda-astronomy-specific-packages">Set up AstroConda astronomy specific packages</a></li>
 <li><a class="reference internal" href="#install-crds-astroconda-contributed-package">Install CRDS AstroConda Contributed Package</a></li>
 </ul>
@@ -84,7 +81,8 @@
 <li><a class="reference internal" href="#onsite-crds-testing">Onsite CRDS Testing</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#setup-for-offsite-use">Setup for Offsite Use</a><ul>
+<li><a class="reference internal" href="#setup-for-offsite-use">Setup for Offsite Use</a></li>
+<li><a class="reference internal" href="#crds-cache-locking">CRDS Cache Locking</a><ul>
 <li><a class="reference internal" href="#additional-hst-settings">Additional HST Settings</a><ul>
 <li><a class="reference internal" href="#flat-cache-layout-for-grp-crds-cache">Flat Cache Layout for /grp/crds/cache</a></li>
 <li><a class="reference internal" href="#by-instrument-cache-layout">By-Instrument Cache Layout</a></li>
@@ -140,11 +138,11 @@
 <p>The CRDS client and command line software is distributed as a single package with
 several sub-packages:</p>
 <blockquote>
-<div><ul>
+<div><ul class="simple">
 <li><dl class="first docutils">
 <dt>crds</dt>
-<dd><ul class="first last simple">
-<li>core package enabling local use and development of mappings
+<dd><ul class="first last">
+<li>Core package enabling local use and development of mappings
 and reference files.  contains command line utility programs.</li>
 </ul>
 </dd>
@@ -152,87 +150,84 @@ and reference files.  contains command line utility programs.</li>
 </li>
 <li><dl class="first docutils">
 <dt>crds.client</dt>
-<dd><ul class="first simple">
-<li>network client library for interacting with the central CRDS server.  This is</li>
+<dd><ul class="first last">
+<li>Network client library for interacting with the central CRDS server.  This is primarily for internal use in CRDS,  encapsulating JSONRPC interfaces with Python.</li>
 </ul>
-<p class="last">primarily for internal use in CRDS,  encapsulating JSONRPC interfaces with Python.</p>
 </dd>
 </dl>
 </li>
 <li><dl class="first docutils">
 <dt>crds.hst</dt>
-<dd><ul class="first simple">
-<li>observatory personality package for HST, defining how HST types, reference file</li>
+<dd><ul class="first last">
+<li>Observatory personality package for HST, defining how HST types, reference file certification constraints, and naming works.</li>
 </ul>
-<p class="last">certification constraints, and naming works.</p>
 </dd>
 </dl>
 </li>
 <li><dl class="first docutils">
 <dt>crds.jwst</dt>
-<dd><ul class="first last simple">
-<li>analogous to crds.hst,  for JWST.</li>
+<dd><ul class="first last">
+<li>Analogous to crds.hst,  for JWST.</li>
 </ul>
 </dd>
 </dl>
 </li>
 </ul>
 </div></blockquote>
-<p>CRDS also contains a number of command line tools:</p>
+<p>CRDS also contains a number of command line tools managed by a top-level <em>crds</em> command:</p>
 <blockquote>
-<div><ul>
+<div><ul class="simple">
 <li><dl class="first docutils">
-<dt>crds.bestrefs</dt>
-<dd><ul class="first last simple">
+<dt>crds bestrefs</dt>
+<dd><ul class="first last">
 <li>Best references utility for HST FITS files and context-to-context affected datasets computations.</li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="first docutils">
-<dt>crds.sync</dt>
-<dd><ul class="first last simple">
+<dt>crds sync</dt>
+<dd><ul class="first last">
 <li>Cache download and maintenance tool, fetches, removes, checks, and repairs rules and references.</li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="first docutils">
-<dt>crds.certify</dt>
-<dd><ul class="first last simple">
+<dt>crds certify</dt>
+<dd><ul class="first last">
 <li>Checks constraints and format for CRDS rules and references.</li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="first docutils">
-<dt>crds.diff, crds.rowdiff</dt>
-<dd><ul class="first last simple">
+<dt>crds diff, crds rowdiff</dt>
+<dd><ul class="first last">
 <li>Difference utility for rules and references,  also FITS table differences.</li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="first docutils">
-<dt>crds.matches</dt>
-<dd><ul class="first simple">
-<li>Prints out parameter matches for particular references,  or database matching parameters with</li>
+<dt>crds matches</dt>
+<dd><ul class="first last">
+<li>Prints out parameter matches for particular references,  or database matching parameters with respect to particular dataset IDs.</li>
 </ul>
-<p class="last">respect to particular dataset IDs.</p>
 </dd>
 </dl>
 </li>
 <li><dl class="first docutils">
-<dt>crds.uses</dt>
-<dd><ul class="first last simple">
+<dt>crds uses</dt>
+<dd><ul class="first last">
 <li>Lists files which refer to (are dependent on) some CRDS rules or reference file.</li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="first docutils">
-<dt>crds.list</dt>
-<dd><ul class="first last simple">
+<dt>crds list</dt>
+<dd><ul class="first last">
 <li>Lists cache files and configuration,  prints rules files,  dumps database dataset parameter dictionaries.</li>
 </ul>
 </dd>
@@ -240,6 +235,11 @@ and reference files.  contains command line utility programs.</li>
 </li>
 </ul>
 </div></blockquote>
+<p>Each sub-command can also be invoked as follows:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ crds sync --help
+</pre></div>
+</div>
+<p>to print help information,  where –help must be specified as the first parameter to the sub-command.</p>
 </div>
 <div class="section" id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
@@ -261,7 +261,7 @@ AstroConda channel.  If HST or JWST pipeline calibration software is being
 installed via a Conda distribution list, there is a good chance CRDS will be
 installed as a dependency so explicit action may not be necessary.</p>
 <div class="section" id="install-continuum-s-anaconda">
-<h3>Install Continuum&#8217;s Anaconda<a class="headerlink" href="#install-continuum-s-anaconda" title="Permalink to this headline">¶</a></h3>
+<h3>Install Continuum’s Anaconda<a class="headerlink" href="#install-continuum-s-anaconda" title="Permalink to this headline">¶</a></h3>
 <p>Installing Anaconda gives you a generic environment for numerical programming.  See:</p>
 <blockquote>
 <div><a class="reference external" href="https://www.continuum.io/downloads">https://www.continuum.io/downloads</a></div></blockquote>
@@ -293,7 +293,7 @@ HST or JWST calibration software distributions.</p>
 </div>
 <div class="section" id="pip-installation">
 <h2>Pip Installation<a class="headerlink" href="#pip-installation" title="Permalink to this headline">¶</a></h2>
-<p>It&#8217;s possible to install and update CRDS using Python&#8217;s pip system like this:</p>
+<p>It’s possible to install and update CRDS using Python’s pip system like this:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>$ pip install crds
 </pre></div>
 </div>
@@ -310,6 +310,7 @@ a distribution list that specifies component versions.</p>
 $ cd CRDS
 
 $ # optionally,  switch to release tag
+$ git fetch origin
 $ git checkout &lt;release tag,  e.g. 6.0.1&gt;
 </pre></div>
 </div>
@@ -329,28 +330,31 @@ final status 000000
 <p>CRDS was developed in and for an STSCI Python environment suitable for pipeline
 processing.   Standard STScI calibration environments should already include it.
 Nevertheless, for installing CRDS independently, these dependencies are applicable:</p>
-<p>REQUIRED: CRDS requires these dependencies to be installed in your Python environment:</p>
-<blockquote>
-<div><ul class="simple">
+<dl class="docutils">
+<dt>REQUIRED: CRDS requires these dependencies to be installed in your Python environment:</dt>
+<dd><ul class="first last simple">
 <li>numpy</li>
 <li>astropy</li>
 </ul>
-</div></blockquote>
-<p>OPTIONAL: For executing the unit tests (runtests) add:</p>
-<blockquote>
-<div><ul class="simple">
+</dd>
+<dt>OPTIONAL: For executing the unit tests (runtests) add:</dt>
+<dd><ul class="first last simple">
 <li>nose</li>
 </ul>
-</div></blockquote>
-<p>OPTIONAL: For running crds.certify to fully check CRDS rules/mapping files add:</p>
-<blockquote>
-<div><ul class="simple">
+</dd>
+<dt>OPTIONAL:</dt>
+<dd><ul class="first last simple">
+<li>jwst.datamodels    needed to run crds certify on JWST references</li>
+<li>lockfile           needed to synchronize local CRDS cache syncs done by associations</li>
+</ul>
+</dd>
+<dt>OPTIONAL: For running crds.certify to fully check CRDS rules/mapping files add:</dt>
+<dd><ul class="first last simple">
 <li>Parsley-1.2</li>
 <li>pyaml  (for certifying and using yaml references)</li>
 <li>asdf (for certifying and using ASDF references)</li>
 </ul>
-</div></blockquote>
-<dl class="docutils">
+</dd>
 <dt>OPTIONAL: For building documentation add:</dt>
 <dd><ul class="first last simple">
 <li>docutils</li>
@@ -428,7 +432,7 @@ gigabytes of data.</p>
 </div>
 <div class="section" id="setup-for-on-site-operational-use-hst-or-jwst">
 <h2>Setup for On-site Operational Use (HST or JWST)<a class="headerlink" href="#setup-for-on-site-operational-use-hst-or-jwst" title="Permalink to this headline">¶</a></h2>
-<p>This section describes use of operational reference files onsite at STScI.  It&#8217;s relevant to fully archived
+<p>This section describes use of operational reference files onsite at STScI.  It’s relevant to fully archived
 and operational files,  not development and test.</p>
 <div class="section" id="file-cache-location-crds-path">
 <h3>File Cache Location (CRDS_PATH)<a class="headerlink" href="#file-cache-location-crds-path" title="Permalink to this headline">¶</a></h3>
@@ -441,7 +445,7 @@ and operational files,  not development and test.</p>
 <p>Note that the CRDS cache is often used to store reference files and when fully
 populated for a particular mission can contain <em>terabytes</em> of files.  Hence,
 demand-based caching for particular datasets (using crds.bestrefs or strun) is
-probably preferred to sync&#8217;ing the entire cache using the crds.sync.</p>
+probably preferred to sync’ing the entire cache using the crds.sync.</p>
 </div>
 <div class="section" id="server-selection-crds-server-url">
 <h3>Server Selection (CRDS_SERVER_URL)<a class="headerlink" href="#server-selection-crds-server-url" title="Permalink to this headline">¶</a></h3>
@@ -489,7 +493,7 @@ to this:</p>
 <p>Testing reference type changes (new keywords, new values or value restrictions,
 etc) may also require access to development versions of CRDS code.  In
 particular, when adding parameters or changing legal parameter values, the
-certify tool is modified as &#8220;code&#8221; on the servers first.  Hence distributed
+certify tool is modified as “code” on the servers first.  Hence distributed
 versions of CRDS will not reflect ongoing type changes.  The test server
 Certify Files function should generally reflect the most up-to-date knowledge
 CRDS has about ongoing type changes.  To see how new reference files stack up
@@ -514,6 +518,53 @@ care about:</p>
 </div>
 <p>For <strong>JWST</strong>, CRDS is directly integrated with the calibration step code and
 will automatically download rules and references as needed.</p>
+</div>
+<div class="section" id="crds-cache-locking">
+<h2>CRDS Cache Locking<a class="headerlink" href="#crds-cache-locking" title="Permalink to this headline">¶</a></h2>
+<p>CRDS cache locking (file-based, currently built upon the lockfile package) has
+been added to support JWST associations calibration multi-processing. Since
+associations launch multiple concurrent processes, it poses a problem of
+simultaneous updates to the shared CRDS cache resource.  Cache locking
+addresses that issue and is automatically used for read/write caches typically
+associated with offsite use.</p>
+<p>There are multiple conditions in CRDS that determine when locking is really
+used:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="mf">1.</span> <span class="n">The</span> <span class="n">lockfile</span> <span class="n">package</span> <span class="n">must</span> <span class="n">be</span> <span class="n">installed</span> <span class="ow">and</span> <span class="n">importable</span>
+<span class="mf">2.</span> <span class="n">The</span> <span class="n">CRDS_LOCK_PATH</span> <span class="n">directory</span> <span class="p">(</span><span class="n">nominally</span> <span class="o">/</span><span class="n">tmp</span><span class="p">)</span> <span class="n">should</span> <span class="n">already</span> <span class="n">exist</span>
+<span class="mf">2.</span> <span class="n">A</span> <span class="n">lockfile</span> <span class="n">lock</span> <span class="n">must</span> <span class="n">be</span> <span class="n">successully</span> <span class="n">created</span>
+<span class="mf">3.</span> <span class="n">The</span> <span class="n">CRDS</span> <span class="n">cache</span> <span class="n">must</span> <span class="n">be</span> <span class="n">physically</span> <span class="n">writable</span>
+<span class="mf">4.</span> <span class="n">CRDS_USE_LOCKING</span> <span class="n">must</span> <span class="n">be</span> <span class="n">undefined</span> <span class="ow">or</span> <span class="mi">1</span>
+<span class="mf">5.</span> <span class="n">CRDS_READONLY_CACHE</span> <span class="n">must</span> <span class="n">be</span> <span class="n">undefined</span> <span class="ow">or</span> <span class="mi">0</span>
+</pre></div>
+</div>
+<p>Otherwise, locking is either broken or the sync is impossible or forbidden.</p>
+<p>The env var:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">CRDS_READONLY_CACHE</span><span class="o">=</span><span class="mi">1</span>
+</pre></div>
+</div>
+<p>currently prevents HST + JWST pipeline installations from using locking.</p>
+<p>The readonly nature of:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">grp</span><span class="o">/</span><span class="n">crds</span><span class="o">/</span><span class="n">cache</span>
+</pre></div>
+</div>
+<p>prevents the use of locking for typical onsite users.  /grp/crds/cache is
+complete, automatically maintained by CRDS, and needs no user-based updates or
+file downloads.</p>
+<p>The env var:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">CRDS_LOCK_PATH</span>
+</pre></div>
+</div>
+<p>can be used to define the location of file locks, defaulting to <em>/tmp</em>. It
+should be noted that the existence of the lock file directory is itself a
+concurrency issue, so it must be created or otherwise available before cache
+synchronization takes place.</p>
+<p>The CRDS command:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ crds sync --clear-locks
+</pre></div>
+</div>
+<p>can be used to remove orphan locks (due to some unexpected failure) that are
+blocking processing.</p>
+<p>Locking requires installation of the <em>lockfile</em> package and CRDS-7.1.4 or later.</p>
 <div class="section" id="additional-hst-settings">
 <h3>Additional HST Settings<a class="headerlink" href="#additional-hst-settings" title="Permalink to this headline">¶</a></h3>
 <p>HST calibration software accesses reference files indirectly through
@@ -629,7 +680,7 @@ only configuration information is cached. CRDS_CFGPATH defaults to ${CRDS_PATH}/
 which can contain multiple observatory-spefific subdirectories.</p>
 <p>Specifying CRDS_MAPPATH = /somewhere when CRDS_OBSERVATORY = hst means that
 mapping files will be located in /somewhere/hst.</p>
-<p>While it can be done,  it&#8217;s generally considered an error to use a multi-project cache
+<p>While it can be done,  it’s generally considered an error to use a multi-project cache
 with different servers for the <em>same observatory</em>, e.g. both hst-test and hst-ops.</p>
 </div>
 <div class="section" id="single-project-caches">
@@ -646,7 +697,7 @@ shallower cache structure:</p>
         <span class="n">config</span> <span class="n">files</span><span class="o">...</span>
 </pre></div>
 </div>
-<p>It&#8217;s an error to use a single project cache with more than one project or server.  It is
+<p>It’s an error to use a single project cache with more than one project or server.  It is
 inadvisable to mix multi-project (no _SINGLE) and single-project (_SINGLE) configuration
 variables,  set one or the other form,  not both.</p>
 <p>As with <strong>CRDS_PATH</strong>,  there are overrides for each cache branch which can locate it
@@ -668,22 +719,22 @@ mapping files will be located in /somewhere,  not in /somewhere/hst.</p>
 <p><strong>CRDS_VERBOSITY</strong> enables output of CRDS debug messages.   Set to an
 integer,  nominally 50.   Higher values output more information,  lower
 values less information.   CRDS also has command line switches
-&#8211;verbose (level=50) and &#8211;verbosity=&lt;level&gt;.   Verbosity level
+–verbose (level=50) and –verbosity=&lt;level&gt;.   Verbosity level
 ranges from 0 to 100 and defaults to 0 (no verbose output).</p>
 <p><strong>CRDS_ALLOW_BAD_RULES</strong>  enable CRDS to use assigment rules which have been
 designated as bad files / scientifically invalid.</p>
 <p><strong>CRDS_ALLOW_BAD_REFERENCES</strong> enable CRDS to assign reference files which have
 been designated as scientifically invalid after issuing a warning.</p>
 <p><strong>CRDS_IGNORE_MAPPING_CHECKSUM</strong> causes CRDS to waive mapping checksums
-when set to True,  useful when you&#8217;re editing them.</p>
+when set to True,  useful when you’re editing them.</p>
 <p><strong>CRDS_READONLY_CACHE</strong> limits tools to readonly access to the cache when set
 to True.  Eliminates cache writes which occur implicitly.  This is mostly
 useful in CRDS server user cases which want to ensure not modifying the server
 CRDS cache but cannot write protect it effectively.</p>
 <p><strong>CRDS_MODE</strong> defines whether CRDS should compute best references using
 installed client software only (local),  on the server (remote),  or
-intelligently &#8220;fall up&#8221; to the server (when the installed client is deemed
-obsolete relative to the server) or &#8220;fall down&#8221; to the local installation
+intelligently “fall up” to the server (when the installed client is deemed
+obsolete relative to the server) or “fall down” to the local installation
 (when the server cannot be reached) (auto).   The default is auto.</p>
 <p><strong>CRDS_CLIENT_RETRY_COUNT</strong> number of times CRDS will attempt a network
 transaction with the CRDS server.  Defaults to 1 meaning 1 try with no retries.</p>
@@ -712,12 +763,12 @@ proceed immediately after fail.</p>
         <li class="right" >
           <a href="index.html" title="CRDS User Manual"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.6 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2015, STScI.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>
 </html>
