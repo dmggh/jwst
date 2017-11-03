@@ -406,9 +406,14 @@ def squash_file_paths(response, uploaded_pairs):
     response = response.replace(config.get_crds_cfgpath(observatory) + "/", "")
     response = response.replace(config.get_crds_mappath(observatory) + "/", "")
     response = response.replace(config.get_crds_refpath(observatory) + "/", "")
+    response = response.replace("/ifs/crds/"+sconfig.observatory+"/ops",sconfig.storage_path)
     response = response.replace(sconfig.storage_path + "/server_files/ingest", "")
     response = response.replace(sconfig.install_root, "")
     response = response.replace(sconfig.storage_path, "")
+    response = response.replace("/ifs/crds/", "")
+    response = response.replace("/crds/data1/server_local", "")
+    response = response.replace("/crds/data1/", "")
+    response = response.replace("/home/crds/", "")
     response = response.replace(config.get_crds_path(), "")
     return response
 
