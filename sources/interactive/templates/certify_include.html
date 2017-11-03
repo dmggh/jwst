@@ -11,7 +11,7 @@
                     <br/><br/>
                 {% endif %}
                 <div class='log'>
-                    {{cert.1.1|safe}}
+                    {{cert.1.1|colorize_diff|safe}}
                 </div>
             {% endaccordion %}
         {% else %}
@@ -19,7 +19,7 @@
                 <a href='/browse/{{cert.0}}'>{{cert.0}}</a>
                 <br/><br/>
                 <div class='log'>
-                    {{cert.1.1|safe}}
+                    {{cert.1.1|colorize_diff|safe}}
                 </div>
             {% endaccordion %}
         {% endif %}
