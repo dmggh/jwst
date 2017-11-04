@@ -945,5 +945,5 @@ else:  # JWST
             self.assert_no_errors(response)
             self.assertNotIn("ERROR", response.content)
             self.assertEqual(response.content.count("OK"), 1)
-            self.assertEqual(response.content.count("Warnings"), 1)
+            self.assertEqual(response.content.count("Warnings"), 2)
 
