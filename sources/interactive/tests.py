@@ -788,7 +788,6 @@ if sconfig.observatory == "hst":
             self.assertIn("is not in", response.content)
             self.assertIn("Reversion", response.content)
             self.assertIn("Duplicate", response.content)
-            self.assertIn("added Match rule", response.content)
             self.assertTrue(response.content.count("is not known") == 2)
             
         def test_certify_post_fits_bad(self):
