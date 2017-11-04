@@ -1,6 +1,0 @@
-#!/bin/csh
-cd `dirname $0`
-source env.csh
-cd ${CRDS_INSTALL_DIR}/python/lib/python/crds/server
-exec python manage.py shell
-

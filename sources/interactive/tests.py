@@ -920,7 +920,6 @@ else:  # JWST
             self.assertIn("is not in", response.content)
             self.assertIn("Reversion", response.content)
             self.assertIn("Duplicate", response.content)
-            self.assertIn("added Match rule", response.content)
             self.assertIn("is not known", response.content)
             
         def test_certify_post_fits_bad(self):
@@ -945,6 +944,6 @@ else:  # JWST
             print("certify post FITS response:", response.content)
             self.assert_no_errors(response)
             self.assertNotIn("ERROR", response.content)
-            self.assertEqual(response.content.count("OK"), 2)
+            self.assertEqual(response.content.count("OK"), 1)
             self.assertEqual(response.content.count("Warnings"), 1)
 
