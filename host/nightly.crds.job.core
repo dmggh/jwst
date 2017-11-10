@@ -55,6 +55,13 @@ backup_server >& ${CRDS_CRON}/backup.${ETAIL}
 tail -100 ${CRDS_CRON}/backup.${ETAIL}
 
 echo "==========================================================="
+echo "Rotating Logs And Backups"
+echo "==========================================================="
+cd ${CRDS}/server/db_backups
+find . -mtime +550  | grep -v eng_crds | xargs rm -rf
+/sbin/logrotate -s ${CRDS}/server/rotate.state ${CRDS}/CRDS_server/host/logrotate.cfg
+
+echo "==========================================================="
 echo "Clearing session table"
 echo "==========================================================="
 cd ${CRDS}/CRDS_server
@@ -85,7 +92,8 @@ echo "==========================================================="
 cd ${CRDS}/CRDS_server
 host/check_defects --all --references
 
-if ( "$CRDS_USECASE" != "ops" ) then
+if ( "$CRDS_USECASE" != "ops" && "$CRDS_USECASE" != "ait" && "$CRDS_USECASE" != "bit" && \
+     "$CRDS_USECASE" != "cit" && "$CRDS_USECASE" != "dit" ) then
     echo "==========================================================="
     echo "Server self-test"
     echo "==========================================================="
