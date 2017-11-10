@@ -9,7 +9,7 @@ HOST = "dljwstcrdsv1"
 PROXY = "jwst-crds-dev"
 observatory = 'jwst'
 server_usecase = 'dev'
-CRDS_SERVER_IP = "130.167.252.89"
+CRDS_SERVER_IP = "10.128.18.82"
 port = 8001
 
 # This is a VM-related storage partition used as server space

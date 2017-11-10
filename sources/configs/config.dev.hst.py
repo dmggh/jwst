@@ -9,7 +9,7 @@ HOST = "dlhstcrdsv1"
 PROXY = "hst-crds-dev"
 observatory = 'hst'
 server_usecase = 'dev'
-CRDS_SERVER_IP = "130.167.252.84"
+CRDS_SERVER_IP = "10.128.18.81"
 port = 8001
 
 # This is a VM-related storage partition used as server space
