@@ -17,41 +17,44 @@ rm -f *.err
 ./meta clean >& /dev/null
 
 # Set up miniconda
-wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ./miniconda3.sh
-bash ./miniconda3.sh -b -p $CRDS_STACK
-rm miniconda.sh
+mkdir -p ${CRDS}/crds_stacks/installer4/conda-sources
+wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh \
+    -O ${CRDS}/crds_stacks/installer4/conda-sources/miniconda3.sh
+bash ${CRDS}/crds_stacks/installer4/conda-sources/miniconda3.sh -b -p $CRDS_STACK
 setenv PATH ${CRDS_STACK}/bin:${PATH}
 rehash 
 
 # conda config --add channels http://ssb.stsci.edu/astroconda
 conda config --add channels http://ssb.stsci.edu/conda-dev 
-# conda install -c http://ssb.stsci.edu/conda-dev astropy numpy scipy asdf gwcs ipython requests lxml stsci jwst --quiet --yes
 conda install stsci jwst --quiet --yes
 conda install astropy numpy scipy asdf gwcs ipython requests lxml pymysql --quiet --yes
 
 # conda install fitsverify cfitsio --quiet --yes
 
 # conda install --quiet --yes --file ${CRDS}/CRDS_server/host/${CONDA_NAME}.pkgs
-
 # conda install --quiet --yes --file http://ssb.stsci.edu/conda/jwstdp-0.7.0rc/jwstdp-0.7.0rc2-linux-py27.0.txt
 
-conda remove --quiet --yes --force cfitsio fitsverify
-
+conda remove --quiet --yes --force cfitsio fitsverify jwst
 conda install --yes --quiet setuptools
 
-./meta install @crds3-fixed  |& tee ${CRDS_STACK}/crds3.err
-./meta install jwst |& tee ${CRDS_STACK}/jwst.err
+cd ${CRDS}/crds_stacks/installer4/build
+
+./meta install @crds3-fixed  |& tee crds3.err
+./meta install jwst |& tee jwst.err
 ./meta install cfitsio fitsverify |& tee fitsverify.err
+
 conda uninstall --yes --quiet pkg-config pkgconfig
-./meta install mod_wsgi-master
+
+./meta install mod_wsgi-master |& tee mod_wsgi.err
 ./meta clean >& /dev/null
 
 rehash
 
-git status  |& tee ${CRDS_STACK}/git.status
-git log --stat |& tee ${CRDS_STACK}/git.log
-conda list --explicit |& tee ${CRDS_STACK}/${CONDA_NAME}.txt
+git status  |& tee git.status
+git log --stat |& tee git.log
+conda list --explicit |& tee ${CONDA_NAME}.txt
 
+./joes_download ${CONDA_NAME}.txt ${CRDS}/crds_stacks/installer4/conda-sources
 
 # Install the entire base to get mercurial... for this.
 # ../src/pull_local

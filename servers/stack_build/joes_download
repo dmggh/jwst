@@ -1,0 +1,63 @@
+#!/bin/bash
+#
+# beware: argument parsing and error checking omitted
+#
+
+specfile="$1"
+dest="$2"
+arch=
+platform=
+
+if [[ $(uname -s) == Linux ]]; then
+    platform=linux
+elif [[ $(uname -s) == Darwin ]]; then
+    platform=osx
+else
+    echo "Unsupported OS. Sorry about that."
+    exit 1
+fi
+
+if [[ $(uname -m) == x86_64 ]]; then
+    arch=64
+else
+    arch=32
+fi
+
+# Create destination directory, plus platform/arch designations, if it doesn't exist
+dest_arch="$dest/$platform-$arch"
+if [[ ! -d $dest_arch ]]; then
+    mkdir -p "$dest_arch"
+fi
+
+# Conda channels requires noarch directory at the top level even if you're not using it.
+dest_noarch="$dest/noarch"
+if [[ ! -d $dest_noarch ]]; then
+    mkdir -p "$dest_noarch"
+fi
+
+while read url
+do
+    # Skip comments, '@EXPLICIT', and empty lines
+    if [[ $url =~ ^\# ]] || [[ $url =~ ^@ ]] || [[ -z $url ]]; then
+        continue
+    fi
+
+    name="$(basename $url)"
+    pkg_path="$dest_arch/$name"
+
+    # Prevent overwriting packages if we already have them
+    if [[ -f $pkg_path ]]; then
+        echo Package exists: $name
+        continue
+    fi
+
+    # curl [silent] [silent-report-error] [follow redirect] [output-to] [url]
+    echo "Downloading package: $name"
+    curl -s -S -L -o "$pkg_path" "$url"
+done < "$specfile"
+
+# Initialize channels (optional)
+# Requires: conda-build
+#conda index "$dest_arch"
+#conda index "$dest_noarch"
+
