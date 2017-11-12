@@ -42,6 +42,12 @@ cd ${CRDS}/CRDS_server
 setenv CRDS_SERVER_URL $mirrored_server_url
 
 echo "-----------------------------------------------------"
+echo "Clearing all local context pickles"
+echo "-----------------------------------------------------"
+export CRDS_USE_PICKLED_CONTEXTS=0
+python -m crds.sync --clear-pickles --verbose --stats
+
+echo "-----------------------------------------------------"
 echo "Syncing mappings from $mirrored_server_url"
 echo "-----------------------------------------------------"
 cd ${CRDS}/CRDS_server
@@ -60,7 +66,7 @@ echo "-----------------------------------------------------"
 cd ${CRDS}/CRDS_server
 
 # XXXX assumes canonical cache structure
-rm -fv ${CRDS_PATH}/pickles/${CRDS_PROJECT}/*
+# rm -fv ${CRDS_PATH}/pickles/${CRDS_PROJECT}/*
 python -m crds.sync --all --clear-pickles --save-pickles --verbose --stats
 
 # This checks the consistency of the database and server cache and delivery areas
