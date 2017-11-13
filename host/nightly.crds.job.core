@@ -24,24 +24,28 @@ if ( ( "$CRDS_USECASE" == "dev" ) ) then
     echo "=========================================================="
     echo "Stack Build"
     echo "=========================================================="
-    host/build_conda3 >& ${CRDS_CRON}/build_conda.${ETAIL}
+    cd ${CRDS}/CRDS_server/servers/stack_build
+    ./build_conda3 >& ${CRDS_CRON}/build_conda.${ETAIL}
     tail -100 ${CRDS_CRON}/build_conda.${ETAIL}
 
     echo "=========================================================="
     echo "Re-enabling Cron now"
     echo "=========================================================="
+    cd ${CRDS}/CRDS_server 
     crontab <host/crontab
     crontab -l
 
     echo "==========================================================="
     echo "Server re-install and re-start"
     echo "==========================================================="
+    cd ${CRDS}/CRDS_server
     ./rerun >& ${CRDS_CRON}/rerun.${ETAIL}
     tail -100 ${CRDS_CRON}/rerun.${ETAIL}
 else
     echo "==========================================================="
     echo "Server restart"
     echo "==========================================================="
+    cd ${CRDS}/CRDS_server
     ./stop >& ${CRDS_CRON}/restart.${ETAIL}
     sleep 10
     ./run >>& ${CRDS_CRON}/restart.${ETAIL}
@@ -70,12 +74,14 @@ cd ${CRDS}/CRDS_server
 echo "==========================================================="
 echo "Clearing expired locks"
 echo "==========================================================="
+cd ${CRDS}/CRDS_server
 clear_expired_locks  >& ${CRDS_CRON}/clear_expired_locks.${ETAIL}
 tail -100 ${CRDS_CRON}/clear_expired_locks.${ETAIL}
 
 echo "==========================================================="
 echo "Server cache certify check, last 5 contexts"
 echo "==========================================================="
+cd ${CRDS}/CRDS_server
 crds_certify_cache 1 --exist >& ${CRDS_CRON}/crds_certify_cache.${ETAIL}
 snip ${CRDS_CRON}/crds_certify_cache.${ETAIL} 100
 
@@ -92,8 +98,7 @@ echo "==========================================================="
 cd ${CRDS}/CRDS_server
 host/check_defects --all --references
 
-if ( "$CRDS_USECASE" != "ops" && "$CRDS_USECASE" != "ait" && "$CRDS_USECASE" != "bit" && \
-     "$CRDS_USECASE" != "cit" && "$CRDS_USECASE" != "dit" ) then
+if ( "$CRDS_USECASE" == "dev" ) then
     echo "==========================================================="
     echo "Server self-test"
     echo "==========================================================="
