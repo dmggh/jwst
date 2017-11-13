@@ -28,6 +28,9 @@ setenv URP_TYPE crds
 # by usecase would require a post-mirroring database tweak.
 setenv CRDS_PIPELINE_CACHE_KEY 12ca7bb2-dd3b-444a-8e6e-d8fd0bf559ed
 
+# In case of emergency,  break glass
+# setenv CRDS_FITS_VERIFY_CHECKSUM 0
+
 switch ($CRDS_SERVER)
        case dljwstcrdsv1:
         setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-6
