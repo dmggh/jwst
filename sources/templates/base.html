@@ -59,7 +59,12 @@
                     {% else %}
                         <a type="button" class="btn btn-xs btn-default" href="/login/?next={{current_path}}">Login</a>
                     {% endif %}
-                    <a type="button" class="btn btn-xs btn-default" href="/static/users_guide/index.html">Guide</a>
+                    <a type="button" class="btn btn-xs btn-default"
+                    href="/static/users_guide/index.html">Guide</a>
+
+                    {% if is_authenticated %}
+                    <a type="button" class="btn btn-xs btn-default" href="/static/CrdsServerEndToEnd/CrdsServerEndToEnd.htm">Server Workflow</a>
+                    {% endif %}
                 </div> 
                 
                 <div class="btn-group" role="group" aria-label="...">
