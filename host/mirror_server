@@ -44,7 +44,7 @@ setenv CRDS_SERVER_URL $mirrored_server_url
 echo "-----------------------------------------------------"
 echo "Clearing all local context pickles"
 echo "-----------------------------------------------------"
-export CRDS_USE_PICKLED_CONTEXTS=0
+setenv CRDS_USE_PICKLED_CONTEXTS 0
 python -m crds.sync --clear-pickles --verbose --stats
 
 echo "-----------------------------------------------------"
