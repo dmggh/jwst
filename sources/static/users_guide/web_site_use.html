@@ -1,144 +1,182 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Using the CRDS Web Site &#8212; crds 7.1.6 documentation</title>
-    <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '7.1.6',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Web Services" href="web_services.html" />
-    <link rel="prev" title="Reference File Conventions" href="reference_conventions.html" /> 
-  </head>
-  <body>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="web_services.html" title="Web Services"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="reference_conventions.html" title="Reference File Conventions"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.6 documentation</a> &#187;</li> 
-      </ul>
-    </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="index.html">
-              <img class="logo" src="_static/stsci_logo.png" alt="Logo"/>
-            </a></p>
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Using the CRDS Web Site</a><ul>
-<li><a class="reference internal" href="#operational-references">Operational References</a></li>
-<li><a class="reference internal" href="#context-history-more">Context History (more)</a><ul>
-<li><a class="reference internal" href="#differencing-contexts">Differencing contexts</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#open-services">Open Services</a><ul>
-<li><a class="reference internal" href="#dataset-best-references">Dataset Best References</a><ul>
-<li><a class="reference internal" href="#context">Context</a></li>
-<li><a class="reference internal" href="#dataset">Dataset</a><ul>
-<li><a class="reference internal" href="#upload-fits-header">Upload FITS header</a></li>
-<li><a class="reference internal" href="#archived-dataset">Archived Dataset</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#dataset-best-references-results">Dataset Best References Results</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#explore-best-references">Explore Best References</a></li>
-<li><a class="reference internal" href="#browse-database">Browse Database</a></li>
-<li><a class="reference internal" href="#recent-activity">Recent Activity</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#private-functions">Private Functions</a><ul>
-<li><a class="reference internal" href="#login-and-instrument-locking">Login and Instrument Locking</a></li>
-<li><a class="reference internal" href="#certify-files">Certify Files</a></li>
-<li><a class="reference internal" href="#mark-files-bad">Mark Files Bad</a></li>
-<li><a class="reference internal" href="#delete-references">Delete References</a></li>
-<li><a class="reference internal" href="#add-references">Add References</a></li>
-<li><a class="reference internal" href="#set-context">Set Context</a></li>
-<li><a class="reference internal" href="#batch-submit-references">Batch Submit References</a><ul>
-<li><a class="reference internal" href="#upload-files">Upload Files</a><ul>
-<li><a class="reference internal" href="#web-approach">Web Approach</a></li>
-<li><a class="reference internal" href="#shell-approach">Shell Approach</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#derive-from-context">Derive From Context</a><ul>
-<li><a class="reference internal" href="#edit-context">Edit Context</a></li>
-<li><a class="reference internal" href="#operational-context">Operational Context</a></li>
-<li><a class="reference internal" href="#recent">Recent</a></li>
-<li><a class="reference internal" href="#user-specified">User Specified</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#auto-rename">Auto Rename</a></li>
-<li><a class="reference internal" href="#compare-old-reference">Compare Old Reference</a></li>
-<li><a class="reference internal" href="#results">Results</a></li>
-<li><a class="reference internal" href="#collisions">Collisions</a></li>
-<li><a class="reference internal" href="#confirm-or-discard">Confirm or Discard</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#submit-references">Submit References</a></li>
-<li><a class="reference internal" href="#submit-mappings">Submit Mappings</a><ul>
-<li><a class="reference internal" href="#mapping-change-procedure">Mapping Change Procedure</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Using the CRDS Web Site &mdash; CRDS 7.1.7 documentation</title>
+  
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="reference_conventions.html"
-                        title="previous chapter">Reference File Conventions</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="web_services.html"
-                        title="next chapter">Web Services</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/web_site_use.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/stsci.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="CRDS 7.1.7 documentation" href="index.html"/>
+        <link rel="next" title="Web Services" href="web_services.html"/>
+        <link rel="prev" title="Command Line Tools" href="command_line_tools.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+            <a href="index.html" class="icon icon-home"> CRDS
+            
+            <img src="_static/stsci_pri_combo_mark_white.png" class="logo" />
+          </a>
+
+          
+            
+            
+              <div class="version">
+                7.1
+              </div>
+            
+          
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+  
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic_use.html">Best References Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environment.html">Environment Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_line_tools.html">Command Line Tools</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Using the CRDS Web Site</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#operational-references">Operational References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#context-history-more">Context History (more)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#differencing-contexts">Differencing contexts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#open-services">Open Services</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dataset-best-references">Dataset Best References</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#context">Context</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dataset">Dataset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dataset-best-references-results">Dataset Best References Results</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#explore-best-references">Explore Best References</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#browse-database">Browse Database</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#recent-activity">Recent Activity</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#private-functions">Private Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#login-and-instrument-locking">Login and Instrument Locking</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#certify-files">Certify Files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mark-files-bad">Mark Files Bad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#delete-references">Delete References</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#add-references">Add References</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#set-context">Set Context</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#batch-submit-references">Batch Submit References</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#upload-files">Upload Files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#derive-from-context">Derive From Context</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#auto-rename">Auto Rename</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#compare-old-reference">Compare Old Reference</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#results">Results</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#collisions">Collisions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#confirm-or-discard">Confirm or Discard</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#submit-references">Submit References</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#submit-mappings">Submit Mappings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#mapping-change-procedure">Mapping Change Procedure</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="web_services.html">Web Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rmap_syntax.html">CRDS Rules (Mappings)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library_use.html">Library Use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference_conventions.html">Reference File Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database.html">CRDS Database Access</a></li>
+</ul>
+
+            
+          
         </div>
       </div>
+    </nav>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">CRDS</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Using the CRDS Web Site</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/web_site_use.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="using-the-crds-web-site">
 <h1>Using the CRDS Web Site<a class="headerlink" href="#using-the-crds-web-site" title="Permalink to this headline">¶</a></h1>
@@ -678,29 +716,71 @@ generate a warning.   Alternately:</p>
 </div>
 
 
+           </div>
           </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="web_services.html" class="btn btn-neutral float-right" title="Web Services" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="command_line_tools.html" class="btn btn-neutral" title="Command Line Tools" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Space Telescope Science Institute.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="web_services.html" title="Web Services"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="reference_conventions.html" title="Reference File Conventions"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.6 documentation</a> &#187;</li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2015, STScI.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
-    </div>
-  </body>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'7.1.7',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
 </html>
