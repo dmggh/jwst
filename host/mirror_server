@@ -51,7 +51,7 @@ echo "-----------------------------------------------------"
 echo "Syncing mappings from $mirrored_server_url"
 echo "-----------------------------------------------------"
 cd ${CRDS}/CRDS_server
-python -m crds.sync --all --repair-files --check-sha1sum --purge-mappings --verbose --stats
+python -m crds.sync --all --repair-files --check-sha1sum --purge-mappings --organize=flat --verbose --stats
 
 echo "-----------------------------------------------------"
 echo "Fast-Syncing references from $mirrored_server_url"
