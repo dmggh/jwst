@@ -80,17 +80,14 @@
             
             
                 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basic_use.html">Best References Basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="environment.html">Environment Variables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="command_line_tools.html">Command Line Tools</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Using the CRDS Web Site</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#operational-references">Operational References</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#context-history-more">Context History (more)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#differencing-contexts">Differencing contexts</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#context-history-more">Context History (more)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#open-services">Open Services</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#dataset-best-references">Dataset Best References</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#context">Context</a></li>
@@ -117,7 +114,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#compare-old-reference">Compare Old Reference</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#results">Results</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#collisions">Collisions</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#confirm-or-discard">Confirm or Discard</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#confirm-force-cancel">Confirm, Force, Cancel</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#submit-references">Submit References</a></li>
@@ -192,36 +189,21 @@ a future build which may prove useful now.</p>
 <div class="section" id="operational-references">
 <h2>Operational References<a class="headerlink" href="#operational-references" title="Permalink to this headline">¶</a></h2>
 <p>The <em>Operational References</em> table displays the references which are currently in use
-by the pipeline associated with this web site.   The operational context is displayed
-as a link ‘(under context &lt;link&gt;)’ immediately below Operational References.  Clicking
-the link opens a details browser for that CRDS .pmap reference assignment rules file.
-The operational context is the latest context in the Context History,  the one in
-active use for pipeline processing by default.</p>
+by the pipeline associated with this web site.</p>
 <p>Each instrument accordion opens into reference type accordions for that instrument.</p>
-<p>Each type accordion opens into a table of reference files and the dataset parameters
-they apply to.   Each reference file link opens into a details browser for that reference
-file.</p>
+<p>Each reference type accordion opens into a table of reference files.</p>
+<p>In general,  links to files will either lead to the CRDS catalog details about that
+file or to a context display for a different .pmap.</p>
 </div>
 <div class="section" id="context-history-more">
 <h2>Context History (more)<a class="headerlink" href="#context-history-more" title="Permalink to this headline">¶</a></h2>
 <p>The <em>Context History</em> displays the last 4 CRDS contexts which were in operational use by
-the pipeline associated with a CRDS server. Clicking on the <em>(more)</em> link will bring up
-the entire context history as a separate page as shown below:</p>
+the pipeline. Clicking on the <em>(more)</em> link will bring up the entire context history as
+a separate page as shown below:</p>
 <div class="figure">
 <a class="reference internal image-reference" href="_images/web_context_history.png"><img alt="History of CRDS operational contexts" src="_images/web_context_history.png" style="width: 615.5px; height: 430.5px;" /></a>
 </div>
-<p>Clicking on a <em>context</em> link (the .pmap name) opens a page containing the Historical References
-for some point in the past,  similar to the Operational References display:</p>
-<div class="figure">
-<a class="reference internal image-reference" href="_images/web_context_table.png"><img alt="CRDS historical references display" src="_images/web_context_table.png" style="width: 614.5px; height: 442.0px;" /></a>
-</div>
-<p>References are displayed in accordion panels for each instrument.   Opening the panel for
-an instrument displays the reference types of that instrument.  Opening the panel for a type
-displays particular reference files and matching parameters for that type.   Clicking on a particular
-reference file brings up the CRDS browser page with the known details for that reference.</p>
-<div class="section" id="differencing-contexts">
-<h3>Differencing contexts<a class="headerlink" href="#differencing-contexts" title="Permalink to this headline">¶</a></h3>
-<p>Click the <em>diff</em> checkbox for any two contexts in the history and then click the diff button
+<p>Click the <em>diff</em> check box for any two contexts in the history and then click the diff button
 at the top of the diff column:</p>
 <div class="figure">
 <a class="reference internal image-reference" href="_images/web_context_diff_1.png"><img alt="CRDS context diff request" src="_images/web_context_diff_1.png" style="width: 534.5px; height: 346.0px;" /></a>
@@ -231,10 +213,15 @@ differed between the two contexts:</p>
 <div class="figure">
 <a class="reference internal image-reference" href="_images/web_context_diff_2.png"><img alt="CRDS context diff request" src="_images/web_context_diff_2.png" style="width: 605.5px; height: 409.5px;" /></a>
 </div>
-<p>Each file accordion opens into two accordions which display different views of the differences,
-logical or textual.  The logical differences display a table of matching parameters and files
-which were added, deleted, or replaced.   The textual differences show raw UNIX diffs of the
+<p>Each file accordion opens into two accordions which alternately display logical and simple
+textual differences.</p>
+<p>The logical differences display a table of matching parameters and files which were added,
+deleted, or replaced.   The textual differences show raw UNIX diffs of the
 two rules files.</p>
+<p>Clicking on any <em>context</em> link (the .pmap name) in the history table opens a page containing
+the Historical References for some point in the past,  similar to the Operational References display:</p>
+<div class="figure">
+<a class="reference internal image-reference" href="_images/web_context_table.png"><img alt="CRDS historical references display" src="_images/web_context_table.png" style="width: 614.5px; height: 442.0px;" /></a>
 </div>
 </div>
 <div class="section" id="open-services">
@@ -379,10 +366,11 @@ around 4 hours.</p>
 <p>When the user performs an action on the website,  their lock timer is reset to its maximum value.</p>
 <p>Other users who attempt to login for the same instrument while it is locked
 will be denied.</p>
-<p>When a file submission is being performed,  it must be <em>confirmed</em> within the timeout period
-or the file submission will be cancelled.</p>
-<p>When a lock timer expires, any on-going submission is automatically cancelled
-and the lock is dropped to enable another submitter to cut-in.</p>
+<p>When a file submission is being performed,  it must be <em>confirmed</em> within the timeout period.  If
+the lock times out,  the submission is not cancelled,  but other team members have the option to
+take the lock and then cancel or force the submission.   Forced submissions should be carefully
+coordinated since by definition locking protections are not in place.</p>
+<p>After a submission is cancelled, confirmed, or dropped,  the user’s lock is also dropped.</p>
 <p>Care should be taken with the locking mechanism and file submissions.  <strong>DO NOT</strong>:</p>
 <ul class="simple">
 <li>Don’t login from multiple browsers or sites.   The last browser/site you log in from will steal the
@@ -434,8 +422,8 @@ it becomes an error to use the containing context.</p>
 context that includes it.  An error is issued for a bad reference only when
 it is actually recommended by CRDS,  it is not an error to use the containing
 context.</p>
-<p>By default, recommendation of bad references or use of bad rules  is an error.
-The default behaviour can be overridden by setting environment variables:
+<p>By default, bestrefs assignment of bad references or use of bad rules are errors.
+The default command line behavior can be overridden by setting environment variables:
 <em>CRDS_ALLOW_BAD_RULES</em> and/or <em>CRDS_ALLOW_BAD_REFERENCES</em>.</p>
 </div>
 <div class="section" id="delete-references">
@@ -450,9 +438,6 @@ as bad.</p>
 <p>Delete References does not remove the files from CRDS, it only removes them
 from the specified set of rules.  The references remain available under any
 contexts which still refer to them.</p>
-<p>Once references have been replaced or deleted from the operational context and
-the new context is made operational using Set Context, the deleted or replaced
-references can be marked as scientifically invalid using Mark Files Bad.</p>
 <p>Files are specified for Delete References by listing their names in the Deleted
 Files field of the input form, separated by spaces, commas, and/or newlines.</p>
 <p>Changes to rules which result from delete references are presented on a results
@@ -462,7 +447,7 @@ page which must be confirmed or cancelled as with other file submissions.</p>
 <h3>Add References<a class="headerlink" href="#add-references" title="Permalink to this headline">¶</a></h3>
 <p><em>Add References</em> supports adding existing CRDS references to a CRDS context
 which does not contain them already.  Add References is the inverse of Delete
-References and generates new CRDS rules without requiring the resubmission of
+References and generates new CRDS rules without requiring the re-submission of
 files to CRDS.</p>
 <div class="figure">
 <a class="reference internal image-reference" href="_images/web_add_references.png"><img alt="add references" src="_images/web_add_references.png" style="width: 565.5px; height: 389.0px;" /></a>
@@ -476,10 +461,11 @@ Files field of the input form, separated by spaces, commas, and/or newlines.</p>
 <p>Changes to rules which result from add references are presented on a results
 page which must be confirmed or cancelled as with other file submissions.
 Rules changes from add references should be carefully reviewed to ensure that
-the resulting rmap update is as intended.  In particular, other rmap
-differences from a branched context are not added, so additional test
-parameters or other header and structural changes of any test rmap are not
-carried over by Add References,  only the reference files themselves.</p>
+the resulting rmap update is as intended.</p>
+<p>In particular, other rmap differences from a branched context are not added,
+so additional test parameters or other header and structural changes of any
+test rmap are not carried over by Add References,  only the reference files
+themselves.</p>
 </div>
 <div class="section" id="set-context">
 <h3>Set Context<a class="headerlink" href="#set-context" title="Permalink to this headline">¶</a></h3>
@@ -638,18 +624,21 @@ was derived from.   This fits a work-flow where a reference is first downloaded
 from CRDS, modified under the same name,  and re-uploaded.   Nominally,  submitted
 files are automatically re-named.</p>
 </div>
-<div class="section" id="confirm-or-discard">
-<h4>Confirm or Discard<a class="headerlink" href="#confirm-or-discard" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="confirm-force-cancel">
+<h4>Confirm, Force, Cancel<a class="headerlink" href="#confirm-force-cancel" title="Permalink to this headline">¶</a></h4>
 <p>If everything looks good the last step is to click the <em>Confirm</em> button.
-Clicking the Confirm button finalizes the submission process,  submits the files
+Confirming finalizes the submission process,  submits the files
 for archive pickup,  and makes them a permanent part of CRDS visible in the
-database browser and potentially redistributable.   A confirmed submission
-cannot be revoked,  but neither will it go into use until the pipeline or a
-user explicitly requests it.</p>
-<p><em>Discarding</em> a batch submission based on warnings or bad rmap modifications
+database browser and potentially redistributable.</p>
+<p>A confirmed submission cannot be revoked,  but neither will it go into use until
+the pipeline or a user requests it either by updating the default context on
+the CRDS server or by specifying the new rules explicitly.</p>
+<p><em>Cancelling</em> a batch submission based on warnings or bad rmap modifications
 removes the submission from CRDS.   In particular temporary database records
 and file copies are removed.</p>
-<p>Following any CRDS pipeline mapping submission,  the default <em>edit</em> context
+<p><em>Forcing</em> a batch submission can be performed by any team member once the instrument
+lock of the original submitter has been dropped or times out.</p>
+<p>Following any CRDS batch reference submission,  the default <em>edit</em> context
 is updated to that pipeline mapping making it the default starting point for
 future submissions.</p>
 </div>
@@ -689,9 +678,9 @@ source mapping prior to renaming the new mapping.</p>
 care editing mappings since many aspects of the mapping cannot be verified by
 crds.certify.   Where possible match values are validated against CRDS .tpn
 files or JWST data model schema.</p>
-<p>3. Run crds.certify on the resulting mapping, using the current operational
+<p>3. Run crds.certify on the resulting mapping, using the current edit
 context as the point of comparison:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">certify</span> <span class="o">./</span><span class="n">jwst_miri_dark_0004</span><span class="o">.</span><span class="n">rmap</span>  <span class="o">--</span><span class="n">comparison</span><span class="o">-</span><span class="n">context</span> <span class="n">jwst</span><span class="o">-</span><span class="n">operational</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">certify</span> <span class="o">./</span><span class="n">jwst_miri_dark_0004</span><span class="o">.</span><span class="n">rmap</span>  <span class="o">--</span><span class="n">comparison</span><span class="o">-</span><span class="n">context</span> <span class="n">jwst</span><span class="o">-</span><span class="n">edit</span>
 </pre></div>
 </div>
 <p>4. During iteration, run crds.checksum on the mapping to update the internal
@@ -735,6 +724,7 @@ generate a warning.   Alternately:</p>
   <div role="contentinfo">
     <p>
         &copy; Copyright 2017, Space Telescope Science Institute.
+      Last updated on Nov 28, 2017.
 
     </p>
   </div>
