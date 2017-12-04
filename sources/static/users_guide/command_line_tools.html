@@ -1,136 +1,187 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Command Line Tools &#8212; crds 7.1.6 documentation</title>
-    <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '7.1.6',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Library Use" href="top_level_use.html" />
-    <link rel="prev" title="Package Overview" href="installation.html" /> 
-  </head>
-  <body>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="top_level_use.html" title="Library Use"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="installation.html" title="Package Overview"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.6 documentation</a> &#187;</li> 
-      </ul>
-    </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="index.html">
-              <img class="logo" src="_static/stsci_logo.png" alt="Logo"/>
-            </a></p>
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Command Line Tools</a><ul>
-<li><a class="reference internal" href="#crds-convenience-wrapper">crds Convenience Wrapper</a></li>
-<li><a class="reference internal" href="#specifying-file-paths">Specifying File Paths</a><ul>
-<li><a class="reference internal" href="#in-the-crds-cache">In the CRDS cache</a></li>
-<li><a class="reference internal" href="#in-the-current-directory">In the current directory</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#crds-bestrefs">crds.bestrefs</a><ul>
-<li><a class="reference internal" href="#file-oriented-best-references">File Oriented Best References</a></li>
-<li><a class="reference internal" href="#new-context">New Context</a></li>
-<li><a class="reference internal" href="#lookup-parameter-sources">Lookup Parameter Sources</a></li>
-<li><a class="reference internal" href="#comparison-modes">Comparison Modes</a><ul>
-<li><a class="reference internal" href="#context-to-context">Context-to-Context</a></li>
-<li><a class="reference internal" href="#prior-source-recommendations">Prior Source Recommendations</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#output-modes">Output Modes</a></li>
-<li><a class="reference internal" href="#update-modes">Update Modes</a></li>
-<li><a class="reference internal" href="#verbosity">Verbosity</a></li>
-<li><a class="reference internal" href="#bad-files">Bad Files</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#crds-sync">crds.sync</a></li>
-<li><a class="reference internal" href="#crds-certify">crds.certify</a></li>
-<li><a class="reference internal" href="#crds-diff">crds.diff</a></li>
-<li><a class="reference internal" href="#crds-rowdiff">crds.rowdiff</a></li>
-<li><a class="reference internal" href="#crds-uses">crds.uses</a></li>
-<li><a class="reference internal" href="#crds-matches">crds.matches</a></li>
-<li><a class="reference internal" href="#pipeline-bestrefs">pipeline_bestrefs</a></li>
-</ul>
-</li>
-</ul>
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Command Line Tools &mdash; CRDS 7.1.7 documentation</title>
+  
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="installation.html"
-                        title="previous chapter">Package Overview</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="top_level_use.html"
-                        title="next chapter">Library Use</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/command_line_tools.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/stsci.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="CRDS 7.1.7 documentation" href="index.html"/>
+        <link rel="next" title="Using the CRDS Web Site" href="web_site_use.html"/>
+        <link rel="prev" title="Overview" href="overview.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+            <a href="index.html" class="icon icon-home"> CRDS
+            
+            <img src="_static/stsci_pri_combo_mark_white.png" class="logo" />
+          </a>
+
+          
+            
+            
+              <div class="version">
+                7.1
+              </div>
+            
+          
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+  
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic_use.html">Best References Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environment.html">Environment Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Command Line Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#crds-master-program">crds master program</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#specifying-file-paths">Specifying File Paths</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#in-the-crds-cache">In the CRDS cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#in-the-current-directory">In the current directory</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#crds-bestrefs">crds.bestrefs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#file-oriented-best-references">File Oriented Best References</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#new-context">New Context</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lookup-parameter-sources">Lookup Parameter Sources</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#comparison-modes">Comparison Modes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#context-to-context">Context-to-Context</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#prior-source-recommendations">Prior Source Recommendations</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#output-modes">Output Modes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#update-modes">Update Modes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#verbosity">Verbosity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bad-files">Bad Files</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#crds-sync">crds.sync</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#crds-certify">crds.certify</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#crds-diff">crds.diff</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#crds-rowdiff">crds.rowdiff</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#crds-uses">crds.uses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#crds-matches">crds.matches</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#safe-bestrefs">safe_bestrefs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cron-sync">cron_sync</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="web_site_use.html">Using the CRDS Web Site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="web_services.html">Web Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rmap_syntax.html">CRDS Rules (Mappings)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library_use.html">Library Use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference_conventions.html">Reference File Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database.html">CRDS Database Access</a></li>
+</ul>
+
+            
+          
         </div>
       </div>
+    </nav>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">CRDS</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Command Line Tools</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/command_line_tools.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="command-line-tools">
 <h1>Command Line Tools<a class="headerlink" href="#command-line-tools" title="Permalink to this headline">¶</a></h1>
 <p>Using the command line tools requires a local installation of the CRDS library.
 Some of the command line tools also interact with the CRDS server in order to
 implement their functionality.</p>
-<div class="section" id="crds-convenience-wrapper">
-<h2>crds Convenience Wrapper<a class="headerlink" href="#crds-convenience-wrapper" title="Permalink to this headline">¶</a></h2>
-<p>DEPRECATED original command line syntax, e.g. for the list command:</p>
+<div class="section" id="crds-master-program">
+<h2>crds master program<a class="headerlink" href="#crds-master-program" title="Permalink to this headline">¶</a></h2>
+<p>The original DEPRECATED command line syntax, e.g. for the list command was:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">list</span> <span class="o">--</span><span class="n">status</span>
 </pre></div>
 </div>
-<p>NEW command line syntax, e.g.:</p>
+<p>This was replaced by a dNEW command line syntax, e.g.:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="nb">list</span> <span class="o">--</span><span class="n">status</span>
 </pre></div>
 </div>
-<p>Internally the ‘crds’ wrapper launches a command similar to the original
-‘-m’ syntax.   However, aside from easier typing,  the ‘crds’ wrapper
-hides internal structural details of the CRDS package.</p>
+<p>The ‘crds’ wrapper hides internal structural details of the CRDS package.</p>
 <p>For a list of available commands do:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="o">--</span><span class="n">help</span>
 </pre></div>
@@ -953,54 +1004,120 @@ reference files:</p>
 </pre></div>
 </div>
 </div>
-<div class="section" id="pipeline-bestrefs">
-<h2>pipeline_bestrefs<a class="headerlink" href="#pipeline-bestrefs" title="Permalink to this headline">¶</a></h2>
-<p>The pipeline_bestrefs script is a shim around crds.bestrefs which simplifies the command line interface,
-tuning it to the more limited case of updating FITS dataset headers with best references:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">pipeline_bestref</span> <span class="p">[</span><span class="o">-</span><span class="n">d</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">print</span><span class="o">-</span><span class="n">affected</span><span class="p">]</span> <span class="o">&lt;</span><span class="n">crds_context</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">dataset_file</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">&gt;...</span>
-
-<span class="o">-</span><span class="n">d</span>                     <span class="n">dry</span> <span class="n">run</span><span class="p">,</span>  <span class="n">do</span> <span class="ow">not</span> <span class="n">update</span> <span class="n">file</span> <span class="n">headers</span>
-<span class="o">-</span><span class="n">v</span>                     <span class="n">verbose</span><span class="p">,</span>  <span class="n">output</span> <span class="n">additional</span> <span class="n">diagnostic</span> <span class="n">messages</span>
-<span class="o">-</span><span class="n">h</span>                     <span class="n">help</span><span class="p">,</span>  <span class="nb">print</span> <span class="n">this</span> <span class="n">help</span>
-<span class="o">--</span><span class="nb">print</span><span class="o">-</span><span class="n">affected</span>       <span class="nb">print</span> <span class="n">files</span> <span class="k">with</span> <span class="n">updated</span> <span class="n">bestrefs</span>
-
-<span class="n">Updates</span> <span class="n">dataset</span> <span class="n">FITS</span> <span class="n">files</span> <span class="k">with</span> <span class="n">best</span> <span class="n">references</span> <span class="n">recommended</span> <span class="n">by</span> <span class="o">&lt;</span><span class="n">crds_context</span><span class="o">&gt;.</span>
-
-<span class="o">&lt;</span><span class="n">crds_context</span><span class="o">&gt;</span> <span class="ow">is</span> <span class="n">a</span> <span class="n">CRDS</span> <span class="n">context</span> <span class="n">file</span><span class="p">,</span> <span class="n">explicitly</span> <span class="n">named</span> <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">hst_0004</span><span class="o">.</span><span class="n">pmap</span>
-<span class="o">&lt;</span><span class="n">crds_context</span><span class="o">&gt;</span> <span class="n">can</span> <span class="n">be</span> <span class="n">specified</span> <span class="n">abstractly</span><span class="p">,</span>  <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span>  <span class="n">hst</span><span class="o">-</span><span class="n">edit</span> <span class="ow">or</span> <span class="n">hst</span><span class="o">-</span><span class="n">operational</span>
-<span class="o">&lt;</span><span class="n">crds_context</span><span class="o">&gt;</span> <span class="n">can</span> <span class="n">be</span> <span class="n">specified</span> <span class="n">by</span> <span class="n">date</span><span class="p">,</span>  <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span>  <span class="n">hst</span><span class="o">-</span><span class="mi">2013</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">29</span><span class="n">T12</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span>
-
-<span class="o">&lt;</span><span class="n">dataset_file</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">are</span> <span class="n">raw</span> <span class="n">dataset</span> <span class="n">files</span> <span class="k">for</span> <span class="n">which</span> <span class="n">best</span> <span class="n">references</span> <span class="n">are</span>
-<span class="n">computed</span> <span class="ow">and</span> <span class="n">updated</span><span class="o">.</span>
+<div class="section" id="safe-bestrefs">
+<h2>safe_bestrefs<a class="headerlink" href="#safe-bestrefs" title="Permalink to this headline">¶</a></h2>
+<p>The <em>safe_bestrefs</em> script is a shim around <em>crds bestrefs</em> which configures it for operation in
+the pipeline using a readonly cache and no connection to the server.  Typical usage might be:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ export CRDS_PATH=&lt;pipeline&#39;s CRDS cache path&gt;
+$ safe_bestrefs --files &lt;datasets FITS files...&gt;
 </pre></div>
 </div>
+<p>This script is intended to be run in parallel with multiple pipeline bestrefs
+and a concurrent cron_sync.  The “safe” aspect refers to not modifying the
+CRDS cache itself, and to not stumbling into inconsistent cache states while
+another process is updating the cache.</p>
+<p>To control when information is received from the server,  and to prevent pipeline stalls
+when the CRDS server is unavailable, safe_bestrefs is configured with a bad server IP address.</p>
+<p>Using a readonly CRDS cache enables the use of bestrefs in a multiprocessing environment
+where multiple copies of bestrefs are running simultaneously.</p>
+<p>Configuring bestrefs to run with no connection to the CRDS server makes it impossible for bestrefs
+to do file downloads and keeps the pipeline independent of the server during routine operations.
+See <em>cron_sync</em> for more info on updating the CRDS cache in pipeline environments.</p>
+</div>
+<div class="section" id="cron-sync">
+<h2>cron_sync<a class="headerlink" href="#cron-sync" title="Permalink to this headline">¶</a></h2>
+<p>The <em>cron_sync</em> script is a wrapper around the <em>crds sync</em> tool that tunes it for updating the CRDS
+cache in a highly concurrent environment where bestrefs may be running during the cache update.</p>
+<p><em>cron_sync</em> uses file locks to prevent more than one copy of itself from running at the
+same time, particularly if run periodically as a cron job which may take longer than the period
+to fully download file updates.</p>
+<p>Typical setup and execution is:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ export CRDS_PATH=&lt;pipeline&#39;s CRDS cache path&gt;
+$ export CRDS_SERVER_URL=&lt;project&#39;s CRDS server&gt;
+$ export CRDS_LOCKS=&lt;directory for cron_sync lock files, defaults to $CRDS_PATH&gt;
+$ cron_sync --all --check-files --fetch-references
+</pre></div>
+</div>
+<p><em>cron_sync</em> co-exists with an operating copy of <em>safe_bestrefs</em> by writing out the cache configuration
+information last.   The cache configuration information controls the context switch.  While files
+corresponding to the new context are downloading,  the cache remains safe and continues to operate
+under the old context.</p>
+<p>The HST and JWST pipeline environments currently further wrap the <em>cron_sync</em> script to establish
+the environment settings and required Python stack and eliminate all parameters:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ crds_sync_wrapper.csh
+</pre></div>
+</div>
+<p>Operators typically execute <em>crds_sync_wrapper.csh</em> rather than <em>cron_sync</em>.</p>
 </div>
 </div>
 
 
+           </div>
           </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="web_site_use.html" class="btn btn-neutral float-right" title="Using the CRDS Web Site" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="overview.html" class="btn btn-neutral" title="Overview" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Space Telescope Science Institute.
+      Last updated on Nov 28, 2017.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="top_level_use.html" title="Library Use"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="installation.html" title="Package Overview"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.6 documentation</a> &#187;</li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2015, STScI.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
-    </div>
-  </body>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'7.1.7',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
 </html>

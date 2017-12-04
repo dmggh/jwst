@@ -1,0 +1,549 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Library Use &mdash; CRDS 7.1.7 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/stsci.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="CRDS 7.1.7 documentation" href="index.html"/>
+        <link rel="next" title="Reference File Conventions" href="reference_conventions.html"/>
+        <link rel="prev" title="CRDS Rules (Mappings)" href="rmap_syntax.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+            <a href="index.html" class="icon icon-home"> CRDS
+            
+            <img src="_static/stsci_pri_combo_mark_white.png" class="logo" />
+          </a>
+
+          
+            
+            
+              <div class="version">
+                7.1
+              </div>
+            
+          
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+  
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic_use.html">Best References Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environment.html">Environment Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_line_tools.html">Command Line Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="web_site_use.html">Using the CRDS Web Site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="web_services.html">Web Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rmap_syntax.html">CRDS Rules (Mappings)</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Library Use</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#crds-getreferences">crds.getreferences()</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#crds-get-default-context">crds.get_default_context()</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#overview-of-features">Overview of Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#important-modules">Important Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#basic-operations-on-mappings">Basic Operations on Mappings</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#loading-rmaps">Loading Rmaps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#seeing-referenced-names">Seeing Referenced Names</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#computing-best-references">Computing Best References</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#mapping-checksums">Mapping Checksums</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ignoring-checksums">Ignoring Checksums!</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adding-checksums">Adding Checksums</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference_conventions.html">Reference File Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database.html">CRDS Database Access</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">CRDS</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Library Use</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/library_use.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="library-use">
+<h1>Library Use<a class="headerlink" href="#library-use" title="Permalink to this headline">¶</a></h1>
+<p>This section describes the formal top level interfaces for CRDS intended as the
+main entry points for the calibration software or basic use.  Functions
+at this level should be assumed to require network connectivity with the CRDS
+server.</p>
+<p>To function correctly,  these API calls may require the user to set the
+environment variables CRDS_SERVER_URL and CRDS_PATH.   See the section on
+<em>Installation</em> for more details.</p>
+<div class="section" id="crds-getreferences">
+<h2>crds.getreferences()<a class="headerlink" href="#crds-getreferences" title="Permalink to this headline">¶</a></h2>
+<p>Given  dataset header containing parameters required to determine best
+references, and optionally a specific .pmap to use as the best references
+context,  and optionally a list of the reference types for which reference files
+are to be determined,  getreferences() will determine best references,  cache
+them on the local file system,  and return a mapping from reference types to
+reference file paths:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">getreferences</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">reftypes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ignore_cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                  <span class="n">observatory</span><span class="o">=</span><span class="s2">&quot;jwst&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the mapping from the requested `reftypes` to their</span>
+<span class="sd">    corresponding best reference file paths appropriate for a dataset</span>
+<span class="sd">    described by `parameters` with CRDS rules defined by `context`::</span>
+
+<span class="sd">    parameters :    A mapping of parameter names to parameter value</span>
+<span class="sd">            strings for parameters which define best reference file matches.</span>
+
+<span class="sd">            { str  :   str, int, float, bool }</span>
+
+<span class="sd">           e.g.  {</span>
+<span class="sd">                   &#39;INSTRUME&#39; : &#39;ACS&#39;,</span>
+<span class="sd">                   &#39;CCDAMP&#39; : &#39;ABCD&#39;,</span>
+<span class="sd">                   &#39;CCDGAIN&#39; : &#39;2.0&#39;,</span>
+<span class="sd">                   ...</span>
+<span class="sd">                }</span>
+
+<span class="sd">    reftypes :    A list of reference type names.   For HST these are the keywords</span>
+<span class="sd">                 used to record reference files in dataset headers.   For JWST,  these</span>
+<span class="sd">                 are the identifiers which will appear in instrument contexts and</span>
+<span class="sd">                 reference mappings.</span>
+
+<span class="sd">                e.g.  [ &#39;darkfile&#39;, &#39;biasfile&#39;]</span>
+
+<span class="sd">                If reftypes is None,  return all reference types defined by</span>
+<span class="sd">                the instrument mapping for the instrument specified in</span>
+<span class="sd">                `parameters`.</span>
+
+<span class="sd">    context :   The name of the pipeline context mapping which should be</span>
+<span class="sd">            used to define best reference lookup rules,  or None.  If</span>
+<span class="sd">            `context` is None,  use the latest operational pipeline mapping.</span>
+
+<span class="sd">            str</span>
+
+<span class="sd">            e.g. &#39;hst_0037.pmap&#39;</span>
+
+<span class="sd">    ignore_cache :   If True,  download all required mappings and references</span>
+<span class="sd">            from the CRDS server.  If False,  download only those files not</span>
+<span class="sd">            already in the local caches.</span>
+
+<span class="sd">    observatory :  The name of the observatory this query applies to,  needed</span>
+<span class="sd">            to support both &#39;hst&#39; and &#39;jwst&#39; from a single server.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">            a mapping from reftypes to cached best reference file paths.</span>
+
+<span class="sd">            { str : str }</span>
+
+<span class="sd">            e.g.   {</span>
+<span class="sd">                &#39;biasfile&#39; : &#39;/path/to/file/hst_acs_biasfile_0042.fits&#39;,</span>
+<span class="sd">                &#39;darkfile&#39; : &#39;/path/to/file/hst_acs_darkfile_0056.fits&#39;,</span>
+<span class="sd">                }</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="crds-get-default-context">
+<h2>crds.get_default_context()<a class="headerlink" href="#crds-get-default-context" title="Permalink to this headline">¶</a></h2>
+<p>get_default_context() returns the name of the pipeline mapping which is
+currently in operational use.   When no</p>
+<p>The default context defines the matching rules used to determine best
+reference files for a given set of parameters:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_default_context</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Return the name of the latest pipeline mapping in use for processing</span>
+<span class="sd">    files.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pipeline context name</span>
+
+<span class="sd">        e.g.   &#39;hst_0007.pmap&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="overview-of-features">
+<h2>Overview of Features<a class="headerlink" href="#overview-of-features" title="Permalink to this headline">¶</a></h2>
+<p>Using the crds package it’s possible to:</p>
+<ul class="simple">
+<li>Load and operate on rmaps</li>
+<li>Determine best reference files for a dataset</li>
+<li>Check mapping syntax and verify checksum</li>
+<li>Certify that a mapping and all it’s dependencies exist and are valid</li>
+<li>Certify that a reference file meets important constraints</li>
+<li>Add checksums to mappings</li>
+<li>Determine the closure of mappings which reference a particular file.</li>
+</ul>
+</div>
+<div class="section" id="important-modules">
+<h2>Important Modules<a class="headerlink" href="#important-modules" title="Permalink to this headline">¶</a></h2>
+<p>There are really two important modules which anyone doing low-level and non-
+networked CRDS development will first be concerned with:</p>
+<ul class="simple">
+<li><dl class="first docutils">
+<dt>crds.rmap module</dt>
+<dd><dl class="first last docutils">
+<dt>– defines classes which load and operate on mapping files</dt>
+<dd><ul class="first last">
+<li>Mapping</li>
+<li>PipelineContext (.pmap)</li>
+<li>InstrumentContext (.imap),</li>
+<li>ReferenceMapping (.rmap)</li>
+</ul>
+</dd>
+<dt>– defines get_cached_mapping() function</dt>
+<dd><ul class="first last">
+<li>loads and caches a Mapping or subclass instances from files,
+typically this is a recursive process loading pipeline or instrument
+contexts as well as all associated reference mappings.</li>
+<li>this <em>cache</em> is an object cache to speed up access to mappings,
+not the file <em>cache</em> used by crds.client to avoid repeated network
+file transfers.</li>
+</ul>
+</dd>
+</dl>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>crds.selectors module</dt>
+<dd><dl class="first last docutils">
+<dt>– defines classes implementing best reference logic</dt>
+<dd><ul class="first last">
+<li>MatchSelector</li>
+<li>UseAfterSelector</li>
+<li>Other experimental Selector classes</li>
+</ul>
+</dd>
+</dl>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="basic-operations-on-mappings">
+<h2>Basic Operations on Mappings<a class="headerlink" href="#basic-operations-on-mappings" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="loading-rmaps">
+<h3>Loading Rmaps<a class="headerlink" href="#loading-rmaps" title="Permalink to this headline">¶</a></h3>
+<p>Perhaps the most fundamental thing you can do with a CRDS mapping is create an
+active object version by loading the file:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">crds.rmap</span> <span class="k">as</span> <span class="nn">rmap</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">hst</span> <span class="o">=</span> <span class="n">rmap</span><span class="o">.</span><span class="n">load_mapping</span><span class="p">(</span><span class="s2">&quot;hst.pmap&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The load_mapping() function will take any mapping and instantiate it and all of
+it’s child mappings into various nested Mapping subclasses:  PipelineContext,
+InstrumentContext, or ReferenceMapping.</p>
+<p>Loading an rmap implicitly screens it for invalid syntax and requires that the
+rmap’s checksum (sha1sum) be valid by default.</p>
+<p>Since HST has on the order of 70  mappings, this is a fairly slow process
+requiring a couple seconds to execute.  In order to speed up repeated access to
+the same Mapping,  there’s a mapping cache maintained by the rmap module and
+accessed like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hst</span> <span class="o">=</span> <span class="n">rmap</span><span class="o">.</span><span class="n">get_cached_mapping</span><span class="p">(</span><span class="s2">&quot;hst.pmap&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The behavior of the cached mapping is identical to the “loaded” mapping and
+subsequent calls are nearly instant.</p>
+</div>
+<div class="section" id="seeing-referenced-names">
+<h3>Seeing Referenced Names<a class="headerlink" href="#seeing-referenced-names" title="Permalink to this headline">¶</a></h3>
+<p>CRDS Mapping classes all know how to show you the files referenced by themselves
+and their descendents.   The ACS instrument context has a reference mapping for
+each of it’s associated file kinds:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">acs</span> <span class="o">=</span> <span class="n">rmap</span><span class="o">.</span><span class="n">get_cached_mapping</span><span class="p">(</span><span class="s2">&quot;hst_acs.imap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">acs</span><span class="o">.</span><span class="n">mapping_names</span><span class="p">()</span>
+<span class="go">[&#39;hst_acs.imap&#39;,</span>
+<span class="go"> &#39;hst_acs_idctab.rmap&#39;,</span>
+<span class="go"> &#39;hst_acs_darkfile.rmap&#39;,</span>
+<span class="go"> &#39;hst_acs_atodtab.rmap&#39;,</span>
+<span class="go"> &#39;hst_acs_cfltfile.rmap&#39;,</span>
+<span class="go"> &#39;hst_acs_spottab.rmap&#39;,</span>
+<span class="go"> &#39;hst_acs_mlintab.rmap&#39;,</span>
+<span class="go"> &#39;hst_acs_dgeofile.rmap&#39;,</span>
+<span class="go"> &#39;hst_acs_bpixtab.rmap&#39;,</span>
+<span class="go"> &#39;hst_acs_oscntab.rmap&#39;,</span>
+<span class="go"> &#39;hst_acs_ccdtab.rmap&#39;,</span>
+<span class="go"> &#39;hst_acs_crrejtab.rmap&#39;,</span>
+<span class="go"> &#39;hst_acs_pfltfile.rmap&#39;,</span>
+<span class="go"> &#39;hst_acs_biasfile.rmap&#39;,</span>
+<span class="go"> &#39;hst_acs_mdriztab.rmap&#39;]</span>
+</pre></div>
+</div>
+<p>The ACS atod reference mapping (rmap) refers to 4 different reference files:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">acs_atod</span> <span class="o">=</span> <span class="n">rmap</span><span class="o">.</span><span class="n">get_cached_mapping</span><span class="p">(</span><span class="s2">&quot;hst_acs_atodtab.rmap&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">acs_atod</span><span class="o">.</span><span class="n">reference_names</span><span class="p">()</span>
+<span class="go">[&#39;j4d1435hj_a2d.fits&#39;,</span>
+<span class="go"> &#39;kcb1734hj_a2d.fits&#39;,</span>
+<span class="go"> &#39;kcb1734ij_a2d.fits&#39;,</span>
+<span class="go"> &#39;t3n1116mj_a2d.fits&#39;]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="computing-best-references">
+<h3>Computing Best References<a class="headerlink" href="#computing-best-references" title="Permalink to this headline">¶</a></h3>
+<p>The primary function of CRDS is the computation of best reference files based
+upon a dictionary of dataset metadata.   Hence,  both an InstrumentContext and a
+ReferenceMapping can meaningfully return the best references for a dataset based
+upon a parameter dictionary.   It’s possible define a header as any Python
+dictionary provided you have sufficient knowledge of the parameters:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span> <span class="n">hdr</span> <span class="o">=</span> <span class="p">{</span> <span class="o">...</span> <span class="n">what</span> <span class="n">matters</span> <span class="n">most</span> <span class="o">...</span> <span class="p">}</span>
+</pre></div>
+</div>
+<p>On the other hand,  if your dataset is a FITS file and you want to do something
+quick and dirty,  you can ask CRDS what dataset metadata may matter for
+determining best references:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hdr</span> <span class="o">=</span> <span class="n">acs</span><span class="o">.</span><span class="n">get_minimum_header</span><span class="p">(</span><span class="s2">&quot;test_data/j8bt05njq_raw.fits&quot;</span><span class="p">)</span>
+<span class="go">{&#39;CCDAMP&#39;: &#39;C&#39;,</span>
+<span class="go"> &#39;CCDGAIN&#39;: &#39;2.0&#39;,</span>
+<span class="go"> &#39;DATE-OBS&#39;: &#39;2002-04-13&#39;,</span>
+<span class="go"> &#39;DETECTOR&#39;: &#39;HRC&#39;,</span>
+<span class="go"> &#39;FILTER1&#39;: &#39;F555W&#39;,</span>
+<span class="go"> &#39;FILTER2&#39;: &#39;CLEAR2S&#39;,</span>
+<span class="go"> &#39;FW1OFFST&#39;: &#39;0.0&#39;,</span>
+<span class="go"> &#39;FW2OFFST&#39;: &#39;0.0&#39;,</span>
+<span class="go"> &#39;FWSOFFST&#39;: &#39;0.0&#39;,</span>
+<span class="go"> &#39;LTV1&#39;: &#39;19.0&#39;,</span>
+<span class="go"> &#39;LTV2&#39;: &#39;0.0&#39;,</span>
+<span class="go"> &#39;NAXIS1&#39;: &#39;1062.0&#39;,</span>
+<span class="go"> &#39;NAXIS2&#39;: &#39;1044.0&#39;,</span>
+<span class="go"> &#39;OBSTYPE&#39;: &#39;IMAGING&#39;,</span>
+<span class="go"> &#39;TIME-OBS&#39;: &#39;18:16:35&#39;}</span>
+</pre></div>
+</div>
+<p>Here I say <em>may matter</em> because CRDS is currently dumb about specific instrument
+configurations and is returning metadata about filekinds which may be
+inappropriate.</p>
+<p>Once you have your dataset parameters,  you can ask an InstrumentContext for
+the best references for <em>all</em> filekinds for that instrument:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">acs</span><span class="o">.</span><span class="n">get_best_references</span><span class="p">(</span><span class="n">hdr</span><span class="p">)</span>
+<span class="go">{&#39;atodtab&#39;: &#39;kcb1734ij_a2d.fits&#39;,</span>
+<span class="go">&#39;biasfile&#39;: &#39;m4r1753rj_bia.fits&#39;,</span>
+<span class="go">&#39;bpixtab&#39;: &#39;m8r09169j_bpx.fits&#39;,</span>
+<span class="go">&#39;ccdtab&#39;: &#39;o1515069j_ccd.fits&#39;,</span>
+<span class="go">&#39;cfltfile&#39;: &#39;NOT FOUND n/a&#39;,</span>
+<span class="go">&#39;crrejtab&#39;: &#39;n4e12510j_crr.fits&#39;,</span>
+<span class="go">&#39;darkfile&#39;: &#39;n3o1059hj_drk.fits&#39;,</span>
+<span class="go">&#39;dgeofile&#39;: &#39;o8u2214mj_dxy.fits&#39;,</span>
+<span class="go">&#39;flshfile&#39;: &#39;NOT FOUND n/a&#39;,</span>
+<span class="go">&#39;idctab&#39;: &#39;p7d1548qj_idc.fits&#39;,</span>
+<span class="go">&#39;imphttab&#39;: &#39;vbb18105j_imp.fits&#39;,</span>
+<span class="go">&#39;mdriztab&#39;: &#39;ub215378j_mdz.fits&#39;,</span>
+<span class="go">&#39;mlintab&#39;: &#39;NOT FOUND n/a&#39;,</span>
+<span class="go">&#39;oscntab&#39;: &#39;m2j1057pj_osc.fits&#39;,</span>
+<span class="go">&#39;pfltfile&#39;: &#39;o3u1448rj_pfl.fits&#39;,</span>
+<span class="go">&#39;shadfile&#39;: &#39;kcb1734pj_shd.fits&#39;,</span>
+<span class="go">&#39;spottab&#39;: &#39;NOT FOUND n/a&#39;}</span>
+</pre></div>
+</div>
+<p>In the above results,  FITS files are the recommended best references,  while
+a value of “NOT FOUND n/a” indicates that no result was expected for the current
+instrument mode as defined in the header.   Other values of “NOT FOUND xxx”
+include an error message xxx which hints at why no result was found,  such as
+an invalid dataset parameter value or simply a matching failure.</p>
+<p>You can ask a ReferenceMapping for the best reference for single the filekind
+it manages:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">acs_atod</span><span class="o">.</span><span class="n">get_best_ref</span><span class="p">(</span><span class="n">hdr</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;kcb1734ij_a2d.fits&#39;</span>
+</pre></div>
+</div>
+<p>Often it is convenient to simply refer to a pipeline/observatory context file,
+and hence PipelineContext can also return the best references for a dataset,
+but this is really just shorthand for returning the best references for the
+instrument of that dataset:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hdr</span> <span class="o">=</span> <span class="n">hst</span><span class="o">.</span><span class="n">get_minimum_header</span><span class="p">(</span><span class="s2">&quot;test_data/j8bt05njq_raw.fits&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hst</span><span class="o">.</span><span class="n">get_best_references</span><span class="p">(</span><span class="n">hdr</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">for</span> <span class="n">this</span> <span class="n">hdr</span><span class="p">,</span> <span class="n">same</span> <span class="k">as</span> <span class="n">acs</span><span class="o">.</span><span class="n">get_best_references</span><span class="p">(</span><span class="n">hdr</span><span class="p">)</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>Here it is critical to call get_minimum_header on the pipeline context, hst,
+because this will make it include the “INSTRUME” parameter needed to choose
+the ACS instrument.</p>
+</div>
+</div>
+<div class="section" id="mapping-checksums">
+<h2>Mapping Checksums<a class="headerlink" href="#mapping-checksums" title="Permalink to this headline">¶</a></h2>
+<p>CRDS mappings contain sha1sum checksums over the entire contents of the mapping,
+with the exception of the checksum itself.   When a CRDS Mapping of any kind is
+loaded,  the checksum is transparently verified to ensure that the Mapping
+contents are intact.</p>
+<div class="section" id="ignoring-checksums">
+<h3>Ignoring Checksums!<a class="headerlink" href="#ignoring-checksums" title="Permalink to this headline">¶</a></h3>
+<p>Ordinarily,  during pipeline operations,  ignoring checksums should not be done.
+Ironically though,  the first thing you may want to do as a developer is ignore
+the checksum while you load a mapping you’ve edited:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">rmap</span><span class="o">.</span><span class="n">load_mapping</span><span class="p">(</span><span class="s2">&quot;hst.pmap&quot;</span><span class="p">,</span> <span class="n">ignore_checksum</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Alternately you can set an environment variable to ignore the mapping checksum
+while you iterate on new versions of the mapping:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">setenv</span> <span class="n">CRDS_IGNORE_MAPPING_CHECKSUM</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="adding-checksums">
+<h3>Adding Checksums<a class="headerlink" href="#adding-checksums" title="Permalink to this headline">¶</a></h3>
+<p>Once you’ve finished your masterpiece ReferenceMapping,  it can be sealed with
+a checksum like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">checksum</span> <span class="o">/</span><span class="n">where</span><span class="o">/</span><span class="n">it</span><span class="o">/</span><span class="n">really</span><span class="o">/</span><span class="ow">is</span><span class="o">/</span><span class="n">hst_acs_my_masterpiece</span><span class="o">.</span><span class="n">rmap</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="reference_conventions.html" class="btn btn-neutral float-right" title="Reference File Conventions" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="rmap_syntax.html" class="btn btn-neutral" title="CRDS Rules (Mappings)" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Space Telescope Science Institute.
+      Last updated on Nov 28, 2017.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'7.1.7',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

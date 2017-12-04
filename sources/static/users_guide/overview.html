@@ -1,268 +1,512 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Package Overview &#8212; crds 7.1.6 documentation</title>
-    <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '7.1.6',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
-  </head>
-  <body>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.6 documentation</a> &#187;</li> 
-      </ul>
-    </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="index.html">
-              <img class="logo" src="_static/stsci_logo.png" alt="Logo"/>
-            </a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/overview.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Overview &mdash; CRDS 7.1.7 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/stsci.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="CRDS 7.1.7 documentation" href="index.html"/>
+        <link rel="next" title="Command Line Tools" href="command_line_tools.html"/>
+        <link rel="prev" title="Environment Variables" href="environment.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+            <a href="index.html" class="icon icon-home"> CRDS
+            
+            <img src="_static/stsci_pri_combo_mark_white.png" class="logo" />
+          </a>
+
+          
+            
+            
+              <div class="version">
+                7.1
+              </div>
+            
+          
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+  
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic_use.html">Best References Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environment.html">Environment Variables</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#crds-matching">CRDS Matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#properties-of-crds">Properties of CRDS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#crds-rules">CRDS Rules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kinds-of-crds-files">Kinds of CRDS Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#crds-tools">CRDS Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#crds-web-sites">CRDS Web Sites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#server-functions">Server Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#reference-ingest">Reference Ingest</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#context-management">Context Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#file-distribution-cache-sync">File Distribution (cache sync)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reprocessing-support">Reprocessing Support</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#web-services">Web Services</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#web-displays">Web Displays</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="command_line_tools.html">Command Line Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="web_site_use.html">Using the CRDS Web Site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="web_services.html">Web Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rmap_syntax.html">CRDS Rules (Mappings)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library_use.html">Library Use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference_conventions.html">Reference File Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database.html">CRDS Database Access</a></li>
+</ul>
+
+            
+          
         </div>
       </div>
+    </nav>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">CRDS</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Overview</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/overview.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
-  <div class="section" id="package-overview">
-<h1>Package Overview<a class="headerlink" href="#package-overview" title="Permalink to this headline">¶</a></h1>
-<p>Currently the CRDS (Calibration Reference Data System) is a collection
-of web servers and a client library that manages calibration reference
-files (e.g. darks, biases) for HST and JWST.   Relative to its predecessor
-CDBS,  the scope of CRDS is considerably broader.</p>
-<p>Primary Function:  Reference File Assignment</p>
-<hr class="docutils" />
-<p>Like it’s predecessor, the primary function of CRDS is to assign the
-appropriate reference files to datasets so that they can be
-calibrated.  Datasets are assigned based on properties of the
-reference files (nominally instrument configurations for which they
-were created as well as when they were created) and properties of the
-datasets (nominally how an instrument was configured and when
-observations were taken.)</p>
-<p>For each instrument, there are many types of reference files. The
-approach of CDBS was to represent reference file properties in a
-database, with one or more tables per instrument.  The reference file
-database was matched against either a science exposure database or
-dataset file headers to choose appropriate references.  Complex
-dynamically constructed SQL queries were used to choose appropriate
-reference files.  Every rules file is retained in perpetuity.</p>
-<p>In CRDS, the reference file database is replaced with a nested
-hierarchy of explicitly versioned rules files. The CRDS rules files,
-often referred to as mappings, are encoded as plain text with file
-names that include decimal version numbers.  The rules comprise a tree
-with 3 tiers: the entire telescope, each instrument, and every
-reference type for each instrument.  At any given time, there are
-roughly 120 files describing the state of the system.</p>
-<p>The two major benefits of CRDS relative to CDBS are:</p>
-<p>1. Because CRDS rules are explicitly versioned, the results produced
-by CRDS at any given point in time are reproduceable.  In contrast,
-the CDBS database was a single state system, effectively a one way
-trap door, so as new references arrived CDBS lost the capability of
-reproducing past results.</p>
-<p>2. Because CRDS rules are encoded as plain text specifications, they
-are more transparent to human readers. User’s can merely glance at the
-rules files, or more generally, glance at the re-rendering of the
-rules files on the CRDS web servers.</p>
-<p>An important if obvious point to make is that the sets of calibration
-rules and references, as well as file checking constraints, are unique
-to each supported project.</p>
-<p>Common Secondary Functions (Reference Ingest, Certification, File Tracking, Archiving)</p>
-<hr class="docutils" />
-<p>Reference Ingest</p>
-<hr class="docutils" />
-<p>For both CRDS and CDBS, an important secondary function is to support
-adding new references to the system and archive.  CDBS was based on a
-series of command line scripts used to ingest files.  CRDS is based on
-web servers that support uploading files.  One challenge of the web
-interface is the sheer size of file deliveries, at times requiring
-support for dozens or hundreds of files and 10’s of gigabytes of data.</p>
-<p>File Certification</p>
-<hr class="docutils" />
-<p>In both systems, a certifier program is used to check basic properties
-of incoming files to verify that they will be correctly assigned and
-contain no obvious mistakes or omissions.</p>
-<p>File Tracking</p>
-<hr class="docutils" />
-<p>Each system adds incoming files to the gestalt of information that is
-tracked.  In CDBS this meant adding files to the reference file
-database that tracked both file metadata and assignment criteria. In
-CRDS this means incrementally generating a new version of rules files
-as well as adding select information to a smaller metadata-only
-database.  Once in CRDS, files don’t change, they are tracked
-bit-for-bit with checksums to ensure repeatability and exposed only
-through personal downloads or readonly caches.</p>
-<p>Archive Submission</p>
-<hr class="docutils" />
-<p>Once files have been delivered, checked, and added to the assignment
-and tracking systems, both CDBS (now retired) and CRDS pass the files
-along to downstream archive systems.  An extended chain of systems is
-involved but the immediate CRDS delivery interface is known as the
-“CRDS pipeline.”   The CRDS pipeline is typically left running but
-can be started/stopped by pipeline operators manually.</p>
-<p>New Features of CRDS (Controlled state transistions, history, file distribution, reprocessing, web services, web displays, differencing)</p>
-<hr class="docutils" />
-<p>File Distribution (cache sync)</p>
-<hr class="docutils" />
+  <div class="section" id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<p><strong>CRDS</strong> (Calibration References Data System) is a Python library, set of command line programs,
+and family of web servers used to assign and manage the best reference files that are used to
+calibrate HST and JWST data.</p>
+<div class="section" id="crds-matching">
+<h2>CRDS Matching<a class="headerlink" href="#crds-matching" title="Permalink to this headline">¶</a></h2>
+<p>The primary function of CRDS is to assign best reference files to datasets so that they can be
+calibrated based upon CRDS rules.</p>
+<p>CRDS revolves around a hierarchy of plain text rules files that define reference file assignments:</p>
+<div class="figure">
+<a class="reference internal image-reference" href="_images/crds_concept.png"><img alt="CRDS Matching Concept" src="_images/crds_concept.png" style="width: 723.2px; height: 542.4px;" /></a>
+</div>
+</div>
+<div class="section" id="properties-of-crds">
+<h2>Properties of CRDS<a class="headerlink" href="#properties-of-crds" title="Permalink to this headline">¶</a></h2>
+<p>1. CRDS rules are versioned.  Given the same instrument configuration,  the results produced by CRDS at
+any given point in time are reproducible.</p>
+<ol class="arabic simple" start="2">
+<li>Since CRDS rules are versioned, bad rule updates can effectively be undone.</li>
+</ol>
+</div>
+<div class="section" id="crds-rules">
+<h2>CRDS Rules<a class="headerlink" href="#crds-rules" title="Permalink to this headline">¶</a></h2>
+<p>The CRDS rules hierarchy has 4 tiers corresponding to the overall pipeline configuration,  the current
+rules for each instrument,  the rules for each type of each instrument,  and finally individual reference
+files assigned by instrument configuration and date:</p>
+<div class="figure">
+<a class="reference internal image-reference" href="_images/file_relationships.png"><img alt="diagram of file relationships, .pmap -&gt; .imap -&gt; .rmap -&gt; .reference" src="_images/file_relationships.png" style="width: 723.2px; height: 542.4px;" /></a>
+</div>
+</div>
+<div class="section" id="kinds-of-crds-files">
+<h2>Kinds of CRDS Files<a class="headerlink" href="#kinds-of-crds-files" title="Permalink to this headline">¶</a></h2>
+<p>References are assigned by descending the CRDS rules hierarchy.</p>
+<table border="1" class="colwidths-auto docutils" id="id1">
+<caption><span class="caption-text">Kinds of CRDS Files</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Class of File</th>
+<th class="head">Extension</th>
+<th class="head">Quantity</th>
+<th class="head">Example Name</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Pipeline Context</td>
+<td>.pmap</td>
+<td>1</td>
+<td>hst_0001.pmap</td>
+<td>Governs all instruments for one project</td>
+</tr>
+<tr class="row-odd"><td>Instrument Context</td>
+<td>.imap</td>
+<td>5-6</td>
+<td>hst_acs_0047.imap</td>
+<td>Governs all types for one instrument</td>
+</tr>
+<tr class="row-even"><td>Reference Type Mapping</td>
+<td>.rmap</td>
+<td>100-130</td>
+<td>hst_acs_darkfile_0107.rmap</td>
+<td>Governs one type for one instrument</td>
+</tr>
+<tr class="row-odd"><td>References</td>
+<td>.fits, .asdf, etc.</td>
+<td>1000’s</td>
+<td>lcb12060j_drk.fits</td>
+<td>Individual reference files</td>
+</tr>
+</tbody>
+</table>
+<p>Each calibration requires many types of references that vary by instrument and mode.   Each pipeline context
+defines a specific CRDS configuration (rules version) for the archive pipeline at one point in time.</p>
+<p>References are defined by descending the hierarchy based on exposure configuration parameters
+such as EXP_TYPE, FILTER, etc.</p>
+<p>CRDS rules files have a number of properties and implications:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="mf">1.</span> <span class="n">The</span> <span class="n">name</span> <span class="n">of</span> <span class="n">every</span> <span class="n">rules</span> <span class="n">file</span> <span class="n">has</span> <span class="n">a</span> <span class="n">serial</span> <span class="n">number</span> <span class="o">/</span> <span class="n">version</span>
+<span class="mf">2.</span> <span class="n">Rules</span> <span class="n">group</span> <span class="n">reference</span> <span class="n">files</span> <span class="n">into</span> <span class="n">succinct</span> <span class="n">mode</span><span class="o">-</span><span class="n">based</span> <span class="n">categories</span><span class="o">.</span>
+<span class="mf">3.</span> <span class="n">References</span> <span class="n">within</span> <span class="n">a</span> <span class="n">category</span> <span class="n">are</span> <span class="n">generally</span> <span class="n">differentiated</span> <span class="n">by</span> <span class="n">USEAFTER</span> <span class="n">date</span><span class="o">.</span>
+<span class="mf">4.</span> <span class="n">No</span> <span class="n">database</span> <span class="n">account</span> <span class="ow">or</span> <span class="n">SQL</span> <span class="n">queries</span> <span class="n">are</span> <span class="n">required</span> <span class="n">to</span> <span class="n">review</span> <span class="ow">or</span> <span class="n">plain</span> <span class="n">text</span> <span class="n">rules</span> <span class="n">files</span><span class="o">.</span>
+<span class="mf">5.</span> <span class="n">While</span> <span class="n">the</span> <span class="n">websites</span> <span class="n">provide</span> <span class="n">tabular</span> <span class="n">displays</span><span class="p">,</span>  <span class="n">the</span> <span class="n">rules</span> <span class="n">files</span> <span class="n">are</span> <span class="n">directly</span> <span class="n">readable</span><span class="o">.</span>
+<span class="mf">6.</span> <span class="n">CRDS</span> <span class="n">caching</span> <span class="n">mechanisms</span> <span class="n">avert</span> <span class="n">the</span> <span class="n">need</span> <span class="k">for</span> <span class="n">a</span> <span class="n">constant</span> <span class="n">connection</span> <span class="n">to</span> <span class="n">the</span> <span class="n">CRDS</span> <span class="n">servers</span><span class="o">.</span>
+<span class="mf">7.</span> <span class="n">CRDS</span> <span class="n">rule</span> <span class="n">updates</span> <span class="n">can</span> <span class="n">effectively</span> <span class="n">be</span> <span class="n">undone</span> <span class="n">by</span> <span class="n">reverting</span> <span class="n">to</span> <span class="n">a</span> <span class="n">prior</span> <span class="n">version</span><span class="o">.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="crds-tools">
+<h2>CRDS Tools<a class="headerlink" href="#crds-tools" title="Permalink to this headline">¶</a></h2>
+<p>In addition to assigning best reference files based on a hierarchy of rules,  CRDS
+provides tools to check, difference, and generally manage a cache of rules and reference
+files.   Individual programs are managed under the “crds” master script:</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="first docutils">
+<dt>crds bestrefs</dt>
+<dd><ul class="first last">
+<li>Best references utility for HST FITS files and context-to-context affected datasets computations.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>crds sync</dt>
+<dd><ul class="first last">
+<li>Downloads and manages a cache of CRDS rules, references, and state information.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>crds certify</dt>
+<dd><ul class="first last">
+<li>Checks constraints and format for CRDS rules and references.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>crds diff, crds rowdiff</dt>
+<dd><ul class="first last">
+<li>Difference utility for rules and references,  also FITS table differences.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>crds list</dt>
+<dd><ul class="first last">
+<li>Lists cache files and configuration,  prints rules files,  dumps database dataset parameter dictionaries.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>crds matches</dt>
+<dd><ul class="first last">
+<li>Prints out parameter matches for particular references.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>crds uses</dt>
+<dd><ul class="first last">
+<li>Lists files which refer to (are dependent on) some CRDS rules or reference file.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<p>Each sub-command can also be invoked as follows:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ crds sync --help
+</pre></div>
+</div>
+<p>to print help information,  where –help must be specified as the first parameter to the sub-command.</p>
+</div>
+<div class="section" id="crds-web-sites">
+<h2>CRDS Web Sites<a class="headerlink" href="#crds-web-sites" title="Permalink to this headline">¶</a></h2>
+<p>The CRDS web sites manage CRDS rules and reference files and metadata:</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="25%" />
+<col width="62%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Project</th>
+<th class="head">Use Case</th>
+<th class="head">URL</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>HST</td>
+<td>Operations</td>
+<td><a class="reference external" href="https://hst-crds.stsci.edu">https://hst-crds.stsci.edu</a></td>
+</tr>
+<tr class="row-odd"><td>HST</td>
+<td>Pipeline Test</td>
+<td><a class="reference external" href="https://hst-crds-test.stsci.edu">https://hst-crds-test.stsci.edu</a></td>
+</tr>
+<tr class="row-even"><td>JWST</td>
+<td>Operations</td>
+<td><a class="reference external" href="https://jwst-crds.stsci.edu">https://jwst-crds.stsci.edu</a></td>
+</tr>
+<tr class="row-odd"><td>JWST</td>
+<td>Pipeline Test</td>
+<td><a class="reference external" href="https://jwst-crds-test.stsci.edu">https://jwst-crds-test.stsci.edu</a></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>A number of additional servers exist to support development and JWST I&amp;T.</p>
+<p>The CRDS web servers provide these functions:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Cataloging and display of information about CRDS files.</li>
+<li>Tabular display of the current operational rules in the archive pipeline.</li>
+<li>Maintains and displays history of contexts used by the archive pipelines.</li>
+<li>Supports the CRDS client library.</li>
+<li>File submissions and archiving.</li>
+<li>File and configuration distribution.</li>
+<li>CRDS file differencing.</li>
+<li>Team activity and delivery tracking.</li>
+<li>Automatic determination of datasets to reprocess based on new references and/or rules.</li>
+</ol>
+</div></blockquote>
+</div>
+<div class="section" id="server-functions">
+<h2>Server Functions<a class="headerlink" href="#server-functions" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="reference-ingest">
+<h3>Reference Ingest<a class="headerlink" href="#reference-ingest" title="Permalink to this headline">¶</a></h3>
+<p>Another major function of CRDS is to support the addition, deletion, and replacement
+of reference files and rules.   Reference and rules ingest includes these additional
+functions:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Reference and rules file certification and checking.</li>
+<li>Automatic rules updates based on submitted reference files.</li>
+<li>File delivery to an archive ingest interface.</li>
+<li>File metadata cataloging.</li>
+</ol>
+</div></blockquote>
+</div>
+<div class="section" id="context-management">
+<h3>Context Management<a class="headerlink" href="#context-management" title="Permalink to this headline">¶</a></h3>
+<p>The current version of CRDS rules that is active in the archive pipeline is tracked on the CRDS
+server.  Pipeline operator’s choose when to activate fully delivered CRDS files in the pipeline.
+CRDS maintains:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>A dated history of the current and past pipeline contexts,  including a change rationale.</li>
+<li>An echo of the last default context sync’ed to the pipeline.</li>
+<li>An ability to inspect the differences between any two contexts.</li>
+<li>The ability for end user’s to select a non-default context.</li>
+</ol>
+</div></blockquote>
+</div>
+<div class="section" id="file-distribution-cache-sync">
+<h3>File Distribution (cache sync)<a class="headerlink" href="#file-distribution-cache-sync" title="Permalink to this headline">¶</a></h3>
 <p>One of the new features of CRDS is provision for the download and
-management of rules and reference files.  Aside from exposing
-individual files using simple web links, CRDS distribution support
-enables demand based downloads appropriate for individual researchers,
-as well as complete system downloads appropriate for archive
-pipelines.  Because CRDS file sets are explicitly defined by versioned
-rules, the CRDS distribution tools can manage a cache of rules and
-references that is limited in applicability either to particular
-datasets or complete versions of rules.</p>
-<p>Distributed files are cached by client systems and so in principle are
-downloaded only once.  For the single researcher use case, small sets
-of applicable files can be dynamically downloaded as they are defined
-or updated by CRDS.  For the pipeline use case, the pipeline’s CRDS
-cache can be updated with the complete of available references. This
-scheme works without the need for the replication of, distribution of,
-or authenticated connection to a database.  Although the JWST archive
-interface continues to support an intuitive shopping cart design, the
-CRDS scheme supports automatic incremental updates and obviates the to
-construct tarballs that are effectively unbounded in size.</p>
-<p>Pipeline cache synchronization is managed by a CRDS “sync” tool which
-is further wrapped by shellscript that handles pipeline concurrency
-issues.  It is possible to update the pipeline’s CRDS cache in parallel
-with pipeline processing of multiple concurrent jobs.</p>
-<p>End user on-demand cache synchronization is performed either by the
-CRDS bestrefs tool (HST) or by built-in features of the JWST
-calibration software.</p>
-<p>Once a file cache is established, repeat calibrations can be performed
-without additional downloads, with or without a connection to the CRDS
-server.  This is particularly important for pipelines, enabling them
-to run disconnected from and unaffected by the diverse loads and
-public exposure of the CRDS servers.</p>
-<p>On site, users and system test efforts typically refer to shared
-readonly CRDS caches that are pre-synced with all available files.
-Hence, for a majority of users, visible cache syncs never occur.
-Pipelines are a clear exception where carefully controlled updates are
-a very explicit team process, first distributing and pre-positioning
-new files, next actively selecting them for use in a well controlled
-way.</p>
-<p>Controlled State Transitions (Set Context)</p>
-<hr class="docutils" />
-<p>CRDS state transitions are coordinated by pipeline operators who
-manually choose when new reference files and rules become active in
-the pipeline by default.  This selection is tracked on the server and
-automatically made available to all CRDS users.  These official
-transitions can include seamless reversions to prior sets of rules in
-the event of failures.  Developers have the capability to override the
-set of files they use personally enabling multiple teams to use
-different versions of files tracked by the same server.</p>
-<p>Context History</p>
-<hr class="docutils" />
-<p>CRDS maintains a visible record of every file delivery on the web
-site.  CRDS tracks the exact time at which the archive pipeline adopts
-new references in a history that is visible on the web site and
-accessible via a web service.  Changes can include the addition of new
-files as well as adjustments, fixes, and new reference types.</p>
-<p>Reprocessing Support</p>
-<hr class="docutils" />
+management of rules and reference files in two ways:</p>
+<blockquote>
+<div><p>1. The crds sync tool supports downloading all the references in
+a selection of CRDS contexts,  e.g. all contexts,  the last 5 contexts,
+etc. The complete caches consume terabytes of space.</p>
+<p>2. The crds bestrefs tool and/or JWST CAL code direct integration can
+dynamically download references applicable to a group of particular
+datasets.  Dynamic downloads and private caches can improve upon VPN
+for remote users since cached CRDS references are only downloaded
+once.</p>
+</div></blockquote>
+<p>In both cases the quanity of files downloaded has no arbitrary bound,
+if files are listed in the CRDS rules or assigned by the bestrefs
+program or JWST CAL code CRDS can download all of them.</p>
+</div>
+<div class="section" id="reprocessing-support">
+<h3>Reprocessing Support<a class="headerlink" href="#reprocessing-support" title="Permalink to this headline">¶</a></h3>
 <p>One of the new features of CRDS is the ability to recommend the set of
 datasets that are candidates for reprocessing based on newly delivered
-references.  Determining the limited set of affected datasets enables
-a change in system-wide processing strategy, a switch from OTFR (On
-the fly reprocessing) to preemptive reprocessing.  Early reprocessing
-eliminates delays in delivering freshly calibrated data to end users;
-since CRDS generally identifies a reduced set of affected data, it
-becomes practical to reprocess all of it prior to user requests.</p>
-<p>CRDS computes affected datasets by accessing the science exposure
-databases, running relevant parameter sets through past and present
-CRDS rules, and indentifying differences in assigned references.   Those
-datasets for which reference files change become candidates for reprocessing.</p>
-<p>Unlike many systems, despite its complexity the CRDS reprocessing
-system is fully autonomous, triggered by the pipeline operator’s
-activation of a new set of rules.  As rules are updated, the required
-CRDS computation occurs, the results are captured permanently and
-distributed to the pipeline and remote institutions.</p>
-<p>Web Services</p>
-<hr class="docutils" />
-<p>The CRDS servers provide a variety of web services via JSONRPC interfaces.</p>
-<p>Web Displays</p>
-<hr class="docutils" />
+references.</p>
+<p>CRDS computes affected datasets by comparing the references assigned by
+old and new contexts based on archived dataset parameters for applicable
+datasets.</p>
+<p>The CRDS reprocessing system is fully autonomous and triggered by the selection
+of a new default contextr by a pipeline operator.   After running to completion,
+the reprocessing system stores logs and recommended datasets personally and
+makes them available via e-mail and a web interface and client program.</p>
+</div>
+<div class="section" id="web-services">
+<h3>Web Services<a class="headerlink" href="#web-services" title="Permalink to this headline">¶</a></h3>
+<p>The CRDS servers provide a variety of web services via JSONRPC interfaces, including
+a JSON rendering of the current JWST CAL s/w component versions and a best references
+web service for the archive.   Additional web services support file distribution and
+reprocessing functions.</p>
+</div>
+<div class="section" id="web-displays">
+<h3>Web Displays<a class="headerlink" href="#web-displays" title="Permalink to this headline">¶</a></h3>
 <p>The CRDS web servers provide an accurate rendition of the current and
-past file assignment criteria in a tabular format.  While it looks
-obvious, the thing of note is that such a system simply did not exist
-with CDBS, and it’s clear that human maintained tables, while
-potentially adding more subjective content, become obsolete as formal
-systems almost overnight.  In contrast CRDS is entirely self-maintaining.</p>
-<p>As part of maintaining versioned rules,  CRDS also provides tracks and
-displays a history of how the rules are changing.   The web display is
-automatically updated and display and provides a record of development
-and routine updates alike.</p>
-<p>The CRDS servers can display detailed metadata and other information
-relevant to individual files.   This is essentially a catalog display
-augmented with other computable file properties.</p>
-<p>State Differencing</p>
-<hr class="docutils" />
-<p>Since CRDS has versioned rules, it also has developed tools for
-comparing them and summarizing the differences.  This makes precise
-technical descriptions of ongoing changes possible.  Aribtrary context
-differences are supported, as well as recursive differences associated
-with file replacements.  CRDS has table differencing tools that were,
-at least initially, not available elsewere.</p>
+past rules in a tabular format as well as simple text displays of the rules
+files.</p>
+<p>CRDS supports differencing two contexts to review changes.</p>
+<p>CRDS tracks team activity and file deliveries to support reviewing ongoing work and changes.</p>
+</div>
+</div>
 </div>
 
 
+           </div>
           </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="command_line_tools.html" class="btn btn-neutral float-right" title="Command Line Tools" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="environment.html" class="btn btn-neutral" title="Environment Variables" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Space Telescope Science Institute.
+      Last updated on Nov 28, 2017.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.6 documentation</a> &#187;</li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2015, STScI.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
-    </div>
-  </body>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'7.1.7',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
 </html>

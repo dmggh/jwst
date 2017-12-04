@@ -1,0 +1,282 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Best References Basics &mdash; CRDS 7.1.7 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/stsci.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="CRDS 7.1.7 documentation" href="index.html"/>
+        <link rel="next" title="Environment Variables" href="environment.html"/>
+        <link rel="prev" title="Installation" href="installation.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+            <a href="index.html" class="icon icon-home"> CRDS
+            
+            <img src="_static/stsci_pri_combo_mark_white.png" class="logo" />
+          </a>
+
+          
+            
+            
+              <div class="version">
+                7.1
+              </div>
+            
+          
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+  
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Best References Basics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#crds-bestrefs-for-hst">CRDS Bestrefs for HST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#crds-bestrefs-for-jwst">CRDS Bestrefs for JWST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#default-onsite-use">Default Onsite Use</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#offsite-and-pipeline-use">Offsite and Pipeline Use</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setup-for-offsite-use">Setup for Offsite Use</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="environment.html">Environment Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_line_tools.html">Command Line Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="web_site_use.html">Using the CRDS Web Site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="web_services.html">Web Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rmap_syntax.html">CRDS Rules (Mappings)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library_use.html">Library Use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference_conventions.html">Reference File Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database.html">CRDS Database Access</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">CRDS</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Best References Basics</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/basic_use.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="best-references-basics">
+<h1>Best References Basics<a class="headerlink" href="#best-references-basics" title="Permalink to this headline">¶</a></h1>
+<p>The primary function of CRDS is to assign the names of calibration reference files required
+to calibrate datasets to their metadata headers.</p>
+<p>Operating on site using the CRDS cache at <em>/grp/crds/cache</em> by default,  CRDS “just works” for
+bestrefs with no extra configuration required.</p>
+<div class="section" id="crds-bestrefs-for-hst">
+<h2>CRDS Bestrefs for HST<a class="headerlink" href="#crds-bestrefs-for-hst" title="Permalink to this headline">¶</a></h2>
+<p>CRDS provides the <em>crds bestrefs</em> program for updating dataset headers for HST with the current
+best references.   Running bestrefs for HST is accomplished via:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ crds bestrefs --files dataset*.fits --update-bestrefs
+</pre></div>
+</div>
+<p>This command updates the FITS headers of the files specified by dataset*.fits with the names of
+the latest best reference files known to <em>/grp/crds/cache</em>.</p>
+</div>
+<div class="section" id="crds-bestrefs-for-jwst">
+<h2>CRDS Bestrefs for JWST<a class="headerlink" href="#crds-bestrefs-for-jwst" title="Permalink to this headline">¶</a></h2>
+<p>For JWST calibrations CRDS is fully integrated with the CAL code and operates transparently as a consequence
+of running pipelines:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ strun calwebb_sloper.cfg dataset.fits
+</pre></div>
+</div>
+<p>The above command will transparently update the reference files specified in the metadata of dataset.fits.</p>
+</div>
+<div class="section" id="default-onsite-use">
+<h2>Default Onsite Use<a class="headerlink" href="#default-onsite-use" title="Permalink to this headline">¶</a></h2>
+<p>The CRDS default configuration permits CRDS to operate onsite with no explicit
+environment settings.</p>
+<p>By default, CRDS operates using <em>/grp/crds/cache</em> with no connection to any CRDS
+server.</p>
+<p>Files and settings in <em>/grp/crds/cache</em> define the references that CRDS will
+assign to a given dataset.</p>
+</div>
+<div class="section" id="offsite-and-pipeline-use">
+<h2>Offsite and Pipeline Use<a class="headerlink" href="#offsite-and-pipeline-use" title="Permalink to this headline">¶</a></h2>
+<p>CRDS can be configured to operate from private/local CRDS caches.  See the
+instructions below for setting CRDS_PATH and CRDS_SERVER_URL.</p>
+<p>A private cache reduces the level of network i/o required for offsite use as
+well as eliminating constant dependence on CRDS web servers required to run a
+pipeline.  A private cache can also contain writable files suitable for
+experimentation.</p>
+<p>Onsite pipelines use private caches to reduce file system contention.</p>
+<p>Offsite pipelines use private caches to achieve more independence from STScI.</p>
+</div>
+<div class="section" id="setup-for-offsite-use">
+<h2>Setup for Offsite Use<a class="headerlink" href="#setup-for-offsite-use" title="Permalink to this headline">¶</a></h2>
+<p>CRDS has been designed to (optionally) automatically fetch and cache references
+you need to process your datasets to a personal CRDS cache.  You can create a
+small personal cache of rules and references supporting only the datasets you
+care about:</p>
+<p>For <strong>HST</strong>, to fetch the references required to process some FITS datasets:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ export CRDS_SERVER_URL=https://hst-crds.stsci.edu   # or similar
+$ export CRDS_PATH=${HOME}/crds_cache
+$ crds bestrefs --files dataset*.fits --sync-references=1  --update-bestrefs
+</pre></div>
+</div>
+<p>For <strong>JWST</strong>, CRDS is directly integrated with the calibration step code and
+will automatically download rules and references.  The only extra setup needed
+is to define CRDS_PATH and CRDS_SERVER_URL appropriately prior to <em>strun</em>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ export CRDS_SERVER_URL=https://jwst-crds.stsci.edu   # or similar
+$ export CRDS_PATH=${HOME}/crds_cache
+$ strun calwebb_sloper.cfg dataset.fits
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="environment.html" class="btn btn-neutral float-right" title="Environment Variables" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="installation.html" class="btn btn-neutral" title="Installation" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Space Telescope Science Institute.
+      Last updated on Nov 28, 2017.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'7.1.7',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
