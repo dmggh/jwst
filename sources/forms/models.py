@@ -38,6 +38,8 @@ class CrdsRequestModel(models.Model):
 
     date_needed = models.DateField("Date Needed")
 
+    affected_projects = models.CharField("Affected Projects", max_length=64, default="", help_text="HST, JWST, ...")
+
     fte_estimate = models.FloatField("FTE Estimate (days)",  default=0.0)
 
     requester = models.CharField("Requester", choices=zip_choices(REQUESTER_CHOICES), max_length=64, blank=True, default="")
