@@ -36,25 +36,25 @@ class CrdsRequestModel(models.Model):
 
     title = models.CharField("Title", max_length=128, unique=True)
 
-    date_needed = models.DateField("Date Needed")
+    date_needed = models.DateField("Date Needed", blank=True, null=True)
 
     affected_projects = models.CharField("Affected Projects", max_length=64, default="", help_text="HST, JWST, ...")
 
-    fte_estimate = models.FloatField("FTE Estimate (days)",  default=0.0)
+    fte_estimate = models.FloatField("FTE Estimate (days)",  default=0.0, blank=True, null=True)
 
     requester = models.CharField("Requester", choices=zip_choices(REQUESTER_CHOICES), max_length=64, blank=True, default="")
 
     resolution  = models.CharField("Resolution", choices=zip_choices(RESOLUTION_CHOICES), max_length=64, default="opened")
 
-    description_of_functionality = models.TextField("Description of Functionality")
+    description_of_functionality = models.TextField("Description of Functionality", default="", blank=True)
 
-    benefit = models.TextField("Benefit")
+    benefit = models.TextField("Benefit", default="", blank=True)
 
-    cost_of_not_implementing = models.TextField("Cost of not Implementing")
+    cost_of_not_implementing = models.TextField("Cost of not Implementing", blank=True, default="")
 
-    alternative_methods_of_achieving = models.TextField("Alternative Methods")
+    alternative_methods_of_achieving = models.TextField("Alternative Methods", blank=True, default="")
 
-    additional_notes = models.TextField("Additional Notes")
+    additional_notes = models.TextField("Additional Notes", blank=True, default="")
 
     required_support = models.TextField("Required Support", help_text= "specs, VMs, storage, proxies, reviews, ...", blank=True, default="")
 
