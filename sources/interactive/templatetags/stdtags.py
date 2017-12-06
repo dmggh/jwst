@@ -235,6 +235,8 @@ def colorize_diff(pattern):
     pattern = re.sub(r"(replaced)",r"<span class='orange'>\1</span>", pattern)
     pattern = re.sub(r"(added)",r"<span class='green'>\1</span>", pattern)
     pattern = re.sub(r"(deleted)",r"<span class='red'>\1</span>", pattern)
+    pattern = re.sub(r"(equal weight special case)",r"<span class='red'>\1</span>", pattern)
+    pattern = re.sub(r"(requiring dynamic merging)",r"<span class='red'>\1</span>", pattern)
     return pattern
 
 # Filter for accessing dictionary using variable
