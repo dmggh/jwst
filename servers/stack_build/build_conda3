@@ -44,8 +44,10 @@ cd ${CRDS}/crds_stacks/installer4/build
 ./meta install cfitsio fitsverify |& tee fitsverify.err
 
 conda uninstall --yes --quiet pkg-config pkgconfig
+pip uninstall --yes Django
 
 ./meta install mod_wsgi-master |& tee mod_wsgi.err
+./meta install Django
 ./meta clean >& /dev/null
 
 rehash
