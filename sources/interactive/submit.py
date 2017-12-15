@@ -788,7 +788,11 @@ def submit_confirm_core(confirmed, submission_kind, description, new_files, cont
             delivered_files = sorted(new_files + list(context_name_map.values()))
         else:
             delivered_files = new_files
-      
+            pmaps = [ os.path.basename(name) for name in new_files if name.endswith(".pmap") ]
+            if pmaps:  # when no context generation was done,  choose highest .pmap,  if any
+                new_pmap = sorted(pmaps)[-1]
+                models.set_default_context(new_pmap)
+
         delivery = Delivery(user, delivered_files, description, submission_kind, related_files=related_files)
         delivery.deliver()
         
