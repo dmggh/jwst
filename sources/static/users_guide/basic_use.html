@@ -88,6 +88,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#default-onsite-use">Default Onsite Use</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#offsite-and-pipeline-use">Offsite and Pipeline Use</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#setup-for-offsite-use">Setup for Offsite Use</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#overriding-the-default-context">Overriding the Default Context</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="environment.html">Environment Variables</a></li>
@@ -208,6 +209,19 @@ $ strun calwebb_sloper.cfg dataset.fits
 </pre></div>
 </div>
 </div>
+<div class="section" id="overriding-the-default-context">
+<h2>Overriding the Default Context<a class="headerlink" href="#overriding-the-default-context" title="Permalink to this headline">¶</a></h2>
+<p>It’s possible to use past or future/experimental CRDS contexts rather than
+the pipeline’s default operational context as follows for HST:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ crds bestrefs --files dataset*.fits --update-bestrefs --new-context hst_0001.pmap
+</pre></div>
+</div>
+<p>or as by setting an environment variable for JWST:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ export CRDS_CONTEXT=jwst_0001.pmap
+$ strun calwebb_sloper.cfg dataset.fits
+</pre></div>
+</div>
+</div>
 </div>
 
 
@@ -230,7 +244,7 @@ $ strun calwebb_sloper.cfg dataset.fits
   <div role="contentinfo">
     <p>
         &copy; Copyright 2017, Space Telescope Science Institute.
-      Last updated on Dec 20, 2017.
+      Last updated on Jan 12, 2018.
 
     </p>
   </div>
