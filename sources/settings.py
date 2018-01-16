@@ -161,6 +161,7 @@ TEMPLATES = [
             crds_server_dir + "/fileupload/templates",
             crds_server_dir + "/jsonapi/templates",
             crds_server_dir + "/jpoll/templates",
+            crds_server_dir + "/forms/templates",
             ],
         'OPTIONS': {
              'debug': DEBUG,
@@ -186,12 +187,14 @@ INSTALLED_APPS = (
     
     'django.contrib.staticfiles',
     
-    "crds.server.interactive",
+    "crds.server.interactive.apps.InteractiveConfig",
     "crds.server.jpoll",
     "crds.server.jsonapi",
     
     "crds.server.fileupload",
     "crds.server.locking",     # from git-hub django-locking
+
+    "crds.server.forms.apps.FormsConfig",
 
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',

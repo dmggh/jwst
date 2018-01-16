@@ -745,7 +745,6 @@ def _get_server_info():
     version_info["svnurl"] = "/" + "/".join(version_info["svnurl"].split("/")[3:])  # don't leak full url,  just branch
     info = {
         "last_synced" : str(timestamp.now()),
-        "bad_files" : " ".join(imodels.get_bad_files(sconfig.observatory)),
         "bad_files_list" : imodels.get_bad_files(sconfig.observatory),
         "force_remote_mode" : sconfig.FORCE_REMOTE_MODE,
         "mappings" : list_mappings(None, None, "*map"),

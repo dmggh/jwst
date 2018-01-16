@@ -80,10 +80,10 @@
             
             
                 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basic_use.html">Best References Basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="environment.html">Environment Variables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="command_line_tools.html">Command Line Tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="web_site_use.html">Using the CRDS Web Site</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Web Services</a><ul>
@@ -267,7 +267,7 @@ files managed by CRDS.   Catalog information cab be</p>
 <div class="section" id="single-file-metadata">
 <h3>Single File Metadata<a class="headerlink" href="#single-file-metadata" title="Permalink to this headline">¶</a></h3>
 <p><strong>get_file_info(pipeline_context, filename)</strong></p>
-<p>Return a dictionary of CRDS catalog information about <cite>filename</cite>.  For instance:</p>
+<p>Return a dictionary of CRDS catalog information about <code class="xref py py-obj docutils literal"><span class="pre">filename</span></code>.  For instance:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_file_info</span><span class="p">(</span><span class="s2">&quot;jwst&quot;</span><span class="p">,</span> <span class="s2">&quot;jwst_miri_flat_0023.fits&quot;</span><span class="p">)</span>
 <span class="go">{&#39;activation_date&#39;: &#39;2014-09-25 18:30:27&#39;,</span>
 <span class="go"> &#39;aperture&#39;: &#39;none&#39;,</span>
@@ -300,14 +300,14 @@ files managed by CRDS.   Catalog information cab be</p>
 <h3>Multiple File Metadata<a class="headerlink" href="#multiple-file-metadata" title="Permalink to this headline">¶</a></h3>
 <p><strong>get_file_info_map(observatory, files=None, fields=None)</strong></p>
 <p>get_file_info_map() is a multi-file version of get_info_map() whihch returns
-the information for several files with one call.  If <cite>files</cite> is not specified
+the information for several files with one call.  If <code class="xref py py-obj docutils literal"><span class="pre">files</span></code> is not specified
 then get_file_info_map() returns info for all files.</p>
 <p>Return the info:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="n">filename</span> <span class="p">:</span> <span class="p">{</span> <span class="n">info</span><span class="p">,</span> <span class="o">...</span> <span class="p">},</span> <span class="o">...</span> <span class="p">}</span>
 </pre></div>
 </div>
-<p>on <cite>files</cite> of <cite>observatory</cite>.</p>
-<p><cite>fields</cite> can be used to limit info returned to specified keys:</p>
+<p>on <code class="xref py py-obj docutils literal"><span class="pre">files</span></code> of <code class="xref py py-obj docutils literal"><span class="pre">observatory</span></code>.</p>
+<p><code class="xref py py-obj docutils literal"><span class="pre">fields</span></code> can be used to limit info returned to specified keys:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;activation_date&#39;</span><span class="p">,</span> <span class="s1">&#39;aperture&#39;</span><span class="p">,</span> <span class="s1">&#39;blacklisted&#39;</span><span class="p">,</span> <span class="s1">&#39;change_level&#39;</span><span class="p">,</span> <span class="s1">&#39;comment&#39;</span><span class="p">,</span>
  <span class="s1">&#39;creator_name&#39;</span><span class="p">,</span> <span class="s1">&#39;deliverer_user&#39;</span><span class="p">,</span> <span class="s1">&#39;delivery_date&#39;</span><span class="p">,</span> <span class="s1">&#39;derived_from&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">,</span>
  <span class="s1">&#39;filekind&#39;</span><span class="p">,</span> <span class="s1">&#39;instrument&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;observatory&#39;</span><span class="p">,</span> <span class="s1">&#39;pedigree&#39;</span><span class="p">,</span> <span class="s1">&#39;reference_file_type&#39;</span><span class="p">,</span>
@@ -315,7 +315,7 @@ then get_file_info_map() returns info for all files.</p>
  <span class="s1">&#39;uploaded_as&#39;</span><span class="p">,</span> <span class="s1">&#39;useafter_date&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>If <cite>fields</cite> is not specified then get_file_info_map() returns all fields.</p>
+<p>If <code class="xref py py-obj docutils literal"><span class="pre">fields</span></code> is not specified then get_file_info_map() returns all fields.</p>
 </div>
 </div>
 <div class="section" id="best-references">
@@ -389,7 +389,7 @@ or less.</p>
 <h3>Selection Parameters<a class="headerlink" href="#selection-parameters" title="Permalink to this headline">¶</a></h3>
 <p><strong>get_required_parkeys(context)</strong></p>
 <p>Return a mapping from instruments to lists of parameter names required to
-compute bestrefs under <cite>context</cite>,  i.e. matching header keys:</p>
+compute bestrefs under <code class="xref py py-obj docutils literal"><span class="pre">context</span></code>,  i.e. matching header keys:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="n">instrument</span> <span class="p">:</span> <span class="p">[</span> <span class="n">matching_parkey_name</span><span class="p">,</span> <span class="o">...</span> <span class="p">],</span> <span class="o">...</span> <span class="p">}</span>
 </pre></div>
 </div>
@@ -785,6 +785,7 @@ shown here with FITS parkey names:</p>
   <div role="contentinfo">
     <p>
         &copy; Copyright 2017, Space Telescope Science Institute.
+      Last updated on Dec 20, 2017.
 
     </p>
   </div>
