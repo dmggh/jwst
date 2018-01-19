@@ -5,11 +5,11 @@ from __future__ import absolute_import
 debug = DEBUG = True
 DEBUG_EXTRAS = False
 
-HOST = "dlhstcrdsv1"
+HOST = "dlhstcrds"
 PROXY = "hst-crds-dev"
 observatory = 'hst'
 server_usecase = 'dev'
-CRDS_SERVER_IP = "10.128.18.81"
+CRDS_SERVER_IP = "10.128.19.71"
 port = 8001
 
 # This is a VM-related storage partition used as server space

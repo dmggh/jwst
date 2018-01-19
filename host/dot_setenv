@@ -29,13 +29,13 @@ setenv URP_TYPE crds
 setenv CRDS_PIPELINE_CACHE_KEY 12ca7bb2-dd3b-444a-8e6e-d8fd0bf559ed
 
 switch ($CRDS_SERVER)
-       case dljwstcrdsv1:
+       case dljwcrds:
         setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-7
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE dev
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
        breaksw
-       case dlhstcrdsv1:
+       case dlhstcrds:
         setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-7
         setenv CRDS_PROJECT hst
         setenv CRDS_USECASE dev
