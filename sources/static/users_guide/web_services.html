@@ -199,7 +199,7 @@ This value is set and maintained on the CRDS Server.   The actual pipeline conte
 differs from this commanded valuer until the pipeline is synchronized with the CRDS
 server using cron_sync.</p>
 <p>The commanded default can be obtained using the CRDS client library as follows:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">CRDS</span> <span class="k">import</span> <span class="n">client</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">crds</span> <span class="k">import</span> <span class="n">client</span>
  <span class="o">&gt;&gt;&gt;</span> <span class="n">client</span><span class="o">.</span><span class="n">get_default_context</span><span class="p">(</span><span class="s1">&#39;jwst&#39;</span><span class="p">)</span>
 <span class="s1">&#39;jwst_0101.pmap&#39;</span>
 </pre></div>
@@ -219,7 +219,7 @@ generally preferred value is from get_default_context() since it always
 reflects the intended operational context regardless of the pipeline’s CRDS
 mode.</p>
 <p>The actual default context for a pipeline can be obtained as follows:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">CRDS</span> <span class="k">import</span> <span class="n">client</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">crds</span> <span class="k">import</span> <span class="n">client</span>
  <span class="o">&gt;&gt;&gt;</span> <span class="n">client</span><span class="o">.</span><span class="n">get_remote_context</span><span class="p">(</span><span class="s1">&#39;jwst&#39;</span><span class="p">,</span> <span class="s1">&#39;jwst-ops-pipeline&#39;</span><span class="p">)</span>
 <span class="s1">&#39;jwst_0101.pmap&#39;</span>
 </pre></div>
@@ -785,7 +785,7 @@ shown here with FITS parkey names:</p>
   <div role="contentinfo">
     <p>
         &copy; Copyright 2017, Space Telescope Science Institute.
-      Last updated on Jan 12, 2018.
+      Last updated on Jan 19, 2018.
 
     </p>
   </div>
