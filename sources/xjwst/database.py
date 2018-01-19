@@ -27,6 +27,8 @@ from crds.server import config as sconfig
 
 from crds.server.xjwst import parameter_interface
 
+# =========================================================================================================
+
 HERE = os.path.dirname(__file__) or "."
 
 # =========================================================================================================
@@ -98,6 +100,9 @@ def mock_params(instrument, date):
         params = filter_by_date(date, params)
     else:
         params = {}
+    for param in params.values():
+        if isinstance(param, dict):
+            param["PARAMS_SOURCE"] = sconfig.CRDS_MOCK_ARCHIVE_PARAMETERS
     return params
 
 def filter_by_instrument(instrument, params):
@@ -182,7 +187,7 @@ def get_dataset_headers_by_id(context, dataset_ids):
         }
     
     for instr, dids in list(ids_by_instrument.items()):
-        instr_headers = parameter_interface.get_dataset_headers_by_id(dids, matching_params[instr])
+        instr_headers = parameter_interface.get_dataset_headers_by_id(context, dids, matching_params[instr])
         headers.update(instr_headers)
 
     return headers
