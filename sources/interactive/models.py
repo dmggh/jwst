@@ -800,7 +800,7 @@ class FileBlobRepairMixin(object):
         "history" :  lambda self : self.type.lower() == "reference" and self.history in ["none","NONE","None", None, ""],
         "decription" : lambda self : self.type.lower() == "reference" and self.description in ["none", "NONE", "None", None, ""],
         # "history" :  lambda self : self.type.lower() == "reference",
-        "useafter_date" : lambda self: self.useafter_date_str in [str(DEFAULT_ACTIVATION_DATE).split(".")[0], "N/A"] and self.type != "mapping"
+        "useafter_date" : lambda self: self.useafter_date_str.strip().upper() in ["", "NONE"] and self.type != "mapping"
     }
     
     def get_defects(self, verify_checksum=False, fields=None):
