@@ -783,24 +783,24 @@ class FileBlobRepairMixin(object):
         "delivery_date" : lambda self: self.delivery_date > self.activation_date and self.activation_date >= START_OF_CRDS,
         "activation_date": lambda self: self.state in ["archived", "operational"] and \
                                     self.activation_date == DEFAULT_ACTIVATION_DATE and self.name in _all_activated_files(),
+        "useafter_date" : lambda self: self.useafter_date_str.strip().upper() in ["", "NONE"] and self.type != "mapping",
         "type" : lambda self: not self.type,
         "observatory": lambda self: self.observatory not in OBSERVATORIES,
         "instrument": lambda self:  (((not self.name.endswith(".pmap")) and self.instrument not in INSTRUMENTS) or 
                                      (self.name.endswith(".pmap") and self.instrument != "")),
         "filekind": lambda self:  (((not self.name.endswith((".pmap",".imap"))) and self.filekind not in FILEKINDS) or
                                    (self.name.endswith((".pmap",".imap")) and self.filekind != "")),
+
         "comment" : lambda self: self.type == "reference" and self.comment.lower() in ["", "none", "undefined"],
-        "description" : lambda self: not self.description,
+        "history" :  lambda self : self.type.lower() == "reference" and self.history in ["none","NONE","None", None, ""],
+        "description" : lambda self : self.type.lower() == "reference" and self.description in ["none", "NONE", "None", None, ""],
+
         "pedigree" : lambda self: self.type == "reference" and not self.pedigree and \
             not re.match(r"\w+\.r[0-9][hd]", self.name),
         "deliverer_user" : lambda self: not self.deliverer_user,
         "deliverer_email" : lambda self: not self.deliverer_email,
         "creator_name" : lambda self: not self.creator_name,
         "mapping_name_field": lambda self: rmap.is_mapping(self.name) and not self.name == rmap.fetch_mapping(self.name).name,
-        "history" :  lambda self : self.type.lower() == "reference" and self.history in ["none","NONE","None", None, ""],
-        "decription" : lambda self : self.type.lower() == "reference" and self.description in ["none", "NONE", "None", None, ""],
-        # "history" :  lambda self : self.type.lower() == "reference",
-        "useafter_date" : lambda self: self.useafter_date_str.strip().upper() in ["", "NONE"] and self.type != "mapping"
     }
     
     def get_defects(self, verify_checksum=False, fields=None):
