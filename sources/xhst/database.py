@@ -150,16 +150,16 @@ class DB(object):
     """This is a basic raw interface to a database, exposing tables, columns, and SQL.
     It is also capable of converting any table into a list of dictionaries, one per row.
     """
-    def __init__(self, dsn, user, password=None):
+    def __init__(self, dsn, user, database=None):
         self.dsn = dsn
         self.user = user
-        if password is None:
-            password = getpass.getpass("password: ")
-        self.connection = pyodbc.connect("DSN=%s;Uid=%s;Pwd=%s" % (dsn, user, password))
+        self.database = database
+        os.system("kinit crds -k -t " + sconfig.CATALOG_DB_KEYTAB)
+        self.connection = pyodbc.connect("DSN=%s; DATABASE=%s" % (dsn, database))
         self.cursor = self.connection.cursor()
 
     def __repr__(self):
-        return self.__class__.__name__ + "(%s, %s)" % (repr(self.dsn), repr(self.user))
+        return self.__class__.__name__ + repr((self.dsn, self.user, self.database))
 
     def execute(self, sql):
         log.verbose("Executing SQL:", repr(sql))
@@ -208,28 +208,12 @@ class DB(object):
 
 # ---------------------------------------------------------------------------------------------
 
-def get_password():
-    """Return the password associated with this database,  retrieving it from a file if possible,
-    otherwise prompting.
-    """
-    if not hasattr(get_password, "_password"):
-        try: # crazy scheme works with "password" or "blah password" in password file.
-            get_password._password = open(sconfig.CATALOG_DB_PFILE).readline().split()[-1:][0]
-        except:
-            get_password._password = getpass.getpass("password: ")
-    return get_password._password
-
-def get_catalog(user=sconfig.CATALOG_DB_USER):
+def get_catalog():
     """Cache and return a database connection to CATALOG."""
     if not hasattr(get_catalog, "_catalog"):
-        get_catalog._catalog = DB(sconfig.CATALOG_DB_DSN, user, get_password())
+        get_catalog._catalog = DB(
+            sconfig.CATALOG_DB_DSN, sconfig.CATALOG_DB_USER, sconfig.CATALOG_DB_NAME)
     return get_catalog._catalog
-
-def get_reffile_ops(user=sconfig.CATALOG_DB_USER):
-    """Cache and return a database connection to REFFILE_OPS."""
-    if not hasattr(get_reffile_ops, "_reffile_ops"):
-        get_reffile_ops._reffile_ops = DB(sconfig.REFFILE_DB_DSN, user, get_password())
-    return get_reffile_ops._reffile_ops
 
 # ---------------------------------------------------------------------------------------------
 
@@ -976,19 +960,6 @@ def get_dataset_ids(instrument, datasets_since=None):
     extra_clauses = tuple([ igen.get_expstart_clause(datasets_since) ] if datasets_since else [])
 
     return igen.get_dataset_ids(extra_clauses)
-
-# ---------------------------------------------------------------------------------------------------------
-def get_reference_info(instrument, reference):
-    """Return file info for a CDBS reference file `reference` belonging to `instrument`."""
-    _check_instrument(instrument)
-    _check_filename(reference)
-    if instrument == "nicmos": 
-        instrument = "nic"
-    elif instrument == "wfii":
-        instrument = "wfpc2"
-    refops = get_reffile_ops()
-    gen = refops.make_dicts(instrument.lower() + "_file", where="WHERE file_name='{}'".format(reference.lower()))
-    return next(gen)
 
 # ----------------------------------------------------------------------------------------------------------
 def get_normalized_ids(dataset_ids):
