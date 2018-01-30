@@ -199,7 +199,7 @@ This value is set and maintained on the CRDS Server.   The actual pipeline conte
 differs from this commanded valuer until the pipeline is synchronized with the CRDS
 server using cron_sync.</p>
 <p>The commanded default can be obtained using the CRDS client library as follows:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">CRDS</span> <span class="k">import</span> <span class="n">client</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">crds</span> <span class="k">import</span> <span class="n">client</span>
  <span class="o">&gt;&gt;&gt;</span> <span class="n">client</span><span class="o">.</span><span class="n">get_default_context</span><span class="p">(</span><span class="s1">&#39;jwst&#39;</span><span class="p">)</span>
 <span class="s1">&#39;jwst_0101.pmap&#39;</span>
 </pre></div>
@@ -219,7 +219,7 @@ generally preferred value is from get_default_context() since it always
 reflects the intended operational context regardless of the pipeline’s CRDS
 mode.</p>
 <p>The actual default context for a pipeline can be obtained as follows:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">CRDS</span> <span class="k">import</span> <span class="n">client</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">crds</span> <span class="k">import</span> <span class="n">client</span>
  <span class="o">&gt;&gt;&gt;</span> <span class="n">client</span><span class="o">.</span><span class="n">get_remote_context</span><span class="p">(</span><span class="s1">&#39;jwst&#39;</span><span class="p">,</span> <span class="s1">&#39;jwst-ops-pipeline&#39;</span><span class="p">)</span>
 <span class="s1">&#39;jwst_0101.pmap&#39;</span>
 </pre></div>
@@ -268,7 +268,8 @@ files managed by CRDS.   Catalog information cab be</p>
 <h3>Single File Metadata<a class="headerlink" href="#single-file-metadata" title="Permalink to this headline">¶</a></h3>
 <p><strong>get_file_info(pipeline_context, filename)</strong></p>
 <p>Return a dictionary of CRDS catalog information about <code class="xref py py-obj docutils literal"><span class="pre">filename</span></code>.  For instance:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_file_info</span><span class="p">(</span><span class="s2">&quot;jwst&quot;</span><span class="p">,</span> <span class="s2">&quot;jwst_miri_flat_0023.fits&quot;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">crds</span> <span class="k">import</span> <span class="n">client</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">get_file_info</span><span class="p">(</span><span class="s2">&quot;jwst&quot;</span><span class="p">,</span> <span class="s2">&quot;jwst_miri_flat_0023.fits&quot;</span><span class="p">)</span>
 <span class="go">{&#39;activation_date&#39;: &#39;2014-09-25 18:30:27&#39;,</span>
 <span class="go"> &#39;aperture&#39;: &#39;none&#39;,</span>
 <span class="go"> &#39;blacklisted&#39;: &#39;false&#39;,</span>
@@ -299,10 +300,41 @@ files managed by CRDS.   Catalog information cab be</p>
 <div class="section" id="multiple-file-metadata">
 <h3>Multiple File Metadata<a class="headerlink" href="#multiple-file-metadata" title="Permalink to this headline">¶</a></h3>
 <p><strong>get_file_info_map(observatory, files=None, fields=None)</strong></p>
-<p>get_file_info_map() is a multi-file version of get_info_map() whihch returns
+<p>get_file_info_map() is a multi-file version of get_info_map() which returns
 the information for several files with one call.  If <code class="xref py py-obj docutils literal"><span class="pre">files</span></code> is not specified
-then get_file_info_map() returns info for all files.</p>
-<p>Return the info:</p>
+then get_file_info_map() returns info for all files:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">crds</span> <span class="k">import</span> <span class="n">client</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">get_file_info_map</span><span class="p">(</span><span class="s2">&quot;jwst&quot;</span><span class="p">)</span>
+<span class="go">{&#39;jwst.pmap&#39;: {&#39;activation_date&#39;: &#39;2012-07-31 00:00:00&#39;,</span>
+<span class="go"> &#39;aperture&#39;: &#39;none&#39;,</span>
+<span class="go"> &#39;blacklisted&#39;: &#39;false&#39;,</span>
+<span class="go"> &#39;change_level&#39;: &#39;severe&#39;,</span>
+<span class="go"> &#39;comment&#39;: &#39;none&#39;,</span>
+<span class="go"> &#39;creator_name&#39;: &#39;todd miller&#39;,</span>
+<span class="go"> &#39;deliverer_user&#39;: &#39;crds&#39;,</span>
+<span class="go"> &#39;delivery_date&#39;: &#39;2014-03-26 08:49:23&#39;,</span>
+<span class="go"> &#39;derived_from&#39;: &#39;created by hand 07-31-2012&#39;,</span>
+<span class="go"> &#39;description&#39;: &#39;initial mass file import&#39;,</span>
+<span class="go"> &#39;filekind&#39;: &#39;&#39;,</span>
+<span class="go"> &#39;history&#39;: &#39;none&#39;,</span>
+<span class="go"> &#39;instrument&#39;: &#39;&#39;,</span>
+<span class="go"> &#39;name&#39;: &#39;jwst.pmap&#39;,</span>
+<span class="go"> &#39;observatory&#39;: &#39;jwst&#39;,</span>
+<span class="go"> &#39;pedigree&#39;: &#39;&#39;,</span>
+<span class="go"> &#39;reference_file_type&#39;: &#39;&#39;,</span>
+<span class="go"> &#39;rejected&#39;: &#39;false&#39;,</span>
+<span class="go"> &#39;replaced_by_filename&#39;: &#39;&#39;,</span>
+<span class="go"> &#39;sha1sum&#39;: &#39;caf080abe09236165885f383045c59e8957a80ce&#39;,</span>
+<span class="go"> &#39;size&#39;: &#39;392&#39;,</span>
+<span class="go"> &#39;state&#39;: &#39;archived&#39;,</span>
+<span class="go"> &#39;type&#39;: &#39;mapping&#39;,</span>
+<span class="go"> &#39;uploaded_as&#39;: &#39;jwst.pmap&#39;,</span>
+<span class="go"> &#39;useafter_date&#39;: &#39;2012-07-31 00:00:00&#39;},</span>
+<span class="go"> ...</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+<p>Returns the info:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="n">filename</span> <span class="p">:</span> <span class="p">{</span> <span class="n">info</span><span class="p">,</span> <span class="o">...</span> <span class="p">},</span> <span class="o">...</span> <span class="p">}</span>
 </pre></div>
 </div>
@@ -785,7 +817,7 @@ shown here with FITS parkey names:</p>
   <div role="contentinfo">
     <p>
         &copy; Copyright 2017, Space Telescope Science Institute.
-      Last updated on Dec 20, 2017.
+      Last updated on Jan 19, 2018.
 
     </p>
   </div>
