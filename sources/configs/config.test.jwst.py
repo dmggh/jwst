@@ -5,11 +5,11 @@ from __future__ import absolute_import
 debug = DEBUG = True
 DEBUG_EXTRAS = False
 
-HOST = "tljwstcrdsv1"
+HOST = "tljwcrds"
 PROXY = "jwst-crds-test"
 observatory = 'jwst'
 server_usecase = 'test'
-CRDS_SERVER_IP = "130.167.252.40"
+CRDS_SERVER_IP = "10.128.19.65"
 port = 8001
 
 # This is a VM-related storage partition used as server space
@@ -63,7 +63,7 @@ FORCE_REMOTE_MODE = False
 # ARCHIVE_PARAMETER_SERVICE_URL = "http://iljwdmsdarcv.stsci.edu:8888/crds"
 
 ARCHIVE_PARAMETER_SERVICE_URL = "https://undefined-archive-parameter-service.stsci.edu:8888/crds"
-CRDS_MOCK_ARCHIVE_PARAMETERS = "jwst-b7.1-iljwdmsbarcv1-2017-10-24.json"
+CRDS_MOCK_ARCHIVE_PARAMETERS = "jwst-b7.1-iljwdmsbarcv1-2017-11-14.json"
 
 CRDS_STATUS_TO_ADDRESSES = ["jmiller@stsci.edu"]
 

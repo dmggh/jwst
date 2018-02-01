@@ -5,7 +5,7 @@ from __future__ import absolute_import
 debug = DEBUG = False
 DEBUG_EXTRAS = False
 
-HOST = "tlhstcrdsv1"
+HOST = "tlhstcrds"
 PROXY = "hst-crds-test"
 observatory = 'hst'
 server_usecase = 'test'
