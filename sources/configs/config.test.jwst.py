@@ -60,10 +60,10 @@ CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/mappings/" + observator
 FORCE_REMOTE_MODE = False
 
 # ARCHIVE_PARAMETER_SERVICE_URL = "https://jwdmsdevvm4.stsci.edu:8888/crds"
-# ARCHIVE_PARAMETER_SERVICE_URL = "http://iljwdmsdarcv.stsci.edu:8888/crds"
+ARCHIVE_PARAMETER_SERVICE_URL = "http://pljwdmsarc1.stsci.edu:8888/crds"
 
-ARCHIVE_PARAMETER_SERVICE_URL = "https://undefined-archive-parameter-service.stsci.edu:8888/crds"
-CRDS_MOCK_ARCHIVE_PARAMETERS = "jwst-b7.1-iljwdmsbarcv1-2017-11-14.json"
+# ARCHIVE_PARAMETER_SERVICE_URL = "https://undefined-archive-parameter-service.stsci.edu:8888/crds"
+# CRDS_MOCK_ARCHIVE_PARAMETERS = "jwst-b7.1-iljwdmsbarcv1-2017-11-14.json"
 
 CRDS_STATUS_TO_ADDRESSES = ["jmiller@stsci.edu"]
 
