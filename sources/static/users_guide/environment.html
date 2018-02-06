@@ -295,7 +295,7 @@ versions of CRDS will not reflect ongoing type changes.  The test server
 Certify Files function should generally reflect the most up-to-date knowledge
 CRDS has about ongoing type changes.  To see how new reference files stack up
 with changing CRDS code, try submitting the files to Certify Files on the test
-server or ask what the status is on <a class="reference external" href="mailto:crds_team&#37;&#52;&#48;stsci&#46;edu">crds_team<span>&#64;</span>stsci<span>&#46;</span>edu</a>.</p>
+server or ask what the status is on <a class="reference external" href="mailto:redcat&#37;&#52;&#48;stsci&#46;edu">redcat<span>&#64;</span>stsci<span>&#46;</span>edu</a>.</p>
 <p><strong>NOTE:</strong> Without VPN or port forwarding, the test servers are not usable offsite.</p>
 </div>
 <div class="section" id="additional-hst-settings">
@@ -395,13 +395,13 @@ terminal windows or for pipeline use.</p>
 <h4>File Based Locking<a class="headerlink" href="#file-based-locking" title="Permalink to this headline">¶</a></h4>
 <p>Since Python’s default multiprocessing locks cannot support multiple process trees or terminal windows,
 CRDS also supports file based locking by setting appropriate configuration variables:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>    $ export CRDS_LOCKING_MODE=filelock
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ export CRDS_LOCKING_MODE=filelock
 $ crds list --status
-    CRDS Version = &#39;7.2.0, 7.2.0, 139bbcb&#39;
-    ...
-    Cache Locking = &#39;enabled, filelock&#39;
-    ...
-    Readonly Cache = False
+CRDS Version = &#39;7.2.0, 7.2.0, 139bbcb&#39;
+...
+Cache Locking = &#39;enabled, filelock&#39;
+...
+Readonly Cache = False
 </pre></div>
 </div>
 <p>File based locking is not used by default for several reasons:</p>
@@ -574,7 +574,7 @@ lockfile package.</p>
   <div role="contentinfo">
     <p>
         &copy; Copyright 2017, Space Telescope Science Institute.
-      Last updated on Jan 19, 2018.
+      Last updated on Feb 05, 2018.
 
     </p>
   </div>
