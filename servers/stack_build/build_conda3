@@ -50,6 +50,8 @@ pip uninstall --yes Django
 ./meta install Django
 ./meta clean >& /dev/null
 
+conda remove --yes --force unixodbc  # pulled in by pyodbc,  use stock installtion provided by DATB instead.
+
 rehash
 
 git status  |& tee git.status
