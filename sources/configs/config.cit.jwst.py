@@ -25,7 +25,7 @@ PYSYN_CDBS = ""
 
 # These are the file states which are available for download or rpc.
 # XXX TODO restrict to archived or operational
-CRDS_DISTRIBUTION_STATES =  [ "archived", "operational",] # "delivered", "submitted", "archiving"]
+CRDS_DISTRIBUTION_STATES =  [ "archived", "operational", "delivered", "submitted", "archiving"]
 
 # The primary URL used by end-users which passes through a proxy which
 # assigns more user-friendly URLs based on standard ports 443.
