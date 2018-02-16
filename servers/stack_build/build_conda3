@@ -51,7 +51,8 @@ pip uninstall --yes Django
 ./meta clean >& /dev/null
 
 conda remove --yes --force unixodbc  # pulled in by pyodbc,  use stock installtion provided by DATB instead.
-
+cp /usr/etc/odbc.ini /home/crds/.odbc.ini
+cp /usr/etc/odbcinst.ini /home/crds/.odbcinst.ini
 rehash
 
 git status  |& tee git.status
