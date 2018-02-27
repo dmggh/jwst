@@ -15,7 +15,7 @@ DATABASES = {
         'PORT': '33306',                      # Set to empty string for default. Not used with sqlite3.
 
         "OPTIONS": {
-           'init_command': 'SET default_storage_engine=INNODB; SET sql_mode=STRICT_TRANS_TABLES',
+           'init_command': 'SET default_storage_engine=INNODB;',
         },
     }
 }
