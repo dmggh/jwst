@@ -5,11 +5,11 @@ from __future__ import absolute_import
 debug = DEBUG = False
 DEBUG_EXTRAS = False
 
-HOST = "pljwstcrdsv1"
+HOST = "pljwcrds"
 PROXY = "jwst-crds"
 observatory = 'jwst'
 server_usecase ="ops"
-CRDS_SERVER_IP = "130.167.252.81"
+CRDS_SERVER_IP = "10.128.20.155"
 port = 8001
 
 # This is a VM-related storage partition used as server space

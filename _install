@@ -51,6 +51,8 @@ function create_dir {
 chmod $secret $install_dir/..
 chmod $secret $install_dir/../database
 
+chmod $private_ro $CRDS_SERVER_ISILON
+
 # The primary working copy for deliveries, nominally owned by CRDS.
 # Delivery files are links which last until received by OPUS.
 create_dir $private_rw $CRDS_DELIVERY_DIR
@@ -63,7 +65,7 @@ create_dir $private_rw $CRDS_INGEST_DIR
 create_dir $private_ro $CRDS_CATALOG_DIR
 
 # The temporary directory where uploaded files are initially stored.
-create_dir $secret $FILE_UPLOAD_TEMP_DIR
+create_dir $private_ro $FILE_UPLOAD_TEMP_DIR
 
 # This is a drop-off dir for hand crafted SSB-made references and mappings.
 # create_dir $private_rw ${CRDS_INGEST_DIR}_ssb

@@ -56,6 +56,15 @@ switch ($CRDS_SERVER)
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
        breaksw
 
+       case pljwcrds:
+        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-7
+        setenv CRDS_PROJECT jwst
+        setenv CRDS_USECASE ops
+        # setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
+        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
+        setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
+       breaksw
+
        case pljwstcrdsv1:
         setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-7
         setenv CRDS_PROJECT jwst
