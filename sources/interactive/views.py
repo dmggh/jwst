@@ -875,39 +875,54 @@ class JSONResponse(HttpResponse):
     def __init__(self, obj='', json_opts={}, content_type="application/json", *args, **kwargs):
         content = json.dumps(obj, **json_opts)
         super(JSONResponse, self).__init__(content, content_type, *args, **kwargs)
+        self['Content-Disposition'] = 'inline; filename=files.json'
 
 @error_trap("base.html")
 @log_view
 @login_required
 def upload_new(request, template="upload_new_input.html"):
-    """Support adding new files to the upload area."""
+    """Support adding new files to the upload area for django-file-upload."""
     if request.method == "GET":
         return HttpResponseRedirect('/upload/list/')  # secure
-        # return crds_render(request, template)
     else:
-        file_ = get_uploaded_file(request, 'files')
-        file_local_dir = str(request.user)
-        config.check_filename(file_.name)
-        assert re.match("[A-Za-z0-9_]+", file_local_dir), "Invalid file_local_dir " + srepr(file_local_dir)
-        ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir, file_.name)
-        with log.verbose_on_exception("Failed removing", repr(ingest_path)):
-            pysh.sh("rm -f ${ingest_path}")   #  secure, constructed path
-            log.info("Removed existing", repr(ingest_path))
-        utils.ensure_dir_exists(ingest_path, mode=0o770)
-        log.info("Linking", file_.temporary_file_path(), "to", ingest_path)
-        os.link(file_.temporary_file_path(), ingest_path)
-        # return HttpResponseRedirect('/upload/list/')  # secure 
-        data = {"files" : [json_file_details(file_.name, file_.temporary_file_path())] }
-        response = JSONResponse(data, {}, response_content_type(request))
-        response['Content-Disposition'] = 'inline; filename=files.json'
-        return response
+        return upload_new_post(request)
 
-def json_file_details(filename, filepath):
-    """Return a dictionary of details about `filename` at `filepath` for django-file-upload."""
+def upload_new_post(request):
+    """Handle a POST to the new file upload of django-file-upload."""
+
+    file_ = get_uploaded_file(request, 'files')
+    upload_path = file_.temporary_file_path()
+    filename = file_.name
+    config.check_filename(filename)    
+    username = str(request.user)
+    ingest_path = get_ingest_path(username, filename)
+
+    link_upload_to_ingest(upload_path, ingest_path)  # must secure ingest_path
+    
+    data = {"files" : [json_file_details(filename, upload_path)] }
+    return JSONResponse(data, {}, response_content_type(request))
+
+def get_ingest_path(username, filename):
+    """Return the file ingest path associated with `username` and basename `filename`."""
+    assert re.match("[A-Za-z0-9_]+", username), "Invalid file_local_dir " + srepr(username)
+    ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, username, filename)
+    return ingest_path
+
+def link_upload_to_ingest(upload_path, ingest_path):
+    """Remove any file or directory at `ingest_path` and then make a hard link
+    from `upload_path` to `ingest_path`.
+    """
+    with log.verbose_on_exception("Failed removing", repr(ingest_path)):
+        pysh.sh("rm -f ${ingest_path}")   #  secure, constructed path
+        log.info("Removed existing", repr(ingest_path))
+    utils.ensure_dir_exists(ingest_path, mode=0o770)
+    log.info("Linking", upload_path, "to", ingest_path)
+    os.link(upload_path, ingest_path)
+
+def json_file_details(filename, upload_path):
+    """Return a dictionary of details about `filename` at `upload_path` for django-file-upload."""
     return {'name': filename,
-            # 'url': settings.MEDIA_URL + "pictures/" + f.name.replace(" ", "_"),
-            # 'thumbnail_url': settings.MEDIA_URL + "pictures/" + f.name.replace(" ", "_"),
-            'size' : os.stat(filepath).st_size,
+            'size' : os.stat(upload_path).st_size,
             'deleteUrl': reverse('upload-delete', args=[filename]),
             'deleteType': "DELETE"}
 
@@ -916,47 +931,47 @@ def json_file_details(filename, filepath):
 @login_required
 def upload_list(request, _template="upload_new_input.html"):
     """Return JSON describing files in the upload area."""
-    file_local_dir = str(request.user)
-    assert re.match("[A-Za-z0-9_]+", file_local_dir), "Invalid file_local_dir " + srepr(file_local_dir)
-    ingest_glob = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir, "*")
+
+    username = str(request.user)
+    ingest_glob = get_ingest_path(username, "*")
+
     try:
         ingest_paths = { os.path.basename(f):f for f in glob.glob(ingest_glob) }
         log.info("Listing existing ingest files", repr(ingest_paths))
     except Exception:
         ingest_paths = []
         log.info("Failed globbing ingest files.")
+
     data = {"files" : [ json_file_details(name, ingest_paths[name]) for name in ingest_paths ] }
-    response = JSONResponse(data, {}, response_content_type(request))
-    response['Content-Disposition'] = 'inline; filename=files.json'
-    return response
+    return JSONResponse(data, {}, response_content_type(request))
 
 @error_trap("base.html")
 @log_view
 @login_required
 def upload_delete(request, filename):
     """Manage AJAX file deletes for django-file-upload multifile upload interface."""
-    _upload_delete(request, filename)
+    config.check_filename(filename)
+    username = str(request.user)
+
+    _upload_delete(username, filename)
+
     if request.is_ajax():
-        response = JSONResponse(True, {}, response_content_type(request))
-        response['Content-Disposition'] = 'inline; filename=files.json'
-        return response
+        return JSONResponse(True, {}, response_content_type(request))
     else:
         return HttpResponseRedirect('/upload/new/')  # secure
 
-def _upload_delete(request, filename):
+def _upload_delete(username, filename):
     """Worker function for upload_delete."""
+    ingest_path = get_ingest_path(username, filename)
     with log.error_on_exception("Failed upload_delete for:", srepr(filename)):
-        config.check_filename(filename)
-        file_local_dir = str(request.user)
-        assert re.match("[A-Za-z0-9_]+", file_local_dir), "Invalid file_local_dir " + srepr(file_local_dir)
-        ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, file_local_dir, filename)
         log.info("upload_delete", srepr(ingest_path))
         pysh.sh("rm -f ${ingest_path}")   # secure,  constructed path
 
 def clear_uploads(request, uploads):
     """Remove the basenames listed in `uploads` from the upload directory."""
+    username = str(request.user)
     for filename in uploads:
-        _upload_delete(request, filename)
+        _upload_delete(username, filename)
 
 # ===========================================================================
 '''
