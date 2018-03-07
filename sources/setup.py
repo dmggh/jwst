@@ -28,8 +28,8 @@ PACKAGES = [
     'crds.server.locking.management',
     'crds.server.locking.management.commands',
 
-    'crds.server.forms',
-    'crds.server.forms.migrations',
+    # 'crds.server.forms',
+    # 'crds.server.forms.migrations',
     ]
 
 PACKAGE_DIR = {
@@ -55,9 +55,9 @@ PACKAGE_DIR = {
     'crds.server.locking.management' : './locking/management',
     'crds.server.locking.management.commands' : './locking/management/commands',
 
-    'crds.server.forms':'./forms',
-    'crds.server.forms.migrations':'./forms/migrations',
-    'crds.server.forms.templatetags':'./forms/templatetags',
+    # 'crds.server.forms':'./forms',
+    # 'crds.server.forms.migrations':'./forms/migrations',
+    # 'crds.server.forms.templatetags':'./forms/templatetags',
 
     }
 
@@ -92,7 +92,7 @@ PACKAGE_DATA = {
         "fileupload/templates/*.html",
         "fileupload/templates/fileupload/*.html",
 
-        "forms/templates/*",
+        # "forms/templates/*",
         ],
     }
 
