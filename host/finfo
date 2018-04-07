@@ -7,9 +7,19 @@ from future import standard_library
 standard_library.install_aliases()
 from builtins import *
 
+# -----------------------------------------------------------------------------------
+
 import sys
 
+# -----------------------------------------------------------------------------------
+
 from astropy.io import fits
+
+# -----------------------------------------------------------------------------------
+
+from crds import log, utils, config
+
+# -----------------------------------------------------------------------------------
 
 def finfo(reference):
 
@@ -25,8 +35,18 @@ def finfo(reference):
 
 
 def main():
-    for reference in sys.argv[1:]:
-        finfo(reference)
+    for fname in sys.argv[1:]:
+        fpath = None
+        with log.error_on_exception("Error locating pathless file"):
+            observatory = utils.file_to_observatory(fname)
+            
+            fpath = config.locate_file(fname, observatory)
+        if fpath is None:
+            continue
+        if fname != fpath:
+            log.info("Locating", repr(fname), "at", repr(fpath), "in CRDS cache.")
+        with log.error_on_exception("Failed info for", repr(fname), "at", repr(fpath)):
+            finfo(fpath)
 
 if __name__ == "__main__":
     main()
