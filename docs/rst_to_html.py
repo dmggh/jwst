@@ -19,6 +19,7 @@ def rst_to_html(rst):
        source=rst,
        settings_overrides={'file_insertion_enabled': 0, 'raw_enabled': 0},
        writer_name='html')
+   html = html.decode('utf-8')
    html = html.replace("</head>", HEAD_ADDITIONS + "\n</head>")
    return html
 
