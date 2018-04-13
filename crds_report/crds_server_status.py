@@ -36,7 +36,24 @@ class ServerStatus(object):
         os.environ["CRDS_OBSERVATORY"] = observatory
 
     def to_rst(self):
-        return self.context_rst() + "\n" + self.delivery_rst() + "\n"
+        return self.context_rst() + "\n" + \
+            self.delivery_rst() + "\n" + \
+            self.links_rst() + "\n"
+
+    def links_rst(self):
+        OBS = self.observatory.upper()
+        URL = self.url
+        return f"""
+`{OBS} Server`_
+
+`{OBS} Default Context History`_
+
+`{OBS} All Contexts`_
+
+.. _`{OBS} Server`: {URL}
+.. _`{OBS} Default Context History`:  {URL}/display_context_history/
+.. _`{OBS} All Contexts`:  {URL}/display_all_contexts/
+"""
 
     def context_info(self):
         names = ["Location", "Context"]
@@ -57,7 +74,7 @@ class ServerStatus(object):
             link_url = self.url + "/context_table/" + row[1]
             link_def = crds_rst.link_def_rst(row[1], link_url)
             link_defs += link_def + "\n"
-        title = self.observatory.upper() + " Context Status"
+        title = self.observatory.upper() + " Status"
         table = crds_rst.CrdsTable(title, names, rst_rows)
         rst = table.to_rst() + "\n"
         rst += link_defs
@@ -79,7 +96,7 @@ class ServerStatus(object):
         for delivery in deliveries:
             row = self.get_row(delivery)
             rows.append(row)
-        title = self.observatory.upper() + " Delivery Status"
+        title = self.observatory.upper() + " Deliveries"
         names = [name.capitalize() for name in self.delivery_fields]
         table = crds_rst.CrdsTable(title, names, rows)
         return table.to_rst()
