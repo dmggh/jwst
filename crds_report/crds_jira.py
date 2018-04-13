@@ -77,7 +77,7 @@ class JiraConnection(object):
     @property
     def table(self):
         table = crds_rst.CrdsTable(
-            "Issues Being Worked",
+            "Issues",
             self.rows[0],
             self.rows[1:]
         )

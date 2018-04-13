@@ -41,18 +41,27 @@ class ServerStatus(object):
     def context_info(self):
         names = ["Location", "Context"]
         rows = [
-            ("Last Delivered", api.get_context_by_date(self.observatory + "-edit")),
+            ("Delivered", api.get_context_by_date(self.observatory + "-edit")),
             ("Server Default", api.get_context_by_date(self.observatory + "-operational")),
-            ("Pipeline", api.get_remote_context(self.observatory, self.observatory + "-ops-pipeline")),
             ("Onsite User", api.get_remote_context(self.observatory, "/grp/crds/cache")),
+            ("Pipeline", api.get_remote_context(self.observatory, self.observatory + "-ops-pipeline")),
          ]
         return (names, rows)
 
     def context_rst(self):
         names, rows = self.context_info()
+        rst_rows = []
+        link_defs = ""
+        for row in rows:
+            rst_rows.append((row[0], crds_rst.link_use_rst(row[1])))
+            link_url = self.url + "/context_table/" + row[1]
+            link_def = crds_rst.link_def_rst(row[1], link_url)
+            link_defs += link_def + "\n"
         title = self.observatory.upper() + " Context Status"
-        table = crds_rst.CrdsTable(title, names, rows)
-        return table.to_rst()
+        table = crds_rst.CrdsTable(title, names, rst_rows)
+        rst = table.to_rst() + "\n"
+        rst += link_defs
+        return rst
 
     def get_delivery_status(self):
         """Return a list of delivery status dictionaries for deliveries which occurred
@@ -95,7 +104,11 @@ def main(observatory, usecase, url):
     print(status.to_rst())
 
 if __name__ == "__main__":
-    print(main(*sys.argv[1:]))
+    main(*sys.argv[1:])
+
+
+
+
 
 
 
