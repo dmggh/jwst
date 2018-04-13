@@ -11,9 +11,11 @@ import os
 import os.path
 import re
 import datetime
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 import math
 import uuid
+
+# ============================================================================
 
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
@@ -21,18 +23,26 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core import cache
 from django.db import transaction
 
+# ============================================================================
+
 # Create your models here.
 import crds
 from crds import (timestamp, rmap, utils, refactor, log, data_file, uses, diff, checksum, python23)
 from crds import CrdsError
 from crds.log import srepr
 
+# ============================================================================
+
 from crds.server.config import observatory as OBSERVATORY
 from crds.server.config import table_prefix as TABLE_PREFIX
 from crds.server import config
 
+# ============================================================================
+
 from . import common
 from . import json_ext
+
+# ============================================================================
 
 observatory_module = utils.get_object("crds." + OBSERVATORY)
 
@@ -1736,4 +1746,33 @@ def get_remote_context(observatory, pipeline_name):
     return model.context
 
 # =============================================================================
+
+def get_delivery_status():
+    """Based on the .cat files in the audit log, return a list of dictionaries that 
+    describe the corresponding deliveries.
+    """
+    auditblobs = [ blob for blob in AuditBlob.objects.all() if blob.thaw().filename.endswith(".cat") ]
+    fileblobs = get_fileblob_map()
+    catalog_info = []
+    for audit in auditblobs:
+        audit.thaw()
+        files = []
+        status = "delivery corrupt"
+        status_class = "error"
+        with log.error_on_exception("Failed interpreting catalog", repr(audit.filename)):
+            files = sorted(open(os.path.join(config.CRDS_CATALOG_DIR, audit.filename)).read().splitlines())
+            status = fileblobs[files[0]].status
+            status_class = fileblobs[files[0]].status_class
+        catalog_info.append(
+                dict(date=audit.date,
+                     action=audit.action,
+                     user=audit.user,
+                     description=audit.why,
+                     files=files,
+                     catalog=audit.filename,
+                     status=status,
+                     status_class=status_class)
+            )
+    delivery_status = list(reversed(sorted(catalog_info, key=lambda k: k["date"])))
+    return delivery_status
 

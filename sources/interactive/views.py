@@ -1992,34 +1992,10 @@ def recent_activity_query(request):
 def delivery_status(request):
     """Show a table of the catlog files reflecting file deliveries and their status."""
 
-    auditblobs = [ blob for blob in models.AuditBlob.objects.all() if blob.thaw().filename.endswith(".cat") ]
-    fileblobs = models.get_fileblob_map()
-
-    catalog_info = []
-    for audit in auditblobs:
-        audit.thaw()
-        files = []
-        status = "delivery corrupt"
-        status_class = "error"
-        with log.error_on_exception("Failed interpreting catalog", repr(audit.filename)):
-            files = sorted(open(os.path.join(sconfig.CRDS_CATALOG_DIR, audit.filename)).read().splitlines())
-            status = fileblobs[files[0]].status
-            status_class = fileblobs[files[0]].status_class
-        catalog_info.append(
-                dict(date=audit.date,
-                     action=audit.action,
-                     user=audit.user,
-                     description=audit.why,
-                     files=files,
-                     catalog=audit.filename,
-                     status=status,
-                     status_class=status_class)
-            )
-    delivery_status = list(reversed(sorted(catalog_info, key=lambda k: k["date"])))
-    log.info("delivery_status catalog info:", delivery_status)
-
+    status = models.get_delivery_status()
+    
     return crds_render(request, "delivery_status.html", {
-            "delivery_status": delivery_status,
+            "delivery_status": status,
     })
 
 # ===========================================================================

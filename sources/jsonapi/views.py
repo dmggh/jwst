@@ -16,15 +16,22 @@ import glob
 import json
 import traceback
 
+# ===========================================================================
+
 from jsonrpc import jsonrpc_method
 from jsonrpc.exceptions import Error
 from jsonrpc._json import dumps
 from jsonrpc.site import jsonrpc_site
 
+# ===========================================================================
+
 from django.utils import html
 from django.contrib.auth.models import User
 
+# ===========================================================================
+
 from . import crds_db
+
 from crds.server.interactive import models as imodels
 from crds.server.interactive import versions
 from crds.server.interactive.common import DATASET_ID_RE, FITS_KEY_RE, FITS_VAL_RE, LIST_GLOB_RE
@@ -33,6 +40,8 @@ from crds.server import config as sconfig    # server config file
 
 from crds.server.jpoll import views as jviews
 from crds.server.interactive import submit
+
+# ===========================================================================
 
 from crds.client import proxy
 from crds.core import rmap, utils, log, timestamp, pysh, python23, heavy_client, exceptions
@@ -244,7 +253,7 @@ def check_context_date(date):
             "Invalid context date/time format '{0}' "
             "should be YYYY-MM-DDTHH:MM:SS | " + " | ".join(imodels.CONTEXT_TYPES), date)
 
-def check_datasets_since(date):
+def check_since_date(date):
     if date is None:
         date = "1900-01-01T00:00:00"
     try:
@@ -693,7 +702,7 @@ def call_context_function(context, func_name, *args, **keys):
 def get_dataset_headers_by_id(request, context, dataset_ids, datasets_since):
     context = check_context(context)
     dataset_ids = check_dataset_ids(dataset_ids)
-    datasets_since = check_datasets_since(datasets_since)   # IGNORED
+    datasets_since = check_since_date(datasets_since)   # IGNORED
     assert len(dataset_ids) <= MAX_HEADERS_PER_RPC, \
            "Too many ids.   More than {} datasets specified.".format(MAX_HEADERS_PER_RPC)
     return call_context_function(context, "database.get_dataset_headers_by_id", context, dataset_ids)
@@ -702,7 +711,7 @@ def get_dataset_headers_by_id(request, context, dataset_ids, datasets_since):
 def get_dataset_ids(request, context, instrument, datasets_since=None):
     context = check_context(context)
     instrument = check_instrument(instrument)
-    datasets_since = check_datasets_since(datasets_since)
+    datasets_since = check_since_date(datasets_since)
     return call_context_function(context, "database.get_dataset_ids", instrument, datasets_since)
 
 # ===============================================================
@@ -1015,6 +1024,22 @@ def get_system_versions(request, master_version, context):
     else:
         raise exceptions.CrdsLookupError(calver_name)
     return contents
+
+# ===============================================================
+
+@jsonrpc_method('get_delivery_status(since=String)')
+def get_delivery_status(request, since):
+    since_date = check_since_date(since).replace("T"," ")
+    deliveries = imodels.get_delivery_status()
+    returned = []
+    for delivery in deliveries:
+        del delivery["user"]
+        del delivery["status_class"]
+        if delivery["date"] >= since_date:
+            returned.append(delivery)
+        else:
+            break
+    return returned
 
 # ===============================================================
 
