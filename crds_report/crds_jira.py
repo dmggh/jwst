@@ -1,7 +1,5 @@
-import os
-import os.path
 import sys
-from pprint import pprint
+import getpass
 
 # =================================================================
 
@@ -23,7 +21,6 @@ def issue_url(key):
 
 PROJECT="CCD"
 HOST = "https://jira.stsci.edu"
-AUTH_PATH = os.path.join(os.environ["HOME"],".myauth")
 
 FIELDS = [
     ("Issue", "key", crds_rst.link_use_rst),
@@ -38,10 +35,12 @@ FIELDS = [
 
 class JiraConnection(object):
 
-    def __init__(self, auth_path=AUTH_PATH, fields=FIELDS,
-                 issue_selector=issue_selector):
-        self.connection = jira.JIRA(
-            HOST, basic_auth=self._load_basic_auth(auth_path))
+    def __init__(self, fields=FIELDS, issue_selector=issue_selector, basic_auth=None):
+        if basic_auth is None:
+            user = getpass.getuser()   # also user env var LOGNAME or USERNAME
+            passwd = getpass.getpass()
+            basic_auth = (user, passwd)
+        self.connection = jira.JIRA(HOST, basic_auth=basic_auth)
         self.fields = fields
         self.issue_selector = issue_selector
         self.rows = self.get_rows()
@@ -77,7 +76,7 @@ class JiraConnection(object):
     @property
     def table(self):
         table = crds_rst.CrdsTable(
-            "Issues",
+            "CRDS Development",
             self.rows[0],
             self.rows[1:]
         )

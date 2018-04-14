@@ -11,6 +11,8 @@ import datetime
 
 # ==============================================================================
 
+from crds.core import log
+
 from crds.client import api
 
 import crds_rst
@@ -36,14 +38,22 @@ class ServerStatus(object):
         os.environ["CRDS_OBSERVATORY"] = observatory
 
     def to_rst(self):
-        return self.context_rst() + "\n" + \
+        return self.title_rst() + "\n" + \
+            self.context_rst() + "\n" + \
             self.delivery_rst() + "\n" + \
             self.links_rst() + "\n"
+
+    def title_rst(self):
+        title = self.observatory.upper()
+        return crds_rst.underline(title, "-")
 
     def links_rst(self):
         OBS = self.observatory.upper()
         URL = self.url
         return f"""
+Links
++++++
+
 `{OBS} Server`_
 
 `{OBS} Default Context History`_
@@ -74,8 +84,7 @@ class ServerStatus(object):
             link_url = self.url + "/context_table/" + row[1]
             link_def = crds_rst.link_def_rst(row[1], link_url)
             link_defs += link_def + "\n"
-        title = self.observatory.upper() + " Status"
-        table = crds_rst.CrdsTable(title, names, rst_rows)
+        table = crds_rst.CrdsTable("Context Settings", names, rst_rows, format=("+","="))
         rst = table.to_rst() + "\n"
         rst += link_defs
         return rst
@@ -89,16 +98,17 @@ class ServerStatus(object):
     def delivery_rst(self):
         try:
             deliveries = self.get_delivery_status()
-        except Exception:
+        except Exception as exc:
+            log.error("Failed obtaining delivery status:", str(exc))
             return ""
         deliveries = self.clean_deliveries(deliveries)
         rows = []
         for delivery in deliveries:
             row = self.get_row(delivery)
             rows.append(row)
-        title = self.observatory.upper() + " Deliveries"
+        title = "Deliveries"
         names = [name.capitalize() for name in self.delivery_fields]
-        table = crds_rst.CrdsTable(title, names, rows)
+        table = crds_rst.CrdsTable(title, names, rows, format=("+","="))
         return table.to_rst()
 
     def get_row(self, delivery):

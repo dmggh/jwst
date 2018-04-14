@@ -1,6 +1,6 @@
 #! /bin/sh
 
-cat header.rst
+python crds_header.py $1
 python crds_server_status.py jwst dev https://jwst-crds-dev.stsci.edu
 python crds_server_status.py hst dev https://hst-crds-dev.stsci.edu
 python crds_jira.py

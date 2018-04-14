@@ -1,8 +1,0 @@
-#! /bin/sh
-
-./crds_report >report.rst
-rst_to_html report.rst
-mail -s "crds report test" -a report.html jmiller@stsci.edu </dev/null
-
-
-

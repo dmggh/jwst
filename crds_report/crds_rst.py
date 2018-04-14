@@ -114,6 +114,9 @@ def justify_rows(maxes, rows):
         justified.append("".join(items))
     return justified
 
+def underline(line, char="-"):
+    return line + "\n" + char*len(line) + "\n"
+
 # =======================================================================
 
 def link_use_rst(name):
