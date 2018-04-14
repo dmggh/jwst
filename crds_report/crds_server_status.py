@@ -23,6 +23,14 @@ DEFAULT_SINCE_DATE = (datetime.datetime.now() + datetime.timedelta(days=-14)).is
 
 # ==============================================================================
 
+def get_delivery_status(since_date=DEFAULT_SINCE_DATE):
+    """Return a list of delivery status dictionaries for deliveries which occurred
+    after `self.since_date`.
+    """
+    return api.S.get_delivery_status(since_date)
+
+# ==============================================================================
+
 class ServerStatus(object):
     def __init__(self, observatory, usecase, url, since_date=DEFAULT_SINCE_DATE):
         self.observatory = observatory
@@ -107,23 +115,14 @@ Links
 
     delivery_fields = "date,context,status,description".split(",")
 
-    def get_delivery_status(self):
-        """Return a list of delivery status dictionaries for deliveries which occurred
-        after `self.since_date`.
-        """
-        return api.S.get_delivery_status(self.since_date)
-
     def delivery_info(self):
         try:
-            deliveries = self.get_delivery_status()
+            deliveries = get_delivery_status(self.since_date)
         except Exception as exc:
             log.error("Failed obtaining delivery status:", str(exc))
             return (),()
         deliveries = self.clean_deliveries(deliveries)
-        rows = []
-        for delivery in deliveries:
-            row = self.get_row(delivery)
-            rows.append(row)
+        rows = [ self.get_row(delivery) for delivery in deliveries ]
         names = [name.capitalize() for name in self.delivery_fields]
         return names, rows
 
@@ -137,7 +136,7 @@ Links
             clean["date"] = delivery["date"].split(".")[0]
             clean["context"] = [ file for file in delivery["files"]
                                  if file.endswith(".pmap")][0]
-        cleaned.append(clean)
+            cleaned.append(clean)
         return cleaned
 
     def delivery_rst(self):
@@ -157,10 +156,4 @@ def main(observatory, usecase, url):
 
 if __name__ == "__main__":
     main(*sys.argv[1:])
-
-
-
-
-
-
 
