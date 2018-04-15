@@ -9,6 +9,7 @@ from __future__ import absolute_import
 
 import os
 import os.path
+import sys
 import re
 import datetime
 from collections import OrderedDict, defaultdict
@@ -366,6 +367,9 @@ def set_default_context(context, observatory=OBSERVATORY, state="edit", descript
     model.context = context
     model.save()
     
+    add_meta_event("Set default", srepr(state), "edit context for", 
+                   repr(observatory), "to", srepr(context), "with skip_history =", skip_history)
+
     if skip_history:
         return
 
@@ -1739,6 +1743,9 @@ def push_remote_context(observatory, kind, key, context):
     model = RemoteContextModel.objects.get(observatory=observatory, kind=kind, key=key)
     model.context = context
     model.save()
+    add_meta_event("Remote context update for", srepr(observatory), 
+                   "of kind", srepr(kind), "named", srepr(model.name), 
+                   "from key", srepr(key), "to", srepr(context))
 
 def get_remote_context(observatory, pipeline_name):
     """Get the context value for the specified remote pipeline."""
@@ -1776,3 +1783,24 @@ def get_delivery_status():
     delivery_status = list(reversed(sorted(catalog_info, key=lambda k: k["date"])))
     return delivery_status
 
+# =============================================================================
+
+META_EVENTS_FILE = os.path.join(config.install_root, "meta_events.log")
+
+def add_meta_event(*args, **keys):
+    """Format the log message specified by *args, **keys and add it
+    to the persistent events file.   The persistent events file is not
+    mirrored between server strings so it remains a permament record
+    when the database is copied from another server.   This enables it
+    to record things like 'which context the I&T pipeline last synced'
+    and 'when and how was this string last mirroed.'
+    """
+    now = timestamp.now()
+    test_mode = "test" in sys.argv
+    message = log.format(now, "TEST =", test_mode, *args, **keys)
+    with open(META_EVENTS_FILE, "a+") as events:
+        events.write(message)
+    log.info("META", message)
+    return message
+
+# ===========================================================================================================
