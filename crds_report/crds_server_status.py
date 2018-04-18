@@ -19,6 +19,7 @@ import crds_rst
 
 # ==============================================================================
 
+# XXXX duplicated in crds_jira.py
 DEFAULT_SINCE_DATE = (datetime.datetime.now() + datetime.timedelta(days=-14)).isoformat().split(".")[0]
 
 # ==============================================================================
@@ -88,28 +89,35 @@ Links
 
 `{OBS} All Contexts`_
 
+`{OBS} User's Guide`_
+
 .. _`{OBS} Server`: {URL}
 .. _`{OBS} Default Context History`:  {URL}/display_context_history/
 .. _`{OBS} All Contexts`:  {URL}/display_all_contexts/
+.. _`{OBS} User's Guide`: {URL}/static/users_guide/index.html
 """
 
     # ---------------------------------------------------------------------
 
     def context_info(self):
-        names = ["Location", "Context"]
+        names = ["Location", "Context", "Notes"]
         rows = [
-            ("Delivered", api.get_context_by_date(self.observatory + "-edit")),
-            ("Server Default", api.get_context_by_date(self.observatory + "-operational")),
-            ("Onsite User", api.get_remote_context(self.observatory, "/grp/crds/cache")),
-            ("Pipeline", api.get_remote_context(self.observatory, self.observatory + "-ops-pipeline")),
-         ]
+            ("Last Delivered", api.get_context_by_date(self.observatory + "-edit"),  
+             "AKA the 'edit' context."),
+            ("Pipeline", api.get_remote_context(self.observatory, self.observatory + "-ops-pipeline"), 
+             "In use by the archive, lags Last Delivered.  Possibly N/A for JWST."),
+            ("Onsite Default", api.get_remote_context(self.observatory, "/grp/crds/cache"), 
+             "AKA /grp/crds/cache.   Used by user's with no CRDS_PATH and CRDS_SERVER_URL."),
+            ("Server Default, Offsite", api.get_context_by_date(self.observatory + "-operational"), 
+             "Used by private caches, requires CRDS_PATH and CRDS_SERVER_URL."),
+           ]
         return (names, rows)
 
     def context_rst(self):
         names, rows = self.context_info()
         rst_rows = self.add_context_links(1, rows)
         table = crds_rst.CrdsTable("Context Settings", names, rst_rows, format=("+","="))
-        return table.to_rst() + "\n"
+        return table.to_rst() + "\n" 
 
     # ---------------------------------------------------------------------
 
@@ -133,7 +141,7 @@ Links
         cleaned = []
         for delivery in deliveries:
             clean = dict(delivery)
-            clean["date"] = delivery["date"].split(".")[0]
+            clean["date"] = delivery["date"].split(" ")[0]
             clean["context"] = [ file for file in delivery["files"]
                                  if file.endswith(".pmap")][0]
             cleaned.append(clean)

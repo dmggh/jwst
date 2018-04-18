@@ -1,7 +1,7 @@
 #! /bin/sh
 
 python crds_header.py $1
+python crds_jira.py
 python crds_server_status.py jwst ops https://jwst-crds.stsci.edu
 python crds_server_status.py hst ops https://hst-crds.stsci.edu
-python crds_jira.py
 

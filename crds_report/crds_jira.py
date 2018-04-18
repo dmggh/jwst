@@ -1,5 +1,6 @@
 import sys
 import getpass
+import datetime
 
 # =================================================================
 
@@ -11,11 +12,24 @@ import crds_rst
 
 # =================================================================
 
+# XXXX duplicated from crds_server_status.py
+DEFAULT_SINCE_DATE = (datetime.datetime.now() + datetime.timedelta(days=-7)).isoformat().split(".")[0]
+
+# =================================================================
+
 def issue_selector(issue):
-    return str(issue.fields.status) == "In Progress"
+    status = str(issue.fields.status)
+    resolution = str(issue.fields.resolution)
+    resolution_date = str(issue.fields.resolutiondate).split("T")[0]
+    select = status in ["In Progress"]
+    select = select or ((status in ["Closed","Resolved"]) and resolution_date >= DEFAULT_SINCE_DATE)
+    return select
 
 def issue_url(key):
     return HOST + "/projects/" + PROJECT + "/issues/" + key + "?filter=allissues"
+
+def format_date(datestr):
+    return datestr.split("T")[0]
 
 # =================================================================
 
@@ -25,11 +39,14 @@ HOST = "https://jira.stsci.edu"
 FIELDS = [
     ("Issue", "key", crds_rst.link_use_rst),
     ("Status", "fields.status"),
+    ("Resolution", "fields.resolution"),
     ("Type", "fields.issuetype"),
     ("Priority", "fields.priority"),
     # ("Target Build", "fields.targetbuild"),
     ("Summary", "fields.summary"),
-    ]
+    ("Created",  "fields.created", format_date),
+    ("Resolved", "fields.resolutiondate", format_date),
+]
 
 # =================================================================
 
@@ -62,7 +79,7 @@ class JiraConnection(object):
             row = [ self.resolve_field(issue, field)
                     for field in self.fields ]
             rows.append(row)
-        return rows
+        return list(sorted(rows))
 
     def resolve_field(self, issue, field):
         val = issue
