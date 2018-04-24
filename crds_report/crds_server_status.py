@@ -112,7 +112,7 @@ Links
                 ]
         rows += [
             ("Onsite Default", api.get_remote_context(self.observatory, "/grp/crds/cache"), 
-             "AKA /grp/crds/cache.   Used by user's with no CRDS_PATH and CRDS_SERVER_URL."),
+             "AKA /grp/crds/cache.   Used by users with no CRDS_PATH and CRDS_SERVER_URL."),
             ("Server Default, Offsite", api.get_context_by_date(self.observatory + "-operational"), 
              "Used by private caches, requires CRDS_PATH and CRDS_SERVER_URL."),
            ]
