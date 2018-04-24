@@ -104,8 +104,13 @@ Links
         rows = [
             ("Last Delivered", api.get_context_by_date(self.observatory + "-edit"),  
              "AKA the 'edit' context."),
+            ]
+        if self.observatory != "jwst":
+            rows += [
             ("Pipeline", api.get_remote_context(self.observatory, self.observatory + "-ops-pipeline"), 
-             "In use by the archive, lags Last Delivered.  Possibly N/A for JWST."),
+             "In use by the archive, lags Last Delivered."),
+                ]
+        rows += [
             ("Onsite Default", api.get_remote_context(self.observatory, "/grp/crds/cache"), 
              "AKA /grp/crds/cache.   Used by user's with no CRDS_PATH and CRDS_SERVER_URL."),
             ("Server Default, Offsite", api.get_context_by_date(self.observatory + "-operational"), 
