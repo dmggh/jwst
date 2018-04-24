@@ -3,7 +3,7 @@
 DATE=`date --rfc-3339=date`
 ./crds_report $DATE >report.rst
 ./rst_to_html report.rst
-mail -s "CRDS Weekly Status $DATE" -a report.html jmiller@stsci.edu </dev/null
+mail -s "CRDS Weekly Status $DATE" -a report.html crds-status@maillist.stsci.edu </dev/null
 
 
 

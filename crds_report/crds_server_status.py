@@ -20,7 +20,7 @@ import crds_rst
 # ==============================================================================
 
 # XXXX duplicated in crds_jira.py
-DEFAULT_SINCE_DATE = (datetime.datetime.now() + datetime.timedelta(days=-14)).isoformat().split(".")[0]
+DEFAULT_SINCE_DATE = (datetime.datetime.now() + datetime.timedelta(days=-7)).isoformat().split(".")[0]
 
 # ==============================================================================
 

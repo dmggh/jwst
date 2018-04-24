@@ -1,6 +1,7 @@
 import sys
 import getpass
 import datetime
+import os.path
 
 # =================================================================
 
@@ -15,26 +16,11 @@ import crds_rst
 # XXXX duplicated from crds_server_status.py
 DEFAULT_SINCE_DATE = (datetime.datetime.now() + datetime.timedelta(days=-7)).isoformat().split(".")[0]
 
-# =================================================================
-
-def issue_selector(issue):
-    status = str(issue.fields.status)
-    resolution = str(issue.fields.resolution)
-    resolution_date = str(issue.fields.resolutiondate).split("T")[0]
-    select = status in ["In Progress"]
-    select = select or ((status in ["Closed","Resolved"]) and resolution_date >= DEFAULT_SINCE_DATE)
-    return select
-
-def issue_url(key):
-    return HOST + "/projects/" + PROJECT + "/issues/" + key + "?filter=allissues"
+PROJECT="CCD"
+HOST = "https://jira.stsci.edu"
 
 def format_date(datestr):
     return datestr.split("T")[0]
-
-# =================================================================
-
-PROJECT="CCD"
-HOST = "https://jira.stsci.edu"
 
 FIELDS = [
     ("Issue", "key", crds_rst.link_use_rst),
@@ -48,15 +34,34 @@ FIELDS = [
     ("Resolved", "fields.resolutiondate", format_date),
 ]
 
+JIRA_AUTHENTICATION_INFO = "/crds/data1/database/jira_auth_info.txt"
+
+# =================================================================
+
+def issue_selector(issue):
+    status = str(issue.fields.status)
+    resolution = str(issue.fields.resolution)
+    resolution_date = str(issue.fields.resolutiondate).split("T")[0]
+    select = status in ["In Progress"]
+    select = select or ((status in ["Closed","Resolved"]) and resolution_date >= DEFAULT_SINCE_DATE)
+    return select
+
+def issue_url(key):
+    return HOST + "/projects/" + PROJECT + "/issues/" + key + "?filter=allissues"
+
 # =================================================================
 
 class JiraConnection(object):
 
     def __init__(self, fields=FIELDS, issue_selector=issue_selector, basic_auth=None):
-        if basic_auth is None:
+        if os.path.exists(JIRA_AUTHENTICATION_INFO):
+            with open(JIRA_AUTHENTICATION_INFO) as auth_info:
+                user = auth_info.readline().strip()
+                passwd = auth_info.readline().strip()
+        elif basic_auth is None:
             user = getpass.getuser()   # also user env var LOGNAME or USERNAME
             passwd = getpass.getpass()
-            basic_auth = (user, passwd)
+        basic_auth = (user, passwd)
         self.connection = jira.JIRA(HOST, basic_auth=basic_auth)
         self.fields = fields
         self.issue_selector = issue_selector
