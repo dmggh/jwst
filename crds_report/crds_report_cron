@@ -7,8 +7,8 @@ if [ "$CRDS_USECASE" != "ops" ]; then
     exit 0;
 fi
 
-DATE=`date --rfc-3339=date`
-./crds_report $DATE >report.rst
+export DATE=`date --rfc-3339=date`
+./crds_report "$DATE" >report.rst
 ./rst_to_html report.rst
 
 ./crds_mail crds@stsci.edu crds-status@maillist.stsci.edu "CRDS Weekly Status $DATE" report.html 
