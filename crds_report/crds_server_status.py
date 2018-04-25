@@ -115,7 +115,7 @@ class ServerStatus(object):
         if self.observatory != "jwst":
             rows += [
                 ("Pipeline Echo", api.get_remote_context(self.observatory, self.observatory + "-ops-pipeline"), 
-                 "The context echoed by the pipeline after it's last sync to the CRDS server."),
+                 "The context echoed by the pipeline after its last sync to the CRDS server."),
             ]
         if self.usecase == "ops":
             rows += [

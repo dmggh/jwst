@@ -43,7 +43,7 @@ def issue_selector(issue):
     resolution = str(issue.fields.resolution)
     resolution_date = str(issue.fields.resolutiondate).split("T")[0]
     select = status in ["In Progress"]
-    select = select or ((status in ["Closed","Resolved"]) and resolution_date >= DEFAULT_SINCE_DATE)
+    select = select or ((status in ["Closed","Resolved","Reopened"]) and resolution_date >= DEFAULT_SINCE_DATE)
     return select
 
 def issue_url(key):
