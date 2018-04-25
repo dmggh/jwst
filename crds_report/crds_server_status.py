@@ -77,24 +77,24 @@ class ServerStatus(object):
         return crds_rst.underline(title, "-")
 
     def support_rst(self):
-        OBS = self.observatory.upper()
         URL = self.url
+        STRING = self.observatory.upper() + " " + self.usecase.upper()
+        TITLE = crds_rst.underline(STRING + " Links", "+")
         return f"""
-Links
-+++++
+{TITLE}
 
-`{OBS} Server`_
+`{STRING} Server`_
 
-`{OBS} Default Context History`_
+`{STRING} Default Context History`_
 
-`{OBS} All Contexts`_
+`{STRING} All Contexts`_
 
-`{OBS} User's Guide`_
+`{STRING} User's Guide`_
 
-.. _`{OBS} Server`: {URL}
-.. _`{OBS} Default Context History`:  {URL}/display_context_history/
-.. _`{OBS} All Contexts`:  {URL}/display_all_contexts/
-.. _`{OBS} User's Guide`: {URL}/static/users_guide/index.html
+.. _`{STRING} Server`: {URL}
+.. _`{STRING} Default Context History`:  {URL}/display_context_history/
+.. _`{STRING} All Contexts`:  {URL}/display_all_contexts/
+.. _`{STRING} User's Guide`: {URL}/static/users_guide/index.html
 """
 
     # ---------------------------------------------------------------------
@@ -121,8 +121,12 @@ Links
     def context_rst(self):
         names, rows = self.context_info()
         rst_rows = self.add_context_links(1, rows)
-        table = crds_rst.CrdsTable("Context Settings", names, rst_rows, format=("+","="))
+        table = crds_rst.CrdsTable(
+            self.title("Context Settings"), names, rst_rows, format=("+","="))
         return table.to_rst() + "\n" 
+
+    def title(self, text):
+        return self.observatory.upper() + " " + self.usecase.upper() + " " + text
 
     # ---------------------------------------------------------------------
 
@@ -145,10 +149,12 @@ Links
     def clean_deliveries(self, deliveries):
         cleaned = []
         for delivery in deliveries:
+            contexts = [file for file in delivery["files"]
+                        if file.endswith(".pmap")]
+            context = contexts[0] if contexts else "No context generated"
             clean = dict(delivery)
             clean["date"] = delivery["date"].split(" ")[0]
-            clean["context"] = [ file for file in delivery["files"]
-                                 if file.endswith(".pmap")][0]
+            clean["context"] = context
             cleaned.append(clean)
         return cleaned
 
@@ -158,7 +164,7 @@ Links
             return ""
         rst_rows = self.add_context_links(1, rows)
         table = crds_rst.CrdsTable(
-            "Deliveries", names, rst_rows, format=("+","="))
+            self.title("Deliveries"), names, rst_rows, format=("+","="))
         return table.to_rst() + "\n"
 
 # ==============================================================================
