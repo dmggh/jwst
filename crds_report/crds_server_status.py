@@ -55,7 +55,10 @@ class ServerStatus(object):
         rst_rows = []
         for row in rows:
             context_name = row[index]
-            context_use_rst = crds_rst.link_use_rst(context_name)
+            if "no context" not in context_name.lower():
+                context_use_rst = crds_rst.link_use_rst(context_name)
+            else:
+                context_use_rst = context_name
             row = row[:index] + (context_use_rst,) + row[index+1:]
             rst_rows.append(row)
             context_link = self.url + "/context_table/" + context_name
@@ -103,19 +106,22 @@ class ServerStatus(object):
         names = ["Location", "Context", "Notes"]
         rows = [
             ("Last Delivered", api.get_context_by_date(self.observatory + "-edit"),  
-             "AKA the 'edit' context."),
+             "AKA the 'edit' context new deliveries add to."),
             ]
+        rows += [
+            ("Server Default, Offsite", api.get_context_by_date(self.observatory + "-operational"), 
+             "AKA the 'operational' context used by any system syncing to the CRDS Server."),
+           ]
         if self.observatory != "jwst":
             rows += [
-            ("Pipeline", api.get_remote_context(self.observatory, self.observatory + "-ops-pipeline"), 
-             "In use by the archive, lags Last Delivered."),
-                ]
-        rows += [
-            ("Onsite Default", api.get_remote_context(self.observatory, "/grp/crds/cache"), 
-             "AKA /grp/crds/cache.   Used by users with no CRDS_PATH and CRDS_SERVER_URL."),
-            ("Server Default, Offsite", api.get_context_by_date(self.observatory + "-operational"), 
-             "Used by private caches, requires CRDS_PATH and CRDS_SERVER_URL."),
-           ]
+                ("Pipeline Echo", api.get_remote_context(self.observatory, self.observatory + "-ops-pipeline"), 
+                 "The context echoed by the pipeline after it's last sync to the CRDS server."),
+            ]
+        if self.usecase == "ops":
+            rows += [
+                ("Onsite Default", api.get_remote_context(self.observatory, "/grp/crds/cache"), 
+                 "AKA /grp/crds/cache.   Default cache for onsite users with no CRDS_PATH and CRDS_SERVER_URL."),
+            ]
         return (names, rows)
 
     def context_rst(self):
