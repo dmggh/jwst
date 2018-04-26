@@ -1,11 +1,11 @@
 #! /bin/sh
 
-# if [ "$CRDS_PROJECT" != "jwst" ]; then
-#     exit 0;
-# fi
-# if [ "$CRDS_USECASE" != "ops" ]; then
-#     exit 0;
-# fi
+if [ "$CRDS_PROJECT" != "jwst" ]; then
+    exit 0;
+fi
+if [ "$CRDS_USECASE" != "ops" ]; then
+    exit 0;
+fi
 
 DAYS_BACK=$1
 FREQUENCY="$2"
@@ -16,6 +16,6 @@ TITLE="CRDS ${FREQUENCY} Status for $DATE"
 
 ./crds_report ${DAYS_BACK} "${TITLE}" >report.rst
 ./rst_to_html report.rst
-./crds_mail crds@stsci.edu jmiller@stsci.edu "${TITLE}"  report.html 
+./crds_mail crds@stsci.edu crds-status@maillist.stsci.edu "${TITLE}"  report.html 
 
 
