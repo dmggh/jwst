@@ -43,12 +43,13 @@ class ServerStatus(object):
 
     # ---------------------------------------------------------------------
 
-    def add_context_links(self, index, rows, base_url, suffix):
+    def add_context_links(self, index, rows, base_url, prefix):
         rst_rows = []
         for row in rows:
             context_name = row[index]
             if "no context" not in context_name.lower():
-                context_anchor = context_name + suffix
+                context_number = context_name.split("_")[1].split(".")[0]
+                context_anchor = prefix + context_number
                 context_use_rst = crds_rst.link_use_rst(context_anchor)
                 context_link = base_url + context_name
                 self.add_link_def(context_anchor, context_link)
@@ -96,7 +97,7 @@ class ServerStatus(object):
     # ---------------------------------------------------------------------
 
     def context_info(self):
-        names = ["Location", "Context", "Notes"]
+        names = ["Location", "Context Table", "Notes"]
         rows = [
             ("Last Delivered", api.get_context_by_date(self.observatory + "-edit"),  
              "AKA the 'edit' context new deliveries add to."),
@@ -120,7 +121,7 @@ class ServerStatus(object):
     def context_rst(self):
         names, rows = self.context_info()
         context_link = self.url + "/context_table/"
-        rst_rows = self.add_context_links(1, rows, context_link, "")
+        rst_rows = self.add_context_links(1, rows, context_link, "table_")
         table = crds_rst.CrdsTable(
             self.title("Context Settings"), names, rst_rows, format=("+","="))
         return table.to_rst() + "\n" 
@@ -130,7 +131,7 @@ class ServerStatus(object):
 
     # ---------------------------------------------------------------------
 
-    delivery_fields = "date,context,details,status,description".split(",")
+    delivery_fields = "date,context table,actions,status,description".split(",")
 
     def delivery_info(self):
         try:
@@ -140,7 +141,10 @@ class ServerStatus(object):
             return (),()
         deliveries = self.clean_deliveries(deliveries)
         rows = [ self.get_row(delivery) for delivery in deliveries ]
-        names = [name.capitalize() for name in self.delivery_fields]
+        names = []
+        for name in self.delivery_fields:
+            pieces = [ piece.capitalize() for piece in name.split() ]
+            names.append(" ".join(pieces))
         return names, rows
 
     def get_row(self, delivery):
@@ -154,8 +158,8 @@ class ServerStatus(object):
             context = contexts[0] if contexts else "No context generated"
             clean = dict(delivery)
             clean["date"] = delivery["date"].split(" ")[0]
-            clean["context"] = context
-            clean["details"] = context
+            clean["context table"] = context
+            clean["actions"] = context
             cleaned.append(clean)
         return cleaned
 
@@ -165,10 +169,10 @@ class ServerStatus(object):
             return ""
 
         context_link = self.url + "/context_table/"
-        rst_rows = self.add_context_links(1, rows, context_link, "")
+        rst_rows = self.add_context_links(1, rows, context_link, "table_")
 
         activity_link = self.url + "/recent_activity_query/?filename="
-        rst_rows = self.add_context_links(2, rst_rows, activity_link, "*")
+        rst_rows = self.add_context_links(2, rst_rows, activity_link, "actions_")
 
         table = crds_rst.CrdsTable(
             self.title("Deliveries"), names, rst_rows, format=("+","="))
