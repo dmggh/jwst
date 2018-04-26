@@ -60,5 +60,6 @@ MAILTO="crds-servers@stsci.edu"
 
 # runs weekly on midnight Sunday/Monday,  no log e-mail
 
-0 0 * * mon      source $HOME/cronenv.csh;  cd crds_report;   ./crds_report_cron >& ${CRDS_CRON}/crds_report_cron.log;
+0 0 * * mon      source $HOME/cronenv.csh;  cd crds_report;   ./crds_weekly >& ${CRDS_CRON}/crds_weekly_report.log;
+
 
