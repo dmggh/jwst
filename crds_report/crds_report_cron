@@ -8,31 +8,14 @@
 # fi
 
 DAYS_BACK=$1
+FREQUENCY="$2"
 
 DATE=`date --rfc-3339=date`
 
-case $2 in
-    -1)
-        FREQUENCY="Daily "
-        ;;
-    -7)
-        FREQUENCY="Weekly "
-        ;;
-    -14)
-        FREQUENCY="Bi-Weekly "
-        ;;
-    -30)
-        FREQUENCY="Monthly "
-        ;;
-    *)
-        FREQUENCY=""
-        ;;
-esac
+TITLE="CRDS ${FREQUENCY} Status for $DATE"
 
-TITLE="CRDS ${FREQUENCY}Status $DATE"
-
-./crds_report $TITLE $DAYS_BACK >report.rst
+./crds_report ${DAYS_BACK} "${TITLE}" >report.rst
 ./rst_to_html report.rst
-./crds_mail crds@stsci.edu jmiller@stsci.edu "$TITLE"  report.html 
+./crds_mail crds@stsci.edu jmiller@stsci.edu "${TITLE}"  report.html 
 
 

@@ -1,0 +1,5 @@
+#! /bin/sh
+
+./crds_report_cron -30 Monthly
+
+
