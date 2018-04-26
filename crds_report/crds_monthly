@@ -1,6 +1,6 @@
 #! /bin/sh
 
 
-# ./crds_report_cron -30 Monthly   mcmaster@stsci.edu  jmiller@stsci.edu
-./crds_report_cron -30 Monthly   jmiller@stsci.edu
+./crds_report_cron -30 Monthly   mcmaster@stsci.edu  jmiller@stsci.edu
+# ./crds_report_cron -30 Monthly   jmiller@stsci.edu
 
