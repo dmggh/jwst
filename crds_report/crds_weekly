@@ -1,4 +1,4 @@
 #! /bin/sh
 
-./crds_report_cron -7 Weekly
+./crds_report_cron -7 Weekly crds-status@maillist.stsci.edu
 

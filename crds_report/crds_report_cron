@@ -9,6 +9,7 @@ fi
 
 DAYS_BACK=$1
 FREQUENCY="$2"
+TO_ADDR="$3 $4 $5 $6 $7 $8 $9"
 
 DATE=`date --rfc-3339=date`
 
@@ -16,6 +17,6 @@ TITLE="CRDS ${FREQUENCY} Status for $DATE"
 
 ./crds_report ${DAYS_BACK} "${TITLE}" >report.rst
 ./rst_to_html report.rst
-./crds_mail crds@stsci.edu crds-status@maillist.stsci.edu "${TITLE}"  report.html 
+./crds_mail crds@stsci.edu "${TO_ADDR}" "${TITLE}"  report.html 
 
 

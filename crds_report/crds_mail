@@ -14,7 +14,7 @@ def crds_mail(from_addr, to_addr, subject, html_path):
     msg = MIMEMultipart('alternative')
     msg['Subject'] = subject
     msg['From'] = from_addr
-    msg['To'] = to_addr
+    msg['To'] = "; ".join(to_addr.split())
 
     with open(html_path) as html_file:
         html = html_file.read()
