@@ -43,18 +43,19 @@ class ServerStatus(object):
 
     # ---------------------------------------------------------------------
 
-    def add_context_links(self, index, rows):
+    def add_context_links(self, index, rows, base_url, suffix):
         rst_rows = []
         for row in rows:
             context_name = row[index]
             if "no context" not in context_name.lower():
-                context_use_rst = crds_rst.link_use_rst(context_name)
+                context_anchor = context_name + suffix
+                context_use_rst = crds_rst.link_use_rst(context_anchor)
+                context_link = base_url + context_name
+                self.add_link_def(context_anchor, context_link)
             else:
                 context_use_rst = context_name
             row = row[:index] + (context_use_rst,) + row[index+1:]
             rst_rows.append(row)
-            context_link = self.url + "/context_table/" + context_name
-            self.add_link_def(context_name, context_link)
         return rst_rows
 
     def add_link_def(self, name, url):
@@ -118,7 +119,8 @@ class ServerStatus(object):
 
     def context_rst(self):
         names, rows = self.context_info()
-        rst_rows = self.add_context_links(1, rows)
+        context_link = self.url + "/context_table/"
+        rst_rows = self.add_context_links(1, rows, context_link, "")
         table = crds_rst.CrdsTable(
             self.title("Context Settings"), names, rst_rows, format=("+","="))
         return table.to_rst() + "\n" 
@@ -128,7 +130,7 @@ class ServerStatus(object):
 
     # ---------------------------------------------------------------------
 
-    delivery_fields = "date,context,status,description".split(",")
+    delivery_fields = "date,context,details,status,description".split(",")
 
     def delivery_info(self):
         try:
@@ -153,6 +155,7 @@ class ServerStatus(object):
             clean = dict(delivery)
             clean["date"] = delivery["date"].split(" ")[0]
             clean["context"] = context
+            clean["details"] = context
             cleaned.append(clean)
         return cleaned
 
@@ -160,7 +163,13 @@ class ServerStatus(object):
         names, rows = self.delivery_info()
         if not names:
             return ""
-        rst_rows = self.add_context_links(1, rows)
+
+        context_link = self.url + "/context_table/"
+        rst_rows = self.add_context_links(1, rows, context_link, "")
+
+        activity_link = self.url + "/recent_activity_query/?filename="
+        rst_rows = self.add_context_links(2, rst_rows, activity_link, "*")
+
         table = crds_rst.CrdsTable(
             self.title("Deliveries"), names, rst_rows, format=("+","="))
         return table.to_rst() + "\n"

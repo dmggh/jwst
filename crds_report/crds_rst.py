@@ -126,7 +126,7 @@ def unlink_rst(name):
     return name[1:-2]
 
 def link_def_rst(name, url):
-    if not url.endswith("/"):
+    if not url.endswith("/") and "?" not in url:
         url += "/"
     return ".. _`" + name + "`: " + url
 
