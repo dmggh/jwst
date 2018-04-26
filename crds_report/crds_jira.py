@@ -13,10 +13,7 @@ import crds_rst
 
 # =================================================================
 
-# XXXX duplicated from crds_server_status.py
-DEFAULT_SINCE_DATE = (datetime.datetime.now() + datetime.timedelta(days=-7)).isoformat().split(".")[0]
-
-PROJECT="CCD"
+PROJECT = "CCD"
 HOST = "https://jira.stsci.edu"
 
 def format_date(datestr):
@@ -38,14 +35,6 @@ JIRA_AUTHENTICATION_INFO = "/crds/data1/database/jira_auth_info.txt"
 
 # =================================================================
 
-def issue_selector(issue):
-    status = str(issue.fields.status)
-    resolution = str(issue.fields.resolution)
-    resolution_date = str(issue.fields.resolutiondate).split("T")[0]
-    select = status in ["In Progress"]
-    select = select or ((status in ["Closed","Resolved","Reopened"]) and resolution_date >= DEFAULT_SINCE_DATE)
-    return select
-
 def issue_url(key):
     return HOST + "/projects/" + PROJECT + "/issues/" + key + "?filter=allissues"
 
@@ -53,7 +42,7 @@ def issue_url(key):
 
 class JiraConnection(object):
 
-    def __init__(self, fields=FIELDS, issue_selector=issue_selector, basic_auth=None):
+    def __init__(self, days_back, fields=FIELDS, basic_auth=None):
         if os.path.exists(JIRA_AUTHENTICATION_INFO):
             with open(JIRA_AUTHENTICATION_INFO) as auth_info:
                 user = auth_info.readline().strip()
@@ -61,11 +50,19 @@ class JiraConnection(object):
         elif basic_auth is None:
             user = getpass.getuser()   # also user env var LOGNAME or USERNAME
             passwd = getpass.getpass()
+        self.since_date = (datetime.datetime.now() + datetime.timedelta(days=days_back)).isoformat().split(".")[0]
         basic_auth = (user, passwd)
         self.connection = jira.JIRA(HOST, basic_auth=basic_auth)
         self.fields = fields
-        self.issue_selector = issue_selector
         self.rows = self.get_rows()
+                           
+    def issue_selector(self, issue):
+        status = str(issue.fields.status)
+        resolution = str(issue.fields.resolution)
+        resolution_date = str(issue.fields.resolutiondate).split("T")[0]
+        select = status in ["In Progress"]
+        select = select or ((status in ["Closed","Resolved","Reopened"]) and resolution_date >= self.since_date)
+        return select
 
     def _load_basic_auth(self, auth_path):
         return tuple(open(auth_path).read().splitlines()[0].split(","))
@@ -114,9 +111,10 @@ class JiraConnection(object):
         link_defs = "\n".join(link_defs)
         return table + "\n" + link_defs + "\n"
                                    
-def test():
-    j = JiraConnection()
+def main(days_back):
+    days_back = int(days_back)
+    j = JiraConnection(days_back)
     print(j.to_rst())
 
 if __name__ == "__main__":
-    test()
+    main(sys.argv[1])

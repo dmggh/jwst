@@ -6,17 +6,13 @@ import crds_rst
 
 # ==================================================
 
-def header(DATE):
-    title = f"""CRDS Weekly Status {DATE}"""
-    return crds_rst.underline(title, "^")
-
-def main(date):
-    print(header(date))
+def main(title, underline_char="^"):
+    print(crds.rst.underline(title, underline_char))
 
 # ==================================================
-
+e
 if __name__ == "__main__":
-    main(sys.argv[1])
+    main(*sys.argv[1:])
 
 
 

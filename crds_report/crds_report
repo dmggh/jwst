@@ -1,8 +1,11 @@
 #! /bin/sh
 
-python crds_header.py $1
-python crds_jira.py
-python crds_server_status.py jwst ops https://jwst-crds.stsci.edu
-python crds_server_status.py hst ops https://hst-crds.stsci.edu
-python crds_server_status.py hst test https://hst-crds-test.stsci.edu
+TITLE=$1
+DAYS_BACK=$2
+
+python crds_header.py $TITLE
+python crds_jira.py $DAYS_BACK
+python crds_server_status.py jwst ops https://jwst-crds.stsci.edu $DAYS_BACK
+python crds_server_status.py hst ops https://hst-crds.stsci.edu $DAYS_BACK
+python crds_server_status.py hst test https://hst-crds-test.stsci.edu $DAYS_BACK
 

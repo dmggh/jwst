@@ -1,15 +1,38 @@
 #! /bin/sh
 
-if [ "$CRDS_PROJECT" != "jwst" ]; then
-    exit 0;
-fi
-if [ "$CRDS_USECASE" != "ops" ]; then
-    exit 0;
-fi
+# if [ "$CRDS_PROJECT" != "jwst" ]; then
+#     exit 0;
+# fi
+# if [ "$CRDS_USECASE" != "ops" ]; then
+#     exit 0;
+# fi
 
-export DATE=`date --rfc-3339=date`
-./crds_report "$DATE" >report.rst
+DAYS_BACK=$1
+
+DATE=`date --rfc-3339=date`
+
+case $2 in
+    -1)
+        FREQUENCY="Daily "
+        ;;
+    -7)
+        FREQUENCY="Weekly "
+        ;;
+    -14)
+        FREQUENCY="Bi-Weekly "
+        ;;
+    -30)
+        FREQUENCY="Monthly "
+        ;;
+    *)
+        FREQUENCY=""
+        ;;
+esac
+
+TITLE="CRDS ${FREQUENCY}Status $DATE"
+
+./crds_report $TITLE $DAYS_BACK >report.rst
 ./rst_to_html report.rst
+./crds_mail crds@stsci.edu jmiller@stsci.edu "$TITLE"  report.html 
 
-./crds_mail crds@stsci.edu crds-status@maillist.stsci.edu "CRDS Weekly Status $DATE" report.html 
 

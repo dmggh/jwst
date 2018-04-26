@@ -20,25 +20,17 @@ import crds_rst
 # ==============================================================================
 
 # XXXX duplicated in crds_jira.py
-DEFAULT_SINCE_DATE = (datetime.datetime.now() + datetime.timedelta(days=-7)).isoformat().split(".")[0]
-
-# ==============================================================================
-
-def get_delivery_status(since_date=DEFAULT_SINCE_DATE):
-    """Return a list of delivery status dictionaries for deliveries which occurred
-    after `self.since_date`.
-    """
-    return api.S.get_delivery_status(since_date)
+DEFAULT_SINCE_DATE = None
 
 # ==============================================================================
 
 class ServerStatus(object):
-    def __init__(self, observatory, usecase, url, since_date=DEFAULT_SINCE_DATE):
+    def __init__(self, observatory, usecase, url, days_back):
         self.observatory = observatory
         self.usecase = usecase
         self.url = url
-        self.since_date = since_date
         self.link_defs = []
+        self.since_date = (datetime.datetime.now() + datetime.timedelta(days=days_back)).isoformat().split(".")[0]
         api.set_crds_server(self.url)
         os.environ["CRDS_OBSERVATORY"] = observatory
 
@@ -175,8 +167,16 @@ class ServerStatus(object):
 
 # ==============================================================================
 
-def main(observatory, usecase, url):
-    status = ServerStatus(observatory, usecase, url)
+def get_delivery_status(since_date):
+    """Return a list of delivery status dictionaries for deliveries which occurred
+    after `self.since_date`.
+    """
+    return api.S.get_delivery_status(since_date)
+
+# ==============================================================================
+
+def main(observatory, usecase, url, days_back):
+    status = ServerStatus(observatory, usecase, url, int(days_back))
     print(status.to_rst())
 
 if __name__ == "__main__":
