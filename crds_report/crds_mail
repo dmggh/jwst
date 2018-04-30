@@ -26,7 +26,7 @@ def crds_mail(from_addr, to_addr, subject, html_path):
 
     # sendmail function takes 3 arguments: sender's address, recipient's address
     # and message to send - here it is sent as one string.
-    s.sendmail(from_addr, to_addr, msg.as_string())
+    s.sendmail(from_addr, to_addr.split(), msg.as_string())
 
 if __name__ == "__main__":
     crds_mail(*sys.argv[1:])
