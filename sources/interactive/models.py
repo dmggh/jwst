@@ -367,7 +367,7 @@ def set_default_context(context, observatory=OBSERVATORY, state="edit", descript
     model.context = context
     model.save()
     
-    add_meta_event("Set default", srepr(state), "edit context for", 
+    add_meta_event("Set default", srepr(state), "context for", 
                    repr(observatory), "to", srepr(context), "with skip_history =", skip_history)
 
     if skip_history:
@@ -1741,11 +1741,13 @@ def push_remote_context(observatory, kind, key, context):
     assert file_exists(context), \
         "Pushed context file does not exist in CRDS."
     model = RemoteContextModel.objects.get(observatory=observatory, kind=kind, key=key)
-    model.context = context
-    model.save()
-    add_meta_event("Remote context update for", srepr(observatory), 
-                   "of kind", srepr(kind), "named", srepr(model.name), 
-                   "from key", srepr(key), "to", srepr(context))
+    if model.context != context:
+        add_meta_event("Remote", srepr(kind), "context update",
+                       "named", srepr(model.name), "from key", srepr(key), 
+                       "from context", srepr(model.context),
+                       "to context", srepr(context))
+        model.context = context
+        model.save()
 
 def get_remote_context(observatory, pipeline_name):
     """Get the context value for the specified remote pipeline."""
@@ -1797,10 +1799,10 @@ def add_meta_event(*args, **keys):
     """
     now = timestamp.now()
     test_mode = "test" in sys.argv
-    message = log.format(now, "TEST =", test_mode, *args, **keys)
-    with open(META_EVENTS_FILE, "a+") as events:
-        events.write(message)
-    log.info("META", message)
-    return message
+    if not test_mode:
+        message = log.format(now, *args, **keys)
+        with open(META_EVENTS_FILE, "a+") as events:
+            events.write(message)
+        log.info("META", message)
 
 # ===========================================================================================================
