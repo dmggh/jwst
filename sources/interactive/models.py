@@ -1787,7 +1787,7 @@ def get_delivery_status():
 
 # =============================================================================
 
-META_EVENTS_FILE = os.path.join(config.install_root, "meta_events.log")
+META_EVENTS_FILE = os.path.join(config.install_root, "server", "logs", "meta_events.log")
 
 def add_meta_event(*args, **keys):
     """Format the log message specified by *args, **keys and add it
@@ -1798,7 +1798,7 @@ def add_meta_event(*args, **keys):
     and 'when and how was this string last mirroed.'
     """
     now = timestamp.now()
-    test_mode = "test" in sys.argv
+    test_mode = "crds.server.manage test" in sys.argv
     if not test_mode:
         message = log.format(now, *args, **keys)
         with open(META_EVENTS_FILE, "a+") as events:
