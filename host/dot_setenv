@@ -30,20 +30,20 @@ setenv CRDS_PIPELINE_CACHE_KEY 12ca7bb2-dd3b-444a-8e6e-d8fd0bf559ed
 
 switch ($CRDS_SERVER)
        case dljwcrds:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-7
+        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-8
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE dev
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
        breaksw
        case dlhstcrds:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-7
+        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-8
         setenv CRDS_PROJECT hst
         setenv CRDS_USECASE dev
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
        breaksw
 
        case tljwcrds:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-7
+        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-8
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE test
         # setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
@@ -57,16 +57,7 @@ switch ($CRDS_SERVER)
        breaksw
 
        case pljwcrds:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-7
-        setenv CRDS_PROJECT jwst
-        setenv CRDS_USECASE ops
-        # setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
-        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
-        setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
-       breaksw
-
-       case pljwstcrdsv1:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-7
+        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-8
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE ops
         # setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
@@ -76,14 +67,6 @@ switch ($CRDS_SERVER)
 
        case plhstcrds:
         setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-7
-        setenv CRDS_PROJECT hst
-        setenv CRDS_USECASE ops
-        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
-        setenv CRDS_GRP_CACHE_KEY 78b96cd6-4295-4215-89ff-a588b2ea831a
-       breaksw
-
-       case plhstcrdsv1:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda-3
         setenv CRDS_PROJECT hst
         setenv CRDS_USECASE ops
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
@@ -107,7 +90,7 @@ switch ($CRDS_SERVER)
        breaksw
 
        case iljwdmsccrds:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-7
+        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-8
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE cit
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu"
