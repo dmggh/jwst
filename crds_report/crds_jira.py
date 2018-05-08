@@ -61,7 +61,7 @@ class JiraConnection(object):
         resolution = str(issue.fields.resolution)
         resolution_date = str(issue.fields.resolutiondate).split("T")[0]
         select = status in ["In Progress"]
-        select = select or ((status in ["Closed","Resolved","Reopened","Fixed"]) and resolution_date >= self.since_date)
+        select = select or ((status.upper() in ["CLOSED","RESOLVED","REOPENED","FIXED","READY FOR TESTING"]) and resolution_date >= self.since_date)
         return select
 
     def _load_basic_auth(self, auth_path):
