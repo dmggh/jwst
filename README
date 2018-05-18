@@ -6,48 +6,46 @@
 % source ~/.setenv  
 % server  # alias to cd to CRDS_server source code
 
-Setup the server python stack by building the crds packages list from the installer3 system.
-Look at host/build_stack for the process of building the stack.
-The master installer3 mercurial repo is at /eng/ssb/crds/installer3.  Copies are on each VM.
+Setup the server python stack by going to CRDS_sever/servers/stack_build
+and running build_conda3::
 
-There 4 CRDS server "use cases".
+$ server
+$ cd servers/stack_build
+$ ./build_conda3 |& tee build_conda3.err
+
+build_conda3 installs a mixture of private CRDS downloads that are CM'ed at
+/eng/ssb/crds/installer4 and conda packages.  Copies of installer 4 are made
+on each VM during installation.
+
+Classically tere 4 CRDS server "use cases"::
 
 django    Django/SQLite django server
 dev  Apache/VM/Isilon/MySQL/Proxy/mod_wsgi development server
 test   Apache/VM/Isilon/MySQL/Proxy/mod_wsgi pipeline test server
 ops   Apache/VM/Isilon/MySQL/Proxy/mod_wsgi pipeline production server
 
-JWST uniquely has an additional two usecases:
+JWST uniquely has an additional I&T usecases:
 
-b5it  build 5 i&t server     (string B)
-b6it  build 6 i&t server     (string C)
 dit   build 7 i&t server     (string D)
 bit   build 7.1 i&t server   (string B)
-ait   8?                     (string A)
+cit   build 7.1.3 i&t server   (string C)
+
+During a brief test period in winter/spring 2018 the JWST TEST server was
+utilized as part of an ad hoc A-string given to DPAS for practice/testing.
+During that period it was interfaced to the A-string pipeline and TEST version
+of the AUI.
 
 # Install the code as indicated by the appropriate config file from
 # sources/configs/config.<observatory>.<server_kind>
-./install [hst|jwst]  [django|dev|test|ops|b5it|b6it|dit|bit|ait]
+./install [hst|jwst]  [django|dev|test|ops|dit|bit|cit|ait]
 
-# Possibly re-run install if the first run failed due to missing packages
-./install [hst|jwst]  [django|dev|test|ops|b5it|b6it|dit|bit|ait]
-
-# Initilize the CRDS catalog with existing reference files, deliver initial
-# set of mappings.   Generally this is no longer done,  except maybe for private Django dev-server installations.
-# Enter system passwords.
-
-./init [hst|jwst] [django|dev|test|ops|b5it|b6it|dit|bit|ait]
-<enter password for test user>
-
-XXXX NOTE: the process of running ./init is now obsolete, the servers are mature and server
-state is maintained in the database and file system.  mirroring servers from OPS to a 
-lower level use case is now the preferred method of setting up new servers.
+This creates CRDS_server/env.csh as well as ./run and ./stop scripts.
 
 2. Procedure for starting the sever:
 
 % ./run
 
-3. Procedure for update not affecting the database:
+3. Procedure for installing and restarting the server:
 
 % ./rerun
 
@@ -55,10 +53,10 @@ lower level use case is now the preferred method of setting up new servers.
 
 % ./manage shell
 
-5. Procedure for running HST server self-tests.
+5. Procedure for running server self-tests:
 
 % ./rerun
-% ./runtest (2nd terminal)
+% ./runtests
 
 or 
 
@@ -96,14 +94,14 @@ backup for each server which is used to facilitate mirroring.
 
 8. Mirroring
 
-e.g. copy the test server (hst-crds-test, tlhstcrdsv1) down to the dev server (hst-crds-dev, dlhstcrdsv1).
+e.g. copy the test server (hst-crds-test, tlhstcrds) down to the dev server (hst-crds-dev, dlhstcrds).
 
 This replicates the database and syncs the cache and server support directories.   This is only recommended
 in a *downward* ops -> test -> dev direction.  It stops and restarts the server as required.
 
 First,  on the source server:
 
-# login tlhstcrdsv1
+# login tlhstcrds
 % server
 % backup_server
 
@@ -111,7 +109,7 @@ That puts required backup files in the shared /eng/ssb/crds/...
 
 Second,  on the destination server:
 
-# login dlhstcrdsv1
+# login dlhstcrds
 % server
 % mirror_server hst test https://hst-crds-test.stsci.edu |& tee mirror_server.hst.test.err
 
