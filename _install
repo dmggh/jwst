@@ -48,6 +48,11 @@ function create_dir {
     chmod $1 $2
 }
 
+chmod $secret $install_dir/..
+chmod $secret $install_dir/../database
+
+chmod $private_ro $CRDS_SERVER_ISILON
+
 # The primary working copy for deliveries, nominally owned by CRDS.
 # Delivery files are links which last until received by OPUS.
 create_dir $private_rw $CRDS_DELIVERY_DIR
@@ -60,14 +65,16 @@ create_dir $private_rw $CRDS_INGEST_DIR
 create_dir $private_ro $CRDS_CATALOG_DIR
 
 # The temporary directory where uploaded files are initially stored.
-create_dir $secret $FILE_UPLOAD_TEMP_DIR
+create_dir $private_ro $FILE_UPLOAD_TEMP_DIR
 
 # This is a drop-off dir for hand crafted SSB-made references and mappings.
-create_dir $private_rw ${CRDS_INGEST_DIR}_ssb
+# create_dir $private_rw ${CRDS_INGEST_DIR}_ssb
+rm -rf ${CRDS_INGEST_DIR}_ssb
 
 # The directory where dynamic mapping bundles are kept
-create_dir $secret $CRDS_ARCHIVE_CACHE_DIR
-rm $CRDS_ARCHIVE_CACHE_DIR/*
+# create_dir $secret $CRDS_ARCHIVE_CACHE_DIR
+# rm $CRDS_ARCHIVE_CACHE_DIR/*
+rm -rf $CRDS_ARCHIVE_CACHE_DIR
 
 # This is the server cache and reference staging area.
 create_dir $public $map_path_full
@@ -86,6 +93,12 @@ create_dir $secret $install_dir/server/db_backups
 create_dir $secret $install_dir/server/run 
 create_dir $secret $install_dir/server/conf  
 create_dir $secret $install_dir/server/wsgi-scripts
+
+cp host/rc_script /home/crds
+chmod 500 /home/crds/rc_script
+
+cp host/rc_script_DONT_DELETE /home/crds
+chmod 500 /home/crds/rc_script_DONT_DELETE
 
 # Set up rc script for cron jobs referenced by host/crontab
 # create_dir $secret $install_dir/../cron
@@ -296,7 +309,7 @@ echo ''
 
 case ${server_mode}
     in
-    "dev" | "test" | "ops" | "b5it" | "b6it" | "b7it" ) 
+    "dev" | "test" | "ops" | "ait" | "bit" | "cit" | "dit" ) 
 	echo "Setting permissions"
 
 	chmod $public ${ref_path}

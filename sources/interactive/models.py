@@ -9,11 +9,14 @@ from __future__ import absolute_import
 
 import os
 import os.path
+import sys
 import re
 import datetime
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 import math
 import uuid
+
+# ============================================================================
 
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
@@ -21,18 +24,26 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core import cache
 from django.db import transaction
 
+# ============================================================================
+
 # Create your models here.
 import crds
 from crds import (timestamp, rmap, utils, refactor, log, data_file, uses, diff, checksum, python23)
 from crds import CrdsError
 from crds.log import srepr
 
+# ============================================================================
+
 from crds.server.config import observatory as OBSERVATORY
 from crds.server.config import table_prefix as TABLE_PREFIX
 from crds.server import config
 
+# ============================================================================
+
 from . import common
 from . import json_ext
+
+# ============================================================================
 
 observatory_module = utils.get_object("crds." + OBSERVATORY)
 
@@ -356,6 +367,9 @@ def set_default_context(context, observatory=OBSERVATORY, state="edit", descript
     model.context = context
     model.save()
     
+    add_meta_event("Set default", srepr(state), "context for", 
+                   repr(observatory), "to", srepr(context), "with skip_history =", skip_history)
+
     if skip_history:
         return
 
@@ -783,24 +797,24 @@ class FileBlobRepairMixin(object):
         "delivery_date" : lambda self: self.delivery_date > self.activation_date and self.activation_date >= START_OF_CRDS,
         "activation_date": lambda self: self.state in ["archived", "operational"] and \
                                     self.activation_date == DEFAULT_ACTIVATION_DATE and self.name in _all_activated_files(),
+        "useafter_date" : lambda self: self.useafter_date_str.strip().upper() in ["", "NONE"] and self.type != "mapping",
         "type" : lambda self: not self.type,
         "observatory": lambda self: self.observatory not in OBSERVATORIES,
         "instrument": lambda self:  (((not self.name.endswith(".pmap")) and self.instrument not in INSTRUMENTS) or 
                                      (self.name.endswith(".pmap") and self.instrument != "")),
         "filekind": lambda self:  (((not self.name.endswith((".pmap",".imap"))) and self.filekind not in FILEKINDS) or
                                    (self.name.endswith((".pmap",".imap")) and self.filekind != "")),
+
         "comment" : lambda self: self.type == "reference" and self.comment.lower() in ["", "none", "undefined"],
-        "description" : lambda self: not self.description,
+        "history" :  lambda self : self.type.lower() == "reference" and self.history in ["none","NONE","None", None, ""],
+        "description" : lambda self : self.type.lower() == "reference" and self.description in ["none", "NONE", "None", None, ""],
+
         "pedigree" : lambda self: self.type == "reference" and not self.pedigree and \
             not re.match(r"\w+\.r[0-9][hd]", self.name),
         "deliverer_user" : lambda self: not self.deliverer_user,
         "deliverer_email" : lambda self: not self.deliverer_email,
         "creator_name" : lambda self: not self.creator_name,
         "mapping_name_field": lambda self: rmap.is_mapping(self.name) and not self.name == rmap.fetch_mapping(self.name).name,
-        "history" :  lambda self : self.type.lower() == "reference" and self.history in ["none","NONE","None", None, ""],
-        "decription" : lambda self : self.type.lower() == "reference" and self.description in ["none", "NONE", "None", None, ""],
-        # "history" :  lambda self : self.type.lower() == "reference",
-        "useafter_date" : lambda self: self.useafter_date_str in [str(DEFAULT_ACTIVATION_DATE).split(".")[0], "N/A"] and self.type != "mapping"
     }
     
     def get_defects(self, verify_checksum=False, fields=None):
@@ -1727,8 +1741,13 @@ def push_remote_context(observatory, kind, key, context):
     assert file_exists(context), \
         "Pushed context file does not exist in CRDS."
     model = RemoteContextModel.objects.get(observatory=observatory, kind=kind, key=key)
-    model.context = context
-    model.save()
+    if model.context != context:
+        add_meta_event("Remote", srepr(kind), "context update",
+                       "named", srepr(model.name), "from key", srepr(key), 
+                       "from context", srepr(model.context),
+                       "to context", srepr(context))
+        model.context = context
+        model.save()
 
 def get_remote_context(observatory, pipeline_name):
     """Get the context value for the specified remote pipeline."""
@@ -1737,3 +1756,53 @@ def get_remote_context(observatory, pipeline_name):
 
 # =============================================================================
 
+def get_delivery_status():
+    """Based on the .cat files in the audit log, return a list of dictionaries that 
+    describe the corresponding deliveries.
+    """
+    auditblobs = [ blob for blob in AuditBlob.objects.all() if blob.thaw().filename.endswith(".cat") ]
+    fileblobs = get_fileblob_map()
+    catalog_info = []
+    for audit in auditblobs:
+        audit.thaw()
+        files = []
+        status = "delivery corrupt"
+        status_class = "error"
+        with log.error_on_exception("Failed interpreting catalog", repr(audit.filename)):
+            files = sorted(open(os.path.join(config.CRDS_CATALOG_DIR, audit.filename)).read().splitlines())
+            status = fileblobs[files[0]].status
+            status_class = fileblobs[files[0]].status_class
+        catalog_info.append(
+                dict(date=audit.date,
+                     action=audit.action,
+                     user=audit.user,
+                     description=audit.why,
+                     files=files,
+                     catalog=audit.filename,
+                     status=status,
+                     status_class=status_class)
+            )
+    delivery_status = list(reversed(sorted(catalog_info, key=lambda k: k["date"])))
+    return delivery_status
+
+# =============================================================================
+
+META_EVENTS_FILE = os.path.join(config.install_root, "server", "logs", "meta_events.log")
+
+def add_meta_event(*args, **keys):
+    """Format the log message specified by *args, **keys and add it
+    to the persistent events file.   The persistent events file is not
+    mirrored between server strings so it remains a permament record
+    when the database is copied from another server.   This enables it
+    to record things like 'which context the I&T pipeline last synced'
+    and 'when and how was this string last mirroed.'
+    """
+    now = timestamp.now()
+    test_mode = "crds.server.manage test" in sys.argv
+    if not test_mode:
+        message = log.format(now, *args, **keys)
+        with open(META_EVENTS_FILE, "a+") as events:
+            events.write(message)
+        log.info("META", message)
+
+# ===========================================================================================================

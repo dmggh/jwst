@@ -10,8 +10,11 @@ PACKAGES = [
     'crds.server',
     'crds.server.interactive',
     'crds.server.interactive.templatetags',
+    'crds.server.interactive.migrations',
+
     'crds.server.jsonapi',
     'crds.server.jsonapi.templatetags',
+
     'crds.server.jpoll',
     'crds.server.jpoll.templatetags',
 
@@ -24,6 +27,9 @@ PACKAGES = [
     'crds.server.locking',
     'crds.server.locking.management',
     'crds.server.locking.management.commands',
+
+    # 'crds.server.forms',
+    # 'crds.server.forms.migrations',
     ]
 
 PACKAGE_DIR = {
@@ -39,6 +45,7 @@ PACKAGE_DIR = {
     # 'crds.server.jpoll.templatetags':'./jpoll/templatetags',        
     
     'crds.server.interactive':'./interactive',
+    'crds.server.interactive.migrations':'./interactive/migrations',
     'crds.server.interactive.templatetags':'./interactive/templatetags',
     
     'crds.server.fileupload' : './fileupload',
@@ -47,6 +54,11 @@ PACKAGE_DIR = {
     'crds.server.locking' : './locking',
     'crds.server.locking.management' : './locking/management',
     'crds.server.locking.management.commands' : './locking/management/commands',
+
+    # 'crds.server.forms':'./forms',
+    # 'crds.server.forms.migrations':'./forms/migrations',
+    # 'crds.server.forms.templatetags':'./forms/templatetags',
+
     }
 
 PACKAGE_DATA = {
@@ -55,10 +67,13 @@ PACKAGE_DATA = {
         "interactive/templates/*",
         "interactive/templates/registration/*",
         "interactive/*.dat",
+
         "xhst/*.dat",
         "xjwst/*.dat",
+
         "xhst/*.json",
         "xjwst/*.json",
+
         "interactive/test_data/*",
         
         "jsonapi/templates/*.html",  
@@ -76,6 +91,8 @@ PACKAGE_DATA = {
         "fileupload/static/js/*.js.map",
         "fileupload/templates/*.html",
         "fileupload/templates/fileupload/*.html",
+
+        # "forms/templates/*",
         ],
     }
 
@@ -90,7 +107,7 @@ PACKAGE_DATA[''].extend(static_files)
 # DATA_FILES = [("", static_files)]
 
 setup(name="crds.server",
-      version= "7.1.7",
+      version= "7.2.3",
       description="Python based Calibration Reference Data System,  best reference file web service",
       author="Todd Miller",
       author_email="jmiller@stsci.edu",

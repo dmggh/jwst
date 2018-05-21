@@ -5,11 +5,11 @@ from __future__ import absolute_import
 debug = DEBUG = False
 DEBUG_EXTRAS = False
 
-HOST = "tlhstcrdsv1"
+HOST = "tlhstcrds"
 PROXY = "hst-crds-test"
 observatory = 'hst'
 server_usecase = 'test'
-CRDS_SERVER_IP = "130.167.252.67"
+CRDS_SERVER_IP = "10.128.19.153"
 port = 8001
 
 # This is a VM-related storage partition used as server space
@@ -18,16 +18,16 @@ port = 8001
 # This is a Isilon storage /crds/hst/production used as file space
 # storage_path = '/ifs/crds/' + observatory + '/' + server_usecase
 
-CATALOG_DB_USER = "crds"
-CATALOG_DB_PFILE = "/crds/data1/database/crds.dat"
-CATALOG_DB_DSN = "HarpoDadsopsRepDsn"
-REFFILE_DB_DSN = "HarpoReffileOpsRepDsn"
-
-
 # CATALOG_DB_USER = "crds"
-# CATALOG_DB_PFILE = "/crds/data1/database/crds.dat"
-# CATALOG_DB_DSN = "GrouchoDadstest2Dsn"   # Datatest2 database
-# REFFILE_DB_DSN = "GrouchoReffileOpsRepDsn"
+# CATALOG_DB_KEYTAB = "/crds/data1/database/crds_krb5.keytab"
+# CATALOG_DB_DSN = "GROUCHOAG"   # availability group
+# CATALOG_DB_DSN = "GROUCHO"   # original  test server
+# CATALOG_DB_NAME = "dadsops_rep"   # or dadstest2
+
+CATALOG_DB_USER = "crds"
+CATALOG_DB_KEYTAB = "/crds/data1/database/crds_krb5.keytab"
+CATALOG_DB_DSN = "HARPO"            # replicated OPS server
+CATALOG_DB_NAME = "dadsops_rep"
 
 servertype = 'mod_wsgi'
 dbtype = 'mysql'

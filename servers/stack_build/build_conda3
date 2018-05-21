@@ -1,6 +1,6 @@
 #! /bin/tcsh -fx
 
-setenv CONDA_NAME crds_conda3-6
+setenv CONDA_NAME crds_conda3-8
 
 setenv CRDS_STACK ${CRDS}/crds_stacks/$CONDA_NAME
 setenv META_PREFIX ${CRDS_STACK}
@@ -44,10 +44,15 @@ cd ${CRDS}/crds_stacks/installer4/build
 ./meta install cfitsio fitsverify |& tee fitsverify.err
 
 conda uninstall --yes --quiet pkg-config pkgconfig
+pip uninstall --yes Django
 
 ./meta install mod_wsgi-master |& tee mod_wsgi.err
+./meta install Django
 ./meta clean >& /dev/null
 
+conda remove --yes --force unixodbc  # pulled in by pyodbc,  use stock installtion provided by DATB instead.
+cp /usr/etc/odbc.ini /home/crds/.odbc.ini
+cp /usr/etc/odbcinst.ini /home/crds/.odbcinst.ini
 rehash
 
 git status  |& tee git.status

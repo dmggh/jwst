@@ -1,150 +1,202 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>About Mappings &#8212; crds 7.1.6 documentation</title>
-    <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '7.1.6',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Reference File Conventions" href="reference_conventions.html" />
-    <link rel="prev" title="Core Library Functions" href="core_library_functions.html" /> 
-  </head>
-  <body>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="reference_conventions.html" title="Reference File Conventions"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="core_library_functions.html" title="Core Library Functions"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.6 documentation</a> &#187;</li> 
-      </ul>
-    </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="index.html">
-              <img class="logo" src="_static/stsci_logo.png" alt="Logo"/>
-            </a></p>
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">About Mappings</a><ul>
-<li><a class="reference internal" href="#naming">Naming</a></li>
-<li><a class="reference internal" href="#basic-structure">Basic Structure</a><ul>
-<li><a class="reference internal" href="#header">header</a></li>
-<li><a class="reference internal" href="#comment">comment</a></li>
-<li><a class="reference internal" href="#selector">selector</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#pipeline-mappings-pmap">Pipeline Mappings (.pmap)</a></li>
-<li><a class="reference internal" href="#instrument-mappings-imap">Instrument Mappings (.imap)</a></li>
-<li><a class="reference internal" href="#reference-mappings-rmap">Reference Mappings (.rmap)</a></li>
-<li><a class="reference internal" href="#active-header-fields">Active Header Fields</a><ul>
-<li><a class="reference internal" href="#required-parameters">Required Parameters</a><ul>
-<li><a class="reference internal" href="#parkey">parkey</a></li>
-<li><a class="reference internal" href="#extra-keys">extra_keys</a></li>
-<li><a class="reference internal" href="#reffile-switch">reffile_switch</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#logical-header-expressions">Logical Header Expressions</a></li>
-<li><a class="reference internal" href="#reffile-required">reffile_required</a></li>
-<li><a class="reference internal" href="#rmap-relevance">rmap_relevance</a></li>
-<li><a class="reference internal" href="#parkey-relevance">parkey_relevance</a></li>
-<li><a class="reference internal" href="#hooks">hooks</a><ul>
-<li><a class="reference internal" href="#precondition-header">precondition_header</a></li>
-<li><a class="reference internal" href="#fallback-header">fallback_header</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#selectors">Selectors</a><ul>
-<li><a class="reference internal" href="#primitive-return-values">Primitive Return Values</a><ul>
-<li><a class="reference internal" href="#single-filename">Single Filename</a></li>
-<li><a class="reference internal" href="#filename-tuple">Filename Tuple</a></li>
-<li><a class="reference internal" href="#not-applicable">Not Applicable</a></li>
-<li><a class="reference internal" href="#omit">Omit</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#match">Match</a><ul>
-<li><a class="reference internal" href="#parameter-tuples-and-simple-matches">Parameter Tuples and Simple Matches</a></li>
-<li><a class="reference internal" href="#single-parameter-values">Single Parameter Values</a></li>
-<li><a class="reference internal" href="#or">Or |</a></li>
-<li><a class="reference internal" href="#wild-cards">Wild Cards *</a></li>
-<li><a class="reference internal" href="#regular-expressions">Regular Expressions</a></li>
-<li><a class="reference internal" href="#literal-expressions">Literal Expressions</a></li>
-<li><a class="reference internal" href="#relational-expressions">Relational Expressions</a></li>
-<li><a class="reference internal" href="#between">Between</a></li>
-<li><a class="reference internal" href="#n-a">N/A</a></li>
-<li><a class="reference internal" href="#not-expressions">NOT Expressions</a></li>
-<li><a class="reference internal" href="#substitution-parameters">Substitution Parameters</a></li>
-<li><a class="reference internal" href="#match-weighting">Match Weighting</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#useafter">UseAfter</a></li>
-<li><a class="reference internal" href="#selectversion">SelectVersion</a></li>
-<li><a class="reference internal" href="#closesttime">ClosestTime</a></li>
-<li><a class="reference internal" href="#geometricallynearest">GeometricallyNearest</a></li>
-<li><a class="reference internal" href="#bracket">Bracket</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>CRDS Rules (Mappings) &mdash; CRDS 7.1.7 documentation</title>
+  
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="core_library_functions.html"
-                        title="previous chapter">Core Library Functions</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="reference_conventions.html"
-                        title="next chapter">Reference File Conventions</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/rmap_syntax.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/stsci.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="CRDS 7.1.7 documentation" href="index.html"/>
+        <link rel="next" title="Library Use" href="library_use.html"/>
+        <link rel="prev" title="Web Services" href="web_services.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+            <a href="index.html" class="icon icon-home"> CRDS
+            
+            <img src="_static/stsci_pri_combo_mark_white.png" class="logo" />
+          </a>
+
+          
+            
+            
+              <div class="version">
+                7.1
+              </div>
+            
+          
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+  
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic_use.html">Best References Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environment.html">Environment Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_line_tools.html">Command Line Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="web_site_use.html">Using the CRDS Web Site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="web_services.html">Web Services</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">CRDS Rules (Mappings)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#naming">Naming</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#basic-structure">Basic Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#header">header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#comment">comment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#selector">selector</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pipeline-mappings-pmap">Pipeline Mappings (.pmap)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#instrument-mappings-imap">Instrument Mappings (.imap)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reference-mappings-rmap">Reference Mappings (.rmap)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#active-header-fields">Active Header Fields</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#required-parameters">Required Parameters</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#parkey">parkey</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#extra-keys">extra_keys</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reffile-switch">reffile_switch</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#logical-header-expressions">Logical Header Expressions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reffile-required">reffile_required</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rmap-relevance">rmap_relevance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parkey-relevance">parkey_relevance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hooks">hooks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#precondition-header">precondition_header</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fallback-header">fallback_header</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#selectors">Selectors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#primitive-return-values">Primitive Return Values</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#single-filename">Single Filename</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#filename-tuple">Filename Tuple</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#not-applicable">Not Applicable</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#omit">Omit</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#match">Match</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#parameter-tuples-and-simple-matches">Parameter Tuples and Simple Matches</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#single-parameter-values">Single Parameter Values</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#or">Or |</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wild-cards">Wild Cards *</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#regular-expressions">Regular Expressions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#literal-expressions">Literal Expressions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#relational-expressions">Relational Expressions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#between">Between</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#n-a">N/A</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#not-expressions">NOT Expressions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#substitution-parameters">Substitution Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#match-weighting">Match Weighting</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#useafter">UseAfter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#selectversion">SelectVersion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#closesttime">ClosestTime</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#geometricallynearest">GeometricallyNearest</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bracket">Bracket</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="library_use.html">Library Use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference_conventions.html">Reference File Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database.html">CRDS Database Access</a></li>
+</ul>
+
+            
+          
         </div>
       </div>
+    </nav>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">CRDS</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>CRDS Rules (Mappings)</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/rmap_syntax.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
-  <div class="section" id="about-mappings">
-<h1>About Mappings<a class="headerlink" href="#about-mappings" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="crds-rules-mappings">
+<h1>CRDS Rules (Mappings)<a class="headerlink" href="#crds-rules-mappings" title="Permalink to this headline">¶</a></h1>
 <p>CRDS mappings are organized in a 3 tier hierarchy:  pipeline (.pmap),
 instrument (.imap), and reference (.rmap).   Based on dataset parameters,
 the pipeline context is used to select an instrument mapping,  the instrument
@@ -154,7 +206,7 @@ mapping is used to select a reference file.</p>
 definitions can be parsed directly by the Python interpreter.   Nothing
 precludes writing a parser for CRDS mappings in some other language.</p>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/file_relationships.png"><img alt="diagram of file relationships, .pmap -&gt; .imap -&gt; .rmap -&gt; .reference" src="_images/file_relationships.png" style="width: 595.5px; height: 446.5px;" /></a>
+<a class="reference internal image-reference" href="_images/file_relationships.png"><img alt="diagram of file relationships, .pmap -&gt; .imap -&gt; .rmap -&gt; .reference" src="_images/file_relationships.png" style="width: 452.0px; height: 339.0px;" /></a>
 </div>
 <div class="section" id="naming">
 <h2>Naming<a class="headerlink" href="#naming" title="Permalink to this headline">¶</a></h2>
@@ -225,55 +277,70 @@ mapping file.</p>
 <h2>Instrument Mappings (.imap)<a class="headerlink" href="#instrument-mappings-imap" title="Permalink to this headline">¶</a></h2>
 <p>A sample instrument mapping for HST’s COS instrument looks like:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;derived_from&#39;</span> <span class="p">:</span> <span class="s1">&#39;scraped 2011-12-23 11:57:10&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;description&#39;</span> <span class="p">:</span> <span class="s1">&#39;Initially generated on 2011-12-23 11:57:10&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;derived_from&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_0290.imap&#39;</span><span class="p">,</span>
     <span class="s1">&#39;instrument&#39;</span> <span class="p">:</span> <span class="s1">&#39;COS&#39;</span><span class="p">,</span>
     <span class="s1">&#39;mapping&#39;</span> <span class="p">:</span> <span class="s1">&#39;INSTRUMENT&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;name&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos.imap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;name&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_0291.imap&#39;</span><span class="p">,</span>
     <span class="s1">&#39;observatory&#39;</span> <span class="p">:</span> <span class="s1">&#39;HST&#39;</span><span class="p">,</span>
     <span class="s1">&#39;parkey&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;REFTYPE&#39;</span><span class="p">,),</span>
-    <span class="s1">&#39;sha1sum&#39;</span> <span class="p">:</span> <span class="s1">&#39;800fb1567cb5bed4031402c7396aeb86c5e1db61&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;source_url&#39;</span> <span class="p">:</span> <span class="s1">&#39;http://www.stsci.edu/hst/observatory/cdbs/SIfileInfo/COS/reftablequeryindex&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;sha1sum&#39;</span> <span class="p">:</span> <span class="s1">&#39;85184c1656b487e7af686a7ab75262dcefc882e8&#39;</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="n">selector</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;badttab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_badttab.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;bpixtab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_bpixtab.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;brftab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_brftab.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;brsttab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_brsttab.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;deadtab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_deadtab.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;disptab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_disptab.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;flatfile&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_flatfile.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;fluxtab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_fluxtab.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;geofile&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_geofile.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;lamptab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_lamptab.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;phatab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_phatab.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;spwcstab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_spwcstab.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;tdstab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_tdstab.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;wcptab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_wcptab.rmap&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;xtractab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_xtractab.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;badttab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_badttab_0250.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;bpixtab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_bpixtab_0254.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;brftab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_brftab_0250.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;brsttab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_brsttab_0250.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;deadtab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_deadtab_0250.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;dgeofile&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_dgeofile_0002.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;disptab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_disptab_0259.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;flatfile&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_flatfile_0254.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;fluxtab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_fluxtab_0261.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;geofile&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_geofile_0250.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;gsagtab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_gsagtab_0253.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;hvtab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_hvtab_0259.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;lamptab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_lamptab_0251.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;phatab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_phatab_0250.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;proftab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_proftab_0265.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;spottab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_spottab_0004.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;spwcstab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_spwcstab_0251.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;tdstab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_tdstab_0254.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;tracetab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_tracetab_0265.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;twozxtab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_twozxtab_0266.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;wcptab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_wcptab_0255.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;xtractab&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_xtractab_0257.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;xwlkfile&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_xwlkfile_0002.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ywlkfile&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_ywlkfile_0002.rmap&#39;</span><span class="p">,</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>Instrument mappings match the desired reference file type against the reference mapping which can be used to determine a
+<p>Instrument mappings match the desired reference file type against the reference mapping used to determine a
 best reference recommendation for a particular dataset.  An instrument mapping lists all possible reference types for
-all modes of the instrument,  some of which may not be appropriate for a particular mode.   The selector key of an
-instrument mapping is the value of a reference file header keyword “REFTYPE”,  and is the name of the dataset header
-keyword which will record the best reference selection.</p>
+all modes of the instrument,  some of which may not be appropriate for a particular mode.</p>
+<p>For HST, the header keywords FILETYPE or CDBSFILE are used to define a reference’s type and corresponding rmap.
+FILETYPE is in turn translated to the keyword names used to record reference files in datasets
+(CRDS names these “filekind”),  and these appear directly in rmap names, e.g. FILETYPE=BIAS translates to BIASFILE which
+appears in the rmap hst_acs_biasfile_0250.rmap.  NOTE: the HST .imap’s incorrectly specify REFTYPE in the .imap’s
+but the value is unused.</p>
+<p>For JWST, the header keyword REFTYPE (META.REFTYPE) is used to select the rmap.   For JWST, the REFTYPE
+appears directly in file names, e.g. REFTYPE=SUPERBIAS is part of the rmap name jwst_nirspec_superbias_0001.rmap.</p>
 </div>
 <div class="section" id="reference-mappings-rmap">
 <h2>Reference Mappings (.rmap)<a class="headerlink" href="#reference-mappings-rmap" title="Permalink to this headline">¶</a></h2>
 <p>A sample reference mapping for HST COS DEADTAB looks like:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;derived_from&#39;</span> <span class="p">:</span> <span class="s1">&#39;scraped 2011-12-23 11:54:56&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;description&#39;</span> <span class="p">:</span> <span class="s1">&#39;Initially generated on 2011-12-23 11:54:56&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;derived_from&#39;</span> <span class="p">:</span> <span class="s1">&#39;generated from CDBS database 2014-05-09 23:24:57.840119&#39;</span><span class="p">,</span>
     <span class="s1">&#39;filekind&#39;</span> <span class="p">:</span> <span class="s1">&#39;DEADTAB&#39;</span><span class="p">,</span>
     <span class="s1">&#39;instrument&#39;</span> <span class="p">:</span> <span class="s1">&#39;COS&#39;</span><span class="p">,</span>
     <span class="s1">&#39;mapping&#39;</span> <span class="p">:</span> <span class="s1">&#39;REFERENCE&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;name&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_deadtab.rmap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;name&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_deadtab_0250.rmap&#39;</span><span class="p">,</span>
     <span class="s1">&#39;observatory&#39;</span> <span class="p">:</span> <span class="s1">&#39;HST&#39;</span><span class="p">,</span>
     <span class="s1">&#39;parkey&#39;</span> <span class="p">:</span> <span class="p">((</span><span class="s1">&#39;DETECTOR&#39;</span><span class="p">,),</span> <span class="p">(</span><span class="s1">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s1">&#39;TIME-OBS&#39;</span><span class="p">)),</span>
-    <span class="s1">&#39;sha1sum&#39;</span> <span class="p">:</span> <span class="s1">&#39;e27984a6441d8aaa7cd28ead2267a6be4c3a153b&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;reffile_format&#39;</span> <span class="p">:</span> <span class="s1">&#39;TABLE&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;reffile_required&#39;</span> <span class="p">:</span> <span class="s1">&#39;NONE&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;reffile_switch&#39;</span> <span class="p">:</span> <span class="s1">&#39;DEADCORR&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;rmap_relevance&#39;</span> <span class="p">:</span> <span class="s1">&#39;(DEADCORR != &quot;OMIT&quot;)&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;sha1sum&#39;</span> <span class="p">:</span> <span class="s1">&#39;bde314f1848b67891d6309b30eaa5c95611f86e2&#39;</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="n">selector</span> <span class="o">=</span> <span class="n">Match</span><span class="p">({</span>
@@ -738,29 +805,72 @@ enclose the supplied parameter value:</p>
 </div>
 
 
+           </div>
           </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="library_use.html" class="btn btn-neutral float-right" title="Library Use" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="web_services.html" class="btn btn-neutral" title="Web Services" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Space Telescope Science Institute.
+      Last updated on Mar 04, 2018.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="reference_conventions.html" title="Reference File Conventions"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="core_library_functions.html" title="Core Library Functions"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">crds 7.1.6 documentation</a> &#187;</li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2015, STScI.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
-    </div>
-  </body>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'7.1.7',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
 </html>

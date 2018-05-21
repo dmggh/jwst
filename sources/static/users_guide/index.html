@@ -1,281 +1,235 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>CRDS User Manual &#8212; crds 7.1.6 documentation</title>
-    <link rel="stylesheet" href="_static/stsci_sphinx.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '7.1.6',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Package Overview" href="installation.html" /> 
-  </head>
-  <body>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="installation.html" title="Package Overview"
-             accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">crds 7.1.6 documentation</a> &#187;</li> 
-      </ul>
-    </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="#">
-              <img class="logo" src="_static/stsci_logo.png" alt="Logo"/>
-            </a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="installation.html"
-                        title="next chapter">Package Overview</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/index.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>CRDS User Manual &mdash; CRDS 7.1.7 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/stsci.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="CRDS 7.1.7 documentation" href="#"/>
+        <link rel="next" title="Overview" href="overview.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+            <a href="#" class="icon icon-home"> CRDS
+            
+            <img src="_static/stsci_pri_combo_mark_white.png" class="logo" />
+          </a>
+
+          
+            
+            
+              <div class="version">
+                7.1
+              </div>
+            
+          
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+  
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic_use.html">Best References Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environment.html">Environment Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_line_tools.html">Command Line Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="web_site_use.html">Using the CRDS Web Site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="web_services.html">Web Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rmap_syntax.html">CRDS Rules (Mappings)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library_use.html">Library Use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference_conventions.html">Reference File Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database.html">CRDS Database Access</a></li>
+</ul>
+
+            
+          
         </div>
       </div>
+    </nav>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="#">CRDS</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="#">Docs</a> &raquo;</li>
+      
+    <li>CRDS User Manual</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="crds-user-manual">
 <h1>CRDS User Manual<a class="headerlink" href="#crds-user-manual" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Package Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html#installation">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#installation-via-astroconda">Installation via AstroConda</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="installation.html#install-continuum-s-anaconda">Install Continuum’s Anaconda</a></li>
-<li class="toctree-l3"><a class="reference internal" href="installation.html#set-up-astroconda-astronomy-specific-packages">Set up AstroConda astronomy specific packages</a></li>
-<li class="toctree-l3"><a class="reference internal" href="installation.html#install-crds-astroconda-contributed-package">Install CRDS AstroConda Contributed Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#crds-matching">CRDS Matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#properties-of-crds">Properties of CRDS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#crds-rules">CRDS Rules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#kinds-of-crds-files">Kinds of CRDS Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#crds-tools">CRDS Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#crds-web-sites">CRDS Web Sites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#server-functions">Server Functions</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#implicit-installation">Implicit Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installation-via-astroconda">Installation via AstroConda</a></li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#pip-installation">Pip Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-from-source">Installing from Source</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="installation.html#github-checkout">GitHub Checkout</a></li>
-<li class="toctree-l3"><a class="reference internal" href="installation.html#run-the-install-script">Run the Install Script</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-from-source">Installing from Source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#dependencies">Dependencies</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html#best-references-basics">Best references Basics</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#crds-bestrefs-for-hst">CRDS bestrefs for HST</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#crds-bestrefs-for-jwst">CRDS bestrefs for JWST</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#default-onsite-use">Default Onsite Use:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#offsite-and-pipeline-use">Offsite and Pipeline Use:</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic_use.html">Best References Basics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="basic_use.html#crds-bestrefs-for-hst">CRDS Bestrefs for HST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic_use.html#crds-bestrefs-for-jwst">CRDS Bestrefs for JWST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic_use.html#default-onsite-use">Default Onsite Use</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic_use.html#offsite-and-pipeline-use">Offsite and Pipeline Use</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic_use.html#setup-for-offsite-use">Setup for Offsite Use</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic_use.html#overriding-the-default-context">Overriding the Default Context</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html#setting-up-your-environment">Setting up your Environment</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#basic-environment">Basic Environment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#setup-for-on-site-operational-use-hst-or-jwst">Setup for On-site Operational Use (HST or JWST)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="installation.html#file-cache-location-crds-path">File Cache Location (CRDS_PATH)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="installation.html#server-selection-crds-server-url">Server Selection (CRDS_SERVER_URL)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="installation.html#onsite-crds-testing">Onsite CRDS Testing</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#setup-for-offsite-use">Setup for Offsite Use</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#crds-cache-locking">CRDS Cache Locking</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="installation.html#additional-hst-settings">Additional HST Settings</a></li>
-<li class="toctree-l3"><a class="reference internal" href="installation.html#jwst-context">JWST Context</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#advanced-environment">Advanced Environment</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="installation.html#multi-project-caches">Multi-Project Caches</a></li>
-<li class="toctree-l3"><a class="reference internal" href="installation.html#single-project-caches">Single Project Caches</a></li>
-<li class="toctree-l3"><a class="reference internal" href="installation.html#miscellaneous-variables">Miscellaneous Variables</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="environment.html">Environment Variables</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="environment.html#basic-environment">Basic Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="environment.html#onsite-crds-testing">Onsite CRDS Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="environment.html#additional-hst-settings">Additional HST Settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="environment.html#jwst-context">JWST Context</a></li>
+<li class="toctree-l2"><a class="reference internal" href="environment.html#advanced-environment">Advanced Environment</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="command_line_tools.html">Command Line Tools</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="command_line_tools.html#crds-convenience-wrapper">crds Convenience Wrapper</a></li>
-<li class="toctree-l2"><a class="reference internal" href="command_line_tools.html#specifying-file-paths">Specifying File Paths</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="command_line_tools.html#in-the-crds-cache">In the CRDS cache</a></li>
-<li class="toctree-l3"><a class="reference internal" href="command_line_tools.html#in-the-current-directory">In the current directory</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="command_line_tools.html#crds-bestrefs">crds.bestrefs</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="command_line_tools.html#file-oriented-best-references">File Oriented Best References</a></li>
-<li class="toctree-l3"><a class="reference internal" href="command_line_tools.html#new-context">New Context</a></li>
-<li class="toctree-l3"><a class="reference internal" href="command_line_tools.html#lookup-parameter-sources">Lookup Parameter Sources</a></li>
-<li class="toctree-l3"><a class="reference internal" href="command_line_tools.html#comparison-modes">Comparison Modes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="command_line_tools.html#output-modes">Output Modes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="command_line_tools.html#update-modes">Update Modes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="command_line_tools.html#verbosity">Verbosity</a></li>
-<li class="toctree-l3"><a class="reference internal" href="command_line_tools.html#bad-files">Bad Files</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="command_line_tools.html#crds-master-program">crds master program</a></li>
+<li class="toctree-l2"><a class="reference internal" href="command_line_tools.html#specifying-file-paths">Specifying File Paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="command_line_tools.html#crds-bestrefs">crds.bestrefs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="command_line_tools.html#crds-sync">crds.sync</a></li>
 <li class="toctree-l2"><a class="reference internal" href="command_line_tools.html#crds-certify">crds.certify</a></li>
+<li class="toctree-l2"><a class="reference internal" href="command_line_tools.html#crds-list">crds.list</a></li>
 <li class="toctree-l2"><a class="reference internal" href="command_line_tools.html#crds-diff">crds.diff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="command_line_tools.html#crds-rowdiff">crds.rowdiff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="command_line_tools.html#crds-uses">crds.uses</a></li>
 <li class="toctree-l2"><a class="reference internal" href="command_line_tools.html#crds-matches">crds.matches</a></li>
-<li class="toctree-l2"><a class="reference internal" href="command_line_tools.html#pipeline-bestrefs">pipeline_bestrefs</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="top_level_use.html">Library Use</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="top_level_use.html#crds-getreferences">crds.getreferences()</a></li>
-<li class="toctree-l2"><a class="reference internal" href="top_level_use.html#crds-get-default-context">crds.get_default_context()</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="core_library_functions.html">Core Library Functions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="core_library_functions.html#overview-of-features">Overview of Features</a></li>
-<li class="toctree-l2"><a class="reference internal" href="core_library_functions.html#important-modules">Important Modules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="core_library_functions.html#basic-operations-on-mappings">Basic Operations on Mappings</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="core_library_functions.html#loading-rmaps">Loading Rmaps</a></li>
-<li class="toctree-l3"><a class="reference internal" href="core_library_functions.html#seeing-referenced-names">Seeing Referenced Names</a></li>
-<li class="toctree-l3"><a class="reference internal" href="core_library_functions.html#computing-best-references">Computing Best References</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="core_library_functions.html#mapping-checksums">Mapping Checksums</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="core_library_functions.html#ignoring-checksums">Ignoring Checksums!</a></li>
-<li class="toctree-l3"><a class="reference internal" href="core_library_functions.html#adding-checksums">Adding Checksums</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="rmap_syntax.html">About Mappings</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="rmap_syntax.html#naming">Naming</a></li>
-<li class="toctree-l2"><a class="reference internal" href="rmap_syntax.html#basic-structure">Basic Structure</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="rmap_syntax.html#header">header</a></li>
-<li class="toctree-l3"><a class="reference internal" href="rmap_syntax.html#comment">comment</a></li>
-<li class="toctree-l3"><a class="reference internal" href="rmap_syntax.html#selector">selector</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="rmap_syntax.html#pipeline-mappings-pmap">Pipeline Mappings (.pmap)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="rmap_syntax.html#instrument-mappings-imap">Instrument Mappings (.imap)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="rmap_syntax.html#reference-mappings-rmap">Reference Mappings (.rmap)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="rmap_syntax.html#active-header-fields">Active Header Fields</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="rmap_syntax.html#required-parameters">Required Parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="rmap_syntax.html#logical-header-expressions">Logical Header Expressions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="rmap_syntax.html#reffile-required">reffile_required</a></li>
-<li class="toctree-l3"><a class="reference internal" href="rmap_syntax.html#rmap-relevance">rmap_relevance</a></li>
-<li class="toctree-l3"><a class="reference internal" href="rmap_syntax.html#parkey-relevance">parkey_relevance</a></li>
-<li class="toctree-l3"><a class="reference internal" href="rmap_syntax.html#hooks">hooks</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="rmap_syntax.html#selectors">Selectors</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="rmap_syntax.html#primitive-return-values">Primitive Return Values</a></li>
-<li class="toctree-l3"><a class="reference internal" href="rmap_syntax.html#match">Match</a></li>
-<li class="toctree-l3"><a class="reference internal" href="rmap_syntax.html#useafter">UseAfter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="rmap_syntax.html#selectversion">SelectVersion</a></li>
-<li class="toctree-l3"><a class="reference internal" href="rmap_syntax.html#closesttime">ClosestTime</a></li>
-<li class="toctree-l3"><a class="reference internal" href="rmap_syntax.html#geometricallynearest">GeometricallyNearest</a></li>
-<li class="toctree-l3"><a class="reference internal" href="rmap_syntax.html#bracket">Bracket</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="reference_conventions.html">Reference File Conventions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="reference_conventions.html#supported-crds-file-formats">Supported CRDS file formats</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference_conventions.html#required-keywords-and-properties">Required Keywords and Properties</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="reference_conventions.html#keywords-for-new-file-formats">Keywords For New File Formats</a></li>
-<li class="toctree-l3"><a class="reference internal" href="reference_conventions.html#boilerplate-keywords">Boilerplate Keywords</a></li>
-<li class="toctree-l3"><a class="reference internal" href="reference_conventions.html#matching-keyword-patterns">Matching Keyword Patterns</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="command_line_tools.html#crds-uniqname">crds uniqname</a></li>
+<li class="toctree-l2"><a class="reference internal" href="command_line_tools.html#crds-checksum">crds checksum</a></li>
+<li class="toctree-l2"><a class="reference internal" href="command_line_tools.html#safe-bestrefs">safe_bestrefs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="command_line_tools.html#cron-sync">cron_sync</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="web_site_use.html">Using the CRDS Web Site</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="web_site_use.html#operational-references">Operational References</a></li>
-<li class="toctree-l2"><a class="reference internal" href="web_site_use.html#context-history-more">Context History (more)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="web_site_use.html#differencing-contexts">Differencing contexts</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="web_site_use.html#open-services">Open Services</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="web_site_use.html#dataset-best-references">Dataset Best References</a></li>
-<li class="toctree-l3"><a class="reference internal" href="web_site_use.html#explore-best-references">Explore Best References</a></li>
-<li class="toctree-l3"><a class="reference internal" href="web_site_use.html#browse-database">Browse Database</a></li>
-<li class="toctree-l3"><a class="reference internal" href="web_site_use.html#recent-activity">Recent Activity</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="web_site_use.html#private-functions">Private Functions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="web_site_use.html#login-and-instrument-locking">Login and Instrument Locking</a></li>
-<li class="toctree-l3"><a class="reference internal" href="web_site_use.html#certify-files">Certify Files</a></li>
-<li class="toctree-l3"><a class="reference internal" href="web_site_use.html#mark-files-bad">Mark Files Bad</a></li>
-<li class="toctree-l3"><a class="reference internal" href="web_site_use.html#delete-references">Delete References</a></li>
-<li class="toctree-l3"><a class="reference internal" href="web_site_use.html#add-references">Add References</a></li>
-<li class="toctree-l3"><a class="reference internal" href="web_site_use.html#set-context">Set Context</a></li>
-<li class="toctree-l3"><a class="reference internal" href="web_site_use.html#batch-submit-references">Batch Submit References</a></li>
-<li class="toctree-l3"><a class="reference internal" href="web_site_use.html#submit-references">Submit References</a></li>
-<li class="toctree-l3"><a class="reference internal" href="web_site_use.html#submit-mappings">Submit Mappings</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="web_site_use.html#context-history-more">Context History (more)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="web_site_use.html#open-services">Open Services</a></li>
+<li class="toctree-l2"><a class="reference internal" href="web_site_use.html#private-functions">Private Functions</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="web_services.html">Web Services</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="web_services.html#context-information">Context Information</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="web_services.html#centralized-default">Centralized Default</a></li>
-<li class="toctree-l3"><a class="reference internal" href="web_services.html#pipeline-echo">Pipeline Echo</a></li>
-<li class="toctree-l3"><a class="reference internal" href="web_services.html#context-history">Context History</a></li>
+<li class="toctree-l2"><a class="reference internal" href="web_services.html#context-information">Context Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="web_services.html#file-information">File Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="web_services.html#best-references">Best References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="web_services.html#jsonrpc-protocol">JSONRPC Protocol</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="web_services.html#file-information">File Information</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="web_services.html#single-file-metadata">Single File Metadata</a></li>
-<li class="toctree-l3"><a class="reference internal" href="web_services.html#multiple-file-metadata">Multiple File Metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rmap_syntax.html">CRDS Rules (Mappings)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="rmap_syntax.html#naming">Naming</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rmap_syntax.html#basic-structure">Basic Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rmap_syntax.html#pipeline-mappings-pmap">Pipeline Mappings (.pmap)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rmap_syntax.html#instrument-mappings-imap">Instrument Mappings (.imap)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rmap_syntax.html#reference-mappings-rmap">Reference Mappings (.rmap)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rmap_syntax.html#active-header-fields">Active Header Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rmap_syntax.html#selectors">Selectors</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="web_services.html#best-references">Best References</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="web_services.html#single-header">Single Header</a></li>
-<li class="toctree-l3"><a class="reference internal" href="web_services.html#multiple-headers">Multiple Headers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="web_services.html#selection-parameters">Selection Parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="web_services.html#valid-dataset-ids">Valid Dataset IDs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="web_services.html#matching-parameters-by-id">Matching Parameters By ID</a></li>
-<li class="toctree-l3"><a class="reference internal" href="web_services.html#aui-interface-for-best-references">AUI Interface for Best References</a></li>
-<li class="toctree-l3"><a class="reference internal" href="web_services.html#interface-for-calibration-s-w-versions">Interface for Calibration S/W Versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library_use.html">Library Use</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="library_use.html#crds-getreferences">crds.getreferences()</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library_use.html#crds-get-default-context">crds.get_default_context()</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library_use.html#overview-of-features">Overview of Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library_use.html#important-modules">Important Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library_use.html#basic-operations-on-mappings">Basic Operations on Mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library_use.html#mapping-checksums">Mapping Checksums</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="web_services.html#jsonrpc-protocol">JSONRPC Protocol</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="web_services.html#sample-url-s">Sample URL’s</a></li>
-<li class="toctree-l3"><a class="reference internal" href="web_services.html#generic-request">Generic Request</a></li>
-<li class="toctree-l3"><a class="reference internal" href="web_services.html#generic-response">Generic Response</a></li>
-<li class="toctree-l3"><a class="reference internal" href="web_services.html#error-handling">Error Handling</a></li>
-<li class="toctree-l3"><a class="reference internal" href="web_services.html#demo-page">Demo Page</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="reference_conventions.html">Reference File Conventions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference_conventions.html#supported-crds-file-formats">Supported CRDS file formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference_conventions.html#required-keywords-and-properties">Required Keywords and Properties</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="database.html">CRDS Database Access</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="database.html#json-rpc-access">JSON RPC Access</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="database.html#metadata-for-a-single-file">Metadata for a single file</a></li>
-<li class="toctree-l3"><a class="reference internal" href="database.html#metadata-for-several-all-files">Metadata for several / all files</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#json-rpc-access">JSON RPC Access</a></li>
 <li class="toctree-l2"><a class="reference internal" href="database.html#download-crds-catalog-for-sqlite-queries">Download CRDS catalog for SQLite queries</a></li>
 </ul>
 </li>
@@ -284,26 +238,70 @@
 </div>
 
 
+           </div>
           </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="overview.html" class="btn btn-neutral float-right" title="Overview" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Space Telescope Science Institute.
+      Last updated on Mar 04, 2018.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="installation.html" title="Package Overview"
-             >next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">crds 7.1.6 documentation</a> &#187;</li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2015, STScI.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
-    </div>
-  </body>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'7.1.7',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
 </html>

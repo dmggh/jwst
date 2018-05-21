@@ -117,7 +117,7 @@ export CRDS_SERVER_URL="https://jwst-crds.stsci.edu"</pre>
             the FITS headers and can also <b>download and cache</b> the best reference files.
           </p><p/>
 
-          <pre class="code darkblue">python -m crds.bestrefs --update-bestrefs --sync-references=1 --files *.fits</pre>
+          <pre class="code darkblue">crds bestrefs --update-bestrefs --sync-references=1 --files *.fits</pre>
       
           <p>Since the files are cached, re-running the tool later will only
              download those files which have been updated.

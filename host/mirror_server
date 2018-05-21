@@ -1,5 +1,7 @@
 #! /bin/csh
 
+add_meta_event "Mirrored server with parameters:" $*
+
 # set BACKUP_DIR=/eng/ssb/crds/latest_backups
 set BACKUP_DIR=${CRDS}/server/db_backups/eng_crds
 rm -f ${BACKUP_DIR}
@@ -44,14 +46,14 @@ setenv CRDS_SERVER_URL $mirrored_server_url
 echo "-----------------------------------------------------"
 echo "Clearing all local context pickles"
 echo "-----------------------------------------------------"
-export CRDS_USE_PICKLED_CONTEXTS=0
+setenv CRDS_USE_PICKLED_CONTEXTS 0
 python -m crds.sync --clear-pickles --verbose --stats
 
 echo "-----------------------------------------------------"
 echo "Syncing mappings from $mirrored_server_url"
 echo "-----------------------------------------------------"
 cd ${CRDS}/CRDS_server
-python -m crds.sync --all --repair-files --check-sha1sum --purge-mappings --verbose --stats
+python -m crds.sync --all --repair-files --check-sha1sum --purge-mappings --organize=flat --verbose --stats
 
 echo "-----------------------------------------------------"
 echo "Fast-Syncing references from $mirrored_server_url"

@@ -17,7 +17,7 @@ from crds.core import config as lconfig
 
 from crds.server import settings
 from crds.server import config as sconfig
-from crds.server.interactive import models, locks, mail
+from crds.server.interactive import models, locks, mail, views
 
 from django.contrib.auth.models import User
 
@@ -698,6 +698,32 @@ class InteractiveBase(TransactionTestCase):
     
     def test_get(self):   # XXX TODO implememnt get test
         pass
+
+    def test_upload_link(self):
+        """This checks to ensure upload_path and ingest_path are on the same
+        file system and are amenable to hard-linking.  File system automounts
+        can make this fail.
+        """
+        upload_path = os.path.join(sconfig.FILE_UPLOAD_TEMP_DIR, "test.upload")
+        self._core_link_test(upload_path)
+
+    def test_upload_link_intentional_fail(self):
+        """This checks the upload link test strategy for viability by intentionally
+        cross-linking upload and ingest directories.  If it fails it is
+        not inherently a problem as long as test_upload_link() also succeeds.
+        """
+        upload_path = "/tmp/test.upload"
+        with self.assertRaises(OSError) as e:
+            self._core_link_test(upload_path)
+
+    def _core_link_test(self, upload_path):
+        utils.ensure_dir_exists(upload_path)
+        with open(upload_path, "w+") as temp:
+            temp.write("no-cross-links upload test file.\n")
+        ingest_path = views.get_ingest_path("homer", "test.upload")
+        views.link_upload_to_ingest(upload_path, ingest_path)
+        os.remove(upload_path)
+        os.remove(ingest_path)
 
 # ----------------------------------------------------------------------------------
 

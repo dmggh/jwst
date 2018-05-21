@@ -1,0 +1,2366 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns:dt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882"
+xmlns:m="http://schemas.microsoft.com/office/2004/12/omml"
+xmlns:mv="http://macVmlSchemaUri" xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta name=Title content="CRDS Server Workflow">
+<meta name=Keywords content="">
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 14">
+<meta name=Originator content="Microsoft Word 14">
+<link rel=File-List href="CrdsServerEndToEnd_files/filelist.xml">
+<link rel=Edit-Time-Data href="CrdsServerEndToEnd_files/editdata.mso">
+<!--[if !mso]>
+<style>
+v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+w\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+</style>
+<![endif]-->
+<title>CRDS Server Workflow</title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>Todd Miller</o:Author>
+  <o:LastAuthor>Todd Miller</o:LastAuthor>
+  <o:Revision>2</o:Revision>
+  <o:TotalTime>38</o:TotalTime>
+  <o:Created>2017-11-20T22:16:00Z</o:Created>
+  <o:LastSaved>2017-11-20T22:16:00Z</o:LastSaved>
+  <o:Pages>10</o:Pages>
+  <o:Words>3804</o:Words>
+  <o:Characters>21385</o:Characters>
+  <o:Company>STScI</o:Company>
+  <o:Paragraphs>en-US</o:Paragraphs>
+  <o:Lines>548</o:Lines>
+  <o:Paragraphs>217</o:Paragraphs>
+  <o:CharactersWithSpaces>24972</o:CharactersWithSpaces>
+  <o:Version>14.0</o:Version>
+ </o:DocumentProperties>
+ <o:CustomDocumentProperties>
+  <o:AppVersion dt:dt="string">14.0000</o:AppVersion>
+  <o:Company dt:dt="string">STScI</o:Company>
+  <o:DocSecurity dt:dt="float">0</o:DocSecurity>
+  <o:HyperlinksChanged dt:dt="boolean">0</o:HyperlinksChanged>
+  <o:LinksUpToDate dt:dt="boolean">0</o:LinksUpToDate>
+  <o:ScaleCrop dt:dt="boolean">0</o:ScaleCrop>
+  <o:ShareDoc dt:dt="boolean">0</o:ShareDoc>
+ </o:CustomDocumentProperties>
+ <o:OfficeDocumentSettings>
+  <o:AllowPNG/>
+  <o:PixelsPerInch>120</o:PixelsPerInch>
+  <o:TargetScreenSize>1920x1200</o:TargetScreenSize>
+ </o:OfficeDocumentSettings>
+</xml><![endif]-->
+<link rel=dataStoreItem href="CrdsServerEndToEnd_files/item0001.xml"
+target=":CrdsServerEndToEnd_files:props0002.xml">
+<link rel=themeData href="CrdsServerEndToEnd_files/themedata.xml">
+<!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:SpellingState>Clean</w:SpellingState>
+  <w:GrammarState>Clean</w:GrammarState>
+  <w:TrackMoves>false</w:TrackMoves>
+  <w:TrackFormatting/>
+  <w:PunctuationKerning/>
+  <w:ValidateAgainstSchemas/>
+  <w:SaveIfXMLInvalid>false</w:SaveIfXMLInvalid>
+  <w:IgnoreMixedContent>false</w:IgnoreMixedContent>
+  <w:AlwaysShowPlaceholderText>false</w:AlwaysShowPlaceholderText>
+  <w:DoNotPromoteQF/>
+  <w:LidThemeOther>EN-US</w:LidThemeOther>
+  <w:LidThemeAsian>JA</w:LidThemeAsian>
+  <w:LidThemeComplexScript>X-NONE</w:LidThemeComplexScript>
+  <w:Compatibility>
+   <w:BreakWrappedTables/>
+   <w:SnapToGridInCell/>
+   <w:WrapTextWithPunct/>
+   <w:UseAsianBreakRules/>
+   <w:DontGrowAutofit/>
+   <w:SplitPgBreakAndParaMark/>
+   <w:EnableOpenTypeKerning/>
+   <w:DontFlipMirrorIndents/>
+   <w:OverrideTableStyleHps/>
+   <w:UseFELayout/>
+  </w:Compatibility>
+  <m:mathPr>
+   <m:mathFont m:val="Cambria Math"/>
+   <m:brkBin m:val="before"/>
+   <m:brkBinSub m:val="&#45;-"/>
+   <m:smallFrac m:val="off"/>
+   <m:dispDef/>
+   <m:lMargin m:val="0"/>
+   <m:rMargin m:val="0"/>
+   <m:defJc m:val="centerGroup"/>
+   <m:wrapIndent m:val="1440"/>
+   <m:intLim m:val="subSup"/>
+   <m:naryLim m:val="undOvr"/>
+  </m:mathPr></w:WordDocument>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:LatentStyles DefLockedState="false" DefUnhideWhenUsed="true"
+  DefSemiHidden="true" DefQFormat="false" DefPriority="99"
+  LatentStyleCount="276">
+  <w:LsdException Locked="false" Priority="0" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Normal"/>
+  <w:LsdException Locked="false" Priority="9" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="heading 1"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 2"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 3"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 4"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 5"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 6"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 7"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 8"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 9"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 1"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 2"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 3"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 4"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 5"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 6"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 7"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 8"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 9"/>
+  <w:LsdException Locked="false" Priority="35" QFormat="true" Name="caption"/>
+  <w:LsdException Locked="false" Priority="10" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Title"/>
+  <w:LsdException Locked="false" Priority="1" Name="Default Paragraph Font"/>
+  <w:LsdException Locked="false" Priority="11" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Subtitle"/>
+  <w:LsdException Locked="false" Priority="22" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Strong"/>
+  <w:LsdException Locked="false" Priority="20" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Emphasis"/>
+  <w:LsdException Locked="false" Priority="59" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Table Grid"/>
+  <w:LsdException Locked="false" UnhideWhenUsed="false" Name="Placeholder Text"/>
+  <w:LsdException Locked="false" Priority="1" UnhideWhenUsed="false"
+   QFormat="true" Name="No Spacing"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 1"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 1"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 1"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 1"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 1"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 1"/>
+  <w:LsdException Locked="false" UnhideWhenUsed="false" Name="Revision"/>
+  <w:LsdException Locked="false" Priority="34" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="List Paragraph"/>
+  <w:LsdException Locked="false" Priority="29" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Quote"/>
+  <w:LsdException Locked="false" Priority="30" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Intense Quote"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 1"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 1"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 1"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 1"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 1"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 1"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 1"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 1"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 2"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 2"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 2"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 2"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 2"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 2"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 2"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 2"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 2"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 2"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 2"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 2"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 2"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 2"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 3"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 3"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 3"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 3"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 3"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 3"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 3"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 3"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 3"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 3"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 3"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 3"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 3"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 3"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 4"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 4"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 4"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 4"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 4"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 4"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 4"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 4"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 4"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 4"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 4"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 4"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 4"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 4"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 5"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 5"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 5"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 5"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 5"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 5"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 5"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 5"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 5"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 5"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 5"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 5"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 5"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 5"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 6"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 6"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 6"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 6"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 6"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 6"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 6"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 6"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 6"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 6"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 6"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 6"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 6"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 6"/>
+  <w:LsdException Locked="false" Priority="19" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Subtle Emphasis"/>
+  <w:LsdException Locked="false" Priority="21" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Intense Emphasis"/>
+  <w:LsdException Locked="false" Priority="31" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Subtle Reference"/>
+  <w:LsdException Locked="false" Priority="32" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Intense Reference"/>
+  <w:LsdException Locked="false" Priority="33" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Book Title"/>
+  <w:LsdException Locked="false" Priority="37" Name="Bibliography"/>
+  <w:LsdException Locked="false" Priority="39" QFormat="true" Name="TOC Heading"/>
+ </w:LatentStyles>
+</xml><![endif]-->
+<style>
+<!--
+ /* Font Definitions */
+@font-face
+	{font-family:Arial;
+	panose-1:2 11 6 4 2 2 2 2 2 4;
+	mso-font-charset:0;
+	mso-generic-font-family:auto;
+	mso-font-pitch:variable;
+	mso-font-signature:-536859905 -1073711037 9 0 511 0;}
+@font-face
+	{font-family:"ＭＳ 明朝";
+	mso-font-charset:78;
+	mso-generic-font-family:auto;
+	mso-font-pitch:variable;
+	mso-font-signature:-536870145 1791491579 18 0 131231 0;}
+@font-face
+	{font-family:"ＭＳ ゴシック";
+	mso-font-charset:78;
+	mso-generic-font-family:auto;
+	mso-font-pitch:variable;
+	mso-font-signature:-536870145 1791491579 18 0 131231 0;}
+@font-face
+	{font-family:"ＭＳ ゴシック";
+	mso-font-charset:78;
+	mso-generic-font-family:auto;
+	mso-font-pitch:variable;
+	mso-font-signature:-536870145 1791491579 18 0 131231 0;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;
+	mso-font-charset:0;
+	mso-generic-font-family:auto;
+	mso-font-pitch:variable;
+	mso-font-signature:-520092929 1073786111 9 0 415 0;}
+@font-face
+	{font-family:Cambria;
+	panose-1:2 4 5 3 5 4 6 3 2 4;
+	mso-font-charset:0;
+	mso-generic-font-family:auto;
+	mso-font-pitch:variable;
+	mso-font-signature:-536870145 1073743103 0 0 415 0;}
+@font-face
+	{font-family:"Lucida Grande";
+	panose-1:2 11 6 0 4 5 2 2 2 4;
+	mso-font-charset:0;
+	mso-generic-font-family:auto;
+	mso-font-pitch:variable;
+	mso-font-signature:-520090897 1342218751 0 0 447 0;}
+@font-face
+	{font-family:"Liberation Sans";
+	mso-font-alt:Arial;
+	mso-font-charset:1;
+	mso-generic-font-family:swiss;
+	mso-font-pitch:variable;
+	mso-font-signature:0 0 0 0 0 0;}
+@font-face
+	{font-family:SimSun;
+	panose-1:0 0 0 0 0 0 0 0 0 0;
+	mso-font-charset:0;
+	mso-generic-font-family:roman;
+	mso-font-format:other;
+	mso-font-pitch:auto;
+	mso-font-signature:0 0 0 0 0 0;}
+@font-face
+	{font-family:"Lucida Sans";
+	panose-1:2 11 6 2 3 5 4 2 2 4;
+	mso-font-charset:0;
+	mso-generic-font-family:auto;
+	mso-font-pitch:variable;
+	mso-font-signature:3 0 0 0 1 0;}
+ /* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-unhide:no;
+	mso-style-qformat:yes;
+	mso-style-parent:"";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:Cambria;
+	mso-fareast-font-family:"ＭＳ 明朝";
+	mso-bidi-font-family:"Times New Roman";
+	mso-fareast-language:JA;}
+h1
+	{mso-style-priority:9;
+	mso-style-unhide:no;
+	mso-style-qformat:yes;
+	mso-style-link:"Heading 1 Char";
+	mso-style-next:Normal;
+	margin-top:24.0pt;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan lines-together;
+	page-break-after:avoid;
+	mso-outline-level:1;
+	font-size:16.0pt;
+	font-family:Calibri;
+	mso-fareast-font-family:"ＭＳ ゴシック";
+	color:#345A8A;
+	mso-font-kerning:0pt;
+	mso-fareast-language:JA;}
+h2
+	{mso-style-priority:9;
+	mso-style-qformat:yes;
+	mso-style-link:"Heading 2 Char";
+	mso-style-next:Normal;
+	margin-top:10.0pt;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan lines-together;
+	page-break-after:avoid;
+	mso-outline-level:2;
+	font-size:13.0pt;
+	font-family:Calibri;
+	mso-fareast-font-family:"ＭＳ ゴシック";
+	color:#4F81BD;
+	mso-fareast-language:JA;}
+p.MsoCaption, li.MsoCaption, div.MsoCaption
+	{mso-style-unhide:no;
+	mso-style-qformat:yes;
+	margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan no-line-numbers;
+	font-size:12.0pt;
+	font-family:Cambria;
+	mso-fareast-font-family:"ＭＳ 明朝";
+	mso-bidi-font-family:"Lucida Sans";
+	mso-fareast-language:JA;
+	font-style:italic;}
+p.MsoList, li.MsoList, div.MsoList
+	{mso-style-unhide:no;
+	mso-style-parent:"Text Body";
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:7.0pt;
+	margin-left:0in;
+	line-height:120%;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:Cambria;
+	mso-fareast-font-family:"ＭＳ 明朝";
+	mso-bidi-font-family:"Lucida Sans";
+	mso-fareast-language:JA;}
+p.MsoTitle, li.MsoTitle, div.MsoTitle
+	{mso-style-priority:10;
+	mso-style-unhide:no;
+	mso-style-qformat:yes;
+	mso-style-link:"Title Char";
+	mso-style-next:Normal;
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:15.0pt;
+	margin-left:0in;
+	mso-add-space:auto;
+	mso-pagination:widow-orphan;
+	border:none;
+	mso-border-bottom-alt:solid #4F81BD 1.0pt;
+	padding:0in;
+	mso-padding-alt:0in 0in 4.0pt 0in;
+	font-size:26.0pt;
+	font-family:Calibri;
+	mso-fareast-font-family:"ＭＳ ゴシック";
+	mso-bidi-font-family:"Times New Roman";
+	color:#17365D;
+	letter-spacing:.25pt;
+	mso-fareast-language:JA;}
+p.MsoTitleCxSpFirst, li.MsoTitleCxSpFirst, div.MsoTitleCxSpFirst
+	{mso-style-priority:10;
+	mso-style-unhide:no;
+	mso-style-qformat:yes;
+	mso-style-link:"Title Char";
+	mso-style-next:Normal;
+	mso-style-type:export-only;
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-add-space:auto;
+	mso-pagination:widow-orphan;
+	border:none;
+	mso-border-bottom-alt:solid #4F81BD 1.0pt;
+	padding:0in;
+	mso-padding-alt:0in 0in 4.0pt 0in;
+	font-size:26.0pt;
+	font-family:Calibri;
+	mso-fareast-font-family:"ＭＳ ゴシック";
+	mso-bidi-font-family:"Times New Roman";
+	color:#17365D;
+	letter-spacing:.25pt;
+	mso-fareast-language:JA;}
+p.MsoTitleCxSpMiddle, li.MsoTitleCxSpMiddle, div.MsoTitleCxSpMiddle
+	{mso-style-priority:10;
+	mso-style-unhide:no;
+	mso-style-qformat:yes;
+	mso-style-link:"Title Char";
+	mso-style-next:Normal;
+	mso-style-type:export-only;
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-add-space:auto;
+	mso-pagination:widow-orphan;
+	border:none;
+	mso-border-bottom-alt:solid #4F81BD 1.0pt;
+	padding:0in;
+	mso-padding-alt:0in 0in 4.0pt 0in;
+	font-size:26.0pt;
+	font-family:Calibri;
+	mso-fareast-font-family:"ＭＳ ゴシック";
+	mso-bidi-font-family:"Times New Roman";
+	color:#17365D;
+	letter-spacing:.25pt;
+	mso-fareast-language:JA;}
+p.MsoTitleCxSpLast, li.MsoTitleCxSpLast, div.MsoTitleCxSpLast
+	{mso-style-priority:10;
+	mso-style-unhide:no;
+	mso-style-qformat:yes;
+	mso-style-link:"Title Char";
+	mso-style-next:Normal;
+	mso-style-type:export-only;
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:15.0pt;
+	margin-left:0in;
+	mso-add-space:auto;
+	mso-pagination:widow-orphan;
+	border:none;
+	mso-border-bottom-alt:solid #4F81BD 1.0pt;
+	padding:0in;
+	mso-padding-alt:0in 0in 4.0pt 0in;
+	font-size:26.0pt;
+	font-family:Calibri;
+	mso-fareast-font-family:"ＭＳ ゴシック";
+	mso-bidi-font-family:"Times New Roman";
+	color:#17365D;
+	letter-spacing:.25pt;
+	mso-fareast-language:JA;}
+p.MsoSubtitle, li.MsoSubtitle, div.MsoSubtitle
+	{mso-style-unhide:no;
+	mso-style-qformat:yes;
+	mso-style-parent:Heading;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	font-size:14.0pt;
+	font-family:"Liberation Sans","sans-serif";
+	mso-fareast-font-family:SimSun;
+	mso-bidi-font-family:"Lucida Sans";
+	mso-fareast-language:JA;}
+p.MsoDocumentMap, li.MsoDocumentMap, div.MsoDocumentMap
+	{mso-style-noshow:yes;
+	mso-style-priority:99;
+	mso-style-qformat:yes;
+	mso-style-link:"Document Map Char";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Lucida Grande";
+	mso-fareast-font-family:"ＭＳ 明朝";
+	mso-bidi-font-family:"Times New Roman";
+	mso-fareast-language:JA;}
+pre
+	{mso-style-noshow:yes;
+	mso-style-priority:99;
+	mso-style-qformat:yes;
+	mso-style-link:"HTML Preformatted Char";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:Courier;
+	mso-fareast-font-family:"ＭＳ 明朝";
+	mso-bidi-font-family:Courier;}
+p.MsoListParagraph, li.MsoListParagraph, div.MsoListParagraph
+	{mso-style-priority:34;
+	mso-style-unhide:no;
+	mso-style-qformat:yes;
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.5in;
+	margin-bottom:.0001pt;
+	mso-add-space:auto;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:Cambria;
+	mso-fareast-font-family:"ＭＳ 明朝";
+	mso-bidi-font-family:"Times New Roman";
+	mso-fareast-language:JA;}
+p.MsoListParagraphCxSpFirst, li.MsoListParagraphCxSpFirst, div.MsoListParagraphCxSpFirst
+	{mso-style-priority:34;
+	mso-style-unhide:no;
+	mso-style-qformat:yes;
+	mso-style-type:export-only;
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.5in;
+	margin-bottom:.0001pt;
+	mso-add-space:auto;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:Cambria;
+	mso-fareast-font-family:"ＭＳ 明朝";
+	mso-bidi-font-family:"Times New Roman";
+	mso-fareast-language:JA;}
+p.MsoListParagraphCxSpMiddle, li.MsoListParagraphCxSpMiddle, div.MsoListParagraphCxSpMiddle
+	{mso-style-priority:34;
+	mso-style-unhide:no;
+	mso-style-qformat:yes;
+	mso-style-type:export-only;
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.5in;
+	margin-bottom:.0001pt;
+	mso-add-space:auto;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:Cambria;
+	mso-fareast-font-family:"ＭＳ 明朝";
+	mso-bidi-font-family:"Times New Roman";
+	mso-fareast-language:JA;}
+p.MsoListParagraphCxSpLast, li.MsoListParagraphCxSpLast, div.MsoListParagraphCxSpLast
+	{mso-style-priority:34;
+	mso-style-unhide:no;
+	mso-style-qformat:yes;
+	mso-style-type:export-only;
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.5in;
+	margin-bottom:.0001pt;
+	mso-add-space:auto;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:Cambria;
+	mso-fareast-font-family:"ＭＳ 明朝";
+	mso-bidi-font-family:"Times New Roman";
+	mso-fareast-language:JA;}
+span.Heading1Char
+	{mso-style-name:"Heading 1 Char";
+	mso-style-priority:9;
+	mso-style-unhide:no;
+	mso-style-qformat:yes;
+	mso-style-locked:yes;
+	mso-style-parent:"";
+	mso-style-link:"Heading 1";
+	mso-ansi-font-size:16.0pt;
+	mso-bidi-font-size:16.0pt;
+	font-family:Calibri;
+	mso-ascii-font-family:Calibri;
+	mso-fareast-font-family:"ＭＳ ゴシック";
+	mso-hansi-font-family:Calibri;
+	mso-bidi-font-family:"Times New Roman";
+	color:#345A8A;
+	font-weight:bold;}
+span.InternetLink
+	{mso-style-name:"Internet Link";
+	mso-style-priority:99;
+	mso-style-parent:"";
+	color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+span.HTMLPreformattedChar
+	{mso-style-name:"HTML Preformatted Char";
+	mso-style-noshow:yes;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-style-qformat:yes;
+	mso-style-locked:yes;
+	mso-style-parent:"";
+	mso-style-link:"HTML Preformatted";
+	font-family:Courier;
+	mso-ascii-font-family:Courier;
+	mso-hansi-font-family:Courier;
+	mso-bidi-font-family:Courier;
+	mso-fareast-language:EN-US;}
+span.Heading2Char
+	{mso-style-name:"Heading 2 Char";
+	mso-style-priority:9;
+	mso-style-unhide:no;
+	mso-style-qformat:yes;
+	mso-style-locked:yes;
+	mso-style-parent:"";
+	mso-style-link:"Heading 2";
+	mso-ansi-font-size:13.0pt;
+	mso-bidi-font-size:13.0pt;
+	font-family:Calibri;
+	mso-ascii-font-family:Calibri;
+	mso-fareast-font-family:"ＭＳ ゴシック";
+	mso-hansi-font-family:Calibri;
+	mso-bidi-font-family:"Times New Roman";
+	color:#4F81BD;
+	font-weight:bold;}
+span.z-TopofFormChar
+	{mso-style-name:"z-Top of Form Char";
+	mso-style-noshow:yes;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-style-qformat:yes;
+	mso-style-parent:"";
+	mso-ansi-font-size:8.0pt;
+	mso-bidi-font-size:8.0pt;
+	font-family:Arial;
+	mso-ascii-font-family:Arial;
+	mso-hansi-font-family:Arial;
+	mso-bidi-font-family:Arial;
+	display:none;
+	mso-hide:all;
+	mso-fareast-language:EN-US;}
+span.z-BottomofFormChar
+	{mso-style-name:"z-Bottom of Form Char";
+	mso-style-noshow:yes;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-style-qformat:yes;
+	mso-style-parent:"";
+	mso-ansi-font-size:8.0pt;
+	mso-bidi-font-size:8.0pt;
+	font-family:Arial;
+	mso-ascii-font-family:Arial;
+	mso-hansi-font-family:Arial;
+	mso-bidi-font-family:Arial;
+	display:none;
+	mso-hide:all;
+	mso-fareast-language:EN-US;}
+span.TitleChar
+	{mso-style-name:"Title Char";
+	mso-style-priority:10;
+	mso-style-unhide:no;
+	mso-style-qformat:yes;
+	mso-style-locked:yes;
+	mso-style-parent:"";
+	mso-style-link:Title;
+	mso-ansi-font-size:26.0pt;
+	mso-bidi-font-size:26.0pt;
+	font-family:Calibri;
+	mso-ascii-font-family:Calibri;
+	mso-fareast-font-family:"ＭＳ ゴシック";
+	mso-hansi-font-family:Calibri;
+	mso-bidi-font-family:"Times New Roman";
+	color:#17365D;
+	letter-spacing:.25pt;}
+span.DocumentMapChar
+	{mso-style-name:"Document Map Char";
+	mso-style-noshow:yes;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-style-qformat:yes;
+	mso-style-locked:yes;
+	mso-style-link:"Document Map";
+	mso-ansi-font-size:12.0pt;
+	mso-bidi-font-size:12.0pt;
+	font-family:"Lucida Grande";
+	mso-ascii-font-family:"Lucida Grande";
+	mso-hansi-font-family:"Lucida Grande";
+	mso-fareast-language:JA;}
+p.Heading, li.Heading, div.Heading
+	{mso-style-name:Heading;
+	mso-style-unhide:no;
+	mso-style-qformat:yes;
+	mso-style-next:"Text Body";
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	font-size:14.0pt;
+	font-family:"Liberation Sans","sans-serif";
+	mso-fareast-font-family:SimSun;
+	mso-bidi-font-family:"Lucida Sans";
+	mso-fareast-language:JA;}
+p.TextBody, li.TextBody, div.TextBody
+	{mso-style-name:"Text Body";
+	mso-style-unhide:no;
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:7.0pt;
+	margin-left:0in;
+	line-height:120%;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:Cambria;
+	mso-fareast-font-family:"ＭＳ 明朝";
+	mso-bidi-font-family:"Times New Roman";
+	mso-fareast-language:JA;}
+p.Index, li.Index, div.Index
+	{mso-style-name:Index;
+	mso-style-unhide:no;
+	mso-style-qformat:yes;
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan no-line-numbers;
+	font-size:12.0pt;
+	font-family:Cambria;
+	mso-fareast-font-family:"ＭＳ 明朝";
+	mso-bidi-font-family:"Lucida Sans";
+	mso-fareast-language:JA;}
+span.SpellE
+	{mso-style-name:"";
+	mso-spl-e:yes;}
+span.GramE
+	{mso-style-name:"";
+	mso-gram-e:yes;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	mso-default-props:yes;
+	font-size:10.0pt;
+	mso-ansi-font-size:10.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:Cambria;
+	mso-ascii-font-family:Cambria;
+	mso-fareast-font-family:"ＭＳ 明朝";
+	mso-hansi-font-family:Cambria;}
+@page WordSection1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;
+	mso-header-margin:0in;
+	mso-footer-margin:0in;
+	mso-forms-protection:no;
+	mso-paper-source:0;}
+div.WordSection1
+	{page:WordSection1;}
+ /* List Definitions */
+@list l0
+	{mso-list-id:886256631;
+	mso-list-template-ids:1890475874;}
+@list l0:level1
+	{mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level2
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level3
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:right;
+	text-indent:-9.0pt;}
+@list l0:level4
+	{mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level5
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level6
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:right;
+	text-indent:-9.0pt;}
+@list l0:level7
+	{mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level8
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level9
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:right;
+	text-indent:-9.0pt;}
+@list l1
+	{mso-list-id:1014454528;
+	mso-list-template-ids:1173383378;}
+@list l1:level1
+	{mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level2
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level3
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:right;
+	text-indent:-9.0pt;}
+@list l1:level4
+	{mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level5
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level6
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:right;
+	text-indent:-9.0pt;}
+@list l1:level7
+	{mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level8
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level9
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:right;
+	text-indent:-9.0pt;}
+@list l2
+	{mso-list-id:1353219308;
+	mso-list-template-ids:-1858559114;}
+@list l2:level1
+	{mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level2
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level3
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:right;
+	text-indent:-9.0pt;}
+@list l2:level4
+	{mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level5
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level6
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:right;
+	text-indent:-9.0pt;}
+@list l2:level7
+	{mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level8
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level9
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:right;
+	text-indent:-9.0pt;}
+@list l3
+	{mso-list-id:1397632274;
+	mso-list-template-ids:-1759975192;}
+@list l3:level1
+	{mso-level-number-format:none;
+	mso-level-suffix:none;
+	mso-level-text:"";
+	mso-level-tab-stop:.3in;
+	mso-level-number-position:left;
+	margin-left:.3in;
+	text-indent:-.3in;}
+@list l3:level2
+	{mso-level-number-format:none;
+	mso-level-suffix:none;
+	mso-level-text:"";
+	mso-level-tab-stop:.4in;
+	mso-level-number-position:left;
+	margin-left:.4in;
+	text-indent:-.4in;}
+@list l3:level3
+	{mso-level-number-format:none;
+	mso-level-suffix:none;
+	mso-level-text:"";
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	margin-left:.5in;
+	text-indent:-.5in;}
+@list l3:level4
+	{mso-level-number-format:none;
+	mso-level-suffix:none;
+	mso-level-text:"";
+	mso-level-tab-stop:.6in;
+	mso-level-number-position:left;
+	margin-left:.6in;
+	text-indent:-.6in;}
+@list l3:level5
+	{mso-level-number-format:none;
+	mso-level-suffix:none;
+	mso-level-text:"";
+	mso-level-tab-stop:.7in;
+	mso-level-number-position:left;
+	margin-left:.7in;
+	text-indent:-.7in;}
+@list l3:level6
+	{mso-level-number-format:none;
+	mso-level-suffix:none;
+	mso-level-text:"";
+	mso-level-tab-stop:.8in;
+	mso-level-number-position:left;
+	margin-left:.8in;
+	text-indent:-.8in;}
+@list l3:level7
+	{mso-level-number-format:none;
+	mso-level-suffix:none;
+	mso-level-text:"";
+	mso-level-tab-stop:.9in;
+	mso-level-number-position:left;
+	margin-left:.9in;
+	text-indent:-.9in;}
+@list l3:level8
+	{mso-level-number-format:none;
+	mso-level-suffix:none;
+	mso-level-text:"";
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	margin-left:1.0in;
+	text-indent:-1.0in;}
+@list l3:level9
+	{mso-level-number-format:none;
+	mso-level-suffix:none;
+	mso-level-text:"";
+	mso-level-tab-stop:1.1in;
+	mso-level-number-position:left;
+	margin-left:1.1in;
+	text-indent:-1.1in;}
+@list l4
+	{mso-list-id:1432050981;
+	mso-list-template-ids:676779416;}
+@list l4:level1
+	{mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level2
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level3
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:right;
+	text-indent:-9.0pt;}
+@list l4:level4
+	{mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level5
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level6
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:right;
+	text-indent:-9.0pt;}
+@list l4:level7
+	{mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level8
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level9
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:right;
+	text-indent:-9.0pt;}
+ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+<!--[if gte mso 10]>
+<style>
+ /* Style Definitions */
+table.MsoNormalTable
+	{mso-style-name:"Table Normal";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	mso-style-noshow:yes;
+	mso-style-priority:99;
+	mso-style-parent:"";
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:Cambria;}
+</style>
+<![endif]--><!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext="edit" spidmax="1026"/>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="1"/>
+ </o:shapelayout></xml><![endif]-->
+</head>
+
+<body lang=EN-US style='tab-interval:.5in'>
+
+<div class=WordSection1>
+
+<div style='mso-element:para-border-div;border:none;border-bottom:solid #4F81BD 1.0pt;
+padding:0in 0in 4.0pt 0in'>
+
+<p class=MsoTitle><span style='color:#195CBD'>CRDS Server Workflow<o:p></o:p></span></p>
+
+</div>
+
+<p class=MsoSubtitle><span style='color:#195CBD'>File Submissions,<o:p></o:p></span></p>
+
+<p class=MsoSubtitle><span style='color:#195CBD'>Archive Delivery, <o:p></o:p></span></p>
+
+<p class=MsoSubtitle><span style='color:#195CBD'>Default Context Control, <o:p></o:p></span></p>
+
+<p class=MsoSubtitle><span style='color:#195CBD'>Cache Syncing,<o:p></o:p></span></p>
+
+<p class=MsoSubtitle><span style='color:#195CBD'>Reprocessing<o:p></o:p></span></p>
+
+<div style='mso-element:para-border-div;border:none;border-bottom:solid #4F81BD 1.0pt;
+padding:0in 0in 4.0pt 0in'>
+
+<p class=MsoTitle style='margin-bottom:0in;margin-bottom:.0001pt;mso-add-space:
+auto'><o:p>&nbsp;</o:p></p>
+
+</div>
+
+<h1>File Submissions</h1>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>The ReDCaT team primarily makes two kinds of file
+submissions into CRDS:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoListParagraphCxSpFirst style='text-indent:-.25in;mso-list:l0 level1 lfo1'><![if !supportLists]><span
+style='mso-fareast-font-family:Cambria;mso-bidi-font-family:Cambria'><span
+style='mso-list:Ignore'>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>New reference files</p>
+
+<p class=MsoListParagraphCxSpLast style='text-indent:-.25in;mso-list:l0 level1 lfo1'><![if !supportLists]><span
+style='mso-fareast-font-family:Cambria;mso-bidi-font-family:Cambria'><span
+style='mso-list:Ignore'>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>CRDS rmap updates to change reference file
+assignment</p>
+
+<p class=MsoNormal style='margin-left:.25in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>These deliveries are made using a combination of CRDS and
+ReDCaT scripts interacting with the CRDS server.<span
+style="mso-spacerun:yes">    </span>The CRDS server can also be used
+independently of all command line tools and typically is for rmap updates.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>ALL deliveries ultimately push files into the CRDS server
+where the files are certified before being accepted, where new rules are
+automatically generated, and where the resultant certify output and rules
+differences can be reviewed before confirming the delivery.</p>
+
+<h2>CRDS Submission Tracking E-mails</h2>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>During the submission process performed by ReDCaT, CRDS
+sends STARTED, READY, and CONFIRMED/CANCELED/FORCED e-mails to <a
+href="mailto:crds-servers@stsci.edu"><span class=InternetLink>crds-servers@stsci.edu</span></a>
+and <a href="mailto:redcat@stsci.edu"><span class=InternetLink>redcat@stsci.edu</span></a>
+as the submission progresses through the checking, generation, and review
+processes.<span style="mso-spacerun:yes">    </span>These communicate to the
+broader team that a submission is under way and support monitoring and review.<br
+clear=all style='mso-special-character:line-break;page-break-before:always'>
+</p>
+
+<p class=MsoNormal>A recent NIRISS delivery resulted in this concluding FORCED
+e-mail:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='color:#3366FF'>FORCED 'batch
+submit' by '<span class=SpellE>bbrooks</span>'.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='color:#3366FF'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='color:#3366FF'>Final
+Results:<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='color:#3366FF'>--------------<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='color:#3366FF'>https://jwst-crds.stsci.edu//display_result/0b999c02-414f-4a30-ada6-311b9c587677<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='color:#3366FF'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='color:#3366FF'>Confirm/Cancel
+<span class=SpellE>Url</span>:<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='color:#3366FF'>-------------------<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='color:#3366FF'>https://jwst-crds.stsci.edu//display_result/87ef134a-18fa-4bf6-9f22-308ab1493817<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='color:#3366FF'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='color:#3366FF'>Description:<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='color:#3366FF'>------------<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='color:#3366FF'>The
+linearity reference file has new linearity coefficients and the new saturation
+reference file has new values in the science extension to match the linearity
+reference file. The distortion reference file has been updated with the correct
+2D polynomial transformation from real to ideal pixels and back. The <span
+class=SpellE>photom</span> reference file values have been updated to include
+contamination along the light path of JWST for NIRISS. The drizzle <span
+class=SpellE>paramters</span> reference file has been newly created and is for
+calibration steps Level 2B and Level 3.<span style="mso-spacerun:yes">    
+</span>Delivered <span class=GramE>by<span style="mso-spacerun:yes"> 
+</span>Michael</span> A. Wolfe for NIRISS.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='color:#3366FF'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='color:#3366FF'>Uploaded
+Files:<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='color:#3366FF'>----------------<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span class=SpellE><span
+class=GramE><span style='color:#3366FF'>niriss</span></span><span
+style='color:#3366FF'>_ref_distortion.asdf</span></span><span style='color:
+#3366FF'> --&gt; jwst_niriss_distortion_0008.asdf<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span class=SpellE><span
+class=GramE><span style='color:#3366FF'>niriss</span></span><span
+style='color:#3366FF'>_ref_drizz_par.fits</span></span><span style='color:#3366FF'>
+--&gt; jwst_niriss_drizpars_0002.fits<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span class=SpellE><span
+class=GramE><span style='color:#3366FF'>niriss</span></span><span
+style='color:#3366FF'>_ref_linearity.fits</span></span><span style='color:#3366FF'>
+--&gt; jwst_niriss_linearity_0010.fits<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span class=SpellE><span
+class=GramE><span style='color:#3366FF'>niriss</span></span><span
+style='color:#3366FF'>_ref_photom.fits</span></span><span style='color:#3366FF'>
+--&gt; jwst_niriss_photom_0028.fits<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span class=SpellE><span
+class=GramE><span style='color:#3366FF'>niriss</span></span><span
+style='color:#3366FF'>_ref_saturation.fits</span></span><span style='color:
+#3366FF'> --&gt; jwst_niriss_saturation_0010.fits<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='color:#3366FF'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='color:#3366FF'>Generated
+Files:<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='color:#3366FF'>-----------------<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span class=GramE><span
+style='color:#3366FF'>jwst</span></span><span style='color:#3366FF'>_0417.pmap
+--&gt; jwst_0418.pmap<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span class=GramE><span
+style='color:#3366FF'>jwst</span></span><span style='color:#3366FF'>_niriss_0092.imap
+--&gt; jwst_niriss_0093.imap<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span class=GramE><span
+style='color:#3366FF'>jwst</span></span><span style='color:#3366FF'>_niriss_distortion_0014.rmap
+--&gt; jwst_niriss_distortion_0015.rmap<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span class=GramE><span
+style='color:#3366FF'>jwst</span></span><span style='color:#3366FF'>_niriss_drizpars_0002.rmap
+--&gt; jwst_niriss_drizpars_0004.rmap<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span class=GramE><span
+style='color:#3366FF'>jwst</span></span><span style='color:#3366FF'>_niriss_linearity_0011.rmap
+--&gt; jwst_niriss_linearity_0013.rmap<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span class=GramE><span
+style='color:#3366FF'>jwst</span></span><span style='color:#3366FF'>_niriss_photom_0015.rmap
+--&gt; jwst_niriss_photom_0017.rmap<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span class=GramE><span
+style='color:#3366FF'>jwst</span></span><span style='color:#3366FF'>_niriss_saturation_0008.rmap
+--&gt; jwst_niriss_saturation_0010.rmap<o:p></o:p></span></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Reference file submitters typically &quot;lock&quot; the
+instrument they're submitting files for on the CRDS server, preventing other
+simultaneous conflicting submissions for that instrument.</p>
+
+<p class=MsoNormal>The designator FORCED indicates that CRDS instrument locking
+timed out or was voluntarily dropped by the time the submission was reviewed
+and OK'ed.<span style="mso-spacerun:yes">  </span>The normal response is
+CONFIRMED, FORCED implies a need for extra ReDCaT team coordination to ensure
+no work is lost.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>The &quot;Uploaded Files&quot; indicator demonstrates how
+CRDS renames incoming files named by developers into the standard CRDS
+form.<span style="mso-spacerun:yes">   </span>Multiple references for multiple
+types of the same instrument can be delivered simultaneously.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>The &quot;Generated Files&quot; section illustrates how
+delivered files result in the automatic update of the rmap associated with each
+delivered file type, as well as the generation of higher level context files
+for that instrument (.imap) and the overall pipeline (.pmap).<span
+style="mso-spacerun:yes">   </span>The source rules files are typically
+automatically taken from a derivation or &quot;edit&quot; context based on the
+instrument and types being delivered.<span style="mso-spacerun:yes">  
+</span>The &quot;edit&quot; context is typically the context of the previous
+delivery and often ahead of the operational context in use in the pipeline.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<h2>CRDS Submission Monitoring and Review</h2>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>The STARTED e-mail link directs the submitter to a web page
+that tracks submission progress in real time.<span style="mso-spacerun:yes">  
+</span>Similar log messages are also delivered to the CRDS command line file
+submission client that is embedded in ReDCaT front-end file submission
+scripts.<span style="mso-spacerun:yes">   </span></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Submission processing can take several hours as potentially
+50 gigabytes of references are certified, FITS checksums are verified, CRDS
+sha1sums are computed<span class=GramE>,<span style="mso-spacerun:yes"> 
+</span>new</span> files are added to the CRDS rules,<span
+style="mso-spacerun:yes">  </span>and preliminary CRDS database entries are
+created for each file.</p>
+
+<h2>CRDS Submission Confirmation Results</h2>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>When CRDS is finished preliminary file checking and rules
+generation, a READY e-mail is sent and a web page/link is available with a
+buttons to confirm or cancel the submission based on review.<span
+style="mso-spacerun:yes">   </span></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>The CRDS server directly performs complex checks based on
+(a) internally defined file keyword and format constraints (b) direct
+application of the JWST CAL data models and their constraints (c) fitsverify
+and astropy checks, as well as JSON and YAML syntax checks (d) differences to
+generated rules, which often reveal problems in newly developed reference file
+assignment criteria as teams learn how to create reference files and specify
+intended usage.<br clear=all style='mso-special-character:line-break;
+page-break-before:always'>
+</p>
+
+<p class=MsoNormal>The outcome of submission processing is a page like this:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><span style='mso-fareast-language:EN-US;mso-no-proof:yes'><!--[if gte vml 1]><v:shapetype
+ id="_x0000_t75" coordsize="21600,21600" o:spt="75" o:preferrelative="t"
+ path="m@4@5l@4@11@9@11@9@5xe" filled="f" stroked="f">
+ <v:stroke joinstyle="miter"/>
+ <v:formulas>
+  <v:f eqn="if lineDrawn pixelLineWidth 0"/>
+  <v:f eqn="sum @0 1 0"/>
+  <v:f eqn="sum 0 0 @1"/>
+  <v:f eqn="prod @2 1 2"/>
+  <v:f eqn="prod @3 21600 pixelWidth"/>
+  <v:f eqn="prod @3 21600 pixelHeight"/>
+  <v:f eqn="sum @0 0 1"/>
+  <v:f eqn="prod @6 1 2"/>
+  <v:f eqn="prod @7 21600 pixelWidth"/>
+  <v:f eqn="sum @8 21600 0"/>
+  <v:f eqn="prod @7 21600 pixelHeight"/>
+  <v:f eqn="sum @10 21600 0"/>
+ </v:formulas>
+ <v:path o:extrusionok="f" gradientshapeok="t" o:connecttype="rect"/>
+ <o:lock v:ext="edit" aspectratio="t"/>
+</v:shapetype><v:shape id="Picture_x0020_9" o:spid="_x0000_i1032" type="#_x0000_t75"
+ alt="Description: Macintosh HD:Users:jmiller:Desktop:Screen Shot 2017-11-17 at Nov 17, 2017  8.54.33 AM.png"
+ style='width:776pt;height:581pt;visibility:visible;mso-wrap-style:square'>
+ <v:imagedata src="CrdsServerEndToEnd_files/image001.png" o:title="Screen Shot 2017-11-17 at Nov 17, 2017  8.54.33 AM.png"/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=778 height=583
+src="CrdsServerEndToEnd_files/image002.png"
+alt="Description: Macintosh HD:Users:jmiller:Desktop:Screen Shot 2017-11-17 at Nov 17, 2017  8.54.33 AM.png"
+v:shapes="Picture_x0020_9"><![endif]></span></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Each of the accordions shown opens up into more detailed
+information about that particular item.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>The review and approval link is permanent and contains
+useful information on checks performed and how the rules were updated.<span
+style="mso-spacerun:yes">   </span>Once a decision is made the buttons are
+removed and the decision is displayed instead.</p>
+
+<form>
+
+<h1>Archive Delivery</h1>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Ultimately each of the files submitted to CRDS, or generated
+by CRDS, is stored on the CRDS server permanently and then linked to a delivery
+directory to initiate archiving.<span style="mso-spacerun:yes">   </span>In
+addition to the links for delivered files, CRDS creates a catalog file that
+lists one delivered file per line.<span style="mso-spacerun:yes">  </span></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Delivery between systems commences when the pipeline's CRDS
+poller notices a new catalog file in the delivery directory and begins
+processing.<span style="mso-spacerun:yes">   </span>At that point, the catalog
+is renamed to .cat_proc.<span style="mso-spacerun:yes">   </span>If the
+delivery fails, it will either be left as .cat_proc or potentially renamed to
+.cat_err as an indicator of status.<span style="mso-spacerun:yes"> 
+</span>If/when the delivery succeeds, every file link is removed, and finally,
+all forms of the .cat file are removed as well.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>When the links and .cat file are finally removed, CRDS
+believes the delivery is complete and assumes the files are available from the
+archive.<span style="mso-spacerun:yes">   </span>CRDS then marks the files as
+archived in CRDS, releasing them so that they can be sync'ed by pipelines and
+remote users. </p>
+
+<h2>Shared Delivery Directory<span style="mso-spacerun:yes">  </span>(CRDS server:
+CRDS Poller)</h2>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>The CRDS archive delivery protocol revolves around the
+catalog files and shared delivery directory.<span style="mso-spacerun:yes">  
+</span>Both CRDS and the archive CRDS poller mount the same storage.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>For the JWST CRDS B-string the server mount point for the
+directory is:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='text-indent:.5in'>/ifs/crds/jwst/bit/<span
+class=SpellE>server_files</span>/deliveries</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><span class=GramE>corresponding</span> to shared disk
+volume:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span class=GramE>isistor10e</span>:/ifs/<span
+class=SpellE>isifs</span>/archive/public/jwst/bit</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>For JWST CRDS OPS the delivery directory is:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='text-indent:.5in'>/ifs/crds/jwst/ops/<span
+class=SpellE>server_files</span>/deliveries</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><span class=GramE>for</span> volume:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span class=GramE>isistor10s</span>:/ifs/<span
+class=SpellE>isifs</span>/archive/public/jwst/<span class=SpellE>reference_files_ops</span></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>The <i style='mso-bidi-font-style:normal'>directory paths</i>
+can vary by (a) DMS string such as OPS, TEST, DEV, B-string <span class=GramE>I&amp;T</span>
+and (b) Virtual machine within the DMS such as the CRDS server or CRDS
+archiving poller.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>The <i style='mso-bidi-font-style:normal'>volume</i> is
+conceptually a network disk drive and shared by both the CRDS server and the
+CRDS archiving poller machines to transfer files between systems.<span
+style="mso-spacerun:yes">   </span>The network and storage partition can be
+reconfigured by ITSD without logically impacting those systems as long as the
+contents of the old volume are copied exactly. Changes to the network link
+(e.g. isistor10e) can dramatically impact delivery and sync performance.</p>
+
+<h2>Delivery Failure Recovery</h2>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>A frequent failure recovery process performed on the CRDS
+server is to reset files in the delivery directory preparing them for a second
+attempt by the pipeline's CRDS poller and archive systems.<span
+style="mso-spacerun:yes">   </span>This task can be performed by either side of
+the shared file system interface, but is generally performed within the CRDS
+server as follows:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='font-size:9.0pt;
+color:#3366FF'>$ <span class=SpellE><span class=GramE>ssh</span></span> <span
+class=SpellE>iljwdmsbcrds</span><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='font-size:9.0pt;
+color:#3366FF'>% <span class=GramE>server</span><span
+style="mso-spacerun:yes">   </span># alias for &quot;cd server source code
+directory&quot;<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='font-size:9.0pt;
+color:#3366FF'>% <span class=GramE>source</span> <span class=SpellE>env.csh</span><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='font-size:9.0pt;
+color:#3366FF'>% <span class=GramE>deliveries</span><span
+style="mso-spacerun:yes">   </span># alias for &quot;cd delivery directory&quot;<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='font-size:9.0pt;
+color:#3366FF'>% <span class=SpellE><span class=GramE>ls</span></span><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='font-size:9.0pt;
+color:#3366FF'>…. <span class=GramE>check</span> that only one delivery is
+pending, or… figure it out.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='font-size:9.0pt;
+color:#3366FF'>% <span class=SpellE><span class=GramE>rm</span></span> –f *<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='font-size:9.0pt;
+color:#3366FF'>% <span class=GramE>catalogs</span><span
+style="mso-spacerun:yes">    </span># alias for &quot;cd catalogs directory&quot;<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='font-size:9.0pt;
+color:#3366FF'>% <span class=GramE>redeliver</span>_catalogs –-catalogs
+jwst_440.cat<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='font-size:9.0pt;
+color:#3366FF'>… <span class=GramE>file</span> links and catalog file are
+recreated in delivery directory…<o:p></o:p></span></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Even after a delivery completes or fails, CRDS maintains
+internal copies of catalogs, generated files, and submitted files that can be
+relinked to the delivery directory to &quot;reset&quot; the delivery for a
+second attempt.<span style="mso-spacerun:yes">   </span>The internal files are
+owned and writable only by the &quot;crds&quot; server user.<span
+style="mso-spacerun:yes">   </span>The &quot;crdsoper&quot; group is able to
+remove the links from the delivery directory.</p>
+
+<h1>Preview Testing by ReDCaT or CAL developers</h1>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>An optional step possible once references are ingested and
+archived is to perform &quot;preview&quot; tests using the new files before
+switching the pipeline or extended JWST community to using them as the
+default.<span style="mso-spacerun:yes">  </span></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Previewing is done by explicitly using the new context.<span
+style="mso-spacerun:yes">  </span>For JWST generally by setting
+CRDS_CONTEXT=jwst_wxyz.pmap in the environment.<span
+style="mso-spacerun:yes">   </span></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Files cannot be used by pipeline systems until synced as
+discussed below.<span style="mso-spacerun:yes">  </span>It is not necessary (or
+sensible) to change the default context prior to syncing the pipeline if
+previews are desired.<span style="mso-spacerun:yes">  </span>A subsequent
+context update and sync can be performed once testing has vetted a
+context.<span style="mso-spacerun:yes">  </span>Generally previews are skipped
+for routine deliveries.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>In the case of routine JWST development, files are currently
+delivered to the <a href="https://jwst-crds.stsci.edu/"><span
+class=InternetLink>JWST OPS CRDS Server</span></a> and then automatically
+synced to the public read only cache at <i style='mso-bidi-font-style:normal'>/grp/crds/cache</i>.<span
+style="mso-spacerun:yes">  </span>At that stage files are broadly available,
+but typically the default is updated for all users only after the CAL
+development group has vetted the new rules and references against their current
+software by running nightly regression tests.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>During JWST development, the CRDS OPS server stands in for
+the archive as the primary file store.<span style="mso-spacerun:yes">  
+</span>Periodically during a build<span class=GramE>,<span
+style="mso-spacerun:yes">  </span>the</span> OPS server is mirrored to the
+I&amp;T string that is under development.<span style="mso-spacerun:yes">  
+</span>Unlike the OPS environment, I&amp;T strings typically have full archive
+ingest and download support.<span style="mso-spacerun:yes">   </span>I&amp;T
+strings however do not perform the normal file submission processes.<span
+style="mso-spacerun:yes">   </span>Typically initialization of the I&amp;T
+archive is performed by resetting all deliveries using <i style='mso-bidi-font-style:
+normal'>redeliver_catalogs.</i></p>
+
+<h1>Setting the Default Context</h1>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Once they approve of a delivery, the ReDCaT team e-mails an
+operator who logs into the CRDS server to use the Set Context function to
+designate the new context and newly delivered files as the default for
+everyone.<span style="mso-spacerun:yes">    </span>This does not take effect in
+the pipeline until the pipeline cache is synced to the server.<span
+style="mso-spacerun:yes">  </span>During JWST development, a similar approval and
+context update process is performed within SCSB.<span
+style="mso-spacerun:yes">  </span>I&amp;T strings are fully configured with
+archive support.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>An operator updates the default context by going to the Set
+Context page:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><span style='mso-fareast-language:EN-US;mso-no-proof:yes'><!--[if gte vml 1]><v:shape
+ id="_x0000_i1031" type="#_x0000_t75" style='width:786pt;height:472pt;
+ visibility:visible;mso-wrap-style:square'>
+ <v:imagedata src="CrdsServerEndToEnd_files/image003.png" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=788 height=474
+src="CrdsServerEndToEnd_files/image004.png" v:shapes="_x0000_i1031"><![endif]></span></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>For single context switches, jumping from context N to
+context N+1, CRDS normally populates the <i style='mso-bidi-font-style:normal'>Reason
+For Change</i> with the <i style='mso-bidi-font-style:normal'>Description</i>
+from the related file submission as a head start for the operator.<span
+style="mso-spacerun:yes">   </span>For multi-context switches, e.g. from N to
+N+M, CRDS leaves the <i style='mso-bidi-font-style:normal'>Reason For Change</i>
+blank and the operator and ReDCaT team are required to devise a suitable
+summary.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>The <i style='mso-bidi-font-style:normal'>Context Type</i>
+chosen by a pipeline operator should always be <i style='mso-bidi-font-style:
+normal'>operational</i>.<span style="mso-spacerun:yes">  </span>The other
+choices are <i style='mso-bidi-font-style:normal'>edit</i> and <i
+style='mso-bidi-font-style:normal'>versions</i> which are used to control the
+default starting context for the next submission, and to define the context
+used to determine calibration software versions for the CRDS archive service.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Updating the default context is a consequential
+activity.<span style="mso-spacerun:yes">   </span>It immediately results in a
+new entry in the CRDS Context History, and within a few minutes will trigger
+the CRDS reprocessing computation that determines the datasets impacted by the
+new reference files and/or rules.</p>
+
+<h1>Synchronizing Pipeline CRDS Cache</h1>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>After setting the new default context, the pipeline operator
+downloads the associated CRDS rules and references to the pipeline's CRDS cache
+by running CRDS synchronization tools (<i style='mso-bidi-font-style:normal'>crds
+syn</i>c wrapped as <i style='mso-bidi-font-style:normal'>cron_sync</i>)
+currently further wrapped by the pipeline's <i style='mso-bidi-font-style:normal'>crds_sync_wrapper.csh</i>.
+</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>A cache sync can be performed even prior to Set Context as a
+way of pre-positioning large deliveries without using them.<span
+style="mso-spacerun:yes">   </span>A cache sync <b>must</b> be performed after
+Set Context for the new default to take effect.<span style="mso-spacerun:yes"> 
+</span>Output from a successful run will generally include information about
+the size, source, and data rates for downloaded files.<span
+style="mso-spacerun:yes">  </span><span style="mso-spacerun:yes"> </span>The
+trailing output from a recent rules-only small delivery is shown below:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'>$ <span
+class=GramE>crds</span>_sync_wrapper.csh<o:p></o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'>….<o:p></o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'>2017-11-13
+20:55:37,717 - CRDS - DEBUG <span class=GramE>-<span style="mso-spacerun:yes"> 
+</span>Connected</span> to server and computing locally, updating CRDS cache <span
+class=SpellE>config</span> and operational context.<o:p></o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'>2017-11-13
+20:55:37,731 - CRDS - DEBUG <span class=GramE>-<span style="mso-spacerun:yes"> 
+</span>CACHE</span> updating: '/ifs/int/jwstb/ref/build7.1/crds/cache/config/jwst/server_config'<o:p></o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'>2017-11-13
+20:55:37,753 - CRDS - DEBUG <span class=GramE>-<span style="mso-spacerun:yes"> 
+</span>CACHE</span> updating: '/ifs/int/jwstb/ref/build7.1/crds/cache/config/jwst/bad_files.txt'<o:p></o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'>2017-11-13
+20:55:37,777 - CRDS - DEBUG <span class=GramE>-<span style="mso-spacerun:yes"> 
+</span>CRDS</span> JSON RPC <span class=SpellE>push_remote_context</span> (...)
+--&gt;<o:p></o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'>2017-11-13
+20:55:37,844 - CRDS - DEBUG <span class=GramE>-<span style="mso-spacerun:yes"> 
+</span>RPC</span> OK <o:p></o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'>2017-11-13
+20:55:37,844 - CRDS - INFO <span class=GramE>-<span style="mso-spacerun:yes"> 
+</span>Pushed</span> cached <span class=SpellE>operatonal</span> context name 'jwst_0422.pmap'
+to CRDS server<o:p></o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'>2017-11-13
+20:55:37,844 - CRDS - INFO <span class=GramE>-<span style="mso-spacerun:yes"> 
+</span>STARTED</span> 2017-11-13 20:54:45.04<o:p></o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'>2017-11-13
+20:55:37,844 - CRDS - INFO <span class=GramE>-<span style="mso-spacerun:yes"> 
+</span>STOPPED</span> 2017-11-13 20:55:37.84<o:p></o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'>2017-11-13
+20:55:37,844 - CRDS - INFO <span class=GramE>-<span style="mso-spacerun:yes"> 
+</span>ELAPSED</span> 0:00:52.80<o:p></o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'>2017-11-13
+20:55:37,844 - CRDS - INFO <span class=GramE>-<span style="mso-spacerun:yes">  
+</span>6</span> total-files at<span style="mso-spacerun:yes">   
+</span>0.1<span style="mso-spacerun:yes">  </span>total-files-per-second<o:p></o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'>2017-11-13
+20:55:37,844 - CRDS - INFO <span class=GramE>-<span style="mso-spacerun:yes">  
+</span>30.5</span> K total-bytes at<span style="mso-spacerun:yes"> 
+</span>577.2<span style="mso-spacerun:yes">  </span>total-bytes-per-second<o:p></o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'>2017-11-13
+20:55:37,845 - CRDS - INFO <span class=GramE>-<span style="mso-spacerun:yes"> 
+</span>0</span> errors<o:p></o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'>2017-11-13
+20:55:37,845 - CRDS - INFO <span class=GramE>-<span style="mso-spacerun:yes"> 
+</span>0</span> warnings<o:p></o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormalCxSpMiddle><span style='font-size:9.0pt;color:#3366FF'>2017-11-13
+20:55:37,845 - CRDS - INFO <span class=GramE>-<span style="mso-spacerun:yes"> 
+</span>12</span> <span class=SpellE>infos</span><o:p></o:p></span></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Key aspects of the output are &quot;CACHE updating …
+server_config&quot; and &quot;0 errors.&quot;<span style="mso-spacerun:yes"> 
+</span>One other important issue is the context echo.<span
+style="mso-spacerun:yes">  </span>Each operator must set up the required crypto
+key for the &quot;Pushed cached operational context name….&quot; echo to succeed.<span
+style="mso-spacerun:yes">  </span>Issues with correctly setting up the crypto,
+or not setting up the crypto<span class=GramE>,<span style="mso-spacerun:yes"> 
+</span>have</span> caused the crds_sync_wrapper.csh script to hang without
+output.<span style="mso-spacerun:yes">   </span>This setup is intentionally
+left vague because it doubles as a lightweight form of authentication.</p>
+
+<h1>Automatic Sync of /grp/crds/cache</h1>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>CRDS is designed to support many identical caches that are
+similar to clones of a distributed version control system like <span
+class=SpellE>git</span>.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>The pipeline has a private cache discussed above that is
+managed by operators and dedicated to pipeline use for the sake of hardware
+availability and capacity.<span style="mso-spacerun:yes">   </span>It is
+normally read only during pipeline runs, and read-write when an operator syncs
+it to the server.<span style="mso-spacerun:yes">   </span>This scheme makes the
+pipeline (a) independent of the CRDS server during ongoing calibrations (b)
+free of cache locking (at this time) and (c) safe for massive parallelism in
+the pipeline.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Other CRDS users and CAL typically use an identical read
+only copy of the CRDS cache located at /grp/crds/cache on the Central Store.
+/grp/crds/cache is slaved to the OPS server of both projects, and is not
+affected by I&amp;T servers.<span style="mso-spacerun:yes">  </span>It drives
+most onsite JWST development.<span style="mso-spacerun:yes">   </span>Both HST
+and JWST update /grp/crds/cache automatically from the OPS servers using cron
+jobs currently running every 10 minutes.<span style="mso-spacerun:yes">  
+</span>Similar to the pipeline cache,<span style="mso-spacerun:yes"> 
+</span>/grp/crds/cache is read only for CRDS users.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Remote users or users requiring read-write files are
+encouraged to set CRDS_PATH and CRDS_SERVER_URL to define personal demand-based
+CRDS caches that transparently download references required for their specific
+datasets.<span style="mso-spacerun:yes">   </span>This avoids the
+inefficiencies of repeated hidden downloads required by current VPN systems and
+makes it possible to experiment with rules and references.</p>
+
+<h1>Verifying Cache Syncs and Context Updates</h1>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>When the context push is successful, any authenticated user,
+typically a pipeline operator or file submitter, can log into the CRDS server
+and see sync status that has been echoed from a broadly used CRDS cache:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><span style='mso-fareast-language:EN-US;mso-no-proof:yes'><!--[if gte vml 1]><v:shape
+ id="Picture_x0020_12" o:spid="_x0000_i1030" type="#_x0000_t75" alt="Description: Macintosh HD:Users:jmiller:Desktop:Screen Shot 2017-11-15 at Nov 15, 2017  5.52.53 PM.png"
+ style='width:510pt;height:143pt;visibility:visible;mso-wrap-style:square'>
+ <v:imagedata src="CrdsServerEndToEnd_files/image005.png" o:title="Screen Shot 2017-11-15 at Nov 15, 2017  5.52.53 PM.png"/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=512 height=145
+src="CrdsServerEndToEnd_files/image006.png"
+alt="Description: Macintosh HD:Users:jmiller:Desktop:Screen Shot 2017-11-15 at Nov 15, 2017  5.52.53 PM.png"
+v:shapes="Picture_x0020_12"><![endif]></span></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>It's important to note that <i style='mso-bidi-font-style:
+normal'>anyone</i> can create their own complete or demand-based CRDS cache,
+but only critical shared caches are tracked here, not personal caches.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>In the above picture <i style='mso-bidi-font-style:normal'>jwst-ops-pipeline</i>
+corresponds to the pipeline's cache on any string; the name does not change
+between strings.<span style="mso-spacerun:yes">   </span>Cached Context
+reflects what CRDS believes the pipeline is most likely using based on prior
+syncs and the echo.<span style="mso-spacerun:yes">   </span>Here it indicates a
+successful sync for <i style='mso-bidi-font-style:normal'>jwst-ops-pipeline</i>.<span
+style="mso-spacerun:yes">   </span></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>The sync for <i style='mso-bidi-font-style:normal'>/grp/crds/cach</i>e
+has not yet occurred for this context<span class=GramE>,<span
+style="mso-spacerun:yes">  </span>while</span> jwst_0422.pmap is available and
+selected as the universal default,<span style="mso-spacerun:yes"> 
+</span>evidently /grp/crds/cache has not yet been sync'ed (or the sync failed)
+and is still using jwst_0419.pmap by default.<span style="mso-spacerun:yes">  
+</span>Indeed, syncing <i style='mso-bidi-font-style:normal'>/grp/crds/cache</i>
+is only performed on the OPS servers, so I&amp;T servers often lag permanently
+when Set Context is done on the I&amp;T server rather than copied from
+OPS.).<span
+style="mso-spacerun:yes">                                                                                                                                      
+</span></p>
+
+<h1>Reprocessing</h1>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Based on the submission of new reference files<span
+class=GramE>,<span style="mso-spacerun:yes">  </span>CRDS</span> makes
+recommendations to the pipeline of which datasets would benefit from the new
+reference files and are candidates for reprocessing.</p>
+
+<h2>Reprocessing Workflow</h2>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Starting from a ReDCaT file submission, </p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><span class=GramE>and</span> concluding with the pipeline
+reprocessing affected datasets,<span style="mso-spacerun:yes">  </span>the
+overall multi-system multi-team workflow is depicted here:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><span style='mso-fareast-language:EN-US;mso-no-proof:yes'><!--[if gte vml 1]><v:shape
+ id="Picture_x0020_4" o:spid="_x0000_i1029" type="#_x0000_t75" alt="Description: Description: affected_datasets_workflow.png"
+ style='width:744pt;height:525pt;visibility:visible;mso-wrap-style:square'>
+ <v:imagedata src="CrdsServerEndToEnd_files/image007.png" o:title=" affected_datasets_workflow.png"/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=746 height=527
+src="CrdsServerEndToEnd_files/image008.png"
+alt="Description: Description: affected_datasets_workflow.png" v:shapes="Picture_x0020_4"><![endif]></span></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Solid boxes identify portions of the flow in which CRDS s/w
+directly related to reprocessing is involved in the workflow.</p>
+
+<h2>Reprocessing Computation</h2>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>CRDS reprocessing recommendations are computed by a cron job
+running on the CRDS server that triggers the computation within 5 minutes of
+choosing a new default context.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>The basis of the affected datasets computation is to run
+applicable dataset parameters through the CRDS bestrefs program on two
+different CRDS contexts and compare the results.<span
+style="mso-spacerun:yes">  </span>Any dataset where some reference file changes
+is a candidate for reprocessing.<span style="mso-spacerun:yes">   </span></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>The reprocessing computation is implemented by one mode of
+the CRDS bestrefs program that fetches input parameters for large numbers of
+datasets from archive databases rather than reading smaller numbers of FITS
+headers.<span style="mso-spacerun:yes">  </span>Unlike running bestrefs in the
+HST pipeline, the outcome of this mode is to print affected dataset IDs rather
+than update FITS headers with best references.</p>
+
+<h2>Archive Parameter Source</h2>
+
+<p class=MsoNormal>As mentioned, reprocessing dataset parameters used to
+compute best references are retrieved in large numbers from archive databases.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><span style='mso-fareast-language:EN-US;mso-no-proof:yes'><!--[if gte vml 1]><v:shape
+ id="_x0000_i1028" type="#_x0000_t75" alt="Description: Description: bestrefs_flow.png"
+ style='width:783pt;height:561pt;visibility:visible;mso-wrap-style:square'>
+ <v:imagedata src="CrdsServerEndToEnd_files/image009.png" o:title=" bestrefs_flow.png"/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=785 height=563
+src="CrdsServerEndToEnd_files/image010.png"
+alt="Description: Description: bestrefs_flow.png" v:shapes="_x0000_i1028"><![endif]></span></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><span class=GramE>crds.bestrefs</span> is the CRDS command line
+tool that computes reprocessing recommendations.<span
+style="mso-spacerun:yes">   </span>The crds.bestrefs tool uses a
+project-agnostic protocol to fetch parameters from the CRDS server.<span
+style="mso-spacerun:yes">   </span>The CRDS server uses project specific
+protocols to access archive databases that define dataset best reference
+matching parameters.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>For JWST it's important to note that the archive provides a
+dedicated web service to fetch parameter sets.<span
+style="mso-spacerun:yes">    </span>The protocol essentially has two parts CRDS
+can query:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoListParagraphCxSpFirst style='text-indent:-.25in;mso-list:l2 level1 lfo2'><![if !supportLists]><span
+style='mso-fareast-font-family:Cambria;mso-bidi-font-family:Cambria'><span
+style='mso-list:Ignore'>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>Return the list of all IDs for an instrument
+after some date</p>
+
+<p class=MsoListParagraphCxSpLast style='text-indent:-.25in;mso-list:l2 level1 lfo2'><![if !supportLists]><span
+style='mso-fareast-font-family:Cambria;mso-bidi-font-family:Cambria'><span
+style='mso-list:Ignore'>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>Return the parameters for some list of IDs</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>For HST<span class=GramE>,<span style="mso-spacerun:yes"> 
+</span>CRDS</span> has a direct interface to the DADSOPS (replicated) archive
+database and does it's own SQL queries.</p>
+
+<h2>Kinds of CRDS Errors</h2>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>To understand CRDS reprocessing errors, a broader view of
+possible CRDS errors is useful:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoListParagraphCxSpFirst style='text-indent:-.25in;mso-list:l1 level1 lfo3'><![if !supportLists]><span
+style='mso-fareast-font-family:Cambria;mso-bidi-font-family:Cambria'><span
+style='mso-list:Ignore'>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>CRDS can fail to find a reference file</p>
+
+<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in;mso-list:l1 level1 lfo3'><![if !supportLists]><span
+style='mso-fareast-font-family:Cambria;mso-bidi-font-family:Cambria'><span
+style='mso-list:Ignore'>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>CRDS can find the wrong reference file</p>
+
+<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in;mso-list:l1 level1 lfo3'><![if !supportLists]><span
+style='mso-fareast-font-family:Cambria;mso-bidi-font-family:Cambria'><span
+style='mso-list:Ignore'>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>CRDS can match multiple reference files due to
+bad rules</p>
+
+<p class=MsoListParagraphCxSpLast style='text-indent:-.25in;mso-list:l1 level1 lfo3'><![if !supportLists]><span
+style='mso-fareast-font-family:Cambria;mso-bidi-font-family:Cambria'><span
+style='mso-list:Ignore'>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>A reference file can have errors that cause
+calibrations to fail</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>For CRDS reprocessing,<span style="mso-spacerun:yes"> 
+</span>(1) and (2) are most relevant and can be collectively classified as &quot;lookup
+errors&quot;.<span style="mso-spacerun:yes">   </span>Lookup errors in turn can
+be caused by:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoListParagraphCxSpFirst style='text-indent:-.25in;mso-list:l4 level1 lfo4'><![if !supportLists]><span
+style='mso-fareast-font-family:Cambria;mso-bidi-font-family:Cambria'><span
+style='mso-list:Ignore'>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>A problem with the archive's parameters for some
+dataset</p>
+
+<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in;mso-list:l4 level1 lfo4'><![if !supportLists]><span
+style='mso-fareast-font-family:Cambria;mso-bidi-font-family:Cambria'><span
+style='mso-list:Ignore'>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>A problem with the CRDS rules</p>
+
+<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in;mso-list:l4 level1 lfo4'><![if !supportLists]><span
+style='mso-fareast-font-family:Cambria;mso-bidi-font-family:Cambria'><span
+style='mso-list:Ignore'>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>Missing reference file coverage</p>
+
+<p class=MsoListParagraphCxSpLast><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Discerning between parameters set errors and rules errors is
+important for debugging reprocessing.</p>
+
+<h2>Error Logging</h2>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Each dataset is generally assigned 15-20 reference files
+using criteria that vary by instrument and reference type and often involve
+many different cases to cover different instrument modes and specific
+configurations.<span style="mso-spacerun:yes">   </span>During JWST
+development, working with thousands of new and changing datasets interacting
+with new CRDS rules and references, errors are expected and common.<span
+style="mso-spacerun:yes">  </span></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>As each dataset parameter set is processed by crds.bestrefs,
+specific log errors are issued type-by-type, file-by-file<span class=GramE>,<span
+style="mso-spacerun:yes">  </span>as</span> they occur,<span
+style="mso-spacerun:yes">  </span>for both old and new contexts.<span
+style="mso-spacerun:yes">   </span>To simplify post-processing error analysis,
+CRDS summarizes error messages into classes of similar problems and presents those
+in the log output as <i style='mso-bidi-font-style:normal'>unique error
+classes.<o:p></o:p></i></p>
+
+<p class=MsoNormal><i style='mso-bidi-font-style:normal'><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal>The nature of CRDS rules corrections is that new versions of
+rules are created and older versions of rules remain exactly as-is.<span
+style="mso-spacerun:yes">   </span>This means that unless dataset parameters
+change, an old context will continue to produce exactly the same errors
+indefinitely.<span style="mso-spacerun:yes">  </span>In particular, an old
+context will definitely produce errors during the reprocessing run in which the
+new context provides fixes for those same errors.</p>
+
+<h2>Narrowing Reprocessing Computations</h2>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Since HST has over a million dataset IDs (as seen by CRDS),
+brute force computations for two contexts for all instruments originally took
+on the order of 12 hours to complete.<span style="mso-spacerun:yes">   
+</span>Consequently, as an optimization, the difference between contexts has
+been exploited to determine (a) possibly affected instruments (b) possibly
+affected reference types and (c) possibly affected observation dates based on
+affected USEAFTER dates.<span style="mso-spacerun:yes">   </span>Collectively,
+those three pieces of information are typically used to reduce the datasets
+that are examined to a few thousand enabling the computation of datasets to
+reprocess to complete in minutes.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>The reprocessing log includes information on the datasets
+and aspects of the contents that are examined, and team members can eyeball
+those for consistency with the delivery.</p>
+
+<h2>Saving Repro Results</h2>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>When the CRDS server finishes the crds.besrefs repro
+computation, it saves both the program log and the list of affected IDs
+permanently.<span style="mso-spacerun:yes">   </span>CRDS also issues an e-mail
+at that time to containing snipped log output and a compressed attachment
+listing all the affected IDs.</p>
+
+<h2>Retrieving Repro Results</h2>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>CRDS provides a repro client script that has been customized
+for integration with the pipeline environment by SDP.<span
+style="mso-spacerun:yes">  </span>The pipeline operator uses that integration
+script (crds_impact.csh) to fetch the stored results from the CRDS server.<span
+style="mso-spacerun:yes">   </span>Prior to the completion of the CRDS Server
+computation, an attempt to retrieve the results should produce a &quot;no
+results available&quot; log message of some kind.<span
+style="mso-spacerun:yes">   </span>When results are complete, the client script
+can be used to retrieve both affected IDs and the complete reprocessing log so
+that any errors can be reviewed.</p>
+
+<h1>Reviewing Team Activity</h1>
+
+<h2>Audit Trail</h2>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>CRDS keeps an audit trail of confirmed deliveries and
+context changes on the server, as well as changes in state like marking files
+bad.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Following this link can display activity:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><a href="https://jwst-crds.stsci.edu/recent_activity_query/"><span
+class=InternetLink>General Activity for <span class=SpellE>Pmaps</span></span></a></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Specific kinds of activity can be reviewed by supplying
+additional criteria here:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><a href="https://jwst-crds.stsci.edu/recent_activity_input/"><span
+class=InternetLink>More Specialized Activity Queries</span></a></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Pursuing file links can provide additional information on
+those files.<span style="mso-spacerun:yes">    </span>Most important events
+result in the creation or selection of a pmap so the default query lists &quot;any
+activity related to a pmap&quot;.<span style="mso-spacerun:yes">   </span>More
+specialized queries can also be constructed, e.g. any activity related to a
+specific instrument, type, or file.<b><span style='font-size:16.0pt;font-family:
+Calibri;mso-fareast-font-family:"ＭＳ ゴシック";color:#345A8A'><o:p></o:p></span></b></p>
+
+<h2>Seeing Context History and Differences</h2>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>The top level CRDS page displays the last 4 operational
+contexts in use in the pipeline and a brief description of each and the date of
+activation.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>This link:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><a
+href="https://jwst-crds.stsci.edu/display_context_history/"><span
+class=InternetLink>Context History</span></a></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Displays the history of all contexts ever selected as the
+pipeline default and when they became active or were superseded.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Particularly for JWST, the operational context frequently
+skips through several pmap files so the context does not always change from N
+to N+1.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<span style='font-size:12.0pt;font-family:Cambria;mso-fareast-font-family:"ＭＳ 明朝";
+mso-bidi-font-family:"Times New Roman";mso-ansi-language:EN-US;mso-fareast-language:
+JA;mso-bidi-language:AR-SA'><br clear=all style='mso-special-character:line-break;
+page-break-before:always'>
+</span>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>The <i style='mso-bidi-font-style:normal'>Context History</i>
+looks similar to this and extends backward in time through all previously
+default contexts:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><span style='mso-fareast-language:EN-US;mso-no-proof:yes'><!--[if gte vml 1]><v:shape
+ id="Picture_x0020_2" o:spid="_x0000_i1027" type="#_x0000_t75" style='width:744pt;
+ height:402pt;visibility:visible;mso-wrap-style:square'>
+ <v:imagedata src="CrdsServerEndToEnd_files/image011.png" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=746 height=404
+src="CrdsServerEndToEnd_files/image012.png" v:shapes="Picture_x0020_2"><![endif]></span></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>After selecting the diff checkbox of two contexts, the diff
+button can be clicked to generate a page shown here for 414 -&gt; 422:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><span style='mso-fareast-language:EN-US;mso-no-proof:yes'><!--[if gte vml 1]><v:shape
+ id="Picture_x0020_5" o:spid="_x0000_i1026" type="#_x0000_t75" style='width:773pt;
+ height:540pt;visibility:visible;mso-wrap-style:square'>
+ <v:imagedata src="CrdsServerEndToEnd_files/image013.png" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=775 height=542
+src="CrdsServerEndToEnd_files/image014.png" v:shapes="Picture_x0020_5"><![endif]></span><span
+style='mso-fareast-language:EN-US'><o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='mso-fareast-language:EN-US'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span style='mso-fareast-language:EN-US'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span style='mso-fareast-language:EN-US'>Each accordion
+panel can be opened to show both the logical and textual differences between
+those two versions of rules files:<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='mso-fareast-language:EN-US'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span style='mso-fareast-language:EN-US;mso-no-proof:yes'><!--[if gte vml 1]><v:shape
+ id="Picture_x0020_6" o:spid="_x0000_i1025" type="#_x0000_t75" style='width:772pt;
+ height:578pt;visibility:visible;mso-wrap-style:square'>
+ <v:imagedata src="CrdsServerEndToEnd_files/image015.png" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img border=0 width=774 height=580
+src="CrdsServerEndToEnd_files/image016.png" v:shapes="Picture_x0020_6"><![endif]></span><span
+style='mso-fareast-language:EN-US'><o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='mso-fareast-language:EN-US'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span style='mso-fareast-language:EN-US'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+</form>
+
+</div>
+
+</body>
+
+</html>

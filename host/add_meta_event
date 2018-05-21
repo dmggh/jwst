@@ -1,0 +1,47 @@
+#! /usr/bin/env python
+#-*-python-*-
+
+"""This script adds an event message to the meta-events log based on the
+command line parameters.  The meta events log persists between server
+mirrorings and is initially used to track context changes, pipeline syncs, and
+server mirrorings.
+"""
+
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+
+# ============================================================================
+
+import sys
+import os
+
+# ============================================================================
+
+import django
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "crds.server.settings")
+django.setup()
+
+# ============================================================================
+
+from crds.core import log, pysh
+from crds.server.interactive import models
+
+# ============================================================================
+
+pysh.usage("<words of message...>", 1, 1000, help="""
+Adds a log messsge based on the command parameters to the meta events log
+that is not replaced by server mirroring and which tracks mirroring and
+context updates of various forms.  Or... any other meta events...
+""")
+
+# ============================================================================
+
+def main(*args, **keys):
+    models.add_meta_event(*args, **keys)
+
+# ============================================================================
+
+main(*sys.argv[1:])
+
+

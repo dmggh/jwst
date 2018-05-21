@@ -4,10 +4,12 @@ from __future__ import absolute_import
 # from builtins import str
 # from builtins import range
 from crds.server.xjwst import restful
-from crds.server import config
-from crds import log, python23
+from crds.server import config as sconfig
+from crds import log, python23, timestamp
 
-BASE_URL = config.ARCHIVE_PARAMETER_SERVICE_URL
+# ================================================================================================== 
+
+BASE_URL = sconfig.ARCHIVE_PARAMETER_SERVICE_URL
 
 # ================================================================================================== 
 
@@ -73,7 +75,7 @@ def _normal_id(did):
     did = did.upper()
     return did if ":" in did else did + ":" + did
 
-def get_dataset_headers_by_id(dataset_ids, matching_parameters):
+def get_dataset_headers_by_id(context, dataset_ids, matching_parameters):
     """Fetch the `matching_parameters for the specified `dataset_ids."""
     dataset_ids = [ _normal_id(did)  for did in dataset_ids ]
     matching_parameters = [ par.upper() for par in matching_parameters ]
@@ -97,6 +99,9 @@ def get_dataset_headers_by_id(dataset_ids, matching_parameters):
                 for key, value in list(header.items()):
                     if value is None:
                         header[key] = "UNDEFINED"
+                header["PARAMS_SOURCE"] = sconfig.ARCHIVE_PARAMETER_SERVICE_URL
+                header["PARAMS_DATE"] = timestamp.now("T")
+                header["PARAMS_CTX"] = context
             else:
                 total_headers[did] = "NOT FOUND unhandled parameter set format for " + repr(did)
     return total_headers
