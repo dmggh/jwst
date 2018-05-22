@@ -1104,6 +1104,8 @@ def header_string_to_header(hstring):
 
 def _dict_header_format(hstring):
     """Enable users to cut-and-paste CRDS header dump dictionaries."""
+    hstring = re.sub(r" \[" + common.FITS_KEY_RE + r"\]'", "'", hstring)
+    log.info("_dict_header_format revised inputs:", repr(hstring))
     header = ast.literal_eval(hstring)
     for (key, value) in list(header.items()):
         value = utils.condition_value(value)
