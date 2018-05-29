@@ -1,3 +1,5 @@
+import re
+
 import numpy as np
 
 # =======================================================================
@@ -15,6 +17,7 @@ class CrdsTableRow(tuple):
     def resolve(self):
         resolved = []
         for field in self:
+            field = re.sub("\s+", " ", field)
             if isinstance(field, str):
                 resolved.append(field)
             else:
