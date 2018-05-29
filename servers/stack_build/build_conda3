@@ -57,6 +57,8 @@ rehash
 
 git status  |& tee git.status
 git log --stat |& tee git.log
+
+cd ${CRDS}/crds_stacks/installer4/conda-sources
 conda list --explicit |& tee ${CONDA_NAME}.txt
 
 ./joes_download ${CONDA_NAME}.txt ${CRDS}/crds_stacks/installer4/conda-sources
