@@ -23,16 +23,17 @@ development, test, and operational.
 The CRDS build process has two stages:
 
 1. The build_conda3 script is executed to make a "demand based" bleeding edge
-conda stack.  This creates a versioned installer4 directory,
-e.g. /eng/ssb/crds/installer4.crds_conda3-8.  This process could also be
-modified to cerate any version of escrowed packages.
+conda stack.  This creates a versioned installer4 directory exported back to
+/eng/ssb/crds, e.g. /eng/ssb/crds/installer4.crds_conda3-8.  This process could
+also be modified to cerate any version of escrowed packages.
 
-2. The build_conda3_frozen script is executed on other VMs to build from
-content stored in, e.g. /eng/ssb/crds/installer4.crds_conda3-8
+2. The build_conda3_frozen script is executed on the same or other VMs to build
+from content stored in, e.g. /eng/ssb/crds/installer4.crds_conda3-8
 
-As build_conda3 executes, it creates a live Python stack, and creates a copy of
-the current installer4 with added conda packages, and copies the escrowed
-installer + packages back to /eng/ssb/crds with a .version tail.
+As build_conda3 executes, it creates a live Python stack, and also creates a
+copy of the current installer4 with downloaded conda packages.  A version tail
+is added so installer4 becomes e.g. installer4.crds_conda3-8 and the sources
+are exported back to Central Store /eng/ssb/crds.
 
 When build_conda3_frozen execute, it instead copies the versioned sources from
 /eng/ssb/crds to the VM's local storage, and then installs from those
@@ -47,3 +48,14 @@ updated with a new version / stack-name.  Likewise, the
 CRDS_server/host/dot_setenv script needs to be modified to identify the new
 stack being used,  add it to PATH, etc.
 
+The scripts are designed to avoid operator input error (none required) since
+part of their action is to blow away local or remote versioned copies of
+installer4 source trees.   So they run like:
+
+    % cd CRDS_server/stack_build
+    % ./build_conda3 |& tee build_conda3.err
+
+or on the same or another VM, to build the frozen version:
+
+    % cd CRDS_server/stack_build
+    % ./build_conda3_frozen  |& tee frozen.err
