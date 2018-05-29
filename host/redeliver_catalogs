@@ -61,6 +61,7 @@ def redeliver_catalogs(catalogs):
     update the database or create and AuditBlob since it's intended for restoring
     file system consistency re-making the hard links used in deliveries.
     """
+    models.add_meta_event(f"Redelivered catalogs: {catalogs}")
     for cat in catalogs:
         log.info("Redelivering", repr(cat))
         catalog_path = os.path.join(config.CRDS_CATALOG_DIR, cat)

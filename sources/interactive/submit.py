@@ -957,6 +957,7 @@ class Delivery(object):
             for filename in paths + [catalog]:
                 dest = site +"/" + os.path.basename(filename)
                 try:
+                    log.info("Linking", srepr(filename), "to", srepr(dest))
                     os.link(filename, dest)
                 except Exception as exc:
                     raise CrdsError("failed to link " + srepr(filename) + " to " + srepr(dest) + " : " + str(exc))
