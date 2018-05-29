@@ -2,43 +2,55 @@
 
 setenv CONDA_NAME crds_conda3-8
 
-setenv CRDS_STACK ${CRDS}/crds_stacks/$CONDA_NAME
+setenv CRDS_STACK ${CRDS}/crds_stacks/${CONDA_NAME}
 setenv META_PREFIX ${CRDS_STACK}
 
+setenv MASTER_REMOTE_SOURCE /eng/ssb/crds/installer4
+setenv SOURCE_NAME installer4.${CONDA_NAME} 
+setenv LOCAL_SOURCE  ${CRDS}/crds_stacks/${SOURCE_NAME}
+setenv FROZEN_REMOTE_SOURCE /eng/ssb/crds/${SOURCE_NAME}
+
+# Backup and clear locally stored built stacks
 cd ${CRDS}/crds_stacks
 rm -rf ${CRDS_STACK}.old
 mv ${CRDS_STACK} ${CRDS_STACK}.old
-rm -rf installer4
-cp -r /eng/ssb/crds/installer4 .
-cd installer4/build
+rm -rf ${LOCAL_SOURCE}
+
+# Copy remote master source code to local version-specific copy
+cp -r ${MASTER_REMOTE_SOURCE} ${LOCAL_SOURCE}
+cd ${LOCAL_SOURCE}/build
 git checkout $CONDA_NAME
 
+# Clean up CRDS meta-package build directory
 rm -f *.err
 ./meta clean >& /dev/null
 
-# Set up miniconda
-mkdir -p ${CRDS}/crds_stacks/installer4/conda-sources
+# Download and install miniconda, add to $PATH
+mkdir -p ${LOCAL_SOURCE}/conda-sources
 wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh \
-    -O ${CRDS}/crds_stacks/installer4/conda-sources/miniconda3.sh
-bash ${CRDS}/crds_stacks/installer4/conda-sources/miniconda3.sh -b -p $CRDS_STACK
+    -O ${LOCAL_SOURCE}/conda-sources/miniconda3.sh
+bash ${LOCAL_SOURCE}/conda-sources/miniconda3.sh -b -p ${CRDS_STACK}
 setenv PATH ${CRDS_STACK}/bin:${PATH}
 rehash 
 
 # conda config --add channels http://ssb.stsci.edu/astroconda
 conda config --add channels http://ssb.stsci.edu/conda-dev 
+
+# Install stsci and jwst conda packages,  also minimally supports HST as needed.
+# Primarily JWST dependency is for CAL data models and dependencies.
 conda install stsci jwst --quiet --yes
 conda install astropy numpy scipy asdf gwcs ipython requests lxml pymysql --quiet --yes
 
 # conda install fitsverify cfitsio --quiet --yes
-
 # conda install --quiet --yes --file ${CRDS}/CRDS_server/host/${CONDA_NAME}.pkgs
 # conda install --quiet --yes --file http://ssb.stsci.edu/conda/jwstdp-0.7.0rc/jwstdp-0.7.0rc2-linux-py27.0.txt
 
+# Use local copies of JWST CAL code and fitsverify for more stability
 conda remove --quiet --yes --force cfitsio fitsverify jwst
 conda install --yes --quiet setuptools
 
-cd ${CRDS}/crds_stacks/installer4/build
-
+# Install CRDS metapackages,  those not included with conda or overridden.
+cd ${LOCAL_SOURCE}/build
 ./meta install @crds3-fixed  |& tee crds3.err
 ./meta install jwst |& tee jwst.err
 ./meta install cfitsio fitsverify |& tee fitsverify.err
@@ -50,6 +62,7 @@ pip uninstall --yes Django
 ./meta install Django
 ./meta clean >& /dev/null
 
+# Fix pyodbc/unixODBC to use STSCI copy and config files.
 conda remove --yes --force unixodbc  # pulled in by pyodbc,  use stock installtion provided by DATB instead.
 cp /usr/etc/odbc.ini /home/crds/.odbc.ini
 cp /usr/etc/odbcinst.ini /home/crds/.odbcinst.ini
@@ -58,10 +71,16 @@ rehash
 git status  |& tee git.status
 git log --stat |& tee git.log
 
-cd ${CRDS}/crds_stacks/installer4/conda-sources
+# List and download conda packages just installed in this stack.
+# mkdir -p ${LOCAL_SOURCE}/conda-sources
+cd ${LOCAL_SOURCE}/conda-sources
 conda list --explicit |& tee ${CONDA_NAME}.txt
+./joes_download ${CONDA_NAME}.txt ${LOCAL_SOURCE}/conda-sources
 
-./joes_download ${CONDA_NAME}.txt ${CRDS}/crds_stacks/installer4/conda-sources
+# Copy local installer to frozen Central Store copy for frozen installs on other strings.
+rm -rf ${FROZEN_REMOTE_SOURCE}
+cp -r ${LOCAL_SOURCE} ${FROZEN_REMOTE_SOURCE}
+
 
 # Install the entire base to get mercurial... for this.
 # ../src/pull_local

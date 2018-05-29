@@ -1,0 +1,49 @@
+The CRDS Python stack build is a relatively complicated hybrid consisting of:
+
+1. A miniconda base install which includes most CAL supporting packages like
+numpy, scipy, etc.
+
+2. A CRDS meta-package install which provides packages or frozen versions not
+available from conda.  These aren't necessarily Python packages.  The
+meta-package tool is a little like a poor man's rpm and dates back to a need
+for Windows compatibility with package management.
+
+3. The CRDS and CRDS_server source directory installs, local github clones used
+to do direct development pulls and pushes.  Strictly speaking these are NOT
+part of the Python stack and indeed, at this time, are located in a different
+installation directory and isolated from stack swaps. I mention them because
+they're a critical part of the s/w installation being handled in their own way.
+
+The master source repo for CRDS meta packages is at /eng/ssb/crds/installer4.
+Each VM makes a copy for each stack version.  This is a file-only repo because
+of its size, roughly 4.5G.  /eng/ssb/crds/installer4 is updated with package
+changes.  The plan is to maintain copies of the last 3 stacks, roughly:
+development, test, and operational.
+
+The CRDS build process has two stages:
+
+1. The build_conda3 script is executed to make a "demand based" bleeding edge
+conda stack.  This creates a versioned installer4 directory,
+e.g. /eng/ssb/crds/installer4.crds_conda3-8.  This process could also be
+modified to cerate any version of escrowed packages.
+
+2. The build_conda3_frozen script is executed on other VMs to build from
+content stored in, e.g. /eng/ssb/crds/installer4.crds_conda3-8
+
+As build_conda3 executes, it creates a live Python stack, and creates a copy of
+the current installer4 with added conda packages, and copies the escrowed
+installer + packages back to /eng/ssb/crds with a .version tail.
+
+When build_conda3_frozen execute, it instead copies the versioned sources from
+/eng/ssb/crds to the VM's local storage, and then installs from those
+configured and/or pre-downloaded packages.
+
+The ultimate purpose of build_conda3_frozen is to reproduce (as near as
+possible given any VM differences) the exact version of packages installed by
+the previous build_conda3 on other VMs.
+
+For each build, the scripts build_conda3 and build_conda3_frozen need to be
+updated with a new version / stack-name.  Likewise, the
+CRDS_server/host/dot_setenv script needs to be modified to identify the new
+stack being used,  add it to PATH, etc.
+
