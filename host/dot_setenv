@@ -28,6 +28,9 @@ setenv URP_TYPE crds
 # by usecase would require a post-mirroring database tweak.
 setenv CRDS_PIPELINE_CACHE_KEY 12ca7bb2-dd3b-444a-8e6e-d8fd0bf559ed
 
+# In case of emergency,  break glass
+# setenv CRDS_FITS_VERIFY_CHECKSUM 0
+
 switch ($CRDS_SERVER)
        case dljwcrds:
         setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-8
@@ -82,7 +85,7 @@ switch ($CRDS_SERVER)
        breaksw
 
        case iljwdmsbcrds:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-6
+        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-8
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE bit
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu"

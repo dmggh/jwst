@@ -1,0 +1,59 @@
+#! /bin/tcsh -fx
+
+setenv CONDA_NAME crds_conda3-8
+
+setenv CRDS_STACK ${CRDS}/crds_stacks/${CONDA_NAME}
+setenv META_PREFIX ${CRDS_STACK}
+
+setenv MASTER_REMOTE_SOURCE /eng/ssb/crds/installer4
+setenv SOURCE_NAME installer4.${CONDA_NAME} 
+setenv LOCAL_SOURCE  ${CRDS}/crds_stacks/${SOURCE_NAME}
+setenv FROZEN_REMOTE_SOURCE /eng/ssb/crds/${SOURCE_NAME}
+
+# Copy frozen versioned source from /eng/ssb/crds to local server copy
+cd ${CRDS}/crds_stacks
+rm -rf ${CRDS_STACK}.old
+mv ${CRDS_STACK} ${CRDS_STACK}.old
+rm -rf ${LOCAL_SOURCE}
+cp -r ${FROZEN_REMOTE_SOURCE} ${LOCAL_SOURCE}
+
+# Clean up the CRDS meta-package build directory
+cd ${LOCAL_SOURCE}/build
+rm -f *.err
+./meta clean >& /dev/null
+
+# Install basic conda environment from stored miniconda.sh download
+cd ${LOCAL_SOURCE}/conda-sources
+bash miniconda3.sh -b -p $CRDS_STACK
+setenv PATH ${CRDS_STACK}/bin:${PATH}
+rehash 
+
+conda config --add channels http://ssb.stsci.edu/conda-dev 
+# conda config --add channels http://ssb.stsci.edu/astroconda
+# conda create --name $CONDA_NAME --file $CONDA_NAME.files.txt
+
+# Install all the escrowed conda packages
+cd ${LOCAL_SOURCE}/conda-sources/linux-64
+conda install --use-local ./*.bz2
+
+# Install the CRDS meta-packages for things not taken from conda
+cd ${LOCAL_SOURCE}/build
+./meta install @crds3-fixed  |& tee crds3.err
+./meta install jwst |& tee jwst.err
+./meta install cfitsio fitsverify |& tee fitsverify.err
+
+conda uninstall --yes --quiet pkg-config pkgconfig
+pip uninstall --yes Django
+
+./meta install mod_wsgi-master |& tee mod_wsgi.err
+./meta install Django
+./meta clean >& /dev/null
+
+conda remove --yes --force unixodbc  # pulled in by pyodbc,  use stock installtion provided by DATB instead.
+cp /usr/etc/odbc.ini /home/crds/.odbc.ini
+cp /usr/etc/odbcinst.ini /home/crds/.odbcinst.ini
+rehash
+
+git status  |& tee git.status
+git log --stat |& tee git.log
+
