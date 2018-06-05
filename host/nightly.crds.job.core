@@ -14,42 +14,42 @@ ls -lt $HOME/isolate.*
 
 system_status
 
-if ( ( "$CRDS_USECASE" == "dev" ) ) then
-    echo "=========================================================="
-    echo "Disabling Cron for max 90 minutes"
-    echo "=========================================================="
-    # no_cron_til now + 90 minutes  # backup in case script is killed
-    crontab </dev/null
+# if ( ( "$CRDS_USECASE" == "dev" ) ) then
+#     echo "=========================================================="
+#     echo "Disabling Cron for max 90 minutes"
+#     echo "=========================================================="
+#     # no_cron_til now + 90 minutes  # backup in case script is killed
+#     crontab </dev/null
 
-    echo "=========================================================="
-    echo "Stack Build"
-    echo "=========================================================="
-    cd ${CRDS}/CRDS_server/servers/stack_build
-    ./build_conda3 >& ${CRDS_CRON}/build_conda.${ETAIL}
-    tail -100 ${CRDS_CRON}/build_conda.${ETAIL}
+#     echo "=========================================================="
+#     echo "Stack Build"
+#     echo "=========================================================="
+#     cd ${CRDS}/CRDS_server/stack_build
+#     ./build_conda3 >& ${CRDS_CRON}/build_conda.${ETAIL}
+#     tail -100 ${CRDS_CRON}/build_conda.${ETAIL}
 
-    echo "=========================================================="
-    echo "Re-enabling Cron now"
-    echo "=========================================================="
-    cd ${CRDS}/CRDS_server 
-    crontab <host/crontab
-    crontab -l
+#     echo "=========================================================="
+#     echo "Re-enabling Cron now"
+#     echo "=========================================================="
+#     cd ${CRDS}/CRDS_server 
+#     crontab <host/crontab
+#     crontab -l
 
-    echo "==========================================================="
-    echo "Server re-install and re-start"
-    echo "==========================================================="
-    cd ${CRDS}/CRDS_server
-    ./rerun >& ${CRDS_CRON}/rerun.${ETAIL}
-    tail -100 ${CRDS_CRON}/rerun.${ETAIL}
-else
-    echo "==========================================================="
-    echo "Server restart"
-    echo "==========================================================="
-    cd ${CRDS}/CRDS_server
-    ./stop >& ${CRDS_CRON}/restart.${ETAIL}
-    sleep 10
-    ./run >>& ${CRDS_CRON}/restart.${ETAIL}
-endif
+#     echo "==========================================================="
+#     echo "Server re-install and re-start"
+#     echo "==========================================================="
+#     cd ${CRDS}/CRDS_server
+#     ./rerun >& ${CRDS_CRON}/rerun.${ETAIL}
+#     tail -100 ${CRDS_CRON}/rerun.${ETAIL}
+# else
+#     echo "==========================================================="
+#     echo "Server restart"
+#     echo "==========================================================="
+#     cd ${CRDS}/CRDS_server
+#     ./stop >& ${CRDS_CRON}/restart.${ETAIL}
+#     sleep 10
+#     ./run >>& ${CRDS_CRON}/restart.${ETAIL}
+# endif
 
 echo "============================================================"
 echo "Backing up server"
