@@ -1,0 +1,41 @@
+#! /usr/bin/env python
+#-*-python-*-
+import sys
+import re
+
+from crds import pysh
+
+pysh.usage("@ids_file or ids....", 1, 2000, help="""
+
+Convert JWST dataset IDs into a normalized form used in CRDS
+bestrefs and various web services.
+""")
+
+def main():
+    for arg in sys.argv[1:]:
+        ids = []
+        if arg.startswith("@"):
+            for line in open(arg[1:].strip()).read().splitlines():
+                ids += line.split()      
+        else:
+            ids += arg
+    for dataset in ids:
+        print(normalize_id(dataset))
+
+def normalize_id(dataset):
+    if ":" in dataset:
+        return ":".join([normalize_subid(part)
+                         for part in dataset.split(":")])
+    else:
+        subid = normalize_subid(dataset)
+        return subid + ":" + subid
+            
+def normalize_subid(dataset):
+    if re.match(r"[A-Z-a-z0-9_\-]+", dataset):
+        parts = dataset.split("_")
+        dataset = "_".join(parts[:-1]) + "." + parts[-1]
+    return dataset.upper()
+
+if __name__ == "__main__":
+    main()
+
