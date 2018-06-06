@@ -153,7 +153,7 @@ bestrefs with no extra configuration required.</p>
 <h2>CRDS Bestrefs for HST<a class="headerlink" href="#crds-bestrefs-for-hst" title="Permalink to this headline">¶</a></h2>
 <p>CRDS provides the <em>crds bestrefs</em> program for updating dataset headers for HST with the current
 best references.   Running bestrefs for HST is accomplished via:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ crds bestrefs --files dataset*.fits --update-bestrefs
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ crds bestrefs --files dataset*.fits --update-bestrefs
 </pre></div>
 </div>
 <p>This command updates the FITS headers of the files specified by dataset*.fits with the names of
@@ -163,7 +163,7 @@ the latest best reference files known to <em>/grp/crds/cache</em>.</p>
 <h2>CRDS Bestrefs for JWST<a class="headerlink" href="#crds-bestrefs-for-jwst" title="Permalink to this headline">¶</a></h2>
 <p>For JWST calibrations CRDS is fully integrated with the CAL code and operates transparently as a consequence
 of running pipelines:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ strun calwebb_sloper.cfg dataset.fits
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ strun calwebb_sloper.cfg dataset.fits
 </pre></div>
 </div>
 <p>The above command will transparently update the reference files specified in the metadata of dataset.fits.</p>
@@ -195,7 +195,7 @@ you need to process your datasets to a personal CRDS cache.  You can create a
 small personal cache of rules and references supporting only the datasets you
 care about:</p>
 <p>For <strong>HST</strong>, to fetch the references required to process some FITS datasets:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ export CRDS_SERVER_URL=https://hst-crds.stsci.edu   # or similar
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ export CRDS_SERVER_URL=https://hst-crds.stsci.edu   # or similar
 $ export CRDS_PATH=${HOME}/crds_cache
 $ crds bestrefs --files dataset*.fits --sync-references=1  --update-bestrefs
 </pre></div>
@@ -203,7 +203,7 @@ $ crds bestrefs --files dataset*.fits --sync-references=1  --update-bestrefs
 <p>For <strong>JWST</strong>, CRDS is directly integrated with the calibration step code and
 will automatically download rules and references.  The only extra setup needed
 is to define CRDS_PATH and CRDS_SERVER_URL appropriately prior to <em>strun</em>:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ export CRDS_SERVER_URL=https://jwst-crds.stsci.edu   # or similar
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ export CRDS_SERVER_URL=https://jwst-crds.stsci.edu   # or similar
 $ export CRDS_PATH=${HOME}/crds_cache
 $ strun calwebb_sloper.cfg dataset.fits
 </pre></div>
@@ -213,11 +213,11 @@ $ strun calwebb_sloper.cfg dataset.fits
 <h2>Overriding the Default Context<a class="headerlink" href="#overriding-the-default-context" title="Permalink to this headline">¶</a></h2>
 <p>It’s possible to use past or future/experimental CRDS contexts rather than
 the pipeline’s default operational context as follows for HST:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ crds bestrefs --files dataset*.fits --update-bestrefs --new-context hst_0001.pmap
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ crds bestrefs --files dataset*.fits --update-bestrefs --new-context hst_0001.pmap
 </pre></div>
 </div>
 <p>or as by setting an environment variable for JWST:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ export CRDS_CONTEXT=jwst_0001.pmap
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ export CRDS_CONTEXT=jwst_0001.pmap
 $ strun calwebb_sloper.cfg dataset.fits
 </pre></div>
 </div>
@@ -244,7 +244,7 @@ $ strun calwebb_sloper.cfg dataset.fits
   <div role="contentinfo">
     <p>
         &copy; Copyright 2017, Space Telescope Science Institute.
-      Last updated on Mar 04, 2018.
+      Last updated on Jun 06, 2018.
 
     </p>
   </div>

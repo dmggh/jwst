@@ -212,13 +212,13 @@ precludes writing a parser for CRDS mappings in some other language.</p>
 <h2>Naming<a class="headerlink" href="#naming" title="Permalink to this headline">¶</a></h2>
 <p>The CRDS HST mapping prototypes which are generated from information scraped from
 the CDBS web site are named with the forms:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">observatory</span><span class="o">&gt;</span> <span class="o">.</span><span class="n">pmap</span>                               <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">hst</span><span class="o">.</span><span class="n">pmap</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">observatory</span><span class="o">&gt;</span> <span class="o">.</span><span class="n">pmap</span>                               <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">hst</span><span class="o">.</span><span class="n">pmap</span>
 <span class="o">&lt;</span><span class="n">observatory</span><span class="o">&gt;</span> <span class="n">_</span> <span class="o">&lt;</span><span class="n">instrument</span><span class="o">&gt;</span> <span class="o">.</span><span class="n">imap</span>                <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">hst_acs</span><span class="o">.</span><span class="n">imap</span>
 <span class="o">&lt;</span><span class="n">observatory</span><span class="o">&gt;</span> <span class="n">_</span> <span class="o">&lt;</span><span class="n">instrument</span><span class="o">&gt;</span> <span class="n">_</span> <span class="o">&lt;</span><span class="n">filekind</span><span class="o">&gt;</span> <span class="o">.</span><span class="n">rmap</span>   <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">hst_acs_darkfile</span><span class="o">.</span><span class="n">rmap</span>
 </pre></div>
 </div>
 <p>The names of subsequent derived mappings include a version number:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">observatory</span><span class="o">&gt;</span> <span class="n">_</span> <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span> <span class="o">.</span><span class="n">pmap</span>                               <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">hst_00001</span><span class="o">.</span><span class="n">pmap</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">observatory</span><span class="o">&gt;</span> <span class="n">_</span> <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span> <span class="o">.</span><span class="n">pmap</span>                               <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">hst_00001</span><span class="o">.</span><span class="n">pmap</span>
 <span class="o">&lt;</span><span class="n">observatory</span><span class="o">&gt;</span> <span class="n">_</span> <span class="o">&lt;</span><span class="n">instrument</span><span class="o">&gt;</span> <span class="n">_</span> <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span> <span class="o">.</span><span class="n">imap</span>                <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">hst_acs_00047</span><span class="o">.</span><span class="n">imap</span>
 <span class="o">&lt;</span><span class="n">observatory</span><span class="o">&gt;</span> <span class="n">_</span> <span class="o">&lt;</span><span class="n">instrument</span><span class="o">&gt;</span> <span class="n">_</span> <span class="o">&lt;</span><span class="n">filekind</span><span class="o">&gt;</span> <span class="n">_</span> <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span> <span class="o">.</span><span class="n">rmap</span>   <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">hst_acs_darkfile_00012</span><span class="o">.</span><span class="n">rmap</span>
 </pre></div>
@@ -246,7 +246,7 @@ structure consisting of top-level selectors and sub-selectors.</p>
 <div class="section" id="pipeline-mappings-pmap">
 <h2>Pipeline Mappings (.pmap)<a class="headerlink" href="#pipeline-mappings-pmap" title="Permalink to this headline">¶</a></h2>
 <p>A sample pipeline mapping for HST looks like:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;name&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst.pmap&#39;</span><span class="p">,</span>
     <span class="s1">&#39;derived_from&#39;</span> <span class="p">:</span> <span class="s1">&#39;created by hand 12-23-2011&#39;</span><span class="p">,</span>
     <span class="s1">&#39;mapping&#39;</span> <span class="p">:</span> <span class="s1">&#39;PIPELINE&#39;</span><span class="p">,</span>
@@ -276,7 +276,7 @@ mapping file.</p>
 <div class="section" id="instrument-mappings-imap">
 <h2>Instrument Mappings (.imap)<a class="headerlink" href="#instrument-mappings-imap" title="Permalink to this headline">¶</a></h2>
 <p>A sample instrument mapping for HST’s COS instrument looks like:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;derived_from&#39;</span> <span class="p">:</span> <span class="s1">&#39;hst_cos_0290.imap&#39;</span><span class="p">,</span>
     <span class="s1">&#39;instrument&#39;</span> <span class="p">:</span> <span class="s1">&#39;COS&#39;</span><span class="p">,</span>
     <span class="s1">&#39;mapping&#39;</span> <span class="p">:</span> <span class="s1">&#39;INSTRUMENT&#39;</span><span class="p">,</span>
@@ -328,7 +328,7 @@ appears directly in file names, e.g. REFTYPE=SUPERBIAS is part of the rmap name 
 <div class="section" id="reference-mappings-rmap">
 <h2>Reference Mappings (.rmap)<a class="headerlink" href="#reference-mappings-rmap" title="Permalink to this headline">¶</a></h2>
 <p>A sample reference mapping for HST COS DEADTAB looks like:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;derived_from&#39;</span> <span class="p">:</span> <span class="s1">&#39;generated from CDBS database 2014-05-09 23:24:57.840119&#39;</span><span class="p">,</span>
     <span class="s1">&#39;filekind&#39;</span> <span class="p">:</span> <span class="s1">&#39;DEADTAB&#39;</span><span class="p">,</span>
     <span class="s1">&#39;instrument&#39;</span> <span class="p">:</span> <span class="s1">&#39;COS&#39;</span><span class="p">,</span>
@@ -360,7 +360,7 @@ various dataset header keywords.</p>
 <h2>Active Header Fields<a class="headerlink" href="#active-header-fields" title="Permalink to this headline">¶</a></h2>
 <p>Many rmap header fields are passive metadata.   A number of optional rmap header fields,  however,  actively affect
 best reference lookups and results:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
           <span class="o">...</span><span class="p">,</span>
 
     <span class="s1">&#39;parkey&#39;</span> <span class="p">:</span> <span class="p">((</span><span class="s1">&#39;DETECTOR&#39;</span><span class="p">,),</span> <span class="p">(</span><span class="s1">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s1">&#39;TIME-OBS&#39;</span><span class="p">)),</span>
@@ -545,13 +545,13 @@ match candidates that cannot possibly match.</p>
 <div class="section" id="parameter-tuples-and-simple-matches">
 <h4>Parameter Tuples and Simple Matches<a class="headerlink" href="#parameter-tuples-and-simple-matches" title="Permalink to this headline">¶</a></h4>
 <p>The CRDS Match operator typically matches a dataset header against a tuple which defines multiple parameter values whose
-names are specified in the rmap header <code class="xref py py-obj docutils literal"><span class="pre">parkey</span></code>:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;UVIS&quot;</span><span class="p">,</span> <span class="s2">&quot;F122LP&quot;</span><span class="p">)</span>   <span class="p">:</span>  <span class="s1">&#39;some_file_or_nested_selection&#39;</span>
+names are specified in the rmap header <code class="xref py py-obj docutils literal notranslate"><span class="pre">parkey</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;UVIS&quot;</span><span class="p">,</span> <span class="s2">&quot;F122LP&quot;</span><span class="p">)</span>   <span class="p">:</span>  <span class="s1">&#39;some_file_or_nested_selection&#39;</span>
 </pre></div>
 </div>
 <p>Alternately,  for simple use cases the Match operator can match against single
 strings,  which is a simplified syntax for a 1-tuple:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="s1">&#39;UVIS&#39;</span>  <span class="p">:</span>  <span class="s1">&#39;some_file_or_nested_selection&#39;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;UVIS&#39;</span>  <span class="p">:</span>  <span class="s1">&#39;some_file_or_nested_selection&#39;</span>
 <span class="p">(</span><span class="s1">&#39;UVIS&#39;</span><span class="p">,)</span> <span class="p">:</span> <span class="s1">&#39;this_is_the_equivalent_one_tuple&#39;</span>
 </pre></div>
 </div>
@@ -566,15 +566,15 @@ Relationals, between, N/A, and Substitutions.</p>
 <h4>Or |<a class="headerlink" href="#or" title="Permalink to this headline">¶</a></h4>
 <p>Many CRDS match expressions consist of a series of match patterns separated by vertical bars.   The vertical bar is read
 as “or” and means that a match occurs if either pattern matches that dataset header.   For example, the expression:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;either_this|that&quot;</span><span class="p">,</span><span class="s2">&quot;1|2|3&quot;</span><span class="p">)</span>  <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;either_this|that&quot;</span><span class="p">,</span><span class="s2">&quot;1|2|3&quot;</span><span class="p">)</span>  <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
 </pre></div>
 </div>
 <p>will match:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;either_this&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;either_this&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>and also:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;that&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;that&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -582,7 +582,7 @@ as “or” and means that a match occurs if either pattern matches that dataset
 <h4>Wild Cards *<a class="headerlink" href="#wild-cards" title="Permalink to this headline">¶</a></h4>
 <p>By default,  * is interpreted in CRDS as a glob pattern,  much like UNIX shell file name matching.  * matches any
 sequence of characters.  The expression:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;F*122&quot;</span><span class="p">,)</span> <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;F*122&quot;</span><span class="p">,)</span> <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
 </pre></div>
 </div>
 <p>will match any value starting with “F” and ending with “122”.</p>
@@ -591,7 +591,7 @@ sequence of characters.  The expression:</p>
 <h4>Regular Expressions<a class="headerlink" href="#regular-expressions" title="Permalink to this headline">¶</a></h4>
 <p>CRDS can match on true regular expressions.   A true regular expression match is
 triggered by bracketing the match in parentheses ():</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;(^F[^13]22$)&quot;</span><span class="p">,)</span>  <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;(^F[^13]22$)&quot;</span><span class="p">,)</span>  <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
 </pre></div>
 </div>
 <p>The above corresponds to matching the regular expression “^F[^1234]22$” (note that the bracketing parentheses within the
@@ -603,7 +603,7 @@ expression will match values starting with “F”, followed by any character wh
 <p>A literal expression is bracketed with curly braces {} and is matched without
 any interpretation whatsoever.   Hence,  special characters like * or | are
 interpreted literally rather than as ors or wildcards.  The expression:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;{F|*G}&quot;</span><span class="p">,)</span> <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;{F|*G}&quot;</span><span class="p">,)</span> <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
 </pre></div>
 </div>
 <p>matches the value “F|*G” as opposed to “F” or anything ending with “G”.</p>
@@ -613,11 +613,11 @@ interpreted literally rather than as ors or wildcards.  The expression:</p>
 <p>Relational expressions are bracketed by the pound character #.   Relational
 expressions do numerical comparisons on the header value to determine a match.
 Relational expressions have implicit variables and support the operators:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="o">&gt;=</span> <span class="o">&lt;</span> <span class="o">&lt;=</span> <span class="o">==</span> <span class="ow">and</span> <span class="ow">or</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="o">&gt;=</span> <span class="o">&lt;</span> <span class="o">&lt;=</span> <span class="o">==</span> <span class="ow">and</span> <span class="ow">or</span>
 </pre></div>
 </div>
 <p>The expression:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;# &gt;1 and &lt;37 #&quot;</span><span class="p">,)</span>  <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;# &gt;1 and &lt;37 #&quot;</span><span class="p">,)</span>  <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
 </pre></div>
 </div>
 <p>will match any number greater than 1 and less than 37.</p>
@@ -627,16 +627,16 @@ Relational expressions have implicit variables and support the operators:</p>
 <p>A special relational operator “between” is used to simply express a range
 of numbers &gt;= to the lower bound and &lt; the upper bound,  similar to Python
 slicing:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;between 1  47&quot;</span><span class="p">,)</span> <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;between 1  47&quot;</span><span class="p">,)</span> <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
 </pre></div>
 </div>
 <p>will match any number greater than or equal to 1 and less than 47.   This is
 equivalent to:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;# &gt;=1 and &lt;47 #&quot;</span><span class="p">,)</span> <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;# &gt;=1 and &lt;47 #&quot;</span><span class="p">,)</span> <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
 </pre></div>
 </div>
 <p>Note that “between” matches sensibly stack into a complete range.  The expressions:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;between 1 47&quot;</span><span class="p">,)</span> <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s2">&quot;between 1 47&quot;</span><span class="p">,)</span> <span class="p">:</span> <span class="s2">&quot;some_file.fits&quot;</span>
 <span class="p">(</span><span class="s2">&quot;between 47 90&quot;</span><span class="p">,</span> <span class="p">)</span> <span class="p">:</span> <span class="s2">&quot;another_file.fits&quot;</span>
 </pre></div>
 </div>
@@ -647,7 +647,7 @@ equivalent to:</p>
 <p>Some rmaps have match tuple values of “N/A”,  or Not Applicable.
 A value of N/A is matched as a special version of “*”, matching anything,  but
 not affecting the “weight” of the match:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s1">&#39;HRC&#39;</span><span class="p">,</span> <span class="s1">&#39;N/A&#39;</span><span class="p">)</span> <span class="p">:</span>  <span class="s2">&quot;some_file.fits&quot;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s1">&#39;HRC&#39;</span><span class="p">,</span> <span class="s1">&#39;N/A&#39;</span><span class="p">)</span> <span class="p">:</span>  <span class="s2">&quot;some_file.fits&quot;</span>
 </pre></div>
 </div>
 <p>There are a couple uses for N/A parameters.    First,  sometimes a parameter is
@@ -662,7 +662,7 @@ that <em>are</em> used in the match.</p>
 <h4>NOT Expressions<a class="headerlink" href="#not-expressions" title="Permalink to this headline">¶</a></h4>
 <p>It’s possible to match the negation of match expressions by pre-pending “NOT ”
 to the unnegated expression.   For example:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s1">&#39;not HRC&#39;</span><span class="p">,</span> <span class="s1">&#39;N/A&#39;</span><span class="p">)</span> <span class="p">:</span>  <span class="s2">&quot;not_some_file.fits&quot;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s1">&#39;not HRC&#39;</span><span class="p">,</span> <span class="s1">&#39;N/A&#39;</span><span class="p">)</span> <span class="p">:</span>  <span class="s2">&quot;not_some_file.fits&quot;</span>
 </pre></div>
 </div>
 <p>The weight of a negated expression is the opposite of unnegated weight of the
@@ -675,7 +675,7 @@ duplicate rmap rules.  In order to support WFC3 biasfile conventions,  CRDS
 rmaps permit the definition of meta-match-values which correspond to a set of
 actual dataset header values. For instance,  when an rmap header contains a
 “substitutions” field like this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="s1">&#39;substitutions&#39;</span> <span class="p">:</span> <span class="p">{</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;substitutions&#39;</span> <span class="p">:</span> <span class="p">{</span>
     <span class="s1">&#39;CCDAMP&#39;</span> <span class="p">:</span> <span class="p">{</span>
         <span class="s1">&#39;G280_AMPS&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;ABCD&#39;</span><span class="p">,</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;AC&#39;</span><span class="p">,</span> <span class="s1">&#39;AD&#39;</span><span class="p">,</span> <span class="s1">&#39;BC&#39;</span><span class="p">,</span> <span class="s1">&#39;BD&#39;</span><span class="p">),</span>
     <span class="p">},</span>
@@ -683,7 +683,7 @@ actual dataset header values. For instance,  when an rmap header contains a
 </pre></div>
 </div>
 <p>then a match tuple line like the following could be written:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s1">&#39;UVIS&#39;</span><span class="p">,</span> <span class="s1">&#39;G280_AMPS&#39;</span><span class="p">,</span> <span class="s1">&#39;1.5&#39;</span><span class="p">,</span> <span class="s1">&#39;1.0&#39;</span><span class="p">,</span> <span class="s1">&#39;1.0&#39;</span><span class="p">,</span> <span class="s1">&#39;G280-REF&#39;</span><span class="p">,</span> <span class="s1">&#39;T&#39;</span><span class="p">)</span> <span class="p">:</span> <span class="n">UseAfter</span><span class="p">({</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s1">&#39;UVIS&#39;</span><span class="p">,</span> <span class="s1">&#39;G280_AMPS&#39;</span><span class="p">,</span> <span class="s1">&#39;1.5&#39;</span><span class="p">,</span> <span class="s1">&#39;1.0&#39;</span><span class="p">,</span> <span class="s1">&#39;1.0&#39;</span><span class="p">,</span> <span class="s1">&#39;G280-REF&#39;</span><span class="p">,</span> <span class="s1">&#39;T&#39;</span><span class="p">)</span> <span class="p">:</span> <span class="n">UseAfter</span><span class="p">({</span>
 </pre></div>
 </div>
 <p>Here the value of G280_AMPS works like this:  first,   reference files listed
@@ -725,7 +725,7 @@ corresponding reference filenames.   UseAfter finds the greatest date-time which
 is less than or equal to ( &lt;= ) EXPSTART of a dataset.   Unlike
 reference file and dataset timestamp values,  all CRDS rmaps represent times in
 the single format shown in the rmap example below:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">selector</span> <span class="o">=</span> <span class="n">Match</span><span class="p">({</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">selector</span> <span class="o">=</span> <span class="n">Match</span><span class="p">({</span>
    <span class="p">(</span><span class="s1">&#39;HRC&#39;</span><span class="p">,)</span> <span class="p">:</span> <span class="n">UseAfter</span><span class="p">({</span>
        <span class="s1">&#39;1991-01-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s1">&#39;j4d1435hj_a2d.fits&#39;</span><span class="p">,</span>
        <span class="s1">&#39;1992-01-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s1">&#39;kcb1734ij_a2d.fits&#39;</span><span class="p">,</span>
@@ -747,7 +747,7 @@ file is ‘kcb1734ij_a2d.fits’</p>
 <h3>SelectVersion<a class="headerlink" href="#selectversion" title="Permalink to this headline">¶</a></h3>
 <p>The SelectVersion() rmap operator uses a software version and various relations
 to make a selection:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">selector</span> <span class="o">=</span> <span class="n">SelectVersion</span><span class="p">({</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">selector</span> <span class="o">=</span> <span class="n">SelectVersion</span><span class="p">({</span>
    <span class="s1">&#39;&lt;3.1&#39;</span><span class="p">:</span>    <span class="s1">&#39;cref_flatfield_65.fits&#39;</span><span class="p">,</span>
    <span class="s1">&#39;&lt;5&#39;</span><span class="p">:</span>      <span class="s1">&#39;cref_flatfield_73.fits&#39;</span><span class="p">,</span>
    <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="s1">&#39;cref_flatfield_123.fits&#39;</span><span class="p">,</span>
@@ -762,7 +762,7 @@ versions are examined in sorted order.</p>
 <h3>ClosestTime<a class="headerlink" href="#closesttime" title="Permalink to this headline">¶</a></h3>
 <p>The ClosestTime() rmap operator does a lookup on a series of times and selects
 the closest time which either precedes or follows the given parameter value:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">selector</span> <span class="o">=</span> <span class="n">ClosestTime</span><span class="p">({</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">selector</span> <span class="o">=</span> <span class="n">ClosestTime</span><span class="p">({</span>
      <span class="s1">&#39;2017-04-24 00:00:00&#39;</span><span class="p">:</span>  <span class="s2">&quot;cref_flatfield_123.fits&quot;</span><span class="p">,</span>
      <span class="s1">&#39;2018-02-01 00:00:00&#39;</span> <span class="p">:</span> <span class="s2">&quot;cref_flatfield_222.fits&quot;</span><span class="p">,</span>
      <span class="s1">&#39;2019-04-15 00:00:00&#39;</span><span class="p">:</span>  <span class="s2">&quot;cref_flatfield_123.fits&quot;</span><span class="p">,</span>
@@ -776,7 +776,7 @@ the closest time which either precedes or follows the given parameter value:</p>
 <p>The GeometricallyNearest() selector applies a distance relation between a
 numerical parameter and the match values.   The match value which is closest to
 the supplied parameter is chosen:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">selector</span> <span class="o">=</span> <span class="n">GeomtricallyNearest</span><span class="p">({</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">selector</span> <span class="o">=</span> <span class="n">GeomtricallyNearest</span><span class="p">({</span>
     <span class="mf">1.2</span> <span class="p">:</span> <span class="s2">&quot;cref_flatfield_120.fits&quot;</span><span class="p">,</span>
     <span class="mf">1.5</span> <span class="p">:</span> <span class="s2">&quot;cref_flatfield_124.fits&quot;</span><span class="p">,</span>
     <span class="mf">5.0</span> <span class="p">:</span> <span class="s2">&quot;cref_flatfield_137.fits&quot;</span><span class="p">,</span>
@@ -789,7 +789,7 @@ the supplied parameter is chosen:</p>
 <h3>Bracket<a class="headerlink" href="#bracket" title="Permalink to this headline">¶</a></h3>
 <p>The Bracket() selector is unusual because it returns the pair of selections which
 enclose the supplied parameter value:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">selector</span> <span class="o">=</span> <span class="n">Bracket</span><span class="p">({</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">selector</span> <span class="o">=</span> <span class="n">Bracket</span><span class="p">({</span>
     <span class="mf">1.2</span><span class="p">:</span> <span class="s2">&quot;cref_flatfield_120.fits&quot;</span><span class="p">,</span>
     <span class="mf">1.5</span><span class="p">:</span> <span class="s2">&quot;cref_flatfield_124.fits&quot;</span><span class="p">,</span>
     <span class="mf">5.0</span><span class="p">:</span> <span class="s2">&quot;cref_flatfield_137.fits&quot;</span><span class="p">,</span>
@@ -797,7 +797,7 @@ enclose the supplied parameter value:</p>
 </pre></div>
 </div>
 <p>Here,  a parameter value of 1.3 returns the value:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s1">&#39;cref_flatfield_120.fits&#39;</span><span class="p">,</span> <span class="s1">&#39;cref_flatfield_124.fits&#39;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s1">&#39;cref_flatfield_120.fits&#39;</span><span class="p">,</span> <span class="s1">&#39;cref_flatfield_124.fits&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -824,7 +824,7 @@ enclose the supplied parameter value:</p>
   <div role="contentinfo">
     <p>
         &copy; Copyright 2017, Space Telescope Science Institute.
-      Last updated on Mar 04, 2018.
+      Last updated on Jun 06, 2018.
 
     </p>
   </div>

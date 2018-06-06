@@ -191,7 +191,7 @@ the CRDS_PATH environment setting.</p>
 <div class="section" id="default-on-site-crds-path">
 <h4>Default On Site CRDS_PATH<a class="headerlink" href="#default-on-site-crds-path" title="Permalink to this headline">¶</a></h4>
 <p>By default,   CRDS behaves as if you set your environment like this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ export CRDS_PATH=/grp/crds/cache
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ export CRDS_PATH=/grp/crds/cache
 </pre></div>
 </div>
 <p><em>/grp/crds/cache</em> is on the Central Store and should be accessible to all users.  It
@@ -213,7 +213,7 @@ include:</p>
 appropriate to their particular datasets.    Personal CRDS caches also enable processing and
 many basic functions with no network access to the CRDS server.   Rem</p>
 <p>A remote or pipeline user defines a non-default CRDS cache by setting, e.g.:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ export CRDS_PATH=$HOME/crds_cache
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ export CRDS_PATH=$HOME/crds_cache
 </pre></div>
 </div>
 <p>Using a personal cache also requires defining the CRDS server.</p>
@@ -228,7 +228,7 @@ a user must define any CRDS server they wish to use.</p>
 <p>By default,  the CRDS client bestrefs functionality can run without a server
 provided they have access to an up-to-date CRDS cache.</p>
 <p>By <strong>default</strong> CRDS behaves as if you set:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ export CRDS_SERVER_URL=https://crds-serverless-mode.stsci.edu
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ export CRDS_SERVER_URL=https://crds-serverless-mode.stsci.edu
 </pre></div>
 </div>
 <p>Serverless mode limits CRDS to basic functions (bestrefs) but requires no server connection
@@ -238,7 +238,7 @@ once the supporting CRDS cache has been synced.</p>
 <h4>HST Ops Server<a class="headerlink" href="#hst-ops-server" title="Permalink to this headline">¶</a></h4>
 <p>A full featured CRDS configuration suitable supporting all server functions available for HST
 can be configured like this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ export CRDS_SERVER_URL=https://hst-crds.stsci.edu
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ export CRDS_SERVER_URL=https://hst-crds.stsci.edu
 </pre></div>
 </div>
 </div>
@@ -246,12 +246,12 @@ can be configured like this:</p>
 <h4>JWST OPS Server<a class="headerlink" href="#jwst-ops-server" title="Permalink to this headline">¶</a></h4>
 <p>A full featured CRDS configuration suitable supporting all server functions available for JWST
 can be configured like this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ export CRDS_SERVER_URL=https://jwst-crds.stsci.edu
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ export CRDS_SERVER_URL=https://jwst-crds.stsci.edu
 </pre></div>
 </div>
 <p>If CRDS cannot determine your project, and you did not specify CRDS_SERVER_URL,
 CRDS_SERVER_URL will be defaulted to:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ export CRDS_SERVER_URL=https://crds-serverless-mode.stsci.edu
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ export CRDS_SERVER_URL=https://crds-serverless-mode.stsci.edu
 </pre></div>
 </div>
 <p>The serverless-mode URL directs CRDS to operate from the CRDS cache without contacting
@@ -267,12 +267,12 @@ updates while in serverless mode since no connection to the server is enabled.</
 test pipelines at STScI.  For coordinating with those tests, <strong>CRDS_PATH</strong> and
 <strong>CRDS_SERVER_URL</strong> must be explicitly set to a test cache and server similar
 to this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ export CRDS_PATH=${HOME}/crds_cache_test
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ export CRDS_PATH=${HOME}/crds_cache_test
 $ export CRDS_SERVER_URL=https://hst-crds-test.stsci.edu
 </pre></div>
 </div>
 <p>Alternative servers for JWST I&amp;T testing are:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ export CRDS_SERVER_URL=https://jwst-crds-b5it.stcsi.edu     # build-5
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ export CRDS_SERVER_URL=https://jwst-crds-b5it.stcsi.edu     # build-5
 $ export CRDS_SERVER_URL=https://jwst-crds-b6it.stcsi.edu     # build-6
 $ export CRDS_SERVER_URL=https://jwst-crds-dit.stcsi.edu      # build-7
 $ export CRDS_SERVER_URL=https://jwst-crds-bit.stcsi.edu      # build-7
@@ -280,7 +280,7 @@ $ export CRDS_SERVER_URL=https://jwst-crds-cit.stcsi.edu      # build-7.2
 </pre></div>
 </div>
 <p>After syncing this will provide access to CRDS test files and rules in a local cache:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Fetch all the test rules</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Fetch all the test rules</span>
 <span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span> <span class="o">--</span><span class="nb">all</span>
 
 <span class="c1"># Fetch specifically listed test references</span>
@@ -310,7 +310,7 @@ not require these additional settings.</p>
 <h3>Flat Cache Layout for <em>/grp/crds/cache</em><a class="headerlink" href="#flat-cache-layout-for-grp-crds-cache" title="Permalink to this headline">¶</a></h3>
 <p>The flat cache layout places all references in a single directory.  The
 shared group cache at <em>/grp/crds/cache</em> has a flat organization:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>export iref=${CRDS_PATH}/references/hst/
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>export iref=${CRDS_PATH}/references/hst/
 export jref=${CRDS_PATH}/references/hst/
 export oref=${CRDS_PATH}/references/hst/
 export lref=${CRDS_PATH}/references/hst/
@@ -327,7 +327,7 @@ export uref_linux=$uref
 that are most likely to be appropriate for a personal HST cache.</p>
 <p>For HST calibration software to use references in a CRDS cache with a by-instrument
 organization, set these environment variables:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>export iref=${CRDS_PATH}/references/hst/iref/
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>export iref=${CRDS_PATH}/references/hst/iref/
 export jref=${CRDS_PATH}/references/hst/jref/
 export oref=${CRDS_PATH}/references/hst/oref/
 export lref=${CRDS_PATH}/references/hst/lref/
@@ -343,11 +343,11 @@ export uref_linux=$uref
 existing CRDS cache.   These organizations determine whether or not
 reference files are partitioned into instrument-specific sub-directories.</p>
 <p>To switch from flat to by-instrument:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">crds</span> <span class="n">sync</span> <span class="o">--</span><span class="n">organize</span><span class="o">=</span><span class="n">instrument</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">crds</span> <span class="n">sync</span> <span class="o">--</span><span class="n">organize</span><span class="o">=</span><span class="n">instrument</span>
 </pre></div>
 </div>
 <p>To switch from by-instrument to flat:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">crds</span> <span class="n">sync</span> <span class="o">--</span><span class="n">organize</span><span class="o">=</span><span class="n">flat</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">crds</span> <span class="n">sync</span> <span class="o">--</span><span class="n">organize</span><span class="o">=</span><span class="n">flat</span>
 </pre></div>
 </div>
 </div>
@@ -361,7 +361,7 @@ is an indirect name for the context in use or soon-to-be in use in the archive p
 sufficiently mature for broad use.  Use of jwst-operational is automatic.</p>
 <p>The context used for JWST can be overridden to some specific historical or experimental context by setting
 the <strong>CRDS_CONTEXT</strong> environment variable:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ export CRDS_CONTEXT=jwst_0057.pmap
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ export CRDS_CONTEXT=jwst_0057.pmap
 </pre></div>
 </div>
 <p><strong>CRDS_CONTEXT</strong> does not override command line switches or parameters passed explicitly to the
@@ -380,7 +380,7 @@ transparent CRDS Cache updates from multiple JWST calibration processes.</p>
 <h4>Single Shell Locking<a class="headerlink" href="#single-shell-locking" title="Permalink to this headline">¶</a></h4>
 <p>By default,  CRDS uses Python’s built in multiprocessing locks which are robust and suitable for
 running multiprocesses within a single shell or terminal window:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ crds list --status
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ crds list --status
 CRDS Version = &#39;7.2.0, 7.2.0, 139bbcb&#39;
 ...
 Cache Locking = &#39;enabled, multiprocessing&#39;
@@ -395,7 +395,7 @@ terminal windows or for pipeline use.</p>
 <h4>File Based Locking<a class="headerlink" href="#file-based-locking" title="Permalink to this headline">¶</a></h4>
 <p>Since Python’s default multiprocessing locks cannot support multiple process trees or terminal windows,
 CRDS also supports file based locking by setting appropriate configuration variables:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ export CRDS_LOCKING_MODE=filelock
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ export CRDS_LOCKING_MODE=filelock
 $ crds list --status
 CRDS Version = &#39;7.2.0, 7.2.0, 139bbcb&#39;
 ...
@@ -405,7 +405,7 @@ Readonly Cache = False
 </pre></div>
 </div>
 <p>File based locking is not used by default for several reasons:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="mf">1.</span> <span class="n">They</span> <span class="n">introduce</span> <span class="n">a</span> <span class="n">dependency</span> <span class="n">on</span> <span class="n">a</span> <span class="mi">3</span><span class="n">rd</span> <span class="n">party</span> <span class="n">package</span><span class="o">.</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">1.</span> <span class="n">They</span> <span class="n">introduce</span> <span class="n">a</span> <span class="n">dependency</span> <span class="n">on</span> <span class="n">a</span> <span class="mi">3</span><span class="n">rd</span> <span class="n">party</span> <span class="n">package</span><span class="o">.</span>
 <span class="mf">2.</span> <span class="n">File</span> <span class="n">locks</span> <span class="n">created</span> <span class="n">on</span> <span class="n">network</span> <span class="ow">or</span> <span class="n">other</span> <span class="n">virtualized</span> <span class="n">file</span> <span class="n">systems</span> <span class="n">may</span> <span class="n">be</span> <span class="n">unreliable</span><span class="o">.</span>
 <span class="mf">3.</span> <span class="n">File</span> <span class="n">lock</span> <span class="n">behavior</span> <span class="ow">is</span> <span class="n">OS</span> <span class="n">dependent</span><span class="o">.</span>
 </pre></div>
@@ -414,7 +414,7 @@ Readonly Cache = False
 <div class="section" id="restrictions-on-locking">
 <h4>Restrictions on Locking<a class="headerlink" href="#restrictions-on-locking" title="Permalink to this headline">¶</a></h4>
 <p>There are multiple conditions in CRDS that determine when locking is really used:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="mf">1.</span> <span class="n">CRDS_READONLY_CACHE</span> <span class="n">must</span> <span class="n">be</span> <span class="n">undefined</span> <span class="ow">or</span> <span class="mi">0</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">1.</span> <span class="n">CRDS_READONLY_CACHE</span> <span class="n">must</span> <span class="n">be</span> <span class="n">undefined</span> <span class="ow">or</span> <span class="mi">0</span>
 <span class="mf">2.</span> <span class="n">The</span> <span class="n">CRDS</span> <span class="n">cache</span> <span class="n">must</span> <span class="n">be</span> <span class="n">writable</span> <span class="k">as</span> <span class="n">determined</span> <span class="n">by</span> <span class="n">file</span> <span class="n">system</span> <span class="n">permissions</span>
 <span class="mf">3.</span> <span class="n">The</span> <span class="n">CRDS_LOCK_PATH</span> <span class="n">directory</span> <span class="p">(</span><span class="n">nominally</span> <span class="o">/</span><span class="n">tmp</span><span class="p">)</span> <span class="n">should</span> <span class="n">already</span> <span class="n">exist</span>
 <span class="mf">4.</span> <span class="n">For</span> <span class="n">file</span> <span class="n">based</span> <span class="n">locking</span><span class="p">,</span>  <span class="n">a</span> <span class="n">lock</span> <span class="n">must</span> <span class="n">be</span> <span class="n">successfully</span> <span class="n">created</span>
@@ -423,7 +423,7 @@ Readonly Cache = False
 </pre></div>
 </div>
 <p>The readonly nature of:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">*/</span><span class="n">grp</span><span class="o">/</span><span class="n">crds</span><span class="o">/</span><span class="n">cache</span><span class="o">*</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">*/</span><span class="n">grp</span><span class="o">/</span><span class="n">crds</span><span class="o">/</span><span class="n">cache</span><span class="o">*</span>
 </pre></div>
 </div>
 <p>prevents the use of locking for typical onsite users.  None should be required.</p>
@@ -431,7 +431,7 @@ Readonly Cache = False
 concurrency issue, so it must be created or otherwise available before cache
 synchronization takes place.</p>
 <p>The CRDS command:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ crds sync --clear-locks
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ crds sync --clear-locks
 </pre></div>
 </div>
 <p>can be used to remove orphan locks (due to some unexpected failure) that are
@@ -443,7 +443,7 @@ blocking processing.</p>
 <h3>Multi-Project Caches<a class="headerlink" href="#multi-project-caches" title="Permalink to this headline">¶</a></h3>
 <p><strong>CRDS_PATH</strong> defines a cache structure for multiple projects. Each major branch of a multi-project cache
 contains project specific sub-directories:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">cache</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">cache</span>
     <span class="o">/</span><span class="n">mappings</span>
         <span class="o">/</span><span class="n">hst</span>
             <span class="n">hst</span> <span class="n">mapping</span> <span class="n">files</span><span class="o">...</span>
@@ -488,7 +488,7 @@ with different servers for the <em>same observatory</em>, e.g. both hst-test and
 <p><strong>CRDS_PATH_SINGLE</strong> defines a cache structure for a single project.  The component paths
 implied by <strong>CRDS_PATH_SINGLE</strong>  omit the observatory subdirectory,  giving a simpler and
 shallower cache structure:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">cache</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">cache</span>
     <span class="o">/</span><span class="n">mappings</span>
         <span class="n">mapping_files</span><span class="o">...</span>
     <span class="o">/</span><span class="n">references</span>
@@ -574,7 +574,7 @@ lockfile package.</p>
   <div role="contentinfo">
     <p>
         &copy; Copyright 2017, Space Telescope Science Institute.
-      Last updated on Mar 04, 2018.
+      Last updated on Jun 06, 2018.
 
     </p>
   </div>

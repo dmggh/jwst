@@ -526,7 +526,7 @@ must click <em>Start upload</em> to initiate the file transfer.</p>
 <h5>Shell Approach<a class="headerlink" href="#shell-approach" title="Permalink to this headline">¶</a></h5>
 <p>In the shell approach a user must login to UNIX (in some fashion) and transfer
 files into their CRDS ingest directory manually.   For instance:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">scp</span> <span class="o">/</span><span class="n">this_delivery</span><span class="o">/*.</span><span class="n">fits</span>   <span class="n">dmsinsvm</span><span class="o">.</span><span class="n">stsci</span><span class="o">.</span><span class="n">edu</span><span class="p">:</span><span class="o">/</span><span class="n">ifs</span><span class="o">/</span><span class="n">crds</span><span class="o">/</span><span class="n">hst</span><span class="o">/</span><span class="n">ops</span><span class="o">/</span><span class="n">server_files</span><span class="o">/</span><span class="n">ingest</span><span class="o">/&lt;</span><span class="n">username</span><span class="o">&gt;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">scp</span> <span class="o">/</span><span class="n">this_delivery</span><span class="o">/*.</span><span class="n">fits</span>   <span class="n">dmsinsvm</span><span class="o">.</span><span class="n">stsci</span><span class="o">.</span><span class="n">edu</span><span class="p">:</span><span class="o">/</span><span class="n">ifs</span><span class="o">/</span><span class="n">crds</span><span class="o">/</span><span class="n">hst</span><span class="o">/</span><span class="n">ops</span><span class="o">/</span><span class="n">server_files</span><span class="o">/</span><span class="n">ingest</span><span class="o">/&lt;</span><span class="n">username</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 <p>to copy references into my ingest directory <em>as-if</em> I had uploaded them through
@@ -677,7 +677,7 @@ can.  Use great care, CRDS certify cannot check many of the mapping properties.<
 </li>
 <li><p class="first">Run crds.certify on the resulting mapping, using the current edit context as
 the point of comparison:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">certify</span> <span class="o">./</span><span class="n">jwst_miri_dark_0004</span><span class="o">.</span><span class="n">rmap</span>  <span class="o">--</span><span class="n">comparison</span><span class="o">-</span><span class="n">context</span> <span class="n">jwst</span><span class="o">-</span><span class="n">edit</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">certify</span> <span class="o">./</span><span class="n">jwst_miri_dark_0004</span><span class="o">.</span><span class="n">rmap</span>  <span class="o">--</span><span class="n">comparison</span><span class="o">-</span><span class="n">context</span> <span class="n">jwst</span><span class="o">-</span><span class="n">edit</span>
 </pre></div>
 </div>
 <p>You may/will see an rmap checksum warning since you modified the contents of
@@ -689,7 +689,7 @@ the CRDS cache.</p>
 checksum.  Run crds.checksum on the mapping to update the internal sha1sum
 if you wish to load the context into Python to do other tests with the
 .rmap:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">checksum</span> <span class="o">./</span><span class="n">jwst_miri_dark_0004</span><span class="o">.</span><span class="n">rmap</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">checksum</span> <span class="o">./</span><span class="n">jwst_miri_dark_0004</span><span class="o">.</span><span class="n">rmap</span>
 </pre></div>
 </div>
 <p>The internal checksum is also used to verify the upload integrity when you
@@ -750,7 +750,7 @@ manually modify the pmap as needed to refer to the newly generated imap names.</
   <div role="contentinfo">
     <p>
         &copy; Copyright 2017, Space Telescope Science Institute.
-      Last updated on Mar 04, 2018.
+      Last updated on Jun 06, 2018.
 
     </p>
   </div>

@@ -169,7 +169,7 @@ context,  and optionally a list of the reference types for which reference files
 are to be determined,  getreferences() will determine best references,  cache
 them on the local file system,  and return a mapping from reference types to
 reference file paths:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">getreferences</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">reftypes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ignore_cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">getreferences</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">reftypes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ignore_cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                   <span class="n">observatory</span><span class="o">=</span><span class="s2">&quot;jwst&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Return the mapping from the requested `reftypes` to their</span>
 <span class="sd">    corresponding best reference file paths appropriate for a dataset</span>
@@ -233,7 +233,7 @@ reference file paths:</p>
 currently in operational use.   When no</p>
 <p>The default context defines the matching rules used to determine best
 reference files for a given set of parameters:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_default_context</span><span class="p">():</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_default_context</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Return the name of the latest pipeline mapping in use for processing</span>
 <span class="sd">    files.</span>
 
@@ -311,7 +311,7 @@ file transfers.</li>
 <h3>Loading Rmaps<a class="headerlink" href="#loading-rmaps" title="Permalink to this headline">¶</a></h3>
 <p>Perhaps the most fundamental thing you can do with a CRDS mapping is create an
 active object version by loading the file:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">crds.rmap</span> <span class="k">as</span> <span class="nn">rmap</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">hst</span> <span class="o">=</span> <span class="n">rmap</span><span class="o">.</span><span class="n">load_mapping</span><span class="p">(</span><span class="s2">&quot;hst.pmap&quot;</span><span class="p">)</span>
 </pre></div>
@@ -325,7 +325,7 @@ rmap’s checksum (sha1sum) be valid by default.</p>
 requiring a couple seconds to execute.  In order to speed up repeated access to
 the same Mapping,  there’s a mapping cache maintained by the rmap module and
 accessed like this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hst</span> <span class="o">=</span> <span class="n">rmap</span><span class="o">.</span><span class="n">get_cached_mapping</span><span class="p">(</span><span class="s2">&quot;hst.pmap&quot;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hst</span> <span class="o">=</span> <span class="n">rmap</span><span class="o">.</span><span class="n">get_cached_mapping</span><span class="p">(</span><span class="s2">&quot;hst.pmap&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The behavior of the cached mapping is identical to the “loaded” mapping and
@@ -336,7 +336,7 @@ subsequent calls are nearly instant.</p>
 <p>CRDS Mapping classes all know how to show you the files referenced by themselves
 and their descendents.   The ACS instrument context has a reference mapping for
 each of it’s associated file kinds:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">acs</span> <span class="o">=</span> <span class="n">rmap</span><span class="o">.</span><span class="n">get_cached_mapping</span><span class="p">(</span><span class="s2">&quot;hst_acs.imap&quot;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">acs</span> <span class="o">=</span> <span class="n">rmap</span><span class="o">.</span><span class="n">get_cached_mapping</span><span class="p">(</span><span class="s2">&quot;hst_acs.imap&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">acs</span><span class="o">.</span><span class="n">mapping_names</span><span class="p">()</span>
 <span class="go">[&#39;hst_acs.imap&#39;,</span>
 <span class="go"> &#39;hst_acs_idctab.rmap&#39;,</span>
@@ -356,7 +356,7 @@ each of it’s associated file kinds:</p>
 </pre></div>
 </div>
 <p>The ACS atod reference mapping (rmap) refers to 4 different reference files:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">acs_atod</span> <span class="o">=</span> <span class="n">rmap</span><span class="o">.</span><span class="n">get_cached_mapping</span><span class="p">(</span><span class="s2">&quot;hst_acs_atodtab.rmap&quot;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">acs_atod</span> <span class="o">=</span> <span class="n">rmap</span><span class="o">.</span><span class="n">get_cached_mapping</span><span class="p">(</span><span class="s2">&quot;hst_acs_atodtab.rmap&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">acs_atod</span><span class="o">.</span><span class="n">reference_names</span><span class="p">()</span>
 <span class="go">[&#39;j4d1435hj_a2d.fits&#39;,</span>
 <span class="go"> &#39;kcb1734hj_a2d.fits&#39;,</span>
@@ -372,13 +372,13 @@ upon a dictionary of dataset metadata.   Hence,  both an InstrumentContext and a
 ReferenceMapping can meaningfully return the best references for a dataset based
 upon a parameter dictionary.   It’s possible define a header as any Python
 dictionary provided you have sufficient knowledge of the parameters:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span> <span class="n">hdr</span> <span class="o">=</span> <span class="p">{</span> <span class="o">...</span> <span class="n">what</span> <span class="n">matters</span> <span class="n">most</span> <span class="o">...</span> <span class="p">}</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span> <span class="n">hdr</span> <span class="o">=</span> <span class="p">{</span> <span class="o">...</span> <span class="n">what</span> <span class="n">matters</span> <span class="n">most</span> <span class="o">...</span> <span class="p">}</span>
 </pre></div>
 </div>
 <p>On the other hand,  if your dataset is a FITS file and you want to do something
 quick and dirty,  you can ask CRDS what dataset metadata may matter for
 determining best references:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hdr</span> <span class="o">=</span> <span class="n">acs</span><span class="o">.</span><span class="n">get_minimum_header</span><span class="p">(</span><span class="s2">&quot;test_data/j8bt05njq_raw.fits&quot;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hdr</span> <span class="o">=</span> <span class="n">acs</span><span class="o">.</span><span class="n">get_minimum_header</span><span class="p">(</span><span class="s2">&quot;test_data/j8bt05njq_raw.fits&quot;</span><span class="p">)</span>
 <span class="go">{&#39;CCDAMP&#39;: &#39;C&#39;,</span>
 <span class="go"> &#39;CCDGAIN&#39;: &#39;2.0&#39;,</span>
 <span class="go"> &#39;DATE-OBS&#39;: &#39;2002-04-13&#39;,</span>
@@ -401,7 +401,7 @@ configurations and is returning metadata about filekinds which may be
 inappropriate.</p>
 <p>Once you have your dataset parameters,  you can ask an InstrumentContext for
 the best references for <em>all</em> filekinds for that instrument:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">acs</span><span class="o">.</span><span class="n">get_best_references</span><span class="p">(</span><span class="n">hdr</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">acs</span><span class="o">.</span><span class="n">get_best_references</span><span class="p">(</span><span class="n">hdr</span><span class="p">)</span>
 <span class="go">{&#39;atodtab&#39;: &#39;kcb1734ij_a2d.fits&#39;,</span>
 <span class="go">&#39;biasfile&#39;: &#39;m4r1753rj_bia.fits&#39;,</span>
 <span class="go">&#39;bpixtab&#39;: &#39;m8r09169j_bpx.fits&#39;,</span>
@@ -428,7 +428,7 @@ include an error message xxx which hints at why no result was found,  such as
 an invalid dataset parameter value or simply a matching failure.</p>
 <p>You can ask a ReferenceMapping for the best reference for single the filekind
 it manages:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">acs_atod</span><span class="o">.</span><span class="n">get_best_ref</span><span class="p">(</span><span class="n">hdr</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">acs_atod</span><span class="o">.</span><span class="n">get_best_ref</span><span class="p">(</span><span class="n">hdr</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;kcb1734ij_a2d.fits&#39;</span>
 </pre></div>
 </div>
@@ -436,7 +436,7 @@ it manages:</p>
 and hence PipelineContext can also return the best references for a dataset,
 but this is really just shorthand for returning the best references for the
 instrument of that dataset:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hdr</span> <span class="o">=</span> <span class="n">hst</span><span class="o">.</span><span class="n">get_minimum_header</span><span class="p">(</span><span class="s2">&quot;test_data/j8bt05njq_raw.fits&quot;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hdr</span> <span class="o">=</span> <span class="n">hst</span><span class="o">.</span><span class="n">get_minimum_header</span><span class="p">(</span><span class="s2">&quot;test_data/j8bt05njq_raw.fits&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hst</span><span class="o">.</span><span class="n">get_best_references</span><span class="p">(</span><span class="n">hdr</span><span class="p">)</span>
 <span class="gp">... </span><span class="k">for</span> <span class="n">this</span> <span class="n">hdr</span><span class="p">,</span> <span class="n">same</span> <span class="k">as</span> <span class="n">acs</span><span class="o">.</span><span class="n">get_best_references</span><span class="p">(</span><span class="n">hdr</span><span class="p">)</span> <span class="o">...</span>
 </pre></div>
@@ -457,12 +457,12 @@ contents are intact.</p>
 <p>Ordinarily,  during pipeline operations,  ignoring checksums should not be done.
 Ironically though,  the first thing you may want to do as a developer is ignore
 the checksum while you load a mapping you’ve edited:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">rmap</span><span class="o">.</span><span class="n">load_mapping</span><span class="p">(</span><span class="s2">&quot;hst.pmap&quot;</span><span class="p">,</span> <span class="n">ignore_checksum</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">rmap</span><span class="o">.</span><span class="n">load_mapping</span><span class="p">(</span><span class="s2">&quot;hst.pmap&quot;</span><span class="p">,</span> <span class="n">ignore_checksum</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Alternately you can set an environment variable to ignore the mapping checksum
 while you iterate on new versions of the mapping:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">setenv</span> <span class="n">CRDS_IGNORE_MAPPING_CHECKSUM</span> <span class="mi">1</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">setenv</span> <span class="n">CRDS_IGNORE_MAPPING_CHECKSUM</span> <span class="mi">1</span>
 </pre></div>
 </div>
 </div>
@@ -470,7 +470,7 @@ while you iterate on new versions of the mapping:</p>
 <h3>Adding Checksums<a class="headerlink" href="#adding-checksums" title="Permalink to this headline">¶</a></h3>
 <p>Once you’ve finished your masterpiece ReferenceMapping,  it can be sealed with
 a checksum like this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">checksum</span> <span class="o">/</span><span class="n">where</span><span class="o">/</span><span class="n">it</span><span class="o">/</span><span class="n">really</span><span class="o">/</span><span class="ow">is</span><span class="o">/</span><span class="n">hst_acs_my_masterpiece</span><span class="o">.</span><span class="n">rmap</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">checksum</span> <span class="o">/</span><span class="n">where</span><span class="o">/</span><span class="n">it</span><span class="o">/</span><span class="n">really</span><span class="o">/</span><span class="ow">is</span><span class="o">/</span><span class="n">hst_acs_my_masterpiece</span><span class="o">.</span><span class="n">rmap</span>
 </pre></div>
 </div>
 </div>
@@ -497,7 +497,7 @@ a checksum like this:</p>
   <div role="contentinfo">
     <p>
         &copy; Copyright 2017, Space Telescope Science Institute.
-      Last updated on Mar 04, 2018.
+      Last updated on Jun 06, 2018.
 
     </p>
   </div>

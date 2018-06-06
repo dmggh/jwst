@@ -178,7 +178,7 @@ Python based client library.   See <a class="reference external" href="http://js
 for more details on the JSONRPC protocol.</p>
 <p>Users of the CRDS client library can access these JSONRPC functions using
 the crds.client module:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">crds</span> <span class="k">import</span> <span class="n">client</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">crds</span> <span class="k">import</span> <span class="n">client</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">get_default_context</span><span class="p">(</span><span class="s1">&#39;jwst&#39;</span><span class="p">)</span>
 <span class="go">&#39;jwst_0101.pmap&#39;</span>
 </pre></div>
@@ -199,7 +199,7 @@ This value is set and maintained on the CRDS Server.   The actual pipeline conte
 differs from this commanded valuer until the pipeline is synchronized with the CRDS
 server using cron_sync.</p>
 <p>The commanded default can be obtained using the CRDS client library as follows:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">crds</span> <span class="k">import</span> <span class="n">client</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">crds</span> <span class="k">import</span> <span class="n">client</span>
  <span class="o">&gt;&gt;&gt;</span> <span class="n">client</span><span class="o">.</span><span class="n">get_default_context</span><span class="p">(</span><span class="s1">&#39;jwst&#39;</span><span class="p">)</span>
 <span class="s1">&#39;jwst_0101.pmap&#39;</span>
 </pre></div>
@@ -219,7 +219,7 @@ generally preferred value is from get_default_context() since it always
 reflects the intended operational context regardless of the pipeline’s CRDS
 mode.</p>
 <p>The actual default context for a pipeline can be obtained as follows:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">crds</span> <span class="k">import</span> <span class="n">client</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">crds</span> <span class="k">import</span> <span class="n">client</span>
  <span class="o">&gt;&gt;&gt;</span> <span class="n">client</span><span class="o">.</span><span class="n">get_remote_context</span><span class="p">(</span><span class="s1">&#39;jwst&#39;</span><span class="p">,</span> <span class="s1">&#39;jwst-ops-pipeline&#39;</span><span class="p">)</span>
 <span class="s1">&#39;jwst_0101.pmap&#39;</span>
 </pre></div>
@@ -229,7 +229,7 @@ mode.</p>
 <h3>Context History<a class="headerlink" href="#context-history" title="Permalink to this headline">¶</a></h3>
 <p>CRDS makes the history of contexts which have been activated in the pipeline as
 the operational context via the get_context_history() web service:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">get_context_history</span><span class="p">(</span><span class="s2">&quot;jwst&quot;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">get_context_history</span><span class="p">(</span><span class="s2">&quot;jwst&quot;</span><span class="p">)</span>
 <span class="go">[(&#39;2012-09-06 00:00:00&#39;, &#39;jwst.pmap&#39;, &#39;Bootstrap mappings&#39;),</span>
 <span class="go"> (&#39;2012-09-27 00:00:00&#39;,</span>
 <span class="go">  &#39;jwst_0000.pmap&#39;,</span>
@@ -267,8 +267,8 @@ files managed by CRDS.   Catalog information cab be</p>
 <div class="section" id="single-file-metadata">
 <h3>Single File Metadata<a class="headerlink" href="#single-file-metadata" title="Permalink to this headline">¶</a></h3>
 <p><strong>get_file_info(pipeline_context, filename)</strong></p>
-<p>Return a dictionary of CRDS catalog information about <code class="xref py py-obj docutils literal"><span class="pre">filename</span></code>.  For instance:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">crds</span> <span class="k">import</span> <span class="n">client</span>
+<p>Return a dictionary of CRDS catalog information about <code class="xref py py-obj docutils literal notranslate"><span class="pre">filename</span></code>.  For instance:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">crds</span> <span class="k">import</span> <span class="n">client</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">get_file_info</span><span class="p">(</span><span class="s2">&quot;jwst&quot;</span><span class="p">,</span> <span class="s2">&quot;jwst_miri_flat_0023.fits&quot;</span><span class="p">)</span>
 <span class="go">{&#39;activation_date&#39;: &#39;2014-09-25 18:30:27&#39;,</span>
 <span class="go"> &#39;aperture&#39;: &#39;none&#39;,</span>
@@ -301,9 +301,9 @@ files managed by CRDS.   Catalog information cab be</p>
 <h3>Multiple File Metadata<a class="headerlink" href="#multiple-file-metadata" title="Permalink to this headline">¶</a></h3>
 <p><strong>get_file_info_map(observatory, files=None, fields=None)</strong></p>
 <p>get_file_info_map() is a multi-file version of get_info_map() which returns
-the information for several files with one call.  If <code class="xref py py-obj docutils literal"><span class="pre">files</span></code> is not specified
+the information for several files with one call.  If <code class="xref py py-obj docutils literal notranslate"><span class="pre">files</span></code> is not specified
 then get_file_info_map() returns info for all files:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">crds</span> <span class="k">import</span> <span class="n">client</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">crds</span> <span class="k">import</span> <span class="n">client</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">get_file_info_map</span><span class="p">(</span><span class="s2">&quot;jwst&quot;</span><span class="p">)</span>
 <span class="go">{&#39;jwst.pmap&#39;: {&#39;activation_date&#39;: &#39;2012-07-31 00:00:00&#39;,</span>
 <span class="go"> &#39;aperture&#39;: &#39;none&#39;,</span>
@@ -335,19 +335,19 @@ then get_file_info_map() returns info for all files:</p>
 </pre></div>
 </div>
 <p>Returns the info:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="n">filename</span> <span class="p">:</span> <span class="p">{</span> <span class="n">info</span><span class="p">,</span> <span class="o">...</span> <span class="p">},</span> <span class="o">...</span> <span class="p">}</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="n">filename</span> <span class="p">:</span> <span class="p">{</span> <span class="n">info</span><span class="p">,</span> <span class="o">...</span> <span class="p">},</span> <span class="o">...</span> <span class="p">}</span>
 </pre></div>
 </div>
-<p>on <code class="xref py py-obj docutils literal"><span class="pre">files</span></code> of <code class="xref py py-obj docutils literal"><span class="pre">observatory</span></code>.</p>
-<p><code class="xref py py-obj docutils literal"><span class="pre">fields</span></code> can be used to limit info returned to specified keys:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;activation_date&#39;</span><span class="p">,</span> <span class="s1">&#39;aperture&#39;</span><span class="p">,</span> <span class="s1">&#39;blacklisted&#39;</span><span class="p">,</span> <span class="s1">&#39;change_level&#39;</span><span class="p">,</span> <span class="s1">&#39;comment&#39;</span><span class="p">,</span>
+<p>on <code class="xref py py-obj docutils literal notranslate"><span class="pre">files</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">observatory</span></code>.</p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fields</span></code> can be used to limit info returned to specified keys:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;activation_date&#39;</span><span class="p">,</span> <span class="s1">&#39;aperture&#39;</span><span class="p">,</span> <span class="s1">&#39;blacklisted&#39;</span><span class="p">,</span> <span class="s1">&#39;change_level&#39;</span><span class="p">,</span> <span class="s1">&#39;comment&#39;</span><span class="p">,</span>
  <span class="s1">&#39;creator_name&#39;</span><span class="p">,</span> <span class="s1">&#39;deliverer_user&#39;</span><span class="p">,</span> <span class="s1">&#39;delivery_date&#39;</span><span class="p">,</span> <span class="s1">&#39;derived_from&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">,</span>
  <span class="s1">&#39;filekind&#39;</span><span class="p">,</span> <span class="s1">&#39;instrument&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;observatory&#39;</span><span class="p">,</span> <span class="s1">&#39;pedigree&#39;</span><span class="p">,</span> <span class="s1">&#39;reference_file_type&#39;</span><span class="p">,</span>
  <span class="s1">&#39;rejected&#39;</span><span class="p">,</span> <span class="s1">&#39;replaced_by_filename&#39;</span><span class="p">,</span> <span class="s1">&#39;sha1sum&#39;</span><span class="p">,</span> <span class="s1">&#39;size&#39;</span><span class="p">,</span> <span class="s1">&#39;state&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">,</span>
  <span class="s1">&#39;uploaded_as&#39;</span><span class="p">,</span> <span class="s1">&#39;useafter_date&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>If <code class="xref py py-obj docutils literal"><span class="pre">fields</span></code> is not specified then get_file_info_map() returns all fields.</p>
+<p>If <code class="xref py py-obj docutils literal notranslate"><span class="pre">fields</span></code> is not specified then get_file_info_map() returns all fields.</p>
 </div>
 </div>
 <div class="section" id="best-references">
@@ -367,14 +367,14 @@ header parameter of the rmap.</p>
 <p>For JWST,  the rmap parkeys (matching parameter names) are currently specified
 as JWST stpipe data model dotted identifiers.  Example JSON for the get_best_references
 <em>header</em> parameter for JWST is:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="s2">&quot;meta.instrument.type&quot;</span><span class="p">:</span><span class="s2">&quot;fgs&quot;</span><span class="p">,</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="s2">&quot;meta.instrument.type&quot;</span><span class="p">:</span><span class="s2">&quot;fgs&quot;</span><span class="p">,</span>
   <span class="s2">&quot;meta.instrument.detector&quot;</span><span class="p">:</span><span class="s2">&quot;fgs1&quot;</span><span class="p">,</span>
   <span class="s2">&quot;meta.instrument.filter&quot;</span><span class="p">:</span><span class="s2">&quot;any&quot;</span> <span class="p">}</span>
 </pre></div>
 </div>
 <p>For JWST,  it is also possible to use the equivalent FITS header keyword,  as
 defined by the data model schema, to determine best references:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="s2">&quot;instrume&quot;</span><span class="p">:</span><span class="s2">&quot;fgs&quot;</span><span class="p">,</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="s2">&quot;instrume&quot;</span><span class="p">:</span><span class="s2">&quot;fgs&quot;</span><span class="p">,</span>
   <span class="s2">&quot;detector&quot;</span><span class="p">:</span><span class="s2">&quot;fgs1&quot;</span><span class="p">,</span>
   <span class="s2">&quot;filter&quot;</span><span class="p">:</span><span class="s2">&quot;any&quot;</span> <span class="p">}</span>
 </pre></div>
@@ -386,7 +386,7 @@ all reference types are returned.   Reference types which are defined for an
 instrument but which are not applicable to the mode defined by <em>header</em> are
 returned with the value <em>NOT FOUND n/a</em>.</p>
 <p>Example JSON for <em>reftypes</em> might be:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s2">&quot;amplifier&quot;</span><span class="p">,</span><span class="s2">&quot;mask&quot;</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s2">&quot;amplifier&quot;</span><span class="p">,</span><span class="s2">&quot;mask&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>Because <strong>get_best_references</strong> determines references for a list of types,  lookup
@@ -403,12 +403,12 @@ best references for multiple datasets with a single service call.  All
 parameters are as for get_best_references() with the modification that <em>header</em>
 above is replaced with a mapping from multiple dataset ids to their
 corresponding headers, i.e. <em>header_map</em>:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="n">dataset_id</span> <span class="p">:</span> <span class="n">header</span><span class="p">,</span> <span class="o">...</span> <span class="p">}</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="n">dataset_id</span> <span class="p">:</span> <span class="n">header</span><span class="p">,</span> <span class="o">...</span> <span class="p">}</span>
 </pre></div>
 </div>
 <p>The return value is likewise adapted to return best references for multiple
 datasets:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="n">dataset_id</span> <span class="p">:</span> <span class="n">best_references</span><span class="p">,</span> <span class="o">...</span> <span class="p">}</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="n">dataset_id</span> <span class="p">:</span> <span class="n">best_references</span><span class="p">,</span> <span class="o">...</span> <span class="p">}</span>
 </pre></div>
 </div>
 <p>Where <em>dataset_id</em> is nominally an HST IPPPSSOOT id (e.g. ‘I9ZF01010’) or JWST
@@ -421,14 +421,14 @@ or less.</p>
 <h3>Selection Parameters<a class="headerlink" href="#selection-parameters" title="Permalink to this headline">¶</a></h3>
 <p><strong>get_required_parkeys(context)</strong></p>
 <p>Return a mapping from instruments to lists of parameter names required to
-compute bestrefs under <code class="xref py py-obj docutils literal"><span class="pre">context</span></code>,  i.e. matching header keys:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="n">instrument</span> <span class="p">:</span> <span class="p">[</span> <span class="n">matching_parkey_name</span><span class="p">,</span> <span class="o">...</span> <span class="p">],</span> <span class="o">...</span> <span class="p">}</span>
+compute bestrefs under <code class="xref py py-obj docutils literal notranslate"><span class="pre">context</span></code>,  i.e. matching header keys:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="n">instrument</span> <span class="p">:</span> <span class="p">[</span> <span class="n">matching_parkey_name</span><span class="p">,</span> <span class="o">...</span> <span class="p">],</span> <span class="o">...</span> <span class="p">}</span>
 </pre></div>
 </div>
 <p>In CRDS the matching parameters are defined by each set of rules, e.g. for
 one HST context (hst_0366.pmap) the reference file selection parameters
 for all instruments are as follows:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;acs&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;INSTRUME&#39;</span><span class="p">,</span> <span class="s1">&#39;APERTURE&#39;</span><span class="p">,</span> <span class="s1">&#39;ATODCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;BIASCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;CCDAMP&#39;</span><span class="p">,</span> <span class="s1">&#39;CCDCHIP&#39;</span><span class="p">,</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;acs&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;INSTRUME&#39;</span><span class="p">,</span> <span class="s1">&#39;APERTURE&#39;</span><span class="p">,</span> <span class="s1">&#39;ATODCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;BIASCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;CCDAMP&#39;</span><span class="p">,</span> <span class="s1">&#39;CCDCHIP&#39;</span><span class="p">,</span>
      <span class="s1">&#39;CCDGAIN&#39;</span><span class="p">,</span> <span class="s1">&#39;CRCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;DARKCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;DATE-OBS&#39;</span><span class="p">,</span> <span class="s1">&#39;DETECTOR&#39;</span><span class="p">,</span> <span class="s1">&#39;DQICORR&#39;</span><span class="p">,</span>
      <span class="s1">&#39;DRIZCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;FILTER1&#39;</span><span class="p">,</span> <span class="s1">&#39;FILTER2&#39;</span><span class="p">,</span> <span class="s1">&#39;FLASHCUR&#39;</span><span class="p">,</span> <span class="s1">&#39;FLATCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;FLSHCORR&#39;</span><span class="p">,</span>
      <span class="s1">&#39;FW1OFFST&#39;</span><span class="p">,</span> <span class="s1">&#39;FW2OFFST&#39;</span><span class="p">,</span> <span class="s1">&#39;FWSOFFST&#39;</span><span class="p">,</span> <span class="s1">&#39;GLINCORR&#39;</span><span class="p">,</span> <span class="s1">&#39;LTV1&#39;</span><span class="p">,</span> <span class="s1">&#39;LTV2&#39;</span><span class="p">,</span> <span class="s1">&#39;NAXIS1&#39;</span><span class="p">,</span>
@@ -461,7 +461,7 @@ best references for particular datasets.  Each parameter set corresponds to a
 data set ID.  A list of the valid dataset IDs with respect to a particular CRDS
 context (or date) can be obtained as follows.</p>
 <p>To obtain current best references specify the context using a date:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_dataset_ids</span><span class="p">(</span><span class="s2">&quot;2016-01-01T00:00:00&quot;</span><span class="p">,</span> <span class="s2">&quot;miri&quot;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_dataset_ids</span><span class="p">(</span><span class="s2">&quot;2016-01-01T00:00:00&quot;</span><span class="p">,</span> <span class="s2">&quot;miri&quot;</span><span class="p">)</span>
 <span class="go">[&#39;JW80500017001_02101_00001.MIRIFUSHORT:JW80500017001_02101_00001.MIRIFUSHORT&#39;,</span>
 <span class="go"> &#39;J80500020001_02101_00001.MIRIFUSHORT:JW80500020001_02101_00001.MIRIFUSHORT&#39;,</span>
 <span class="go"> &#39;JW80500018001_02101_00001.MIRIFUSHORT:JW80500018001_02101_00001.MIRIFUSHORT&#39;,</span>
@@ -475,7 +475,7 @@ context (or date) can be obtained as follows.</p>
 </pre></div>
 </div>
 <p>Alternately the abstract default context can be specified as “&lt;project&gt;-operational”, as in:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_dataset_ids</span><span class="p">(</span><span class="s2">&quot;jwst-operational&quot;</span><span class="p">,</span> <span class="s2">&quot;miri&quot;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_dataset_ids</span><span class="p">(</span><span class="s2">&quot;jwst-operational&quot;</span><span class="p">,</span> <span class="s2">&quot;miri&quot;</span><span class="p">)</span>
 <span class="go">[&#39;JW80500017001_02101_00001.MIRIFUSHORT:JW80500017001_02101_00001.MIRIFUSHORT&#39;,</span>
 <span class="go"> &#39;J80500020001_02101_00001.MIRIFUSHORT:JW80500020001_02101_00001.MIRIFUSHORT&#39;,</span>
 <span class="go"> &#39;JW80500018001_02101_00001.MIRIFUSHORT:JW80500018001_02101_00001.MIRIFUSHORT&#39;,</span>
@@ -489,11 +489,11 @@ context (or date) can be obtained as follows.</p>
 </pre></div>
 </div>
 <p>Dataset IDs have a grammar like this for HST:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">product_id</span><span class="o">&gt;</span> <span class="p">:</span> <span class="o">&lt;</span><span class="n">exposure_id</span><span class="o">&gt;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">product_id</span><span class="o">&gt;</span> <span class="p">:</span> <span class="o">&lt;</span><span class="n">exposure_id</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 <p>Dataset IDs currently have a grammar like this for JWST:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="nb">id</span><span class="o">&gt;</span>     <span class="p">:</span><span class="o">=</span>  <span class="o">&lt;</span><span class="n">whole</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">part</span><span class="o">&gt;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="nb">id</span><span class="o">&gt;</span>     <span class="p">:</span><span class="o">=</span>  <span class="o">&lt;</span><span class="n">whole</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">part</span><span class="o">&gt;</span>
 <span class="o">&lt;</span><span class="n">whole</span><span class="o">&gt;</span>  <span class="p">:</span><span class="o">=</span>  <span class="o">&lt;</span><span class="n">filesetname</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">detector</span><span class="o">&gt;</span>
 <span class="o">&lt;</span><span class="n">part</span><span class="o">&gt;</span>   <span class="p">:</span><span class="o">=</span>  <span class="o">&lt;</span><span class="n">filesetname</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">detector</span><span class="o">&gt;</span>
 </pre></div>
@@ -526,7 +526,7 @@ to compute best references associated with the specified dataset ids:</p>
 <p><em>ids</em> is a list of archive dataset id strings as shown above.   A maximum of 200 IDs should be requested per call.</p>
 <p><em>datasets_since</em> is an optional cut-off date for datasets.  If specified, only datasets acquired after that date are returned.</p>
 <p>An example call using the CRDS Python client is:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_dataset_headers_by_id</span><span class="p">(</span><span class="s2">&quot;2016-01-01&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;JW96090001004_03101_00001.NRCB2&#39;</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_dataset_headers_by_id</span><span class="p">(</span><span class="s2">&quot;2016-01-01&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;JW96090001004_03101_00001.NRCB2&#39;</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span>
 <span class="go">{&#39;JW96090001004_03101_00001.NRCB2&#39;: {&#39;META.EXPOSURE.READPATT&#39;: &#39;BRIGHT1&#39;,</span>
 <span class="go"> &#39;META.EXPOSURE.TYPE&#39;: &#39;NRC_IMAGE&#39;,</span>
 <span class="go"> &#39;META.INSTRUMENT.CHANNEL&#39;: &#39;SHORT&#39;,</span>
@@ -556,7 +556,7 @@ Ultimately the first half will identify a group of exposures and the second
 half will identify a single exposure in the group.  A maximum of 200 ids should
 be requested per call.</p>
 <p>An examople call using the CRDS Python client is:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_aui_best_references</span><span class="p">(</span><span class="s2">&quot;2016-01-01&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;JW82500001003_02102_00001.NRCA1&#39;</span><span class="p">,</span><span class="s1">&#39;JW82500001003_02102_00001.NRCA3&#39;</span><span class="p">])</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_aui_best_references</span><span class="p">(</span><span class="s2">&quot;2016-01-01&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;JW82500001003_02102_00001.NRCA1&#39;</span><span class="p">,</span><span class="s1">&#39;JW82500001003_02102_00001.NRCA3&#39;</span><span class="p">])</span>
 <span class="go">{&#39;JW82500001003_02102_00001.NRCA1&#39;: [True,</span>
 <span class="go">  [&#39;jwst_nircam_ipc_0001.fits&#39;,</span>
 <span class="go">   &#39;jwst_nircam_linearity_0020.fits&#39;,</span>
@@ -595,7 +595,7 @@ successfully”.</p>
 was successful, the second value of the pair is a list of file names.  If the
 ID was unsuccessful, the second value of the pair is a string describing the
 error:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_aui_best_references</span><span class="p">(</span><span class="s2">&quot;2016-01-01&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;JW96090001004_03101_00001.NRCB5&#39;</span><span class="p">])</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_aui_best_references</span><span class="p">(</span><span class="s2">&quot;2016-01-01&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;JW96090001004_03101_00001.NRCB5&#39;</span><span class="p">])</span>
 <span class="go">{&#39;JW96090001004_03101_00001.NRCB5&#39;: [False,</span>
 <span class="go">  &quot;NOT FOUND dataset ID does not exist &#39;JW96090001004_03101_00001.NRCB5&#39;&quot;]}</span>
 </pre></div>
@@ -608,7 +608,7 @@ only those types that could be successfully assigned with the given context
 silently dropped.</p>
 <p>Under the hood the <em>get_aui_best_references()</em> function is a language agnostic JSONRPC call
 which can be called from the UNIX command line by e.g. “curl” as follows:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">curl</span> <span class="o">-</span><span class="n">i</span> <span class="o">-</span><span class="n">X</span> <span class="n">POST</span> <span class="o">-</span><span class="n">d</span> <span class="s1">&#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;method&quot;: &quot;get_aui_best_references&quot;, &quot;params&quot;: [&quot;2016-01-01&quot;, [&quot;JW80500017001_02101_00001.MIRIFUSHORT&quot;]], &quot;id&quot;: 1}&#39;</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">jwst</span><span class="o">-</span><span class="n">crds</span><span class="o">.</span><span class="n">stsci</span><span class="o">.</span><span class="n">edu</span><span class="o">/</span><span class="n">json</span><span class="o">/</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">curl</span> <span class="o">-</span><span class="n">i</span> <span class="o">-</span><span class="n">X</span> <span class="n">POST</span> <span class="o">-</span><span class="n">d</span> <span class="s1">&#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;method&quot;: &quot;get_aui_best_references&quot;, &quot;params&quot;: [&quot;2016-01-01&quot;, [&quot;JW80500017001_02101_00001.MIRIFUSHORT&quot;]], &quot;id&quot;: 1}&#39;</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">jwst</span><span class="o">-</span><span class="n">crds</span><span class="o">.</span><span class="n">stsci</span><span class="o">.</span><span class="n">edu</span><span class="o">/</span><span class="n">json</span><span class="o">/</span>
 <span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span> <span class="mi">200</span> <span class="n">OK</span>
 <span class="n">Date</span><span class="p">:</span> <span class="n">Mon</span><span class="p">,</span> <span class="mi">25</span> <span class="n">Jul</span> <span class="mi">2016</span> <span class="mi">20</span><span class="p">:</span><span class="mi">03</span><span class="p">:</span><span class="mi">13</span> <span class="n">GMT</span>
 <span class="n">Vary</span><span class="p">:</span> <span class="n">Cookie</span>
@@ -643,12 +643,12 @@ that the definitions of software versions should be relatively stable and
 additive as new contexts are generated.</p>
 <p>An example call using the CRDS Python client shows the conceptual
 nature of the interface,  the functional inputs and outputs:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">versions_obj</span> <span class="o">=</span> <span class="n">get_system_versions</span><span class="p">(</span><span class="s2">&quot;0.6.0noop.dev307&quot;</span><span class="p">,</span> <span class="s2">&quot;null&quot;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">versions_obj</span> <span class="o">=</span> <span class="n">get_system_versions</span><span class="p">(</span><span class="s2">&quot;0.6.0noop.dev307&quot;</span><span class="p">,</span> <span class="s2">&quot;null&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Printing the Python client return object in JSON format gives a more
 language agnostic view of the conceptual return value:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">versions_obj</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">versions_obj</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 <span class="go">{</span>
 <span class="go">&quot;CAL_VER&quot;: &quot;0.6.0noop.dev307&quot;,</span>
 <span class="go">&quot;author&quot;: &quot;Warren J. Hack&quot;,</span>
@@ -689,7 +689,7 @@ translate master version names.  Alternately, the value associated with
 “jwst-versions” (or “null”) can be redefined on the CRDS server.</p>
 <p>The following curl command line shows the full expansion of the same service
 example wrapped in the JSONRPC protocol in a language agnostic way:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">i</span> <span class="o">-</span><span class="n">X</span> <span class="n">POST</span> <span class="o">-</span><span class="n">d</span> <span class="s1">&#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;method&quot;: &quot;get_system_versions&quot;, &quot;params&quot;: [&quot;0.6.0noop.dev307&quot;,&quot;null&quot;], &quot;id&quot;: 1}&#39;</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">jwst</span><span class="o">-</span><span class="n">crds</span><span class="o">-</span><span class="n">dit</span><span class="o">.</span><span class="n">stsci</span><span class="o">.</span><span class="n">edu</span><span class="o">/</span><span class="n">json</span><span class="o">/</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">i</span> <span class="o">-</span><span class="n">X</span> <span class="n">POST</span> <span class="o">-</span><span class="n">d</span> <span class="s1">&#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;method&quot;: &quot;get_system_versions&quot;, &quot;params&quot;: [&quot;0.6.0noop.dev307&quot;,&quot;null&quot;], &quot;id&quot;: 1}&#39;</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">jwst</span><span class="o">-</span><span class="n">crds</span><span class="o">-</span><span class="n">dit</span><span class="o">.</span><span class="n">stsci</span><span class="o">.</span><span class="n">edu</span><span class="o">/</span><span class="n">json</span><span class="o">/</span>
 <span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span> <span class="mi">200</span> <span class="n">OK</span>
 <span class="n">Date</span><span class="p">:</span> <span class="n">Wed</span><span class="p">,</span> <span class="mi">24</span> <span class="n">Aug</span> <span class="mi">2016</span> <span class="mi">22</span><span class="p">:</span><span class="mi">33</span><span class="p">:</span><span class="mi">04</span> <span class="n">GMT</span>
 <span class="n">Vary</span><span class="p">:</span> <span class="n">Cookie</span>
@@ -704,7 +704,7 @@ example wrapped in the JSONRPC protocol in a language agnostic way:</p>
 <p>This example shows the structure of a response string for a query with an error,
 “result” is set to null and “error” describes the problem in more detail,  most
 notably with the response.error.message string:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">curl</span> <span class="o">-</span><span class="n">i</span> <span class="o">-</span><span class="n">X</span> <span class="n">POST</span> <span class="o">-</span><span class="n">d</span> <span class="s1">&#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;method&quot;: &quot;get_system_versions&quot;, &quot;params&quot;: [&quot;an,invalid(version)&quot;,&quot;null&quot;], &quot;id&quot;: 1}&#39;</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">jwst</span><span class="o">-</span><span class="n">crds</span><span class="o">-</span><span class="n">dit</span><span class="o">.</span><span class="n">stsci</span><span class="o">.</span><span class="n">edu</span><span class="o">/</span><span class="n">json</span><span class="o">/</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">curl</span> <span class="o">-</span><span class="n">i</span> <span class="o">-</span><span class="n">X</span> <span class="n">POST</span> <span class="o">-</span><span class="n">d</span> <span class="s1">&#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;method&quot;: &quot;get_system_versions&quot;, &quot;params&quot;: [&quot;an,invalid(version)&quot;,&quot;null&quot;], &quot;id&quot;: 1}&#39;</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">jwst</span><span class="o">-</span><span class="n">crds</span><span class="o">-</span><span class="n">dit</span><span class="o">.</span><span class="n">stsci</span><span class="o">.</span><span class="n">edu</span><span class="o">/</span><span class="n">json</span><span class="o">/</span>
 <span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span> <span class="mi">200</span> <span class="n">OK</span>
 <span class="n">Date</span><span class="p">:</span> <span class="n">Wed</span><span class="p">,</span> <span class="mi">24</span> <span class="n">Aug</span> <span class="mi">2016</span> <span class="mi">22</span><span class="p">:</span><span class="mi">23</span><span class="p">:</span><span class="mi">11</span> <span class="n">GMT</span>
 <span class="n">Vary</span><span class="p">:</span> <span class="n">Cookie</span>
@@ -741,7 +741,7 @@ POSTed using a JSON serialization scheme.   Example absolute server URLs are:</p
 <p>JSONRPC requests are made by POST’ing a set of variables to the appropriate URL.</p>
 <p>An example CRDS service request can be demonstrated in a language agnostic way
 using the UNIX command line utility curl:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">curl</span> <span class="o">-</span><span class="n">i</span> <span class="o">-</span><span class="n">X</span> <span class="n">POST</span> <span class="o">-</span><span class="n">d</span> <span class="s1">&#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;method&quot;: &quot;get_default_context&quot;, &quot;params&quot;: [&quot;jwst&quot;], &quot;id&quot;: 1}&#39;</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">jwst</span><span class="o">-</span><span class="n">crds</span><span class="o">.</span><span class="n">stsci</span><span class="o">.</span><span class="n">edu</span><span class="o">/</span><span class="n">json</span><span class="o">/</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">curl</span> <span class="o">-</span><span class="n">i</span> <span class="o">-</span><span class="n">X</span> <span class="n">POST</span> <span class="o">-</span><span class="n">d</span> <span class="s1">&#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;method&quot;: &quot;get_default_context&quot;, &quot;params&quot;: [&quot;jwst&quot;], &quot;id&quot;: 1}&#39;</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">jwst</span><span class="o">-</span><span class="n">crds</span><span class="o">.</span><span class="n">stsci</span><span class="o">.</span><span class="n">edu</span><span class="o">/</span><span class="n">json</span><span class="o">/</span>
 </pre></div>
 </div>
 <p>The <em>jsonrpc</em> attribute is used to specify the version of the JSONRPC standard
@@ -755,7 +755,7 @@ environments.</p>
 <div class="section" id="generic-response">
 <h3>Generic Response<a class="headerlink" href="#generic-response" title="Permalink to this headline">¶</a></h3>
 <p>The response returned by the server for the above request is the following JSON:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;jsonrpc&quot;</span><span class="p">:</span> <span class="s2">&quot;1.0&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="s2">&quot;jwst_0000.pmap&quot;</span><span class="p">}</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> <span class="s2">&quot;jsonrpc&quot;</span><span class="p">:</span> <span class="s2">&quot;1.0&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="s2">&quot;jwst_0000.pmap&quot;</span><span class="p">}</span>
 </pre></div>
 </div>
 </div>
@@ -776,7 +776,7 @@ and test environments upon request.</p>
 </div>
 <p>An example dialog for get_best_references from the CRDS jsonrpc demo page is
 shown here with FITS parkey names:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">jsonrpc</span><span class="o">.</span><span class="n">get_best_references</span><span class="p">(</span><span class="s2">&quot;jwst_0000.pmap&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;INSTRUME&#39;</span><span class="p">:</span><span class="s1">&#39;FGS&#39;</span><span class="p">,</span><span class="s1">&#39;DETECTOR&#39;</span><span class="p">:</span><span class="s1">&#39;FGS1&#39;</span><span class="p">,</span> <span class="s1">&#39;FILTER&#39;</span><span class="p">:</span><span class="s1">&#39;ANY&#39;</span><span class="p">},</span> <span class="n">null</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">jsonrpc</span><span class="o">.</span><span class="n">get_best_references</span><span class="p">(</span><span class="s2">&quot;jwst_0000.pmap&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;INSTRUME&#39;</span><span class="p">:</span><span class="s1">&#39;FGS&#39;</span><span class="p">,</span><span class="s1">&#39;DETECTOR&#39;</span><span class="p">:</span><span class="s1">&#39;FGS1&#39;</span><span class="p">,</span> <span class="s1">&#39;FILTER&#39;</span><span class="p">:</span><span class="s1">&#39;ANY&#39;</span><span class="p">},</span> <span class="n">null</span><span class="p">)</span>
 <span class="go">Requesting -&gt;</span>
 <span class="go">{&quot;id&quot;:&quot;jsonrpc&quot;, &quot;params&quot;:[&quot;jwst_0000.pmap&quot;, {&quot;INSTRUME&quot;:&quot;FGS&quot;, &quot;DETECTOR&quot;:&quot;FGS1&quot;, &quot;FILTER&quot;:&quot;ANY&quot;}, null], &quot;method&quot;:&quot;get_best_references&quot;, &quot;jsonrpc&quot;:&quot;1.0&quot;}</span>
 <span class="go">Deferred(12, unfired)</span>
@@ -785,7 +785,7 @@ shown here with FITS parkey names:</p>
 </pre></div>
 </div>
 <p>And the same query is here with JWST data model parkey names:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">jsonrpc</span><span class="o">.</span><span class="n">get_best_references</span><span class="p">(</span><span class="s2">&quot;jwst_0000.pmap&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;META.INSTRUMENT.TYPE&#39;</span><span class="p">:</span><span class="s1">&#39;FGS&#39;</span><span class="p">,</span><span class="s1">&#39;META.INSTRUMENT.DETECTOR&#39;</span><span class="p">:</span><span class="s1">&#39;FGS1&#39;</span><span class="p">,</span> <span class="s1">&#39;META.INSTRUMENT.FILTER&#39;</span><span class="p">:</span><span class="s1">&#39;ANY&#39;</span><span class="p">},</span> <span class="n">null</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">jsonrpc</span><span class="o">.</span><span class="n">get_best_references</span><span class="p">(</span><span class="s2">&quot;jwst_0000.pmap&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;META.INSTRUMENT.TYPE&#39;</span><span class="p">:</span><span class="s1">&#39;FGS&#39;</span><span class="p">,</span><span class="s1">&#39;META.INSTRUMENT.DETECTOR&#39;</span><span class="p">:</span><span class="s1">&#39;FGS1&#39;</span><span class="p">,</span> <span class="s1">&#39;META.INSTRUMENT.FILTER&#39;</span><span class="p">:</span><span class="s1">&#39;ANY&#39;</span><span class="p">},</span> <span class="n">null</span><span class="p">)</span>
 <span class="go">Requesting -&gt;</span>
 <span class="go">{&quot;id&quot;:&quot;jsonrpc&quot;, &quot;params&quot;:[&quot;jwst_0000.pmap&quot;, {&quot;META.INSTRUMENT.TYPE&quot;:&quot;FGS&quot;, &quot;META.INSTRUMENT.DETECTOR&quot;:&quot;FGS1&quot;, &quot;META.INSTRUMENT.FILTER&quot;:&quot;ANY&quot;}, null], &quot;method&quot;:&quot;get_best_references&quot;, &quot;jsonrpc&quot;:&quot;1.0&quot;}</span>
 <span class="go">Deferred(14, unfired)</span>
@@ -817,7 +817,7 @@ shown here with FITS parkey names:</p>
   <div role="contentinfo">
     <p>
         &copy; Copyright 2017, Space Telescope Science Institute.
-      Last updated on Mar 04, 2018.
+      Last updated on Jun 06, 2018.
 
     </p>
   </div>

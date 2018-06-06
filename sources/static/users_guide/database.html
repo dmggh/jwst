@@ -151,7 +151,7 @@
 <h3>Metadata for a single file<a class="headerlink" href="#metadata-for-a-single-file" title="Permalink to this headline">¶</a></h3>
 <p>The JSON RPC call get_file_info() will return the avalailble info for a single reference
 or mapping file from the specified observatory:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_file_info</span><span class="p">(</span><span class="n">observatory</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_file_info</span><span class="p">(</span><span class="n">observatory</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
      <span class="sd">&quot;&quot;&quot;Return a dictionary of CRDS information about `filename`.&quot;&quot;&quot;</span>
 
  <span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">crds.client</span> <span class="k">import</span> <span class="n">api</span>
@@ -180,7 +180,7 @@ or mapping file from the specified observatory:</p>
 <h3>Metadata for several / all files<a class="headerlink" href="#metadata-for-several-all-files" title="Permalink to this headline">¶</a></h3>
 <p>The JSON RPC call get_file_info_map() will return the info for multiple (or all) files
 and the specified (or all) fields as a dictionary of dictionaries mapping filename onto info:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_file_info_map</span><span class="p">(</span><span class="n">observatory</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_file_info_map</span><span class="p">(</span><span class="n">observatory</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Return the info { filename : { info } } on `files` of `observatory`.</span>
 <span class="sd">    `fields` can be used to limit info returned to specified keys.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -208,7 +208,7 @@ and the specified (or all) fields as a dictionary of dictionaries mapping filena
 the history of CRDS context use,  the effective dates at which particular contexts where operational in
 the pipeline.</p>
 <p>You can download a SQLite-3 snapshot of the CRDS catalog like this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">setenv</span> <span class="n">CRDS_SERVER_URL</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">hst</span><span class="o">-</span><span class="n">crds</span><span class="o">.</span><span class="n">stsci</span><span class="o">.</span><span class="n">edu</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">setenv</span> <span class="n">CRDS_SERVER_URL</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">hst</span><span class="o">-</span><span class="n">crds</span><span class="o">.</span><span class="n">stsci</span><span class="o">.</span><span class="n">edu</span>
 <span class="o">%</span> <span class="n">setenv</span> <span class="n">CRDS_PATH</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">homer</span><span class="o">/</span><span class="n">crds_cache</span>
 <span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span> <span class="o">--</span><span class="n">fetch</span><span class="o">-</span><span class="n">sqlite</span><span class="o">-</span><span class="n">db</span>
 <span class="n">CRDS</span> <span class="o">-</span> <span class="n">INFO</span> <span class="o">-</span> <span class="n">SQLite</span> <span class="n">database</span> <span class="n">file</span> <span class="n">downloaded</span> <span class="n">to</span><span class="p">:</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">homer</span><span class="o">/</span><span class="n">crds_cache</span><span class="o">/</span><span class="n">config</span><span class="o">/</span><span class="n">hst</span><span class="o">/</span><span class="n">crds_db</span><span class="o">.</span><span class="n">sqlite3</span>
@@ -216,7 +216,7 @@ the pipeline.</p>
 </div>
 <p>will snapshot the current CRDS catalog on the CRDS server and download it to your local CRDS cache as a
 SQLite3 database file.  The SQLite database can typically be accessed like this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">sqlite3</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">homer</span><span class="o">/</span><span class="n">crds_cache_dev</span><span class="o">/</span><span class="n">config</span><span class="o">/</span><span class="n">hst</span><span class="o">/</span><span class="n">crds_db</span><span class="o">.</span><span class="n">sqlite3</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">sqlite3</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">homer</span><span class="o">/</span><span class="n">crds_cache_dev</span><span class="o">/</span><span class="n">config</span><span class="o">/</span><span class="n">hst</span><span class="o">/</span><span class="n">crds_db</span><span class="o">.</span><span class="n">sqlite3</span>
 
 <span class="n">sqlite</span><span class="o">&gt;</span> <span class="o">.</span><span class="n">tables</span>
 <span class="n">crds_hst_catalog</span>       <span class="n">crds_hst_context_history</span>
@@ -341,7 +341,7 @@ at the command line.</p>
   <div role="contentinfo">
     <p>
         &copy; Copyright 2017, Space Telescope Science Institute.
-      Last updated on Mar 04, 2018.
+      Last updated on Jun 06, 2018.
 
     </p>
   </div>

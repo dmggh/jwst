@@ -179,26 +179,26 @@ correspondence between “data model path” and more primitive representations
 like FITS keywords: <a class="reference external" href="https://github.com/STScI-JWST/jwst/tree/master/jwst/datamodels/schemas">Data Models Schema</a></p>
 <p>The schema also describe related facts such as parameter
 type and valid values.  For instance,  the model path:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">META</span><span class="o">.</span><span class="n">INSTRUMENT</span><span class="o">.</span><span class="n">DETECTOR</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">META</span><span class="o">.</span><span class="n">INSTRUMENT</span><span class="o">.</span><span class="n">DETECTOR</span>
 </pre></div>
 </div>
 <p>is equivalent to the FITS keyword:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">DETECTOR</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">DETECTOR</span>
 </pre></div>
 </div>
 <p>while:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">META</span><span class="o">.</span><span class="n">INSTRUMENT</span><span class="o">.</span><span class="n">NAME</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">META</span><span class="o">.</span><span class="n">INSTRUMENT</span><span class="o">.</span><span class="n">NAME</span>
 </pre></div>
 </div>
 <p>corresponds to:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">INSTRUME</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">INSTRUME</span>
 </pre></div>
 </div>
 <p>To isolate CRDS from physical file formats for JWST, CRDS generally uses data
 model paths to refer to metadata, by convention CRDS converts them to all upper
 case.</p>
 <p>For ASDF, the equivalent metadata might be hierarchically encoded as:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">meta</span><span class="p">:</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">meta</span><span class="p">:</span>
    <span class="n">instrument</span><span class="p">:</span>
        <span class="n">detector</span><span class="p">:</span> <span class="n">NRS1</span>
        <span class="n">name</span><span class="p">:</span> <span class="n">NIRSPEC</span>
@@ -275,7 +275,7 @@ uses DETECTOR to help assign a reference in the rmap, the reference file is
 <p>Very often the applicability of a reference file can be defined by a single
 discrete real world value, or by a simple one word wild card such as ANY or
 N/A:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">META</span><span class="o">.</span><span class="n">INSTRUMENT</span><span class="o">.</span><span class="n">DETECTOR</span> <span class="o">=</span> <span class="n">NRS1</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">META</span><span class="o">.</span><span class="n">INSTRUMENT</span><span class="o">.</span><span class="n">DETECTOR</span> <span class="o">=</span> <span class="n">NRS1</span>
 </pre></div>
 </div>
 <p>Where applicable, a discrete valued keyword will describe the instrument
@@ -288,7 +288,7 @@ world keyword values, i.e. some limited set of readout patterns, not merely the
 single valued instrument configuration used to obtain the reference data.</p>
 <p>HST used hidden substituion rules built into CDBS and CRDS to describe patterns
 of values not suitable for FITS keywords:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;acs&#39;</span><span class="p">:</span> <span class="p">{</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;acs&#39;</span><span class="p">:</span> <span class="p">{</span>
        <span class="s1">&#39;APERTURE&#39;</span><span class="p">:</span> <span class="p">{</span>
            <span class="s2">&quot;DETECTOR==&#39;WFC&#39; and APERTURE==&#39;ANY_FULL&#39; and DATE_OBS &lt; &#39;2016-09-25&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;NONE|WFC|WFC-FIX|WFC1|WFC1-CTE|WFC1-FIX|WFC1-IRAMP|WFC1-MRAMP|WFC2|WFC2-FIX|WFC2-MRAMP|WFC2-ORAMP|WFCENTER|WFC1A-512|WFC1B-512|WFC2C-512|WFC2D-512|WFC1A-1K|WFC1B-1K|WFC2C-1K|WFC2D-1K|WFC1A-2K|WFC1B-2K|WFC2C-2K|WFC2D-2K&#39;</span><span class="p">,</span>
            <span class="s2">&quot;DETECTOR==&#39;WFC&#39; and APERTURE==&#39;ANY_FULL&#39; and DATE_OBS &gt;= &#39;2016-09-25&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;NONE|WFC|WFC-FIX|WFC1|WFC1-CTE|WFC1-FIX|WFC1-IRAMP|WFC1-MRAMP|WFC2|WFC2-FIX|WFC2-MRAMP|WFC2-ORAMP|WFCENTER|WFC1A-512|WFC1B-512|WFC2C-512|WFC2D-512|WFC1A-1K|WFC1B-1K|WFC2C-1K|WFC2D-1K|WFC1A-2K|WFC1B-2K|WFC2C-2K|WFC2D-2K|WFC1-POL0V|WFC1-POL60V|WFC1-POL120V|WFC1-POL0UV|WFC1-POL60UV|WFC1-POL120UV|WFC1-IRAMPQ|WFC1-MRAMPQ|WFC2-MRAMPQ|WFC2-ORAMPQ|WFC1-SMFL|WFC2-SMFL&#39;</span><span class="p">,</span>
@@ -403,7 +403,7 @@ of values not suitable for FITS keywords:</p>
 </pre></div>
 </div>
 <p>The HST substition patterns above are of the form:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">instrument</span><span class="o">&gt;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">instrument</span><span class="o">&gt;</span>
     <span class="o">&lt;</span><span class="n">keyword</span><span class="o">&gt;</span>
         <span class="o">&lt;</span><span class="n">condition1</span><span class="o">&gt;</span> <span class="p">:</span> <span class="o">&lt;</span><span class="n">substitution1</span><span class="o">&gt;</span>
         <span class="o">&lt;</span><span class="n">condition2</span><span class="o">&gt;</span> <span class="p">:</span> <span class="o">&lt;</span><span class="n">substitution2</span><span class="o">&gt;</span>
@@ -421,19 +421,19 @@ replace the value of <em>keyword</em> for the purposes of updating the rmap.</p>
 reference metadata.  The CAL code data models define optional keywords
 beginning with <em>P_</em> that can have or-ed values.</p>
 <p>For instance,  in FITS parlance:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">P_DETECT</span> <span class="o">=</span> <span class="n">NRCA1</span> <span class="o">|</span> <span class="n">NRCA4</span> <span class="o">|</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">P_DETECT</span> <span class="o">=</span> <span class="n">NRCA1</span> <span class="o">|</span> <span class="n">NRCA4</span> <span class="o">|</span>
 </pre></div>
 </div>
 <p>means that the reference file should be used for both DETECTOR=NRCA1 and
 DETECTOR=NRCA4.</p>
 <p>Typically the <em>P_</em> keyword name is truncated to the FITS 8 character limit as
 needed.</p>
-<p>The trailing <code class="docutils literal"><span class="pre">|-bar</span></code> is required to satisfy the calibration code data model
+<p>The trailing <code class="docutils literal notranslate"><span class="pre">|-bar</span></code> is required to satisfy the calibration code data model
 schema checks of allowed patterns.</p>
 <p>If no pattern keyword is defined, CRDS will use the equivalent normal keyword
 specified to update the matching rules.</p>
 <p>In terms of datamodels paths, the above value would be specified similarly:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">META</span><span class="o">.</span><span class="n">INSTRUMENT</span><span class="o">.</span><span class="n">P_DETECTOR</span> <span class="o">=</span> <span class="n">NRCA1</span> <span class="o">|</span> <span class="n">NRCA4</span> <span class="o">|</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">META</span><span class="o">.</span><span class="n">INSTRUMENT</span><span class="o">.</span><span class="n">P_DETECTOR</span> <span class="o">=</span> <span class="n">NRCA1</span> <span class="o">|</span> <span class="n">NRCA4</span> <span class="o">|</span>
 </pre></div>
 </div>
 <p>The following table defines the pattern keywords currently supported for JWST:</p>
@@ -441,8 +441,8 @@ specified to update the matching rules.</p>
 <caption><span class="caption-text">JWST Pattern Keyword Names</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">FITS</th>
-<th class="head"><code class="docutils literal"><span class="pre">P_</span></code> FITS</th>
-<th class="head"><code class="docutils literal"><span class="pre">P_</span></code> DATAMODELS</th>
+<th class="head"><code class="docutils literal notranslate"><span class="pre">P_</span></code> FITS</th>
+<th class="head"><code class="docutils literal notranslate"><span class="pre">P_</span></code> DATAMODELS</th>
 </tr>
 </thead>
 <tbody valign="top">
@@ -488,8 +488,8 @@ specified to update the matching rules.</p>
 </tr>
 </tbody>
 </table>
-<p>Each <code class="docutils literal"><span class="pre">P_</span></code> keyword is explicitly defined in CRDS code as well as the CAL code
-data models.  Relative to HST substitutions, the advantage of the JWST <code class="docutils literal"><span class="pre">P_</span></code>
+<p>Each <code class="docutils literal notranslate"><span class="pre">P_</span></code> keyword is explicitly defined in CRDS code as well as the CAL code
+data models.  Relative to HST substitutions, the advantage of the JWST <code class="docutils literal notranslate"><span class="pre">P_</span></code>
 keywords is that the pattern values can be defined in arbitrary combinations
 in the reference files instead of CRDS code.</p>
 </div>
@@ -517,7 +517,7 @@ in the reference files instead of CRDS code.</p>
   <div role="contentinfo">
     <p>
         &copy; Copyright 2017, Space Telescope Science Institute.
-      Last updated on Mar 04, 2018.
+      Last updated on Jun 06, 2018.
 
     </p>
   </div>
