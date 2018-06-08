@@ -34,7 +34,7 @@ conda config --add channels http://ssb.stsci.edu/conda-dev
 
 # Install all the escrowed conda packages
 cd ${LOCAL_SOURCE}/conda-sources/linux-64
-conda install --use-local ./*.bz2
+conda install --quiet --use-local ./*.bz2
 
 # Install the CRDS meta-packages for things not taken from conda
 cd ${LOCAL_SOURCE}/build
