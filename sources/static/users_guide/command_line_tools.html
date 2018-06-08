@@ -92,16 +92,11 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#crds-bestrefs">crds.bestrefs</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#processing-modes">Processing Modes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#crds-bestrefs-use-cases">crds.bestrefs use cases</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#new-context">New Context</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#old-context">Old Context</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#lookup-parameter-sources">Lookup Parameter Sources</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#comparison-modes">Comparison Modes</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#context-to-context">Context-to-Context</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#prior-source-recommendations">Prior Source Recommendations</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#output-modes">Output Modes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#update-modes">Update Modes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#comparison-modes">Comparison Modes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pickle-and-json-saves">Pickle and .json saves</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#verbosity">Verbosity</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#bad-files">Bad Files</a></li>
@@ -198,8 +193,8 @@ implement their functionality.</p>
 <div class="section" id="specifying-file-paths">
 <h2>Specifying File Paths<a class="headerlink" href="#specifying-file-paths" title="Permalink to this headline">¶</a></h2>
 <p>The command line tools operate on CRDS reference and mapping files both inside
-and outside the CRDS cache.   Files specified without a path are assumed to be
-in the CRDS cache.   Files specified with an explicit absolute or relative
+and outside the CRDS cache.   <strong>Files specified without a path are assumed to be
+in the CRDS cache.</strong>   Files specified with an explicit absolute or relative
 path can be located anywhere.   See examples below.</p>
 <div class="section" id="in-the-crds-cache">
 <h3>In the CRDS cache<a class="headerlink" href="#in-the-crds-cache" title="Permalink to this headline">¶</a></h3>
@@ -223,196 +218,86 @@ the current working directory.</p>
 </div>
 <div class="section" id="crds-bestrefs">
 <h2>crds.bestrefs<a class="headerlink" href="#crds-bestrefs" title="Permalink to this headline">¶</a></h2>
-<p>crds.bestrefs is embedded in the HST archive pipeline to populate dataset headers with best reference files.
-Other modes of crds.bestrefs are used to support CRDS reprocessing and regression testing for both HST and JWST.
-Since CRDS is directly integrated with the JWST CAL code,  crds.bestrefs is not the preferred tool for working
-with JWST datasets.  For HST best dataset header updates,  crds.bestrefs is used:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">jmiller</span><span class="o">/</span><span class="n">anaconda3</span><span class="o">/</span><span class="n">envs</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="o">.</span><span class="mi">6</span><span class="o">/</span><span class="n">site</span><span class="o">-</span><span class="n">packages</span><span class="o">/</span><span class="n">crds</span><span class="o">/</span><span class="n">bestrefs</span><span class="o">/</span><span class="n">__main__</span><span class="o">.</span><span class="n">py</span>
-       <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">n</span> <span class="n">NEW_CONTEXT</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">o</span> <span class="n">OLD_CONTEXT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">fetch</span><span class="o">-</span><span class="n">old</span><span class="o">-</span><span class="n">headers</span><span class="p">]</span>
-       <span class="p">[</span><span class="o">-</span><span class="n">f</span> <span class="n">FILES</span> <span class="p">[</span><span class="n">FILES</span> <span class="o">...</span><span class="p">]]</span> <span class="p">[</span><span class="o">-</span><span class="n">d</span> <span class="n">IDs</span> <span class="p">[</span><span class="n">IDs</span> <span class="o">...</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="nb">all</span><span class="o">-</span><span class="n">instruments</span><span class="p">]</span>
-       <span class="p">[</span><span class="o">-</span><span class="n">i</span> <span class="n">INSTRUMENTS</span> <span class="p">[</span><span class="n">INSTRUMENTS</span> <span class="o">...</span><span class="p">]]</span>
-       <span class="p">[</span><span class="o">-</span><span class="n">p</span> <span class="p">[</span><span class="n">LOAD_PICKLES</span> <span class="p">[</span><span class="n">LOAD_PICKLES</span> <span class="o">...</span><span class="p">]]]</span> <span class="p">[</span><span class="o">-</span><span class="n">a</span> <span class="n">SAVE_PICKLE</span><span class="p">]</span>
-       <span class="p">[</span><span class="o">-</span><span class="n">t</span> <span class="n">REFERENCE_TYPES</span> <span class="p">[</span><span class="n">REFERENCE_TYPES</span> <span class="o">...</span><span class="p">]]</span>
-       <span class="p">[</span><span class="o">-</span><span class="n">k</span> <span class="n">SKIPPED_REFERENCE_TYPES</span> <span class="p">[</span><span class="n">SKIPPED_REFERENCE_TYPES</span> <span class="o">...</span><span class="p">]]</span>
-       <span class="p">[</span><span class="o">--</span><span class="nb">all</span><span class="o">-</span><span class="n">types</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">diffs</span><span class="o">-</span><span class="n">only</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">datasets</span><span class="o">-</span><span class="n">since</span> <span class="n">DATASETS_SINCE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">c</span><span class="p">]</span>
-       <span class="p">[</span><span class="o">--</span><span class="n">update</span><span class="o">-</span><span class="n">pickle</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">only</span><span class="o">-</span><span class="n">ids</span> <span class="p">[</span><span class="n">IDS</span> <span class="p">[</span><span class="n">IDS</span> <span class="o">...</span><span class="p">]]]</span>
-       <span class="p">[</span><span class="o">--</span><span class="n">drop</span><span class="o">-</span><span class="n">ids</span> <span class="p">[</span><span class="n">IDS</span> <span class="p">[</span><span class="n">IDS</span> <span class="o">...</span><span class="p">]]]</span> <span class="p">[</span><span class="o">-</span><span class="n">u</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">print</span><span class="o">-</span><span class="n">affected</span><span class="p">]</span>
-       <span class="p">[</span><span class="o">--</span><span class="nb">print</span><span class="o">-</span><span class="n">affected</span><span class="o">-</span><span class="n">details</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">print</span><span class="o">-</span><span class="n">new</span><span class="o">-</span><span class="n">references</span><span class="p">]</span>
-       <span class="p">[</span><span class="o">--</span><span class="nb">print</span><span class="o">-</span><span class="n">update</span><span class="o">-</span><span class="n">counts</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">print</span><span class="o">-</span><span class="n">error</span><span class="o">-</span><span class="n">headers</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">r</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">m</span> <span class="n">SYNC_MAPPINGS</span><span class="p">]</span>
-       <span class="p">[</span><span class="o">-</span><span class="n">s</span> <span class="n">SYNC_REFERENCES</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">differences</span><span class="o">-</span><span class="n">are</span><span class="o">-</span><span class="n">errors</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">allow</span><span class="o">-</span><span class="n">bad</span><span class="o">-</span><span class="n">rules</span><span class="p">]</span>
-       <span class="p">[</span><span class="o">--</span><span class="n">allow</span><span class="o">-</span><span class="n">bad</span><span class="o">-</span><span class="n">references</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">e</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">undefined</span><span class="o">-</span><span class="n">differences</span><span class="o">-</span><span class="n">matter</span><span class="p">]</span>
-       <span class="p">[</span><span class="o">--</span><span class="n">na</span><span class="o">-</span><span class="n">differences</span><span class="o">-</span><span class="n">matter</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">g</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">affected</span><span class="o">-</span><span class="n">datasets</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">z</span><span class="p">]</span>
-       <span class="p">[</span><span class="o">--</span><span class="n">dump</span><span class="o">-</span><span class="n">unique</span><span class="o">-</span><span class="n">errors</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">unique</span><span class="o">-</span><span class="n">errors</span><span class="o">-</span><span class="n">file</span> <span class="n">UNIQUE_ERRORS_FILE</span><span class="p">]</span>
-       <span class="p">[</span><span class="o">--</span><span class="nb">all</span><span class="o">-</span><span class="n">errors</span><span class="o">-</span><span class="n">file</span> <span class="n">ALL_ERRORS_FILE</span><span class="p">]</span>
-       <span class="p">[</span><span class="o">--</span><span class="n">unique</span><span class="o">-</span><span class="n">threshold</span> <span class="n">UNIQUE_THRESHOLD</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">errors</span><span class="o">-</span><span class="n">per</span><span class="o">-</span><span class="k">class</span> <span class="nc">N</span><span class="p">]</span>
-       <span class="p">[</span><span class="o">--</span><span class="n">unique</span><span class="o">-</span><span class="n">delimiter</span> <span class="n">UNIQUE_DELIMITER</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">verbosity</span> <span class="n">VERBOSITY</span><span class="p">]</span>
-       <span class="p">[</span><span class="o">--</span><span class="n">dump</span><span class="o">-</span><span class="n">cmdline</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">R</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">I</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">V</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">J</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">H</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">stats</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">profile</span> <span class="n">PROFILE</span><span class="p">]</span>
-       <span class="p">[</span><span class="o">--</span><span class="n">log</span><span class="o">-</span><span class="n">time</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">pdb</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">debug</span><span class="o">-</span><span class="n">traps</span><span class="p">]</span>
-
-<span class="o">*</span> <span class="n">Determines</span> <span class="n">best</span> <span class="n">references</span> <span class="k">with</span> <span class="n">respect</span> <span class="n">to</span> <span class="n">a</span> <span class="n">context</span> <span class="ow">or</span> <span class="n">contexts</span><span class="o">.</span>
-<span class="o">*</span> <span class="n">Optionally</span> <span class="n">updates</span> <span class="n">the</span> <span class="n">headers</span> <span class="n">of</span> <span class="n">file</span><span class="o">-</span><span class="n">based</span> <span class="n">data</span> <span class="k">with</span> <span class="n">new</span> <span class="n">recommendations</span><span class="o">.</span>
-<span class="o">*</span> <span class="n">Optionally</span> <span class="n">compares</span> <span class="n">new</span> <span class="n">results</span> <span class="n">to</span> <span class="n">prior</span> <span class="n">results</span><span class="o">.</span>
-<span class="o">*</span> <span class="n">Optionally</span> <span class="n">prints</span> <span class="n">source</span> <span class="n">data</span> <span class="n">names</span> <span class="n">affected</span> <span class="n">by</span> <span class="n">the</span> <span class="n">new</span> <span class="n">context</span><span class="o">.</span>
-
-<span class="n">optional</span> <span class="n">arguments</span><span class="p">:</span>
-  <span class="o">-</span><span class="n">h</span><span class="p">,</span> <span class="o">--</span><span class="n">help</span>            <span class="n">show</span> <span class="n">this</span> <span class="n">help</span> <span class="n">message</span> <span class="ow">and</span> <span class="n">exit</span>
-  <span class="o">-</span><span class="n">n</span> <span class="n">NEW_CONTEXT</span><span class="p">,</span> <span class="o">--</span><span class="n">new</span><span class="o">-</span><span class="n">context</span> <span class="n">NEW_CONTEXT</span>
-                        <span class="n">Compute</span> <span class="n">the</span> <span class="n">updated</span> <span class="n">best</span> <span class="n">references</span> <span class="n">using</span> <span class="n">this</span> <span class="n">context</span><span class="o">.</span> <span class="n">Uses</span> <span class="n">current</span> <span class="n">operational</span> <span class="n">context</span> <span class="n">by</span> <span class="n">default</span><span class="o">.</span>
-  <span class="o">-</span><span class="n">o</span> <span class="n">OLD_CONTEXT</span><span class="p">,</span> <span class="o">--</span><span class="n">old</span><span class="o">-</span><span class="n">context</span> <span class="n">OLD_CONTEXT</span>
-                        <span class="n">Compare</span> <span class="n">bestrefs</span> <span class="n">recommendations</span> <span class="kn">from</span> <span class="nn">two</span> <span class="n">contexts</span><span class="o">.</span>
-  <span class="o">--</span><span class="n">fetch</span><span class="o">-</span><span class="n">old</span><span class="o">-</span><span class="n">headers</span>   <span class="n">Fetch</span> <span class="n">old</span> <span class="n">headers</span> <span class="ow">in</span> <span class="n">accord</span> <span class="k">with</span> <span class="n">old</span> <span class="n">parameter</span> <span class="n">lists</span><span class="o">.</span>   <span class="n">Slower</span><span class="p">,</span>  <span class="n">avoid</span> <span class="n">unless</span> <span class="n">required</span><span class="o">.</span>
-  <span class="o">-</span><span class="n">f</span> <span class="n">FILES</span> <span class="p">[</span><span class="n">FILES</span> <span class="o">...</span><span class="p">],</span> <span class="o">--</span><span class="n">files</span> <span class="n">FILES</span> <span class="p">[</span><span class="n">FILES</span> <span class="o">...</span><span class="p">]</span>
-                        <span class="n">Dataset</span> <span class="n">files</span> <span class="n">to</span> <span class="n">compute</span> <span class="n">best</span> <span class="n">references</span> <span class="k">for</span> <span class="ow">and</span> <span class="n">optionally</span> <span class="n">update</span> <span class="n">headers</span><span class="o">.</span>
-  <span class="o">-</span><span class="n">d</span> <span class="n">IDs</span> <span class="p">[</span><span class="n">IDs</span> <span class="o">...</span><span class="p">],</span> <span class="o">--</span><span class="n">datasets</span> <span class="n">IDs</span> <span class="p">[</span><span class="n">IDs</span> <span class="o">...</span><span class="p">]</span>
-                        <span class="n">Dataset</span> <span class="n">ids</span> <span class="n">to</span> <span class="n">consult</span> <span class="n">database</span> <span class="k">for</span> <span class="n">matching</span> <span class="n">parameters</span> <span class="ow">and</span> <span class="n">old</span> <span class="n">results</span><span class="o">.</span>
-  <span class="o">--</span><span class="nb">all</span><span class="o">-</span><span class="n">instruments</span>     <span class="n">Compute</span> <span class="n">best</span> <span class="n">references</span> <span class="k">for</span> <span class="n">cataloged</span> <span class="n">datasets</span> <span class="k">for</span> <span class="nb">all</span> <span class="n">supported</span> <span class="n">instruments</span> <span class="ow">in</span> <span class="n">database</span><span class="o">.</span>
-  <span class="o">-</span><span class="n">i</span> <span class="n">INSTRUMENTS</span> <span class="p">[</span><span class="n">INSTRUMENTS</span> <span class="o">...</span><span class="p">],</span> <span class="o">--</span><span class="n">instruments</span> <span class="n">INSTRUMENTS</span> <span class="p">[</span><span class="n">INSTRUMENTS</span> <span class="o">...</span><span class="p">]</span>
-                        <span class="n">Instruments</span> <span class="n">to</span> <span class="n">compute</span> <span class="n">best</span> <span class="n">references</span> <span class="k">for</span><span class="p">,</span> <span class="nb">all</span> <span class="n">historical</span> <span class="n">datasets</span> <span class="ow">in</span> <span class="n">database</span><span class="o">.</span>
-  <span class="o">-</span><span class="n">p</span> <span class="p">[</span><span class="n">LOAD_PICKLES</span> <span class="p">[</span><span class="n">LOAD_PICKLES</span> <span class="o">...</span><span class="p">]],</span> <span class="o">--</span><span class="n">load</span><span class="o">-</span><span class="n">pickles</span> <span class="p">[</span><span class="n">LOAD_PICKLES</span> <span class="p">[</span><span class="n">LOAD_PICKLES</span> <span class="o">...</span><span class="p">]]</span>
-                        <span class="n">Load</span> <span class="n">dataset</span> <span class="n">headers</span> <span class="ow">and</span> <span class="n">prior</span> <span class="n">bestrefs</span> <span class="kn">from</span> <span class="nn">pickle</span> <span class="n">files</span><span class="p">,</span>  <span class="ow">in</span> <span class="n">worst</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">best</span> <span class="n">update</span> <span class="n">order</span><span class="o">.</span>  <span class="n">Can</span> <span class="n">also</span> <span class="n">load</span> <span class="o">.</span><span class="n">json</span> <span class="n">files</span><span class="o">.</span>
-  <span class="o">-</span><span class="n">a</span> <span class="n">SAVE_PICKLE</span><span class="p">,</span> <span class="o">--</span><span class="n">save</span><span class="o">-</span><span class="n">pickle</span> <span class="n">SAVE_PICKLE</span>
-                        <span class="n">Write</span> <span class="n">out</span> <span class="n">the</span> <span class="n">combined</span> <span class="n">dataset</span> <span class="n">headers</span> <span class="n">to</span> <span class="n">the</span> <span class="n">specified</span> <span class="n">pickle</span> <span class="n">file</span><span class="o">.</span>  <span class="n">Can</span> <span class="n">also</span> <span class="n">store</span> <span class="o">.</span><span class="n">json</span> <span class="n">file</span><span class="o">.</span>
-  <span class="o">-</span><span class="n">t</span> <span class="n">REFERENCE_TYPES</span> <span class="p">[</span><span class="n">REFERENCE_TYPES</span> <span class="o">...</span><span class="p">],</span> <span class="o">--</span><span class="n">types</span> <span class="n">REFERENCE_TYPES</span> <span class="p">[</span><span class="n">REFERENCE_TYPES</span> <span class="o">...</span><span class="p">]</span>
-                        <span class="n">Explicitly</span> <span class="n">define</span> <span class="n">the</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">reference</span> <span class="n">types</span> <span class="n">to</span> <span class="n">process</span><span class="p">,</span> <span class="o">--</span><span class="n">skip</span><span class="o">-</span><span class="n">types</span> <span class="n">also</span> <span class="n">still</span> <span class="n">applies</span><span class="o">.</span>
-  <span class="o">-</span><span class="n">k</span> <span class="n">SKIPPED_REFERENCE_TYPES</span> <span class="p">[</span><span class="n">SKIPPED_REFERENCE_TYPES</span> <span class="o">...</span><span class="p">],</span> <span class="o">--</span><span class="n">skip</span><span class="o">-</span><span class="n">types</span> <span class="n">SKIPPED_REFERENCE_TYPES</span> <span class="p">[</span><span class="n">SKIPPED_REFERENCE_TYPES</span> <span class="o">...</span><span class="p">]</span>
-                        <span class="n">A</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">reference</span> <span class="n">types</span> <span class="n">which</span> <span class="n">should</span> <span class="ow">not</span> <span class="n">be</span> <span class="n">processed</span><span class="p">,</span>  <span class="n">defaulting</span> <span class="n">to</span> <span class="n">nothing</span><span class="o">.</span>
-  <span class="o">--</span><span class="nb">all</span><span class="o">-</span><span class="n">types</span>           <span class="n">Evaluate</span> <span class="n">every</span> <span class="n">reference</span> <span class="n">file</span> <span class="nb">type</span> <span class="n">regardless</span> <span class="n">of</span> <span class="n">dataset</span> <span class="n">exposure</span> <span class="nb">type</span><span class="o">.</span>
-  <span class="o">--</span><span class="n">diffs</span><span class="o">-</span><span class="n">only</span>          <span class="n">For</span> <span class="n">context</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">context</span> <span class="n">comparison</span><span class="p">,</span> <span class="n">choose</span> <span class="n">only</span> <span class="n">instruments</span> <span class="ow">and</span> <span class="n">types</span> <span class="kn">from</span> <span class="nn">context</span> <span class="n">differences</span><span class="o">.</span>
-  <span class="o">--</span><span class="n">datasets</span><span class="o">-</span><span class="n">since</span> <span class="n">DATASETS_SINCE</span>
-                        <span class="n">Cut</span><span class="o">-</span><span class="n">off</span> <span class="n">date</span> <span class="k">for</span> <span class="n">datasets</span><span class="p">,</span> <span class="n">none</span> <span class="n">earlier</span> <span class="n">than</span> <span class="n">this</span><span class="o">.</span>  <span class="n">Use</span> <span class="s1">&#39;auto&#39;</span> <span class="n">to</span> <span class="n">exploit</span> <span class="n">reference</span> <span class="n">USEAFTER</span><span class="o">.</span>  <span class="n">OFF</span> <span class="n">by</span> <span class="n">default</span><span class="o">.</span>
-  <span class="o">-</span><span class="n">c</span><span class="p">,</span> <span class="o">--</span><span class="n">compare</span><span class="o">-</span><span class="n">source</span><span class="o">-</span><span class="n">bestrefs</span>
-                        <span class="n">Compare</span> <span class="n">new</span> <span class="n">bestrefs</span> <span class="n">recommendations</span> <span class="n">to</span> <span class="n">recommendations</span> <span class="kn">from</span> <span class="nn">data</span> <span class="n">source</span><span class="p">,</span>  <span class="n">files</span> <span class="ow">or</span> <span class="n">database</span><span class="o">.</span>
-  <span class="o">--</span><span class="n">update</span><span class="o">-</span><span class="n">pickle</span>       <span class="n">Replace</span> <span class="n">source</span> <span class="n">bestrefs</span> <span class="k">with</span> <span class="n">CRDS</span> <span class="n">bestrefs</span> <span class="ow">in</span> <span class="n">output</span> <span class="n">pickle</span><span class="o">.</span>  <span class="n">For</span> <span class="n">setting</span> <span class="n">up</span> <span class="n">regression</span> <span class="n">tests</span><span class="o">.</span>
-  <span class="o">--</span><span class="n">only</span><span class="o">-</span><span class="n">ids</span> <span class="p">[</span><span class="n">IDS</span> <span class="p">[</span><span class="n">IDS</span> <span class="o">...</span><span class="p">]]</span>
-                        <span class="n">If</span> <span class="n">specified</span><span class="p">,</span> <span class="n">process</span> <span class="n">only</span> <span class="n">the</span> <span class="n">listed</span> <span class="n">dataset</span> <span class="n">ids</span><span class="o">.</span>
-  <span class="o">--</span><span class="n">drop</span><span class="o">-</span><span class="n">ids</span> <span class="p">[</span><span class="n">IDS</span> <span class="p">[</span><span class="n">IDS</span> <span class="o">...</span><span class="p">]]</span>
-                        <span class="n">If</span> <span class="n">specified</span><span class="p">,</span> <span class="n">skip</span> <span class="n">these</span> <span class="n">dataset</span> <span class="n">ids</span><span class="o">.</span>
-  <span class="o">-</span><span class="n">u</span><span class="p">,</span> <span class="o">--</span><span class="n">update</span><span class="o">-</span><span class="n">bestrefs</span>
-                        <span class="n">Update</span> <span class="n">sources</span> <span class="k">with</span> <span class="n">new</span> <span class="n">best</span> <span class="n">reference</span> <span class="n">recommendations</span><span class="o">.</span>
-  <span class="o">--</span><span class="nb">print</span><span class="o">-</span><span class="n">affected</span>      <span class="n">Print</span> <span class="n">names</span> <span class="n">of</span> <span class="n">products</span> <span class="k">for</span> <span class="n">which</span> <span class="n">the</span> <span class="n">new</span> <span class="n">context</span> <span class="n">would</span> <span class="n">assign</span> <span class="n">new</span> <span class="n">references</span> <span class="k">for</span> <span class="n">some</span> <span class="n">exposure</span><span class="o">.</span>
-  <span class="o">--</span><span class="nb">print</span><span class="o">-</span><span class="n">affected</span><span class="o">-</span><span class="n">details</span>
-                        <span class="n">Include</span> <span class="n">instrument</span> <span class="ow">and</span> <span class="n">affected</span> <span class="n">types</span> <span class="ow">in</span> <span class="n">addition</span> <span class="n">to</span> <span class="n">compound</span> <span class="n">names</span> <span class="n">of</span> <span class="n">affected</span> <span class="n">exposures</span><span class="o">.</span>
-  <span class="o">--</span><span class="nb">print</span><span class="o">-</span><span class="n">new</span><span class="o">-</span><span class="n">references</span>
-                        <span class="n">Prints</span> <span class="n">one</span> <span class="n">line</span> <span class="n">per</span> <span class="n">reference</span> <span class="n">file</span> <span class="n">change</span><span class="o">.</span>  <span class="n">If</span> <span class="n">no</span> <span class="n">comparison</span> <span class="n">requested</span><span class="p">,</span>  <span class="n">prints</span> <span class="nb">all</span> <span class="n">bestrefs</span><span class="o">.</span>
-  <span class="o">--</span><span class="nb">print</span><span class="o">-</span><span class="n">update</span><span class="o">-</span><span class="n">counts</span>
-                        <span class="n">Prints</span> <span class="n">dictionary</span> <span class="n">of</span> <span class="n">update</span> <span class="n">counts</span> <span class="n">by</span> <span class="n">instrument</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">,</span>  <span class="n">status</span> <span class="n">on</span> <span class="n">updated</span> <span class="n">files</span><span class="o">.</span>
-  <span class="o">--</span><span class="nb">print</span><span class="o">-</span><span class="n">error</span><span class="o">-</span><span class="n">headers</span>
-                        <span class="n">For</span> <span class="n">each</span> <span class="n">tracked</span> <span class="n">error</span><span class="p">,</span>  <span class="nb">print</span> <span class="n">out</span> <span class="n">the</span> <span class="n">corresponding</span> <span class="n">dataset</span> <span class="n">header</span> <span class="k">for</span> <span class="n">offline</span> <span class="n">analysis</span><span class="o">.</span>
-  <span class="o">-</span><span class="n">r</span><span class="p">,</span> <span class="o">--</span><span class="n">remote</span><span class="o">-</span><span class="n">bestrefs</span>
-                        <span class="n">Compute</span> <span class="n">best</span> <span class="n">references</span> <span class="n">on</span> <span class="n">CRDS</span> <span class="n">server</span><span class="p">,</span>  <span class="n">convenience</span> <span class="k">for</span> <span class="n">env</span> <span class="n">var</span> <span class="n">CRDS_MODE</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span>
-  <span class="o">-</span><span class="n">m</span> <span class="n">SYNC_MAPPINGS</span><span class="p">,</span> <span class="o">--</span><span class="n">sync</span><span class="o">-</span><span class="n">mappings</span> <span class="n">SYNC_MAPPINGS</span>
-                        <span class="n">Fetch</span> <span class="n">the</span> <span class="n">required</span> <span class="n">context</span> <span class="n">mappings</span> <span class="n">to</span> <span class="n">the</span> <span class="n">local</span> <span class="n">cache</span><span class="o">.</span>  <span class="n">Defaults</span> <span class="n">TRUE</span><span class="o">.</span>
-  <span class="o">-</span><span class="n">s</span> <span class="n">SYNC_REFERENCES</span><span class="p">,</span> <span class="o">--</span><span class="n">sync</span><span class="o">-</span><span class="n">references</span> <span class="n">SYNC_REFERENCES</span>
-                        <span class="n">Fetch</span> <span class="n">the</span> <span class="n">refefences</span> <span class="n">recommended</span> <span class="n">by</span> <span class="n">new</span> <span class="n">context</span> <span class="n">to</span> <span class="n">the</span> <span class="n">local</span> <span class="n">cache</span><span class="o">.</span> <span class="n">Defaults</span> <span class="n">FALSE</span><span class="o">.</span>
-  <span class="o">--</span><span class="n">differences</span><span class="o">-</span><span class="n">are</span><span class="o">-</span><span class="n">errors</span>
-                        <span class="n">Treat</span> <span class="n">recommendation</span> <span class="n">differences</span> <span class="n">between</span> <span class="n">new</span> <span class="n">context</span> <span class="ow">and</span> <span class="n">original</span> <span class="n">source</span> <span class="k">as</span> <span class="n">errors</span><span class="o">.</span>
-  <span class="o">--</span><span class="n">allow</span><span class="o">-</span><span class="n">bad</span><span class="o">-</span><span class="n">rules</span>     <span class="n">Only</span> <span class="n">warn</span> <span class="k">if</span> <span class="n">a</span> <span class="n">context</span> <span class="n">which</span> <span class="ow">is</span> <span class="n">marked</span> <span class="s1">&#39;bad&#39;</span> <span class="ow">is</span> <span class="n">used</span><span class="p">,</span> <span class="n">otherwise</span> <span class="n">error</span><span class="o">.</span>
-  <span class="o">--</span><span class="n">allow</span><span class="o">-</span><span class="n">bad</span><span class="o">-</span><span class="n">references</span>
-                        <span class="n">Only</span> <span class="n">warn</span> <span class="k">if</span> <span class="n">a</span> <span class="n">reference</span> <span class="n">which</span> <span class="ow">is</span> <span class="n">marked</span> <span class="n">bad</span> <span class="ow">is</span> <span class="n">recommended</span><span class="p">,</span> <span class="n">otherwise</span> <span class="n">error</span><span class="o">.</span>
-  <span class="o">-</span><span class="n">e</span><span class="p">,</span> <span class="o">--</span><span class="n">bad</span><span class="o">-</span><span class="n">files</span><span class="o">-</span><span class="n">are</span><span class="o">-</span><span class="n">errors</span>
-                        <span class="n">DEPRECATED</span> <span class="o">/</span> <span class="n">default</span><span class="p">;</span>  <span class="n">Recommendations</span> <span class="n">of</span> <span class="n">known</span> <span class="n">bad</span><span class="o">/</span><span class="n">invalid</span> <span class="n">files</span> <span class="n">are</span> <span class="n">errors</span><span class="p">,</span> <span class="ow">not</span> <span class="n">warnings</span><span class="o">.</span>  <span class="n">Use</span> <span class="o">--</span><span class="n">allow</span><span class="o">-</span><span class="n">bad</span><span class="o">-...</span> <span class="n">to</span> <span class="n">override</span><span class="o">.</span>
-  <span class="o">--</span><span class="n">undefined</span><span class="o">-</span><span class="n">differences</span><span class="o">-</span><span class="n">matter</span>
-                        <span class="n">If</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">,</span> <span class="n">a</span> <span class="n">transition</span> <span class="kn">from</span> <span class="nn">UNDEFINED</span> <span class="n">to</span> <span class="n">anything</span> <span class="k">else</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">considered</span> <span class="n">a</span> <span class="n">difference</span> <span class="n">error</span><span class="o">.</span>
-  <span class="o">--</span><span class="n">na</span><span class="o">-</span><span class="n">differences</span><span class="o">-</span><span class="n">matter</span>
-                        <span class="n">If</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">,</span>  <span class="n">either</span> <span class="n">CDBS</span> <span class="ow">or</span> <span class="n">CRDS</span> <span class="n">recommending</span> <span class="n">N</span><span class="o">/</span><span class="n">A</span> <span class="ow">is</span> <span class="n">OK</span> <span class="n">to</span> <span class="n">mismatch</span><span class="o">.</span>
-  <span class="o">-</span><span class="n">g</span><span class="p">,</span> <span class="o">--</span><span class="n">regression</span>      <span class="n">Abbreviation</span> <span class="k">for</span> <span class="o">--</span><span class="n">compare</span><span class="o">-</span><span class="n">source</span><span class="o">-</span><span class="n">bestrefs</span> <span class="o">--</span><span class="n">differences</span><span class="o">-</span><span class="n">are</span><span class="o">-</span><span class="n">errors</span> <span class="o">--</span><span class="n">dump</span><span class="o">-</span><span class="n">unique</span><span class="o">-</span><span class="n">errors</span> <span class="o">--</span><span class="n">stats</span>
-  <span class="o">--</span><span class="n">affected</span><span class="o">-</span><span class="n">datasets</span>   <span class="n">Abbreviation</span> <span class="k">for</span> <span class="o">--</span><span class="n">diffs</span><span class="o">-</span><span class="n">only</span> <span class="o">--</span><span class="n">datasets</span><span class="o">-</span><span class="n">since</span><span class="o">=</span><span class="n">auto</span> <span class="o">--</span><span class="n">undefined</span><span class="o">-</span><span class="n">differences</span><span class="o">-</span><span class="n">matter</span> <span class="o">--</span><span class="n">na</span><span class="o">-</span><span class="n">differences</span><span class="o">-</span><span class="n">matter</span> <span class="o">--</span><span class="nb">print</span><span class="o">-</span><span class="n">update</span><span class="o">-</span><span class="n">counts</span> <span class="o">--</span><span class="nb">print</span><span class="o">-</span><span class="n">affected</span> <span class="o">--</span><span class="n">dump</span><span class="o">-</span><span class="n">unique</span><span class="o">-</span><span class="n">errors</span> <span class="o">--</span><span class="n">stats</span>
-  <span class="o">-</span><span class="n">z</span><span class="p">,</span> <span class="o">--</span><span class="n">optimize</span><span class="o">-</span><span class="n">tables</span>
-                        <span class="n">If</span> <span class="nb">set</span><span class="p">,</span> <span class="n">apply</span> <span class="n">row</span><span class="o">-</span><span class="n">based</span> <span class="n">optimizations</span> <span class="n">to</span> <span class="n">screen</span> <span class="n">out</span> <span class="n">inconsequential</span> <span class="n">table</span> <span class="n">updates</span><span class="o">.</span>
-  <span class="o">--</span><span class="n">dump</span><span class="o">-</span><span class="n">unique</span><span class="o">-</span><span class="n">errors</span>  <span class="n">Record</span> <span class="ow">and</span> <span class="n">dump</span> <span class="n">the</span> <span class="n">first</span> <span class="n">instance</span> <span class="n">of</span> <span class="n">each</span> <span class="n">kind</span> <span class="n">of</span> <span class="n">error</span><span class="o">.</span>
-  <span class="o">--</span><span class="n">unique</span><span class="o">-</span><span class="n">errors</span><span class="o">-</span><span class="n">file</span> <span class="n">UNIQUE_ERRORS_FILE</span>
-                        <span class="n">Write</span> <span class="n">out</span> <span class="n">data</span> <span class="n">names</span> <span class="p">(</span><span class="n">ids</span> <span class="ow">or</span> <span class="n">filenames</span><span class="p">)</span> <span class="k">for</span> <span class="n">first</span> <span class="n">instance</span> <span class="n">of</span> <span class="n">unique</span> <span class="n">errors</span> <span class="n">to</span> <span class="n">specified</span> <span class="n">file</span><span class="o">.</span>
-  <span class="o">--</span><span class="nb">all</span><span class="o">-</span><span class="n">errors</span><span class="o">-</span><span class="n">file</span> <span class="n">ALL_ERRORS_FILE</span>
-                        <span class="n">Write</span> <span class="n">out</span> <span class="nb">all</span> <span class="n">err</span><span class="s1">&#39;ing data names (ids or filenames) to specified file.</span>
-  <span class="o">--</span><span class="n">unique</span><span class="o">-</span><span class="n">threshold</span> <span class="n">UNIQUE_THRESHOLD</span>
-                        <span class="n">Only</span> <span class="nb">print</span> <span class="n">unique</span> <span class="n">error</span> <span class="n">classes</span> <span class="k">with</span> <span class="n">this</span> <span class="n">many</span> <span class="ow">or</span> <span class="n">more</span> <span class="n">instances</span><span class="o">.</span>
-  <span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">errors</span><span class="o">-</span><span class="n">per</span><span class="o">-</span><span class="k">class</span> <span class="nc">N</span>
-                        <span class="n">Only</span> <span class="nb">print</span> <span class="n">the</span> <span class="n">first</span> <span class="n">N</span> <span class="n">detailed</span> <span class="n">errors</span> <span class="n">of</span> <span class="nb">any</span> <span class="n">particular</span> <span class="n">class</span><span class="o">.</span>
-  <span class="o">--</span><span class="n">unique</span><span class="o">-</span><span class="n">delimiter</span> <span class="n">UNIQUE_DELIMITER</span>
-                        <span class="n">Use</span> <span class="n">the</span> <span class="n">given</span> <span class="n">delimiter</span> <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">semicolon</span><span class="p">)</span> <span class="ow">in</span> <span class="n">tracked</span> <span class="n">error</span> <span class="n">messages</span> <span class="n">to</span> <span class="n">make</span> <span class="n">them</span> <span class="n">amenable</span> <span class="n">to</span> <span class="n">spreadsheets</span><span class="o">.</span>
-  <span class="o">-</span><span class="n">v</span><span class="p">,</span> <span class="o">--</span><span class="n">verbose</span>         <span class="n">Set</span> <span class="n">log</span> <span class="n">verbosity</span> <span class="n">to</span> <span class="kc">True</span><span class="p">,</span>  <span class="n">nominal</span> <span class="n">debug</span> <span class="n">level</span><span class="o">.</span>
-  <span class="o">--</span><span class="n">verbosity</span> <span class="n">VERBOSITY</span>
-                        <span class="n">Set</span> <span class="n">log</span> <span class="n">verbosity</span> <span class="n">to</span> <span class="n">a</span> <span class="n">specific</span> <span class="n">level</span><span class="p">:</span> <span class="mf">0.</span><span class="o">.</span><span class="mf">100.</span>
-  <span class="o">--</span><span class="n">dump</span><span class="o">-</span><span class="n">cmdline</span>        <span class="n">Dump</span> <span class="n">the</span> <span class="n">command</span> <span class="n">line</span> <span class="n">parameters</span> <span class="n">used</span> <span class="n">to</span> <span class="n">start</span> <span class="n">the</span> <span class="n">script</span> <span class="n">to</span> <span class="n">the</span> <span class="n">log</span><span class="o">.</span>
-  <span class="o">-</span><span class="n">R</span><span class="p">,</span> <span class="o">--</span><span class="n">readonly</span><span class="o">-</span><span class="n">cache</span>  <span class="n">Don</span><span class="s1">&#39;t modify the CRDS cache.  Not compatible with options which implicitly modify the cache.</span>
-  <span class="o">-</span><span class="n">I</span><span class="p">,</span> <span class="o">--</span><span class="n">ignore</span><span class="o">-</span><span class="n">cache</span>    <span class="n">Download</span> <span class="n">required</span> <span class="n">files</span> <span class="n">even</span> <span class="k">if</span> <span class="n">they</span><span class="s1">&#39;re already in the cache.</span>
-  <span class="o">-</span><span class="n">V</span><span class="p">,</span> <span class="o">--</span><span class="n">version</span>         <span class="n">Print</span> <span class="n">the</span> <span class="n">software</span> <span class="n">version</span> <span class="ow">and</span> <span class="n">exit</span><span class="o">.</span>
-  <span class="o">-</span><span class="n">J</span><span class="p">,</span> <span class="o">--</span><span class="n">jwst</span>            <span class="n">Force</span> <span class="n">observatory</span> <span class="n">to</span> <span class="n">JWST</span> <span class="k">for</span> <span class="n">determining</span> <span class="n">header</span> <span class="n">conventions</span><span class="o">.</span>
-  <span class="o">-</span><span class="n">H</span><span class="p">,</span> <span class="o">--</span><span class="n">hst</span>             <span class="n">Force</span> <span class="n">observatory</span> <span class="n">to</span> <span class="n">HST</span> <span class="k">for</span> <span class="n">determining</span> <span class="n">header</span> <span class="n">conventions</span><span class="o">.</span>
-  <span class="o">--</span><span class="n">stats</span>               <span class="n">Track</span> <span class="ow">and</span> <span class="nb">print</span> <span class="n">timing</span> <span class="n">statistics</span><span class="o">.</span>
-  <span class="o">--</span><span class="n">profile</span> <span class="n">PROFILE</span>     <span class="n">Output</span> <span class="n">profile</span> <span class="n">stats</span> <span class="n">to</span> <span class="n">the</span> <span class="n">specified</span> <span class="n">file</span><span class="o">.</span>
-  <span class="o">--</span><span class="n">log</span><span class="o">-</span><span class="n">time</span>            <span class="n">Add</span> <span class="n">date</span><span class="o">/</span><span class="n">time</span> <span class="n">to</span> <span class="n">log</span> <span class="n">messages</span><span class="o">.</span>
-  <span class="o">--</span><span class="n">pdb</span>                 <span class="n">Run</span> <span class="n">under</span> <span class="n">pdb</span><span class="o">.</span>
-  <span class="o">--</span><span class="n">debug</span><span class="o">-</span><span class="n">traps</span>         <span class="n">Bypass</span> <span class="n">exception</span> <span class="n">error</span> <span class="n">message</span> <span class="n">traps</span> <span class="ow">and</span> <span class="n">re</span><span class="o">-</span><span class="k">raise</span> <span class="n">exception</span><span class="o">.</span>
-</pre></div>
-</div>
-<div class="section" id="processing-modes">
-<h3>Processing Modes<a class="headerlink" href="#processing-modes" title="Permalink to this headline">¶</a></h3>
-<p>crds.bestrefs can be run in 3 distinct processing modes with different inputs, outputs,
-and purposes.   Where possible the input, output, and comparison modes are written to
-be orthogonal features that can be combined in various ways.   The following however
-are the 3 main use cases for crds.bestrefs:</p>
+<p>The crds.bestrefs program runs the CRDS library to interpret CRDS reference
+file assignment rules with respect to dataset parameters.</p>
+<p>crds.bestrefs has several use cases which have different modes for fetching
+input parameters, evaluating bestrefs and/or doing comparisons, and producing output.</p>
+<p>crds.bestrefs runs in the HST archive pipeline to populate dataset headers FITS
+keywords (e.g. DARKFILE) with best reference files.</p>
+<p>Other modes of crds.bestrefs are used to support CRDS reprocessing or to test new
+versions of CRDS rules.</p>
+<p>The crds.bestrefs program is not normally used for JWST and best references
+are assigned automatically as a consequence of running the CAL code.</p>
+<ul class="simple">
+<li>Determines best references with respect to a context or contexts.</li>
+<li>Optionally updates the headers of file-based data with new recommendations.</li>
+<li>Optionally compares new results to prior results.</li>
+<li>Optionally prints source data names affected by the new context.</li>
+</ul>
+<div class="section" id="crds-bestrefs-use-cases">
+<h3>crds.bestrefs use cases<a class="headerlink" href="#crds-bestrefs-use-cases" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ol class="arabic simple">
-<li>File (Pipeline) Mode</li>
+<li>File (HST Pipeline) Mode</li>
 </ol>
 <p>The –files switch can be used to specify a list of FITS dataset files to
 process.  This is used in the HST pipeline in conjunction with
 –update-headers to fill in dataset FITS headers with recommended best
 references:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">bestrefs</span> <span class="o">--</span><span class="n">files</span> <span class="n">j8bt05njq_raw</span><span class="o">.</span><span class="n">fits</span> <span class="n">j8bt06o6q_raw</span><span class="o">.</span><span class="n">fits</span> <span class="n">j8bt09jcq_raw</span><span class="o">.</span><span class="n">fits</span><span class="o">...</span> <span class="o">--</span><span class="n">update</span><span class="o">-</span><span class="n">headers</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">bestrefs</span>  <span class="o">--</span><span class="n">update</span><span class="o">-</span><span class="n">headers</span>  <span class="o">--</span><span class="n">files</span> <span class="n">j8bt05njq_raw</span><span class="o">.</span><span class="n">fits</span> <span class="o">...</span>
 </pre></div>
 </div>
 <p>The outcome of this command is updating the best references in the FITS
 headers of the specified .fits files.</p>
+<p>Omitting –update-headers can be used to evaluate bestrefs without altering
+the input FITS files:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">bestrefs</span> <span class="o">--</span><span class="nb">print</span><span class="o">-</span><span class="n">new</span><span class="o">-</span><span class="n">references</span> <span class="o">--</span><span class="n">files</span>  <span class="n">j8bt05njq_raw</span><span class="o">.</span><span class="n">fits</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>The –new-context switch can be used to choose a context which is not the
+current default:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">bestrefs</span> <span class="o">--</span><span class="n">new</span><span class="o">-</span><span class="n">context</span> <span class="n">hst_0457</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">files</span> <span class="o">...</span>
+</pre></div>
+</div>
 <ol class="arabic simple" start="2">
 <li>Reprocessing Mode</li>
 </ol>
-<p>The –old-context and –new-context switches are used to specify a pair of CRDS
-contexts to compare results from.  Reprocessing mode runs by fetching matching
-parameters from the archive database using –instruments or –datasets.  This
-mode is used to recommend reprocessing where the bestrefs differ between old
-and new contexts:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">bestrefs</span> <span class="o">--</span><span class="n">old</span><span class="o">-</span><span class="n">context</span> <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">new</span><span class="o">-</span><span class="n">context</span> <span class="n">hst_0002</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">affected</span><span class="o">-</span><span class="n">datasets</span>
+<p>The bestrefs reprocessing mode is used in conjunction with archive databases
+to determine datasets which should be reprocessed as a consequence of the
+delivery of new reference files.</p>
+<p>Reprocessing mode evaluates the same dataset parameters with respect to an
+old context and a new context and recommends reprocessing datasets where some
+reference file assignment changes.</p>
+<p>Bestrefs reprocessing mode is run automatically on the CRDS servers whenever
+new reference files are delivered, after the new CRDS context is selected for
+use by the archive pipeline.  It is run e.g. like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">bestrefs</span> <span class="o">--</span><span class="n">affected</span><span class="o">-</span><span class="n">datasets</span> <span class="o">--</span><span class="n">old</span><span class="o">-</span><span class="n">context</span>  <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">new</span><span class="o">-</span><span class="n">context</span> <span class="n">hst_0002</span><span class="o">.</span><span class="n">pmap</span>
 </pre></div>
 </div>
-<p>The outcome of this command is to print the IDs of datasets affected by the
-transition from context 0001 to 0002.</p>
 <p class="attribution">&mdash;affected-datasets is a “bundle switch” that captures standard options for
-reprocessing including the option of printing out the affected datasets en lieu
-of updating FITS headers.  As an optimization, this mode typically runs against
-only those datasets implied by the differences in old and new contexts and restricted
-to those datasets potentially affected by the USEAFTER dates of new references.</p>
+reprocessing.  See <em>crds bestrefs –help</em> for more information on individual
+switches.</p>
 </div></blockquote>
-<ol class="arabic simple" start="3">
-<li>Regression Mode</li>
-</ol>
 <blockquote>
-<div><p>In regression mode, crds.bestrefs compares the bestrefs assigned by –new-context
-with the bestrefs recorded in the parameter source.  This mode is typically
-run against CRDS constructed .json or pickle save files known to be updated
-with bestrefs.   This mode can be used to verify that different versions of CRDS
-produce the same results relative to a set of saved parameters and best references.</p>
-<ol class="loweralpha simple">
-<li>Regression Capture</li>
+<div><p>Running reprocessing mode requires setting <em>CRDS_SERVER_URL</em>.</p>
+<ol class="arabic simple" start="3">
+<li>Context Testing Mode</li>
 </ol>
-<p>This sub-mode captures all parameter sets for an instrument updated with the
-best refs assigned by –new-context:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span>  <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">bestrefs</span> <span class="o">--</span><span class="n">new</span><span class="o">-</span><span class="n">context</span> <span class="n">hst_0002</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">instrument</span> <span class="n">acs</span> <span class="o">--</span><span class="n">update</span><span class="o">-</span><span class="n">bestrefs</span> <span class="o">--</span><span class="n">update</span><span class="o">-</span><span class="n">pickle</span> <span class="o">--</span><span class="n">save</span><span class="o">-</span><span class="n">pickle</span> <span class="n">old</span><span class="o">-</span><span class="n">regression</span><span class="o">.</span><span class="n">json</span>
+<p>CRDS bestrefs and the archive reprocessing parameters can also provide a
+quick way to evaluate a new context and/or residual errors.  It can answer
+the question “what classes of errors still exist for the latest context with
+respect to known parameter sets?”</p>
+<p>Context testing mode can be run like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">bestrefs</span> <span class="o">--</span><span class="n">check</span><span class="o">-</span><span class="n">context</span> <span class="o">--</span><span class="n">new</span><span class="o">-</span><span class="n">context</span> <span class="n">jwst</span><span class="o">-</span><span class="n">edit</span>
 </pre></div>
 </div>
-<ol class="loweralpha simple" start="2">
-<li>Regression Test</li>
-</ol>
-<p>This sub-mode plays back captured datasets comparing captured prior results
-with the current result:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span>  <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">bestrefs</span> <span class="o">--</span><span class="n">new</span><span class="o">-</span><span class="n">context</span> <span class="n">hst_0002</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">compare</span><span class="o">-</span><span class="n">source</span><span class="o">-</span><span class="n">bestrefs</span> <span class="o">--</span><span class="nb">print</span><span class="o">-</span><span class="n">affected</span> <span class="o">--</span><span class="n">load</span><span class="o">-</span><span class="n">pickles</span> <span class="n">old</span><span class="o">-</span><span class="n">regression</span><span class="o">.</span><span class="n">json</span>
+<p>Context testing also requires setting <em>CRDS_SERVER_URL</em> to obtain archived
+dataset parameters.  Note that during JWST pre-I&amp;T the archive database often
+contains parameter sets related to obsolete test cases.</p>
+<p>Undesired test cases can be weeded out like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">bestrefs</span> <span class="o">--</span><span class="n">check</span><span class="o">-</span><span class="n">context</span> <span class="o">--</span><span class="n">new</span><span class="o">-</span><span class="n">context</span> <span class="n">jwst</span><span class="o">-</span><span class="n">edit</span> <span class="o">--</span><span class="n">drop</span><span class="o">-</span><span class="n">ids</span> <span class="n">JW93135336001_02102_00001</span><span class="o">.</span><span class="n">MIRIFUSHORT</span><span class="p">:</span><span class="n">JW93135336001_02102_00001</span><span class="o">.</span><span class="n">MIRIFUSHORT</span>
 </pre></div>
 </div>
-<p>Unlike reprocessing mode, this mode necessarily runs against all the datasets
-specified by the data source,  in this case a .json parameters file.</p>
-<p>This mode can also be used to cache database parameter sets to optimize performance
-or eliminate the possibility of database parameter variation.</p>
 </div></blockquote>
 </div>
 <div class="section" id="new-context">
@@ -421,6 +306,14 @@ or eliminate the possibility of database parameter variation.</p>
 can be explicitly specified with the –new-context parameter.  If –new-context
 is not specified, the default operational context is determined by consulting
 the CRDS server or looking in the local cache.</p>
+</div>
+<div class="section" id="old-context">
+<h3>Old Context<a class="headerlink" href="#old-context" title="Permalink to this headline">¶</a></h3>
+<p>–old-context can be used to specify a second context for which bestrefs
+are dynamically computed; –old-context implies that a bestrefs comparison
+will be made with –new-context.  If –old-context is not specified, it
+defaults to None.  –old-context is only used for context-to-context
+comparisons,  nominally for CRDS repro.</p>
 </div>
 <div class="section" id="lookup-parameter-sources">
 <h3>Lookup Parameter Sources<a class="headerlink" href="#lookup-parameter-sources" title="Permalink to this headline">¶</a></h3>
@@ -449,59 +342,28 @@ best references:</p>
 references comparison mode.  Each names the origin of a set of prior
 recommendations and implicitly requests a comparison to the recommendations
 from the newly computed bestrefs determined by –new-context.</p>
-<div class="section" id="context-to-context">
-<h4>Context-to-Context<a class="headerlink" href="#context-to-context" title="Permalink to this headline">¶</a></h4>
-<p>–old-context can be used to specify a second context for which bestrefs
-are dynamically computed; –old-context implies that a bestrefs comparison
-will be made with –new-context.  If –old-context is not specified, it
-defaults to None.</p>
-</div>
-<div class="section" id="prior-source-recommendations">
-<h4>Prior Source Recommendations<a class="headerlink" href="#prior-source-recommendations" title="Permalink to this headline">¶</a></h4>
-<p>–compare-source-bestrefs requests that the bestrefs from –new-context be
-compared to the bestrefs which are recorded with the lookup parameter data,
-either in the file headers of data files, or in the catalog.  In both cases
-the prior best references are recorded static values, not dynamically
-computed bestrefs.</p>
-</div>
-</div>
-<div class="section" id="output-modes">
-<h3>Output Modes<a class="headerlink" href="#output-modes" title="Permalink to this headline">¶</a></h3>
-<p>crds.bestrefs supports several output modes for bestrefs and comparison results
-to standard out.</p>
-<p>If –print-affected is specified, crds.bestrefs will print out the name of any
-file for which at least one update for one reference type was recommended.
-This is essentially a list of files to be reprocessed with new references:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">bestrefs</span> <span class="o">--</span><span class="n">new</span><span class="o">-</span><span class="n">context</span> <span class="n">hst</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">files</span> <span class="n">j8bt05njq_raw</span><span class="o">.</span><span class="n">fits</span> <span class="n">j8bt06o6q_raw</span><span class="o">.</span><span class="n">fits</span> <span class="n">j8bt09jcq_raw</span><span class="o">.</span><span class="n">fits</span> <span class="o">--</span><span class="n">compare</span><span class="o">-</span><span class="n">source</span><span class="o">-</span><span class="n">bestrefs</span> <span class="o">--</span><span class="nb">print</span><span class="o">-</span><span class="n">affected</span>
-<span class="n">j8bt05njq_raw</span><span class="o">.</span><span class="n">fits</span>
-<span class="n">j8bt06o6q_raw</span><span class="o">.</span><span class="n">fits</span>
-<span class="n">j8bt09jcq_raw</span><span class="o">.</span><span class="n">fits</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="update-modes">
-<h3>Update Modes<a class="headerlink" href="#update-modes" title="Permalink to this headline">¶</a></h3>
-<p>crds.bestrefs initially supports one mode for updating the best reference
-recommendations recorded in data files:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">crds</span><span class="o">.</span><span class="n">bestrefs</span> <span class="o">--</span><span class="n">new</span><span class="o">-</span><span class="n">context</span> <span class="n">hst</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">files</span> <span class="n">j8bt05njq_raw</span><span class="o">.</span><span class="n">fits</span> <span class="n">j8bt06o6q_raw</span><span class="o">.</span><span class="n">fits</span> <span class="n">j8bt09jcq_raw</span><span class="o">.</span><span class="n">fits</span> <span class="o">--</span><span class="n">compare</span><span class="o">-</span><span class="n">source</span><span class="o">-</span><span class="n">bestrefs</span> <span class="o">--</span><span class="n">update</span><span class="o">-</span><span class="n">bestrefs</span>
-</pre></div>
-</div>
+<p><em>–old-context CONTEXT</em> specifies that the reference results should be
+<em>computed</em> using the named context.</p>
+<p><em>–compare-source-bestrefs</em> directs that prior reference assignments should be
+taken from the same <em>stored source</em> which provides matching parameters.  These
+could be from FITS header keywords (e.g. DARKFILE), from live archive
+parameters, or from prior parameter sets that have been stored in CRDS .json or
+Python pickle files.</p>
 </div>
 <div class="section" id="pickle-and-json-saves">
 <h3>Pickle and .json saves<a class="headerlink" href="#pickle-and-json-saves" title="Permalink to this headline">¶</a></h3>
 <p>crds.bestrefs can load parameters and past results from a sequence of .pkl or
 .json files using –load-pickles.  These are combined into a single parameter
-source in command line order, nominally in worst-to-best order where later
-files override earlier files.</p>
+source in command line order.</p>
 <p>crds.bestrefs can save the parameters obtained from various sources into .pkl
 or .json formatted save files using –save-pickle.  The single combined result
-of multiple pickle or instrument parameter sources is saved.   The file extension
-defines the format used.</p>
-<p>The preferred  .json format defines a singleton { id: parameters} dictionary/array
-on each line as a series of isolated .json objects.   A less robust single object
-form is also supported { id1: parameters1, id2: parameters2, …}.</p>
+of multiple pickle or instrument parameter sources is saved.  The file
+extension (.json or .pkl) defines the format used.</p>
+<p>The preferred .json format defines a singleton { id: parameters}
+dictionary on each line as a series of isolated .json objects.  Strictly
+speaking only each individual line is .json,  but this localizes any errors.</p>
 <p>.json format is preferred over .pkl because it is more transparent and robust
-across different versions of Python or typos.</p>
+across different versions of Python.</p>
 </div>
 <div class="section" id="verbosity">
 <h3>Verbosity<a class="headerlink" href="#verbosity" title="Permalink to this headline">¶</a></h3>
@@ -512,132 +374,50 @@ for –verbose.</p>
 </div>
 <div class="section" id="bad-files">
 <h3>Bad Files<a class="headerlink" href="#bad-files" title="Permalink to this headline">¶</a></h3>
-<p>CRDS files can be designated as scientifically invalid on the CRDS server by the CRDS team.   Knowledge of bad
-files is synchronized to remote caches by crds.bestrefs and crds.sync.  By default, attempting to use bad rules or
-assign bad references will generate errors and fail.   crds.bestrefs supports two command line switches,
-<em>—allow-bad-rules</em> and <em>—allow-bad-references</em> to override the default handling of bad files and enable their
-use with warnings.  Environment variables <strong>CRDS_ALLOW_BAD_RULES</strong> and <strong>CRDS_ALLOW_BAD_REFERENCES</strong> can also be
-set to 1 to establish warnings rather than errors as the default.</p>
+<p>CRDS files can be designated as scientifically invalid on the CRDS server by
+the CRDS team.  Knowledge of bad files is synchronized to remote caches by
+crds.bestrefs and crds.sync.  By default, attempting to use bad rules or assign
+bad references will generate errors and fail.  crds.bestrefs supports two
+command line switches, <em>—allow-bad-rules</em> and <em>—allow-bad-references</em> to
+override the default handling of bad files and enable their use with warnings.
+Environment variables <strong>CRDS_ALLOW_BAD_RULES</strong> and
+<strong>CRDS_ALLOW_BAD_REFERENCES</strong> can also be set to 1 to establish warnings rather
+than errors as the default.</p>
 </div>
 </div>
 <div class="section" id="crds-sync">
 <h2>crds.sync<a class="headerlink" href="#crds-sync" title="Permalink to this headline">¶</a></h2>
-<p>The CRDS sync tool is used to download CRDS rules and references from the CRDS server:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">::</span>
-  <span class="n">crds</span> <span class="n">sync</span>
-      <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">contexts</span> <span class="p">[</span><span class="n">CONTEXT</span> <span class="p">[</span><span class="n">CONTEXT</span> <span class="o">...</span><span class="p">]]</span> <span class="o">|</span> <span class="o">--</span><span class="nb">range</span> <span class="n">MIN</span><span class="p">:</span><span class="n">MAX</span> <span class="o">|</span> <span class="o">--</span><span class="nb">all</span> <span class="o">|</span>
-      <span class="o">--</span><span class="n">last</span><span class="o">-</span><span class="n">n</span><span class="o">-</span><span class="n">contexts</span> <span class="n">N</span> <span class="o">|</span> <span class="o">--</span><span class="n">up</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">context</span> <span class="n">CONTEXT</span> <span class="o">|</span> <span class="o">--</span><span class="n">after</span><span class="o">-</span><span class="n">context</span>
-      <span class="n">CONTEXT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">files</span> <span class="p">[</span><span class="n">FILES</span> <span class="p">[</span><span class="n">FILES</span> <span class="o">...</span><span class="p">]]]</span>
-      <span class="p">[</span><span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="n">files</span> <span class="p">[</span><span class="n">DATASET</span> <span class="p">[</span><span class="n">DATASET</span> <span class="o">...</span><span class="p">]]]</span>
-      <span class="p">[</span><span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="n">ids</span> <span class="p">[</span><span class="n">DATASET</span> <span class="p">[</span><span class="n">DATASET</span> <span class="o">...</span><span class="p">]]]</span> <span class="p">[</span><span class="o">--</span><span class="n">fetch</span><span class="o">-</span><span class="n">references</span><span class="p">]</span>
-      <span class="p">[</span><span class="o">--</span><span class="n">purge</span><span class="o">-</span><span class="n">references</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">purge</span><span class="o">-</span><span class="n">mappings</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dry</span><span class="o">-</span><span class="n">run</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">k</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">s</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">r</span><span class="p">]</span>
-      <span class="p">[</span><span class="o">--</span><span class="n">purge</span><span class="o">-</span><span class="n">rejected</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">purge</span><span class="o">-</span><span class="n">blacklisted</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">fetch</span><span class="o">-</span><span class="n">sqlite</span><span class="o">-</span><span class="n">db</span><span class="p">]</span>
-      <span class="p">[</span><span class="o">--</span><span class="n">organize</span> <span class="p">[</span><span class="n">NEW_SUBDIR_MODE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">organize</span><span class="o">-</span><span class="n">delete</span><span class="o">-</span><span class="n">junk</span><span class="p">]</span>
-      <span class="p">[</span><span class="o">--</span><span class="n">verify</span><span class="o">-</span><span class="n">context</span><span class="o">-</span><span class="n">change</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">push</span><span class="o">-</span><span class="n">context</span> <span class="n">KEY</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">clear</span><span class="o">-</span><span class="n">pickles</span><span class="p">]</span>
-      <span class="p">[</span><span class="o">--</span><span class="n">save</span><span class="o">-</span><span class="n">pickles</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="nb">dir</span> <span class="n">OUTPUT_DIR</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">clear</span><span class="o">-</span><span class="n">locks</span><span class="p">]</span>
-      <span class="p">[</span><span class="o">--</span><span class="n">force</span><span class="o">-</span><span class="n">config</span><span class="o">-</span><span class="n">update</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">verbosity</span> <span class="n">VERBOSITY</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dump</span><span class="o">-</span><span class="n">cmdline</span><span class="p">]</span>
-      <span class="p">[</span><span class="o">-</span><span class="n">R</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">I</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">V</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">J</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">H</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">stats</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">profile</span> <span class="n">PROFILE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">log</span><span class="o">-</span><span class="n">time</span><span class="p">]</span>
-      <span class="p">[</span><span class="o">--</span><span class="n">pdb</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">debug</span><span class="o">-</span><span class="n">traps</span><span class="p">]</span>
-
-   <span class="n">Synchronize</span> <span class="n">local</span> <span class="n">mapping</span> <span class="ow">and</span> <span class="n">reference</span> <span class="n">caches</span> <span class="k">for</span> <span class="n">the</span> <span class="n">given</span> <span class="n">contexts</span> <span class="n">by</span>
-   <span class="n">downloading</span> <span class="n">missing</span> <span class="n">files</span> <span class="kn">from</span> <span class="nn">the</span> <span class="n">CRDS</span> <span class="n">server</span> <span class="ow">and</span><span class="o">/</span><span class="ow">or</span> <span class="n">archive</span><span class="o">.</span>
-
-<span class="n">optional</span> <span class="n">arguments</span><span class="p">::</span>
- <span class="o">-</span><span class="n">h</span><span class="p">,</span> <span class="o">--</span><span class="n">help</span>            <span class="n">show</span> <span class="n">this</span> <span class="n">help</span> <span class="n">message</span> <span class="ow">and</span> <span class="n">exit</span>
- <span class="o">--</span><span class="n">contexts</span> <span class="p">[</span><span class="n">CONTEXT</span> <span class="p">[</span><span class="n">CONTEXT</span> <span class="o">...</span><span class="p">]]</span>
-                       <span class="n">Specify</span> <span class="n">a</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">CRDS</span> <span class="n">mappings</span> <span class="n">to</span> <span class="n">operate</span> <span class="n">on</span><span class="p">:</span> <span class="o">.</span><span class="n">pmap</span><span class="p">,</span> <span class="o">.</span><span class="n">imap</span><span class="p">,</span> <span class="ow">or</span> <span class="o">.</span><span class="n">rmap</span> <span class="ow">or</span> <span class="n">date</span><span class="o">-</span><span class="n">based</span> <span class="n">specification</span>
- <span class="o">--</span><span class="nb">range</span> <span class="n">MIN</span><span class="p">:</span><span class="n">MAX</span>       <span class="n">Operate</span> <span class="k">for</span> <span class="n">pipeline</span> <span class="n">context</span> <span class="n">ids</span> <span class="p">(</span><span class="o">.</span><span class="n">pmaps</span><span class="p">)</span> <span class="n">between</span> <span class="o">&lt;</span><span class="n">MIN</span><span class="o">&gt;</span> <span class="ow">and</span> <span class="o">&lt;</span><span class="n">MAX</span><span class="o">&gt;.</span>
- <span class="o">--</span><span class="nb">all</span>                 <span class="n">Operate</span> <span class="k">with</span> <span class="n">respect</span> <span class="n">to</span> <span class="nb">all</span> <span class="n">known</span> <span class="n">CRDS</span> <span class="n">contexts</span><span class="o">.</span>
- <span class="o">--</span><span class="n">last</span><span class="o">-</span><span class="n">n</span><span class="o">-</span><span class="n">contexts</span> <span class="n">N</span>   <span class="n">Operate</span> <span class="k">with</span> <span class="n">respect</span> <span class="n">to</span> <span class="n">the</span> <span class="n">last</span> <span class="n">N</span> <span class="n">contexts</span><span class="o">.</span>
- <span class="o">--</span><span class="n">up</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">context</span> <span class="n">CONTEXT</span>
-                       <span class="n">Operate</span> <span class="n">on</span> <span class="nb">all</span> <span class="n">contexts</span> <span class="n">up</span> <span class="n">to</span> <span class="ow">and</span> <span class="n">including</span> <span class="n">the</span> <span class="n">specified</span> <span class="n">context</span><span class="o">.</span>
- <span class="o">--</span><span class="n">after</span><span class="o">-</span><span class="n">context</span> <span class="n">CONTEXT</span>
-                       <span class="n">Operate</span> <span class="n">on</span> <span class="nb">all</span> <span class="n">contexts</span> <span class="n">after</span> <span class="ow">and</span> <span class="n">including</span> <span class="n">the</span> <span class="n">specified</span> <span class="n">context</span><span class="o">.</span>
- <span class="o">--</span><span class="n">files</span> <span class="p">[</span><span class="n">FILES</span> <span class="p">[</span><span class="n">FILES</span> <span class="o">...</span><span class="p">]]</span>
-                       <span class="n">Explicitly</span> <span class="nb">list</span> <span class="n">files</span> <span class="n">to</span> <span class="n">be</span> <span class="n">synced</span><span class="o">.</span>
- <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="n">files</span> <span class="p">[</span><span class="n">DATASET</span> <span class="p">[</span><span class="n">DATASET</span> <span class="o">...</span><span class="p">]]</span>
-                       <span class="n">Cache</span> <span class="n">references</span> <span class="k">for</span> <span class="n">the</span> <span class="n">specified</span> <span class="n">datasets</span> <span class="n">FITS</span> <span class="n">files</span><span class="o">.</span>
- <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="n">ids</span> <span class="p">[</span><span class="n">DATASET</span> <span class="p">[</span><span class="n">DATASET</span> <span class="o">...</span><span class="p">]]</span>
-                       <span class="n">Cache</span> <span class="n">references</span> <span class="k">for</span> <span class="n">the</span> <span class="n">specified</span> <span class="n">dataset</span> <span class="n">ids</span><span class="o">.</span>
- <span class="o">--</span><span class="n">fetch</span><span class="o">-</span><span class="n">references</span>    <span class="n">Cache</span> <span class="nb">all</span> <span class="n">the</span> <span class="n">references</span> <span class="k">for</span> <span class="n">the</span> <span class="n">specified</span> <span class="n">contexts</span><span class="o">.</span>
- <span class="o">--</span><span class="n">purge</span><span class="o">-</span><span class="n">references</span>    <span class="n">Remove</span> <span class="n">reference</span> <span class="n">files</span> <span class="ow">not</span> <span class="n">referred</span> <span class="n">to</span> <span class="n">by</span> <span class="n">contexts</span> <span class="kn">from</span> <span class="nn">the</span> <span class="n">cache</span><span class="o">.</span>
- <span class="o">--</span><span class="n">purge</span><span class="o">-</span><span class="n">mappings</span>      <span class="n">Remove</span> <span class="n">mapping</span> <span class="n">files</span> <span class="ow">not</span> <span class="n">referred</span> <span class="n">to</span> <span class="n">by</span> <span class="n">contexts</span> <span class="kn">from</span> <span class="nn">the</span> <span class="n">cache</span><span class="o">.</span>
- <span class="o">--</span><span class="n">dry</span><span class="o">-</span><span class="n">run</span>             <span class="n">Don</span><span class="s1">&#39;t remove purged files, or repair files,  just print out their names.</span>
- <span class="o">-</span><span class="n">k</span><span class="p">,</span> <span class="o">--</span><span class="n">check</span><span class="o">-</span><span class="n">files</span>     <span class="n">Check</span> <span class="n">cached</span> <span class="n">files</span> <span class="n">against</span> <span class="n">the</span> <span class="n">CRDS</span> <span class="n">database</span> <span class="ow">and</span> <span class="n">report</span> <span class="n">anomalies</span><span class="o">.</span>
- <span class="o">-</span><span class="n">s</span><span class="p">,</span> <span class="o">--</span><span class="n">check</span><span class="o">-</span><span class="n">sha1sum</span>   <span class="n">For</span> <span class="o">--</span><span class="n">check</span><span class="o">-</span><span class="n">files</span><span class="p">,</span>  <span class="n">also</span> <span class="n">verify</span> <span class="n">file</span> <span class="n">sha1sums</span><span class="o">.</span>
- <span class="o">-</span><span class="n">r</span><span class="p">,</span> <span class="o">--</span><span class="n">repair</span><span class="o">-</span><span class="n">files</span>    <span class="n">Repair</span> <span class="ow">or</span> <span class="n">re</span><span class="o">-</span><span class="n">download</span> <span class="n">files</span> <span class="n">noted</span> <span class="k">as</span> <span class="n">bad</span> <span class="n">by</span> <span class="o">--</span><span class="n">check</span><span class="o">-</span><span class="n">files</span>
- <span class="o">--</span><span class="n">purge</span><span class="o">-</span><span class="n">rejected</span>      <span class="n">Purge</span> <span class="n">files</span> <span class="n">noted</span> <span class="k">as</span> <span class="n">rejected</span> <span class="n">by</span> <span class="o">--</span><span class="n">check</span><span class="o">-</span><span class="n">files</span>
- <span class="o">--</span><span class="n">purge</span><span class="o">-</span><span class="n">blacklisted</span>   <span class="n">Purge</span> <span class="n">files</span> <span class="p">(</span><span class="ow">and</span> <span class="n">their</span> <span class="n">mapping</span> <span class="n">anscestors</span><span class="p">)</span> <span class="n">noted</span> <span class="k">as</span> <span class="n">blacklisted</span> <span class="n">by</span> <span class="o">--</span><span class="n">check</span><span class="o">-</span><span class="n">files</span>
- <span class="o">--</span><span class="n">fetch</span><span class="o">-</span><span class="n">sqlite</span><span class="o">-</span><span class="n">db</span>     <span class="n">Download</span> <span class="n">a</span> <span class="n">sqlite3</span> <span class="n">version</span> <span class="n">of</span> <span class="n">the</span> <span class="n">CRDS</span> <span class="n">file</span> <span class="n">catalog</span><span class="o">.</span>
- <span class="o">--</span><span class="n">organize</span> <span class="p">[</span><span class="n">NEW_SUBDIR_MODE</span><span class="p">]</span>
-                       <span class="n">Migrate</span> <span class="n">cache</span> <span class="n">to</span> <span class="n">specified</span> <span class="n">structure</span><span class="p">,</span> <span class="s1">&#39;flat&#39;</span> <span class="ow">or</span> <span class="s1">&#39;instrument&#39;</span><span class="o">.</span> <span class="n">WARNING</span><span class="p">:</span> <span class="n">perform</span> <span class="n">only</span> <span class="n">on</span> <span class="n">idle</span> <span class="n">caches</span><span class="o">.</span>
- <span class="o">--</span><span class="n">organize</span><span class="o">-</span><span class="n">delete</span><span class="o">-</span><span class="n">junk</span>
-                       <span class="n">When</span> <span class="o">--</span><span class="n">organize</span><span class="s1">&#39;ing, delete obstructing files or directories CRDS discovers.</span>
- <span class="o">--</span><span class="n">verify</span><span class="o">-</span><span class="n">context</span><span class="o">-</span><span class="n">change</span>
-                       <span class="n">Make</span> <span class="n">it</span> <span class="n">an</span> <span class="n">error</span> <span class="k">if</span> <span class="n">the</span> <span class="n">context</span> <span class="n">does</span> <span class="ow">not</span> <span class="n">update</span> <span class="n">to</span> <span class="n">something</span> <span class="n">new</span><span class="o">.</span>
- <span class="o">--</span><span class="n">push</span><span class="o">-</span><span class="n">context</span> <span class="n">KEY</span>    <span class="n">Push</span> <span class="n">the</span> <span class="n">name</span> <span class="n">of</span> <span class="n">the</span> <span class="n">final</span> <span class="n">cached</span> <span class="n">context</span> <span class="n">to</span> <span class="n">the</span> <span class="n">server</span> <span class="k">for</span> <span class="n">the</span> <span class="n">pipeline</span> <span class="n">identified</span> <span class="n">by</span> <span class="n">KEY</span><span class="o">.</span>
- <span class="o">--</span><span class="n">clear</span><span class="o">-</span><span class="n">pickles</span>       <span class="n">Remove</span> <span class="nb">all</span> <span class="n">context</span> <span class="n">pickles</span> <span class="kn">from</span> <span class="nn">the</span> <span class="n">CRDS</span> <span class="n">cache</span><span class="o">.</span> <span class="n">Can</span> <span class="n">precede</span> <span class="o">--</span><span class="n">save</span><span class="o">-</span><span class="n">pickles</span><span class="o">.</span>
- <span class="o">--</span><span class="n">save</span><span class="o">-</span><span class="n">pickles</span>        <span class="n">Save</span> <span class="n">pre</span><span class="o">-</span><span class="n">compiled</span> <span class="n">versions</span> <span class="n">of</span> <span class="n">the</span> <span class="n">sync</span><span class="s1">&#39;ed contexts in the CRDS cache.  Keep pre-existing pickles.</span>
- <span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="nb">dir</span> <span class="n">OUTPUT_DIR</span>
-                       <span class="n">Directory</span> <span class="n">to</span> <span class="n">output</span> <span class="n">sync</span><span class="s1">&#39;ed files, for simple syncs.</span>
- <span class="o">--</span><span class="n">clear</span><span class="o">-</span><span class="n">locks</span>         <span class="n">Remove</span> <span class="n">CRDS</span> <span class="n">cache</span> <span class="n">file</span> <span class="n">lock</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span>
- <span class="o">--</span><span class="n">force</span><span class="o">-</span><span class="n">config</span><span class="o">-</span><span class="n">update</span>
-                       <span class="n">Even</span> <span class="k">if</span> <span class="n">sync</span> <span class="n">errors</span> <span class="n">occur</span><span class="p">,</span> <span class="n">attempt</span> <span class="n">to</span> <span class="n">update</span> <span class="n">the</span> <span class="n">CRDS</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">including</span> <span class="n">the</span> <span class="n">default</span> <span class="n">context</span><span class="o">.</span>
- <span class="o">-</span><span class="n">v</span><span class="p">,</span> <span class="o">--</span><span class="n">verbose</span>         <span class="n">Set</span> <span class="n">log</span> <span class="n">verbosity</span> <span class="n">to</span> <span class="kc">True</span><span class="p">,</span>  <span class="n">nominal</span> <span class="n">debug</span> <span class="n">level</span><span class="o">.</span>
- <span class="o">--</span><span class="n">verbosity</span> <span class="n">VERBOSITY</span>
-                       <span class="n">Set</span> <span class="n">log</span> <span class="n">verbosity</span> <span class="n">to</span> <span class="n">a</span> <span class="n">specific</span> <span class="n">level</span><span class="p">:</span> <span class="mf">0.</span><span class="o">.</span><span class="mf">100.</span>
- <span class="o">--</span><span class="n">dump</span><span class="o">-</span><span class="n">cmdline</span>        <span class="n">Dump</span> <span class="n">the</span> <span class="n">command</span> <span class="n">line</span> <span class="n">parameters</span> <span class="n">used</span> <span class="n">to</span> <span class="n">start</span> <span class="n">the</span> <span class="n">script</span> <span class="n">to</span> <span class="n">the</span> <span class="n">log</span><span class="o">.</span>
- <span class="o">-</span><span class="n">R</span><span class="p">,</span> <span class="o">--</span><span class="n">readonly</span><span class="o">-</span><span class="n">cache</span>  <span class="n">Don</span><span class="s1">&#39;t modify the CRDS cache.  Not compatible with options which implicitly modify the cache.</span>
- <span class="o">-</span><span class="n">I</span><span class="p">,</span> <span class="o">--</span><span class="n">ignore</span><span class="o">-</span><span class="n">cache</span>    <span class="n">Download</span> <span class="n">required</span> <span class="n">files</span> <span class="n">even</span> <span class="k">if</span> <span class="n">they</span><span class="s1">&#39;re already in the cache.</span>
- <span class="o">-</span><span class="n">V</span><span class="p">,</span> <span class="o">--</span><span class="n">version</span>         <span class="n">Print</span> <span class="n">the</span> <span class="n">software</span> <span class="n">version</span> <span class="ow">and</span> <span class="n">exit</span><span class="o">.</span>
- <span class="o">-</span><span class="n">J</span><span class="p">,</span> <span class="o">--</span><span class="n">jwst</span>            <span class="n">Force</span> <span class="n">observatory</span> <span class="n">to</span> <span class="n">JWST</span> <span class="k">for</span> <span class="n">determining</span> <span class="n">header</span> <span class="n">conventions</span><span class="o">.</span>
- <span class="o">-</span><span class="n">H</span><span class="p">,</span> <span class="o">--</span><span class="n">hst</span>             <span class="n">Force</span> <span class="n">observatory</span> <span class="n">to</span> <span class="n">HST</span> <span class="k">for</span> <span class="n">determining</span> <span class="n">header</span> <span class="n">conventions</span><span class="o">.</span>
- <span class="o">--</span><span class="n">stats</span>               <span class="n">Track</span> <span class="ow">and</span> <span class="nb">print</span> <span class="n">timing</span> <span class="n">statistics</span><span class="o">.</span>
- <span class="o">--</span><span class="n">profile</span> <span class="n">PROFILE</span>     <span class="n">Output</span> <span class="n">profile</span> <span class="n">stats</span> <span class="n">to</span> <span class="n">the</span> <span class="n">specified</span> <span class="n">file</span><span class="o">.</span>
- <span class="o">--</span><span class="n">log</span><span class="o">-</span><span class="n">time</span>            <span class="n">Add</span> <span class="n">date</span><span class="o">/</span><span class="n">time</span> <span class="n">to</span> <span class="n">log</span> <span class="n">messages</span><span class="o">.</span>
- <span class="o">--</span><span class="n">pdb</span>                 <span class="n">Run</span> <span class="n">under</span> <span class="n">pdb</span><span class="o">.</span>
- <span class="o">--</span><span class="n">debug</span><span class="o">-</span><span class="n">traps</span>         <span class="n">Bypass</span> <span class="n">exception</span> <span class="n">error</span> <span class="n">message</span> <span class="n">traps</span> <span class="ow">and</span> <span class="n">re</span><span class="o">-</span><span class="k">raise</span> <span class="n">exception</span><span class="o">.</span>
-</pre></div>
-</div>
+<p>The CRDS sync tool is used to download CRDS rules and references from the CRDS
+server.  While the sync tool can download files which are specified explicitly,
+it’s primary purpose is to download and manage files with respect to specified
+versions of CRDS rules.   While the download directory of files can be
+explicitly specified,  sync is primarily used to download files to a CRDS
+cache which organizes and can locate files in a standard way.</p>
 <ul>
 <li><p class="first">Dry-Running Cache Changes</p>
 <blockquote>
-<div><p>Since CRDS cache operations can involve significant network downloads,  as a general note,
-crds.sync can be run with <em>—readonly-cache —verbose</em> switches to better determine what
-the effects of any command should be.   This can be used to gauge download sizes or list
-files before deleting them.</p>
-</div></blockquote>
-</li>
-<li><p class="first">Syncing Specific Files</p>
-<blockquote>
-<div><p>Downloading an explicit list of files can be done by like this:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span>  <span class="o">--</span><span class="n">files</span> <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span> <span class="n">hst_acs_darkfile_0037</span><span class="o">.</span><span class="n">fits</span>
-</pre></div>
-</div>
-<p>this will download only those two files into the appropriate locations
-in your CRDS cache.</p>
-<p>An output directory outside the CRDS cache can also be specified like
-this:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span> <span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="nb">dir</span> <span class="o">.</span> <span class="o">--</span><span class="n">files</span> <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span> <span class="n">hst_acs_darkfile_0037</span><span class="o">.</span><span class="n">fits</span>
-</pre></div>
-</div>
-<p>which will fetch the same files but put them in the current working
-directory “.” instead of at their implicit locations in the CRDS cache.</p>
+<div><p>Since CRDS cache operations can involve significant network downloads, as a
+general note, crds.sync can be run with <em>—readonly-cache —verbose</em>
+switches to better determine what the effects of any command should be.
+This can be used to gauge download sizes or list files before deleting them.</p>
 </div></blockquote>
 </li>
 <li><p class="first">Syncing Rules</p>
 <blockquote>
-<div><p>Typically syncing CRDS files is done with respect to particular CRDS contexts:</p>
+<div><p>Typically syncing CRDS files is done with respect to particular CRDS
+contexts:</p>
 <p>Synced contexts can be explicitly listed:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span>  <span class="o">--</span><span class="n">contexts</span> <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span> <span class="n">hst_0002</span><span class="o">.</span><span class="n">pmap</span>
 </pre></div>
 </div>
-<p>this will recursively download all the mappings referred to by .pmaps 0001 and 0002.</p>
+<p>this will recursively download all the mappings referred to by .pmaps 0001
+and 0002.</p>
 <p>Synced contexts can be specified as a numerical range:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span> <span class="o">--</span><span class="nb">range</span> <span class="mi">1</span><span class="p">:</span><span class="mi">3</span>
 </pre></div>
 </div>
-<p>this will also recursively download all the mappings referred to by .pmaps 0001, 002, 0003.</p>
+<p>this will also recursively download all the mappings referred to by .pmaps
+0001, 002, 0003.</p>
 <p>Synced contexts can be specified as –all contexts:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span> <span class="o">--</span><span class="nb">all</span>
 </pre></div>
@@ -647,16 +427,29 @@ directory “.” instead of at their implicit locations in the CRDS cache.</p>
 </li>
 <li><p class="first">Syncing References By Context</p>
 <blockquote>
-<div><p>Because complete reference downloads can be enormous,  you must explicitly specify when
-you wish to fetch the references which are enumerated in particular CRDS rules:</p>
+<div><p>Because complete reference downloads can be enormous, you must explicitly
+specify when you wish to fetch the references which are enumerated in
+particular CRDS rules:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span>  <span class="o">--</span><span class="n">contexts</span> <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span> <span class="n">hst_0002</span><span class="o">.</span><span class="n">pmap</span>  <span class="o">--</span><span class="n">fetch</span><span class="o">-</span><span class="n">references</span>
 </pre></div>
 </div>
 <p>will download all the references mentioned by contexts 0001 and 0002.</p>
-<p>This can be a huge (1T+) network download and should generally only be
-used by institutions,  not individual researchers.</p>
-<p><strong>NOTE:</strong> the contexts synced can be for particular instruments or types rather than
-the entire pipeline,  e.g. hst_cos_0002.imap or hst_cos_proftab_0001.rmap</p>
+</div></blockquote>
+</li>
+<li><p class="first">Syncing Specific Files</p>
+<blockquote>
+<div><p>Downloading an explicit list of files can be done by like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span>  <span class="o">--</span><span class="n">files</span> <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span> <span class="n">hst_acs_darkfile_0037</span><span class="o">.</span><span class="n">fits</span>
+</pre></div>
+</div>
+<p>this will download only those two files.</p>
+<p>Specific files can also be downloaded using symbolic names and output
+to a specified directory,  for example,  like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span> <span class="o">--</span><span class="n">files</span> <span class="n">jwst</span><span class="o">-</span><span class="n">nircam</span><span class="o">-</span><span class="n">flat</span><span class="o">-</span><span class="n">edit</span> <span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="nb">dir</span> <span class="o">.</span>
+</pre></div>
+</div>
+<p>Will download the latest NIRCAM FLAT .rmap to the current working
+directory, which can be useful when doing CRDS rmap adjustments.</p>
 </div></blockquote>
 </li>
 <li><p class="first">Removing Unused Files</p>
@@ -678,8 +471,10 @@ the entire pipeline,  e.g. hst_cos_0002.imap or hst_cos_proftab_0001.rmap</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span>  <span class="o">--</span><span class="n">contexts</span> <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span> <span class="n">hst_0002</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="n">files</span>  <span class="o">&lt;</span><span class="n">dataset_files</span><span class="o">...&gt;</span> <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">acs_J8D219010</span><span class="o">.</span><span class="n">fits</span>
 </pre></div>
 </div>
-<p>This will fetch all the references required to support the listed datasets for contexts 0001 and 0002.</p>
-<p>This mode does not update dataset file headers.  See also crds.bestrefs for similar functionality with header updates.</p>
+<p>This will fetch all the references required to support the listed
+datasets for contexts 0001 and 0002.</p>
+<p>This mode does not update dataset file headers.  See also crds.bestrefs
+for similar functionality with header updates.</p>
 </div></blockquote>
 </li>
 <li><p class="first">References for Dataset Ids</p>
@@ -698,51 +493,78 @@ the entire pipeline,  e.g. hst_cos_0002.imap or hst_cos_proftab_0001.rmap</p>
 </pre></div>
 </div>
 <p>will download all the files in hst_0001.pmap not already present.</p>
-<p>Both mappings and references would then be checked for correct length, sha1sum, and status.</p>
-<p>Any files with bad length or checksum would then be deleted and re-downloaded.   This is really intended
-for a large <em>existing</em> cache.</p>
-<p>File checksum verification is optional because it is time consuming.  Verifying the contents of the current
-HST shared cache requires 8-10 hours.   In contrast, doing simple length, existence, and status checks
-takes 5-10 minutes,  sufficient for a quick check but not foolproof.</p>
+<p>Both mappings and references would then be checked for correct length,
+sha1sum, and status.</p>
+<p>Any files with bad length or checksum would then be deleted and
+re-downloaded.  This is really intended for a large <em>existing</em> cache.</p>
+<p>File checksum verification is optional because it is time consuming.
+Verifying the contents of the current HST shared cache requires 8-10 hours.
+In contrast, doing simple length, existence, and status checks takes 5-10
+minutes, sufficient for a quick check but not foolproof.</p>
 </div></blockquote>
 </li>
 <li><p class="first">Checking Smaller Caches,  Identifying Foreign Files</p>
 <blockquote>
-<div><p>The simplest approach for “repairing” a small cache is to delete it and resync.   One might do this
-after making temporary modifications to cached files to return to the archived version:</p>
+<div><p>The simplest approach for “repairing” a small cache is to delete it and
+resync.  One might do this after making temporary modifications to cached
+files to return to the archived version:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>% rm -rf $CRDS_PATH
 % crds sync  -- ...  # repeat whatever syncs you did to cache files of interest
 </pre></div>
 </div>
-<p>A more complicated but also more precise approach can operate only on files already in the CRDS cache:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>% crds sync --check-files --files `crds list --all --cached-mappings --cached-references`
+<p>A more complicated but also more precise approach can operate only on files
+already in the CRDS cache:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>% crds sync --repair-files --check-sha1sum --files `crds list --all --cached-mappings --cached-references`
 </pre></div>
 </div>
-<p>This approach works by using the crds.list command to dump the file names of all files in the CRDS cache
-and then using the crds.sync command to check exactly those files.</p>
-<p>Since crds.list will print the name of any rule or reference in the cache,  not just files from CRDS,
-the second approach can also be used to detect (most likely test) files which are not from CRDS.</p>
-<p>For smaller caches <em>–check-sha1sum</em> is likekly to be less of a performance/runtime issue and should be used
-to detect files which have changed in contents but not in length,  particularly CRDS mapping files.</p>
+<p>This approach works by using the crds.list command to dump the file names
+of all files in the CRDS cache and then using the crds.sync command to
+check exactly those files.</p>
+<p>Since crds.list will print the name of any file in the cache, not just
+files from CRDS, the second approach can also be used to detect (most
+likely test) files which are not from CRDS.</p>
+<p>For smaller caches <em>–check-sha1sum</em> is likekly to be less of a
+performance/runtime issue and should be used to detect files which have
+changed in contents but not in length.</p>
 </div></blockquote>
 </li>
-<li><p class="first">Removing blacklisted or rejected files</p>
+<li><p class="first">Removing Blacklisted or Rejected Files</p>
 <blockquote>
-<div><p>crds.sync can be used to remove the files from specific contexts which have been marked as “bad”.</p>
-<blockquote>
-<div><p>% crds sync –contexts hst_0001.pmap –fetch-references –check-files –purge-rejected –purge-blacklisted</p>
+<div><p>crds.sync can be used to remove the files from specific contexts which have
+been marked as “bad”:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span> <span class="o">--</span><span class="n">contexts</span> <span class="n">hst_0001</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">fetch</span><span class="o">-</span><span class="n">references</span> <span class="o">--</span><span class="n">check</span><span class="o">-</span><span class="n">files</span> <span class="o">--</span><span class="n">purge</span><span class="o">-</span><span class="n">rejected</span> <span class="o">--</span><span class="n">purge</span><span class="o">-</span><span class="n">blacklisted</span>
+</pre></div>
+</div>
+<p>would first sync the cache downloading all the files in hst_0001.pmap.
+Both mappings and references would then be checked for correct length.
+Files reported as rejected or blacklisted by the server would be removed.</p>
 </div></blockquote>
-<p>would first sync the cache downloading all the files in hst_0001.pmap.  Both mappings and references would then
-be checked for correct length.   Files reported as rejected or blacklisted by the server would be removed.</p>
+</li>
+<li><p class="first">Reorganizing Cache Structure</p>
+<blockquote>
+<div><p>CRDS now supports two cache structures for organizing references: flat and
+instrument.  <em>flat</em> places all references for a telescope in a single
+directory, e.g. references/hst.  <em>instrument</em> segregates references into
+subdirectories which name instruments or legacy environment variables,
+e.g. acs or jref.</p>
+<p>Newly created caches will default to the <em>instrument</em> organization.  To
+migrate a legacy cache with a flat single directory layout to the new
+structure, sync with –organize=instrument:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span> <span class="o">--</span><span class="n">organize</span><span class="o">=</span><span class="n">instrument</span> <span class="o">--</span><span class="n">verbose</span>
+</pre></div>
+</div>
 </div></blockquote>
 </li>
 <li><p class="first">Reorganizing cache structure</p>
 <blockquote>
-<div><p>CRDS now supports two cache structures for organizing references: flat and instrument.  <em>flat</em> places all references
-for a telescope in a single directory,  e.g. references/hst.   <em>instrument</em> segregates references into subdirectories
-which name instruments or legacy environment variables,  e.g. acs or jref.</p>
-<p>Newly created caches will default to the <em>instrument</em> organization.  To migrate a legacy cache with a flat single
-directory layout to the new structure,  sync with –organize=instrument:</p>
+<div><p>CRDS now supports two cache structures for organizing references: flat
+and instrument.  <em>flat</em> places all references for a telescope in a
+single directory, e.g. references/hst.  <em>instrument</em> segregates
+references into subdirectories which name instruments or legacy
+environment variables, e.g. acs or jref.</p>
+<p>Newly created caches will default to the <em>instrument</em> organization.  To
+migrate a legacy cache with a flat single directory layout to the new
+structure, sync with –organize=instrument:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">sync</span> <span class="o">--</span><span class="n">organize</span><span class="o">=</span><span class="n">instrument</span> <span class="o">--</span><span class="n">verbose</span>
 </pre></div>
 </div>
@@ -762,12 +584,12 @@ when calibration software is not running and actively using CRDS.</p>
 <div class="section" id="crds-certify">
 <h2>crds.certify<a class="headerlink" href="#crds-certify" title="Permalink to this headline">¶</a></h2>
 <p>crds.certify checks a reference or mapping file against constraints on legal
-matching parameter values.   For reference files,  crds.certify also performs checks
-of the FITS format and when given a context,  and will compare the given file against
-the file it replaces looking for new or missing table rows.</p>
+matching parameter values.  For reference files, crds.certify also performs
+checks of the FITS format and when given a context, and will compare the given
+file against the file it replaces looking for new or missing table rows.</p>
 <ul>
 <li><p class="first">crds certify –help yields:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">homer</span><span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">workspace_crds</span><span class="o">/</span><span class="n">CRDS</span><span class="o">/</span><span class="n">crds</span><span class="o">/</span><span class="n">certify</span><span class="o">.</span><span class="n">py</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">crds</span> <span class="n">certify</span> <span class="o">...</span>
    <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">d</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">r</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">a</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">e</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">p</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">x</span> <span class="n">COMPARISON_CONTEXT</span><span class="p">]</span>
    <span class="p">[</span><span class="o">-</span><span class="n">y</span> <span class="n">COMPARISON_REFERENCE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">s</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dump</span><span class="o">-</span><span class="n">unique</span><span class="o">-</span><span class="n">errors</span><span class="p">]</span>
    <span class="p">[</span><span class="o">--</span><span class="n">unique</span><span class="o">-</span><span class="n">errors</span><span class="o">-</span><span class="n">file</span> <span class="n">UNIQUE_ERRORS_FILE</span><span class="p">]</span>
@@ -821,24 +643,35 @@ the file it replaces looking for new or missing table rows.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">certify</span> <span class="o">--</span><span class="n">comparison</span><span class="o">-</span><span class="n">context</span><span class="o">=</span><span class="n">hst_0027</span><span class="o">.</span><span class="n">pmap</span>   <span class="o">./</span><span class="n">some_reference</span><span class="o">.</span><span class="n">fits</span><span class="o">...</span>
 </pre></div>
 </div>
-<p>If some_reference.fits is a table,  a comparison table will be found in the comparison context, if appropriate.</p>
+<p>If some_reference.fits is a table, a comparison table will be found in the
+comparison context, if appropriate.</p>
 </li>
 <li><p class="first">For recursively checking CRDS rules do this:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">certify</span> <span class="n">hst_0311</span><span class="o">.</span><span class="n">pmap</span> <span class="o">--</span><span class="n">comparison</span><span class="o">-</span><span class="n">context</span><span class="o">=</span><span class="n">hst_0312</span><span class="o">.</span><span class="n">pmap</span>
 </pre></div>
 </div>
-<p>If a comparison context is defined, checked mappings will be compared against their peers (if they exist) in
-the comparison context.  Many classes of mapping differences will result in warnings.</p>
+<p>If a comparison context is defined, checked mappings will be compared against
+their peers (if they exist) in the comparison context.  Many classes of
+mapping differences will result in warnings.</p>
 </li>
-<li><p class="first">For reference table checks,  a comparison reference can also be specified directly rather than inferred from context:</p>
+<li><p class="first">For reference table checks, a comparison reference can also be specified
+directly rather than inferred from context:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">certify</span> <span class="o">./</span><span class="n">some_reference</span><span class="o">.</span><span class="n">fits</span> <span class="o">--</span><span class="n">comparison</span><span class="o">-</span><span class="n">reference</span><span class="o">=</span><span class="n">old_reference_version</span><span class="o">.</span><span class="n">fits</span> <span class="o">--</span><span class="n">run</span><span class="o">-</span><span class="n">fitsverify</span> <span class="o">--</span><span class="n">dump</span><span class="o">-</span><span class="n">provenance</span>
 </pre></div>
 </div>
 </li>
 <li><p class="first">For more information on the checks being performed,  use –verbose or –verbosity=N where N &gt; 50.</p>
-<p>% crds certify ./some_reference.fits –comparison-reference=old_reference_version.fits –run-fitsverify –dump-provenance –verbose</p>
+<p>% crds certify –verbose …</p>
 </li>
-<li><p class="first">Invoking crds.certify on a context mapping recursively certifies all sub-mappings.</p>
+<li><p class="first">Invoking crds.certify on a context mapping recursively certifies all
+sub-mappings.</p>
+</li>
+<li><p class="first">Adding <em>–deep</em> when specifying mappings causes CRDS to certify not just the
+mappings, but every reference file referred to by the mappings:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="n">certify</span> <span class="o">--</span><span class="n">deep</span> <span class="n">jwst</span><span class="o">-</span><span class="n">edit</span>
+</pre></div>
+</div>
+<p>asks CRDS to certify all of the latest CRDS rules and references.</p>
 </li>
 </ul>
 </div>
@@ -871,11 +704,11 @@ configurations can be dumped:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">crds</span> <span class="nb">list</span> <span class="o">--</span><span class="n">status</span>
 <span class="n">CRDS</span> <span class="n">Version</span> <span class="o">=</span> <span class="s1">&#39;7.0.7, bump-version, 7432326&#39;</span>
 <span class="n">CRDS_MODE</span> <span class="o">=</span> <span class="s1">&#39;auto&#39;</span>
-<span class="n">CRDS_PATH</span> <span class="o">=</span> <span class="s1">&#39;/Users/jmiller/crds_cache_ops&#39;</span>
+<span class="n">CRDS_PATH</span> <span class="o">=</span> <span class="s1">&#39;/Users/homer/crds_cache_ops&#39;</span>
 <span class="n">CRDS_SERVER_URL</span> <span class="o">=</span> <span class="s1">&#39;https://jwst-crds.stsci.edu&#39;</span>
 <span class="n">Effective</span> <span class="n">Context</span> <span class="o">=</span> <span class="s1">&#39;jwst_0204.pmap&#39;</span>
 <span class="n">Last</span> <span class="n">Synced</span> <span class="o">=</span> <span class="s1">&#39;2016-09-20 08:00:09.115330&#39;</span>
-<span class="n">Python</span> <span class="n">Executable</span> <span class="o">=</span> <span class="s1">&#39;/Users/jmiller/anaconda/bin/python&#39;</span>
+<span class="n">Python</span> <span class="n">Executable</span> <span class="o">=</span> <span class="s1">&#39;/Users/homer/anaconda/bin/python&#39;</span>
 <span class="n">Python</span> <span class="n">Version</span> <span class="o">=</span> <span class="s1">&#39;3.5.2.final.0&#39;</span>
 <span class="n">Readonly</span> <span class="n">Cache</span> <span class="o">=</span> <span class="kc">False</span>
 </pre></div>
@@ -1188,7 +1021,7 @@ on a row-by-row basis, producing UNIX diff-like output instead.
 Non-tabular extensions are ignored.</p>
 <blockquote>
 <div><dl class="docutils">
-<dt>usage: rowdiff.py [-J] [-H]</dt>
+<dt>usage: crds rowdiff [-J] [-H]</dt>
 <dd>[–ignore-fields IGNORE_FIELDS]
 [–fields FIELDS]
 [–mode-fields MODE_FIELDS] old_file new_file</dd>
@@ -1319,7 +1152,7 @@ local cache will be included in the results given.  crds.uses is invoked as:</p>
 <h2>crds.matches<a class="headerlink" href="#crds-matches" title="Permalink to this headline">¶</a></h2>
 <p>crds.matches reports the match patterns which are associated with the given
 reference files:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">matches</span><span class="o">.</span><span class="n">py</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">crds</span> <span class="n">matches</span> <span class="o">...</span>
        <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">contexts</span> <span class="p">[</span><span class="n">CONTEXT</span> <span class="p">[</span><span class="n">CONTEXT</span> <span class="o">...</span><span class="p">]]]</span>
        <span class="p">[</span><span class="o">--</span><span class="n">files</span> <span class="n">FILES</span> <span class="p">[</span><span class="n">FILES</span> <span class="o">...</span><span class="p">]]</span> <span class="p">[</span><span class="o">-</span><span class="n">b</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">o</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">t</span><span class="p">]</span>
 
@@ -1686,7 +1519,7 @@ the environment settings and required Python stack and eliminate all parameters:
   <div role="contentinfo">
     <p>
         &copy; Copyright 2017, Space Telescope Science Institute.
-      Last updated on Jun 06, 2018.
+      Last updated on Jun 08, 2018.
 
     </p>
   </div>
