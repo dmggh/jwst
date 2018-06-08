@@ -9,7 +9,7 @@ HOST = "iljwdmsccrds"
 PROXY = "jwst-crds-cit"
 observatory = 'jwst'
 server_usecase ="cit"
-CRDS_SERVER_IP = "10.128.19.216"
+CRDS_SERVER_IP = "10.128.19.148"
 port = 8001
 
 # This is a VM-related storage partition used as server space
@@ -25,7 +25,7 @@ PYSYN_CDBS = ""
 
 # These are the file states which are available for download or rpc.
 # XXX TODO restrict to archived or operational
-CRDS_DISTRIBUTION_STATES =  [ "archived", "operational", "delivered", "submitted", "archiving"]
+CRDS_DISTRIBUTION_STATES =  [ "archived", "operational"] # "delivered", "submitted", "archiving"]
 
 # The primary URL used by end-users which passes through a proxy which
 # assigns more user-friendly URLs based on standard ports 443.
