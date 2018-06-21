@@ -31,6 +31,8 @@ FIELDS = [
     ("Resolved", "fields.resolutiondate", format_date),
 ]
 
+FIELD_NAMES = [ field[0] for field in FIELDS ]
+
 JIRA_AUTHENTICATION_INFO = "/crds/data1/database/jira_auth_info.txt"
 
 # =================================================================
@@ -111,10 +113,14 @@ class JiraConnection(object):
         link_defs = "\n".join(link_defs)
         return table + "\n" + link_defs + "\n"
                                    
-def main(days_back):
+def main(days_back, fields=FIELD_NAMES):
     days_back = int(days_back)
-    j = JiraConnection(days_back)
+    field_dict = { field[0] : field for field in FIELDS }
+    reduced_fields = [ field_dict[field] for field in fields]
+    j = JiraConnection(days_back, reduced_fields)
     print(j.to_rst())
 
 if __name__ == "__main__":
-    main(sys.argv[1])
+    days_back = sys.argv[1]
+    fields = sys.argv[2].split(",") if len(sys.argv) > 2 else FIELD_NAMES
+    main(days_back, fields)

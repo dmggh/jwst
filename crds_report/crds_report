@@ -2,9 +2,10 @@
 
 DAYS_BACK=$1   # negative number
 TITLE="${2}"   # E-mail subject and report titles
+FIELDS="${3}"
 
 python crds_underline.py "${TITLE}"
-python crds_jira.py $DAYS_BACK
+python crds_jira.py ${DAYS_BACK} ${FIELDS}
 python crds_server_status.py jwst ops https://jwst-crds.stsci.edu $DAYS_BACK
 python crds_server_status.py hst ops https://hst-crds.stsci.edu $DAYS_BACK
 python crds_server_status.py hst test https://hst-crds-test.stsci.edu $DAYS_BACK
