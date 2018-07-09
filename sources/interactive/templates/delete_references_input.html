@@ -13,18 +13,18 @@
           id="delete_references_form" class="jpoll_ajax_html_form"
           onsubmit="return crds.validate_and_confirm_add_delete(this);" >  {% csrf_token %}
       
-      <div title="Newline separated list of *existing* CRDS reference file names."> 
-        <h3>Deleted Files:</h3>
+      <div>
+        <h3 title="Newline separated list of *existing* CRDS reference file names.">Deleted Files:</h3>
         <textarea name="deleted_files" cols="50" rows="4" >{{deleted_files}}</textarea>
       </div>
       
-      <div title="Version of CRDS rules from which named references are removed."> 
-        <h3>Derive From Context:</h3>
+      <div>
+        <h3 title="Version of CRDS rules from which named references are removed.">Derive From Context:</h3>
         {% include "select_pmap.html" %}
       </div>
 
-      <div title="Rationale behind removing these files from rules."> 
-        <h3>Description:</h3>
+      <div>
+        <h3 title="Rationale behind removing these files from rules.">Description:</h3>
         <textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea>   
       </div>
 

@@ -13,18 +13,18 @@
           id="add_existing_references_form" class="jpoll_ajax_html_form"
     	  onsubmit="return crds.validate_and_confirm_add_delete(this);">  {% csrf_token %}
 
-      <div title="Newline separated list of *existing* CRDS reference file names."> 
-        <h3>Added Files:</h3>
+      <div>
+        <h3 title="Newline separated list of *existing* CRDS reference file names.">Added Files:</h3>
         <textarea name="added_files" cols="50" rows="4" >{{added_files}}</textarea>
       </div>
 
-      <div title="Version of CRDS rules to which existing references are added."> 
-        <h3>Derive From Context:</h3>
+      <div>
+        <h3 title="Version of CRDS rules to which existing references are added.">Derive From Context:</h3>
         {% include "select_pmap.html" %}
       </div>
 
-       <div title="Rationale behind this rules change or file merge.">
-         <h3>Description:</h3>
+       <div>
+         <h3 title="Rationale behind this rules change or file merge.">Description:</h3>
          <textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea>   
        </div>
 

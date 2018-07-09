@@ -8,8 +8,8 @@
       enctype="multipart/form-data" 
       onsubmit="return crds.validate_set_context(this);" >  {% csrf_token %}
   
-  <div  title="Choose type of context to set, operational (pipeline) or edit">
-    <h3>Select:</h3>
+  <div>
+    <h3 title="Choose type of context to set, operational (pipeline) or edit">Select:</h3>
     <table border='1' width="100%">
       <tr>
         <th title="Type of context to set"
@@ -34,13 +34,13 @@
     </table>
   </div>
   
-  <div title="Value to set the selected context type to.">
-    <h3>Set To:</h3>
+  <div>
+    <h3 title="Value to set the selected context type to.">Set To:</h3>
     {% include "select_pmap.html" %}
   </div>
   
-  <div title="Describe content or reason for this context transition.">
-    <h3>Reason for Change:</h3>
+  <div>
+    <h3 title="Describe content or reason for this context transition.">Reason for Change:</h3>
     <p><textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea></p>
     <br/>
   </div>
