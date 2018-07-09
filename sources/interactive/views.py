@@ -1344,9 +1344,11 @@ def batch_submit_references_post(request):
 
     simplified_uploads = [ name for (name, path) in list(uploaded_files.items()) ]
 
+    username = request.user.first_name + " " + request.user.last_name
+    results_kind = "Batch Submit"
     mail.crds_notification(body=mail.GENERIC_STARTED_BODY, status="STARTED",
-            username=request.user.username, user_email=request.user.email, 
-            uploaded_files = simplified_uploads, results_kind = "Batch Submit References",
+            username=username, user_email=request.user.email, 
+            uploaded_files = simplified_uploads, results_kind = results_kind,
             description = description, monitor_url=jpoll_handler.monitor_url)
 
     bsr = submit.BatchReferenceSubmission(pmap_name, uploaded_files, description,
@@ -1391,8 +1393,8 @@ def batch_submit_references_post(request):
     renamed_uploads = list(new_references_map.items())
 
     mail.crds_notification(body=mail.GENERIC_READY_BODY, status=status,
-            username=request.user.username, user_email=request.user.email, 
-            uploaded_files = renamed_uploads, results_kind = "Batch Submit References",
+            username=username, user_email=request.user.email, 
+            uploaded_files = renamed_uploads, results_kind = results_kind,
             description = description, repeatable_url=result.authenticated_url)
     
     return redirect_jpoll_result(result, jpoll_handler)
@@ -1517,17 +1519,21 @@ def submit_confirm(request): #, button, results_id):
     
     result = render_repeatable_result(request, "confirmed.html", confirm_results)
 
+    username = request.user.first_name + " " + request.user.last_name
+    results_kind = repeatable_model.parameters["submission_kind"].title()
     mail.crds_notification(
         body = mail.GENERIC_CONFIRMED_BODY, status=disposition.upper(),
-        username = request.user.username, user_email = request.user.email, 
-        results_kind = repeatable_model.parameters["submission_kind"],
+        username = username, user_email = request.user.email, 
+        results_kind = results_kind,
         repeatable_url = result.abs_repeatable_url,
         to_addresses  = sconfig.CRDS_STATUS_CONFIRM_ADDRESSES,
         **confirm_results)
 
-    with log.error_on_exception("Failed releasing locks after confirm/cancel/force."):
-        instrument = locks.instrument_of(str(request.user))
-        locks.release_locks(name=instrument, type="instrument")
+    with log.error_on_exception(
+            "Failed logging and/or releasing lockss after confirm/cancel/force."):
+        # instrument = locks.instrument_of(str(request.user))
+        # locks.release_locks(name=instrument, type="instrument")
+        django.contrib.auth.logout(request)
     
     return redirect_jpoll_result(result, jpoll_handler)
 
@@ -1749,7 +1755,7 @@ def submit_files_post(request, crds_filetype):
 
     with log.error_on_exception("Failed Submit File STARTED e-mail"):
         simplified_uploads = [ name for (name, path) in list(uploaded_files.items()) ]
-        results_kind = f"Submit {crds_filetype.capitalize()}"
+        results_kind = f"Submit {crds_filetype.title()}"
         username = request.user.first_name + " " + request.user.last_name
         mail.crds_notification(
             body=mail.GENERIC_STARTED_BODY, status="STARTED",
