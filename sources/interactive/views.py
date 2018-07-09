@@ -2460,7 +2460,7 @@ def set_default_context(request):
         new_default = get_recent_or_user_context(request)
         context_type = validate(request, "context_type", models.CONTEXT_TYPES)
         description = validate(request, "description", common.DESCRIPTION_RE)
-        old_default = update_default_context(new_default, description, context_type, str(request.user))
+        old_default = update_default_context(new_default, description, context_type, request.user)
         return crds_render(request, "set_default_context_results.html", {
                     "new_default" :  new_default,
                     "old_default" :  old_default,
@@ -2514,10 +2514,20 @@ def update_default_context(new_default, description, context_type, user):
                         " contains known bad files and cannot be made the default (last 4 of " +
                         str(len(bad_files)) + " bad files): " + ", ".join(bad_files[-4:]))
     models.set_default_context(new_default, observatory=models.OBSERVATORY, state=context_type, description=description)
-    models.AuditBlob.new(user, "set default context",
+    models.AuditBlob.new(str(user), "set default context",
                          new_default, description,
                          context_type + " context changed from " +
                          srepr(old_default) + " to " + srepr(new_default))
+
+    with log.error_on_exception("Failed Update Default Context e-mail"):
+        username = user.first_name + " " + user.last_name
+        mail.crds_notification(
+            body=mail.UPDATE_CONTEXT_BODY, 
+            subject=f"Update {context_type} context from '{old_default}' to '{new_default}'.",
+            username=username, user_email=user.email, 
+            old_default=old_default, new_default=new_default, state=context_type,
+            description = description)
+        
     return old_default
 
 @profile("display_context_history.stats")
