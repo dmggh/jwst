@@ -1391,7 +1391,6 @@ def batch_submit_references_post(request):
         request, "batch_submit_reference_results.html", bsr_results)
 
     renamed_uploads = list(new_references_map.items())
-
     mail.crds_notification(body=mail.GENERIC_READY_BODY, status=status,
             username=username, user_email=request.user.email, 
             uploaded_files = renamed_uploads, results_kind = results_kind,
@@ -1568,6 +1567,16 @@ def delete_references_post(request):
     for deleted in deleted_files:
         assert deleted in pmap_references, "File " + repr(deleted) + " does not appear in context " + repr(pmap.name)
 
+    with log.error_on_exception("Failed Delete Existing STARTED e-mail"):
+        simplified_uploads = [ name for (name, path) in list(uploaded_files.items()) ]
+        results_kind = "Delete Existing"
+        username = request.user.first_name + " " + request.user.last_name
+        mail.crds_notification(
+            body=mail.GENERIC_STARTED_BODY, status="STARTED",
+            username=username, user_email=request.user.email, 
+            uploaded_files = simplified_uploads, results_kind = results_kind,
+            description = description, monitor_url=jpoll_handler.monitor_url)
+        
     drs = submit.DeleteReferenceSubmission(pmap_name, uploaded_files, description,
         user=request.user, instrument_lock_id=instrument_lock_id, status_channel=jpoll_handler)
     disposition, new_mappings_map, mapping_certs, mapping_diffs, collision_list = drs.submit()
@@ -1595,8 +1604,19 @@ def delete_references_post(request):
                 "disposition": disposition,
             }
 
-    return redirect_repeatable_result(request, "delete_references_results.html", del_results,
-                                    jpoll_handler=jpoll_handler)
+    result = render_repeatable_result(
+        request, 'delete_references_results.html', del_results)
+
+    with log.error_on_exception("Failed Delete Existing READY e-mail"):
+        renamed_uploads = list(new_mappings_map.items())
+        status = "READY" if not disposition else disposition.upper()
+        mail.crds_notification(
+            body=mail.GENERIC_READY_BODY, status=status,
+            username=username, user_email=request.user.email, 
+            uploaded_files = renamed_uploads, results_kind = results_kind,
+            description = description, repeatable_url=result.authenticated_url)
+        
+    return redirect_jpoll_result(result, jpoll_handler)
 
 # ===========================================================================
 
@@ -1626,6 +1646,16 @@ def add_existing_references_post(request):
     instrument_lock_id = get_instrument_lock_id(request)
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
+    with log.error_on_exception("Failed Add Existing STARTED e-mail"):
+        simplified_uploads = [ name for (name, path) in list(uploaded_files.items()) ]
+        results_kind = "Add Existing"
+        username = request.user.first_name + " " + request.user.last_name
+        mail.crds_notification(
+            body=mail.GENERIC_STARTED_BODY, status="STARTED",
+            username=username, user_email=request.user.email, 
+            uploaded_files = simplified_uploads, results_kind = results_kind,
+            description = description, monitor_url=jpoll_handler.monitor_url)
+        
     pmap = crds.get_symbolic_mapping(pmap_name)
     pmap_references = pmap.reference_names()
     for added in added_files:
@@ -1662,8 +1692,22 @@ def add_existing_references_post(request):
                 "disposition": disposition,
             }
 
-    return redirect_repeatable_result(request, "add_existing_references_results.html", add_results,
-                                    jpoll_handler=jpoll_handler)
+    result = render_repeatable_result(
+        request, 'add_existing_references_results.html', add_results)
+
+    with log.error_on_exception("Failed Add Existing READY e-mail"):
+        renamed_uploads = list(new_mappings_map.items())
+        status = "READY" if not disposition else disposition.upper()
+        mail.crds_notification(
+            body=mail.GENERIC_READY_BODY, status=status,
+            username=username, user_email=request.user.email, 
+            uploaded_files = renamed_uploads, results_kind = results_kind,
+            description = description, repeatable_url=result.authenticated_url)
+        
+    return redirect_jpoll_result(result, jpoll_handler)
+
+# ===========================================================================
+
 
 # ===========================================================================
 
