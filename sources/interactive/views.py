@@ -2406,6 +2406,16 @@ def mark_bad_post(request):
 
     models.clear_cache()
 
+    affected_files = sorted(list(affected_files))
+    with log.error_on_exception("Failed Mark Files Bad e-mail"):
+        username = request.user.first_name + " " + request.user.last_name
+        mail.crds_notification(
+            body=mail.MARK_BAD_BODY, badflag=badflag.upper(),
+            subject=f"Marked Files {badflag.upper()} by {username}.",
+            username=username, user_email=request.user.email, 
+            affected_files="\n".join(affected_files),
+            description = why)
+
     return crds_render(request, "mark_bad_results.html", { "affected_files": sorted(list(affected_files)) })
 
 def check_bad_file(blacklist_root):

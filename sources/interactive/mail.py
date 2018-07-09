@@ -17,6 +17,30 @@ from crds.server import config as sconfig
 
 # =============================================================================================
 
+MARK_BAD_BODY = """
+Marked Files '{badflag}' by '{username}'.
+
+{description}
+
+Affected Files:
+---------------
+{affected_files}
+
+"""
+
+# =============================================================================================
+
+UPDATE_CONTEXT_BODY = """
+Update Context by '{username}'.
+
+Changed '{state}' context from '{old_default} to '{new_default}'.
+
+{description}
+
+"""
+
+# =============================================================================================
+
 GENERIC_STARTED_BODY = """
 SUBMITTED '{results_kind}' by '{username}'.
 
