@@ -1747,6 +1747,16 @@ def submit_files_post(request, crds_filetype):
 
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
+    with log.error_on_exception("Failed Submit File STARTED e-mail"):
+        simplified_uploads = [ name for (name, path) in list(uploaded_files.items()) ]
+        results_kind = f"Submit {crds_filetype.capitalize()}"
+        username = request.user.first_name + " " + request.user.last_name
+        mail.crds_notification(
+            body=mail.GENERIC_STARTED_BODY, status="STARTED",
+            username=username, user_email=request.user.email, 
+            uploaded_files = simplified_uploads, results_kind = results_kind,
+            description = description, monitor_url=jpoll_handler.monitor_url)
+        
     simple = submit.SimpleFileSubmission(pmap_name, uploaded_files, description, user=request.user,
         creator=creator, change_level=change_level, auto_rename=auto_rename,
         compare_old_reference=compare_old_reference, instrument_lock_id=instrument_lock_id,
@@ -1776,7 +1786,19 @@ def submit_files_post(request, crds_filetype):
                 "disposition" : disposition,
     }
 
-    return redirect_repeatable_result(request, 'submit_results.html', rdict, jpoll_handler=jpoll_handler)
+    result = render_repeatable_result(
+        request, 'submit_results.html', rdict)
+
+    with log.error_on_exception("Failed Submit File READY e-mail"):
+        renamed_uploads = list(new_file_map.items())
+        status = "READY" if not disposition else disposition.upper()
+        mail.crds_notification(
+            body=mail.GENERIC_READY_BODY, status=status,
+            username=username, user_email=request.user.email, 
+            uploaded_files = renamed_uploads, results_kind = results_kind,
+            description = description, repeatable_url=result.authenticated_url)
+        
+    return redirect_jpoll_result(result, jpoll_handler)
 
 # ===========================================================================
 
