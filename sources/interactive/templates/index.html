@@ -49,7 +49,7 @@
                 <li><a href="/delivery_status/" title="Infer archiving status from files in the delivery directory">Delivery Status</a></li>
                 <li><a href="/set_password/" title="Update your password">Change Password</a></li>
                 {% if user|in_group:"file_submission" %}
-                    <li><a href="/set_default_context/" title="Choose the context everyone should use by default.  Afterward ask the pipeline operator to sync the CRDS cache">Set Context</a></li>
+                    <li><a href="/set_default_context/" title="Choose the context everyone should use by default.">Set Context</a></li>
                 {% endif %}
                 {% if user|in_group:"file_submission" and locked_instrument %}
                     <div class="title_bar" style="text-indent: -3em;">

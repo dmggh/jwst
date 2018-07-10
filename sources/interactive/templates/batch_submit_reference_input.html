@@ -17,14 +17,14 @@
           id="batch_submit_form" class="jpoll_ajax_html_form"
     	  onsubmit="return crds.validate_and_confirm_file_submit(this);">  {% csrf_token %}
 
-      <div title="Context new references will be added to generating new rules.">
-              <h3 >Derive From Context:</h3>
+      <div>
+              <h3 title="Context new references will be added to generating new rules.">Derive From Context:</h3>
       {% include "select_pmap.html" %}
       </div>
        <br/>
         
-        <div title="Degree that new files are expected to impact science results.">
-               <h3 style="display: inline;">Change Level: </h3>
+        <div>
+               <h3 style="display: inline;" title="Degree that new files are expected to impact science results.">Change Level: </h3>
                <select name='change_level' value="{{change_level}}">
                 <option>SEVERE</option>
                 <option>MODERATE</option>
@@ -33,25 +33,25 @@
         </div>
 
         <br/>
-        <div title="Author of new reference files, generally not the submitter.">
-               <h3 style="display: inline;" >Creator: </h3>
+        <div> 
+               <h3 style="display: inline;" title="Author of new reference files, generally not the submitter.">Creator: </h3>
                <input type='text' name='creator' id='creator' size="40" value="{{creator}}">
         </div>
 
-      <div title="Information about file changes and expected impacts, include instrument and type.">
-           <h3>Description:</h3> 
+      <div>
+           <h3 title="Information about file changes and expected impacts, include instrument and type.">Description:</h3> 
            <textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea>   
       </div>
 
       <br/>
       <br/>
-      <div title="When checked, automatically rename the submitted files with CRDS generated names.">
-               <h3 style="display: inline;">Auto-Rename: </h3> {% include "auto_rename_input.html" %}
+      <div>
+        <h3 style="display: inline;" title="When checked, automatically rename the submitted files with CRDS generated names.">Auto-Rename: </h3> {% include "auto_rename_input.html" %}
       </div>
       <br/> <br/>
 
-      <div title="When checked, compare new table references to prior versions.">
-        <h3 style="display: inline;">Compare Old Reference:</h3> 
+      <div>
+        <h3 style="display: inline;" title="When checked, compare new table references to prior versions.">Compare Old Reference:</h3> 
         <input type="checkbox" name="compare_old_reference" value="checked" {{compare_old_reference}} />
       </div>
 

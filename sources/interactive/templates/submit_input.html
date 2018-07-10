@@ -22,9 +22,9 @@
 
             <input type='hidden' name='observatory' value='{{observatory}}' />
             
-            <div title="Degree that new files are expected to impact science results.">
+            <div>
               <br/>
-              <h3 style="display: inline;" >Change Level:</h3>
+              <h3 style="display: inline;" title="Degree that new files are expected to impact science results.">Change Level:</h3>
               <select style="font-size: 0.75em;" name='change_level' value="{{change_level}}">
                 <option>SEVERE</option>
                 <option>MODERATE</option>
@@ -32,27 +32,27 @@
               </select>
             </div>
 
-            <div title="Author of new reference files, generally not the submitter.">
+            <div>
               <br/>
-              <h3 style="display: inline;">Creator:</h3>
+              <h3 style="display: inline;" title="Author of new reference files, generally not the submitter.">Creator:</h3>
               <input type='text' name='creator' id='creator' size="40" value="{{creator}}">
             </div>
 
-            <div title="Information about file changes and expected impacts, include instrument and type.">
+            <div>
               <br/>
-              <h3 style="display: inline;" >Description:</h3>
+              <h3 style="display: inline;" title="Information about file changes and expected impacts, include instrument and type.">Description:</h3>
               <textarea name='description' id='description' rows="4" cols="50">{{description}}</textarea>
             </div>
 
             {% if crds_filetype == "reference" %}
-                <div title="Compare new references with older versions during certification." > 
+                <div>
                   <br/>
-                  <h3 style="display:inline;">Compare Old Reference: </h3> 
+                  <h3 style="display:inline;" title="Compare new references with older versions during certification.">Compare Old Reference: </h3> 
                   <input type="checkbox" name="compare_old_reference"
                          value='checked' {{compare_old_reference}} />
                 </div>
-                <div id="comparison-context-hide" title="Context to search for comparison references.">
-                  <h3>Comparison Context:</h3>
+                <div id="comparison-context-hide">
+                  <h3 title="Context to search for comparison references.">Comparison Context:</h3>
                   {% include "select_pmap.html" %}
                 </div>        
                 <script type="text/javascript" language="javascript">
@@ -68,9 +68,9 @@
             {% endif %}
             
             {% if crds_filetype == "mapping" %}
-                <div title="Automatically generate new .pmap and .imap referring to new rmaps.">
+                <div>
                   <br/>
-                  <h3 style="display: inline;">Generate Contexts:</h3>
+                  <h3 style="display: inline;" title="Automatically generate new .pmap and .imap referring to new rmaps.">Generate Contexts:</h3>
                   <input name='generate_contexts' type='checkbox' value='checked' {{generate_contexts}}> 
                 </div>
                 <div id="derivation-context-hide" title="Version CRDS of rules to which new files are added.">
@@ -89,9 +89,9 @@
                 </script>
             {% endif %}
             
-            <div title="When checked, automatically rename the submitted files with CRDS generated names.">
+            <div>
               <br/>
-              <h3 style="display: inline;">Auto-Rename:</h3>
+              <h3 style="display: inline;" title="When checked, automatically rename the submitted files with CRDS generated names.">Auto-Rename:</h3>
               {% include "auto_rename_input.html" %}
             </div>
             
