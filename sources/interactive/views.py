@@ -1344,9 +1344,11 @@ def batch_submit_references_post(request):
 
     simplified_uploads = [ name for (name, path) in list(uploaded_files.items()) ]
 
+    username = request.user.first_name + " " + request.user.last_name
+    results_kind = "Batch Submit"
     mail.crds_notification(body=mail.GENERIC_STARTED_BODY, status="STARTED",
-            username=request.user.username, user_email=request.user.email, 
-            uploaded_files = simplified_uploads, results_kind = "Batch Submit References",
+            username=username, user_email=request.user.email, 
+            uploaded_files = simplified_uploads, results_kind = results_kind,
             description = description, monitor_url=jpoll_handler.monitor_url)
 
     bsr = submit.BatchReferenceSubmission(pmap_name, uploaded_files, description,
@@ -1389,10 +1391,9 @@ def batch_submit_references_post(request):
         request, "batch_submit_reference_results.html", bsr_results)
 
     renamed_uploads = list(new_references_map.items())
-
     mail.crds_notification(body=mail.GENERIC_READY_BODY, status=status,
-            username=request.user.username, user_email=request.user.email, 
-            uploaded_files = renamed_uploads, results_kind = "Batch Submit References",
+            username=username, user_email=request.user.email, 
+            uploaded_files = renamed_uploads, results_kind = results_kind,
             description = description, repeatable_url=result.authenticated_url)
     
     return redirect_jpoll_result(result, jpoll_handler)
@@ -1517,17 +1518,21 @@ def submit_confirm(request): #, button, results_id):
     
     result = render_repeatable_result(request, "confirmed.html", confirm_results)
 
+    username = request.user.first_name + " " + request.user.last_name
+    results_kind = repeatable_model.parameters["submission_kind"].title()
     mail.crds_notification(
         body = mail.GENERIC_CONFIRMED_BODY, status=disposition.upper(),
-        username = request.user.username, user_email = request.user.email, 
-        results_kind = repeatable_model.parameters["submission_kind"],
+        username = username, user_email = request.user.email, 
+        results_kind = results_kind,
         repeatable_url = result.abs_repeatable_url,
         to_addresses  = sconfig.CRDS_STATUS_CONFIRM_ADDRESSES,
         **confirm_results)
 
-    with log.error_on_exception("Failed releasing locks after confirm/cancel/force."):
-        instrument = locks.instrument_of(str(request.user))
-        locks.release_locks(name=instrument, type="instrument")
+    with log.error_on_exception(
+            "Failed logging and/or releasing lockss after confirm/cancel/force."):
+        # instrument = locks.instrument_of(str(request.user))
+        # locks.release_locks(name=instrument, type="instrument")
+        django.contrib.auth.logout(request)
     
     return redirect_jpoll_result(result, jpoll_handler)
 
@@ -1562,6 +1567,16 @@ def delete_references_post(request):
     for deleted in deleted_files:
         assert deleted in pmap_references, "File " + repr(deleted) + " does not appear in context " + repr(pmap.name)
 
+    with log.error_on_exception("Failed Delete Existing STARTED e-mail"):
+        simplified_uploads = [ name for (name, path) in list(uploaded_files.items()) ]
+        results_kind = "Delete Existing"
+        username = request.user.first_name + " " + request.user.last_name
+        mail.crds_notification(
+            body=mail.GENERIC_STARTED_BODY, status="STARTED",
+            username=username, user_email=request.user.email, 
+            uploaded_files = simplified_uploads, results_kind = results_kind,
+            description = description, monitor_url=jpoll_handler.monitor_url)
+        
     drs = submit.DeleteReferenceSubmission(pmap_name, uploaded_files, description,
         user=request.user, instrument_lock_id=instrument_lock_id, status_channel=jpoll_handler)
     disposition, new_mappings_map, mapping_certs, mapping_diffs, collision_list = drs.submit()
@@ -1589,8 +1604,19 @@ def delete_references_post(request):
                 "disposition": disposition,
             }
 
-    return redirect_repeatable_result(request, "delete_references_results.html", del_results,
-                                    jpoll_handler=jpoll_handler)
+    result = render_repeatable_result(
+        request, 'delete_references_results.html', del_results)
+
+    with log.error_on_exception("Failed Delete Existing READY e-mail"):
+        renamed_uploads = list(new_mappings_map.items())
+        status = "READY" if not disposition else disposition.upper()
+        mail.crds_notification(
+            body=mail.GENERIC_READY_BODY, status=status,
+            username=username, user_email=request.user.email, 
+            uploaded_files = renamed_uploads, results_kind = results_kind,
+            description = description, repeatable_url=result.authenticated_url)
+        
+    return redirect_jpoll_result(result, jpoll_handler)
 
 # ===========================================================================
 
@@ -1620,6 +1646,16 @@ def add_existing_references_post(request):
     instrument_lock_id = get_instrument_lock_id(request)
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
+    with log.error_on_exception("Failed Add Existing STARTED e-mail"):
+        simplified_uploads = [ name for (name, path) in list(uploaded_files.items()) ]
+        results_kind = "Add Existing"
+        username = request.user.first_name + " " + request.user.last_name
+        mail.crds_notification(
+            body=mail.GENERIC_STARTED_BODY, status="STARTED",
+            username=username, user_email=request.user.email, 
+            uploaded_files = simplified_uploads, results_kind = results_kind,
+            description = description, monitor_url=jpoll_handler.monitor_url)
+        
     pmap = crds.get_symbolic_mapping(pmap_name)
     pmap_references = pmap.reference_names()
     for added in added_files:
@@ -1656,8 +1692,22 @@ def add_existing_references_post(request):
                 "disposition": disposition,
             }
 
-    return redirect_repeatable_result(request, "add_existing_references_results.html", add_results,
-                                    jpoll_handler=jpoll_handler)
+    result = render_repeatable_result(
+        request, 'add_existing_references_results.html', add_results)
+
+    with log.error_on_exception("Failed Add Existing READY e-mail"):
+        renamed_uploads = list(new_mappings_map.items())
+        status = "READY" if not disposition else disposition.upper()
+        mail.crds_notification(
+            body=mail.GENERIC_READY_BODY, status=status,
+            username=username, user_email=request.user.email, 
+            uploaded_files = renamed_uploads, results_kind = results_kind,
+            description = description, repeatable_url=result.authenticated_url)
+        
+    return redirect_jpoll_result(result, jpoll_handler)
+
+# ===========================================================================
+
 
 # ===========================================================================
 
@@ -1747,6 +1797,16 @@ def submit_files_post(request, crds_filetype):
 
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
+    with log.error_on_exception("Failed Submit File STARTED e-mail"):
+        simplified_uploads = [ name for (name, path) in list(uploaded_files.items()) ]
+        results_kind = f"Submit {crds_filetype.title()}"
+        username = request.user.first_name + " " + request.user.last_name
+        mail.crds_notification(
+            body=mail.GENERIC_STARTED_BODY, status="STARTED",
+            username=username, user_email=request.user.email, 
+            uploaded_files = simplified_uploads, results_kind = results_kind,
+            description = description, monitor_url=jpoll_handler.monitor_url)
+        
     simple = submit.SimpleFileSubmission(pmap_name, uploaded_files, description, user=request.user,
         creator=creator, change_level=change_level, auto_rename=auto_rename,
         compare_old_reference=compare_old_reference, instrument_lock_id=instrument_lock_id,
@@ -1776,7 +1836,19 @@ def submit_files_post(request, crds_filetype):
                 "disposition" : disposition,
     }
 
-    return redirect_repeatable_result(request, 'submit_results.html', rdict, jpoll_handler=jpoll_handler)
+    result = render_repeatable_result(
+        request, 'submit_results.html', rdict)
+
+    with log.error_on_exception("Failed Submit File READY e-mail"):
+        renamed_uploads = list(new_file_map.items())
+        status = "READY" if not disposition else disposition.upper()
+        mail.crds_notification(
+            body=mail.GENERIC_READY_BODY, status=status,
+            username=username, user_email=request.user.email, 
+            uploaded_files = renamed_uploads, results_kind = results_kind,
+            description = description, repeatable_url=result.authenticated_url)
+        
+    return redirect_jpoll_result(result, jpoll_handler)
 
 # ===========================================================================
 
@@ -2334,6 +2406,16 @@ def mark_bad_post(request):
 
     models.clear_cache()
 
+    affected_files = sorted(list(affected_files))
+    with log.error_on_exception("Failed Mark Files Bad e-mail"):
+        username = request.user.first_name + " " + request.user.last_name
+        mail.crds_notification(
+            body=mail.MARK_BAD_BODY, badflag=badflag.upper(),
+            subject=f"Marked Files {badflag.upper()} by {username}.",
+            username=username, user_email=request.user.email, 
+            affected_files="\n".join(affected_files),
+            description = why)
+
     return crds_render(request, "mark_bad_results.html", { "affected_files": sorted(list(affected_files)) })
 
 def check_bad_file(blacklist_root):
@@ -2388,7 +2470,7 @@ def set_default_context(request):
         new_default = get_recent_or_user_context(request)
         context_type = validate(request, "context_type", models.CONTEXT_TYPES)
         description = validate(request, "description", common.DESCRIPTION_RE)
-        old_default = update_default_context(new_default, description, context_type, str(request.user))
+        old_default = update_default_context(new_default, description, context_type, request.user)
         return crds_render(request, "set_default_context_results.html", {
                     "new_default" :  new_default,
                     "old_default" :  old_default,
@@ -2442,10 +2524,20 @@ def update_default_context(new_default, description, context_type, user):
                         " contains known bad files and cannot be made the default (last 4 of " +
                         str(len(bad_files)) + " bad files): " + ", ".join(bad_files[-4:]))
     models.set_default_context(new_default, observatory=models.OBSERVATORY, state=context_type, description=description)
-    models.AuditBlob.new(user, "set default context",
+    models.AuditBlob.new(str(user), "set default context",
                          new_default, description,
                          context_type + " context changed from " +
                          srepr(old_default) + " to " + srepr(new_default))
+
+    with log.error_on_exception("Failed Update Default Context e-mail"):
+        username = user.first_name + " " + user.last_name
+        mail.crds_notification(
+            body=mail.UPDATE_CONTEXT_BODY, 
+            subject=f"Update {context_type} context from '{old_default}' to '{new_default}'.",
+            username=username, user_email=user.email, 
+            old_default=old_default, new_default=new_default, state=context_type,
+            description = description)
+        
     return old_default
 
 @profile("display_context_history.stats")
