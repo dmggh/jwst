@@ -155,7 +155,7 @@ class DB(object):
         self.user = user
         self.database = database
         os.system("kinit crds -k -t " + sconfig.CATALOG_DB_KEYTAB)
-        self.connection = pyodbc.connect("DSN=%s; DATABASE=%s" % (dsn, database))
+        self.connection = pyodbc.connect("DSN=%s; DATABASE=%s" % (dsn, database), autocommit=True)
         self.cursor = self.connection.cursor()
 
     def __repr__(self):
