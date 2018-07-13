@@ -237,7 +237,10 @@ def is_list_of_rmaps(text):
     text = " ".join(text.split(","))
     rmaps = [r.strip() for r in text.split()]
     for rmp in rmaps:
-        is_rmap(rmp)
+        try:
+            is_rmap(rmp)
+        except Exception:
+            assert rmp.endswith("n/a")
     return rmaps
 
 def is_match_tuple(tuple_str):

@@ -807,11 +807,16 @@ def submit_confirm_core(confirmed, submission_kind, description, new_files, cont
 def create_contexts(description, context_rmaps, user, pmap_name):
     """Quick-and-dirty create contexts,  unconfirmed,  intended for super-users."""
     for filename in context_rmaps:
-        try:
-            blob = models.FileBlob.load(filename)
-        except LookupError:
-            raise CrdsError("Unknown CRDS file " + srepr(filename))
-        assert blob.state in sconfig.CRDS_DISTRIBUTION_STATES, "File " + srepr(filename) + " is only in state " + srepr(blob.state)
+        if not filename.endswith("_n/a"):
+            try:
+                blob = models.FileBlob.load(filename)
+            except LookupError:
+                raise CrdsError("Unknown CRDS file " + srepr(filename))
+            assert blob.state in sconfig.CRDS_DISTRIBUTION_STATES, "File " + srepr(filename) + " is only in state " + srepr(blob.state)
+        else:
+            instrument, reftype, _na = filename.split("_")
+            assert instrument.lower() in models.INSTRUMENTS, "Invalid instrument: " + srepr(instrument)
+            assert reftype.lower() in models.FILEKINDS, "Invalid filekind: " + srepr(filekind)
         
     # context_rmaps aren't necessarily in new_file_map and may be existing files.  So they only
     # specify changes to `pmap_name`,  not file deliveries.
