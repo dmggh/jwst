@@ -68,6 +68,8 @@ PACKAGE_DATA = {
         "interactive/templates/registration/*",
         "interactive/*.dat",
 
+        "xhst/*.bdf",
+
         "xhst/*.dat",
         "xjwst/*.dat",
 
