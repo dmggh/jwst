@@ -1,6 +1,6 @@
 #! /bin/tcsh -fx
 
-setenv CONDA_NAME crds_conda3-8
+setenv CONDA_NAME crds_conda3-9
 
 setenv CRDS_STACK ${CRDS}/crds_stacks/${CONDA_NAME}
 setenv META_PREFIX ${CRDS_STACK}

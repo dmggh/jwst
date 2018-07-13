@@ -33,34 +33,34 @@ setenv CRDS_PIPELINE_CACHE_KEY 12ca7bb2-dd3b-444a-8e6e-d8fd0bf559ed
 
 switch ($CRDS_SERVER)
        case dljwcrds:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-8
+        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-9
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE dev
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
        breaksw
        case dlhstcrds:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-8
+        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-9
         setenv CRDS_PROJECT hst
         setenv CRDS_USECASE dev
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
        breaksw
 
        case tljwcrds:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-8
+        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-9
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE test
         # setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
        breaksw
        case tlhstcrds:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-7
+        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-9
         setenv CRDS_PROJECT hst
         setenv CRDS_USECASE test
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
        breaksw
 
        case pljwcrds:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-8
+        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-9
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE ops
         # setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
@@ -69,7 +69,7 @@ switch ($CRDS_SERVER)
        breaksw
 
        case plhstcrds:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-7
+        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-9
         setenv CRDS_PROJECT hst
         setenv CRDS_USECASE ops
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
@@ -77,7 +77,7 @@ switch ($CRDS_SERVER)
        breaksw
 
        case iljwdmsacrds:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-7
+        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-9
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE ait
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu"
@@ -85,7 +85,7 @@ switch ($CRDS_SERVER)
        breaksw
 
        case iljwdmsbcrds:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-8
+        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-9
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE bit
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu"
@@ -93,20 +93,13 @@ switch ($CRDS_SERVER)
        breaksw
 
        case iljwdmsccrds:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-8
+        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-9
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE cit
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu"
         setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
        breaksw
 
-       case iljwdmsdcrdsv1:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda-2
-        setenv CRDS_PROJECT jwst
-        setenv CRDS_USECASE dit
-        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu"
-        setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
-       breaksw
 endsw
 
 setenv META_PREFIX ${CRDS_STACK}
