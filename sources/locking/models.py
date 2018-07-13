@@ -118,6 +118,8 @@ class Lock(models.Model):
                   'creation_date': self.created_on}
         return _('Lock exists on %(object)s since %(creation_date)s') % values
 
+    __str__ = __unicode__ # for Python-3
+
     def release(self, silent=True):
         '''
         Releases the lock

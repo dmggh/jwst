@@ -33,6 +33,8 @@ class ChannelModel(models.Model):
         return "{}(last_returned='{}',  key='{}'')".format(
             self.__class__.__name__, self.last_returned, self.key)
 
+    __str__ = __unicode__ # for Python-3
+
     # user = models.CharField(max_length=32, default="", help_text="Name of user who opened this channel.")
     @classmethod
     def new(cls, key):
