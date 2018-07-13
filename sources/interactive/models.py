@@ -197,6 +197,8 @@ class CrdsModel(models.Model):
         """To support Django db admin views."""
         return self._repr(self.unicode_list)
 
+    __str__ = __unicode__   # for Python-3
+
     @classmethod
     def get_or_create(cls, *args):
         """Get the model for `name`, or create it."""
