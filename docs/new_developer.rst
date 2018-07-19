@@ -19,85 +19,115 @@ The CRDS client source code is here:
 
 https://github.com/spacetelescope/crds.git
 
-    - or obsolete write locked -
-
-https://aeon.stsci.edu/ssb/svn/crds/trunk
-
 The CRDS server source code is here:
 
-https://aeon.stsci.edu/ssb/svn/crds_server/trunk
+https://github.com/spacetelescope/crds-server.git
 
-Client Trac is here (public and with most tickets):
+CRDS Confluence is here:
 
-https://aeon.stsci.edu/ssb/trac/crds
+https://innerspace.stsci.edu/pages/viewpage.action?spaceKey=SCSB&title=CRDS
 
-Server Trac is here (private web source code):
-
-https://aeon.stsci.edu/ssb/trac/crds_server
+CRDS Confluence covers a number of key CRDS admin processes (particularly
+OPS-to-TEST server mirroring) not described below.  CRDS confluence also
+gives links to additional resources not replicated here.
 
 ---------------------------------------------------------------------------------------
 
 Mailing lists:
 
-crds_team@stsci.edu                  mainly ReDCat to pipeline and archive
-crds@stsci.edu                           mainly INS to ReDCaT initial deliveries
+redcat@stsci.edu                     INS team delivering files into CRDS
 
-crds-servers@stsci.edu               nightly server regressions, cache checks,  /grp/crds/cache updates, and server e-mails
+crds-servers@stsci.edu               nightly server regressions, cache checks, /grp/crds/cache updates, and server e-mails
+
 crds_hst_ops_reprocessing@stsci.edu      reprocessing results for HST OPS
 crds_hst_test_reprocessing@stsci.edu     " HST TEST
 crds_jwst_ops_reprocessing@stsci.edu     " JWST OPS
 crds_jwst_test_reprocessing@stsci.edu    " JWST TEST
-crds_jwst_ita_reprocessing@stsci.edu     " B7 I&T
-crds_jwst_itb_reprocessing@stsci.edu     " B5 I&T
-crds_jwst_itc_reprocessing@stsci.edu     " B6 I&T
 
-crds_datamng                             archive list for reprocessing info
+crds-servers@stsci.edu                   " B7.1.3 I&T reprocessing
+crds-servers@stsci.edu                   " B7.2 I&T reprocessing
 
-dms-developer@stsci.edu                     pipeline and archive development
-dms-design@stsci.edi                           overall DMS design, metrics, requirements, tasks, schedule, budget
+crds_datamng@stsci.edu                   archive list for reprocessing info
 
-I'm not aware of a ReDCaT list,  those communications seem to happen on crds_team and crds.
+dms-developer@stsci.edu                   pipeline and archive development
+dms-design@stsci.edi                      overall DMS design, metrics, requirements, tasks, schedule, budget
 
 ---------------------------------------------------------------------------------------
 
-There are a total of 9 CRDS server VMs and servers which are devoted to the
-following development stages:
+CRDS development / admin SUDO access and groups
 
-PROJECT/STAGE         PROXY ADDRESS                       DIRECT FIREWALLED VM URL
-
-HST OPS               https://hst-crds.stsci.edu          https://plhstcrdsv1.stsci.edu:8001
-HST TEST              https://hst-crds-test.stsci.edu     https://tlhstcrdsv1.stsci.edu:8001
-HST DEV               https://hst-crds-dev.stsci.edu      https://dlhstcrdsv1.stsci.edu:8001
-
-JWST OPS              https://jwst-crds.stsci.edu         https://pljwstcrdsv1.stsci.edu:8001
-JWST TEST             https://jwst-crds-test.stsci.edu    https://tljwstcrdsv1.stsci.edu:8001
-JWST DEV              https://jwst-crds-dev.stsci.edu     https://dljwstcrdsv1.stsci.edu:8001
-
-JWST Build 5 I&T   B  https://jwst-crds-b5it.stsci.edu    https://jwdmsbcrdsv1.stsci.edu:8001
-JWST Build 6 I&T   C  https://jwst-crds-b6it.stsci.edu    https://jwdmsccrdsv1.stsci.edu:8001
-JWST Build 7 I&T   A  https://jwst-crds-b7it.stsci.edu    https://jwdmsacrdsv1.stsci.edu:8001
-
-OPS is used for the operational pipeline or, for JWST,  as the spearhead or
-development and "operational version" supporting JWST such as-it-is.
-
-TEST is used for pipeline testing.
-
-DEV  is a VM environment for high fidelity CRDS server testing (better than
-Django DEV server).
-
-I&T servers are frozen dedicated servers to support I&T and NASA constractual requirements.
-
----------------------------------------------------------------------------------------
-
-The CRDS servers run under the account "crds" which does not have a direct
-login shell.
+CRDS developers and admins should be members of group crdsoper and given
+"sudo crds" access to every VM they work on.
 
 CRDS file submitters and maintainers should be added to group crdsoper.
 
+CRDS archive ingest operators (CRDS poller operators) should likewise be added
+to group crdsoper so they can manipulate the CRDS delivery directory and read,
+rename, or remove file links.   The should not have write access to the
+corresponding files.
+
+The CRDS servers run under the account "crds" for which ordinary logins are not
+normally used.  Instead, developers and admins access the CRDS server account
+by first ssh'ing to the appropriate CRDS VM as their normal AD user, then using
+SUDO to become the CRDS user:
+
+    $ ssh iljwdmsccrds.stsci.edu
+
+It's convenient to set up .ssh for your AD login on the CRDS VMs.  Then sudo
+from your AD to CRDS:
+
+    $ usr/bin/sudo /bin/su - crds
+
+For string isolation purposes,  each CRDS VM has an independent /home and
+independent user directory which needs to be initialized separately.
+
+To make this easier,  I use this shell program which,  once .ssh is set up,
+only requires me to enter a password to sudo to CRDS:
+
+   #! /bin/tcsh
+   exec ssh -A -t jmiller@$1.stsci.edu /usr/bin/sudo /bin/su - crds
+
+It is run like this:
+
+   $ crds_server iljwdmsccrds
+   password:  [type in AD password for jmiller]
+   
 The CRDS servers all have local isolated file systems and password files.
 Maintainers need to have accounts on the CRDS server VMs as well as sudo
 access to the "crds" account.   Maintainers login to the VMs using their
 AD accounts but then sudo to "crds" to perform server maintenance.
+
+---------------------------------------------------------------------------------------
+
+There are a total of 8 CRDS server VMs and servers which are devoted to the
+following development stages:
+
+PROJECT/STAGE         PROXY ADDRESS                       DIRECT FIREWALLED VM URL
+
+HST OPS               https://hst-crds.stsci.edu          https://plhstcrds.stsci.edu:8001
+HST TEST              https://hst-crds-test.stsci.edu     https://tlhstcrds.stsci.edu:8001
+HST DEV               https://hst-crds-dev.stsci.edu      https://dlhstcrds.stsci.edu:8001
+
+JWST OPS              https://jwst-crds.stsci.edu         https://pljwcrds.stsci.edu:8001
+JWST TEST             https://jwst-crds-test.stsci.edu    https://tljwcrds.stsci.edu:8001
+JWST DEV              https://jwst-crds-dev.stsci.edu     https://dljwcrds.stsci.edu:8001
+
+JWST I&T B-string     https://jwst-crds-bit.stsci.edu    https://jwdmsbcrds.stsci.edu:8001
+JWST I&T C-string     https://jwst-crds-cit.stsci.edu    https://jwdmsccrds.stsci.edu:8001
+
+OPS will eventually be AKA A-string,  as of 2018-07-19 TEST is being used as
+A-string / practice OPS.   (There is still a *real* JWST OPS already.)
+
+OPS is used for the operational pipeline or, for JWST,  as the spearhead or
+development and "operational version" supporting JWST such as-it-is.
+
+TEST is used for pipeline testing.  In summer 2018 CRDS TEST is integrated with
+DMS A-string as an "OPS" test string.
+
+DEV is a VM environment for standalone CRDS development, not integrated with
+archive + pipeline.
+
+I&T servers are frozen dedicated servers to support I&T and NASA constractual requirements.
 
 ---------------------------------------------------------------------------------------
 
@@ -223,7 +253,8 @@ are candidates for reprocessing based on the new reference files.
 
 17. Run nightly server regression tests.
 
-18. Run nightly server Python stack builds.
+18. Run nightly server Python stack builds, CRDS re-installs, and/or server
+    reboots.
 
 19. Do nightly server code updates from subversion and CRDS server re-installs.
 
@@ -238,9 +269,20 @@ authenticated users.
 
 ---------------------------------------------------------------------------------------
 
-The following CRDS tools are available on the command line:
+CRDS command line tools
 
-1. crds.bestrefs
+The following CRDS tools are available on the command line.   The names below
+describe CRDS Python package structure (or virtual structure).   For example,
+the program corresponding to the:
+
+    crds.bestrefs
+
+package is run using a command line wrapper as:
+
+    crds bestrefs ....
+
+
+1. crds.bestrefs    (used by server repro and HST pipeline)
 
 is the HST tool for updating dataset file headers with best references.
 Additionally this tool is equipped to do regression testing or
@@ -271,7 +313,7 @@ for specific instruments and table types) and currently is turned off because
 it does not account for the global effects of modified primary header keywords
 (which also must be defined).
 
-2. crds.sync
+2. crds.sync    (used by pipeline primarily)
 
 The sync tool is used to explicitly update, check, purge, and organize the CRDS
 cache.  Other tools such as crds.bestrefs or the calibration code can also
@@ -281,7 +323,7 @@ is wrapped by the "cron_sync" script for operation in pipelines.  The cron_sync
 script provides pipeline interface encapsulation as well as locking to prevent
 log running cron updates to result in multiple concurrent cache syncs.
 
-3. crds.certify
+3. crds.certify    (used by ReDCaT + servers)
 
 The certify program is used to check reference files and rules files.  For HST
 reference checks are based on .tpn constraint files.  Rules checks are based on
@@ -308,7 +350,7 @@ tables work within this model, roughly 50% of HST tables are covered.  No JWST
 tables are covered yet.
 
 
-3. crds.list
+3. crds.list     (utility)
 
 Is used to report on CRDS configurations, list out available or cached
 reference and rules and their cache paths.  It is a swiss army knife of minor
@@ -316,7 +358,7 @@ informational functions some of which satisfy formal requirements.  This is
 also commonly used for end user and pipeline debug to dump the CRDS
 configuration.
 
-4. crds.diff
+4. crds.diff     (used primarily by servers)
 
 Is used to difference to sets of rules,  potentially recursively,  potentially
 with additional text, fits, or table row differences.
@@ -327,22 +369,22 @@ Is used to perform simple rmap file inserts/deletes on the command line.  The
 server will eventually use the same core code for automatic rules updates so
 crds.refactor is often used to "proof" rmaps and type specifications in code.
 
-6. crds.newcontext
+6. crds.newcontext    (used primarily by servers)
 
 Is used to generate new pmaps and imaps given a baseline set of rules and new
 rmaps to insert.
 
-7. crds.checksum
+7. crds.checksum   (used by ReDCaT)
 
 Used to update CRDS rules internal checksums.
 
-8. crds.matches
-
+8. crds.matches    (used by ReDCaT?)
+ 
 Is used to display which parameter values a particular reference file or
 dataset id match on.   These are complementary pieces of information displayed
 by the same tool.
 
-9. crds.uses
+9. crds.uses     (little used?)
 
 Is used to display all of the mappings which directly or indirectly refer to
 the specified mapping.  This runs relative to a CRDS cache,  so in principle to
@@ -350,13 +392,25 @@ work correctly the cache should be fully synced via crds.sync.   crds.uses on a
 .imap will produce the list of .pmaps which refer to it.   crds.uses on a .rmap
 will produce  the list of .pmaps and .imaps which refer to it.
 
-10. crds.sql
+10. crds.sql    (little used?)
 
 Bare bones wrapper intended to provide a command line API which wraps the CRDS
 capability of distributing it's metadata catalog as a SQLite 3 file.   It can
 perform basic SQL queries on the catalog via the command line and is an
 alternative to dumping the catalog via crds.sync and running the normal sqlite3
 program on the downloaded file.
+
+11. crds.submit   (used by ReDCaT)
+
+To simplify ReDCaT file submission processes, a client program was created to
+initiate CRDS reference file submissions from the command line and integrate
+with additional ReDCaT programs.  File submissions are started from ReDCaT VMs
+running the crds.submit program which interacts with the web page used for
+routine file submissions.  After the initial file validation and CRDS rules
+updates have succeeded, the web site issues an e-mail and/or reports a web link
+which is used to review complex file submission results, errors or warnings and
+general
+
 
 ---------------------------------------------------------------------------------------
 
