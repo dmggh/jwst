@@ -747,63 +747,6 @@ class SimpleFileSubmission(FileSubmission):
 
 # ------------------------------------------------------------------------------------------------
         
-# ------------------------------------------------------------------------------------------------
-        
-def submit_confirm_core(confirmed, submission_kind, description, new_files, context_rmaps, user, pmap_name, pmap_mode,
-                        instrument_lock_id, related_files=None):
-    """Handle the confirm/cancel decision of a file submission.  If context_rmaps is not [],  then it's a list
-    of .rmaps from which to generate new contexts.   
-    """
-    instrument = filekind = "unknown"
-    paths = []
-    for filename in new_files:
-        try:
-            blob = models.FileBlob.load(filename)
-        except LookupError:
-            raise CrdsError("Unknown CRDS file " + srepr(filename))
-        assert user == blob.deliverer_user, \
-            "User " + srepr(user) + " did not submit " + srepr(filename)
-        assert blob.state == "uploaded", \
-            "File " + srepr(filename) + " is no longer in the 'uploaded' state."
-        if blob.instrument != "unknown":
-            instrument = blob.instrument
-        if blob.filekind != "unknown":
-            filekind = blob.filekind
-        paths.append(blob.pathname)
-        
-    if not paths:
-        raise CrdsError("No files submitted.")
-    
-    context_name_map = {}
-    final_pmap = collisions = None
-    if confirmed:
-        if context_rmaps:
-            # Instrument lock required since we're generating a new .imap from context_rmaps.
-            # locks.verify_instrument_locked_files(user, instrument_lock_id, paths, blob.observatory)
-            # context_rmaps aren't necessarily in new_file_map and may be existing files.  So they only
-            # specify changes to `pmap_name`,  not file deliveries.
-            submission = FileSubmission(pmap_name, uploaded_files=None, description=description, user=user, creator="crds", 
-                                        pmap_mode=pmap_mode)
-            final_pmap, context_name_map = submission.do_create_contexts(context_rmaps)
-            delivered_files = sorted(new_files + list(context_name_map.values()))
-        else:
-            delivered_files = new_files
-            pmaps = [ os.path.basename(name) for name in new_files if name.endswith(".pmap") ]
-            if pmaps:  # when no context generation was done,  choose highest .pmap,  if any
-                new_pmap = sorted(pmaps)[-1]
-                models.set_default_context(new_pmap)
-
-        delivery = Delivery(user, delivered_files, description, submission_kind, related_files=related_files)
-        delivery.deliver()
-        
-        collisions = get_collision_list(list(context_name_map.values()))
-    else:
-        destroy_file_list(new_files)
-
-    return  final_pmap or pmap_name, context_name_map, collisions
-    
-# ------------------------------------------------------------------------------------------------
-        
 def create_contexts(description, context_rmaps, user, pmap_name):
     """Quick-and-dirty create contexts,  unconfirmed,  intended for super-users."""
     for filename in context_rmaps:
