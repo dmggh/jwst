@@ -37,123 +37,48 @@ A brief summary of the functions performed by the submission confirmation proces
 7. Higher level context generation
 8. File final
 """
-import sys
-import os
 import os.path
-import re
-import traceback
-import tarfile
-import glob
-import json
-import time
-import fnmatch
-import ast
-import tempfile
 
 # ===========================================================================
 
-# from django.http import HttpResponse
-from django.template import loader, RequestContext
-from django.shortcuts import redirect
-from django.http import HttpResponse, HttpResponseRedirect
-import django.utils.safestring as safestring
-import django.utils
-from django.utils.html import conditional_escape
-from django.urls import reverse
-
-import django.contrib.auth
-import django.contrib.auth.models
-from django.contrib.auth.decorators import login_required as login_required
-from django.contrib.auth.decorators import user_passes_test
-
-from django.contrib.auth.signals import user_logged_in, user_logged_out
-from django.contrib.auth.views import login as django_login
-
-# ===========================================================================
-
-from astropy.io import fits as pyfits
-
-# ===========================================================================
-
-import crds
-from crds import uses, matches, data_file
 from crds import CrdsError
-from crds.core import (rmap, utils, timestamp, log, config, python23)
-from crds.core import (pysh, heavy_client)
-from crds.certify import reftypes
+from crds.core import log, pysh
 
 # ===========================================================================
 
-from crds.server.jpoll import views as jpoll_views
-from crds.server.jsonapi import views as jsonapi_views
-from crds.server import settings
 from crds.server import config as sconfig
 
 # ===========================================================================
 
-from . import (models, web_certify, web_difference, submit, versions, locks, html, mail)
-from . import common
-from . import catalog_fusion
-from . import browsify_file
-from .templatetags import stdtags
-from .models import FieldError, MissingInputError
-from .common import capture_output, srepr, profile, complete_re, crds_format_html
+from . import (models, submit, locks, mail)
+from .common import srepr
+
+# ===========================================================================
 
 HERE = os.path.dirname(__file__) or "./"
 
 # ===========================================================================
 
-@profile("submit_confirm_post.stats")
-@error_trap("base.html")
-@log_view
-# @login_required  (since this drops and re-acquires lock,  don't use.)
-@group_required("file_submission")
-@instrument_lock_required  # ensures authenticated,  has instrument lock of submission.
-def submit_confirm(request): #, button, results_id):
-    """Accept or discard proposed files from various file upload and
-    generation mechanisms.
-    """
-    jpoll_handler = jpoll_views.get_jpoll_handler(request)
-
-    submitter = SubmitConfirm(request)
-    
-    new_result = submitter.process(request)
-
-    with log.error_on_exception(
-            "Failed logging and/or releasing lockss after confirm/cancel/force."):
-        # instrument = locks.instrument_of(str(request.user))
-        # locks.release_locks(name=instrument, type="instrument")
-        django.contrib.auth.logout(request)
-    
-    return redirect_jpoll_result(new_result, jpoll_handler)
-
-
-
-# ===========================================================================
-
-class SubmitConfirm:
+class Confirm:
     """Check submission confirmation inputs and verify instrument locking 
     relative to `request` and prior submission results.  Store various parameters 
     as attributes for later use during the confirm/cancel.
     """
-    def __init__(self, request):
+    def __init__(self, request, button, results_id):
         # don't rely on locking mechanisms to verify this since @login_required is turned off
         # and locking may change.
         if not request.user.is_authenticated:
             raise CrdsError("You must be logged in to confirm or cancel file submissions.")
-
-        button = validate(request, "button", "confirm|cancel|force")
-        self.disposition = button + "d" if button.endswith("e") else button + "ed"
-        results_id = validate(request, "results_id", common.UUID_RE)
-        
+        self.disposition = button + "d" if button.endswith("e") else button + "ed"    
         try:
             self.repeatable_model = models.RepeatableResultBlob.load(results_id)
         except Exception as exc:
             raise CrdsError("Error fetching result: " + results_id + " : " + str(exc))        
         if self.repeatable_model.parameters.get("disposition", None):
             raise CrdsError("This submission was already confirmed or cancelled.")
-
         self.result = self.repeatable_model.parameters
+        
+        # Locking needs to be checked before finalizing below.
         self._check_locking(request, self.result)
 
         # Mark the READY model as finalizing to prevent double confirmations,  must save now.
@@ -192,57 +117,80 @@ class SubmitConfirm:
         return list(self.new_file_map.values())
     
     def process(self, request):
-        if submitter.confirmed:
-            confirm_results = submitter.confirm_files(request)
+        if self.confirmed:
+            confirm_results = self.confirm_files()
+            clear_uploads(request, self.result.uploaded_basenames)
+            models.clear_cache()
         else:
-            confirm_results = submitter.cancel_files(new_files)
-    
-        new_result = submitter.common_reply(request, confirm_results)
+            confirm_results = self.cancel_files()
+        new_result = self.common_reply(request, confirm_results)
         return new_result
 
     def confirm_files(self):
-        final_pmap, context_map, collision_list = submit.submit_confirm_core(
-            confirmed, submitter.result.submission_kind, self.result.description,
-            new_files, submitter.result.context_rmaps, self.result.user,
-            submitter.result.pmap, submitter.result.pmap_mode)
-        
-    def submit_confirm_core(submission_kind, description, new_files, context_rmaps, user, pmap_name, pmap_mode):
-        """Handle the confirm/cancel decision of a file submission.  If context_rmaps is not [],  then it's a list
-        of .rmaps from which to generate new contexts.   
+        """If `context_rmaps` is a list of rmaps,  generate appropriate imaps and .pmaps.
+        Either way,  deliver all submitted and generated files to delivery directory.
         """
-        paths, instrument, filekind = check_new_files(new_files, user)
-        if context_rmaps:
-            # Instrument lock required since we're generating a new .imap from context_rmaps.
-            # locks.verify_instrument_locked_files(user, instrument_lock_id, paths, blob.observatory)
-            # context_rmaps aren't necessarily in new_file_map and may be existing files.  So they only
-            # specify changes to `pmap_name`,  not file deliveries.
-            submission = FileSubmission(
+        self.check_new_files()
+        if self.result.context_rmaps:
+            # Make a fake(?) submission to generate contexts
+            file_submission = submit.FileSubmission(
                 self.result.pmap, uploaded_files=None, description=self.result.description, 
                 user=self.result.user, creator="crds", pmap_mode=self.result.pmap_mode)
-            final_pmap, context_map = submission.do_create_contexts(self.result.context_rmaps)
-            delivered_files = sorted(new_files + list(context_map.values()))
+
+            final_pmap, context_map = file_submission.do_create_contexts(self.result.context_rmaps)
+            
+            delivered_files = sorted(self.new_files + list(context_map.values()))
         else:
-            delivered_files = new_files
-            pmaps = [ os.path.basename(name) for name in new_files if name.endswith(".pmap") ]
+            delivered_files = self.new_files
+            pmaps = [ os.path.basename(name) for name in self.new_files if name.endswith(".pmap") ]
             if pmaps:  # when no context generation was done,  choose highest .pmap,  if any
                 new_pmap = sorted(pmaps)[-1]
                 models.set_default_context(new_pmap)
-            final_pmap = None
-            context_map = {}
+            final_pmap, context_map = None, {}
             
-        delivery = submit.Delivery(user, delivered_files, self.result.description, self.result.submission_kind, 
-                                   related_files=related_files)
+        delivery = submit.Delivery(user, delivered_files, self.result.description, self.result.submission_kind)
         delivery.deliver()
         
-        collision_list = get_collision_list(list(context_map.values()))        
+        collision_list = submit.get_collision_list(list(context_map.values()))        
 
-        # XXX single model save later in processing flow    
+        # XXX single model save later in processing flow
+        # By the time confirmation happens,  derived from pmap may have evolved for another instrument.
+        # Record the pmap the submitter added to,  and the final pmap generated here.
         self.repeatable_model.set_par("original_pmap", self.result.pmap)
         self.repeatable_model.set_par("pmap", final_pmap)
 
-        confirm_results = affirm_files(self.result, self.new_file_map, context_map, collision_list)
+        confirm_results = self.affirm_files(context_map, collision_list)
 
         return confirm_results, final_pmap, context_map, collision_list    
+
+    def affirm_files(self, context_map, collision_list):
+        """Return template variables appropriate for confirming this submission. Clear upload dir.  
+        Clear models cache.
+        """  
+        new_file_map = sorted(list(self.new_file_map.items()) + list(context_map.items()))
+        generated_files = sorted([(old, new) for (old, new) in self.new_file_map 
+                                  if old not in self.result.uploaded_basenames])
+        uploaded_files = [(old, new) for (old, new) in self.new_file_map 
+                          if (old, new) not in generated_files]
+        
+        # rmaps specified for context generation but not uploaded or generated
+        context_rmaps = [filename for filename in self.result.context_rmaps
+            if filename not in list(dict(generated_files).values()) + self.result.uploaded_basenames]
+    
+        confirm_results = dict(
+            pmap_mode = self.result.pmap_mode,
+            pmap = self.result.pmap,
+            original_pmap = self.result.original_pmap,
+            uploaded_files=uploaded_files,
+            added_files=getattr(self.result, "added_files", []),
+            deleted_files=getattr(self.result, "deleted_files", []),
+            context_rmaps=context_rmaps,
+            generated_files=generated_files,
+            new_file_map=new_file_map,
+            collision_list=collision_list,
+            more_submits=self.result.more_submits)
+    
+        return confirm_results
 
     def cancel_files(self):
         """Wipe out any database + file system representation of `new_files` and return empty template params."""
@@ -262,7 +210,7 @@ class SubmitConfirm:
     def common_reply(self, request, confirm_results):
         # Update the "READY" model with the results of this confirmation to prevent repeat confirms
         self.repeatable_model.set_par("disposition" , self.disposition)
-        self.repeatable_model.save()  # XXX required by further set_par() above
+        self.repeatable_model.save()  # XXX required by earlier set_par() above
     
         # Add info common to both confirmed and canceled
         confirm_results["disposition"] = self.disposition
@@ -285,74 +233,37 @@ class SubmitConfirm:
             **confirm_results)
         return new_result
     
-# ===========================================================================
-
-def affirm_files(result, new_file_map, context_map, collision_list):
-    """Return template variables appropriate for confirming this submission. Clear upload dir.  Clear models cache."""
+    def check_new_files(self):
+        """Verify that each filename in `new_files`:
+        1. Exists in CRDS in the uploaded state.
+        2. Was delivered by `user` name.
+        3. Resulting list of CRDS file paths is not an empty list.
+        """
+        paths = []
+        for filename in self.new_files:
+            try:
+                blob = models.FileBlob.load(filename)
+            except LookupError:
+                raise CrdsError("Unknown CRDS file " + srepr(filename))
+            assert self.result.user == blob.deliverer_user, \
+                "User " + srepr(user) + " did not submit " + srepr(filename)
+            assert blob.state == "uploaded", \
+                "File " + srepr(filename) + " is no longer in the 'uploaded' state."
+            paths.append(blob.pathname)
+        if not paths:
+            raise CrdsError("No files submitted.")
     
-    new_file_map = sorted(list(new_file_map.items()) + list(context_map.items()))
-    generated_files = sorted([(old, new) for (old, new) in new_file_map if old not in result.uploaded_basenames])
-    uploaded_files = [(old, new) for (old, new) in new_file_map if (old, new) not in generated_files]
-    
-    # rmaps specified for context generation but not uploaded or generated
-    context_rmaps = [filename for filename in self.result.context_rmaps
-        if filename not in list(dict(generated_files).values()) + self.result.uploaded_basenames]
 
-    clear_uploads(request, self.result.uploaded_basenames)
+def clear_uploads(request, uploads):
+    """Remove the basenames listed in `uploads` from the upload directory."""
+    username = str(request.user)
+    for filename in uploads:
+        _upload_delete(username, filename)
 
-    models.clear_cache()
-    
-    confirm_results = dict(
-        pmap_mode = result.pmap_mode,
-        pmap = result.pmap,
-        original_pmap = result.original_pmap,
-        uploaded_files=uploaded_files,
-        added_files=getattr(self.result, "added_files", []),
-        deleted_files=getattr(self.result, "deleted_files", []),
-        context_rmaps=context_rmaps,
-        generated_files=generated_files,
-        new_file_map=new_file_map,
-        collision_list=collision_list,
-        more_submits=result.more_submits)
-
-    return confirm_results
-
-# ===========================================================================
-        
-def check_new_files(new_files, user):
-    """Verify that each filename in `new_files`:
-    1. Exists in CRDS in the uploaded state.
-    2. Was delivered by `user` name.
-    3. Resulting list of CRDS file paths is not an empty list.
-    
-    Returns   list of cache paths,  instrument name, filekind name
-    """
-    instrument = filekind = "unknown"
-    paths = []
-    for filename in new_files:
-        try:
-            blob = models.FileBlob.load(filename)
-        except LookupError:
-            raise CrdsError("Unknown CRDS file " + srepr(filename))
-        assert user == blob.deliverer_user, \
-            "User " + srepr(user) + " did not submit " + srepr(filename)
-        assert blob.state == "uploaded", \
-            "File " + srepr(filename) + " is no longer in the 'uploaded' state."
-        if blob.instrument != "unknown":
-            instrument = blob.instrument
-        if blob.filekind != "unknown":
-            filekind = blob.filekind
-        paths.append(blob.pathname)
-    if not paths:
-        raise CrdsError("No files submitted.")
-    return paths, instrument, filekind
-    
-def destroy_file_list(files):
-    """Remove the database record of `files` as well as `files` themselves.
-    NOTE: This only removes the CRDS official copy of the file, not the original upload copy.
-    """
-    for filename in files:
-        blob = models.FileBlob.load(filename)
-        blob.destroy()
-
+def _upload_delete(username, filename):
+    """Worker function for upload_delete."""
+    ingest_path = get_ingest_path(username, filename)
+    with log.error_on_exception("Failed upload_delete for:", srepr(filename)):
+        log.info("upload_delete", srepr(ingest_path))
+        pysh.sh("rm -f ${ingest_path}")   # secure,  constructed path
 

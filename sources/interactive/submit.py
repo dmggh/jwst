@@ -781,14 +781,6 @@ def create_contexts(description, context_rmaps, user, pmap_name):
 def fix_unicode(items):
     return [(str(old), str(new)) for (old, new) in items]
  
-def destroy_file_list(files):
-    """Remove the database record of `files` as well as `files` themselves.
-    NOTE: This only removes the CRDS official copy of the file, not the original upload copy.
-    """
-    for filename in files:
-        blob = models.FileBlob.load(filename)
-        blob.destroy()
-
 # ------------------------------------------------------------------------------------------------
 
 def deliver_file_list(user, observatory, delivered_files, description, action):

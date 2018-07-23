@@ -747,7 +747,6 @@ def index(request):
     pars["remote_contexts"] = models.RemoteContextModel.objects.all()
     response = crds_render(request, "index.html", pars, requires_pmaps=True)
     # The following is necessary because the index page doesn't change suffiently between context
-    # switches to invalidate browser caches.  It's a performance issue since every part of the index
     # page reloads even when no updates are occuring.
     response['Cache-Control'] = "no-cache"
     return response
@@ -963,18 +962,6 @@ def upload_delete(request, filename):
     else:
         return HttpResponseRedirect('/upload/new/')  # secure
 
-def _upload_delete(username, filename):
-    """Worker function for upload_delete."""
-    ingest_path = get_ingest_path(username, filename)
-    with log.error_on_exception("Failed upload_delete for:", srepr(filename)):
-        log.info("upload_delete", srepr(ingest_path))
-        pysh.sh("rm -f ${ingest_path}")   # secure,  constructed path
-
-def clear_uploads(request, uploads):
-    """Remove the basenames listed in `uploads` from the upload directory."""
-    username = str(request.user)
-    for filename in uploads:
-        _upload_delete(username, filename)
 
 # ===========================================================================
 '''
@@ -1401,6 +1388,34 @@ def batch_submit_references_post(request):
     
     return redirect_jpoll_result(result, jpoll_handler)
 
+# ===========================================================================
+
+@profile("submit_confirm_post.stats")
+@error_trap("base.html")
+@log_view
+# @login_required  (since this drops and re-acquires lock,  don't use.)
+@group_required("file_submission")
+@instrument_lock_required  # ensures authenticated,  has instrument lock of submission.
+def submit_confirm(request): #, button, results_id):
+    """Accept or discard proposed files from various file upload and
+    generation mechanisms.
+    """
+    button = validate(request, "button", "confirm|cancel|force")
+    results_id = validate(request, "results_id", common.UUID_RE)
+
+    jpoll_handler = jpoll_views.get_jpoll_handler(request)
+
+    confirmer = confirm.Confirm(request, button, results_id)
+    
+    new_result = confirmer.process(request)
+
+    with log.error_on_exception(
+            "Failed logging and/or releasing lockss after confirm/cancel/force."):
+        django.contrib.auth.logout(request)
+    
+    return redirect_jpoll_result(new_result, jpoll_handler)
+
+'''
 # ============================================================================
 
 @profile("submit_confirm_post.stats")
@@ -1538,6 +1553,7 @@ def submit_confirm(request): #, button, results_id):
         django.contrib.auth.logout(request)
     
     return redirect_jpoll_result(result, jpoll_handler)
+'''
 
 # ===========================================================================
 
