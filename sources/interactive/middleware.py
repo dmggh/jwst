@@ -6,7 +6,7 @@ from __future__ import absolute_import
 # from builtins import object
 
 from crds import log
-from . import locks, views
+from . import locks
 
 class ResetLockExpirationMiddleware(object):
     """Manage instrument lock timeouts for all views except lock polling and
@@ -26,7 +26,7 @@ class ResetLockExpirationMiddleware(object):
         if "lock_status" not in request.path and "jpoll" not in request.path:
             user = getattr(request, "user", None)
             if user and user.is_authenticated:
-                instrument = views.get_locked_instrument(request)
+                instrument = locks.get_locked_instrument(request)
                 if instrument:
                     with log.info_on_exception("failed resetting lock expiration"):
                         locks.reset_expiry(type="instrument", name=instrument, user=str(user))

@@ -1,13 +1,6 @@
 """This module defines the Django view functions which respond to HTTP requests
 and return HTTP response objects.
 """
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-# from builtins import str
-
-# ===========================================================================
-
 import sys
 import os
 import os.path
@@ -55,10 +48,16 @@ from crds.certify import reftypes
 
 # ===========================================================================
 
-from crds.server.jpoll import views as jpoll_views
-from crds.server.jsonapi import views as jsonapi_views
-from crds.server import settings
-from crds.server import config as sconfig
+from ..jpoll import views as jpoll_views
+from ..jsonapi import views as jsonapi_views
+from .. import settings
+from .. import config as sconfig
+
+from . import confirm
+from .render import crds_render
+from .render import redirect_repeatable_result
+from .render import redirect_jpoll_result
+from .render import render_repeatable_result
 
 # ===========================================================================
 
@@ -66,6 +65,7 @@ from . import (models, web_certify, web_difference, submit, versions, locks, htm
 from . import common
 from . import catalog_fusion
 from . import browsify_file
+from . import render
 from .templatetags import stdtags
 from .models import FieldError, MissingInputError
 from .common import capture_output, srepr, profile, complete_re, crds_format_html
@@ -257,178 +257,6 @@ def is_match_tuple(tuple_str):
 def get_observatory(request):
     """Validate and return the observatory parameter from request.POST"""
     return validate(request, "observatory", models.OBSERVATORIES)
-
-def usernames():
-    """Return a list of all the usernames defined in the database."""
-    try:
-        return [str(x) for x in django.contrib.auth.models.User.objects.filter()]
-    except Exception:  # provide a workable choice if it fails.
-        return ["*"]
-
-# ===========================================================================
-
-def crds_render(request, template, dict_=None, requires_pmaps=False):
-    """Render an HttpReponse object.    Return HttpResponse."""
-    html_str = crds_render_html(request=request, template=template, dict_=dict_, requires_pmaps=requires_pmaps)
-    return HttpResponse(html_str)
-
-def crds_render_html(request, template, dict_=None, requires_pmaps=False):
-    """Render a template,  making same-named inputs from request available
-    for echoing,  scrubbing file paths.   Return HTML.
-    """
-    rdict = get_rendering_dict(request, dict_=dict_, requires_pmaps=requires_pmaps)
-    # Generate a first pass of the response HTML.
-    loaded_template = loader.get_template(template)
-    # context = RequestContext(request, rdict)
-    html_str = loaded_template.render(rdict, request)
-    # Remove file paths and fix temporary names with client side names
-    uploaded_pairs = rdict.get("uploaded_file_names", get_uploaded_filepaths(request))
-    html_str = squash_file_paths(html_str, uploaded_pairs)
-    return html_str
-
-def get_rendering_dict(request, dict_=None, requires_pmaps=False):
-    """Render a template,  making same-named inputs from request available
-    for echoing.
-    """
-    if dict_ is None:
-        dict_ = {}
-
-    statuses = ["*"] + list(models.FILE_STATUS_MAP.keys())
-    statuses.remove("uploaded")
-
-    try:
-        live_params = sconfig.ARCHIVE_PARAMETER_SERVICE_URL.split(":")[1][2:].split(".")[0]
-    except Exception:
-        live_params = "unknown"
-
-    rdict = {   # standard template variables
-        "observatory" : models.OBSERVATORY,
-
-        "instrument" : "*",
-        "instruments" : ["*"] + models.INSTRUMENTS,
-
-        "filekind" : "*",
-        "filekinds" : models.FILEKIND_TEXT_DESCR,
-
-        "extensions" : [".pmap"] + ["*"] + list(sorted(set(models.EXTENSIONS)-set([".pmap"]))),
-        "users": ["*"] + usernames(),
-
-        "status" : "*",
-        "statuses": statuses,
-
-        "action" : "*",
-        "actions" : ["*"] + models.AUDITED_ACTIONS,
-
-        "filename" : "*",
-        "deliverer_user" : "*",
-        "current_path" : request.get_full_path(),
-
-        "locked_instrument" : get_locked_instrument(request),
-
-        "username" : str(request.user),
-
-        "auto_rename" : models.OBSERVATORY == "jwst",
-        "server_usecase" :  sconfig.server_usecase.lower(),
-        "mock_params" : sconfig.CRDS_MOCK_ARCHIVE_PARAMETERS,
-        "live_params" : live_params,
-    }
-
-    # echo escaped inputs.
-    for key, value in list(request.GET.items()):
-        rdict[key] = conditional_escape(value)
-    for key, value in list(request.POST.items()):
-        rdict[key] = conditional_escape(value)
-    for key, value in list(request.FILES.items()):
-        rdict[key] = conditional_escape(value)
-
-    if requires_pmaps:
-        rdict.update(get_pmap_template_vars(dict_))
-
-    # include view outputs
-    if dict_ is not None:
-        for key, value in list(dict_.items()):
-            rdict[key] = value
-
-    # Set up variables required to support django-json-rpc Javacsript
-    jsonrpc_vars = jsonapi_views.get_jsonrpc_template_vars()
-    for var in jsonrpc_vars:
-        if var in rdict:
-            raise CrdsError("Template variable collision on " + srepr(var))
-        else:
-            rdict[var] = jsonrpc_vars[var]
-
-    # This is only for the purpose of showing/hiding logout, super user options.
-    # Still,  do it last making it harder to trick.
-    rdict["is_authenticated"] = request.user.is_authenticated
-    rdict["is_superuser"] = request.user.is_superuser
-
-    return rdict
-
-def get_pmap_template_vars(dict_):
-    """Get the template variables required for the pmap selection accordion."""
-    pmap_edit = models.get_default_context(models.OBSERVATORY, "edit")
-    pmap_edit_label = pmap_label(pmap_edit)
-    pmap_operational = models.get_default_context(models.OBSERVATORY, "operational")
-    pmap_operational_label = pmap_label(pmap_operational, pmap_edit)
-    if dict_.get("pmap_initial_mode", "edit") == "edit":
-        pmap_edit_checked = "checked"
-        pmap_operational_checked = ""
-    else:
-        pmap_edit_checked = ""
-        pmap_operational_checked = "checked"
-    recent_pmaps = get_recent_pmaps(10, pmap_edit)
-    pmap_labels = dict(recent_pmaps)
-    pmap_labels[pmap_edit] = pmap_edit_label
-    pmap_labels[pmap_operational] = pmap_operational_label
-    pmap_labels_json = json.dumps(pmap_labels)
-    return {
-        "pmap_edit" : pmap_edit,
-        "pmap_edit_checked" : pmap_edit_checked,
-        "edit_context_label" : pmap_edit_label,
-        "pmap_operational" : pmap_operational,
-        "pmap_operational_checked" : pmap_operational_checked,
-        "operational_context_label" : pmap_operational_label,
-        "pmaps" : recent_pmaps,
-        "pmap_labels_json" : pmap_labels_json,
-        }
-
-def squash_file_paths(response, uploaded_pairs):
-    """Fix filepath leakage here as a brevity and security issue.   Uploaded file
-    temporary names or paths are replaced with the client-side original name.  CRDS
-    file tree paths of various kinds are replaced with the empty string.
-
-    response:   the original un-scrubbed fully instantiated HTML response string.
-
-    uploaded_pairs:  [(client_side_filename, temporary_upload_path), ...]
-    """
-    for (original_name, path) in uploaded_pairs:
-        response = response.replace(path, original_name)
-        path = os.path.basename(path)
-        response = response.replace(path, original_name)
-    observatory = models.OBSERVATORY
-    response = response.replace(config.get_crds_cfgpath(observatory) + "/", "")
-    response = response.replace(config.get_crds_mappath(observatory) + "/", "")
-    response = response.replace(config.get_crds_refpath(observatory) + "/", "")
-    response = response.replace("/ifs/crds/"+sconfig.observatory+"/ops",sconfig.storage_path)
-    response = response.replace(sconfig.storage_path + "/server_files/ingest", "")
-    response = response.replace(sconfig.install_root, "")
-    response = response.replace(sconfig.storage_path, "")
-    response = response.replace("/ifs/crds/", "")
-    response = response.replace("/crds/data1/server_local", "")
-    response = response.replace("/crds/data1/", "")
-    response = response.replace("/home/crds/", "")
-    response = response.replace(config.get_crds_path(), "")
-    return response
-
-def get_uploaded_filepaths(request):
-    """Return [ (original_name, temporary_path), ...] for uploaded files in `request`."""
-    pairs = []
-    for ufile in list(request.FILES.values()):
-        filepath = str(ufile.temporary_file_path())
-        original_name = str(ufile.name)
-        config.check_filename(original_name)
-        pairs.append((original_name, filepath))
-    return pairs
 
 # ===========================================================================
 
@@ -667,7 +495,7 @@ def lock_login_receiver(sender, **keys):
     if "instrument" in request.POST:
         instrument = validate(request, "instrument", models.INSTRUMENTS + ["none"])
         if instrument != "none":
-            if get_lock(request):
+            if locks.get_request_lock(request):
                 if locks.instrument_of(user) == instrument:
                     return
                 else:
@@ -708,31 +536,13 @@ def instrument_lock_required(func):
     def _wrapped(request, *args, **keys):
         """instrument_log_required wrapper function."""
         assert request.user.is_authenticated, "You must log in."
-        instrument = get_instrument_lock_id(request)
+        instrument = locks.get_instrument_lock_id(request)
         user = str(request.user)
         if not (instrument or request.user.is_superuser):
             raise CrdsError("You can't access this function without logging in for a particular instrument.")
         return func(request, *args, **keys)
     _wrapped.__name__ = func.__name__
     return _wrapped
-
-def get_lock(request, type="instrument"):
-    """Return the lock of `type` associated with `request.user`."""
-    if request.user.is_authenticated:
-        lock = locks.get_lock(user=str(request.user), type=type)
-    else:
-        lock = None
-    return lock
-
-def get_instrument_lock_id(request):
-    """Return the ID of the instrument lock reserved by request.user."""
-    lock = get_lock(request)
-    return lock.lock_id if lock else ""
-
-def get_locked_instrument(request):
-    """Return the name of the instrument locked by request.user or ''."""
-    lock = get_lock(request)
-    return lock.name if lock else ""
 
 # ===========================================================================
 
@@ -779,25 +589,6 @@ def authenticated_result(request, results_id):
     ."""
     return display_result(request, results_id)
 
-def redirect_repeatable_result(request, template, rdict, jpoll_handler=None, requires_authentication=True):
-    """Create a repeatable results model instance and redirect to it."""
-    result = render_repeatable_result(request, template, rdict, requires_authentication=requires_authentication)
-    return redirect_jpoll_result(result, jpoll_handler)
-
-def render_repeatable_result(request, template, rdict, requires_authentication=True):
-    """Create a repeatable results model instance and redirect to it."""
-    rdict["user"] = request.user.username
-    rdict["uploaded_file_names"] = get_uploaded_filepaths(request)
-    rdict["requires_authentication"] = requires_authentication
-    result = models.RepeatableResultBlob.new(template, rdict)
-    return result
-
-def redirect_jpoll_result(result, jpoll_handler):
-    """Send the done message to `jpoll_handler` and redirect to the URL in `result`."""
-    if jpoll_handler:
-        jpoll_handler.done(0, result.abs_repeatable_url)
-        time.sleep(10.0)  # wait 10 seconds to give jpoll done processing consistent behavior. 2x jpoll poll rate
-    return HttpResponseRedirect(result.repeatable_url)   # secure
 
 # ===========================================================================
 
@@ -897,18 +688,12 @@ def upload_new_post(request):
     filename = file_.name
     config.check_filename(filename)    
     username = str(request.user)
-    ingest_path = get_ingest_path(username, filename)
+    ingest_path = confirm.get_ingest_path(username, filename)
 
     link_upload_to_ingest(upload_path, ingest_path)  # must secure ingest_path
     
     data = {"files" : [json_file_details(filename, upload_path)] }
     return JSONResponse(data, {}, response_content_type(request))
-
-def get_ingest_path(username, filename):
-    """Return the file ingest path associated with `username` and basename `filename`."""
-    assert re.match("[A-Za-z0-9_]+", username), "Invalid file_local_dir " + srepr(username)
-    ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, username, filename)
-    return ingest_path
 
 def link_upload_to_ingest(upload_path, ingest_path):
     """Remove any file or directory at `ingest_path` and then make a hard link
@@ -935,7 +720,7 @@ def upload_list(request, _template="upload_new_input.html"):
     """Return JSON describing files in the upload area."""
 
     username = str(request.user)
-    ingest_glob = get_ingest_path(username, "*")
+    ingest_glob = confirm.get_ingest_path(username, "*")
 
     try:
         ingest_paths = { os.path.basename(f):f for f in glob.glob(ingest_glob) }
@@ -955,7 +740,7 @@ def upload_delete(request, filename):
     config.check_filename(filename)
     username = str(request.user)
 
-    _upload_delete(username, filename)
+    confirm.upload_delete(username, filename)
 
     if request.is_ajax():
         return JSONResponse(True, {}, response_content_type(request))
@@ -989,47 +774,6 @@ def upload_alt_new(request, template="upload_alt_new.html"):
         response['Content-Disposition'] = 'inline; filename=files.json'
         return response
 '''
-
-# ===========================================================================
-
-@utils.cached
-@models.crds_cached
-def get_recent_pmaps(last_n, pmap_edit):
-    """Return a list of option tuples for rendering HTML to choose recent
-    pmaps (last 10). This defines what users will see for the context HTML
-    drop-down menu.
-    """
-    files = models.FileBlob.objects.filter(name__endswith=".pmap")
-    pmaps = []
-    for file_ in files:
-        file_.thaw()
-        if file_.state == "uploaded":
-            continue
-        pmaps.append((file_.name, pmap_label(file_, pmap_edit)))
-    return list(reversed(pmaps))[:last_n]
-
-def pmap_label(blob, pmap_edit=None):
-    """Return the text displayed to users selecting known pmaps."""
-    if isinstance(blob, python23.string_types):
-        try:
-            blob = models.FileBlob.load(blob)
-        except LookupError:
-            return "FILE LOOKUP FAILED -- invalid context"
-
-    try:
-        if pmap_edit is None:
-            reversion = ""
-        else:
-            reversion = "*reversion*" if blob.name < pmap_edit else ""
-    except Exception:
-        reversion= "*reversion* check failed"
-
-    available = "" if blob.available else "*unavailable*"
-    bad = "*bad*" if blob.is_bad_file else ""
-    #     blacklisted = "*blacklisted*" if blob.blacklisted else ""
-    #     rejected = "*rejected*" if blob.rejected else ""
-    return " ".join([blob.name, str(blob.delivery_date)[:16], available, bad, reversion])  #, blacklisted, rejected])
-
 
 # ===========================================================================
 
@@ -1328,7 +1072,7 @@ def batch_submit_references_post(request):
     auto_rename = checkbox(request, "auto_rename")
     compare_old_reference = checkbox(request, "compare_old_reference")
     _remove_dir, uploaded_files = get_files(request)
-    instrument_lock_id = get_instrument_lock_id(request)
+    instrument_lock_id = locks.get_instrument_lock_id(request)
 
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
@@ -1578,7 +1322,7 @@ def delete_references_post(request):
     deleted_files = validate(request, "deleted_files", is_known_file_list)
     uploaded_files = { fname:rmap.locate_file(fname, models.OBSERVATORY) for fname in deleted_files }
 
-    instrument_lock_id = get_instrument_lock_id(request)
+    instrument_lock_id = locks.get_instrument_lock_id(request)
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
     pmap = crds.get_symbolic_mapping(pmap_name)
@@ -1662,7 +1406,7 @@ def add_existing_references_post(request):
     added_files = validate(request, "added_files", is_known_file_list)
     uploaded_files = { fname:rmap.locate_file(fname, models.OBSERVATORY) for fname in added_files }
 
-    instrument_lock_id = get_instrument_lock_id(request)
+    instrument_lock_id = locks.get_instrument_lock_id(request)
     jpoll_handler = jpoll_views.get_jpoll_handler(request)
 
     with log.error_on_exception("Failed Add Existing STARTED e-mail"):
@@ -1809,7 +1553,7 @@ def submit_files_post(request, crds_filetype):
     creator = validate(request, "creator", common.PERSON_RE)
     change_level = validate(request, "change_level", models.CHANGE_LEVELS)
     _remove_dir, uploaded_files = get_files(request)
-    instrument_lock_id = get_instrument_lock_id(request)
+    instrument_lock_id = locks.get_instrument_lock_id(request)
 
     assert not generate_contexts or instrument_lock_id or request.user.is_superuser,  \
         "Can't generate contexts in unlocked mode."
@@ -2111,7 +1855,7 @@ def browse_db_post(request):
     filekind = validate(request, "filekind", models.FILEKINDS+[r"\*"])
     extension = validate(request, "extension", models.EXTENSIONS+[r"\*"])
     filename = validate(request, "filename", complete_re(config.FILE_RE_STR + r"|" + complete_re(r"\*")))
-    deliverer_user = validate(request, "deliverer_user", [r"\*"] + usernames())
+    deliverer_user = validate(request, "deliverer_user", [r"\*"] + render.usernames())
     status = validate(request, "status",  complete_re(r"[A-Za-z0-9_.\*]+"))
     start_date = validate(request, "start_date", parse_date)
     stop_date = validate(request, "stop_date", parse_date)
@@ -2523,7 +2267,7 @@ def get_context_pmaps(context_map):
     for file_ in files:
         if file_.name in list(context_map.values()):
             file_.thaw()
-            context_pmaps[file_.name] = pmap_label(file_)
+            context_pmaps[file_.name] = render.pmap_label(file_)
     return context_pmaps
 
 def update_default_context(new_default, description, context_type, user):

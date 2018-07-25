@@ -38,6 +38,7 @@ A brief summary of the functions performed by the submission confirmation proces
 8. File final
 """
 import os.path
+import re
 
 # ===========================================================================
 
@@ -46,11 +47,15 @@ from crds.core import log, pysh
 
 # ===========================================================================
 
-from crds.server import config as sconfig
+from .. import config as sconfig
 
 # ===========================================================================
 
-from . import (models, submit, locks, mail)
+from . import models
+from . import submit
+from . import locks
+from . import mail
+from . import render
 from .common import srepr
 
 # ===========================================================================
@@ -86,7 +91,7 @@ class Confirm:
         self.repeatable_model.save()
     
     def _check_locking(self, request, result):
-        self.instrument_lock_id = get_instrument_lock_id(request)
+        self.instrument_lock_id = locks.get_instrument_lock_id(request)
         should_still_be_locked = result.get("should_still_be_locked", None) 
         self.locked_instrument = locks.instrument_from_lock_id(should_still_be_locked)
         username = str(request.user)
@@ -118,7 +123,7 @@ class Confirm:
     
     def process(self, request):
         if self.confirmed:
-            confirm_results = self.confirm_files()
+            confirm_results = self.confirm_files(request)
             clear_uploads(request, self.result.uploaded_basenames)
             models.clear_cache()
         else:
@@ -126,7 +131,7 @@ class Confirm:
         new_result = self.common_reply(request, confirm_results)
         return new_result
 
-    def confirm_files(self):
+    def confirm_files(self, request):
         """If `context_rmaps` is a list of rmaps,  generate appropriate imaps and .pmaps.
         Either way,  deliver all submitted and generated files to delivery directory.
         """
@@ -148,7 +153,7 @@ class Confirm:
                 models.set_default_context(new_pmap)
             final_pmap, context_map = None, {}
             
-        delivery = submit.Delivery(user, delivered_files, self.result.description, self.result.submission_kind)
+        delivery = submit.Delivery(self.result.user, delivered_files, self.result.description, self.result.submission_kind)
         delivery.deliver()
         
         collision_list = submit.get_collision_list(list(context_map.values()))        
@@ -210,7 +215,7 @@ class Confirm:
     def common_reply(self, request, confirm_results):
         # Update the "READY" model with the results of this confirmation to prevent repeat confirms
         self.repeatable_model.set_par("disposition" , self.disposition)
-        self.repeatable_model.save()  # XXX required by earlier set_par() above
+        self.repeatable_model.save()  # NOTE required by earlier set_par() above
     
         # Add info common to both confirmed and canceled
         confirm_results["disposition"] = self.disposition
@@ -219,9 +224,9 @@ class Confirm:
         confirm_results["prior_results_url"] = self.repeatable_model.abs_repeatable_url
         
         # Do the web response
-        new_result = render_repeatable_result(request, "confirmed.html", confirm_results)
+        new_result = render.render_repeatable_result(request, "confirmed.html", confirm_results)
     
-        """Issue and e-mail indicating confirm/cancel with details from the submission."""
+        # Issue and e-mail indicating confirm/cancel with details from the submission.
         username = request.user.first_name + " " + request.user.last_name
         results_kind = self.repeatable_model.parameters["submission_kind"].title()
         mail.crds_notification(
@@ -246,7 +251,7 @@ class Confirm:
             except LookupError:
                 raise CrdsError("Unknown CRDS file " + srepr(filename))
             assert self.result.user == blob.deliverer_user, \
-                "User " + srepr(user) + " did not submit " + srepr(filename)
+                "User " + srepr(self.result.user) + " did not submit " + srepr(filename)
             assert blob.state == "uploaded", \
                 "File " + srepr(filename) + " is no longer in the 'uploaded' state."
             paths.append(blob.pathname)
@@ -258,12 +263,18 @@ def clear_uploads(request, uploads):
     """Remove the basenames listed in `uploads` from the upload directory."""
     username = str(request.user)
     for filename in uploads:
-        _upload_delete(username, filename)
+        upload_delete(username, filename)
 
-def _upload_delete(username, filename):
+def upload_delete(username, filename):
     """Worker function for upload_delete."""
     ingest_path = get_ingest_path(username, filename)
     with log.error_on_exception("Failed upload_delete for:", srepr(filename)):
         log.info("upload_delete", srepr(ingest_path))
         pysh.sh("rm -f ${ingest_path}")   # secure,  constructed path
+
+def get_ingest_path(username, filename):
+    """Return the file ingest path associated with `username` and basename `filename`."""
+    assert re.match("[A-Za-z0-9_]+", username), "Invalid file_local_dir " + srepr(username)
+    ingest_path = os.path.join(sconfig.CRDS_INGEST_DIR, username, filename)
+    return ingest_path
 

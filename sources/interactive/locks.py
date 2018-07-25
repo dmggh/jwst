@@ -43,8 +43,9 @@ import datetime
 from ..locking.models import Lock
 from ..locking.exceptions import AlreadyLocked
 
-from crds import CrdsError, log, utils
-from crds.server import settings
+from crds import CrdsError
+from crds.core import log, utils
+from .. import settings
 
 NEVER = 60 * 60 * 24 * 365 * 1000   # 1000 years in seconds
 
@@ -253,7 +254,7 @@ def verify_locked(user, type, lock_id):
     for lock in filter_locks(user=user, type=type):
         lock.verify_locked(lock_id)
         return lock
-    raise BrokenLockError("User", repr(self.user), "does not hold any locks of type", repr(type))
+    raise BrokenLockError("User", repr(user), "does not hold any locks of type", repr(type))
 
 def instrument_from_lock_id(lock_id):
     """Given  a lock_id,  return the embedded instrument name."""
@@ -387,3 +388,23 @@ def verify_instrument_locked_files(user, locked_instrument, filepaths, observato
         assert instrument == lock.name, \
             "Instrument Mismatch:  Logged in for '%s'. Submitted files for '%s'." % (lock.name, instrument)
      
+# -----------------------------------------------------------------------------
+
+def get_request_lock(request, locktype="instrument"):
+    """Return the lock of `type` associated with `request.user`."""
+    if request.user.is_authenticated:
+        lock = get_lock(user=str(request.user), type=locktype)
+    else:
+        lock = None
+    return lock
+
+def get_instrument_lock_id(request):
+    """Return the ID of the instrument lock reserved by request.user."""
+    lock = get_request_lock(request)
+    return lock.lock_id if lock else ""
+
+def get_locked_instrument(request):
+    """Return the name of the instrument locked by request.user or ''."""
+    lock = get_request_lock(request)
+    return lock.name if lock else ""
+
