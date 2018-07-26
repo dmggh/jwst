@@ -74,7 +74,8 @@ class Confirm:
         # and locking may change.
         if not request.user.is_authenticated:
             raise CrdsError("You must be logged in to confirm or cancel file submissions.")
-        self.disposition = button + "d" if button.endswith("e") else button + "ed"    
+        self.disposition = button + "d" if button.endswith("e") else button + "ed"
+        # The repeatable result model from the READY response carries info needed to confirm
         try:
             self.repeatable_model = models.RepeatableResultBlob.load(results_id)
         except Exception as exc:
@@ -86,7 +87,8 @@ class Confirm:
         # Locking needs to be checked before finalizing below.
         self._check_locking(request, self.result)
 
-        # Mark the READY model as finalizing to prevent double confirmations,  must save now.
+        # Mark the READY model as finalizing to prevent double confirmations,  must save now
+        # to block other asynchronous confirm invocations.
         self.repeatable_model.set_par("disposition", "finalizing")
         self.repeatable_model.save()
     
@@ -122,22 +124,26 @@ class Confirm:
         return list(self.new_file_map.values())
     
     def process(self, request):
+        """Execute this confirmation request based on the button clicked,  either confirming
+        or canceling.   Issue an appropriate e-mail and render confirmed.html as a repeatable
+        result.   Return the result which can be sent to JPOLL and also returned by the view 
+        function.
+        """
         if self.confirmed:
-            confirm_results = self.confirm_files(request)
+            template_vars = self.confirm_files()
             clear_uploads(request, self.result.uploaded_basenames)
             models.clear_cache()
         else:
-            confirm_results = self.cancel_files()
-        new_result = self.common_reply(request, confirm_results)
-        return new_result
+            template_vars = self.cancel_files()
+        repeatable_result = self.common_reply(request, template_vars)
+        return repeatable_result
 
-    def confirm_files(self, request):
+    def confirm_files(self):
         """If `context_rmaps` is a list of rmaps,  generate appropriate imaps and .pmaps.
         Either way,  deliver all submitted and generated files to delivery directory.
         """
         self.check_new_files()
-        if self.result.context_rmaps:
-            # Make a fake(?) submission to generate contexts
+        if self.result.context_rmaps:   # Make a fake(?) submission to generate contexts
             file_submission = submit.FileSubmission(
                 self.result.pmap, uploaded_files=None, description=self.result.description, 
                 user=self.result.user, creator="crds", pmap_mode=self.result.pmap_mode)
@@ -145,7 +151,7 @@ class Confirm:
             final_pmap, context_map = file_submission.do_create_contexts(self.result.context_rmaps)
             
             delivered_files = sorted(self.new_files + list(context_map.values()))
-        else:
+        else:   # no context generated
             delivered_files = self.new_files
             pmaps = [ os.path.basename(name) for name in self.new_files if name.endswith(".pmap") ]
             if pmaps:  # when no context generation was done,  choose highest .pmap,  if any
@@ -153,20 +159,21 @@ class Confirm:
                 models.set_default_context(new_pmap)
             final_pmap, context_map = None, {}
             
-        delivery = submit.Delivery(self.result.user, delivered_files, self.result.description, self.result.submission_kind)
+        delivery = submit.Delivery(
+            self.result.user, delivered_files, self.result.description, self.result.submission_kind)
         delivery.deliver()
         
         collision_list = submit.get_collision_list(list(context_map.values()))        
 
-        # XXX single model save later in processing flow
+        # NOTE single model save later in processing flow
         # By the time confirmation happens,  derived from pmap may have evolved for another instrument.
         # Record the pmap the submitter added to,  and the final pmap generated here.
         self.repeatable_model.set_par("original_pmap", self.result.pmap)
         self.repeatable_model.set_par("pmap", final_pmap)
 
-        confirm_results = self.affirm_files(context_map, collision_list)
+        template_vars = self.affirm_files(context_map, collision_list)
 
-        return confirm_results, final_pmap, context_map, collision_list    
+        return template_vars, final_pmap, context_map, collision_list    
 
     def affirm_files(self, context_map, collision_list):
         """Return template variables appropriate for confirming this submission. Clear upload dir.  
@@ -182,7 +189,7 @@ class Confirm:
         context_rmaps = [filename for filename in self.result.context_rmaps
             if filename not in list(dict(generated_files).values()) + self.result.uploaded_basenames]
     
-        confirm_results = dict(
+        template_vars = dict(
             pmap_mode = self.result.pmap_mode,
             pmap = self.result.pmap,
             original_pmap = self.result.original_pmap,
@@ -195,7 +202,7 @@ class Confirm:
             collision_list=collision_list,
             more_submits=self.result.more_submits)
     
-        return confirm_results
+        return template_vars
 
     def cancel_files(self):
         """Wipe out any database + file system representation of `new_files` and return empty template params."""
@@ -203,28 +210,28 @@ class Confirm:
             with log.error_on_exception("Failed marking", repr(new), "as cancelled."):
                 blob = models.FileBlob.load(new)
                 blob.destroy()
-        confirm_results = dict(
+        template_vars = dict(
             uploaded_files = [],
             generated_files = [],
             added_files = [],
             deleted_files = [],
             )
-        # confirm_results, final_pmap, context_map, collision_list
-        return confirm_results, None, {}, None
+        # template_vars, final_pmap, context_map, collision_list
+        return template_vars, None, {}, None
 
-    def common_reply(self, request, confirm_results):
+    def common_reply(self, request, template_vars):
         # Update the "READY" model with the results of this confirmation to prevent repeat confirms
         self.repeatable_model.set_par("disposition" , self.disposition)
         self.repeatable_model.save()  # NOTE required by earlier set_par() above
     
         # Add info common to both confirmed and canceled
-        confirm_results["disposition"] = self.disposition
-        confirm_results["confirmed"] = self.confirmed
-        confirm_results["description"] = self.repeatable_model.parameters["description"]
-        confirm_results["prior_results_url"] = self.repeatable_model.abs_repeatable_url
+        template_vars["disposition"] = self.disposition
+        template_vars["confirmed"] = self.confirmed
+        template_vars["description"] = self.repeatable_model.parameters["description"]
+        template_vars["prior_results_url"] = self.repeatable_model.abs_repeatable_url
         
         # Do the web response
-        new_result = render.render_repeatable_result(request, "confirmed.html", confirm_results)
+        new_result = render.render_repeatable_result(request, "confirmed.html", template_vars)
     
         # Issue and e-mail indicating confirm/cancel with details from the submission.
         username = request.user.first_name + " " + request.user.last_name
@@ -235,7 +242,7 @@ class Confirm:
             results_kind = results_kind,
             repeatable_url = new_result.abs_repeatable_url,
             to_addresses  = sconfig.CRDS_STATUS_CONFIRM_ADDRESSES,
-            **confirm_results)
+            **template_vars)
         return new_result
     
     def check_new_files(self):
