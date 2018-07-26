@@ -35,7 +35,7 @@ A brief summary of the functions performed by the submission confirmation proces
 5. Repeatable results for later review of submission
 6. Confirmation e-mail
 7. Higher level context generation
-8. File final
+8. File linking to CRDS poller delivery directory
 """
 import os.path
 import re
