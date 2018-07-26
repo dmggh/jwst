@@ -49,6 +49,8 @@ crds-servers@stsci.edu                   " B7.2 I&T reprocessing
 
 crds_datamng@stsci.edu                   archive list for reprocessing info
 
+CRDS-STATUS@MAILLIST.STSCI.EDU           Weekly and Monthly automated report
+
 dms-developer@stsci.edu                   pipeline and archive development
 dms-design@stsci.edi                      overall DMS design, metrics, requirements, tasks, schedule, budget
 

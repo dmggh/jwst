@@ -5,7 +5,7 @@ from __future__ import absolute_import
 # from builtins import str
 # from builtins import object
 
-from crds import log
+from crds.core import log
 from . import locks
 
 class ResetLockExpirationMiddleware(object):

@@ -3,6 +3,8 @@
 	<name>CRDS_server</name>
 	<comment></comment>
 	<projects>
+		<project>CRDS</project>
+		<project>jwst</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
