@@ -15,9 +15,9 @@ from django.test import TransactionTestCase, TestCase
 from crds.core import (rmap, utils, pysh, log)
 from crds.core import config as lconfig
 
-from crds.server import settings
-from crds.server import config as sconfig
-from crds.server.interactive import models, locks, mail, views
+from .. import settings
+from .. import config as sconfig
+from . import models, locks, mail, views, confirm
 
 from django.contrib.auth.models import User
 
@@ -720,7 +720,7 @@ class InteractiveBase(TransactionTestCase):
         utils.ensure_dir_exists(upload_path)
         with open(upload_path, "w+") as temp:
             temp.write("no-cross-links upload test file.\n")
-        ingest_path = views.get_ingest_path("homer", "test.upload")
+        ingest_path = confirm.get_ingest_path("homer", "test.upload")
         views.link_upload_to_ingest(upload_path, ingest_path)
         os.remove(upload_path)
         os.remove(ingest_path)

@@ -172,17 +172,20 @@ class Confirm:
         self.repeatable_model.set_par("pmap", final_pmap)
 
         template_vars = self.affirm_files(context_map, collision_list)
+        template_vars["final_pmap"] = final_pmap
+        template_vars["context_map"] = context_map
+        template_vars["collision_list"] = collision_list
 
-        return template_vars, final_pmap, context_map, collision_list    
+        return template_vars
 
     def affirm_files(self, context_map, collision_list):
         """Return template variables appropriate for confirming this submission. Clear upload dir.  
         Clear models cache.
         """  
         new_file_map = sorted(list(self.new_file_map.items()) + list(context_map.items()))
-        generated_files = sorted([(old, new) for (old, new) in self.new_file_map 
+        generated_files = sorted([(old, new) for (old, new) in new_file_map
                                   if old not in self.result.uploaded_basenames])
-        uploaded_files = [(old, new) for (old, new) in self.new_file_map 
+        uploaded_files = [(old, new) for (old, new) in new_file_map
                           if (old, new) not in generated_files]
         
         # rmaps specified for context generation but not uploaded or generated
@@ -215,9 +218,12 @@ class Confirm:
             generated_files = [],
             added_files = [],
             deleted_files = [],
+            final_pmap = None,
+            context_map = {},
+            collision_list = None,
             )
         # template_vars, final_pmap, context_map, collision_list
-        return template_vars, None, {}, None
+        return template_vars
 
     def common_reply(self, request, template_vars):
         # Update the "READY" model with the results of this confirmation to prevent repeat confirms
