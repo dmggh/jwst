@@ -40,29 +40,29 @@ of errors and/or warnings.
 10. Removal of delivered files from ingest area.
 11. Presentation of final result,  including an emphatic summary of errors and/or warnings.
 """
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-# from builtins import zip
-# from builtins import str
-# from builtins import object
 import os
 import tempfile
 import shutil
 import glob
 
+# ----------------------------------------------------------------------------------------------------
+
 from django.contrib.auth.models import User
+
+# ----------------------------------------------------------------------------------------------------
 
 import crds
 from crds.core import log, rmap, utils
 from crds.core import config, naming
+from crds.core.exceptions import CrdsError
 from crds.refactoring import refactor, newcontext
 from crds.misc import uniqname
-from crds.exceptions import CrdsError
+
+# ----------------------------------------------------------------------------------------------------
 
 from . import models, web_certify, web_difference, locks
 from .common import srepr
-from crds.server import config as sconfig
+from .. import config as sconfig
 
 # ----------------------------------------------------------------------------------------------------
 
@@ -759,7 +759,7 @@ def create_contexts(description, context_rmaps, user, pmap_name):
         else:
             instrument, reftype, _na = filename.split("_")
             assert instrument.lower() in models.INSTRUMENTS, "Invalid instrument: " + srepr(instrument)
-            assert reftype.lower() in models.FILEKINDS, "Invalid filekind: " + srepr(filekind)
+            assert reftype.lower() in models.FILEKINDS, "Invalid filekind: " + srepr(reftype.lower())
         
     # context_rmaps aren't necessarily in new_file_map and may be existing files.  So they only
     # specify changes to `pmap_name`,  not file deliveries.
