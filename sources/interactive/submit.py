@@ -246,10 +246,10 @@ class FileSubmission(object):
         
         utils.ensure_dir_exists(permanent_location)
         # Move or copy the temporary file to its permanent location,  assert ownership of CRDS copy now
-        bn = lambda x : os.path.basename(x)
         owner = os.stat(upload_location).st_uid
         if owner == os.getuid() and not rmap.is_mapping(permanent_location):
-            self.push_status("Linking", bn(upload_location), "-->", bn(permanent_location))
+            self.push_status("Linking", os.path.basename(upload_location), 
+                             "-->", os.path.basename(permanent_location))
             os.link(upload_location, permanent_location)
             sha1sum = utils.checksum(permanent_location)
         else:
@@ -308,10 +308,6 @@ class FileSubmission(object):
         for old_ctx, new_ctx in list(new_name_map.items()):
             self.add_crds_file(old_ctx, rmap.locate_mapping(new_ctx), update_derivation=True)
         
-        # Update the edit context for the next person so they won't miss these changes,  while locked!
-        new_pmap = [ mapping for mapping in list(new_name_map.values()) if mapping.endswith(".pmap")][0]
-        models.set_default_context(os.path.basename(new_pmap))
-        
         return self.final_pmap, new_name_map
     
     def generate_new_names(self, updates):
@@ -340,7 +336,7 @@ class FileSubmission(object):
         self.added_files.append((original_name, filepath))
         return models.add_crds_file(self.observatory, original_name, filepath,  str(self.user), self.user.email, 
             self.description, change_level=self.change_level, creator_name=self.creator, state=state,
-            update_derivation=update_derivation, sha1sum=None)
+            update_derivation=update_derivation, sha1sum=sha1sum)
     
     def verify_instrument_lock(self):
         """Ensure that all the submitted files correspond to the locked instrument."""
@@ -377,7 +373,8 @@ class FileSubmission(object):
         except Exception as exc:
             error_msg = str(exc)
             if "probable file truncation" in error_msg:
-                raise CrdsError("Error renaming", srepr(upload_name), ": file may be truncated : " + srepr(exc))
+                raise CrdsError("Error renaming", srepr(upload_name), 
+                                ": file may be truncated : " + srepr(exc)) from exc
             else:
                 raise
         return new_name
@@ -766,16 +763,30 @@ def create_contexts(description, context_rmaps, user, pmap_name):
     submission = FileSubmission(pmap_name, uploaded_files=None, description=description, user=user, creator="crds")
     
     # UNLOCKED context creation
-    _final_pmap, context_name_map = submission.do_create_contexts_unlocked(context_rmaps)
+    _final_pmap, context_name_map = submission.do_create_contexts(context_rmaps)
 
     delivered_files = sorted(context_name_map.values())
     delivery = Delivery(user, delivered_files, description, "new context")
     delivery.deliver()
-        
+    
+    update_edit_context(delivered_files)
+    
     collisions = get_collision_list(list(context_name_map.values()))
 
     return  context_name_map, collisions
     
+def update_edit_context(delivered_files):
+    """If there are pmaps in the delivered files list,  set the EDIT context to the
+    highest numbered pmap.   This supports tracking the default for both deliveries
+    which generate contexts,  and for deliveries which contain one or more pre-made
+    pmaps.
+    """
+    pmaps = [ os.path.basename(name) for name in delivered_files 
+             if name.endswith(".pmap") ]
+    new_pmap = sorted(pmaps)[-1] if pmaps else None
+    if new_pmap is not None:
+        models.set_default_context(new_pmap)
+            
 # ------------------------------------------------------------------------------------------------
 
 def fix_unicode(items):

@@ -65,8 +65,8 @@ HERE = os.path.dirname(__file__) or "./"
 # ===========================================================================
 
 class Confirm:
-    """Check submission confirmation inputs and verify instrument locking 
-    relative to `request` and prior submission results.  Store various parameters 
+    """Check submission confirmation inputs,  authentication, and verify instrument 
+    locking relative to `request` and prior submission results.  Store various parameters 
     as attributes for later use during the confirm/cancel.
     """
     def __init__(self, request, button, results_id):
@@ -85,31 +85,7 @@ class Confirm:
         self.result = self.repeatable_model.parameters
         
         # Locking needs to be checked before finalizing below.
-        self._check_locking(request, self.result)
-
-        # Mark the READY model as finalizing to prevent double confirmations,  must save now
-        # to block other asynchronous confirm invocations.
-        self.repeatable_model.set_par("disposition", "finalizing")
-        self.repeatable_model.save()
-    
-    def _check_locking(self, request, result):
-        self.instrument_lock_id = locks.get_instrument_lock_id(request)
-        should_still_be_locked = result.get("should_still_be_locked", None) 
-        self.locked_instrument = locks.instrument_from_lock_id(should_still_be_locked)
-        username = str(request.user)
-        if self.disposition == "confirmed":
-            assert username == result.user, \
-                "User mismatch: file Submitter='%s' and Confirmer='%s' don't match." % (username, result.user)
-            if should_still_be_locked and should_still_be_locked != self.instrument_lock_id:
-                raise locks.BrokenLockError(
-                    "BROKEN LOCK: Original submission lock", repr(should_still_be_locked), 
-                    "does not match current lock", repr(self.instrument_lock_id), 
-                    ".  Use 'force' to confirm anyway.")
-        elif self.disposition in ["cancel", "force"]:
-            my_locked_instrument = locks.instrument_of(username)
-            if self.locked_instrument and my_locked_instrument != self.locked_instrument:
-                raise CrdsError("You locked", repr(my_locked_instrument), "but must own lock for", 
-                                repr(self.locked_instrument), "to cancel or force this submission.")
+        self._check_locking(request)
 
     @property
     def confirmed(self):
@@ -123,26 +99,88 @@ class Confirm:
     def new_files(self):
         return list(self.new_file_map.values())
     
+    def _check_locking(self, request):
+        """Verify that the same lock used by the original submission is still held by
+        the user. 
+        
+        This verifies that they did not lose it and reaquire it, effectively defeating 
+        the point of locking since another user could have obtained, submitted, and 
+        dropped the lock during the gap.   
+    
+        This is particularly convoluted due to the CRDS client's command line interface 
+        which necessarily does authentication and lock reservation and uses a different
+        web session.
+        """
+        self.instrument_lock_id = locks.get_instrument_lock_id(request)
+        should_still_be_locked = self.result.get("should_still_be_locked", None) 
+        self.locked_instrument = locks.instrument_from_lock_id(should_still_be_locked)
+        username = str(request.user)
+        if self.disposition == "confirmed":
+            assert username == self.result.user, \
+                "User mismatch: file Submitter='%s' and Confirmer='%s' don't match." % (username, self.result.user)
+            if should_still_be_locked and should_still_be_locked != self.instrument_lock_id:
+                raise locks.BrokenLockError(
+                    "BROKEN LOCK: Original submission lock", repr(should_still_be_locked), 
+                    "does not match current lock", repr(self.instrument_lock_id), 
+                    ".  Use 'force' to confirm anyway.")
+        elif self.disposition in ["cancel", "force"]:
+            my_locked_instrument = locks.instrument_of(username)
+            if self.locked_instrument and my_locked_instrument != self.locked_instrument:
+                raise CrdsError("You locked", repr(my_locked_instrument), "but must own lock for", 
+                                repr(self.locked_instrument), "to cancel or force this submission.")
+
     def process(self, request):
         """Execute this confirmation request based on the button clicked,  either confirming
         or canceling.   Issue an appropriate e-mail and render confirmed.html as a repeatable
-        result.   Return the result which can be sent to JPOLL and also returned by the view 
-        function.
+        result.   Return the result which can be sent to JPOLL's done response, returned by the view 
+        function,  and referenced by the confirm/cancel e-mail.
         """
+        # Mark the READY model as finalizing to prevent double confirmations,  must save now
+        # to block other asynchronous confirm invocations.
+        self.repeatable_model.set_par("disposition", "finalizing")
+        self.repeatable_model.save()
+    
         if self.confirmed:
-            template_vars = self.confirm_files()
-            clear_uploads(request, self.result.uploaded_basenames)
-            models.clear_cache()
+            template_vars = self.confirm_files(request)
         else:
             template_vars = self.cancel_files()
+            
         repeatable_result = self.common_reply(request, template_vars)
+
         return repeatable_result
 
-    def confirm_files(self):
-        """If `context_rmaps` is a list of rmaps,  generate appropriate imaps and .pmaps.
+    def confirm_files(self, request):
+        """If `context_rmaps` is a list of rmaps,  generate appropriate imaps and .pmap.
         Either way,  deliver all submitted and generated files to delivery directory.
         """
         self.check_new_files()
+
+        final_pmap, context_map, delivered_files = self.context_generation()
+        
+        delivery = submit.Delivery(
+            self.result.user, delivered_files, self.result.description, self.result.submission_kind)
+        delivery.deliver()
+        
+        collision_list = submit.get_collision_list(list(context_map.values()))        
+
+        # NOTE single model save later in processing flow
+        # By the time confirmation happens,  the derived_from pmap may have evolved for another instrument.
+        # Record the pmap the submitter added to,  and the final pmap generated here.
+        self.repeatable_model.set_par("original_pmap", self.result.pmap)
+        self.repeatable_model.set_par("pmap", final_pmap)
+
+        template_vars = self.get_confirm_vars(final_pmap, context_map, collision_list)
+
+        clear_uploads(request, self.result.uploaded_basenames)
+        models.clear_cache()
+        submit.update_edit_context(delivered_files)
+
+        return template_vars
+    
+    def context_generation(self):
+        """If the READY result defined rmaps to inject into a context,  generate the context
+        (imaps and pmaps) now and add them to the list of delivered files.
+        """
         if self.result.context_rmaps:   # Make a fake(?) submission to generate contexts
             file_submission = submit.FileSubmission(
                 self.result.pmap, uploaded_files=None, description=self.result.description, 
@@ -151,37 +189,14 @@ class Confirm:
             final_pmap, context_map = file_submission.do_create_contexts(self.result.context_rmaps)
             
             delivered_files = sorted(self.new_files + list(context_map.values()))
-        else:   # no context generated
-            delivered_files = self.new_files
-            pmaps = [ os.path.basename(name) for name in self.new_files if name.endswith(".pmap") ]
-            if pmaps:  # when no context generation was done,  choose highest .pmap,  if any
-                new_pmap = sorted(pmaps)[-1]
-                models.set_default_context(new_pmap)
-            final_pmap, context_map = None, {}
             
-        delivery = submit.Delivery(
-            self.result.user, delivered_files, self.result.description, self.result.submission_kind)
-        delivery.deliver()
+            return final_pmap, context_map, delivered_files
+        else:   # no context generated,  only deliver new files.
+            return None, {}, self.new_files
         
-        collision_list = submit.get_collision_list(list(context_map.values()))        
-
-        # NOTE single model save later in processing flow
-        # By the time confirmation happens,  derived from pmap may have evolved for another instrument.
-        # Record the pmap the submitter added to,  and the final pmap generated here.
-        self.repeatable_model.set_par("original_pmap", self.result.pmap)
-        self.repeatable_model.set_par("pmap", final_pmap)
-
-        template_vars = self.affirm_files(context_map, collision_list)
-        template_vars["final_pmap"] = final_pmap
-        template_vars["context_map"] = context_map
-        template_vars["collision_list"] = collision_list
-
-        return template_vars
-
-    def affirm_files(self, context_map, collision_list):
-        """Return template variables appropriate for confirming this submission. Clear upload dir.  
-        Clear models cache.
-        """  
+    
+    def get_confirm_vars(self, final_pmap, context_map, collision_list):
+        """Return template variables appropriate for confirming this submission."""  
         new_file_map = sorted(list(self.new_file_map.items()) + list(context_map.items()))
         generated_files = sorted([(old, new) for (old, new) in new_file_map
                                   if old not in self.result.uploaded_basenames])
@@ -193,8 +208,10 @@ class Confirm:
             if filename not in list(dict(generated_files).values()) + self.result.uploaded_basenames]
     
         template_vars = dict(
+            context_map = context_map,
             pmap_mode = self.result.pmap_mode,
-            pmap = self.result.pmap,
+            pmap = self.result.pmap,    # .pmap seen at submission time,  expected derive_from
+            final_pmap = final_pmap,    # actual abstract .pmap at confirmation time,  actual derive_from
             original_pmap = self.result.original_pmap,
             uploaded_files=uploaded_files,
             added_files=getattr(self.result, "added_files", []),
@@ -208,7 +225,9 @@ class Confirm:
         return template_vars
 
     def cancel_files(self):
-        """Wipe out any database + file system representation of `new_files` and return empty template params."""
+        """Wipe out any database + file system representation of `new_files` and return empty 
+        template vars suitable for the cancel response.
+        """
         for new in self.new_files:
             with log.error_on_exception("Failed marking", repr(new), "as cancelled."):
                 blob = models.FileBlob.load(new)
@@ -226,6 +245,17 @@ class Confirm:
         return template_vars
 
     def common_reply(self, request, template_vars):
+        """Based on `template_vars` augmented by values common to confirm + cancel,
+        generate the confirmation HTML and e-mail using common  web and mail templates.
+        
+        The HTML response is rendered to a repeatable result model which will later be
+        displayed for the first time using a redirection to the repeatable results view.
+        Likewise the e-mail and JPOLL done message will refer to that repeatable results
+        URL.
+        
+        Returns a new CONFIRM / CANCEL repeatable result that follows the repeatable READY 
+        result from the original submission view.
+        """
         # Update the "READY" model with the results of this confirmation to prevent repeat confirms
         self.repeatable_model.set_par("disposition" , self.disposition)
         self.repeatable_model.save()  # NOTE required by earlier set_par() above
@@ -249,6 +279,7 @@ class Confirm:
             repeatable_url = new_result.abs_repeatable_url,
             to_addresses  = sconfig.CRDS_STATUS_CONFIRM_ADDRESSES,
             **template_vars)
+        
         return new_result
     
     def check_new_files(self):
