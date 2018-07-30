@@ -10,6 +10,7 @@ import sys
 import cProfile
 import re
 import os.path
+import traceback
 
 # ===================================================================
 
@@ -21,6 +22,8 @@ from django.utils.safestring import mark_safe
 from crds.core import log, utils, python23
 from crds.core.config import complete_re
 from crds.server.config import crds_server_log_dir
+
+from . import locks
 
 # ===================================================================
 
@@ -92,6 +95,24 @@ def profile(filename=None):
         return utils.elapsed_time(profile_core)
     return decomaker
 
+# ===========================================================================
+
+def verbose(level=50):
+    """Decorate a view with @verbosity to run it with increased debug logging."""
+    def decomaker(func):
+        """Decorator function maker"""
+        def verbose_core(*args, **keys):
+            """Runs `func` with verbosity `level`."""
+            old_level = log.set_verbose(level)
+            try:
+                result = func(*args, **keys)
+            finally:
+                log.set_verbose(old_level)
+            return result
+        verbose_core.__name__ = func.__name__ + f"[verbosity={level}]"
+        return verbose_core
+    return decomaker
+
 # ===================================================================
 
 def srepr(string):
@@ -129,3 +150,46 @@ def colorize_line(line):
 def crds_format_html(msg):
     """Similar to Django's format_html but skips string formatting that will crash on {} etc."""
     return mark_safe(conditional_escape(msg))
+
+# ===================================================================
+
+def log_view(func):
+    """log() captures view inputs, output, and response to a log file.
+    It should be called inside any error_trap() decorator so that it
+    executes before error_trap() absorbs many exceptions.
+    """
+    def dolog(request, *args, **keys):
+        """trap() is bound to the func parameter of decorator()."""
+        log.info() # start with blank line to make concat logs readable
+        log.info("REQUEST:", request.path, request.method, "ajax="+str(request.is_ajax()))
+        # log.info("META:", log.PP(request.META))
+        if request.GET:
+            log.info("GET:",   repr(request.GET))
+        if request.POST:
+            log.info("POST:",  repr(request.POST))
+#        if request.COOKIES:
+#            log.info("COOKIES:", repr(request.COOKIES), stdout=None)
+        # log.info("SESSION:", request.session.session_key, "expires", request.session.get_expiry_date())
+        if request.FILES:
+            log.info("FILES:", repr(request.FILES))
+        # log.info("OUTPUT:")
+        try:
+            response = func(request, *args, **keys)
+#            log.info("RESPONSE:\n" + response.content, stdout=None)
+            return response
+        except locks.LockingError as exc:  # Skip the traceback for these,  remove manually for debug to log tracebacks
+            log.error("Locking error: " + str(exc))
+            raise
+        except Exception as exc:
+            log.info("EXCEPTION REPR:", repr(exc))
+            log.info("EXCEPTION STR:", str(exc))
+            log.info("EXCEPTION TRACEBACK:")
+            info = sys.exc_info()
+            tb_list = traceback.extract_tb(info[2])
+            for line in traceback.format_list(tb_list):
+                log.info(line.strip(), time=False)
+            raise
+        finally:
+            pass
+    dolog.__name__ = func.__name__
+    return dolog
