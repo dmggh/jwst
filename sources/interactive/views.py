@@ -355,6 +355,21 @@ def get_recent_or_user_context(request):
 class ServerError(Exception):
     """Uncaught exception which will be returned as HTTP 500"""
 
+def critical_error_trap(func):
+    """critical_error_trap() is a decorator which sends a generic failure 
+    e-mail for critical views related to file submissions when an unexpected
+    error occurs.   The exception is re-raised as-is.
+    """
+    def trap(request, *args, **keys):
+        """trap() is bound to the func parameter of decorator()."""
+        try:
+            return func(request, *args, **keys)
+        except Exception as exc:
+            mail.critical_error_email(exc, request)
+            raise
+    trap.__name__ = func.__name__
+    return trap
+
 def error_trap(template):
     """error_trap() is a 'decorator maker' which returns a decorator which
     traps exceptions in views and re-issues the input `template` with an
@@ -386,37 +401,38 @@ def log_view(func):
         """trap() is bound to the func parameter of decorator()."""
         log.info() # start with blank line to make concat logs readable
         log.info("REQUEST:", request.path, request.method, "ajax="+str(request.is_ajax()))
-        # log.info("META:", log.PP(request.META))
         if request.GET:
             log.info("GET:",   repr(request.GET))
         if request.POST:
             log.info("POST:",  repr(request.POST))
-#        if request.COOKIES:
-#            log.info("COOKIES:", repr(request.COOKIES), stdout=None)
-        # log.info("SESSION:", request.session.session_key, "expires", request.session.get_expiry_date())
         if request.FILES:
             log.info("FILES:", repr(request.FILES))
-        # log.info("OUTPUT:")
         try:
             response = func(request, *args, **keys)
-#            log.info("RESPONSE:\n" + response.content, stdout=None)
             return response
         except locks.LockingError as exc:  # Skip the traceback for these,  remove manually for debug to log tracebacks
             log.error("Locking error: " + str(exc))
             raise
         except Exception as exc:
-            log.info("EXCEPTION REPR:", repr(exc))
-            log.info("EXCEPTION STR:", str(exc))
-            log.info("EXCEPTION TRACEBACK:")
-            info = sys.exc_info()
-            tb_list = traceback.extract_tb(info[2])
-            for line in traceback.format_list(tb_list):
-                log.info(line.strip(), time=False)
+            tb_str = get_traceback_str(exc)
+            log.info(tb_str)
             raise
         finally:
             pass
     dolog.__name__ = func.__name__
     return dolog
+
+def get_traceback_str(exc):
+    """Return the traceback string associated with Exception `exc`."""
+    info = sys.exc_info()
+    tb_list = traceback.extract_tb(info[2])
+    tb_str = ""
+    tb_str += "EXCEPTION REPR: " + repr(exc) + "\n"
+    tb_str += "EXCEPTION STR: " + str(exc) + "\n"
+    tb_str += "EXCEPTION TRACEBACK:" + "\n"
+    for line in traceback.format_list(tb_list):
+        tb_str += line.strip() + "\n"
+    return tb_str
 
 # ===========================================================================
 # ===========================================================================
@@ -1059,6 +1075,7 @@ def batch_submit_references(request):
         return batch_submit_references_post(request)
 
 @profile("batch_submit_post.stats")
+@critical_error_trap  # batch submit
 def batch_submit_references_post(request):
     """View fragment to process file batch reference submission POSTs."""
     # For the initial submission, pmap_name is predictive,  not definitive
@@ -1140,6 +1157,7 @@ def batch_submit_references_post(request):
 # @login_required  (since this drops and re-acquires lock,  don't use.)
 @group_required("file_submission")
 @instrument_lock_required  # ensures authenticated,  has instrument lock of submission.
+@critical_error_trap    # submit confirm
 def submit_confirm(request): #, button, results_id):
     """Accept or discard proposed files from various file upload and
     generation mechanisms.
@@ -1173,6 +1191,7 @@ def delete_references(request):
         return delete_references_post(request)
 
 @profile("delete_references.stats")
+@critical_error_trap    # delete references
 def delete_references_post(request):
     """View fragment to process file delete references POSTs."""
 
@@ -1257,6 +1276,7 @@ def add_existing_references(request):
         return add_existing_references_post(request)
 
 @profile("add_existing_references.stats")
+@critical_error_trap   # add existing references
 def add_existing_references_post(request):
     """View fragment to process add existing references form POSTs."""
 
@@ -1398,6 +1418,7 @@ def submit_files(request, crds_filetype):
         return submit_files_post(request, crds_filetype)
 
 @profile("submit_files.stats")
+@critical_error_trap   # submit files:  mappings or references
 def submit_files_post(request, crds_filetype):
     """Handle the POST case of submit_files, returning dict of template vars."""
     # crds_filetype constrained by RE in URL to 'mapping' or 'reference'.
