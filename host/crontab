@@ -6,15 +6,6 @@ MAILTO="crds-servers@stsci.edu"
 # run five minutes after 3 am, every day
 5 3 * * *       source $HOME/cronenv.csh;      nightly.crds.job 
 
-# every minute, no e-mail,  CRDS server index page ping
-# */1 * * * *     source $HOME/cronenv.csh;  wget $CRDS_SERVER_URL -O /dev/null  >& /dev/null;
-
-# every minute, no e-mail,  atop metrics collection
-# */10 * * * *     source $HOME/cronenv.csh;  run_atop >& /dev/null;
-
-# every six hours, iozone metrics collection
-# 0 */6 * * *     source $HOME/cronenv.csh;  run_iozone >& /dev/null;
-
 # every 2 hours, no e-mail
 # 0 */2 * * *  source $HOME/cronenv.csh;        background_chown $CRDS_PATH 640 |& cat  >>  ${CRDS_CRON}/background_chown.log;  
 
@@ -24,8 +15,9 @@ MAILTO="crds-servers@stsci.edu"
 # every 5 minutes, no e-mail
 */5 * * * *     source $HOME/cronenv.csh;      monitor_reprocessing >& ${CRDS_CRON}/monitor_reprocessing.log
 
+# Obsoleted by switch to shared cache and inclusion of "update_server_cache" subprocess in Set Context view.
 # every 5 minutes, no e-mail
-*/5 * * * *     source $HOME/cronenv.csh;      cron_sync --last 1  --save-pickles >& ${CRDS_CRON}/server_cache_sync.log
+# */5 * * * *     source $HOME/cronenv.csh;      cron_sync --last 1  --save-pickles --verbose --push-context $CRDS_SERVER_CACHE_KEY >& ${CRDS_CRON}/server_cache_sync.log
 
 # every 5 minutes, no e-mail
 */5 * * * *     source $HOME/cronenv.csh;      update_delivery_status >& ${CRDS_CRON}/update_delivery_status.log
@@ -37,7 +29,7 @@ MAILTO="crds-servers@stsci.edu"
 0 */12 * * * source $HOME/cronenv.csh;   ops_only set_grp_cache_permissions  >& ${CRDS_CRON}/set_grp_cache_permissions.log
 
 # every 4 hours, no e-mail, all servers
-0 */4 * * *    source $HOME/cronenv.csh;      (clear_web_cache; prime_web_cache) >& ${CRDS_CRON}/clear_web_cache.log
+0 */4 * * *    source $HOME/cronenv.csh;      (clear_web_cache; prime_web_cache; update_server_cache) >& ${CRDS_CRON}/clear_web_cache.log
 
 # run at 2:15pm on the first of every month
 #   15 14 1 * *     $HOME/bin/monthly

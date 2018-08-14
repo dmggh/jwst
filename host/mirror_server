@@ -1,5 +1,8 @@
 #! /bin/csh
 
+# Enable cache updates in server environment set globally to readonly.
+export CRDS_READONLY_CACHE=0
+
 add_meta_event "Mirrored server with parameters:" $*
 
 # set BACKUP_DIR=/eng/ssb/crds/latest_backups
@@ -54,6 +57,8 @@ echo "Syncing mappings from $mirrored_server_url"
 echo "-----------------------------------------------------"
 cd ${CRDS}/CRDS_server
 python -m crds.sync --all --repair-files --check-sha1sum --purge-mappings --organize=flat --verbose --stats
+echo "Chmod'ing mappings to readonly."
+chmod 444 $CRDS_CACHE/mappings/${CRDS_PROJECT}/*
 
 echo "-----------------------------------------------------"
 echo "Fast-Syncing references from $mirrored_server_url"
@@ -61,6 +66,8 @@ echo "-----------------------------------------------------"
 # setenv CRDS_DOWNLOAD_CHECKSUMS 0    # Omit sha1sum verification on initial download
 cd ${CRDS}/CRDS_server
 python -m crds.sync --all --repair-files --fetch-references --purge-references --purge-mappings --verbose --stats
+echo "Chmod'ing references to readonly."
+chmod 444 $CRDS_CACHE/references/${CRDS_PROJECT}/*
 
 echo "-----------------------------------------------------"
 echo "Restoring pickles from $mirrored_server_url"
