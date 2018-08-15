@@ -24,8 +24,15 @@ from crds.core.config import complete_re
 from crds.core.exceptions import CrdsError
 from ..config import crds_server_log_dir
 
-from . import locks, render
-from .models import FieldError
+from . import locks
+
+# ===================================================================
+
+class FieldError(CrdsError):
+    """Blob field value did not meet its constraint."""
+    
+class MissingInputError(FieldError):
+    """A required input field was not specified in a form submission."""
 
 # ===================================================================
 

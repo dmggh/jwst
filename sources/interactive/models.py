@@ -43,6 +43,8 @@ from crds.server import config
 from . import common
 from . import json_ext
 
+from .common import FieldError, MissingInputError
+
 # ============================================================================
 
 observatory_module = utils.get_object("crds." + OBSERVATORY)
@@ -148,12 +150,6 @@ class FitsBlobField(BlobField):
         self.fitskey = fitskey
         BlobField.__init__(self, *args, **keys)
 
-class FieldError(CrdsError):
-    """Blob field value did not meet its constraint."""
-    
-class MissingInputError(FieldError):
-    """A required input field was not specified in a form submission."""
-    
 # ============================================================================
 
 class CrdsModel(models.Model):
