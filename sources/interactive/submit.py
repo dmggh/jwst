@@ -531,6 +531,13 @@ class FileSubmission(object):
                 push_status=self.push_status)
         certify_results = { new_to_old[mapping]: results for (mapping, results) in certify_results }
         return disposition, sorted(certify_results.items())
+    
+    def modify_rmaps_function(self, old_rmap_path, new_rmap_path, ref_paths):
+        """Insert references described by `ref_paths` into rmap at path `old_rmap_path` to create
+        new file at `new_rmap_path` with added or replaced references.
+        """
+        raise NotImplementedError("Subclasses of FileSubmission should define modify_rmaps_function.")
+    
 # ------------------------------------------------------------------------------------------------
       
 def get_collision_list(newfiles):
