@@ -1,7 +1,7 @@
 #! /bin/csh
 
 # Enable cache updates in server environment set globally to readonly.
-setenv CRDS_READONLY_CACHE 1
+setenv CRDS_READONLY_CACHE 0
 
 add_meta_event "Mirrored server with parameters:" $*
 
