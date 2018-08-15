@@ -68,7 +68,8 @@ from . import browsify_file
 from . import render
 from .templatetags import stdtags
 from .models import FieldError, MissingInputError
-from .common import capture_output, srepr, profile, complete_re, crds_format_html
+from .common import capture_output, srepr, complete_re, crds_format_html
+from .common import profile, log_view, verbose  # view wrappers
 
 HERE = os.path.dirname(__file__) or "./"
 
@@ -376,47 +377,6 @@ def error_trap(template):
         trap.__name__ = func.__name__
         return trap
     return decorator
-
-def log_view(func):
-    """log() captures view inputs, output, and response to a log file.
-    It should be called inside any error_trap() decorator so that it
-    executes before error_trap() absorbs many exceptions.
-    """
-    def dolog(request, *args, **keys):
-        """trap() is bound to the func parameter of decorator()."""
-        log.info() # start with blank line to make concat logs readable
-        log.info("REQUEST:", request.path, request.method, "ajax="+str(request.is_ajax()))
-        # log.info("META:", log.PP(request.META))
-        if request.GET:
-            log.info("GET:",   repr(request.GET))
-        if request.POST:
-            log.info("POST:",  repr(request.POST))
-#        if request.COOKIES:
-#            log.info("COOKIES:", repr(request.COOKIES), stdout=None)
-        # log.info("SESSION:", request.session.session_key, "expires", request.session.get_expiry_date())
-        if request.FILES:
-            log.info("FILES:", repr(request.FILES))
-        # log.info("OUTPUT:")
-        try:
-            response = func(request, *args, **keys)
-#            log.info("RESPONSE:\n" + response.content, stdout=None)
-            return response
-        except locks.LockingError as exc:  # Skip the traceback for these,  remove manually for debug to log tracebacks
-            log.error("Locking error: " + str(exc))
-            raise
-        except Exception as exc:
-            log.info("EXCEPTION REPR:", repr(exc))
-            log.info("EXCEPTION STR:", str(exc))
-            log.info("EXCEPTION TRACEBACK:")
-            info = sys.exc_info()
-            tb_list = traceback.extract_tb(info[2])
-            for line in traceback.format_list(tb_list):
-                log.info(line.strip(), time=False)
-            raise
-        finally:
-            pass
-    dolog.__name__ = func.__name__
-    return dolog
 
 # ===========================================================================
 # ===========================================================================
@@ -2152,6 +2112,9 @@ def update_default_context(new_default, description, context_type, user):
                          context_type + " context changed from " +
                          srepr(old_default) + " to " + srepr(new_default))
 
+    # see CRDS_server/hosts scripts directory,  runs cron_sync pushing context
+    pysh.sh("update_server_cache")
+
     with log.error_on_exception("Failed Update Default Context e-mail"):
         username = user.first_name + " " + user.last_name
         mail.crds_notification(
@@ -2249,14 +2212,6 @@ def old_results(request):
         }, requires_pmaps=False)
     response['Cache-Control'] = "no-cache"
     return response
-
-    del_results = {
-                "new_file_map" : new_mappings_map,
-                "uploaded_basenames" : [],
-                "deleted_files" : deleted_files,
-                "context_rmaps" : sorted(new_mappings_map.values()),
-            }
-
 
 # ============================================================================
 

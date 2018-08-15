@@ -16,7 +16,7 @@ from django.test import TransactionTestCase
 
 import crds
 
-from crds import pysh, rmap, selectors, log, pysh, heavy_client, timestamp, utils
+from crds import pysh, rmap, selectors, log, pysh, heavy_client, timestamp, utils, config
 from crds.client import api
 from crds.server import config as server_config
 from crds.server.interactive import models as imodels
@@ -28,7 +28,10 @@ class ServiceApiBase(object):
     def setUpClass(self, *args, **keys):
         
         self.old_environ = dict(os.environ)
-        
+
+        os.environ["CRDS_READONLY_CACHE"] = "0"
+        config.set_cache_readonly(False)
+
         self.CRDS_PATH = CRDS_PATH = os.environ["CRDS_PATH"] = server_config.storage_path + "/test"
         log.info("Client CRDS_PATH is:", self.CRDS_PATH)
 

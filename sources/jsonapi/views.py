@@ -36,6 +36,7 @@ from crds.server.interactive import models as imodels
 from crds.server.interactive import versions
 from crds.server.interactive.common import DATASET_ID_RE, FITS_KEY_RE, FITS_VAL_RE, LIST_GLOB_RE
 from crds.server.interactive.common import INSTRUMENT_RE, FIELD_RE
+from crds.server.interactive.common import verbose, profile, log_view
 from crds.server import config as sconfig    # server config file
 
 from crds.server.jpoll import views as jviews
@@ -400,38 +401,6 @@ def check_username(username):
 
 # ===========================================================================
 
-def log_view(func):
-    """log() captures view inputs, output, and response to a log file.
-    It should be called inside any error_trap() decorator so that it
-    executes before error_trap() absorbs many exceptions.
-    """
-    def dolog(request, *args, **keys):
-        """trap() is bound to the func parameter of decorator()."""
-        log.info() # start with blank line to make concat logs readable
-        log.info("REQUEST:", request.path, request.method, "ajax="+str(request.is_ajax()))
-        if request.GET:
-            log.info("GET:",   repr(request.GET))
-        if request.POST:
-            log.info("POST:",  repr(request.POST))
-        try:
-            response = func(request, *args, **keys)
-            return response
-        except Exception as exc:
-            log.info("EXCEPTION REPR:", repr(exc))
-            log.info("EXCEPTION STR:", str(exc))
-            log.info("EXCEPTION TRACEBACK:")
-            info = sys.exc_info()
-            tb_list = traceback.extract_tb(info[2])
-            for line in traceback.format_list(tb_list):
-                log.info(line.strip(), time=False)
-            raise
-        finally:
-            pass
-    dolog.__name__ = func.__name__
-    return dolog
-
-# ===========================================================================
-
 @jsonrpc_method('list_mappings(observatory=String, glob_pattern=String)')   # secure
 def list_mappings(request, observatory, glob_pattern):
     return _list_mappings(observatory, glob_pattern)
@@ -492,6 +461,7 @@ def _list_references(observatory, glob_pattern):
     return sorted(blobs.keys())
 
 @jsonrpc_method('get_best_references(context=String, header=Object, reftypes=Array)')  # secure
+# @verbose()
 def get_best_references(request, context, header, reftypes):
     context = check_context(context)
     header = check_header(header)
@@ -742,9 +712,13 @@ def get_context_by_date(request, date, observatory):
 # ===========================================================================================================
 
 @jsonrpc_method('get_server_info()')   # secure
+# @log_view
+# @verbose(100)
 def get_server_info(request):
     """Core information about server configuration used to drive CRDS serverless operating modes."""
-    return _get_server_info()
+    info = _get_server_info()
+    info["last_synced"] = str(timestamp.now())
+    return info
 
 @imodels.crds_cached
 def _get_server_info():
@@ -753,7 +727,7 @@ def _get_server_info():
     version_info.pop("file", None)  # don't leak absolute path
     version_info["svnurl"] = "/" + "/".join(version_info["svnurl"].split("/")[3:])  # don't leak full url,  just branch
     info = {
-        "last_synced" : str(timestamp.now()),
+        "last_refreshed" : str(timestamp.now()),
         "bad_files_list" : imodels.get_bad_files(sconfig.observatory),
         "force_remote_mode" : sconfig.FORCE_REMOTE_MODE,
         "mappings" : list_mappings(None, None, "*map"),

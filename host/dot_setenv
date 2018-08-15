@@ -27,6 +27,7 @@ setenv URP_TYPE crds
 # the server database is mirrored from OPS on down.  Differentiating keys
 # by usecase would require a post-mirroring database tweak.
 setenv CRDS_PIPELINE_CACHE_KEY 12ca7bb2-dd3b-444a-8e6e-d8fd0bf559ed
+setenv CRDS_SERVER_CACHE_KEY 07e56a9e-7462-459e-8a18-6ff5defb2c47
 
 # In case of emergency,  break glass
 # setenv CRDS_FITS_VERIFY_CHECKSUM 0
@@ -111,6 +112,7 @@ setenv CRDS_SERVER_FILES ${CRDS_IFS}/server_files
 setenv CRDS_CRON {$CRDS}/server/logs/cron
 setenv CRDS_LOG_TIME 1
 setenv CRDS_USE_PICKLED_CONTEXTS 1
+setenv CRDS_READONLY_CACHE 1
 
 # if (! -d $CRDS_IFS ) then
 #     ln -s $CRDS_SERVER_ISILON   $CRDS_IFS

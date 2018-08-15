@@ -1,0 +1,15 @@
+#! /bin/sh
+
+# Intentional use of sh to ensure inheritance of surrounding environment when
+# run under the CRDS server (and/or CRDS server unit tests which alter os.environ).
+
+# This script is nominally executed immediately by the CRDS server when Set
+# Context is performed by the pipeline operator.  This updates the CRDS server
+# cache to the latest state managed by the server database in a timely way,
+# facilitating cache sharing with the pipeline.
+
+# cd $CRDS/CRDS_server
+# source env.csh
+
+cron_sync --last 1 --push-context ${CRDS_SERVER_CACHE_KEY}
+
