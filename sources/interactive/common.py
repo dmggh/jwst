@@ -197,28 +197,6 @@ def get_traceback_str(exc):
         tb_str += line.strip() + "\n"
     return tb_str
 
-def error_trap(template):
-    """error_trap() is a 'decorator maker' which returns a decorator which
-    traps exceptions in views and re-issues the input `template` with an
-    appropriate error message so the user can try again.
-    """
-    def decorator(func):
-        """decorator is bound to the template parameter of error_trap()."""
-        def trap(request, *args, **keys):
-            """trap() is bound to the func parameter of decorator()."""
-            try:
-                return func(request, *args, **keys)
-            except (AssertionError, CrdsError, FieldError) as exc:
-                msg = crds_format_html("ERROR: " + str(exc))
-            # Generic exception handler,  undescriptive,  to prevent server probing via errors
-            except Exception as exc:
-                msg = crds_format_html("ERROR: internal server error")
-            pars = dict(list(keys.items()) + [("error_message", msg)])
-            return render.crds_render(request, template, pars, requires_pmaps=True)
-        trap.__name__ = func.__name__
-        return trap
-    return decorator
-
 # ===================================================================
 
 def check_value(value, pattern, msg):
