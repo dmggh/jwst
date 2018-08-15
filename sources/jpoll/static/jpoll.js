@@ -50,7 +50,7 @@ jpoll.done = function(time, result) {
     if (result.status != 1) {
        window.location = result.result;
     } else {   // FAILED
-       jpoll.log_message(time, "FAILED: " + result.result);
+       jpoll.log_message(time, "FAILED: <pre>" + result.result + "</pre>");
     };
 };
 
