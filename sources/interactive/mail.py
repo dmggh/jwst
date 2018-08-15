@@ -30,7 +30,7 @@ Affected Files:
 # =============================================================================================
 
 SUBMISSION_FAILURE  = """ 
-An unanticipated error occurred for this file submission.
+Submission failed,  see traceback below.
 
 Request Type:
 -------------
@@ -38,6 +38,8 @@ Request Type:
 
 {username_if_any}
 
+Description:
+------------
 {description}
 
 Exception Info:
@@ -53,9 +55,6 @@ def submission_fail_email(task, description, user, exc_obj):
         
         body = SUBMISSION_FAILURE
 
-        subject = "CRDS " + sconfig.observatory.upper() + " " + sconfig.server_usecase.upper()
-        subject += f" FAILED for {task}"
-    
         if user:
             user_email = user.email
             username = (user.first_name + " " + user.last_name).title()
@@ -63,8 +62,9 @@ def submission_fail_email(task, description, user, exc_obj):
         else:
             username_if_any = ""
     
-        description = label_with_text("Description:", description)
-            
+        subject = "CRDS " + sconfig.observatory.upper() + " " + sconfig.server_usecase.upper()
+        subject += f" FAILED {task} by {username}"
+    
         from_address = sconfig.CRDS_STATUS_FROM_ADDRESS
         to_addresses = sconfig.CRDS_STATUS_TO_ADDRESSES[:]
     

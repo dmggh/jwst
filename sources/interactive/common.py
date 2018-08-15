@@ -197,8 +197,8 @@ def get_traceback_str(exc):
     info = sys.exc_info()
     tb_list = traceback.extract_tb(info[2])
     tb_str = ""
-    tb_str += "EXCEPTION REPR: " + repr(exc) + "\n"
-    tb_str += "EXCEPTION STR: " + str(exc) + "\n"
+    tb_str += "EXCEPTION STR: " + str(exc) + "\n\n"
+    tb_str += "EXCEPTION REPR: " + repr(exc) + "\n\n"
     tb_str += "EXCEPTION TRACEBACK:" + "\n"
     for line in traceback.format_list(tb_list):
         tb_str += line.strip() + "\n"

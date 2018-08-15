@@ -564,7 +564,7 @@ class BatchReferenceSubmission(FileSubmission):
     the specified derivation context (pmap_name).
     """
     modify_rmaps_function = staticmethod(refactor.rmap_insert_references)
-    task = "Batch Submit References"
+    task = "Batch Submit"
     
     def _submit(self):
         """Certify and submit the files,  returning information to confirm/cancel."""
