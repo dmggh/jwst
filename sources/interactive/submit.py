@@ -176,7 +176,7 @@ class FileSubmission(object):
         """Push status messages to the user's client,  nominally a browser which
         picks up the messages from Django via AJAX polling in the jpoll app.
         """
-        message = " ".join(message)
+        message = " ".join([str(part) for part in message])
         if self.status_channel is not None:
             log.info("push_status: " + repr(message))
             self.status_channel.write(message)
@@ -583,11 +583,8 @@ class BatchReferenceSubmission(FileSubmission):
         
         # Refactor with temporary rmap files and references to support detecting 
         # problems with refactoring prior to generating official names.
-        try:
-            old_rmaps = self.bsr_temporary_refactor()
-        except Exception as exc:
-            return ("bad files", {}, {}, reference_certs, [], {}, [])
-        
+        old_rmaps = self.bsr_temporary_refactor()
+
         # name the references and get them into CRDS.
         new_references_map = self.bsr_submit_references()
         

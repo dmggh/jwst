@@ -38,8 +38,6 @@ Request Type:
 
 {username_if_any}
 
-Description:
-------------
 {description}
 
 Exception Info:
