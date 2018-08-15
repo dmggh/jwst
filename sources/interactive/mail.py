@@ -5,15 +5,14 @@ from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
 
-import sys 
 import smtplib
 import os.path
-import re
 
 from email.mime.text import MIMEText
 
-from crds import log
-from crds.server import config as sconfig
+from crds.core import log
+from .. import config as sconfig
+from . import common
 
 # =============================================================================================
 
@@ -30,58 +29,53 @@ Affected Files:
 
 # =============================================================================================
 
-SERVER_FAILURE  = """ 
-This is the message you see when everything that can go wrong, does.
-
-A CRDS server failure occurred which has left CRDS in an undefined state.  This
-is a generic handler to track critical actions (e.g. file submissions or
-confirmations) which failed in unpredicted ways and left the intended tasks in
-an undefined state of completion and/or failure recovery.
-
-DO NOT proceed with additional file submissions until given notification by the
-CRDS server developer/maintainer (e.g. jmiller@stsci.edu or successor) that
-appropriate cleanup has been performed because the server is in an undefined state.
+SUBMISSION_FAILURE  = """ 
+An unanticipated error occurred for this file submission.
 
 Request Type:
 -------------
-{uri}
+{task}
 
 {username_if_any}
 
-{description_if_any)
+Description:
+------------
+{description}
 
 Exception Info:
 ---------------
 {traceback}
 """
 
-def critical_error_email(traceback, request):
+def submission_fail_email(task, description, user, exc_obj):
+    """This e-mail is issued for unanticipated file submission errors which may or 
+    may not be server failures.
+    """
     with log.error_on_exception("Failed sending CRDS critical error e-mail"):
-        _critical_error_email(exc, request, *args, **keys)
-
-def _critical_error_email(exc, request):
-
-    uri = request.build_absolute_uri()
-    subject = "CRDS " + sconfig.observatory.upper() + " " + sconfig.server_usecase.upper()
-    subject += f" CRITICAL ERRROR for {uri}"
-
-    if request.user.is_authenticated:
-        user_email = request.user.email
-        username = (request.user.first_name + " " + request.user.last_name).title()
-        username_if_any = lable_with_text("Acting User:", username)
-    else:
-        usename_if_any = ""
-
-    if "description" in request.POST:
-        description_if_any = label_with_text("Description:", description)
         
-    from_address = from_address or sconfig.CRDS_STATUS_FROM_ADDRESS
-    to_addresses = to_addresses or sconfig.CRDS_STATUS_TO_ADDRESSES[:]
+        body = SUBMISSION_FAILURE
 
-    if user_email is not None:
-        to_addresses.append(user_email)
-
-    mail(**keys)
+        subject = "CRDS " + sconfig.observatory.upper() + " " + sconfig.server_usecase.upper()
+        subject += f" FAILED for {task}"
+    
+        if user:
+            user_email = user.email
+            username = (user.first_name + " " + user.last_name).title()
+            username_if_any = label_with_text("Acting User:", username)
+        else:
+            username_if_any = ""
+    
+        description = label_with_text("Description:", description)
+            
+        from_address = sconfig.CRDS_STATUS_FROM_ADDRESS
+        to_addresses = sconfig.CRDS_STATUS_TO_ADDRESSES[:]
+    
+        if user_email is not None:
+            to_addresses.append(user_email)
+            
+        traceback = common.get_traceback_str(exc_obj)
+    
+        mail(**locals())
 
 
 # =============================================================================================

@@ -59,7 +59,7 @@ from crds.misc import uniqname
 
 # ----------------------------------------------------------------------------------------------------
 
-from . import models, web_certify, web_difference, locks
+from . import models, web_certify, web_difference, locks, mail
 from .common import srepr
 from .. import config as sconfig
 
@@ -79,6 +79,8 @@ def file_exists_somehow(filename):
 
 class FileSubmission(object):
     """Baseclass for file submissions,  carrier object for submission metadata and files."""
+    
+    task = "Abstract File Submission"
     
     def __init__(self, pmap_name, uploaded_files, description, user, creator="UNKNOWN",
                  change_level="SEVERE", auto_rename=True, compare_old_reference=False,
@@ -132,10 +134,13 @@ class FileSubmission(object):
             self.push_status("Starting submission processing.")
             result = self._submit(*args, **keys)
             # raise RuntimeError("Unforseen event!!!")
+            if result[0] == "bad files":
+                self.cleanup_failed_submission()
             return result
         except Exception as exc:
-            self.push_done(1, str(exc))
             self.cleanup_failed_submission()
+            self.push_done(1, str(exc))
+            mail.submission_fail_email(self.task, self.description, self.user, exc)
             raise
         
     def _submit(self, *args, **keys):
@@ -559,6 +564,7 @@ class BatchReferenceSubmission(FileSubmission):
     the specified derivation context (pmap_name).
     """
     modify_rmaps_function = staticmethod(refactor.rmap_insert_references)
+    task = "Batch Submit References"
     
     def _submit(self):
         """Certify and submit the files,  returning information to confirm/cancel."""
@@ -573,12 +579,14 @@ class BatchReferenceSubmission(FileSubmission):
             context=comparison_context, compare_old_reference=self.compare_old_reference, push_status=self.push_status)
     
         if reference_disposition == "bad files":
-            self.cleanup_failed_submission()
             return (reference_disposition, {}, {}, reference_certs, [], {}, [])
         
         # Refactor with temporary rmap files and references to support detecting 
         # problems with refactoring prior to generating official names.
-        old_rmaps = self.bsr_temporary_refactor()
+        try:
+            old_rmaps = self.bsr_temporary_refactor()
+        except Exception as exc:
+            return ("bad files", {}, {}, reference_certs, [], {}, [])
         
         # name the references and get them into CRDS.
         new_references_map = self.bsr_submit_references()
@@ -589,7 +597,6 @@ class BatchReferenceSubmission(FileSubmission):
         rmap_disposition, rmap_certs = self.certify_new_mapping_list(new_mappings_map, context=comparison_context)
         
         if rmap_disposition == "bad files":
-            self.cleanup_failed_submission()
             return (rmap_disposition, new_references_map, new_mappings_map, reference_certs, rmap_certs, {}, [])
 
         collision_list = self.get_collision_list(list(new_mappings_map.values()))
@@ -617,9 +624,10 @@ class BatchReferenceSubmission(FileSubmission):
         any of the submitted files are duds.
         """
         old_rmap = self.pmap.get_imap(instrument).get_rmap(filekind).name
-        log.info("Resolved old rmap as", repr(old_rmap), "based on context", repr(self.pmap.name))
+        self.push_status("Resolved old rmap as", repr(old_rmap), "based on context", repr(self.pmap.name))
         old_rmap_path = rmap.locate_mapping(old_rmap, self.observatory)
         tmp_rmap = tempfile.NamedTemporaryFile()
+        self.push_status("Doing trial insertion of", len(uploaded_group), "references into", repr(old_rmap))
         refactor.rmap_insert_references(old_rmap_path, tmp_rmap.name, list(uploaded_group.values()))
         return old_rmap
     
@@ -667,9 +675,6 @@ class ExistingReferenceSubmission(FileSubmission):
         
         diff_results = self.mass_differences(new_mappings_map)
         
-        if disposition == "bad files":
-            self.cleanup_failed_submission()
-        
         return (disposition, new_mappings_map, rmap_certs, diff_results, collision_list)
 
 class DeleteReferenceSubmission(ExistingReferenceSubmission):
@@ -677,6 +682,7 @@ class DeleteReferenceSubmission(ExistingReferenceSubmission):
     generate a new context which deletes all the listed references.
     """
     modify_rmaps_function = staticmethod(refactor.rmap_delete_references)
+    task = "Delete References"
     
 class AddExistingReferenceSubmission(ExistingReferenceSubmission):
     """Given a list of existing references in (misnamed) uploaded_files,  and a derivation context,
@@ -684,11 +690,13 @@ class AddExistingReferenceSubmission(ExistingReferenceSubmission):
     to CRDS.
     """
     modify_rmaps_function = staticmethod(refactor.rmap_insert_references)
-    
+    task = "Add Existing References"
 # ------------------------------------------------------------------------------------------------
 
 class SimpleFileSubmission(FileSubmission):
     """Submit primitive files.   For pure-rmap submissions,  optionally generate contexts."""
+
+    task = "Submit Files"
 
     def _submit(self, crds_filetype, generate_contexts):
         """Submit simple files to CRDS, literally, without making automatic rules adjustments.
@@ -703,6 +711,9 @@ class SimpleFileSubmission(FileSubmission):
         new_file_map:  { original_filename : new_filename, ... }
         collision_list :   info about derivation sources used multiple times.
         """
+        # Override shared task/view name with something more specific like Submit Mappings
+        self.task = "Submit " + crds_filetype.upper() + "s"
+        
         self.restrict_genre(crds_filetype, generate_contexts)
     
         if generate_contexts:
@@ -713,7 +724,6 @@ class SimpleFileSubmission(FileSubmission):
             push_status=self.push_status)
         
         if disposition == "bad files":
-            self.cleanup_failed_submission()
             return (disposition, certify_results, {}, [], [])
         
         # Add the files to the CRDS database as "uploaded",  pending certification and confirmation.
@@ -816,7 +826,7 @@ class Delivery(object):
         self.user = str(user)
         self.description = description
         self.action = action
-        if not len(delivered_files):
+        if len(delivered_files) == 0:
             raise CrdsError("No files were selected for delivery.")
         self.delivered_files = [str(x) for x in sorted(delivered_files)]
         self.observatory = observatory

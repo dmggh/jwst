@@ -19,11 +19,13 @@ from django.utils.safestring import mark_safe
 
 # ===================================================================
 
-from crds.core import log, utils, python23
+from crds.core import log, utils, python23, config
 from crds.core.config import complete_re
+from crds.core.exceptions import CrdsError
 from ..config import crds_server_log_dir
 
-from . import locks
+from . import locks, render
+from .models import FieldError
 
 # ===================================================================
 
@@ -195,5 +197,66 @@ def get_traceback_str(exc):
         tb_str += line.strip() + "\n"
     return tb_str
 
+def error_trap(template):
+    """error_trap() is a 'decorator maker' which returns a decorator which
+    traps exceptions in views and re-issues the input `template` with an
+    appropriate error message so the user can try again.
+    """
+    def decorator(func):
+        """decorator is bound to the template parameter of error_trap()."""
+        def trap(request, *args, **keys):
+            """trap() is bound to the func parameter of decorator()."""
+            try:
+                return func(request, *args, **keys)
+            except (AssertionError, CrdsError, FieldError) as exc:
+                msg = crds_format_html("ERROR: " + str(exc))
+            # Generic exception handler,  undescriptive,  to prevent server probing via errors
+            except Exception as exc:
+                msg = crds_format_html("ERROR: internal server error")
+            pars = dict(list(keys.items()) + [("error_message", msg)])
+            return render.crds_render(request, template, pars, requires_pmaps=True)
+        trap.__name__ = func.__name__
+        return trap
+    return decorator
+
 # ===================================================================
+
+def check_value(value, pattern, msg):
+    """Ensure that `value` satisifies the conditions implied by `pattern`,
+    otherwise raise a FieldError containing `msg`.
+
+    If pattern is a function,  call it and trap for assertions, adjust value.
+    If pattern is a list,  `value` must be in it.
+    If pattern is a string, it is a regex which `value` must match.
+
+    Return `value` if it checks out OK.
+    """
+    value = str(value)
+    if isinstance(pattern, type(check_value)):
+        try:
+            return pattern(value)
+        except Exception as exc:
+            raise FieldError(msg)
+    elif isinstance(pattern, list):
+        for choice in pattern:
+            assert "|" not in choice, "Found | in choice " + srepr(choice) + " seen as regex special char"
+        pattern = config.complete_re("|".join(pattern))
+    if not re.match(pattern, value):
+        raise FieldError(msg)
+    return value
+
+
+def validate(request, variable, pattern, default=None):
+    """Check a `variable` from `request`,  ensuring that it meets the
+    check_value() conditions specified by `pattern`.  Use GET or POST
+    depending on request type.
+    """
+    variables = request.GET if request.method == "GET" else request.POST
+    try:
+        value = str(variables[variable] if default is None 
+                    else variables.get(variable, default)
+                    ).strip()
+    except:
+        raise FieldError("Undefined parameter " + repr(variable))
+    return check_value(value, pattern, "Invalid value " + srepr(value) + " for " + srepr(variable))
 

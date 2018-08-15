@@ -1,8 +1,6 @@
 """This module defines the Django view functions which respond to HTTP requests
 and return HTTP response objects.
 """
-import sys
-import os
 import os.path
 import re
 import tarfile
@@ -56,51 +54,13 @@ from . import browsify_file
 from . import render
 from .templatetags import stdtags
 from .models import FieldError, MissingInputError
-from .common import capture_output, srepr, complete_re, crds_format_html
-from .common import profile, log_view, set_verbose_log  # view wrappers
+from .common import capture_output, srepr, complete_re
+from .common import error_trap, validate
+from .common import profile, log_view  # view wrappers
 
 HERE = os.path.dirname(__file__) or "./"
 
 # ===========================================================================
-
-def check_value(value, pattern, msg):
-    """Ensure that `value` satisifies the conditions implied by `pattern`,
-    otherwise raise a FieldError containing `msg`.
-
-    If pattern is a function,  call it and trap for assertions, adjust value.
-    If pattern is a list,  `value` must be in it.
-    If pattern is a string, it is a regex which `value` must match.
-
-    Return `value` if it checks out OK.
-    """
-    value = str(value)
-    if isinstance(pattern, type(check_value)):
-        try:
-            return pattern(value)
-        except Exception as exc:
-            raise FieldError(msg)
-    elif isinstance(pattern, list):
-        for choice in pattern:
-            assert "|" not in choice, "Found | in choice " + srepr(choice) + " seen as regex special char"
-        pattern = config.complete_re("|".join(pattern))
-    if not re.match(pattern, value):
-        raise FieldError(msg)
-    return value
-
-
-def validate(request, variable, pattern, default=None):
-    """Check a `variable` from `request`,  ensuring that it meets the
-    check_value() conditions specified by `pattern`.  Use GET or POST
-    depending on request type.
-    """
-    variables = request.GET if request.method == "GET" else request.POST
-    try:
-        value = str(variables[variable] if default is None 
-                    else variables.get(variable, default)
-                    ).strip()
-    except:
-        raise FieldError("Undefined parameter " + repr(variable))
-    return check_value(value, pattern, "Invalid value " + srepr(value) + " for " + srepr(variable))
 
 def get_or_post(request, variable):
     """Return `variable` wherever it is defined in request, GET or POST."""
@@ -343,43 +303,6 @@ def get_recent_or_user_context(request):
 
 class ServerError(Exception):
     """Uncaught exception which will be returned as HTTP 500"""
-
-def critical_error_trap(func):
-    """critical_error_trap() is a decorator which sends a generic failure 
-    e-mail for critical views related to file submissions when an unexpected
-    error occurs.   The exception is re-raised as-is.
-    """
-    def trap(request, *args, **keys):
-        """trap() is bound to the func parameter of decorator()."""
-        try:
-            return func(request, *args, **keys)
-        except Exception as exc:
-            mail.critical_error_email(exc, request)
-            raise
-    trap.__name__ = func.__name__
-    return trap
-
-def error_trap(template):
-    """error_trap() is a 'decorator maker' which returns a decorator which
-    traps exceptions in views and re-issues the input `template` with an
-    appropriate error message so the user can try again.
-    """
-    def decorator(func):
-        """decorator is bound to the template parameter of error_trap()."""
-        def trap(request, *args, **keys):
-            """trap() is bound to the func parameter of decorator()."""
-            try:
-                return func(request, *args, **keys)
-            except (AssertionError, CrdsError, FieldError) as exc:
-                msg = crds_format_html("ERROR: " + str(exc))
-            # Generic exception handler,  undescriptive,  to prevent server probing via errors
-            except Exception as exc:
-                msg = crds_format_html("ERROR: internal server error")
-            pars = dict(list(keys.items()) + [("error_message", msg)])
-            return crds_render(request, template, pars, requires_pmaps=True)
-        trap.__name__ = func.__name__
-        return trap
-    return decorator
 
 # ===========================================================================
 # ===========================================================================
@@ -1021,7 +944,6 @@ def batch_submit_references(request):
         return batch_submit_references_post(request)
 
 @profile("batch_submit_post.stats")
-@critical_error_trap  # batch submit
 def batch_submit_references_post(request):
     """View fragment to process file batch reference submission POSTs."""
     # For the initial submission, pmap_name is predictive,  not definitive
@@ -1103,7 +1025,6 @@ def batch_submit_references_post(request):
 # @login_required  (since this drops and re-acquires lock,  don't use.)
 @group_required("file_submission")
 @instrument_lock_required  # ensures authenticated,  has instrument lock of submission.
-@critical_error_trap    # submit confirm
 def submit_confirm(request): #, button, results_id):
     """Accept or discard proposed files from various file upload and
     generation mechanisms.
@@ -1137,7 +1058,6 @@ def delete_references(request):
         return delete_references_post(request)
 
 @profile("delete_references.stats")
-@critical_error_trap    # delete references
 def delete_references_post(request):
     """View fragment to process file delete references POSTs."""
 
@@ -1222,7 +1142,6 @@ def add_existing_references(request):
         return add_existing_references_post(request)
 
 @profile("add_existing_references.stats")
-@critical_error_trap   # add existing references
 def add_existing_references_post(request):
     """View fragment to process add existing references form POSTs."""
 
@@ -1364,7 +1283,6 @@ def submit_files(request, crds_filetype):
         return submit_files_post(request, crds_filetype)
 
 @profile("submit_files.stats")
-@critical_error_trap   # submit files:  mappings or references
 def submit_files_post(request, crds_filetype):
     """Handle the POST case of submit_files, returning dict of template vars."""
     # crds_filetype constrained by RE in URL to 'mapping' or 'reference'.
