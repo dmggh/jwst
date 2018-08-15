@@ -5,37 +5,25 @@ import sys
 import os
 import os.path
 import re
-import traceback
 import tarfile
 import glob
 import json
-import time
 import fnmatch
 import ast
-import tempfile
 
 # ===========================================================================
 
 # from django.http import HttpResponse
-from django.template import loader, RequestContext
 from django.shortcuts import redirect
 from django.http import HttpResponse, HttpResponseRedirect
-import django.utils.safestring as safestring
-import django.utils
-from django.utils.html import conditional_escape
 from django.urls import reverse
 
-import django.contrib.auth
 import django.contrib.auth.models
 from django.contrib.auth.decorators import login_required as login_required
 from django.contrib.auth.decorators import user_passes_test
 
 from django.contrib.auth.signals import user_logged_in, user_logged_out
 from django.contrib.auth.views import login as django_login
-
-# ===========================================================================
-
-from astropy.io import fits as pyfits
 
 # ===========================================================================
 
@@ -61,7 +49,7 @@ from .render import render_repeatable_result
 
 # ===========================================================================
 
-from . import (models, web_certify, web_difference, submit, versions, locks, html, mail)
+from . import (models, web_certify, web_difference, submit, versions, locks, mail)
 from . import common
 from . import catalog_fusion
 from . import browsify_file
@@ -69,7 +57,7 @@ from . import render
 from .templatetags import stdtags
 from .models import FieldError, MissingInputError
 from .common import capture_output, srepr, complete_re, crds_format_html
-from .common import profile, log_view, verbose  # view wrappers
+from .common import profile, log_view, set_verbose_log  # view wrappers
 
 HERE = os.path.dirname(__file__) or "./"
 
@@ -493,7 +481,7 @@ user_logged_in.connect(lock_login_receiver, dispatch_uid="lock_login_receiver")
 def lock_logout_receiver(sender, **keys):
     """Signal handler to release a user's locks if they log out."""
     with log.info_on_exception("logout releasing locks failed"):
-        request = keys["request"]
+        # request = keys["request"]
         user = str(keys["user"])
         locks.release_locks(user=user)
 
@@ -512,7 +500,6 @@ def instrument_lock_required(func):
         """instrument_log_required wrapper function."""
         assert request.user.is_authenticated, "You must log in."
         instrument = locks.get_instrument_lock_id(request)
-        user = str(request.user)
         if not (instrument or request.user.is_superuser):
             raise CrdsError("You can't access this function without logging in for a particular instrument.")
         return func(request, *args, **keys)

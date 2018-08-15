@@ -21,7 +21,7 @@ from django.utils.safestring import mark_safe
 
 from crds.core import log, utils, python23
 from crds.core.config import complete_re
-from crds.server.config import crds_server_log_dir
+from ..config import crds_server_log_dir
 
 from . import locks
 
@@ -97,7 +97,7 @@ def profile(filename=None):
 
 # ===========================================================================
 
-def verbose(level=50):
+def set_verbose_log(level=50):
     """Decorate a view with @verbosity to run it with increased debug logging."""
     def decomaker(func):
         """Decorator function maker"""
@@ -141,8 +141,8 @@ def html_colorize_log(output):
 
 def colorize_line(line):
     """Add color to one CRDS log line."""
-    line = re.sub("CRDS\s+[\-\:]\s+ERROR", "CRDS - <span class='red'>ERROR</span>", line)
-    line = re.sub("CRDS\s+[\-\:]\s+WARNING", "CRDS - <span class='orange'>WARNING</span>", line)
+    line = re.sub(r"CRDS\s+[\-\:]\s+ERROR", "CRDS - <span class='red'>ERROR</span>", line)
+    line = re.sub(r"CRDS\s+[\-\:]\s+WARNING", "CRDS - <span class='orange'>WARNING</span>", line)
     return line
 
 # ===================================================================

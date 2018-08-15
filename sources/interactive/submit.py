@@ -42,7 +42,6 @@ of errors and/or warnings.
 """
 import os
 import tempfile
-import shutil
 import glob
 
 # ----------------------------------------------------------------------------------------------------
@@ -89,7 +88,7 @@ class FileSubmission(object):
         self.final_pmap = None   # pmap_mode/pmap_name evaluated at confirmation time.
         try:
             self.observatory = self.pmap.observatory
-        except:
+        except Exception:
             self.observatory = models.OBSERVATORY
         self.uploaded_files = uploaded_files
         self.description = description

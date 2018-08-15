@@ -32,15 +32,15 @@ from django.contrib.auth.models import User
 
 from . import crds_db
 
-from crds.server.interactive import models as imodels
-from crds.server.interactive import versions
-from crds.server.interactive.common import DATASET_ID_RE, FITS_KEY_RE, FITS_VAL_RE, LIST_GLOB_RE
-from crds.server.interactive.common import INSTRUMENT_RE, FIELD_RE
-from crds.server.interactive.common import verbose, profile, log_view
-from crds.server import config as sconfig    # server config file
+from ..interactive import models as imodels
+from ..interactive import versions
+from ..interactive.common import DATASET_ID_RE, FITS_KEY_RE, FITS_VAL_RE, LIST_GLOB_RE
+from ..interactive.common import INSTRUMENT_RE, FIELD_RE
+from ..interactive.common import set_verbose_log, profile, log_view
+from .. import config as sconfig    # server config file
 
-from crds.server.jpoll import views as jviews
-from crds.server.interactive import submit
+from ..jpoll import views as jviews
+from ..interactive import submit
 
 # ===========================================================================
 
@@ -461,7 +461,7 @@ def _list_references(observatory, glob_pattern):
     return sorted(blobs.keys())
 
 @jsonrpc_method('get_best_references(context=String, header=Object, reftypes=Array)')  # secure
-# @verbose()
+# @set_verbose_log()
 def get_best_references(request, context, header, reftypes):
     context = check_context(context)
     header = check_header(header)
@@ -713,7 +713,7 @@ def get_context_by_date(request, date, observatory):
 
 @jsonrpc_method('get_server_info()')   # secure
 # @log_view
-# @verbose(100)
+# @set_verbose_log(100)
 def get_server_info(request):
     """Core information about server configuration used to drive CRDS serverless operating modes."""
     info = _get_server_info()
