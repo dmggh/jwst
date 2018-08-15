@@ -19,11 +19,20 @@ from django.utils.safestring import mark_safe
 
 # ===================================================================
 
-from crds.core import log, utils, python23
+from crds.core import log, utils, python23, config
 from crds.core.config import complete_re
-from crds.server.config import crds_server_log_dir
+from crds.core.exceptions import CrdsError
+from ..config import crds_server_log_dir
 
 from . import locks
+
+# ===================================================================
+
+class FieldError(CrdsError):
+    """Blob field value did not meet its constraint."""
+    
+class MissingInputError(FieldError):
+    """A required input field was not specified in a form submission."""
 
 # ===================================================================
 
@@ -97,7 +106,7 @@ def profile(filename=None):
 
 # ===========================================================================
 
-def verbose(level=50):
+def set_verbose_log(level=50):
     """Decorate a view with @verbosity to run it with increased debug logging."""
     def decomaker(func):
         """Decorator function maker"""
@@ -141,8 +150,8 @@ def html_colorize_log(output):
 
 def colorize_line(line):
     """Add color to one CRDS log line."""
-    line = re.sub("CRDS\s+[\-\:]\s+ERROR", "CRDS - <span class='red'>ERROR</span>", line)
-    line = re.sub("CRDS\s+[\-\:]\s+WARNING", "CRDS - <span class='orange'>WARNING</span>", line)
+    line = re.sub(r"CRDS\s+[\-\:]\s+ERROR", "CRDS - <span class='red'>ERROR</span>", line)
+    line = re.sub(r"CRDS\s+[\-\:]\s+WARNING", "CRDS - <span class='orange'>WARNING</span>", line)
     return line
 
 # ===================================================================
@@ -162,34 +171,77 @@ def log_view(func):
         """trap() is bound to the func parameter of decorator()."""
         log.info() # start with blank line to make concat logs readable
         log.info("REQUEST:", request.path, request.method, "ajax="+str(request.is_ajax()))
-        # log.info("META:", log.PP(request.META))
         if request.GET:
             log.info("GET:",   repr(request.GET))
         if request.POST:
             log.info("POST:",  repr(request.POST))
-#        if request.COOKIES:
-#            log.info("COOKIES:", repr(request.COOKIES), stdout=None)
-        # log.info("SESSION:", request.session.session_key, "expires", request.session.get_expiry_date())
         if request.FILES:
             log.info("FILES:", repr(request.FILES))
-        # log.info("OUTPUT:")
         try:
             response = func(request, *args, **keys)
-#            log.info("RESPONSE:\n" + response.content, stdout=None)
             return response
         except locks.LockingError as exc:  # Skip the traceback for these,  remove manually for debug to log tracebacks
             log.error("Locking error: " + str(exc))
             raise
         except Exception as exc:
-            log.info("EXCEPTION REPR:", repr(exc))
-            log.info("EXCEPTION STR:", str(exc))
-            log.info("EXCEPTION TRACEBACK:")
-            info = sys.exc_info()
-            tb_list = traceback.extract_tb(info[2])
-            for line in traceback.format_list(tb_list):
-                log.info(line.strip(), time=False)
+            tb_str = get_traceback_str(exc)
+            log.info(tb_str)
             raise
         finally:
             pass
     dolog.__name__ = func.__name__
     return dolog
+
+def get_traceback_str(exc):
+    """Return the traceback string associated with Exception `exc`."""
+    info = sys.exc_info()
+    tb_list = traceback.extract_tb(info[2])
+    tb_str = ""
+    tb_str += "EXCEPTION STR: " + str(exc) + "\n\n"
+    tb_str += "EXCEPTION REPR: " + repr(exc) + "\n\n"
+    tb_str += "EXCEPTION TRACEBACK:" + "\n"
+    for line in traceback.format_list(tb_list):
+        tb_str += line.strip() + "\n"
+    return tb_str
+
+# ===================================================================
+
+def check_value(value, pattern, msg):
+    """Ensure that `value` satisifies the conditions implied by `pattern`,
+    otherwise raise a FieldError containing `msg`.
+
+    If pattern is a function,  call it and trap for assertions, adjust value.
+    If pattern is a list,  `value` must be in it.
+    If pattern is a string, it is a regex which `value` must match.
+
+    Return `value` if it checks out OK.
+    """
+    value = str(value)
+    if isinstance(pattern, type(check_value)):
+        try:
+            return pattern(value)
+        except Exception as exc:
+            raise FieldError(msg)
+    elif isinstance(pattern, list):
+        for choice in pattern:
+            assert "|" not in choice, "Found | in choice " + srepr(choice) + " seen as regex special char"
+        pattern = config.complete_re("|".join(pattern))
+    if not re.match(pattern, value):
+        raise FieldError(msg)
+    return value
+
+
+def validate(request, variable, pattern, default=None):
+    """Check a `variable` from `request`,  ensuring that it meets the
+    check_value() conditions specified by `pattern`.  Use GET or POST
+    depending on request type.
+    """
+    variables = request.GET if request.method == "GET" else request.POST
+    try:
+        value = str(variables[variable] if default is None 
+                    else variables.get(variable, default)
+                    ).strip()
+    except:
+        raise FieldError("Undefined parameter " + repr(variable))
+    return check_value(value, pattern, "Invalid value " + srepr(value) + " for " + srepr(variable))
+

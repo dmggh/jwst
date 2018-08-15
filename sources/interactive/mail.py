@@ -5,15 +5,14 @@ from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
 
-import sys 
 import smtplib
 import os.path
-import re
 
 from email.mime.text import MIMEText
 
-from crds import log
-from crds.server import config as sconfig
+from crds.core import log
+from .. import config as sconfig
+from . import common
 
 # =============================================================================================
 
@@ -27,6 +26,55 @@ Affected Files:
 {affected_files}
 
 """
+
+# =============================================================================================
+
+SUBMISSION_FAILURE  = """ 
+Submission failed,  see traceback below.
+
+Request Type:
+-------------
+{task}
+
+{username_if_any}
+
+Description:
+------------
+{description}
+
+Exception Info:
+---------------
+{traceback}
+"""
+
+def submission_fail_email(task, description, user, exc_obj):
+    """This e-mail is issued for unanticipated file submission errors which may or 
+    may not be server failures.
+    """
+    with log.error_on_exception("Failed sending CRDS critical error e-mail"):
+        
+        body = SUBMISSION_FAILURE
+
+        if user:
+            user_email = user.email
+            username = (user.first_name + " " + user.last_name).title()
+            username_if_any = label_with_text("Acting User:", username)
+        else:
+            username_if_any = ""
+    
+        subject = "CRDS " + sconfig.observatory.upper() + " " + sconfig.server_usecase.upper()
+        subject += f" FAILED {task} by {username}"
+    
+        from_address = sconfig.CRDS_STATUS_FROM_ADDRESS
+        to_addresses = sconfig.CRDS_STATUS_TO_ADDRESSES[:]
+    
+        if user_email is not None:
+            to_addresses.append(user_email)
+            
+        traceback = common.get_traceback_str(exc_obj)
+    
+        mail(**locals())
+
 
 # =============================================================================================
 

@@ -1,41 +1,27 @@
 """This module defines the Django view functions which respond to HTTP requests
 and return HTTP response objects.
 """
-import sys
-import os
 import os.path
 import re
-import traceback
 import tarfile
 import glob
 import json
-import time
 import fnmatch
 import ast
-import tempfile
 
 # ===========================================================================
 
 # from django.http import HttpResponse
-from django.template import loader, RequestContext
 from django.shortcuts import redirect
 from django.http import HttpResponse, HttpResponseRedirect
-import django.utils.safestring as safestring
-import django.utils
-from django.utils.html import conditional_escape
 from django.urls import reverse
 
-import django.contrib.auth
 import django.contrib.auth.models
 from django.contrib.auth.decorators import login_required as login_required
 from django.contrib.auth.decorators import user_passes_test
 
 from django.contrib.auth.signals import user_logged_in, user_logged_out
 from django.contrib.auth.views import login as django_login
-
-# ===========================================================================
-
-from astropy.io import fits as pyfits
 
 # ===========================================================================
 
@@ -61,58 +47,42 @@ from .render import render_repeatable_result
 
 # ===========================================================================
 
-from . import (models, web_certify, web_difference, submit, versions, locks, html, mail)
+from . import (models, web_certify, web_difference, submit, versions, locks, mail)
 from . import common
 from . import catalog_fusion
 from . import browsify_file
 from . import render
 from .templatetags import stdtags
-from .models import FieldError, MissingInputError
-from .common import capture_output, srepr, complete_re, crds_format_html
-from .common import profile, log_view, verbose  # view wrappers
+from .common import FieldError, MissingInputError
+from .common import capture_output, srepr, complete_re
+from .common import validate, crds_format_html
+from .common import profile, log_view  # view wrappers
 
 HERE = os.path.dirname(__file__) or "./"
 
 # ===========================================================================
 
-def check_value(value, pattern, msg):
-    """Ensure that `value` satisifies the conditions implied by `pattern`,
-    otherwise raise a FieldError containing `msg`.
-
-    If pattern is a function,  call it and trap for assertions, adjust value.
-    If pattern is a list,  `value` must be in it.
-    If pattern is a string, it is a regex which `value` must match.
-
-    Return `value` if it checks out OK.
+def error_trap(template):
+    """error_trap() is a 'decorator maker' which returns a decorator which
+    traps exceptions in views and re-issues the input `template` with an
+    appropriate error message so the user can try again.
     """
-    value = str(value)
-    if isinstance(pattern, type(check_value)):
-        try:
-            return pattern(value)
-        except Exception as exc:
-            raise FieldError(msg)
-    elif isinstance(pattern, list):
-        for choice in pattern:
-            assert "|" not in choice, "Found | in choice " + srepr(choice) + " seen as regex special char"
-        pattern = config.complete_re("|".join(pattern))
-    if not re.match(pattern, value):
-        raise FieldError(msg)
-    return value
-
-
-def validate(request, variable, pattern, default=None):
-    """Check a `variable` from `request`,  ensuring that it meets the
-    check_value() conditions specified by `pattern`.  Use GET or POST
-    depending on request type.
-    """
-    variables = request.GET if request.method == "GET" else request.POST
-    try:
-        value = str(variables[variable] if default is None 
-                    else variables.get(variable, default)
-                    ).strip()
-    except:
-        raise FieldError("Undefined parameter " + repr(variable))
-    return check_value(value, pattern, "Invalid value " + srepr(value) + " for " + srepr(variable))
+    def decorator(func):
+        """decorator is bound to the template parameter of error_trap()."""
+        def trap(request, *args, **keys):
+            """trap() is bound to the func parameter of decorator()."""
+            try:
+                return func(request, *args, **keys)
+            except (AssertionError, CrdsError, FieldError) as exc:
+                msg = crds_format_html("ERROR: " + str(exc))
+            # Generic exception handler,  undescriptive,  to prevent server probing via errors
+            except Exception as exc:
+                msg = crds_format_html("ERROR: internal server error")
+            pars = dict(list(keys.items()) + [("error_message", msg)])
+            return render.crds_render(request, template, pars, requires_pmaps=True)
+        trap.__name__ = func.__name__
+        return trap
+    return decorator
 
 def get_or_post(request, variable):
     """Return `variable` wherever it is defined in request, GET or POST."""
@@ -356,28 +326,6 @@ def get_recent_or_user_context(request):
 class ServerError(Exception):
     """Uncaught exception which will be returned as HTTP 500"""
 
-def error_trap(template):
-    """error_trap() is a 'decorator maker' which returns a decorator which
-    traps exceptions in views and re-issues the input `template` with an
-    appropriate error message so the user can try again.
-    """
-    def decorator(func):
-        """decorator is bound to the template parameter of error_trap()."""
-        def trap(request, *args, **keys):
-            """trap() is bound to the func parameter of decorator()."""
-            try:
-                return func(request, *args, **keys)
-            except (AssertionError, CrdsError, FieldError) as exc:
-                msg = crds_format_html("ERROR: " + str(exc))
-            # Generic exception handler,  undescriptive,  to prevent server probing via errors
-            except Exception as exc:
-                msg = crds_format_html("ERROR: internal server error")
-            pars = dict(list(keys.items()) + [("error_message", msg)])
-            return crds_render(request, template, pars, requires_pmaps=True)
-        trap.__name__ = func.__name__
-        return trap
-    return decorator
-
 # ===========================================================================
 # ===========================================================================
 # ===========================================================================
@@ -478,7 +426,7 @@ user_logged_in.connect(lock_login_receiver, dispatch_uid="lock_login_receiver")
 def lock_logout_receiver(sender, **keys):
     """Signal handler to release a user's locks if they log out."""
     with log.info_on_exception("logout releasing locks failed"):
-        request = keys["request"]
+        # request = keys["request"]
         user = str(keys["user"])
         locks.release_locks(user=user)
 
@@ -497,7 +445,6 @@ def instrument_lock_required(func):
         """instrument_log_required wrapper function."""
         assert request.user.is_authenticated, "You must log in."
         instrument = locks.get_instrument_lock_id(request)
-        user = str(request.user)
         if not (instrument or request.user.is_superuser):
             raise CrdsError("You can't access this function without logging in for a particular instrument.")
         return func(request, *args, **keys)
