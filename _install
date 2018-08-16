@@ -79,6 +79,7 @@ rm -rf $CRDS_ARCHIVE_CACHE_DIR
 # This is the server cache and reference staging area.
 create_dir $public $map_path_full
 create_dir $public $ref_path_full
+create_dir $public $config_path_full
 
 create_dir $secret $install_dir
 create_dir $secret $install_dir/python/bin
@@ -99,12 +100,6 @@ chmod 500 /home/crds/rc_script
 
 cp host/rc_script_DONT_DELETE /home/crds
 chmod 500 /home/crds/rc_script_DONT_DELETE
-
-# Set up rc script for cron jobs referenced by host/crontab
-# create_dir $secret $install_dir/../cron
-# cp host/cronenv.csh $install_dir/../cron
-# cp host/dot_setenv $install_dir/../cron
-# chmod 600 $install_dir/cron/*
 
 ###
 ### special cases for each type of web server we might be using
@@ -132,7 +127,7 @@ mod_wsgi)
 		;;
 	esac
 
-    cp servers/httpd.mod_wsgi.conf $install_dir/server/conf/httpd.conf
+	cp servers/httpd.mod_wsgi.conf $install_dir/server/conf/httpd.conf
 	perl -p -e"s/SUB_PORT/$port/g" servers/ssl.${dso_version}.conf >ssl.tmp
 	mv ssl.tmp $install_dir/server/conf/ssl.conf
 	cp servers/*.wsgi $install_dir/server/wsgi-scripts
@@ -320,6 +315,8 @@ case ${server_mode}
 	chmod $public ${map_path_full}
 	# chmod -f $immutable ${map_path_full}/*
 
+	find $CRDS_PATH -type d | xargs chmod 6755
+
 	chmod $secret ${install_dir}
 	for dir in $install_dir/*
 	do
@@ -335,14 +332,6 @@ case ${server_mode}
 	;;
     "django" )
 	;;
-esac
-
-case ${observatory}
-    in
-    jwst)
-	echo "Installing jwst prototype references"
-	create_dir $public ${ref_path_full}
-	cp -v ../jwst_references/*.fits ${ref_path_full}
 esac
 
 echo "Silently installing static files."
