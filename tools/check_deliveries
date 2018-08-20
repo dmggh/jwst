@@ -3,7 +3,7 @@
 from __future__ import print_function
 
 import glob
-from crds.server.interactive import models
+from crds_server.interactive import models
 
 delivered = set(open("delivered").read().splitlines())
 

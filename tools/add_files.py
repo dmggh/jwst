@@ -17,14 +17,14 @@ import os.path
 import traceback
 
 import django
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "crds.server.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "crds_server.settings")
 django.setup()
 
 from crds import log, rmap, pysh
 from crds.cmdline import Script
 
-from crds.server import config as sconfig
-from crds.server.interactive import models, submit
+from crds_server import config as sconfig
+from crds_server.interactive import models, submit
 
 def hack_sqlite3_performance():
     """These pragmas make a huge difference on Fedora 15.  Mac OS-X seems to

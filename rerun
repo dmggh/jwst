@@ -18,7 +18,7 @@ sleep 5
 
 
 echo "==========================================================="
-echo "Installing crds.server Python Django application"
+echo "Installing crds_server Python Django application"
 echo "==========================================================="
 ./install $CRDS_PROJECT $CRDS_USECASE  |& tee install.${CRDS_PROJECT}.${CRDS_USECASE}.err
 

@@ -1,4 +1,4 @@
-"""Database models for crds.server.interactive."""
+"""Database models for crds_server.interactive."""
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
@@ -34,9 +34,9 @@ from crds.log import srepr
 
 # ============================================================================
 
-from crds.server.config import observatory as OBSERVATORY
-from crds.server.config import table_prefix as TABLE_PREFIX
-from crds.server import config
+from crds_server.config import observatory as OBSERVATORY
+from crds_server.config import table_prefix as TABLE_PREFIX
+from crds_server import config
 
 # ============================================================================
 
@@ -1796,7 +1796,7 @@ def add_meta_event(*args, **keys):
     and 'when and how was this string last mirroed.'
     """
     now = timestamp.now()
-    test_mode = "crds.server.manage test" in sys.argv
+    test_mode = "crds_server.manage test" in sys.argv
     if not test_mode:
         message = log.format(now, *args, **keys)
         with open(META_EVENTS_FILE, "a+") as events:

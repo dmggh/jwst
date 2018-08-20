@@ -13,7 +13,7 @@ from __future__ import absolute_import
 from django.test import TransactionTestCase, TestCase
 
 from crds import log
-from crds.server import config as sconfig
+from crds_server import config as sconfig
 
 class DatabaseBase(object):
 
@@ -45,7 +45,7 @@ class DatabaseBase(object):
 
 if sconfig.observatory == "hst":
     
-    from crds.server.xhst import database as db
+    from crds_server.xhst import database as db
     
     class Hst(DatabaseBase, TestCase):
 
@@ -109,7 +109,7 @@ if sconfig.observatory == "hst":
 
 else:  # JWST
     
-    from crds.server.xjwst import database as db
+    from crds_server.xjwst import database as db
 
     class Jwst(DatabaseBase, TestCase):
 

@@ -85,7 +85,7 @@ table_prefix = 'crds_' + observatory
 data_dir = install_dir+"/data"
 
 crds_server_log_dir = install_dir + "/server/logs"
-crds_server_dir = install_dir + "/python/lib/python/crds/server"
+crds_server_dir = install_dir + "/python/lib/python/crds_server"
 
 # Max size in bytes of interactive tar-balls,  intended for mapping bundles.
 MAX_ARCHIVE_SIZE = 10**7   # ~10M,  current full hst archive is ~100k.

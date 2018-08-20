@@ -21,12 +21,12 @@ import glob
 import re
 
 import django
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "crds.server.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "crds_server.settings")
 django.setup()
 
 from crds import rmap, log
-from crds.server import config
-from crds.server.interactive import models as imodels
+from crds_server import config
+from crds_server.interactive import models as imodels
 
 
 

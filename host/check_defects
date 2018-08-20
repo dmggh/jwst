@@ -12,12 +12,12 @@ import sys
 import os.path
 
 import django
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "crds.server.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "crds_server.settings")
 django.setup()
 
 import crds
 from crds.core import cmdline, rmap, log, config, heavy_client
-from crds.server.interactive import models
+from crds_server.interactive import models
 
 class RepairScript(cmdline.ContextsScript):
 

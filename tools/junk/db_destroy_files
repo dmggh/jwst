@@ -8,7 +8,7 @@ may remain lingering in the cache,  deliveries directory,  etc.
 usage("<file-records-to-delete>...", 1)
 
 from crds import log
-from crds.server.interactive import models
+from crds_server.interactive import models
 
 fileblob_map = models.get_fileblob_map()
 

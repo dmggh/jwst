@@ -9,14 +9,14 @@ from builtins import *
 import os
 
 import django
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "crds.server.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "crds_server.settings")
 django.setup()
 
 import crds
 from crds.core import pysh, heavy_client, log
 from crds import list
 
-from crds.server import config
+from crds_server import config
 
 log.info("Priming web cache (nominally memcached) by pre-fetching pages.")
 

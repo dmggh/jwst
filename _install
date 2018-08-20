@@ -200,7 +200,7 @@ django)
 
         (
 	cat env.csh
-        echo "cd $install_dir/python/lib/python/crds/server"
+        echo "cd $install_dir/python/lib/python/crds_server"
 	echo "nohup memcached -m 32M -s /tmp/memcached.sock </dev/null |& cat >>${install_dir}/server/logs/memcached.log &"
 	echo "onintr control_c"
         echo "python manage.py runserver $noreload $hostname:$port"
@@ -268,11 +268,11 @@ fi
 #  INSTALL CORE CRDS CLIENT LIBRARY
 (cd ../CRDS; ./install --home $install_dir/python)
 
-# INSTALL crds.server 
+# INSTALL crds_server 
 (./save_version >sources/git_version.py; cd sources; python setup.py install --force --home $install_dir/python |& grep -v /static |& grep -v /test_data |& grep -v /templates)
 
 # SYNC the Django database for the CRDS server & catalog
-# (cd $install_dir/python/lib/python/crds/server ; python manage.py syncdb)
+# (cd $install_dir/python/lib/python/crds_server ; python manage.py syncdb)
 # echo "Done syncing db"
 
 ###
@@ -315,7 +315,7 @@ case ${server_mode}
 	chmod $public ${map_path_full}
 	# chmod -f $immutable ${map_path_full}/*
 
-	find $CRDS_PATH -type d | xargs chmod 6755
+	# find $CRDS_PATH -type d | xargs chmod 6755
 
 	chmod $secret ${install_dir}
 	for dir in $install_dir/*

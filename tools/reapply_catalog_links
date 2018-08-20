@@ -6,8 +6,8 @@ import os.path
 import glob
 
 from crds import log
-from crds.server import config
-from crds.server.interactive import models
+from crds_server import config
+from crds_server.interactive import models
 
 def get_catalogs():
     return glob.glob(os.path.join(config.CRDS_CATALOG_DIR, "*.cat"))

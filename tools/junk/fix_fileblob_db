@@ -3,14 +3,14 @@
 source ./env.csh
 
 echo ">>>>> Adding fields to database."
-cd ${CRDS_INSTALL_DIR}/python/lib/python/crds/server;
+cd ${CRDS_INSTALL_DIR}/python/lib/python/crds_server;
 python -u manage.py dbshell <~/fileblob.sql
 
 server
 
 python -u <<EOF
 print ">>>>> pushing down blob fields to model fields"
-from crds.server.interactive import models
+from crds_server.interactive import models
 for blob in models.FileBlob.objects.all():
     blob.thaw().save()
 EOF
@@ -21,7 +21,7 @@ cp ~/models.py sources/interactive
 
 python -u <<EOF
 print ">>>>> eliminating blob fields"
-from crds.server.interactive import models
+from crds_server.interactive import models
 for blob in models.FileBlob.objects.all():
     blob.thaw().save()
 EOF

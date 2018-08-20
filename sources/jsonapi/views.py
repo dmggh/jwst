@@ -665,7 +665,7 @@ def call_context_function(context, func_name, *args, **keys):
     and call it with the remaining positional and keyword parameters.
     """
     pmap = crds.get_pickled_mapping(context)  # reviewed
-    func = utils.get_object("crds.server", "x" + pmap.observatory, func_name)
+    func = utils.get_object("crds_server", "x" + pmap.observatory, func_name)
     return func(*args, **keys)
 
 @jsonrpc_method('get_dataset_headers_by_id(context=String, dataset_ids=Array, datasets_since=String)') # secure

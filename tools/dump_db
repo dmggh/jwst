@@ -2,7 +2,7 @@
 import sys
 
 from crds import pysh, log
-from crds.server.crds_database import DATABASES
+from crds_server.crds_database import DATABASES
 
 def dump(databases=["default"]):
     for dbname, pars in DATABASES.items():

@@ -4,7 +4,7 @@
 
 # Django-1.8 syntax to run single test, e.g.:
 #
-# ./runtests live crds.server.interactive.tests.Jwst.test_certify_post_fits_uploaded
+# ./runtests live crds_server.interactive.tests.Jwst.test_certify_post_fits_uploaded
 
 echo "Script path:" $0
 
@@ -37,7 +37,7 @@ EOF
 # setenv TEST_CMD "python -u manage.py test --verbosity=2 --with-coverage --cover-erase --cover-html --cover-package=crds -cover-branches --cover-html-dir=$CRDS/CRDS_server/coverage"
 
 # Removed coverage switches due to incompatibility with django-1.8.2
-setenv TEST_CMD "python -Wall -u -m crds.server.manage test --verbosity=2"
+setenv TEST_CMD "python -Wall -u -m crds_server.manage test --verbosity=2"
 
 if ($# > 0) then
     # subsequent parameters are apps to test
@@ -50,12 +50,12 @@ else
     echo "================================================================================"
 endif
 setenv PROJ `capitalize $CRDS_PROJECT`
-cd ${CRDS_INSTALL_DIR}/python/lib/python/crds/server
+cd ${CRDS_INSTALL_DIR}/python/lib/python/crds_server
 
 if ("$*" != "") then    
     $TEST_CMD $* |& tee $LOG
 else
-    $TEST_CMD crds.server.jsonapi.tests.$PROJ crds.server.interactive.tests.$PROJ |& tee $LOG
+    $TEST_CMD crds_server.jsonapi.tests.$PROJ crds_server.interactive.tests.$PROJ |& tee $LOG
 endif
 
 if ($switch_port) then

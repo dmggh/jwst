@@ -7,57 +7,57 @@ import os.path
 from distutils.core import setup
 
 PACKAGES = [
-    'crds.server',
-    'crds.server.interactive',
-    'crds.server.interactive.templatetags',
-    'crds.server.interactive.migrations',
+    'crds_server',
+    'crds_server.interactive',
+    'crds_server.interactive.templatetags',
+    'crds_server.interactive.migrations',
 
-    'crds.server.jsonapi',
-    'crds.server.jsonapi.templatetags',
+    'crds_server.jsonapi',
+    'crds_server.jsonapi.templatetags',
 
-    'crds.server.jpoll',
-    'crds.server.jpoll.templatetags',
+    'crds_server.jpoll',
+    'crds_server.jpoll.templatetags',
 
-    'crds.server.xhst',
-    'crds.server.xjwst',
+    'crds_server.xhst',
+    'crds_server.xjwst',
     
-    'crds.server.fileupload',
-    'crds.server.fileupload.templatetags',
+    'crds_server.fileupload',
+    'crds_server.fileupload.templatetags',
     
-    'crds.server.locking',
-    'crds.server.locking.management',
-    'crds.server.locking.management.commands',
+    'crds_server.locking',
+    'crds_server.locking.management',
+    'crds_server.locking.management.commands',
 
-    # 'crds.server.forms',
-    # 'crds.server.forms.migrations',
+    # 'crds_server.forms',
+    # 'crds_server.forms.migrations',
     ]
 
 PACKAGE_DIR = {
-    'crds.server':'.',
+    'crds_server':'.',
     
-    'crds.server.xhst' : './xhst', 
-    'crds.server.xjwst' : './xjwst',     
+    'crds_server.xhst' : './xhst', 
+    'crds_server.xjwst' : './xjwst',     
     
-    'crds.server.jsonapi':'./jsonapi',
-    'crds.server.jsonapi.templatetags':'./jsonapi/templatetags',
+    'crds_server.jsonapi':'./jsonapi',
+    'crds_server.jsonapi.templatetags':'./jsonapi/templatetags',
     
-    'crds.server.jpoll':'./jpoll',
-    # 'crds.server.jpoll.templatetags':'./jpoll/templatetags',        
+    'crds_server.jpoll':'./jpoll',
+    # 'crds_server.jpoll.templatetags':'./jpoll/templatetags',        
     
-    'crds.server.interactive':'./interactive',
-    'crds.server.interactive.migrations':'./interactive/migrations',
-    'crds.server.interactive.templatetags':'./interactive/templatetags',
+    'crds_server.interactive':'./interactive',
+    'crds_server.interactive.migrations':'./interactive/migrations',
+    'crds_server.interactive.templatetags':'./interactive/templatetags',
     
-    'crds.server.fileupload' : './fileupload',
-    'crds.server.fileupload.templatetags' : './fileupload/templatetags',
+    'crds_server.fileupload' : './fileupload',
+    'crds_server.fileupload.templatetags' : './fileupload/templatetags',
     
-    'crds.server.locking' : './locking',
-    'crds.server.locking.management' : './locking/management',
-    'crds.server.locking.management.commands' : './locking/management/commands',
+    'crds_server.locking' : './locking',
+    'crds_server.locking.management' : './locking/management',
+    'crds_server.locking.management.commands' : './locking/management/commands',
 
-    # 'crds.server.forms':'./forms',
-    # 'crds.server.forms.migrations':'./forms/migrations',
-    # 'crds.server.forms.templatetags':'./forms/templatetags',
+    # 'crds_server.forms':'./forms',
+    # 'crds_server.forms.migrations':'./forms/migrations',
+    # 'crds_server.forms.templatetags':'./forms/templatetags',
 
     }
 
@@ -108,7 +108,7 @@ PACKAGE_DATA[''].extend(static_files)
 
 # DATA_FILES = [("", static_files)]
 
-setup(name="crds.server",
+setup(name="crds_server",
       version= "7.2.3",
       description="Python based Calibration Reference Data System,  best reference file web service",
       author="Todd Miller",

@@ -46,7 +46,7 @@ python -m sources.sh_config install_dir CRDS_PATH server_files port PYSYN_CDBS\
  CRDS_URL CRDS_CATALOG_DIR CRDS_DELIVERY_DIR FILE_UPLOAD_TEMP_DIR CRDS_INGEST_DIR CRDS_ARCHIVE_CACHE_DIR apachemod > make_env.tmp
 . ./make_env.tmp
 
-PYTHONPATH=$install_dir/python/lib/python/crds/server:$install_dir/python/lib/python
+PYTHONPATH=$install_dir/python/lib/python/crds_server:$install_dir/python/lib/python
 export PYTHONPATH
 
 PATH=$install_dir/python/bin:$install_dir/bin:$PATH
@@ -62,7 +62,7 @@ export PATH
 	echo 'setenv CRDS_SERVER_URL ' $CRDS_URL
 	echo 'setenv CRDS_PATH ' $CRDS_PATH
 	echo 'setenv CRDS_SERVER_FILES ' ${server_files}
-	echo 'setenv DJANGO_SETTINGS_MODULE crds.server.settings'
+	echo 'setenv DJANGO_SETTINGS_MODULE crds_server.settings'
 	echo 'setenv OPENSSL_NO_DEFAULT_ZLIB 1'
 ) > env.csh
 

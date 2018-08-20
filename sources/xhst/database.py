@@ -20,8 +20,8 @@ from django.utils import html
 
 import crds
 from crds.core import rmap, log, utils, timestamp, config
-from crds.server.interactive import models, common
-from crds.server import config as sconfig
+from crds_server.interactive import models, common
+from crds_server import config as sconfig
 
 from crds import hst
 from crds.hst import locate, reftypes

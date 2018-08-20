@@ -11,7 +11,7 @@ by which time it might as well be reinitialized.
 """
 
 
-from crds.server.interactive import models
+from crds_server.interactive import models
 from crds.hst import locate
 from crds import log, data_file, rmap
 

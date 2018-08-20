@@ -21,7 +21,7 @@ MODULE_LIST = (
     # 'scipy',
 
     'crds',
-    'crds.server',
+    'crds_server',
 
     'pyodbc',
     'jsonrpc',
@@ -137,7 +137,7 @@ def get_linux_version():
 
 def get_mod_wsgi_version():
     """Return information about mod_wsgi version"""
-    try:  #  lib/python.xx/site-packages/crds/server
+    try:  #  lib/python.xx/site-packages/crds_server
         module_dir = os.path.join(os.environ["CRDS"], "lib")
         version = pysh.lines('cd %s;  /usr/bin/strings mod_wsgi.so | grep -w -A 1 "wsgi_init"' % module_dir)[1]
     except Exception:

@@ -1,7 +1,7 @@
 """This module implements locking to protect critical regions for the CRDS server.
 
 The current implementation is based on the github project django-locking which is
-plugged in as crds.server.locking with no changes.   The locks are database
+plugged in as crds_server.locking with no changes.   The locks are database
 based.
 
 Locks can also be released by going to the admin interface and deleting them.

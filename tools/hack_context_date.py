@@ -8,7 +8,7 @@ import sys
 
 from crds import timestamp, log
 
-from crds.server.interactive import models
+from crds_server.interactive import models
 
 import django
 

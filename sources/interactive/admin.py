@@ -5,10 +5,10 @@ from __future__ import absolute_import
 # from builtins import str
 
 from django.contrib import admin
-from crds.server.interactive.models import (ContextModel, ContextHistoryModel, RemoteContextModel,
+from crds_server.interactive.models import (ContextModel, ContextHistoryModel, RemoteContextModel,
                                             CounterModel, FileBlob, AuditBlob, RepeatableResultBlob)
-from crds.server import config
-from crds.server.interactive import models, views
+from crds_server import config
+from crds_server.interactive import models, views
 from crds import log
 
 class RemoteContextModelAdmin(admin.ModelAdmin):

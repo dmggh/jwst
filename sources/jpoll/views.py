@@ -194,7 +194,7 @@ class JpollHandler(object):
 
     @property
     def monitor_url(self):
-        from crds.server import config
+        from crds_server import config
         return config.CRDS_URL + "monitor/" + self.channel.key + "/"
 
     def write(self, message):

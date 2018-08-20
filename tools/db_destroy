@@ -4,7 +4,7 @@
 usage("""<filenames...>""", 1)
 
 from crds import log
-from crds.server.interactive import models
+from crds_server.interactive import models
 
 log.info("Fetching fileblob map.")
 blobmap = models.get_fileblob_map()

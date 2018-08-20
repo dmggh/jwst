@@ -12,7 +12,7 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-from crds.server.config import install_dir
+from crds_server.config import install_dir
 
 DATABASES = {
     'default': {
@@ -105,7 +105,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
-ROOT_URLCONF = 'crds.server.urls'
+ROOT_URLCONF = 'crds_server.urls'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
@@ -124,8 +124,8 @@ INSTALLED_APPS = (
     
     'django.contrib.staticfiles',
     
-    "crds.server.interactive",
-    "crds.server.jsonapi",
+    "crds_server.interactive",
+    "crds_server.jsonapi",
 
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',

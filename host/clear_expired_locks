@@ -9,7 +9,7 @@ source env.csh
 python <<EOF
 import django
 django.setup()
-from crds.server.interactive import locks
+from crds_server.interactive import locks
 locks.clear_expired_locks()
 EOF
 

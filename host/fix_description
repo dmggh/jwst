@@ -15,14 +15,14 @@ import os
 # ============================================================================
 
 import django
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "crds.server.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "crds_server.settings")
 django.setup()
 
 # ============================================================================
 
 from crds.core import log, cmdline
 
-from crds.server.interactive import models
+from crds_server.interactive import models
 
 # ============================================================================
 

@@ -7,7 +7,7 @@ import os
 import glob
 
 import crds
-from crds.server.interactive import models
+from crds_server.interactive import models
 
 CRDS_SERVER_FILES = os.environ["CRDS_SERVER_FILES"]
 

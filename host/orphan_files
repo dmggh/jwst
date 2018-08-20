@@ -21,12 +21,12 @@ import glob
 import re
 
 import django
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "crds.server.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "crds_server.settings")
 django.setup()
 
 from crds.core import rmap, log
-from crds.server import config
-from crds.server.interactive import models as imodels
+from crds_server import config
+from crds_server.interactive import models as imodels
 
 def file_conjugate(path):
     """Nominally the opposing half of a GEIS file,  data for header or header for data.

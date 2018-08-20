@@ -9,7 +9,7 @@ from __future__ import absolute_import
 import re
 
 import crds
-from crds.server.interactive import models, html
+from crds_server.interactive import models, html
 from crds.core import config, python23, selectors
 
 #
@@ -80,7 +80,7 @@ def fix_meta_parameters(parameters):
 
 def get_fused_rmap_parameters(mapping, catalog_fields=models.FileBlob.fusion_items):
     """Return the datatables dictionary corresponding to `rmap_name`."""
-    from crds.server.interactive.views import is_rmap
+    from crds_server.interactive.views import is_rmap
 
     mapping_name, rmap_dict = get_mapping_dict(mapping)
     assert is_rmap(mapping_name), "mapping must be an .rmap"

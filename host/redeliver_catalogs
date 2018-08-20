@@ -10,13 +10,13 @@ from builtins import *
 import os, os.path, sys
 
 import django
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "crds.server.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "crds_server.settings")
 django.setup()
 
 from crds.core import rmap, log, pysh
-from crds.server import config
-from crds.server.interactive import models
-from crds.server.interactive import submit
+from crds_server import config
+from crds_server.interactive import models
+from crds_server.interactive import submit
 
 def find_undelivered_catalogs():
     """Look through the file database for files in state 'delivered'.

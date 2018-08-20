@@ -18,9 +18,9 @@ import crds
 
 from crds import pysh, rmap, selectors, log, pysh, heavy_client, timestamp, utils, config
 from crds.client import api
-from crds.server import config as server_config
-from crds.server.interactive import models as imodels
-from crds.server.jsonapi import views
+from crds_server import config as server_config
+from crds_server.interactive import models as imodels
+from crds_server.jsonapi import views
 
 class ServiceApiBase(object):
 

@@ -7,7 +7,7 @@ from __future__ import absolute_import
 from collections import defaultdict
 from pprint import pprint as pp
 
-from crds.server.interactive import database as db
+from crds_server.interactive import database as db
 from crds import python23
 
 # from crds import log

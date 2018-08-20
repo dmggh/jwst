@@ -21,11 +21,11 @@ from crds.core import log, utils, timestamp, config, rmap
 from crds import bestrefs
 from crds import jwst
 
-from crds.server.interactive import models, common
-from crds.server.interactive import views as iviews
-from crds.server import config as sconfig
+from crds_server.interactive import models, common
+from crds_server.interactive import views as iviews
+from crds_server import config as sconfig
 
-from crds.server.xjwst import parameter_interface
+from crds_server.xjwst import parameter_interface
 
 # =========================================================================================================
 

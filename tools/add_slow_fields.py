@@ -10,8 +10,8 @@ import traceback
 
 import django
 
-from crds.server import config as sconfig
-from crds.server.interactive import (models, submit)
+from crds_server import config as sconfig
+from crds_server.interactive import (models, submit)
 
 from crds.core import (rmap, log)
 from crds.core.config import locate_file

@@ -4,7 +4,7 @@ from __future__ import absolute_import
 # from builtins import object
 from crds import log
 
-from crds.server.interactive import models, database as db
+from crds_server.interactive import models, database as db
 
 """
 {u'archive_date': '1999-10-19 19:22:01',

@@ -3,7 +3,7 @@
 import os
 import sys
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'crds.server.settings'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'crds_server.settings'
 
 from django.core.wsgi import get_wsgi_application
 

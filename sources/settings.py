@@ -13,8 +13,8 @@ log.remove_console_handler()
 
 # ===========================================================================
 
-from crds.server.config import install_dir, DEBUG, DEBUG_EXTRAS, FILE_UPLOAD_TEMP_DIR, crds_server_dir
-from crds.server.crds_database import DATABASES
+from crds_server.config import install_dir, DEBUG, DEBUG_EXTRAS, FILE_UPLOAD_TEMP_DIR, crds_server_dir
+from crds_server.crds_database import DATABASES
 
 ALLOWED_HOSTS = ['*']
 
@@ -139,7 +139,7 @@ MIDDLEWARE = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     
-    'crds.server.interactive.middleware.ResetLockExpirationMiddleware',
+    'crds_server.interactive.middleware.ResetLockExpirationMiddleware',
 )
 
 if DEBUG_EXTRAS:
@@ -148,7 +148,7 @@ if DEBUG_EXTRAS:
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     )
 
-ROOT_URLCONF = 'crds.server.urls'
+ROOT_URLCONF = 'crds_server.urls'
 
 TEMPLATES = [
     {
@@ -187,14 +187,14 @@ INSTALLED_APPS = (
     
     'django.contrib.staticfiles',
     
-    "crds.server.interactive.apps.InteractiveConfig",
-    "crds.server.jpoll",
-    "crds.server.jsonapi",
+    "crds_server.interactive.apps.InteractiveConfig",
+    "crds_server.jpoll",
+    "crds_server.jsonapi",
     
-    "crds.server.fileupload",
-    "crds.server.locking",     # from git-hub django-locking
+    "crds_server.fileupload",
+    "crds_server.locking",     # from git-hub django-locking
 
-    # "crds.server.forms.apps.FormsConfig",
+    # "crds_server.forms.apps.FormsConfig",
 
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
@@ -214,7 +214,7 @@ if DEBUG_EXTRAS:
     )
 
     # XXX Deferred import
-    from crds.server.config import CRDS_SERVER_IP
+    from crds_server.config import CRDS_SERVER_IP
     INTERNAL_IPS = (CRDS_SERVER_IP,)  # for django-debug-toolbar
     
     DEBUG_TOOLBAR_PANELS = (
