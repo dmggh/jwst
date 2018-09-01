@@ -1235,7 +1235,7 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
         without replacing.)
         """
         self.thaw()
-        log.info("Adding slow fields for",  self.moniker)
+        log.info("Adding slow fields for",  self.moniker, repr(locals()))
         if self.type == "reference":
             self.init_metadata_fields()
         self.sha1sum = sha1sum or self.compute_checksum()
@@ -1259,7 +1259,7 @@ class FileBlob(BlobModel, FileBlobRepairMixin):
     def compute_checksum(self):
         try:
             checksum = utils.checksum(self.pathname)
-            log.verbose("Computed checksum for", repr(self.moniker), "as", repr(checksum))
+            log.info("Computed checksum for", repr(self.moniker), "as", repr(checksum))
             return checksum
         except Exception as exc:
             log.error("Computing sha1sum of", repr(self.moniker), "failed:", str(exc))
@@ -1406,7 +1406,7 @@ def add_crds_file(observatory, upload_name, permanent_location,
             allow_duplicates=False, sha1sum=None):
     "Make a database record for this file.  Track the action of creating it."""
     if rmap.is_mapping(permanent_location):
-        log.verbose("Adding", repr(upload_name), "as", repr(permanent_location))
+        log.info("Adding", repr(upload_name), "as", repr(permanent_location))
         with log.warn_on_exception("Failed updating checksum on", repr(permanent_location)):
             os.chmod(permanent_location, int("644", 8))
             checksum.update_checksum(permanent_location)

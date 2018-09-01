@@ -262,6 +262,10 @@ class FileSubmission(object):
             sha1sum = utils.copy_and_checksum(upload_location, permanent_location)
         with log.error_on_exception("Failed chmod'ing cached file", srepr(permanent_location)):
             os.chmod(permanent_location, 0o444)
+
+        # intricately tied to renaming which alters mapping contents
+        if config.is_mapping(permanent_location):
+            sha1sum = None
         
         # Make a database record for this file.
         self.add_crds_file(original_name, permanent_location, sha1sum=sha1sum)
