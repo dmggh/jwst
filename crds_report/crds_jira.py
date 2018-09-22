@@ -71,7 +71,7 @@ class JiraConnection(object):
 
     @property
     def issues(self):
-        return self.connection.search_issues(f"project={PROJECT}")
+        return self.connection.search_issues(f"project={PROJECT}", maxResults=10**9)
 
     def get_rows(self):
         issues = self.issues
