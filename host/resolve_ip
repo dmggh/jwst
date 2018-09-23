@@ -18,17 +18,6 @@ and the hostname translation can vary over time.   Consequently,  these translat
 to be 100% reliable.   log-to-log output comparisons should eventually reveal which IP addresses are
 relatively stable and which shift around.
 """
-
-
-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
-from future import standard_library
-standard_library.install_aliases()
-from builtins import *
-
 import sys
 import re
 import pprint

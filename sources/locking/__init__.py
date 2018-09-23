@@ -1,6 +1,3 @@
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
 #: The version list
 VERSION = (1, 0, 2)
 

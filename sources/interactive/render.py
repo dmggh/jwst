@@ -1,7 +1,6 @@
 """This module contains functions related to rendering interactive views,  including
 repeatable results and rendering a JPOLL result.
 """
-
 import os.path
 import json
 import time

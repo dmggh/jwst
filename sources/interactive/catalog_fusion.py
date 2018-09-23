@@ -2,10 +2,6 @@
 json or dict representation and the catalog entries associated with the
 corresponding files.
 """
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-# from builtins import str
 import re
 
 import crds

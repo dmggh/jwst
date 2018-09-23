@@ -1,12 +1,6 @@
 """S/W Version management code derived from the module of the same name
 in pyetc.
 """
-
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-# from builtins import str
-
 import sys
 import os
 import re

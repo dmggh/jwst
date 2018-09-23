@@ -1,7 +1,4 @@
 """This module supports the Django /admin/ site for CRDS."""
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
 # from builtins import str
 
 from django.contrib import admin

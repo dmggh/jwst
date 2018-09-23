@@ -1,9 +1,6 @@
 """Update the context history date created for the specified contexts to the specified date.
 Assumes each context appears in the history only once,  this is a hack for setting up dev installations.
 """
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
 import sys
 
 from crds import timestamp, log

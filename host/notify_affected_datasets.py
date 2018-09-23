@@ -1,8 +1,5 @@
 #! /usr/bin python
 #-*-python-*-
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
 import sys
 
 from crds.core import heavy_client, log, pysh, timestamp

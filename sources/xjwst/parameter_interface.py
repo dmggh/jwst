@@ -1,8 +1,3 @@
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-# from builtins import str
-# from builtins import range
 from crds_server.xjwst import restful
 from crds_server import config as sconfig
 from crds import log, python23, timestamp

@@ -1,13 +1,4 @@
 #! /usr/bin/env python
-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
-from future import standard_library
-standard_library.install_aliases()
-from builtins import *
-
 import sys
 import os.path
 
@@ -32,13 +23,13 @@ class RepairScript(cmdline.ContextsScript):
 
         self.add_argument('--repair', action='store_true', dest="repair",
             help="Attempt to repair any model defects found.")
-	
+        
         self.add_argument('--model-checksum', action='store_true', dest="model_checksum",
             help='Verify that file sha1sums are correct and repair them.')
 
         self.add_argument('--ignore-fields', nargs="*", dest="ignore_fields", default=(),
             help="Fields to ignore.")
-	
+        
         # Could support file determination similar sync:  --all --references --files etc.
         
         super(RepairScript, self).add_args()

@@ -1,11 +1,4 @@
 """Utility routines used by more than one server module."""
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-# from builtins import str
-
-# ===================================================================
-
 import sys
 import cProfile
 import re
