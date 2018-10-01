@@ -20,7 +20,7 @@ from django.db import transaction
 
 # Create your models here.
 import crds
-from crds import (timestamp, rmap, utils, refactor, log, data_file, uses, diff, checksum, python23)
+from crds import (timestamp, rmap, utils, refactor, log, data_file, uses, diff, checksum)
 from crds import CrdsError
 from crds.log import srepr
 
@@ -675,7 +675,7 @@ class BlobModel(CrdsModel):
             candidate.thaw()
             for filter in matches:
                 fval = getattr(candidate, filter, None)
-                if isinstance(fval, (bool, int, float, python23.long)):
+                if isinstance(fval, (bool, int, float)):
                     if not matches[filter] == fval:
                         break
                 else:
@@ -729,7 +729,7 @@ def check_defects(fields=None, files=None, verify_checksum=False):
     IFF verify_checksum is True,  check the sha1sum in the FileBlob versus the cached file contents.  Slow.
     """
     map = get_fileblob_map()
-    if isinstance(files, python23.string_types):
+    if isinstance(files, str):
         files = rmap.list_mappings(files, OBSERVATORY) + rmap.list_references(files, OBSERVATORY)
     if files:
         map = { name : blob for (name, blob) in list(map.items()) if name in set(files) }

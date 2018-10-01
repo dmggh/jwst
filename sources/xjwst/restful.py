@@ -21,7 +21,7 @@ else:
 
 # =====================================================================
 
-from crds.core import log, config, python23
+from crds.core import log, config
 from crds.client import proxy
 
 from crds.core.exceptions import ServiceError
