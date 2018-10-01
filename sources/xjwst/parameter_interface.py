@@ -1,6 +1,6 @@
 from crds_server.xjwst import restful
 from crds_server import config as sconfig
-from crds import log, python23, timestamp
+from crds import log, timestamp
 
 # ================================================================================================== 
 
@@ -88,7 +88,7 @@ def get_dataset_headers_by_id(context, dataset_ids, matching_parameters):
             header = total_headers[did]  # NOT a copy, mutate in place if needed
             if header is None:
                 total_headers[did] = "NOT FOUND dataset ID does not exist " + repr(did)
-            elif isinstance(header, python23.string_types):
+            elif isinstance(header, str):
                 pass
             elif isinstance(header, dict):
                 for key, value in list(header.items()):

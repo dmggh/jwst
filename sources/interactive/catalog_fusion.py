@@ -6,7 +6,7 @@ import re
 
 import crds
 from crds_server.interactive import models, html
-from crds.core import config, python23, selectors
+from crds.core import config, selectors
 
 #
 # catalog fields are an item list mapping FileBlob attributes to web page column labels
@@ -62,7 +62,7 @@ def fix_meta_parameters(parameters):
     for the context display.   Since even the residual object paths are still 
     lengthy,  split on "." and return the rightmost path element that is not "NAME".
     """
-    if isinstance(parameters, python23.string_types):
+    if isinstance(parameters, str):
         parameters = parameters.replace("META.","")
         parameters = parameters.split(".")
         for par in reversed(parameters):

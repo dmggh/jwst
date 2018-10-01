@@ -8,6 +8,7 @@ import glob
 import json
 import fnmatch
 import ast
+import io
 
 # ===========================================================================
 
@@ -28,7 +29,7 @@ from django.contrib.auth.views import login as django_login
 import crds
 from crds import uses, matches, data_file
 from crds import CrdsError
-from crds.core import (rmap, utils, timestamp, log, config, python23)
+from crds.core import (rmap, utils, timestamp, log, config)
 from crds.core import (pysh, heavy_client)
 from crds.certify import reftypes
 
@@ -724,7 +725,7 @@ def bestrefs_post(request):
             headers = jsonapi_views.get_simplified_dataset_headers_by_id(context, [dataset_name])
             first = sorted(headers.keys())[0]
             header = headers[first]
-        if isinstance(header, python23.string_types):
+        if isinstance(header, str):
             raise CrdsError(header)
 
     # base on the context and datset,  compute best references
@@ -760,7 +761,7 @@ def _simple_header_format(hstring):
     """Enable simple line based header format where each line is of the form: <key> <value>
     """
     header = {}
-    for line in python23.StringIO(str(hstring)):
+    for line in io.StringIO(str(hstring)):
         words = line.strip().split()
         if not words:
             continue
@@ -805,7 +806,7 @@ def bestrefs_results(request, pmap, header, dataset_name=""):
 def get_bestrefs_items(recommendations):
     bestrefs_items = []
     for key, val in sorted(recommendations.items()):
-        if isinstance(val, python23.string_types) and val.startswith("NOT FOUND"):
+        if isinstance(val, str) and val.startswith("NOT FOUND"):
             val = val[len("NOT FOUND "):].strip()
         match = re.match(r"^(.ref\$)(.*)$", val)
         if match:
