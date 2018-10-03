@@ -1,14 +1,6 @@
 #! /usr/bin/env pysh
 #-*-python-*-
 
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
-from future import standard_library
-standard_library.install_aliases()
-from builtins import *
-
 usage("N [words...]", 1, 10**9, help="Print N-1 of every N words")
 
 def decimate(interval, words):

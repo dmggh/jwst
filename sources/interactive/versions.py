@@ -1,18 +1,12 @@
 """S/W Version management code derived from the module of the same name
 in pyetc.
 """
-
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-# from builtins import str
-
 import sys
 import os
 import re
 import os.path
 
-from crds.core import python23, pysh
+from crds.core import pysh
 
 MODULE_LIST = (
     'django',
@@ -71,7 +65,7 @@ def get_version(modname):
         except AttributeError:
             try:
                 ans = mod.version
-                if not isinstance(mod.version, python23.string_types):
+                if not isinstance(mod.version, str):
                     ans = ans()
             except AttributeError:
                 try:

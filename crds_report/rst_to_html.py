@@ -1,6 +1,6 @@
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
+"""This module converts a simple .rst file into a simple memo-like
+version of HTML with locally defined CSS.
+"""
 
 import sys
 

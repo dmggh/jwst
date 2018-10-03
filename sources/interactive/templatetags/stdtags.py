@@ -1,10 +1,6 @@
 """This module maps rendering functions in common.widgets onto
 Django template tags so they can be used from HTML.
 """
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-
 import sys
 import os.path
 import re

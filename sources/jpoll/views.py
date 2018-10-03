@@ -8,16 +8,6 @@ page response of the primary view,  sometimes made necessary by timeouts of
 intermediate systems,  such as the proxy,  which would otherwise cause the
 final page display to fail.
 """
-
-# Create your views here.
-
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-# from builtins import str
-# from builtins import range
-# from builtins import object
-
 import sys
 import time
 import json

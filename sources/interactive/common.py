@@ -1,16 +1,10 @@
 """Utility routines used by more than one server module."""
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-# from builtins import str
-
-# ===================================================================
-
 import sys
 import cProfile
 import re
 import os.path
 import traceback
+import io
 
 # ===================================================================
 
@@ -19,7 +13,7 @@ from django.utils.safestring import mark_safe
 
 # ===================================================================
 
-from crds.core import log, utils, python23, config
+from crds.core import log, utils, config
 from crds.core.config import complete_re
 from crds.core.exceptions import CrdsError
 from ..config import crds_server_log_dir
@@ -65,7 +59,7 @@ def capture_output(func):
         return captured output.
         """
         oldout, olderr = sys.stdout, sys.stderr
-        out = python23.StringIO()
+        out = io.StringIO()
         sys.stdout, sys.stderr = out, out
         handler = log.add_stream_handler(out)
         try:

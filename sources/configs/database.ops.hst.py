@@ -1,6 +1,3 @@
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
 DB_WORD = open("/crds/data1/database/production_django_hst.dat").read().strip()
 
 DATABASES = {

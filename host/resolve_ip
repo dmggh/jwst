@@ -18,17 +18,6 @@ and the hostname translation can vary over time.   Consequently,  these translat
 to be 100% reliable.   log-to-log output comparisons should eventually reveal which IP addresses are
 relatively stable and which shift around.
 """
-
-
-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
-from future import standard_library
-standard_library.install_aliases()
-from builtins import *
-
 import sys
 import re
 import pprint
@@ -61,11 +50,19 @@ def hostname(ip_address):
         HOSTNAMES[ip_address] = resolution
         return resolution
 
+LAST_SEEN = {}
+
 def convert_group_0(match):
     """Return hostname(group 0) of an re match object for use in sub()."""
-    return hostname(match.groups()[0])
+    name = hostname(match.groups()[0])
+    LAST_SEEN[name] = str(CURRENT_TIME)
+    return name
+
+CURRENT_TIME = None
 
 def resolve_ips(line):
+    global CURRENT_TIME
+    CURRENT_TIME = line.split()[0][1:]
     return IP_RE.sub(convert_group_0, line)
 
 def process_file(file_in):
@@ -84,9 +81,9 @@ def main():
 
     print()
     print("Hosts:")
-    access_tuples = ((IPCOUNTS[ip_address], ip_address, HOSTNAMES[ip_address]) for ip_address in HOSTNAMES)
+    access_tuples = ((IPCOUNTS[ip_address], LAST_SEEN[HOSTNAMES[ip_address]], ip_address, HOSTNAMES[ip_address]) for ip_address in HOSTNAMES)
     for atup in reversed(sorted(access_tuples)):
-        print("{0:>10d} {1:>16s} {2:>s}".format(*atup))
+        print("{0:>10d}   {1:>20s} {2:>16s} {3:>48s}".format(*atup))
 
 if __name__ == "__main__":
     main()

@@ -3,9 +3,6 @@
 """This script is used to update redundant description fields in the server
 database for file, audit, and history models.
 """
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
 
 # ============================================================================
 

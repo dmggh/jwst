@@ -1,21 +1,14 @@
 """Minor extensions to JSON encoding/decoding to support serializing repeatable
 results, particularly crds.refactor "actions".
 """
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-# from builtins import str
-
 import json
-
-from crds import python23
 
 class CrdsEncoder(json.JSONEncoder):
     """Convert non-standard objects to attr dicts to support template rendering.
     This works for simple objects with encode-able attributes.
     """
     def default(self, obj):
-        if not isinstance(obj, (bool, int, float, list, tuple, dict, python23.string_types)):
+        if not isinstance(obj, (bool, int, float, list, tuple, dict, str)):
             obj = dict(obj.__dict__)
             for key, value in list(obj.items()):
                 if isinstance(value, tuple):
@@ -32,9 +25,9 @@ def loads(enc):
     if isinstance(obj, dict):    # fix str --> unicode key decoding side effect.
         pobj = {}
         for key, val in list(obj.items()):
-            if isinstance(val, python23.string_types):
+            if isinstance(val, str):
                 val = str(val)
-            if isinstance(key, python23.string_types):
+            if isinstance(key, str):
                 pobj[str(key)] = val
             else:
                 pobj[key] = val

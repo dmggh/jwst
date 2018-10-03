@@ -5,10 +5,6 @@ config.locate_reference().   locate_server_reference() knows about CDBS file pat
 point of this script is to make standard CRDS paths work on the server without copying all
 of CDBS.
 """
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-# from builtins import str
 import sys, os, shutil, re
 
 from crds.core import config, log, rmap, utils

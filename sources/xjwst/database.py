@@ -1,10 +1,6 @@
 """This module accesses fetches best reference matching parameters from a JWST
 archive web service.
 """
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-# from builtins import str
 import pprint
 import getpass
 from collections import OrderedDict, defaultdict, namedtuple
