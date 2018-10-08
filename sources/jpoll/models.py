@@ -1,11 +1,4 @@
 """Django database models to support the jpoll messaging system."""
-
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-# from builtins import str
-# from builtins import object
-
 import sys
 import json
 import datetime
@@ -13,8 +6,6 @@ import datetime
 from django.db import models
 from django.utils import html
 from django.db import transaction
-
-from crds import python23
 
 # Create your models here.
 
@@ -57,14 +48,14 @@ class ChannelModel(models.Model):
     
     def log(self, text):
         """Send a log message to the client."""
-        if isinstance(text, python23.string_types):
+        if isinstance(text, str):
             text = html.conditional_escape(text)   # Don't allow HTML in text
         self.push("log_message", text)
         
     def done(self, status, result):
         """Send a log message to the client."""
         assert isinstance(status, int), "status should be an integer"
-        if isinstance(result, python23.string_types):
+        if isinstance(result, str):
             result = html.conditional_escape(result)
         self.push("done", {"status":status, "result":result}) # Don't allow HTML in result
         

@@ -1,16 +1,6 @@
 """
 This module defines base classes for implementing arbitrary REST-ful HTTP queries.
 """
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-from future import standard_library
-standard_library.install_aliases()
-# from builtins import str
-# from builtins import object
-
-# =====================================================================
-
 import sys
 import uuid
 import json
@@ -31,7 +21,7 @@ else:
 
 # =====================================================================
 
-from crds.core import log, config, python23
+from crds.core import log, config
 from crds.client import proxy
 
 from crds.core.exceptions import ServiceError

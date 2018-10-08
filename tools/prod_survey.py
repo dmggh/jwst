@@ -1,14 +1,9 @@
 """This script is used in the analysis of DADSOPS associations and type patterns.
 """
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-
 from collections import defaultdict
 from pprint import pprint as pp
 
 from crds_server.interactive import database as db
-from crds import python23
 
 # from crds import log
 # log.set_verbose()
@@ -59,7 +54,7 @@ def get_missing(sample):
     member_types = { member:member_type for (asn, member, member_type) in assocs } 
     found_tups = sorted([ (member_types[member_id(compound)], member_id(compound))
                           for compound in headers 
-                          if not isinstance(headers[compound], python23.string_types) ])
+                          if not isinstance(headers[compound], str) ])
     missing_tups = sorted([ (member_types[member], member) for member in missing ])
     return missing_tups, found_tups, assocs
 

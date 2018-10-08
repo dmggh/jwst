@@ -1,10 +1,4 @@
 """This module defines JSON-RPC views and checking functions in the django-json-rpc paradigm."""
-
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-# from builtins import str
-
 import sys
 import base64
 import math
@@ -45,7 +39,7 @@ from ..interactive import submit
 # ===========================================================================
 
 from crds.client import proxy
-from crds.core import rmap, utils, log, timestamp, pysh, python23, heavy_client, exceptions
+from crds.core import rmap, utils, log, timestamp, pysh, heavy_client, exceptions
 from crds.core import config                     # client config file
 from crds.core.config import FILE_RE, check_filename
 import crds
@@ -278,9 +272,9 @@ def check_header(header):
     if not isinstance(header, dict):
         raise InvalidHeaderError("Header parameter is not a dictionary.")
     for key, value in list(header.items()):
-        if not isinstance(key, python23.string_types) or not FITS_KEY_RE.match(key):
+        if not isinstance(key, str) or not FITS_KEY_RE.match(key):
             raise InvalidHeaderError("Bad key in header {0}", key)
-        if not isinstance(value, (python23.string_types, int, float, bool)) or not FITS_VAL_RE.match(value):
+        if not isinstance(value, (str, int, float, bool)) or not FITS_VAL_RE.match(value):
             raise InvalidHeaderError("Bad value in header... not a str, int, float, or bool, or illegal str: '{0}'", value)
     return header
 
@@ -293,7 +287,7 @@ def check_observatory(obs):
 
 def check_instrument(instr):
     instr = instr.lower()
-    if not isinstance(instr, python23.string_types) or not INSTRUMENT_RE.match(instr) or instr not in imodels.INSTRUMENTS:
+    if not isinstance(instr, str) or not INSTRUMENT_RE.match(instr) or instr not in imodels.INSTRUMENTS:
         raise InvalidInstrumentError("Mismatch between requested instrument '{0}' and server instruments '{1}'", 
                                      instr, imodels.INSTRUMENTS)
     return instr
@@ -308,7 +302,7 @@ def check_reftypes(reftypes):
     return cleaned
 
 def check_reftype(reftype):
-    if not isinstance(reftype, python23.string_types):
+    if not isinstance(reftype, str):
         raise InvalidReftypesError("Non-string reftype: '{0}'", reftype)
     reftype = reftype.lower()
     if reftype not in imodels.FILEKINDS:
@@ -320,7 +314,7 @@ def check_dataset_ids(datasets):
     if not isinstance(datasets, list):
         raise InvalidDatasetIds("Expected list of dataset ids.")
     for dataset in datasets:
-        if not isinstance(dataset, python23.string_types) or not DATASET_ID_RE.match(dataset):
+        if not isinstance(dataset, str) or not DATASET_ID_RE.match(dataset):
             raise InvalidDatasetIds("Expected datasets to be official id strings.")
         cleaned.append(dataset.upper())
     return cleaned
@@ -329,7 +323,7 @@ def check_header_map(header_map):
     if not isinstance(header_map, dict):
         raise InvalidDatasetIds("Expected object mapping dataset ids to headers: { dataset_id : { header } }.")
     for dataset, header in list(header_map.items()):
-        if not isinstance(dataset, python23.string_types) or (not DATASET_ID_RE.match(dataset) and not FILE_RE.match(dataset)):
+        if not isinstance(dataset, str) or (not DATASET_ID_RE.match(dataset) and not FILE_RE.match(dataset)):
             raise InvalidDatasetIds("Bad dataset id: '{0}'", dataset)
         try:
             check_header(header)
@@ -342,7 +336,7 @@ def check_file_list(files):
         raise InvalidFileList("Expected list of filenames or None.")
     if files:
         for name in files:
-            if not isinstance(name, python23.string_types) or not FILE_RE.match(name):
+            if not isinstance(name, str) or not FILE_RE.match(name):
                 raise InvalidFileList("Expected list of filenames or None.")
     return files
 
@@ -351,7 +345,7 @@ def check_field_list(fields):
         raise InvalidFieldList("Expected list of fields or None.")
     if fields:
         for name in fields:
-            if not isinstance(name, python23.string_types) or not FIELD_RE.match(name):
+            if not isinstance(name, str) or not FIELD_RE.match(name):
                 raise InvalidFileList("Expected list of fields or None.")
     return fields
 
@@ -498,7 +492,7 @@ def _get_best_references_by_ids(request, context, dataset_ids, reftypes, include
         except KeyError:
             result[dataset_id] = (False, "FAILED: " + "unable to obtain matching parameters.")
             continue
-        if isinstance(header, python23.string_types):
+        if isinstance(header, str):
             result[dataset_id] = (False, header)
         else:
             try:
@@ -578,7 +572,7 @@ def get_mapping_names(request, context):
 @imodels.crds_cached
 def _get_mapping_names(context):
     """Return the list of mappings referred to by `context` or a list of contexts.""" 
-    if isinstance(context, python23.string_types):
+    if isinstance(context, str):
         context = [context]
     elif not isinstance(context, (list, tuple)):
         raise UnknownMappingError("Not a .pmap name or list of .pmap names")
@@ -828,7 +822,7 @@ def get_affected_datasets(request, observatory, old_context, new_context):
     except IndexError as exc:
         raise ValueError(not_ready)
     response = compose_affected_datasets_response(observatory, computation_dir)
-    if isinstance(response["bestrefs_status"], python23.string_types) and "FAILED:" in response["bestrefs_status"]:
+    if isinstance(response["bestrefs_status"], str) and "FAILED:" in response["bestrefs_status"]:
         raise ValueError(not_ready)
     return response
 

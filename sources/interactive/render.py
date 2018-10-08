@@ -1,7 +1,6 @@
 """This module contains functions related to rendering interactive views,  including
 repeatable results and rendering a JPOLL result.
 """
-
 import os.path
 import json
 import time
@@ -15,7 +14,7 @@ from django.utils.html import conditional_escape
 import django.contrib.auth.models
 
 # ===========================================================================
-from crds.core import config, python23, utils
+from crds.core import config, utils
 from crds.core.exceptions import CrdsError
 
 from . import models
@@ -240,7 +239,7 @@ def get_recent_pmaps(last_n, pmap_edit):
 
 def pmap_label(blob, pmap_edit=None):
     """Return the text displayed to users selecting known pmaps."""
-    if isinstance(blob, python23.string_types):
+    if isinstance(blob, str):
         try:
             blob = models.FileBlob.load(blob)
         except LookupError:

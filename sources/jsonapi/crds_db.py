@@ -1,9 +1,6 @@
 """This module support dumping the CRDS database as a SQLite3 file so that it
 can be distributed.
 """
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
 import tempfile
 
 from crds.core import pysh, config

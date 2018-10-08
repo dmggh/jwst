@@ -6,11 +6,6 @@ command line parameters.  The meta events log persists between server
 mirrorings and is initially used to track context changes, pipeline syncs, and
 server mirrorings.
 """
-
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-
 # ============================================================================
 
 import sys

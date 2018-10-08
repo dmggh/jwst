@@ -1,6 +1,3 @@
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
 # This file lists all of the configuration options available to config.py
 
 #
@@ -56,11 +53,11 @@ debug = False
 # what kind of database to use.  choices are:
 #
 #   sqlite
-#	sqlite database in a local file
+#       sqlite database in a local file
 #
 #   pyetc1
 #   pyetc2
-#	mysql databases on goldink
+#       mysql databases on goldink
 #
 dbtype='pyetc2'
 

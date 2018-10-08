@@ -1,10 +1,6 @@
 """This script initializes the slow fields of the database blobs for the
 specified file basenames.
 """
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-# from builtins import str
 import sys
 import traceback
 

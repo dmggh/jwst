@@ -4,8 +4,6 @@
 'deliveries' directory with the catalog and
 """
 
-from __future__ import print_function
-
 import glob
 from crds_server.interactive import models
 

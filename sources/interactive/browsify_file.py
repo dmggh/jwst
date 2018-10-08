@@ -1,13 +1,6 @@
 """This module is used to render some portion of the contents of a reference
 file as HTML for the server reference file details page.
 """
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-# from builtins import str
-
-# ---------------------------------------------------------------------------------
-
 import os
 import os.path
 import re

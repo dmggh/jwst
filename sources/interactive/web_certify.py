@@ -2,11 +2,6 @@
 Aside from output capture to strings,  handles weird web naming/path issues and temporaries...
 while making the output look sane.
 """
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-# from builtins import str
-
 import os.path
 import re
 

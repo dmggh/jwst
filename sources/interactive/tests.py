@@ -1,10 +1,4 @@
 """Unit tests to exercise the interactive portions of the CRDS server."""
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-# from builtins import str
-# from builtins import object
-
 import sys
 import os
 import shutil
