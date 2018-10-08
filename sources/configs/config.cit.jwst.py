@@ -50,11 +50,11 @@ CRDS_MAPPING_URL   = CRDS_URL + "get/"
 
 # These may get redirected to the archive or a static file server
 
-# CRDS_UNCHECKED_REFERENCE_URL = CRDS_URL + "unchecked_get/references/" + observatory + "/"
-# CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/mappings/" + observatory + "/"
+CRDS_UNCHECKED_REFERENCE_URL = CRDS_URL + "unchecked_get/references/" + observatory + "/"
+CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/mappings/" + observatory + "/"
 
-CRDS_UNCHECKED_REFERENCE_URL = "https://iwjwdmscauiweb.stsci.edu/portal/Download/file/JWST/reference/"
-CRDS_UNCHECKED_MAPPING_URL = "https://iwjwdmscauiweb.stsci.edu/portal/Download/file/JWST/reference/"
+# CRDS_UNCHECKED_REFERENCE_URL = "https://iwjwdmscauiweb.stsci.edu/portal/Download/file/JWST/reference/"
+# CRDS_UNCHECKED_MAPPING_URL = "https://iwjwdmscauiweb.stsci.edu/portal/Download/file/JWST/reference/"
 
 FORCE_REMOTE_MODE = False
 
