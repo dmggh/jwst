@@ -38,7 +38,8 @@ conda config --add channels http://ssb.stsci.edu/conda-dev
 
 # Install stsci and jwst conda packages,  also minimally supports HST as needed.
 # Primarily JWST dependency is for CAL data models and dependencies.
-conda install stsci jwst --quiet --yes
+conda install stsci --quiet --yes
+conda install jwst --quiet --yes
 conda install astropy numpy scipy asdf gwcs ipython requests lxml pymysql --quiet --yes
 
 # conda install fitsverify cfitsio --quiet --yes
@@ -46,7 +47,7 @@ conda install astropy numpy scipy asdf gwcs ipython requests lxml pymysql --quie
 # conda install --quiet --yes --file http://ssb.stsci.edu/conda/jwstdp-0.7.0rc/jwstdp-0.7.0rc2-linux-py27.0.txt
 
 # Use local copies of JWST CAL code and fitsverify for more stability
-conda remove --quiet --yes --force cfitsio fitsverify jwst
+conda remove --quiet --yes --force cfitsio fitsverify jwst crds
 conda install --yes --quiet setuptools
 
 # Install CRDS metapackages,  those not included with conda or overridden.
