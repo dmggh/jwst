@@ -4,7 +4,7 @@ setenv CONDA_NAME crds_conda3-10
 
 setenv CRDS_STACK ${CRDS}/crds_stacks/${CONDA_NAME}
 setenv META_PREFIX ${CRDS_STACK}
-setenv PY_VER=3.6
+setenv PY_VER 3.6
 
 setenv MASTER_REMOTE_SOURCE /eng/ssb/crds/installer4
 setenv SOURCE_NAME installer4.${CONDA_NAME} 
