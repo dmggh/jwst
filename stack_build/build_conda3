@@ -4,6 +4,7 @@ setenv CONDA_NAME crds_conda3-10
 
 setenv CRDS_STACK ${CRDS}/crds_stacks/${CONDA_NAME}
 setenv META_PREFIX ${CRDS_STACK}
+setenv PY_VER=3.6
 
 setenv MASTER_REMOTE_SOURCE /eng/ssb/crds/installer4
 setenv SOURCE_NAME installer4.${CONDA_NAME} 
@@ -34,20 +35,20 @@ setenv PATH ${CRDS_STACK}/bin:${PATH}
 rehash 
 
 # conda config --add channels http://ssb.stsci.edu/astroconda
-conda config python=3.6 --add channels http://ssb.stsci.edu/conda-dev 
+conda config python=${PY_VER} --add channels http://ssb.stsci.edu/conda-dev 
 
 # Install stsci and jwst conda packages,  also minimally supports HST as needed.
 # Primarily JWST dependency is for CAL data models and dependencies.
-conda install python=3.6 stsci jwst --quiet --yes
-conda install python=3.6 astropy numpy scipy asdf gwcs ipython requests lxml pymysql --quiet --yes
+conda install python=${PY_VER} stsci jwst --quiet --yes
+conda install python=${PY_VER} astropy numpy scipy asdf gwcs ipython requests lxml pymysql --quiet --yes
 
 # conda install fitsverify cfitsio --quiet --yes
 # conda install --quiet --yes --file ${CRDS}/CRDS_server/host/${CONDA_NAME}.pkgs
 # conda install --quiet --yes --file http://ssb.stsci.edu/conda/jwstdp-0.7.0rc/jwstdp-0.7.0rc2-linux-py27.0.txt
 
 # Use local copies of JWST CAL code and fitsverify for more stability
-conda remove python=3.6 --quiet --yes --force cfitsio fitsverify jwst
-conda install python=3.6 --yes --quiet setuptools
+conda remove python=${PY_VER} --quiet --yes --force cfitsio fitsverify jwst
+conda install python=${PY_VER} --yes --quiet setuptools
 
 # Install CRDS metapackages,  those not included with conda or overridden.
 cd ${LOCAL_SOURCE}/build
@@ -55,7 +56,7 @@ cd ${LOCAL_SOURCE}/build
 ./meta install jwst |& tee jwst.err
 ./meta install cfitsio fitsverify |& tee fitsverify.err
 
-conda remove python=3.6 --yes --quiet pkg-config pkgconfig
+conda remove python=${PY_VER} --yes --quiet pkg-config pkgconfig
 pip uninstall --yes Django
 
 ./meta install mod_wsgi-master |& tee mod_wsgi.err
@@ -63,7 +64,7 @@ pip uninstall --yes Django
 ./meta clean >& /dev/null
 
 # Fix pyodbc/unixODBC to use STSCI copy and config files.
-conda remove python=3.6 --yes --force unixodbc  # pulled in by pyodbc,  use stock installtion provided by DATB instead.
+conda remove python=${PY_VER} --yes --force unixodbc  # pulled in by pyodbc,  use stock installtion provided by DATB instead.
 cp /usr/etc/odbc.ini /home/crds/.odbc.ini
 cp /usr/etc/odbcinst.ini /home/crds/.odbcinst.ini
 rehash
@@ -74,7 +75,7 @@ git log --stat |& tee git.log
 # List and download conda packages just installed in this stack.
 # mkdir -p ${LOCAL_SOURCE}/conda-sources
 cd ${LOCAL_SOURCE}/conda-sources
-conda list python=3.6 --explicit |& tee ${CONDA_NAME}.txt
+conda list python=${PY_VER} --explicit |& tee ${CONDA_NAME}.txt
 ./joes_download ${CONDA_NAME}.txt ${LOCAL_SOURCE}/conda-sources
 
 # Copy local installer to frozen Central Store copy for frozen installs on other strings.
