@@ -64,7 +64,8 @@ pip uninstall --yes Django
 ./meta clean >& /dev/null
 
 # Fix pyodbc/unixODBC to use STSCI copy and config files.
-conda remove python=${PY_VER} --yes --force unixodbc  # pulled in by pyodbc,  use stock installtion provided by DATB instead.
+conda uninstall --yes --force unixodbc
+
 cp /usr/etc/odbc.ini /home/crds/.odbc.ini
 cp /usr/etc/odbcinst.ini /home/crds/.odbcinst.ini
 rehash
