@@ -56,7 +56,7 @@ cd ${LOCAL_SOURCE}/build
 ./meta install jwst |& tee jwst.err
 ./meta install cfitsio fitsverify |& tee fitsverify.err
 
-conda remove python=${PY_VER} --yes --quiet pkg-config pkgconfig
+conda uninstall --yes --quiet --force pkg-config pkgconfig
 pip uninstall --yes Django
 
 ./meta install mod_wsgi-master |& tee mod_wsgi.err
