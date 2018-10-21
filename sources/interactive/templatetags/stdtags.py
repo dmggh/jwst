@@ -128,14 +128,14 @@ def context_table(pmap):
 
 @register.filter(is_safe=True)
 @stringfilter
-def browsify(string, fileblobs):
+def browsify(string, crds_name_map):
     try:
         return re.sub(r"\[?'([A-Za-z0-9\._]+)'[\,\]]", 
-                      lambda x: _browse(x,fileblobs), string)
+                      lambda x: _browse(x,crds_name_map), string)
     except Exception:
         return string
 
-def _browse(match, fileblobs):
+def _browse(match, crds_name_map):
     quoted_name = match.group(0)
     parts = quoted_name.split("'")
     crds_name = parts[1]
@@ -145,9 +145,9 @@ def _browse(match, fileblobs):
     else:
         crds_name = parts[1]
         try:
-            uploaded_as = fileblobs[crds_name].uploaded_as
+            uploaded_as = crds_name_map[crds_name][0]  # .uploaded_as
             if uploaded_as == crds_name and crds_name.endswith(".rmap"):
-                uploaded_as = fileblobs[crds_name].derived_from
+                uploaded_as = crds_name_map[crds_name][1]  # .derived_from
             return (format_html("<tr><td>{0}</td>", uploaded_as ) + 
                     format_html("<td><a href='/browse/{0}'>{1}</a></td></tr>", crds_name, quoted_name))
         except Exception:
