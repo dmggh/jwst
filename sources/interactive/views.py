@@ -791,6 +791,9 @@ def bestrefs_results(request, pmap, header, dataset_name=""):
     bestrefs_items = get_bestrefs_items(recommendations)
     old_bestrefs_items = get_bestrefs_items(old_recommendations)
     defined = { key:val for (key,val) in old_bestrefs_items if val.lower() != "undefined" }
+    instrument = pmap.get_instrument(header)
+    imap = pmap.get_imap(instrument)
+    rmap_names = { key.upper():val for (key,val) in imap.selector.items() }
     pars = {
         "observatory" : pmap.observatory,
         "context_name" : str(pmap.basename),
@@ -798,6 +801,7 @@ def bestrefs_results(request, pmap, header, dataset_name=""):
         "header_items" : header_items,
         "bestrefs_items" : bestrefs_items,
         "bestrefs_debug_output" : bestrefs_debug_output,
+        "rmap_names" : rmap_names,
         }
     if defined:
         pars["old_bestrefs_items"] = old_bestrefs_items
@@ -1585,8 +1589,20 @@ def recent_activity_query(request):
     return crds_render(request, "recent_activity_results.html", {
                 "filters": sorted(filters.items()),
                 "filtered_activities" : filtered_activities,
-                "fileblobs" : models.get_fileblob_map(),
+                "crds_name_map" : _get_crds_name_map(),
             })
+
+@models.crds_cached
+def _get_crds_name_map():
+    """Return the filename relationships needed to support the 'browsify' template
+    filter.   To optimize performance,  cache the results in Django's cache.
+
+    Returns   { filename : (blob.uploaded_as,  blob.derived_from), ... }
+    """
+    fileblobs = models.FileBlob.objects.all()
+    naming_map = { blob.name : (blob.uploaded_as, blob.derived_from) 
+                   for blob in fileblobs }
+    return naming_map
 
 # ===========================================================================
 

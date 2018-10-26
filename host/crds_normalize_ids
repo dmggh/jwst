@@ -1,35 +1,42 @@
 #! /usr/bin/env python
 #-*-python-*-
+
+"""usages:
+
+  crds_normalize_ids id1 id2 id3...  ->   normalized1 normalied2 normalized3 ...
+
+  crds_normalize @id_list.txt  -> normalized1 normalized2 normalized3 ...
+
+  cat id_list.txt | crds_normalize -> normalized1 normalized2 normalized3 ...
+"""
+
 import sys
 import re
 
-from crds import pysh
-
-pysh.usage("@ids_file or ids....", 1, 2000, help="""
-
-Convert JWST dataset IDs into a normalized form used in CRDS
-bestrefs and various web services.
-""")
-
-def main():
-    for arg in sys.argv[1:]:
-        ids = []
+def main(id_specs):
+    # print("normalizing:", id_specs)
+    ids = []
+    for arg in id_specs:
+        if not arg.strip():
+            continue
         if arg.startswith("@"):
             for line in open(arg[1:].strip()).read().splitlines():
                 ids += line.split()      
         else:
-            ids += arg
+            ids += [arg]
     for dataset in ids:
         print(normalize_id(dataset))
 
 def normalize_id(dataset):
     if ":" in dataset:
-        return ":".join([normalize_subid(part)
+        norm = ":".join([normalize_subid(part)
                          for part in dataset.split(":")])
     else:
         subid = normalize_subid(dataset)
-        return subid + ":" + subid
-            
+        norm = subid + ":" + subid
+    # print("normalizing:", dataset, "->", norm)
+    return norm
+
 def normalize_subid(dataset):
     if re.match(r"[A-Z-a-z0-9_\-]+", dataset):
         parts = dataset.split("_")
@@ -37,5 +44,9 @@ def normalize_subid(dataset):
     return dataset.upper()
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) == 1:
+        id_specs = sys.stdin.read().splitlines()
+    else:
+        id_specs = sys.argv[1:]
+    main(id_specs)
 

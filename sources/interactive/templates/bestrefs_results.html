@@ -88,7 +88,11 @@
               {% for reftype, fname in bestrefs_items %}
                 <tr class="data_row">
                   <td class="bestrefs_header" width="30%">
-                    {{reftype}}
+                    {% if rmap_names|lookup:reftype|file_exists %}
+                       <a href="/browse/{{rmap_names|lookup:reftype}}">{{reftype}}</a>
+                    {% else %}
+                       {{reftype|gray}}
+                    {% endif %}
                   </td>
                   {% if old_bestrefs_items %}
                      {% if old_bestrefs_items|lookup:reftype|file_exists %}

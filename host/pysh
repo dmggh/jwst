@@ -41,16 +41,17 @@ alone any of the more powerful features of Python such as modules,
 classes, functions, lists, mappings, sets, strings, exception handling,
 etc.
 """
-
-# =========================================================================
-
 import sys
 import os
 import re
 import glob
 import os.path
-import io
 import inspect
+
+if sys.version_info >= (3,0,0):
+    from io import StringIO
+else:
+    import StringIO
 
 from subprocess import PIPE, STDOUT, Popen
 
@@ -59,7 +60,7 @@ from subprocess import PIPE, STDOUT, Popen
 __all__ = [
     "sys", "os", "re", "glob",
 
-    "sh", "out", "err", "out_err", "status", "words", "lines", "usage",
+    "sh", "out", "err", "out_err", "status", "words", "lines", "usage",  "arg",
 
     "Shell", "pysh_execfile"
 ]
@@ -91,7 +92,7 @@ def get_debug():
 
 # =========================================================================
 
-class Shell(object):
+class Shell:
     """Shell performs sh-like variable substitutions and returns a callable
     object which runs `args` as a subprocess when called.   The shell object
     records the final command line and manages program I/O,  capturing output
@@ -262,9 +263,15 @@ def err(command, **keys):
     return _captured_output(command, **keys).err
 
 def out_err(command, **keys):
-    """Run a subprogram and return it's interleaved stdout and stderr."""
+    """Run a subprogram and return it's combined/interleaved stdout and stderr."""
     keys["independent_error"] = False
     return _captured_output(command, **keys).out
+
+def status_out_err(command, **keys):
+    """Run a subprogram and return it's status and combined/interleaved stdout and stderr."""
+    keys["independent_error"] = False
+    capture = _captured_output(command, **keys)
+    return capture.status, capture.out
 
 def words(command, **keys):
     """Return the standard output of `command` split into a sequence
@@ -301,9 +308,26 @@ def usage(description, min_args, max_args=sys.maxsize, help=""):
     one parameter, max_args should also be 1.
     """
     progname = os.path.split(sys.argv[0])[1]
-    if not (min_args <= len(sys.argv)-1 <= max_args):
-        fail("usage: " + progname + " "  + description + help)
+    if not (min_args <= len(sys.argv)-1 <= max_args) or "--help" in sys.argv:
+        fail("\nusage: " + progname + " "  + description + help)
 
+def arg(index, default=None, typecast=str):
+    """Ultra-simple convenience function for extracting command line parameters by
+    index, optionally using a `default` value if fewer than `index` parameters
+    are provided.  The function `typecast` can be set to a python type object
+    to cast parameter strings to other python types like int or float.
+
+    $ program  arg1 arg2 arg3
+
+    progname = arg(0)
+    arg1 = arg(1, "foo")
+    arg2 = arg(2, 57, int)
+    arg3 = arg(3, 45.0, float)
+
+    """
+    val = sys.argv[index] if len(sys.argv) >= index+1 else default
+    return typecast(val)
+        
 # =========================================================================
 
 # Code for rewriting a file of pysh-script as an ordinary python module.
@@ -330,12 +354,11 @@ def pysh_execfile(fname, globals=None, locals=None):
     try:
         (handle, fname) = tempfile.mkstemp()
         for line in lines:
-            os.write(handle, bytes(line.encode('utf-8')))
+            os.write(handle, line.encode("utf-8"))
     finally:
         os.close(handle)
-
     try:
-        exec(compile(open(fname).read(), fname, 'exec'), globals, locals)
+        exec(open(fname).read(), globals, locals)
     finally:
         os.remove(fname)
 
