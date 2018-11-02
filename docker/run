@@ -1,0 +1,3 @@
+#! /bin/sh
+
+exec docker run -v/grp/crds/cache:/grp/crds/cache -v /grp/crds/jwst:/grp/crds/jwst -v /grp/crds/hst:/grp/crds/hst -it crds-env
