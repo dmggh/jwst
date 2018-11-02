@@ -1,13 +1,31 @@
 #! /usr/bin/env python
+#-*-python-*-
 
 import sys
+
+if "--reorder" in sys.argv:
+    reordered = True   
+    sys.argv.remove("--reorder")
+else:
+    reordered = False
+
+if "--sep" in sys.argv:
+    i = sys.argv.index("--sep")
+    sep = sys.argv[i+1]
+    del sys.argv[i]
+    del sys.argv[i]
+else:
+    sep = " "
 
 selected = [int(x) for x in sys.argv[1:]]
 
 for line in sys.stdin:
         words = [w.strip() for w in line.split()]
-        output = [ word for (i,word) in enumerate(words) if not selected or i in selected]
-        joined= " ".join(output)
+        if reordered:  # re-ordered form
+            output = [ words[selected[i]] for i in range(len(selected)) if selected[i] < len(words) ]
+        else: # original in order form
+            output = [ word for (i,word) in enumerate(words) if not selected or i in selected]
+        joined= sep.join(output)
         if joined.strip():
                 print(joined)
 
