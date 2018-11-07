@@ -947,6 +947,9 @@ def get_dataset_ids(instrument, datasets_since=None):
     _check_instrument(instrument)
     _check_date(datasets_since)
 
+    if instrument.lower() == "synphot":
+        return []
+
     init_db()
 
     igen = get_instrument_gen(instrument)
