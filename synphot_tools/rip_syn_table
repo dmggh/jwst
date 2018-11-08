@@ -1,0 +1,52 @@
+#! /usr/bin/env python
+#-*-python-*-
+
+import os.path, re
+
+from astropy.io import fits
+
+from crds import pysh, log
+
+# crwfc3comp$wfc3uvis2_f656n_mjd_006_syn.fits[mjd#]
+PARAMETERIZED = re.compile(r"(.*)\[(\w*)#\]")
+
+def handle_params(basename):
+    matches = PARAMETERIZED.match(basename)
+    if matches:
+        newbase = matches.group(1)  # .replace(matches.group(2), '\w+')
+        log.info("Mapping", repr(basename), "to", repr(newbase))
+        return newbase
+    else:
+        return basename
+
+def main():
+    pysh.usage("<component_dir>  <syn_tab filename>  <column>", 3, 3, """
+
+Rip the specified column from the table in syn_tab and treat eac value as
+a filename which can be found in component_dir somewhere.   Locate and print
+the absolute path of each component file.
+
+""")
+    component_dir = pysh.arg(1)
+    syn_tab_file = pysh.arg(2)
+    column = pysh.arg(3)    
+    all_paths = pysh.out(f"find {component_dir}").splitlines()
+    data = fits.getdata(syn_tab_file, ext=1)
+    for row in data:
+        filename = row[column]
+        basename = filename.split("$")[1]
+        basename2 = handle_params(basename)
+        found = False
+        log.info("Adding file:", repr(basename), repr(basename2))
+        for line in all_paths:
+            if re.search(basename2, line):
+                print(os.path.abspath(line))
+                found = True
+                if basename2 != basename:
+                    log.info("Found parameterized file:", repr(line))
+        if not found:
+            log.error("Can't find:", repr(filename))
+
+if __name__ == "__main__":
+    main()
+

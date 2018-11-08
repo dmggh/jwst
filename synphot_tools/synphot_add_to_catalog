@@ -1,0 +1,7 @@
+#! /bin/sh
+
+export CRDS_EXPLICIT_GARBAGE_COLLECTION=false
+
+add_files --allow-duplicates --description "Initial synphot mass import." --deliverer-email jmiller@stsci.edu --deliverer jmiller --deliver --add-slow-fields -O "mass import" --copy-to-cache --verbose --stats --profile=profile.out $*
+
+
