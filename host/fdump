@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+#-*-python-*-
 
 import sys
 from astropy.io import fits
@@ -30,11 +31,11 @@ data = fits.getdata(FITS_FILE, ext=EXTENSION)
 
 if isinstance(data, fits.FITS_rec):
         indexed = eval("data" + INDEX_EXPR)
-        coldefs = indexed.names
+        coldefs = data.names
         print(type(data), data.shape)
         print(coldefs)
-        for r in indexed:
-                print(str(r))
+        for r in data:
+                print(str(eval("r" + INDEX_EXPR)))
 else:
         print(type(data), data.shape)
         print(repr(eval("data" + INDEX_EXPR)))

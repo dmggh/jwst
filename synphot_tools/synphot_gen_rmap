@@ -1,0 +1,76 @@
+#! /usr/bin/env python
+# -*-python-*-
+import os
+import sys
+
+import crds
+from crds import pysh, rmap, selectors, data_file, timestamp
+
+def reduce_lines(lines):
+    seen_blank = False
+    reduced = ""
+    for line in lines.splitlines():
+        if not line.strip():
+            if not seen_blank:
+                seen_blank = True
+            else:
+                continue
+        else:
+            seen_blank = False
+        reduced += line + "\n"
+    return reduced
+
+def header_string(hdu):
+    hdrstr = "\n" + "-"*70 + "\n"
+    for keyword in hdu.header:
+        value = hdu.header[keyword]
+        comment = hdu.header.comments[keyword]
+        line = "%-10s %-16s %s\n" % (keyword, value, comment)
+        hdrstr += reduce_lines(line)
+    return hdrstr
+
+def get_filename(synname):
+    filename = synname.split("$")[-1]
+    filename = filename.split("[")[0]
+    return filename
+
+def main():
+    pysh.usage("<rmap to add to> <output rmap> <synphot TMT or TMC>", 3, 3, help="""
+
+Generate the matching selector of a TMT or TMC rmap based on the contents
+of a TMT or TMC tab file rather than inserts of individual reference files.
+
+""")
+    rmap_in_name = pysh.arg(1)
+    rmap_out_name = pysh.arg(2)
+    synphot_tab_name = pysh.arg(3)
+
+    rmap_name = os.path.basename(rmap_out_name)
+
+    loaded_rmap = crds.get_cached_mapping(rmap_in_name)
+    with data_file.fits_open(synphot_tab_name) as hdu_list:
+        selections = {}
+        rows = set()
+        comment = ""
+        for hdu in hdu_list:
+            comment +=  header_string(hdu)
+        for hdu in hdu_list[1:]:
+            for row in hdu.data:
+                match = (str(row["COMPNAME"]), 
+                         timestamp.reformat_date(str(row["TIME"])), 
+                         str(row["COMMENT"]))
+                filename = get_filename(row["FILENAME"])
+                if match in rows:
+                    print("Duplicate TMT/C row:", match)
+                else:
+                    rows.add(match)
+                selections[match] = filename
+    pars = selectors.MatchParameters(selections)
+    selector = pars.instantiate(loaded_rmap.header)
+    out_rmap = rmap.ReferenceMapping(rmap_name, loaded_rmap.header, selector, comment=comment)
+    out_rmap.write(rmap_out_name)
+
+
+if __name__ == "__main__":
+    main()
+

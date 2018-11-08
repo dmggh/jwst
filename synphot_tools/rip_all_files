@@ -1,0 +1,15 @@
+#! /bin/sh
+
+echo "Listing cached calibration references"
+crds list --cached-references --full-path >calibration.files
+
+echo "Dumping TMC table file paths"
+./rip_syn_table ../comp ../mtab/*tmc.fits FILENAME | sort | uniq > throughput.files
+
+
+echo "Dumping TMT table file paths"
+./rip_syn_table ../comp ../mtab/*tmt.fits FILENAME | sort | uniq > thermal.files
+
+cat calibration.files throughput.files thermal.files | sort | uniq >all.files
+
+

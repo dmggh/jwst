@@ -2,6 +2,7 @@
 #-*-python-*-
 
 import sys
+import os
 import optparse
 
 import astropy.io.fits as pyfits
@@ -54,15 +55,17 @@ def main():
     include_types = options.include_types
     
     for fname in args:
-        fpath = None
-        with log.error_on_exception("Error locating pathless file"):
-            observatory = utils.file_to_observatory(fname)
-            
-            fpath = config.locate_file(fname, observatory)
-        if fpath is None:
-            continue
-        if fname != fpath:
-            log.info("Locating", repr(fname), "at", repr(fpath), "in CRDS cache.")
+        if not os.path.dirname(fname):
+            fpath = None
+            with log.error_on_exception("Error locating pathless file"):
+                observatory = utils.file_to_observatory(fname)
+                fpath = config.locate_file(fname, observatory)
+            if fpath is None:
+                continue
+            if fname != fpath:
+                log.info("Locating", repr(fname), "at", repr(fpath), "in CRDS cache.")
+        else:
+            fpath = fname
         dump_header(fpath, extensions, verbose=verbose, include_types=include_types)
 
 if __name__ == "__main__":
