@@ -54,11 +54,12 @@
 <div>
    <h3>Procedure:</h3>
    <ol>
-     <li>Generate a clean context which does not contain the prospective bad files.</li>
-     <li>Set the clean context as the pipeline default using Set Context.
+     <li>Generate a clean context which does not contain the prospective bad
+     files.  (An easy way to generate a new suitable context is the Delete References page.)
+     </li>
+     <li>Make the clean context the pipeline default using Set Context.
      <li>Mark the now unused-by-default files 'bad'.
      <li>Sync the pipeline's cache.</li>
-     
    </ol>
    <p/><p>This procedure maintains the invariant that a known bad file is <b>never</b> in the operational context.</p>
 
