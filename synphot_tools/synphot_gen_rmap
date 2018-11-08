@@ -1,12 +1,21 @@
 #! /usr/bin/env python
 # -*-python-*-
+# ----------------------------------------------------------------------
+
 import os
 import sys
+
+# ----------------------------------------------------------------------
 
 import crds
 from crds import pysh, rmap, selectors, data_file, timestamp
 
+# ----------------------------------------------------------------------
+
 def reduce_lines(lines):
+    """Reduce instances of multiple consecutive blank lines to a single line
+    in multi-line *string* `lines`.
+    """
     seen_blank = False
     reduced = ""
     for line in lines.splitlines():
@@ -20,13 +29,17 @@ def reduce_lines(lines):
         reduced += line + "\n"
     return reduced
 
-def header_string(hdu):
+def header_string(i, hdu):
     hdrstr = "\n" + "-"*70 + "\n"
+    seen = set()
     for keyword in hdu.header:
         value = hdu.header[keyword]
         comment = hdu.header.comments[keyword]
-        line = "%-10s %-16s %s\n" % (keyword, value, comment)
-        hdrstr += reduce_lines(line)
+        keyword_id = "[%d]: %-10s" % (i, keyword)
+        if keyword_id not in seen and keyword.strip():
+            seen.add(keyword_id)
+            line = "%s %-16s %s\n" % (keyword_id, value, comment)
+            hdrstr += reduce_lines(line)
     return hdrstr
 
 def get_filename(synname):
@@ -52,8 +65,12 @@ of a TMT or TMC tab file rather than inserts of individual reference files.
         selections = {}
         rows = set()
         comment = ""
-        for hdu in hdu_list:
-            comment +=  header_string(hdu)
+        for i, hdu in enumerate(hdu_list):
+            comment +=  header_string(i, hdu)
+        print("*"*80)
+        print("RMAP COMMENT:")
+        print(comment)
+        print("*"*80)
         for hdu in hdu_list[1:]:
             for row in hdu.data:
                 match = (str(row["COMPNAME"]), 
@@ -70,6 +87,8 @@ of a TMT or TMC tab file rather than inserts of individual reference files.
     out_rmap = rmap.ReferenceMapping(rmap_name, loaded_rmap.header, selector, comment=comment)
     out_rmap.write(rmap_out_name)
 
+
+# ----------------------------------------------------------------------
 
 if __name__ == "__main__":
     main()
