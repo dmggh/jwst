@@ -107,7 +107,7 @@ PACKAGE_DATA[''].extend(static_files)
 
 setup(name="crds_server",
       version= "7.2.9",
-      description="CRDS server,  JWST B7.2 + CAL 0.12.1(?)",
+      description="CRDS server,  JWST B7.2 + CAL 0.12.2",
       author="Todd Miller",
       author_email="jmiller@stsci.edu",
 
