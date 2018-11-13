@@ -14,7 +14,8 @@
           onsubmit="return crds.validate_and_confirm_add_delete(this);" >  {% csrf_token %}
       
       <div>
-        <h3 title="Newline separated list of *existing* CRDS reference file names.">Deleted Files:</h3>
+        <h3 title="Newline separated list of CRDS reference file names to
+        remove from context.">Deleted Files:</h3>
         <textarea name="deleted_files" cols="50" rows="4" >{{deleted_files}}</textarea>
       </div>
       
@@ -24,7 +25,7 @@
       </div>
 
       <div>
-        <h3 title="Rationale behind removing these files from rules.">Description:</h3>
+        <h3 title="Rationale behind removing these files.">Description:</h3>
         <textarea name="description" id="description" rows="4" cols="50">{{description}}</textarea>   
       </div>
 
