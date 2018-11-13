@@ -1,5 +1,5 @@
 # from builtins import str
-debug = DEBUG = True
+debug = DEBUG = False
 DEBUG_EXTRAS = False
 
 HOST = "iljwdmsccrds"
