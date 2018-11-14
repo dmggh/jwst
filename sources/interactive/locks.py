@@ -387,7 +387,10 @@ def verify_instrument_locked_files(user, locked_instrument, filepaths, observato
 def get_request_lock(request, locktype="instrument"):
     """Return the lock of `type` associated with `request.user`."""
     if request.user.is_authenticated:
-        lock = get_lock(user=str(request.user), type=locktype)
+        try:
+            lock = get_lock(user=str(request.user), type=locktype)
+        except BrokenLockError:
+            lock = None
     else:
         lock = None
     return lock
