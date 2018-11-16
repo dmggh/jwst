@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #-*-python-*-
-x
+
 from astropy.io import fits
 from crds.core.pysh import *
 
