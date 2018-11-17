@@ -4,7 +4,7 @@ SHELL=/bin/tcsh
 MAILTO="crds-servers@stsci.edu"
 
 # run five minutes after 3 am, every day
-5 3 * * *       source $HOME/cronenv.csh;      nightly.crds.job 
+5 7 * * *       source $HOME/cronenv.csh;      nightly.crds.job 
 
 # every 2 hours, no e-mail
 # 0 */2 * * *  source $HOME/cronenv.csh;        background_chown $CRDS_PATH 640 |& cat  >>  ${CRDS_CRON}/background_chown.log;  
@@ -46,15 +46,15 @@ MAILTO="crds-servers@stsci.edu"
 
 # runs ~1 hours,  every week, e-mail
 
-0 0 * * sat      source $HOME/cronenv.csh;  crds_verify_cache  shared   >& ${CRDS_CRON}/crds_verify_cache.shared.log;  snip ${CRDS_CRON}/crds_verify_cache.shared.log 500
+0 4 * * sat      source $HOME/cronenv.csh;  crds_verify_cache  shared   >& ${CRDS_CRON}/crds_verify_cache.shared.log;  snip ${CRDS_CRON}/crds_verify_cache.shared.log 500
 
-0 0 * * sun      source $HOME/cronenv.csh;  crds_verify_cache  local    >& ${CRDS_CRON}/crds_verify_cache.local.log;   snip ${CRDS_CRON}/crds_verify_cache.local.log 500
+0 4 * * sun      source $HOME/cronenv.csh;  crds_verify_cache  local    >& ${CRDS_CRON}/crds_verify_cache.local.log;   snip ${CRDS_CRON}/crds_verify_cache.local.log 500
 
 # runs weekly on midnight Sunday/Monday,  no log e-mail,  status e-mail
 
-0 0 * * mon      source $HOME/cronenv.csh;  cd crds_report;   ./crds_weekly >& ${CRDS_CRON}/crds_weekly_report.log;
+0 7 * * mon      source $HOME/cronenv.csh;  cd crds_report;   ./crds_weekly >& ${CRDS_CRON}/crds_weekly_report.log;
 
 # runs monthly at midnight of the 1st,  no log e-mail,  status e-mail
 
-0 0 1 * *      source $HOME/cronenv.csh;  cd crds_report;   ./crds_monthly >& ${CRDS_CRON}/crds_monthly_report.log;
+0 7 1 * *      source $HOME/cronenv.csh;  cd crds_report;   ./crds_monthly >& ${CRDS_CRON}/crds_monthly_report.log;
 
