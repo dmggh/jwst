@@ -35,7 +35,7 @@ setenv PATH ${CRDS_STACK}/bin:${PATH}
 rehash 
 
 # conda config --add channels http://ssb.stsci.edu/astroconda
-conda config python=${PY_VER} --add channels http://ssb.stsci.edu/conda-dev 
+conda config --add channels http://ssb.stsci.edu/conda-dev 
 
 # Install stsci and jwst conda packages,  also minimally supports HST as needed.
 # Primarily JWST dependency is for CAL data models and dependencies.
@@ -47,7 +47,7 @@ conda install python=${PY_VER} astropy numpy scipy asdf gwcs ipython requests lx
 # conda install --quiet --yes --file http://ssb.stsci.edu/conda/jwstdp-0.7.0rc/jwstdp-0.7.0rc2-linux-py27.0.txt
 
 # Use local copies of JWST CAL code and fitsverify for more stability
-conda remove python=${PY_VER} --quiet --yes --force cfitsio fitsverify jwst
+conda remove --quiet --yes --force cfitsio fitsverify jwst
 conda install python=${PY_VER} --yes --quiet setuptools
 
 # Install CRDS metapackages,  those not included with conda or overridden.
@@ -76,7 +76,7 @@ git log --stat |& tee git.log
 # List and download conda packages just installed in this stack.
 # mkdir -p ${LOCAL_SOURCE}/conda-sources
 cd ${LOCAL_SOURCE}/conda-sources
-conda list python=${PY_VER} --explicit |& tee ${CONDA_NAME}.txt
+conda list --explicit |& tee ${CONDA_NAME}.txt
 ./joes_download ${CONDA_NAME}.txt ${LOCAL_SOURCE}/conda-sources
 
 # Copy local installer to frozen Central Store copy for frozen installs on other strings.
