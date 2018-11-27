@@ -12,7 +12,7 @@ import os.path
 
 from django.test import TransactionTestCase, TestCase
 
-from crds.core import (rmap, utils, pysh, log)
+from crds.core import (rmap, utils, pysh, log, heavy_client)
 from crds.core import config as lconfig
 
 from crds.server import settings
@@ -61,14 +61,15 @@ class InteractiveBase(TransactionTestCase):
             cls._cached_mapping_names.extend(rmap.load_mapping(mapping).mapping_names())
         cls._cached_mapping_names = sorted(set(cls._cached_mapping_names))
 
-        # Set up test server tree and CRDS test cache
-        lconfig.set_crds_ref_subdir_mode("flat", cls.observatory)
-
         CRDS_PATH = os.environ["CRDS_PATH"] = sconfig.install_root + "/test"
         TEST_MAPPING_DIR = os.path.dirname(lconfig.locate_file("test.pmap", cls.observatory))
 
+        # Set up test server tree and CRDS test cache
+        lconfig.set_crds_ref_subdir_mode("flat", cls.observatory)
+
         log.info("Test CRDS_PATH", CRDS_PATH, "environ", os.environ["CRDS_PATH"], 
                  "REAL_MAPPING_DIR", REAL_MAPPING_DIR, "TEST_MAPPING_DIR", TEST_MAPPING_DIR)
+
 
         pysh.sh("rm -rf ${CRDS_PATH}", raise_on_error=True)  #, trace_commands=True)
         pysh.sh("mkdir -p ${CRDS_PATH}/ingest", raise_on_error=True)
@@ -89,6 +90,7 @@ class InteractiveBase(TransactionTestCase):
             pass
         mail.mail = null_func
 
+        hv.get_config_info(cls.observatory)
 
     @classmethod
     def tearDownClass(cls):
@@ -131,6 +133,7 @@ class InteractiveBase(TransactionTestCase):
         models.set_default_context(self.pmap, state="operational")
         utils.ensure_dir_exists(os.path.join(lconfig.get_crds_refpath(self.observatory), "test.fits"))
         utils.ensure_dir_exists(os.path.join(lconfig.get_crds_mappath(self.observatory), "test.pmap"))
+        heavy_client.get_server_info()
         self.ingested = False
         
     def tearDown(self):
