@@ -6,7 +6,7 @@ import os.path
 
 from django.test import TransactionTestCase, TestCase
 
-from crds.core import (rmap, utils, pysh, log, heavy_client)
+from crds.core import (rmap, utils, pysh, log)
 from crds.core import config as lconfig
 
 from .. import settings
@@ -43,7 +43,7 @@ class InteractiveBase(TransactionTestCase):
 
         super(InteractiveBase, cls).setUpClass()
 
-        global CRDS_PATH, TEST_MAPPING_DIR, REAL_MAPPING_DIR
+        global REAL_CRDS_PATH, CRDS_PATH, TEST_MAPPING_DIR, REAL_MAPPING_DIR
 
         # The results of locate_file will change when CRDS_PATH is redefined below.
         # Remember the real one here.
@@ -54,7 +54,8 @@ class InteractiveBase(TransactionTestCase):
         for mapping in cls.cached_contexts:
             cls._cached_mapping_names.extend(rmap.load_mapping(mapping).mapping_names())
         cls._cached_mapping_names = sorted(set(cls._cached_mapping_names))
-
+        
+        REAL_CRDS_PATH = os.environ["CRDS_PATH"]
         CRDS_PATH = os.environ["CRDS_PATH"] = sconfig.install_root + "/test"
         TEST_MAPPING_DIR = os.path.dirname(lconfig.locate_file("test.pmap", cls.observatory))
 
@@ -84,8 +85,6 @@ class InteractiveBase(TransactionTestCase):
             pass
         mail.mail = null_func
 
-        hv.get_config_info(cls.observatory)
-
     @classmethod
     def tearDownClass(cls):
         super(InteractiveBase, cls).tearDownClass()
@@ -99,6 +98,8 @@ class InteractiveBase(TransactionTestCase):
         CRDS_PATH = os.environ["CRDS_PATH"] = sconfig.install_root + "/test"
         mappings = "{" + ",".join(cls._cached_mapping_names) + "}"
         pysh.sh("cp -f ${REAL_MAPPING_DIR}/${mappings} ${CRDS_PATH}/mappings/%s" % cls.observatory, 
+                raise_on_error=True) # , trace_commands=True)
+        pysh.sh("cp -rf ${REAL_CRDS_PATH}/config ${CRDS_PATH}/config",
                 raise_on_error=True) # , trace_commands=True)
         for mapping in cls.mapping_overrides:
             mapping = os.path.abspath(os.path.join(os.getcwd(), mapping))
@@ -127,7 +128,6 @@ class InteractiveBase(TransactionTestCase):
         models.set_default_context(self.pmap, state="operational")
         utils.ensure_dir_exists(os.path.join(lconfig.get_crds_refpath(self.observatory), "test.fits"))
         utils.ensure_dir_exists(os.path.join(lconfig.get_crds_mappath(self.observatory), "test.pmap"))
-        heavy_client.get_server_info()
         self.ingested = False
         
     def tearDown(self):
