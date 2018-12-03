@@ -43,7 +43,7 @@ class InteractiveBase(TransactionTestCase):
 
         super(InteractiveBase, cls).setUpClass()
 
-        global CRDS_PATH, TEST_MAPPING_DIR, REAL_MAPPING_DIR
+        global REAL_CRDS_PATH, CRDS_PATH, TEST_MAPPING_DIR, REAL_MAPPING_DIR
 
         # The results of locate_file will change when CRDS_PATH is redefined below.
         # Remember the real one here.
@@ -54,15 +54,17 @@ class InteractiveBase(TransactionTestCase):
         for mapping in cls.cached_contexts:
             cls._cached_mapping_names.extend(rmap.load_mapping(mapping).mapping_names())
         cls._cached_mapping_names = sorted(set(cls._cached_mapping_names))
+        
+        REAL_CRDS_PATH = os.environ["CRDS_PATH"]
+        CRDS_PATH = os.environ["CRDS_PATH"] = sconfig.install_root + "/test"
+        TEST_MAPPING_DIR = os.path.dirname(lconfig.locate_file("test.pmap", cls.observatory))
 
         # Set up test server tree and CRDS test cache
         lconfig.set_crds_ref_subdir_mode("flat", cls.observatory)
 
-        CRDS_PATH = os.environ["CRDS_PATH"] = sconfig.install_root + "/test"
-        TEST_MAPPING_DIR = os.path.dirname(lconfig.locate_file("test.pmap", cls.observatory))
-
         log.info("Test CRDS_PATH", CRDS_PATH, "environ", os.environ["CRDS_PATH"], 
                  "REAL_MAPPING_DIR", REAL_MAPPING_DIR, "TEST_MAPPING_DIR", TEST_MAPPING_DIR)
+
 
         pysh.sh("rm -rf ${CRDS_PATH}", raise_on_error=True)  #, trace_commands=True)
         pysh.sh("mkdir -p ${CRDS_PATH}/ingest", raise_on_error=True)
@@ -83,7 +85,6 @@ class InteractiveBase(TransactionTestCase):
             pass
         mail.mail = null_func
 
-
     @classmethod
     def tearDownClass(cls):
         super(InteractiveBase, cls).tearDownClass()
@@ -97,6 +98,8 @@ class InteractiveBase(TransactionTestCase):
         CRDS_PATH = os.environ["CRDS_PATH"] = sconfig.install_root + "/test"
         mappings = "{" + ",".join(cls._cached_mapping_names) + "}"
         pysh.sh("cp -f ${REAL_MAPPING_DIR}/${mappings} ${CRDS_PATH}/mappings/%s" % cls.observatory, 
+                raise_on_error=True) # , trace_commands=True)
+        pysh.sh("cp -rf ${REAL_CRDS_PATH}/config ${CRDS_PATH}/config",
                 raise_on_error=True) # , trace_commands=True)
         for mapping in cls.mapping_overrides:
             mapping = os.path.abspath(os.path.join(os.getcwd(), mapping))
