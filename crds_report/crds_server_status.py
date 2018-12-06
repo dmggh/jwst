@@ -49,7 +49,8 @@ class ServerStatus(object):
             context_name = row[index]
             if "no context" not in context_name.lower():
                 context_number = context_name.split("_")[1].split(".")[0]
-                context_anchor = prefix + context_number
+                context_anchor = (self.observatory + "_" + self.usecase + 
+                                  "_" + prefix + context_number)
                 context_use_rst = crds_rst.link_use_rst(context_anchor)
                 context_link = base_url + context_name
                 self.add_link_def(context_anchor, context_link)
