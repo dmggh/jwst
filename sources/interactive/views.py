@@ -1991,6 +1991,9 @@ def mark_bad_core(user, blacklist_root, badflag, why):
         "marked as " + srepr(badflag.upper()),
         instrument=instrument, filekind=filekind)
 
+    # see CRDS_server/hosts scripts directory,  runs cron_sync pushing context
+    pysh.sh("update_server_cache")
+
     return affected_files
 
 # ===========================================================================
