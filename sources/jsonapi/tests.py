@@ -23,9 +23,6 @@ class ServiceApiBase(object):
         
         self.old_environ = dict(os.environ)
 
-        os.environ["CRDS_READONLY_CACHE"] = "0"
-        config.set_cache_readonly(False)
-
         self.CRDS_PATH = CRDS_PATH = os.environ["CRDS_PATH"] = server_config.storage_path + "/test"
         log.info("Client CRDS_PATH is:", self.CRDS_PATH)
 
@@ -34,7 +31,16 @@ class ServiceApiBase(object):
         os.environ.pop("CRDS_MAPPATH", None)
         os.environ.pop("CRDS_REFPATH", None)
         api.set_crds_server(server_config.CRDS_URL)
-    
+
+        # create cache config file in CRDS test cache
+        # many basic JSONRPC services tested here are not gated by the CRDS-level
+        # readonly cache protections,  but setting up the cache config file is.
+        os.environ["CRDS_READONLY_CACHE"] = "1"
+        config.set_cache_readonly(True)
+        heavy_client.update_config_info(server_config.observatory)
+        os.environ["CRDS_READONLY_CACHE"] = "0"
+        config.set_cache_readonly(False)
+
     @classmethod
     def tearDownClass(self, *args, **keys):
         for (key, val) in list(self.old_environ.items()):
