@@ -59,7 +59,7 @@ from crds.misc import uniqname
 
 # ----------------------------------------------------------------------------------------------------
 
-from . import models, web_certify, web_difference, locks, mail
+from . import models, web_certify, web_difference, web_refactor, locks, mail
 from .common import srepr
 from .. import config as sconfig
 
@@ -567,7 +567,7 @@ class BatchReferenceSubmission(FileSubmission):
     """Submit the uploaded files as references,  and automatically generate new rmaps and contexts relative to
     the specified derivation context (pmap_name).
     """
-    modify_rmaps_function = staticmethod(refactor.rmap_insert_references)
+    modify_rmaps_function = staticmethod(web_refactor.rmap_insert_references)
     task = "Batch Submit"
     
     def _submit(self):
@@ -629,7 +629,7 @@ class BatchReferenceSubmission(FileSubmission):
         old_rmap_path = rmap.locate_mapping(old_rmap, self.observatory)
         tmp_rmap = tempfile.NamedTemporaryFile()
         self.push_status("Doing trial insertion of", len(uploaded_group), "references into", repr(old_rmap))
-        refactor.rmap_insert_references(old_rmap_path, tmp_rmap.name, list(uploaded_group.values()))
+        self.modify_rmaps_function(old_rmap_path, tmp_rmap.name, list(uploaded_group.values()))
         return old_rmap
     
 # .............................................................................
