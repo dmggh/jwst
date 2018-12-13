@@ -53,7 +53,6 @@ def captured_certify(original_name, uploaded_path, check_references=True, filema
     config.check_filename(original_name)
     output = _captured_certify(original_name, uploaded_path, context, compare_old_reference,
                                check_references, filemap)[1]
-
     if re.search(r"(CRDS\s+[\-\:]\s+ERROR)", output):
         status = "Failed."
     elif re.search(r"(CRDS\s+[\-\:]\s+WARNING)", output):
@@ -68,10 +67,8 @@ def _captured_certify(original_name, uploaded_path, context=None, compare_old_re
     """Run  crds.certify_files on `uploaded_path` and capture it's stdout/stderr."""
     certify.certify_file(uploaded_path, context=context, 
                          dump_provenance=True, check_references=False, 
-                         original_name=original_name, trap_exceptions=True, 
-                         compare_old_reference=compare_old_reference, 
-                         observatory=models.OBSERVATORY,
-                         run_fitsverify=True)
+                         original_name=original_name, compare_old_reference=compare_old_reference, 
+                         observatory=models.OBSERVATORY, run_fitsverify=True)
 
     if check_references and rmap.is_mapping(original_name):
         if filemap is None:
@@ -99,14 +96,16 @@ def do_certify_file(original_name, certifypath, check_references=False, filemap=
     with a temporary filename which is total garbage.
     """
     config.check_filename(original_name)
+    old_trap = log.set_exception_trap(False)
     try:
         certify.certify_file(certifypath, check_references=None,
-            trap_exceptions=False, original_name=original_name,
-            context=context, observatory=models.OBSERVATORY,
+            original_name=original_name, context=context, observatory=models.OBSERVATORY,
             run_fitsverify=True)
     except Exception as exc:
         raise CrdsError("Certifying " + srepr(original_name) + ": " + str(exc))
-
+    finally:
+        log.set_exception_trap(old_trap)
+        
     if check_references and rmap.is_mapping(original_name):
         if filemap is None:
             filemap = models.get_fileblob_map(models.OBSERVATORY)
