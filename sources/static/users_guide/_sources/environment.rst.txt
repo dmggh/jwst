@@ -291,7 +291,7 @@ The CRDS command::
 can be used to remove orphan locks (due to some unexpected failure) that are
 blocking processing.
 
-Locking requires installation of the *lockfile* package and CRDS-7.1.4 or later.
+Locking requires installation of the *lockfile* package and CRDS-7.2.4 or later.
 
 Multi-Project Caches
 ++++++++++++++++++++
