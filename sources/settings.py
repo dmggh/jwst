@@ -80,7 +80,7 @@ STATICFILES_FINDERS = (
 ADMIN_MEDIA_PREFIX = '/static/'
 
 # Make this unique, and don't share it with anybody.
-with open open("/crds/data1/database/session_key") as secret_file:
+with open("/crds/data1/database/session_key") as secret_file:
     SECRET_KEY = secret_file.read().strip()
 
 
