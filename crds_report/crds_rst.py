@@ -133,6 +133,9 @@ def link_def_rst(name, url):
         url += "/"
     return ".. _`" + name + "`: " + url
 
+def quote(text):
+    return "``" + text + "``"
+
 # =======================================================================
 
 def test():

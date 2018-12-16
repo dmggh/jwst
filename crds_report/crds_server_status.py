@@ -161,6 +161,7 @@ class ServerStatus(object):
             clean["date"] = delivery["date"].split(" ")[0]
             clean["context table"] = context
             clean["actions"] = context
+            clean["description"] = crds_rst.quote(delivery["description"])
             cleaned.append(clean)
         return cleaned
 
