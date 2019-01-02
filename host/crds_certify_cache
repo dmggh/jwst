@@ -36,8 +36,13 @@ echo "Determining contexts to check by examining cache..."
 echo "================================================================================================"
 set last_n_contexts=`python -m crds.list --cached-mappings | grep pmap | sort | grep -E '[0-9]' | tail -${n_contexts}`
 
+set contexts=""
+foreach context ($last_n_contexts)
+   set contexts="$contexts crds://${context}"
+end
+
 echo "================================================================================================"
-echo "Certifying contexts: ${last_n_contexts}"
+echo "Certifying contexts: ${contexts}"
 echo "================================================================================================"
-python -m crds.certify ${last_n_contexts} --stats --dump-unique-errors $*
+python -m crds.certify ${contexts} --stats --dump-unique-errors $*
 
