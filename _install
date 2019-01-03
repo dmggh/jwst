@@ -95,11 +95,11 @@ create_dir $secret $install_dir/server/run
 create_dir $secret $install_dir/server/conf  
 create_dir $secret $install_dir/server/wsgi-scripts
 
-cp host/rc_script /home/crds
-chmod 500 /home/crds/rc_script
-
-cp host/rc_script_DONT_DELETE /home/crds
-chmod 500 /home/crds/rc_script_DONT_DELETE
+# Done by ITSD:    cp host/crds.service  /etc/systemd/system
+cp host/crds_start /home/crds
+chmod 500 /home/crds/crds_start
+cp host/crds_stop /home/crds
+chmod 500 /home/crds/crds_stop
 
 ###
 ### special cases for each type of web server we might be using

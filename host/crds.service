@@ -1,0 +1,23 @@
+[Unit]
+Description=CRDS Server
+Wants=network.target
+# After=network-pre.target dbus.service
+# Before=network.target network.service
+
+[Service]
+User=crds
+Group=crdsoper
+ExecStart=/bin/csh /home/crds/crds_start
+ExecStop=/bin/csh /home/crds/crds_stop
+
+Type=forking
+Restart=on-failure
+KillMode=control-group
+
+ProtectSystem=full
+ProtectHome=read-only
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+
