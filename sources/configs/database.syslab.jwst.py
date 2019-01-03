@@ -8,7 +8,7 @@ DATABASES = {
         'USER': 'jwstcrds',                      # Not used with sqlite3.
         'PASSWORD': DB_WORD,                  # Not used with sqlite3.
         'HOST': 'localhost',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '23306',                      # Set to empty string for default. Not used with sqlite3.
+        'PORT': '3306',                      # Set to empty string for default. Not used with sqlite3.
 
         "OPTIONS": {
             'init_command': 'SET default_storage_engine=INNODB;',

@@ -1,0 +1,17 @@
+#! /bin/tcsh
+#
+# This is the rc script that starts the CRDS web server at system boot time.
+# This script is intended to be run by user "crds".
+# It simulates a login by sourcing the crds .setenv file.
+#
+source /home/crds/.setenv   # or skip this and just use a standard login environment for /bin/tcsh
+
+cd ${CRDS}/CRDS_server
+
+source env.csh
+
+crontab </dev/null
+./stop
+
+exit 0
+
