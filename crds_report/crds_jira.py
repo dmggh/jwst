@@ -26,7 +26,7 @@ FIELDS = [
     ("Type", "fields.issuetype"),
     ("Priority", "fields.priority"),
     # ("Target Build", "fields.targetbuild"),
-    ("Summary", "fields.summary"),
+    ("Summary", "fields.summary", crds_rst.quote),
     ("Created",  "fields.created", format_date),
     ("Resolved", "fields.resolutiondate", format_date),
 ]

@@ -45,6 +45,7 @@ USE_L10N = True
 # Django dbbackup settings
 DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
 DBBACKUP_STORAGE_OPTIONS = {'location': install_dir + "/server/db_backups"}
+
 # DBBACKUP_FILESYSTEM_DIRECTORY = install_dir + "/server/db_backups"
     
 # Absolute filesystem path to the directory that will hold user-uploaded files.
@@ -63,8 +64,6 @@ STATIC_ROOT = install_dir + "/static"
 HERE = os.path.dirname(__file__) or "."
 
 # Used by STATICFILES_FINDERS
-# STATICFILES_DIRS = open(HERE + "/" + "static_dirs.txt").read().splitlines()
-# STATICFILES_DIRS = [ os.path.abspath(sdir) for sdir in STATICFILES_DIRS]
 STATICFILES_DIRS = [os.path.abspath("static")]
 
 # List of finder classes that know how to find static files in
@@ -81,8 +80,8 @@ STATICFILES_FINDERS = (
 ADMIN_MEDIA_PREFIX = '/static/'
 
 # Make this unique, and don't share it with anybody.
-# SECRET_KEY = 'zae_r-rn0arv9c_z*b41_y2qzvqgs+082)ao#6^nxsp*qf(!16'
-SECRET_KEY = open("/crds/data1/database/session_key").read().strip()
+with open("/crds/data1/database/session_key") as secret_file:
+    SECRET_KEY = secret_file.read().strip()
 
 
 # XXX move SECRET_KEY to files.
@@ -198,11 +197,8 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'dbbackup',
-    # 'django_nose',
     'smuggler',
 )
-
-# TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 if DEBUG_EXTRAS:
     INSTALLED_APPS += (

@@ -131,10 +131,12 @@
                         <td width="20%" align="left" class="tdlabel">Useafter Date</td>
                         <td>{{fileblob.useafter_date_str}}</td>
                      </tr>
+                     {% if observatory != "jwst" %}
                      <tr>
                         <td width="20%" align="left" class="tdlabel">Aperture</td>
                         <td>{{fileblob.aperture}}</td>
                      </tr>
+                     {% endif %}
                  {% endif %}
             </table>
         {% else %}

@@ -1,22 +1,26 @@
 # from builtins import str
-debug = DEBUG = False
+debug = DEBUG = True
 DEBUG_EXTRAS = False
 
-HOST = "iljwdmsdcrdsv1"
-PROXY = "jwst-crds-dit"
+HOST = "tlcrdssys"
+PROXY = "jwst-crds-syslab"
 observatory = 'jwst'
-server_usecase ="dit"
-CRDS_SERVER_IP = "130.167.252.189"
+server_usecase = 'syslab'
+CRDS_SERVER_IP = "10.128.17.11"
 port = 8001
 
 # This is a VM-related storage partition used as server space
-install_root = '/crds/data1/' + HOST
+# install_root = '/crds/data1/' + HOST
 
-# This is a Isilon storage /crds/jwst/production used as file space
-storage_path = '/ifs/crds/' + observatory + '/' + server_usecase
+# This is a Isilon storage /crds/hst/production used as file space
+# storage_path = '/ifs/crds/' + observatory + '/' + server_usecase
+
+CATALOG_DB_USER = "crds"
+CATALOG_DB_PFILE = "/crds/data1/database/crds.dat"
+CATALOG_DB_DSN = "HarpoDadsopsRepDsn"
+REFFILE_DB_DSN = "HarpoReffileOpsRepDsn"
 
 servertype = 'mod_wsgi'
-apachemod = install_root + "/lib"
 dbtype = 'mysql'
 
 PYSYN_CDBS = ""
@@ -46,23 +50,21 @@ CRDS_DIRECT_URL = "https://" + HOST + ".stsci.edu:" + str(port) + "/"
 CRDS_REFERENCE_URL = CRDS_URL + "get/"
 CRDS_MAPPING_URL   = CRDS_URL + "get/"
 
-# As of 2016-04-18:
-
 # These may get redirected to the archive or a static file server
-# CRDS_UNCHECKED_REFERENCE_URL = CRDS_URL + "unchecked_get/references/" + observatory + "/"
-# CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/mappings/" + observatory + "/"
-
-CRDS_UNCHECKED_REFERENCE_URL = "https://iwjwdmsdauiwebv.stsci.edu/portal/Download/file/JWST/reference/"
-CRDS_UNCHECKED_MAPPING_URL = "https://iwjwdmsdauiwebv.stsci.edu/portal/Download/file/JWST/reference/"
+CRDS_UNCHECKED_REFERENCE_URL = CRDS_URL + "unchecked_get/references/" + observatory + "/"
+CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/mappings/" + observatory + "/"
 
 FORCE_REMOTE_MODE = False
 
-# From Kim Dupries,  likely B6 equivalents:
-#
-# https://iljwdmscarcv.stsci.edu:8888/crds
-# https://dads6.stsci.edu:8888/crds
-# https://dadsc.stsci.edu:8888/crds
+# ARCHIVE_PARAMETER_SERVICE_URL = "http://iljwdmsdarcv.stsci.edu:8888/crds"
+# ARCHIVE_PARAMETER_SERVICE_URL = "https://dljwdms5v1.stsci.edu:8888/crds"
+# ARCHIVE_PARAMETER_SERVICE_URL = "http://jwdmsdevvm4.stsci.edu:8888/crds"
 
-ARCHIVE_PARAMETER_SERVICE_URL = "http://iljwdmsdarcv.stsci.edu:8888/crds"
-# ARCHIVE_PARAMETER_SERVICE_URL = "https://jwdmsdevvm4:8888/crds"
-# CRDS_MOCK_ARCHIVE_PARAMETERS = "jwst-b6-params.json"
+CRDS_MOCK_ARCHIVE_PARAMETERS = "jwst-b7.2-iljwdmscarc1-2018-11-19.json"
+# ARCHIVE_PARAMETER_SERVICE_URL = "http://iljwdmsbarcv1.stsci.edu:8888/crds"
+
+# ARCHIVE_PARAMETER_SERVICE_URL = "http://dljwdmsv2.stsci.edu:8888/crds"
+
+CRDS_STATUS_TO_ADDRESSES = ["jmiller@stsci.edu"]
+CRDS_STATUS_CONFIRM_ADDRESSES  = ["jmiller@stsci.edu"]
+

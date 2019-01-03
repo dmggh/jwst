@@ -33,6 +33,13 @@ setenv CRDS_SERVER_CACHE_KEY 07e56a9e-7462-459e-8a18-6ff5defb2c47
 # setenv CRDS_FITS_VERIFY_CHECKSUM 0
 
 switch ($CRDS_SERVER)
+       case tlcrdssys:
+        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-11
+        setenv CRDS_PROJECT jwst
+        setenv CRDS_USECASE syslab
+        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
+       breaksw
+
        case dljwcrds:
         setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-11
         setenv CRDS_PROJECT jwst

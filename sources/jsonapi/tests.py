@@ -256,7 +256,7 @@ class ServiceApiBase(object):
         assert context.endswith(".rmap")
             
     def test_get_context_by_date_fail(self):
-        with self.assertRaisesRegexp(crds.CrdsError, "UnknownContextError"):
+        with self.assertRaisesRegex(crds.CrdsError, "UnknownContextError"):
             context = api.get_context_by_date("bad time format")
 
     def test_get_context_by_date_edit(self):

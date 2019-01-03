@@ -1,4 +1,5 @@
-DB_WORD = open("/crds/data1/database/production_django_hst.dat").read().strip()
+with open("/crds/data1/database/production_django_hst.dat") as db_file:
+    DB_WORD = db_file.read().strip()
 
 DATABASES = {
     'default': {
