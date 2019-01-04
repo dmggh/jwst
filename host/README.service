@@ -1,0 +1,28 @@
+The CRDS server VM service is installed and run as follows:
+
+# Done by ./install
+$ cd $CRDS/CRDS_server/host
+$ cp crds_start /home/crds
+$ cp crds_stop /home/crds
+$ chmod 500 /home/crds/crds_{start,stop}
+
+# Done by ITSD
+$ sudo cp crds.service /etc/systemd/system
+
+This rather obtuse install process accomodates the default CRDS
+environment configured via $HOME/.cshrc (aka .setenv)
+
+$ sudo systemctl enable crds.service
+$ sudo systemctl stop crds.service
+$ sudo systemctl start crds.service
+$ sudo systemctl status crds.service
+
+Being enabled should set it up for automatic restart.
+
+NOTE: a running service instance appears to be tied to the exact process ids
+which were started so the CRDS practice of interactive development on the
+server and manually running ./rerun or ./start and ./stop may not work
+normally.  Hence, for development, it's best to first stop the service and then
+restart it using systemctl after finishing up.
+
+
