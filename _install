@@ -5,33 +5,11 @@
 
 rm env.*
 
-source ./make_env # $1 $2 $3 $4 $5
-
-# This is required in production environments which don't include Django in
-# the main Python stack.
-# ./init_pkgs $1 $2 $3 $4 $5
+# Create make_env.tmp
+source ./make_env
 
 . ./make_env.tmp
 rm make_env.tmp
-
-if [ X$1 = X-r ]
-then
-	rc=1
-else
-	rc=0
-fi
-
-case "$noreload"
-in
-[tT]rue)        noreload="--noreload"
-        ;;
-esac
-
-###
-### eliminate excess verbosity in the setup.py steps so we can see any
-### other errors that come out
-###
-pyquiet=-q
 
 ###
 ### create the install directory
@@ -66,15 +44,6 @@ create_dir $private_ro $CRDS_CATALOG_DIR
 
 # The temporary directory where uploaded files are initially stored.
 create_dir $private_ro $FILE_UPLOAD_TEMP_DIR
-
-# This is a drop-off dir for hand crafted SSB-made references and mappings.
-# create_dir $private_rw ${CRDS_INGEST_DIR}_ssb
-rm -rf ${CRDS_INGEST_DIR}_ssb
-
-# The directory where dynamic mapping bundles are kept
-# create_dir $secret $CRDS_ARCHIVE_CACHE_DIR
-# rm $CRDS_ARCHIVE_CACHE_DIR/*
-rm -rf $CRDS_ARCHIVE_CACHE_DIR
 
 # This is the server cache and reference staging area.
 create_dir $public $map_path_full
@@ -148,26 +117,10 @@ mod_wsgi)
 	    echo "WARNING: NO MOD_WSGI FOUND (possibly installed later by init_pkgs)"
 	fi
 
-#         python ${SERVER_SOURCES}/sh_config.py add_ldap_auth >tmp
-#        . tmp
-
-        if [ "$add_ldap_auth" = "True" ]
-        then
-		if [ "$rc" = 1 ]
-		then
-			echo do not use authentication in a release candidate system
-			exit 1
-		fi
-                cat servers/httpd.add_ldap >> $install_dir/server/conf/httpd.conf
-        fi
-
         sed -e "s?SUB_APACHEMOD?$apachemod?g" -e "s?SUB_DIR?$install_dir?g" -e "s?SUB_PORT?$port?g" -e "s?SUB_CDBS?$PYSYN_CDBS?g"  -e "s?SUB_CRDS_PATH?$CRDS_PATH?g" < $install_dir/server/conf/httpd.conf > tmp
         mv tmp $install_dir/server/conf/httpd.conf
 
-        # create the shell script that runs the server.  We want everything that
-        # has gotten in to env.csh so far, but nothing that comes later.  (Everything
-        # that comes later is for debug environments; we don't want to contaminate
-        # our production environment with possible dependencies on that data.)
+        # Create the shell script that runs the server.
         (
         cat env.sh
 	echo "nohup memcached -m 32M -s /tmp/memcached.sock </dev/null |& cat >>${install_dir}/server/logs/memcached.log &"
@@ -175,11 +128,12 @@ mod_wsgi)
         echo "/usr/sbin/httpd -f $install_dir/server/conf/httpd.conf"
         ) > run
 
-	(
-	cat env.sh
-        echo 'kill `cat '$install_dir'/server/run/httpd.pid` '
-	echo 'killall memcached'
-	)  > stop
+        # Create shell script which stops the server
+	    (
+	        cat env.sh
+            echo 'kill `cat '$install_dir'/server/run/httpd.pid` '
+	        echo 'killall memcached'
+	    )  > stop
 
         ln -fs /etc/httpd/modules $install_dir/server/
 
@@ -187,13 +141,8 @@ mod_wsgi)
 
         ;;
 
-# django development server
-django)
-	if [ "$rc" = 1 ]
-	then
-		echo do not use django server for release candidate
-		exit 1
-	fi
+    # django development server
+    django)
 
         # hostname=`hostname`
 	hostname=localhost
@@ -231,30 +180,6 @@ esac
 #
 chmod 755 ./run ./stop
 
-# copy over the static files
-if [ `uname` = 'Linux' ]
-then
-        cpio_quiet='--quiet'
-else
-        cpio_quiet=''
-fi
-
-# find htdocs | grep -v '\.svn' | cpio $cpio_quiet -oc | ( cd $install_dir ; cpio $cpio_quiet -icdum  )
-
-case "$rc"
-in
-1)	rm -f $install_dir/htdocs/status.shtml
-	;;
-esac
-
-case "$debug_javascript"
-in
-[Tt]rue)
-        # copy the debug value into the
-        sed 's/^enable_debug=.*$/enable_debug=true;/' <  htdocs/etcstatic/validate_general.1.js  > $install_dir/htdocs/etcstatic/validate_general.1.js
-        ;;
-esac
-
 ###
 ### install the python packages that we use
 ###
@@ -266,40 +191,16 @@ then
 fi
 
 #  INSTALL CORE CRDS CLIENT LIBRARY
-(cd ../CRDS; ./install --home $install_dir/python)
+(cd ../CRDS; 
+./install --home $install_dir/python)
 
 # INSTALL crds_server 
-(./save_version >sources/git_version.py; cd sources; python setup.py install --force --home $install_dir/python |& grep -v /static |& grep -v /test_data |& grep -v /templates)
+(./save_version >sources/git_version.py; 
+cd sources; 
+python setup.py install --force --home $install_dir/python |& grep -v /static |& grep -v /test_data |& grep -v /templates)
 
-# SYNC the Django database for the CRDS server & catalog
-# (cd $install_dir/python/lib/python/crds_server ; python manage.py syncdb)
-# echo "Done syncing db"
-
-###
-### tell the user what we did
-###
-
-echo ''
-echo Installed in:
-echo '  '$install_dir
-echo URL is
-echo '  'http://`hostname`:$port
-echo 'to start the server:'
-echo '  './run
-echo 'to stop the server:'
-case "$servertype"
-in
-django)
-        echo '  'type control-c
-        ;;
-*)
-        echo '  './stop
-        ;;
-esac
-
-echo 'to get an environment like the web server will see:'
+echo 'To get an environment like the web server will see:'
 echo '  source env.csh'
-
 echo ''
 
 case ${server_mode}

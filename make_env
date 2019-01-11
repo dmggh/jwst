@@ -22,7 +22,7 @@ then
     ln -s $SERVER_LOCAL $CRDS
 fi
 
-if [ ! -d $CRDS ]
+if [ ! -d $CRDS_IFS ]
 then
     ln -s $CRDS_SERVER_ISILON   $CRDS_IFS
 fi
