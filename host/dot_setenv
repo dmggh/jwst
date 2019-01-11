@@ -150,8 +150,9 @@ setenv apachemod ${CRDS_STACK}/lib/apache/
 
 setenv EDITOR emacs
 
-cd /home/crds
-source .alias
+# cd /home/crds
+# source .alias
+source /home/crds/.alias
 
 # printenv | grep CRDS
 
