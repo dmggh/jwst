@@ -10,6 +10,13 @@ log.remove_console_handler()
 
 # ===========================================================================
 
+import warnings
+from django.utils.deprecation import RemovedInDjango20Warning, RemovedInDjango21Warning
+warnings.filterwarnings(action="ignore", category=RemovedInDjango20Warning)
+warnings.filterwarnings(action="ignore", category=RemovedInDjango21Warning)
+
+# ===========================================================================
+
 from crds_server.config import install_dir, DEBUG, DEBUG_EXTRAS, FILE_UPLOAD_TEMP_DIR, crds_server_dir
 from crds_server.crds_database import DATABASES
 
