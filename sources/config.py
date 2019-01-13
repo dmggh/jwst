@@ -1,5 +1,7 @@
 # XXXXXXXX Late imports below
 
+import os
+
 from .site_config import observatory, server_usecase
 
 CRDS_STATUS_FROM_ADDRESS = "crds-servers@stsci.edu"
@@ -20,6 +22,7 @@ apachemod = install_root + "/lib"
 # This is Isilon storage used to store deliveries, uploads, and the file cache.   Logical location
 # storage_path = '/crds/data1/server_isilon'
 # Originally intended as abstract link above,  too many issues to be worth it, now identical to physical
+
 storage_path = '/ifs/crds/' + observatory + '/' + server_usecase
 
 # This is Isilon storage used to store deliveries, uploads, and the file cache.  Physical location
@@ -32,7 +35,7 @@ from .site_config import *
 
 # install_dir is the server installation location,  with the exceptions of logs
 # this should be kept small.
-install_dir= install_root
+install_dir = os.environ["CRDS_STACK"]
 
 # CRDS_PATH is a crds cache created by the CRDS server.   Initially it is laid 
 # out with the same structure as a cache created by crds.sync but this is not strictly

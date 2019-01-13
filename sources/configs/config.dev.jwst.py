@@ -33,7 +33,7 @@ CRDS_DISTRIBUTION_STATES =  [ "archived", "operational", "delivered", "submitted
 # assigns more user-friendly URLs based on standard ports 443.
 # Server backup restorate occurs on an alternate port
 
-BACKUP_URL_SCHEME = False
+BACKUP_URL_SCHEME = True
 
 if BACKUP_URL_SCHEME:
     port += 1  # need backup port elsewhere

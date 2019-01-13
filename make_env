@@ -17,25 +17,7 @@ fi
 
 server_mode=$1; shift
 
-if [ ! -d $CRDS ]
-then
-    ln -s $SERVER_LOCAL $CRDS
-fi
-
-if [ ! -d $CRDS_IFS ]
-then
-    ln -s $CRDS_SERVER_ISILON   $CRDS_IFS
-fi
-
 export SERVER_SOURCES=sources   # CRDS_server/sources
-
-config="sources/configs/config.${server_mode}.${observatory}.py"
-echo "Using configuration " ${config}
-cp ${config} sources/site_config.py
-
-crds_database="sources/configs/database.${server_mode}.${observatory}.py"
-echo "Using crds_database" ${crds_database}
-cp ${crds_database} sources/crds_database.py
 
 ###
 ### gather config values that we need in this script

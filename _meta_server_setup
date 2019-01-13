@@ -1,0 +1,115 @@
+#! /bin/sh -x
+
+# This script handles creating and customizing Apache/server
+# configuration and startup scripts.
+
+###
+### special cases for each type of web server we might be using
+###
+case "$servertype"
+in
+
+# apache with mod_python
+mod_wsgi)
+	apache_version=`/usr/sbin/httpd -v | sed -n 's?Server version: Apache/??p'`
+	case "$apache_version"
+	in
+	2.4.*)
+		dso_version=2.4
+		;;
+	2.2.*)
+		dso_version=2.2
+		;;
+	2.0.*)
+		dso_version=2.0
+		;;
+	*)
+		echo do not have a config for this apache version -"$apache_version"-
+		exit 1
+		;;
+	esac
+
+	cp servers/httpd.mod_wsgi.conf $web/conf/httpd.conf
+	perl -p -e"s/SUB_PORT/$port/g" servers/ssl.${dso_version}.conf >ssl.tmp
+	mv ssl.tmp $web/conf/ssl.conf
+	cp servers/*.wsgi $web/wsgi-scripts
+	rm -f $install_dir/lib/mod_wsgi.so
+	mkdir -p $install_dir/lib
+	ln -s ${CRDS_STACK}/lib/mod_wsgi.so $install_dir/lib
+   
+	cat servers/apache_dso.$dso_version >>  $web/conf/httpd.conf
+
+	if [ "$apachemod" = "" ]
+	then
+		apachemod=$third/lib/apache
+		export apachemod
+		cp ${install_dir}/lib/mod_wsgo.so ${apachemod}
+	fi	
+	if [ ! -f $apachemod/mod_wsgi.so ]
+	    then
+	    echo "WARNING: NO MOD_WSGI FOUND (possibly installed later by init_pkgs)"
+	fi
+
+        sed -e "s?SUB_APACHEMOD?$apachemod?g" -e "s?SUB_DIR?$install_dir?g" -e "s?SUB_PORT?$port?g" -e "s?SUB_CDBS?$PYSYN_CDBS?g"  -e "s?SUB_CRDS_PATH?$CRDS_PATH?g" < $web/conf/httpd.conf > tmp
+        mv tmp $web/conf/httpd.conf
+
+        # Create the shell script that runs the server.
+        (
+        cat env.sh
+	echo "nohup memcached -m 32M -s /tmp/memcached.sock </dev/null |& cat >>${persistent_local} /logs/memcached.log &"
+	echo "disown -h %1"
+        echo "/usr/sbin/httpd -f $web/conf/httpd.conf"
+        ) > run
+
+        # Create shell script which stops the server
+	    (
+	        cat env.sh
+            echo 'kill `cat '$install_dir'/server/run/httpd.pid` '
+	        echo 'killall memcached'
+	    )  > stop
+
+        ln -fs /etc/httpd/modules $web/
+
+        ln -fs /etc/httpd/conf/magic $web/conf/
+
+        ;;
+
+    # django development server
+    django)
+
+        # hostname=`hostname`
+	hostname=localhost
+
+        (
+	cat env.csh
+        echo "cd $install_dir/python/lib/python/crds_server"
+	echo "nohup memcached -m 32M -s /tmp/memcached.sock </dev/null |& cat >>${install_dir}/server/logs/memcached.log &"
+	echo "onintr control_c"
+        echo "python manage.py runserver $noreload $hostname:$port"
+	echo "control_c:"
+	echo "echo"
+	echo "echo 'Killing memcached...'"
+	echo "killall memcached"
+	echo "echo 'Quitting...'"
+        ) > run
+
+        (
+        echo '#! /bin/csh'
+	echo "killall memcached"
+        ) > stop
+
+        ;;
+
+# anything else is unrecognized
+*)
+        echo ''
+        echo unknown server type $servertype
+        echo ''
+        # do not need a default case for server type after this
+        exit 1
+        ;;
+esac
+
+#
+chmod 755 ./run ./stop
+

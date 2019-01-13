@@ -1,36 +1,31 @@
 #-*-sh-*-
 
-limit stacksize 64000k
-# limit memorylocked 512k
+# setenv CRDS /crds/data1/server_local
 
-setenv TZ 'America/New_York'
+# Location of CRDS VM local storage,  nominally mounted into container
+setenv CRDS_ROOT  /crds/data1
 
-setenv  CRDS_SERVER `uname -n | cut -d'.' -f1`
+# /crds/data1/isilon
+#    server_files
+#       ingest
+#       uploads
+#       deliveries
+#    file_cache
+# /crds/data1/persistent_local
+#   logs
+#   backups
+#   reprocessing
+#   regressions
+# /crds/container_local
 
-# CRDS and CRDS_STACK,  same pattern,  different dirs,  override below as needed
-setenv SERVER_LOCAL /crds/data1/${CRDS_SERVER}
-setenv CRDS /crds/data1/server_local
-# if (! -d $CRDS) then
-#     ln -s $SERVER_LOCAL $CRDS
-# endif
+# Location of CRDS custom Python stack,
+setenv CRDS_STACK ${CRDS_ROOT}/stack
 
-setenv XDG_CONFIG_HOME $CRDS/xdg_config
-mkdir -p $XDG_CONFIG_HOME/astropy
+setenv CRDS_SERVER `uname -n | cut -d'.' -f1`
+setenv CRDS_SERVER_LOCAL ${CRDS_ROOT}/${CRDS_SERVER}
 
-setenv URP_TYPE crds
+setenv CRDS ${CRDS_LOCAL}/server
 
-# Key controlling server tracking of remote pipeline context sync.
-# Due to pipeline setup simplicity,  same key used by both HST and JWST
-# pipelines,  differentiated by targeted server.
-# Ironically key for less important /grp/crds/cache is fully differentiated
-# by project.   These keys are currently standardized by project as
-# the server database is mirrored from OPS on down.  Differentiating keys
-# by usecase would require a post-mirroring database tweak.
-setenv CRDS_PIPELINE_CACHE_KEY 12ca7bb2-dd3b-444a-8e6e-d8fd0bf559ed
-setenv CRDS_SERVER_CACHE_KEY 07e56a9e-7462-459e-8a18-6ff5defb2c47
-
-# In case of emergency,  break glass
-# setenv CRDS_FITS_VERIFY_CHECKSUM 0
 
 switch ($CRDS_SERVER)
        case tlcrdssys:
@@ -110,49 +105,125 @@ switch ($CRDS_SERVER)
 
 endsw
 
+# ----------------------------------------------------------------------
+# META_PREFIX is value used for installation ./configure --prefix, the CRDS
+# version of /usr/local used by the ./meta package system used to handle
+# packages third party packages not available through conda.  Here we make it
+# overlap with and synonymous to the conda stack.
+# ----------------------------------------------------------------------
 setenv META_PREFIX ${CRDS_STACK}
+setenv PATH ${CRDS_STACK}/bin:/usr/kerberos/bin:/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin
 
-setenv CRDS_SERVER_ISILON /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}
-setenv CRDS_IFS  /crds/data1/server_isilon
+# ----------------------------------------------------------------------
+# Persistent mutable server files,  stored outside containers
+# ----------------------------------------------------------------------
+setenv CRDS_PERSISTENT_LOCAL ${CRDS_ROOT}/persistent_local
+setenv CRDS_SERVER_LOGS ${CRDS_PERSISTENT_LOCAL}/server_logs
+setenv CRDS_CRON_LOGS ${CRDS_PERSISTENT_LOCAL}/cron_logs
+setenv CRDS_REGRESSIONS ${CRDS_PERSISTENT_LOCAL}/regressions
+setenv CRDS_REPROCESSING ${CRDS_PERSISTENT_LOCAL}/reprocessing
+setenv CRDS_BACKUPS ${CRDS_PERSISTENT_LOCAL}/backups
+setenv CRDS_SECRETS ${CRDS_PERSISTENT_LOCAL}/secrets
+
+# ----------------------------------------------------------------------
+# Immutable server files,  can be generated inside containers,  not 
+# not intended for export and visible as part of any public image.
+# ----------------------------------------------------------------------
+setenv CRDS_CONTAINER_LOCAL ${CRDS_ROOT}/container_local
+
+# ----------------------------------------------------------------------
+# Isilon files,  high volume, cross-mounted to DMS
+# ----------------------------------------------------------------------
+# "Physical" VM Isilon allocation and mount point
+setenv CRDS_ISILON /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}
+setenv CRDS_PATH  ${CRDS_ISILON}/file_cache
+
+# Abstract link or container mount point to for Isilon
+setenv CRDS_IFS  ${CRDS_ROOT}/server_isilon
+
+# Abstract CRDS_PATH for container
 setenv CRDS_FILE_CACHE ${CRDS_IFS}/file_cache
+
+# High volume mutable files like deliveries to the CRDS poller, ingests, and uploads
 setenv CRDS_SERVER_FILES ${CRDS_IFS}/server_files
-setenv CRDS_CRON {$CRDS}/server/logs/cron
-setenv CRDS_LOG_TIME 1
-setenv CRDS_USE_PICKLED_CONTEXTS 1
-setenv CRDS_READONLY_CACHE 1
 
-# if (! -d $CRDS_IFS ) then
-#     ln -s $CRDS_SERVER_ISILON   $CRDS_IFS
-# endif
+# ----------------------------------------------------------------------
+# These keys correspond to sync echoes from CRDS cache syncs which are
+# tracked on the server as evidence of sync command execution and success.
+# The server's operational context records the intended universal default.
+# These keys correspond to sync'ed defaults in critical "official" caches.
+# On the website,  these are the "remote contexts".
+# ----------------------------------------------------------------------
 
-# Enabling both of the below permits non-compliant keyword values (according to 
-# SSB JWST data model schema) to be certied with a warning and added to rmaps.
+# DMS pipeline's cache sync key
+setenv CRDS_PIPELINE_CACHE_KEY 12ca7bb2-dd3b-444a-8e6e-d8fd0bf559ed
 
+# CRDS server's internal cache, also tracked,  not so remote...
+setenv CRDS_SERVER_CACHE_KEY 07e56a9e-7462-459e-8a18-6ff5defb2c47
+
+# A third key tracks the sync for /grp/crds/cache,  there may be others which
+# also have a presence in the CRDS server database.
+
+# -----------------------------------------------------------------------------
+# In FITS checksums become a performance or functional issue, uncomment
+# -----------------------------------------------------------------------------
+# setenv CRDS_FITS_VERIFY_CHECKSUM 0
+
+# -----------------------------------------------------------------------------
+# JWST CAL datamodels behavior control
+# ----------------------------------------------------------------------------
 # SSB JWST data model setting to avoid omitting keywords with invalid schema values.
-# The default behavior is that the keyword is entirely suppressed and appears to be missing.
+# The default behavior is that the keyword is mapped to None which is equivalent to 
+# UNDEFINED when in actuality the value is just invalid.  Setting this enables using
+# the value after ignoring the CAL datamodels warning.
 setenv PASS_INVALID_VALUES 1
 
-# CRDS setting to keep SSB JWST data model warnings from being re-mapped to errors.
-# setenv CRDS_ALLOW_SCHEMA_VIOLATIONS 1
+# -----------------------------------------------------------------------------
+# CRDS Python log messages should include time
+# -----------------------------------------------------------------------------
+setenv CRDS_LOG_TIME 1
 
-setenv PATH ${CRDS}/python/bin:${CRDS}/CRDS_server/host:${CRDS_STACK}/bin:/usr/kerberos/bin:/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin
-# /usr/stsci/Python-2.7.4/bin:
+# -----------------------------------------------------------------------------
+# CRDS contexts can be loaded from a single pickle which reduces network file
+# opens from roughly 120 to 1.  If needed it can probably be turned off, it is
+# most likely an obsolete performance optimization to reduce stress on Isilon
+# and eliminate 12 second loads not seen on normal file systems.
+# -----------------------------------------------------------------------------
+setenv CRDS_USE_PICKLED_CONTEXTS 1
 
-# setenv LD_LIBRARY_PATH ${CRDS_STACK}/lib # :/usr/stsci/Python-2.7.4/lib
+# -----------------------------------------------------------------------------
+# Configuring the CRDS cache behavior as readonly by default is intended to
+# improve cache stability for the pipeline should it cross-mount the server's
+# internal cache.  Cross mounting is an option we've considerede to eliminate
+# explicit pipeline syncs to a dedicated pipeline cache.  
+#
+# Without this setting the CRDS cache may update in response to admin shell
+# commands with CRDS tools, potentially glitching the pipeline even if the
+# cache does not change.  The read/write default is more appropriate for end
+# users who are not using massive parallelism like a pipeline and just need
+# CRDS caching to work transparently and automatically.
+#
+# This is a conservative setting which is not absolutely required and actually
+# pushing the envelope since sharing the internal cache is not being done at this
+# time and the first 4 years of CRDS operations didn't use it.
+# -----------------------------------------------------------------------------
+setenv CRDS_READONLY_CACHE 1
 
-if ! $?PYTHONPATH then
-    setenv PYTHONPATH ${CRDS_STACK}/lib/python
-else
-    setenv PYTHONPATH ${PYTHONPATH}:${CRDS_STACK}/lib/python    
-endif
+setenv XDG_CONFIG_HOME $CRDS/xdg_config
+mkdir -p $XDG_CONFIG_HOME/astropy
 
+setenv URP_TYPE crds
+
+# Not sure if this is entirely internal to CRDS,  leaving lowercase wart alone
 setenv apachemod ${CRDS_STACK}/lib/apache/
 
 setenv EDITOR emacs
 
-# cd /home/crds
-# source .alias
+limit stacksize 64000k
+# limit memorylocked 512k
+
+setenv TZ 'America/New_York'
+
 source /home/crds/.alias
 
-# printenv | grep CRDS
 

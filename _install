@@ -3,6 +3,10 @@
 # This install script is heavily based on the PyETC install script
 # CRDS is intended to use the same LAMP stack as pyetc, with emphasis on Python
 
+# ----------------------------------------------------------
+#  CRDS Environment setup
+# ----------------------------------------------------------
+
 rm env.*
 
 # Create make_env.tmp
@@ -11,178 +15,34 @@ source ./make_env
 . ./make_env.tmp
 rm make_env.tmp
 
-###
-### create the install directory
-###
+# ----------------------------------------------------------
+#  CRDS file system setup
+# ----------------------------------------------------------
 
-secret=6700
-private_ro=6750
-private_rw=6770
-public=6744
-immutable=444
+source ./_file_system_setup
 
-function create_dir {
-    mkdir -p $2 $3 $4 $5 $6 $7 $8 $9
-    chmod $1 $2
-}
-
-chmod $secret $install_dir/..
-chmod $secret $install_dir/../database
-
-chmod $private_ro $CRDS_SERVER_ISILON
-
-# The primary working copy for deliveries, nominally owned by CRDS.
-# Delivery files are links which last until received by OPUS.
-create_dir $private_rw $CRDS_DELIVERY_DIR
-
-# The temporary directory where CRDS/CDBS team deliverers can scp files.
-create_dir $private_rw $CRDS_INGEST_DIR
-
-# Where CRDS writes out delivery catalog files when delivering files
-# to downstream systems like the archive.  Catalog files persist.
-create_dir $private_ro $CRDS_CATALOG_DIR
-
-# The temporary directory where uploaded files are initially stored.
-create_dir $private_ro $FILE_UPLOAD_TEMP_DIR
-
-# This is the server cache and reference staging area.
-create_dir $public $map_path_full
-create_dir $public $ref_path_full
-create_dir $public $config_path_full
-
-create_dir $secret $install_dir
-create_dir $secret $install_dir/python/bin
-
-# This is a place for matplotlib to store cache files.  We don't actually
-# try to put any config there, and only the apache server knows to use it.
-create_dir $secret $install_dir/mplconfigdir
-
-create_dir $secret $install_dir/server
-create_dir $secret $install_dir/server/logs 
-create_dir $secret $install_dir/server/db_backups
-create_dir $secret $install_dir/server/run 
-create_dir $secret $install_dir/server/conf  
-create_dir $secret $install_dir/server/wsgi-scripts
+# ----------------------------------------------------------
+#  CRDS Server systemd service setup
+# ----------------------------------------------------------
 
 # Done by ITSD:    cp host/crds.service  /etc/systemd/system
+rm -f /home/crds/crds_start
 cp host/crds_start /home/crds
 chmod 500 /home/crds/crds_start
+
+rm -f /home/crds/crds_stop
 cp host/crds_stop /home/crds
 chmod 500 /home/crds/crds_stop
 
-###
-### special cases for each type of web server we might be using
-###
-case "$servertype"
-in
+# ----------------------------------------------------------
+#  CRDS Server Apache configuration and setup
+# ----------------------------------------------------------
 
-# apache with mod_python
-mod_wsgi)
-	apache_version=`/usr/sbin/httpd -v | sed -n 's?Server version: Apache/??p'`
-	case "$apache_version"
-	in
-	2.4.*)
-		dso_version=2.4
-		;;
-	2.2.*)
-		dso_version=2.2
-		;;
-	2.0.*)
-		dso_version=2.0
-		;;
-	*)
-		echo do not have a config for this apache version -"$apache_version"-
-		exit 1
-		;;
-	esac
+source ./_meta_server_setup
 
-	cp servers/httpd.mod_wsgi.conf $install_dir/server/conf/httpd.conf
-	perl -p -e"s/SUB_PORT/$port/g" servers/ssl.${dso_version}.conf >ssl.tmp
-	mv ssl.tmp $install_dir/server/conf/ssl.conf
-	cp servers/*.wsgi $install_dir/server/wsgi-scripts
-	rm -f $install_dir/lib/mod_wsgi.so
-	mkdir -p $install_dir/lib
-	ln -s ${CRDS_STACK}/lib/mod_wsgi.so $install_dir/lib
-   
-	cat servers/apache_dso.$dso_version >>  $install_dir/server/conf/httpd.conf
-
-	if [ "$apachemod" = "" ]
-	then
-		apachemod=$third/lib/apache
-		export apachemod
-		cp ${install_dir}/lib/mod_wsgo.so ${apachemod}
-	fi	
-	if [ ! -f $apachemod/mod_wsgi.so ]
-	    then
-	    echo "WARNING: NO MOD_WSGI FOUND (possibly installed later by init_pkgs)"
-	fi
-
-        sed -e "s?SUB_APACHEMOD?$apachemod?g" -e "s?SUB_DIR?$install_dir?g" -e "s?SUB_PORT?$port?g" -e "s?SUB_CDBS?$PYSYN_CDBS?g"  -e "s?SUB_CRDS_PATH?$CRDS_PATH?g" < $install_dir/server/conf/httpd.conf > tmp
-        mv tmp $install_dir/server/conf/httpd.conf
-
-        # Create the shell script that runs the server.
-        (
-        cat env.sh
-	echo "nohup memcached -m 32M -s /tmp/memcached.sock </dev/null |& cat >>${install_dir}/server/logs/memcached.log &"
-	echo "disown -h %1"
-        echo "/usr/sbin/httpd -f $install_dir/server/conf/httpd.conf"
-        ) > run
-
-        # Create shell script which stops the server
-	    (
-	        cat env.sh
-            echo 'kill `cat '$install_dir'/server/run/httpd.pid` '
-	        echo 'killall memcached'
-	    )  > stop
-
-        ln -fs /etc/httpd/modules $install_dir/server/
-
-        ln -fs /etc/httpd/conf/magic $install_dir/server/conf/
-
-        ;;
-
-    # django development server
-    django)
-
-        # hostname=`hostname`
-	hostname=localhost
-
-        (
-	cat env.csh
-        echo "cd $install_dir/python/lib/python/crds_server"
-	echo "nohup memcached -m 32M -s /tmp/memcached.sock </dev/null |& cat >>${install_dir}/server/logs/memcached.log &"
-	echo "onintr control_c"
-        echo "python manage.py runserver $noreload $hostname:$port"
-	echo "control_c:"
-	echo "echo"
-	echo "echo 'Killing memcached...'"
-	echo "killall memcached"
-	echo "echo 'Quitting...'"
-        ) > run
-
-        (
-        echo '#! /bin/csh'
-	echo "killall memcached"
-        ) > stop
-
-        ;;
-
-# anything else is unrecognized
-*)
-        echo ''
-        echo unknown server type $servertype
-        echo ''
-        # do not need a default case for server type after this
-        exit 1
-        ;;
-esac
-
-#
-chmod 755 ./run ./stop
-
-###
-### install the python packages that we use
-###
+# ----------------------------------------------------------
+#  CRDS Code Installation and static file
+# ----------------------------------------------------------
 
 if [ "$CRDS_USECASE" != "django" ]
 then
@@ -191,51 +51,28 @@ then
 fi
 
 #  INSTALL CORE CRDS CLIENT LIBRARY
-(cd ../CRDS; 
-./install --home $install_dir/python)
+(
+    cd ../CRDS; ./install
+)   # --home $install_dir/python)
 
 # INSTALL crds_server 
 (./save_version >sources/git_version.py; 
+
+config="sources/configs/config.${server_mode}.${observatory}.py"
+echo "Using configuration " ${config}
+cp ${config} sources/site_config.py
+
+crds_database="sources/configs/database.${server_mode}.${observatory}.py"
+echo "Using crds_database" ${crds_database}
+cp ${crds_database} sources/crds_database.py
+
 cd sources; 
-python setup.py install --force --home $install_dir/python |& grep -v /static |& grep -v /test_data |& grep -v /templates)
-
-echo 'To get an environment like the web server will see:'
-echo '  source env.csh'
-echo ''
-
-case ${server_mode}
-    in
-    "dev" | "test" | "ops" | "ait" | "bit" | "cit" | "dit" ) 
-	echo "Setting permissions"
-
-	chmod $public ${ref_path}
-	chmod $public ${ref_path_full}
-	# chmod -f $immutable ${ref_path_full}/*
-
-	chmod $public ${map_path}
-	chmod $public ${map_path_full}
-	# chmod -f $immutable ${map_path_full}/*
-
-	# find $CRDS_PATH -type d | xargs chmod 6755
-
-	chmod $secret ${install_dir}
-	for dir in $install_dir/*
-	do
-	    chmod $secret $dir  # default to secret
-	done
-	chmod $private_ro ${CRDS_CATALOG_DIR}
-	chmod $private_ro ${CRDS_ARCHIVE_CACHE_DIR}   # Where mapping bundles go
-	for dir in ${CRDS_DELIVERY_DIR} ${CRDS_INGEST_DIR} ${CRDS_INGEST_DIR}_ssb ${FILE_UPLOAD_TEMP_DIR}
-	do
-	    chmod $private_rw $dir
-	    chmod g+s $dir
-	done
-	;;
-    "django" )
-	;;
-esac
+# python setup.py install --force --home $install_dir/python |& grep -v /static |& grep -v /test_data |& grep -v /templates)
+python setup.py install --force |& grep -v /static |& grep -v /test_data |& grep -v /templates
+)
 
 echo "Silently installing static files."
-./manage collectstatic <<EOF
+./manage collectstatic  |& grep -v /static |& grep -v /test_data |& grep -v /templates <<EOF
 yes
 EOF
+
