@@ -1,20 +1,15 @@
-#! /bin/tcsh
+#! /bin/sh
 
-cd $CRDS/CRDS_server
+export DATETAG=`date "+%Y-%m-%d-%H%M%S"`
 
-source env.csh
+export TAIL=${CRDS_PROJECT}.${CRDS_USECASE}
+export ETAIL=${TAIL}.err
 
-setenv DATETAG `date "+%Y-%m-%d-%H%M%S"`
-
-setenv TAIL ${CRDS_PROJECT}.${CRDS_USECASE}
-setenv ETAIL ${TAIL}.err
-
-setenv BACKUP_DIR ${CRDS}/server/db_backups
-setenv DATED_BACKUP_DIR ${BACKUP_DIR}/${DATETAG}
+export DATED_CRDS_BACKUP ${CRDS_BACKUPS}/${DATETAG}
 
 setenv SHARED_LATEST_BACKUPS /eng/ssb/crds/latest_backups
 
-mkdir -p ${DATED_BACKUP_DIR}
+mkdir -p ${DATED_CRDS_BACKUP}
 
 # ensure database is consistent with pending deliveries
 echo "============================================================"
@@ -29,15 +24,15 @@ echo "============================================================"
 echo "Database backup"
 echo "============================================================"
 ./manage dbbackup
-set backup_file=`ls -1 ${BACKUP_DIR}/*.dump | tail -1`
+set backup_file=`ls -1 ${CRDS_BACKUPS}/*.dump | tail -1`
 chmod 600 $backup_file
-cp $backup_file ${DATED_BACKUP_DIR}/backup.${TAIL}.mysql
-gzip ${DATED_BACKUP_DIR}/backup.${TAIL}.mysql
+cp $backup_file ${DATED_CRDS_BACKUP}/backup.${TAIL}.mysql
+gzip ${DATED_CRDS_BACKUP}/backup.${TAIL}.mysql
 cp $backup_file ${SHARED_LATEST_BACKUPS}/backup.${TAIL}.mysql
 chmod 600 ${SHARED_LATEST_BACKUPS}/backup.${TAIL}.mysql
 rm $backup_file
 
-cd ${DATED_BACKUP_DIR}  
+cd ${DATED_CRDS_BACKUP}  
 rpm -qa >rpms.${TAIL}.txt
 gzip rpms.${TAIL}.txt
 conda list >conda.${TAIL}.txt
@@ -45,25 +40,25 @@ conda list >conda.${TAIL}.txt
 echo "============================================================"
 echo "Tarring server directories."
 echo "============================================================"
-# Created dated backup copies in ${DATED_BACKUP_DIR}
+# Created dated backup copies in ${DATED_CRDS_BACKUP}
 # Create a single generic copy in ${SHARED_LATEST_BACKUPS} for mirroring "yesterday".
-cd ${CRDS_SERVER_FILES}
+cd ${CRDS_CATALOGS}/..
 tar zcf ${SHARED_LATEST_BACKUPS}/catalogs.${TAIL}.tar.gz catalogs
-tar zcf ${DATED_BACKUP_DIR}/catalogs.${TAIL}.tar.gz catalogs
+tar zcf ${DATED_CRDS_BACKUP}/catalogs.${TAIL}.tar.gz catalogs
 
 cd ${CRDS_SERVER_FILES}/deliveries
 ls -1 >${SHARED_LATEST_BACKUPS}/deliveries.${TAIL}.txt
-ls -1 >${DATED_BACKUP_DIR}/deliveries.${TAIL}.txt
+ls -1 >${DATED_CRDS_BACKUP}/deliveries.${TAIL}.txt
 
 cd ${CRDS_PATH}
 tar zcf ${SHARED_LATEST_BACKUPS}/mappings.${TAIL}.tar.gz mappings
-tar zcf ${DATED_BACKUP_DIR}/mappings.${TAIL}.tar.gz mappings
+tar zcf ${DATED_CRDS_BACKUP}/mappings.${TAIL}.tar.gz mappings
 
 cd ${CRDS_PATH}
 tar zcf ${SHARED_LATEST_BACKUPS}/config.${TAIL}.tar.gz config
-tar zcf ${DATED_BACKUP_DIR}/config.${TAIL}.tar.gz config
+tar zcf ${DATED_CRDS_BACKUP}/config.${TAIL}.tar.gz config
 
-cd ${CRDS}
+cd ${CRDS_REPROCESSING}/..
 tar zcf ${SHARED_LATEST_BACKUPS}/monitor_reprocessing.${TAIL}.tar.gz monitor_reprocessing
-tar zcf ${DATED_BACKUP_DIR}/monitor_reprocessing.${TAIL}.tar.gz monitor_reprocessing
+tar zcf ${DATED_CRDS_BACKUP}/monitor_reprocessing.${TAIL}.tar.gz monitor_reprocessing
 

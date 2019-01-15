@@ -1,10 +1,5 @@
 #-*-sh-*-
 
-# setenv CRDS /crds/data1/server_local
-
-# Location of CRDS VM local storage,  nominally mounted into container
-setenv CRDS_ROOT  /crds/data1
-
 # /crds/data1/isilon
 #    server_files
 #       ingest
@@ -16,42 +11,59 @@ setenv CRDS_ROOT  /crds/data1
 #   backups
 #   reprocessing
 #   regressions
-# /crds/container_local
+#   secrets
+# /crds/data1/volatile_local
 
-# Location of CRDS custom Python stack,
-setenv CRDS_STACK ${CRDS_ROOT}/stack
+# setenv CRDS /crds/data1/server_local
 
+setenv CRDS_SERVER_TYPE mod_wsgi
+
+# Location of CRDS VM local storage,  nominally mounted into container
+setenv CRDS_ROOT  /crds/data1
 setenv CRDS_SERVER `uname -n | cut -d'.' -f1`
-setenv CRDS_SERVER_LOCAL ${CRDS_ROOT}/${CRDS_SERVER}
 
-setenv CRDS ${CRDS_LOCAL}/server
+# Nominally container storage which is lost when the next image/container is installed
+setenv CRDS_VOLATILE_LOCAL ${CRDS_ROOT}/volatile_local
 
+# Nominally storage internal to the CRDS VM which is kept permanently
+setenv CRDS_PERSISTENT_LOCAL ${CRDS_ROOT}/persistent_local
+
+# Classic name for both persistent and volatile prior to partitioning
+setenv CRDS ${CRDS_VOLATILE_LOCAL}
+
+# Default location of CRDS custom Python stack
+setenv CRDS_STACK ${CRDS_VOLATILE_LOCAL}/stack
+setenv CRDS_STACK_SOURCES ${CRDS_VOLATILE_LOCAL}/stack_sources
+
+setenv CRDS_SERVER_SETUP ${CRDS_VOLATILE_LOCAL}/server
+setenv CRDS_APACHEMOD ${CRDS_SERVER_SETUP}/lib
+setenv CRDS_SERVER_SCRIPTS ${CRDS_SERVER_SETUP}/bin
 
 switch ($CRDS_SERVER)
-       case tlcrdssys:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-11
+       case tlcrdsswys:
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE syslab
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
+        setenv CRDS_SERVER_URL https://tlcrdssys.actlab.stsci.edu:8001
        breaksw
 
        case dljwcrds:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-11
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE dev
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
+        setenv CRDS_SERVER_URL https://jwst-crds-dev.stsci.edu
        breaksw
        case dlhstcrds:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-11
         setenv CRDS_PROJECT hst
         setenv CRDS_USECASE dev
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
+        setenv CRDS_SERVER_URL https://hst-crds-dev.stsci.edu
        breaksw
 
        case tljwcrds:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-11
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE test
+        setenv CRDS_SERVER_URL https://jwst-crds-test.stsci.edu
         # setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
        breaksw
@@ -59,50 +71,53 @@ switch ($CRDS_SERVER)
         setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-11
         setenv CRDS_PROJECT hst
         setenv CRDS_USECASE test
+        setenv CRDS_SERVER_URL https://hst-crds-test.stsci.edu
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
        breaksw
 
        case pljwcrds:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-11
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE ops
+        setenv CRDS_SERVER_URL https://jwst-crds.stsci.edu
         # setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
         setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
        breaksw
 
        case plhstcrds:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-11
         setenv CRDS_PROJECT hst
         setenv CRDS_USECASE ops
+        setenv CRDS_SERVER_URL https://hst-crds.stsci.edu
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
         setenv CRDS_GRP_CACHE_KEY 78b96cd6-4295-4215-89ff-a588b2ea831a
        breaksw
 
+       # ATM pljwcrds is A-string,  not integrated with DMS A-string
        case iljwdmsacrds:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-11
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE ait
+        setenv CRDS_SERVER_URL https://jwst-crds-ait.stsci.edu
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu"
         setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
        breaksw
 
        case iljwdmsbcrds:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-11
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE bit
+        setenv CRDS_SERVER_URL https://jwst-crds-bit.stsci.edu
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu"
         setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
        breaksw
 
        case iljwdmsccrds:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-11
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE cit
+        setenv CRDS_SERVER_URL https://jwst-crds-cit.stsci.edu
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu"
         setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
        breaksw
-
+       
+       # tlcrds
 endsw
 
 # ----------------------------------------------------------------------
@@ -115,37 +130,41 @@ setenv META_PREFIX ${CRDS_STACK}
 setenv PATH ${CRDS_STACK}/bin:/usr/kerberos/bin:/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin
 
 # ----------------------------------------------------------------------
-# Persistent mutable server files,  stored outside containers
+# Persistent mutable server files,  stored outside containers,  higher security
+# Typically 50-100G total
 # ----------------------------------------------------------------------
 setenv CRDS_PERSISTENT_LOCAL ${CRDS_ROOT}/persistent_local
 setenv CRDS_SERVER_LOGS ${CRDS_PERSISTENT_LOCAL}/server_logs
 setenv CRDS_CRON_LOGS ${CRDS_PERSISTENT_LOCAL}/cron_logs
+setenv CRDS_PROFILES ${CRDS_PERSISTENT_LOCAL}/profiles
 setenv CRDS_REGRESSIONS ${CRDS_PERSISTENT_LOCAL}/regressions
 setenv CRDS_REPROCESSING ${CRDS_PERSISTENT_LOCAL}/reprocessing
 setenv CRDS_BACKUPS ${CRDS_PERSISTENT_LOCAL}/backups
 setenv CRDS_SECRETS ${CRDS_PERSISTENT_LOCAL}/secrets
 
 # ----------------------------------------------------------------------
-# Immutable server files,  can be generated inside containers,  not 
-# not intended for export and visible as part of any public image.
-# ----------------------------------------------------------------------
-setenv CRDS_CONTAINER_LOCAL ${CRDS_ROOT}/container_local
-
-# ----------------------------------------------------------------------
-# Isilon files,  high volume, cross-mounted to DMS
+# Isilon files,  high volume, cross-mounted to DMS,  lower security + interfaces
+# 2T - 5T total, depending on project needs.
 # ----------------------------------------------------------------------
 # "Physical" VM Isilon allocation and mount point
 setenv CRDS_ISILON /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}
-setenv CRDS_PATH  ${CRDS_ISILON}/file_cache
-
 # Abstract link or container mount point to for Isilon
 setenv CRDS_IFS  ${CRDS_ROOT}/server_isilon
 
-# Abstract CRDS_PATH for container
+# Abstract CRDS_PATH for Isilon subdirectory for server CRDS cache
 setenv CRDS_FILE_CACHE ${CRDS_IFS}/file_cache
+setenv CRDS_PATH  ${CRDS_ISILON}/file_cache
 
 # High volume mutable files like deliveries to the CRDS poller, ingests, and uploads
-setenv CRDS_SERVER_FILES ${CRDS_IFS}/server_files
+setenv CRDS_SERVER_DATA ${CRDS_IFS}/server_files
+
+# Externally exposed / cross-mounted Isilon directories
+setenv CRDS_DELIVERY_DIR ${CRDS_SERVER_DATA}/deliveries #  To DMS CRDS poller VM,  contents deleted when deliveries complete
+setenv CRDS_INGEST_DIR ${CRDS_SERVER_DATA}/ingest       #  To machines doing submissions via command line, web upload widget
+
+# Private internal server directories
+setenv CRDS_CATALOG_DIR ${CRDS_SERVER_DATA}/catalogs   # Permanent file manifests for CRDS poller deliveries,  never deleted
+setenv CRDS_UPLOADS_DIR ${CRDS_SERVER_DATA}/uploads    # Simple web file uploads    
 
 # ----------------------------------------------------------------------
 # These keys correspond to sync echoes from CRDS cache syncs which are
@@ -209,8 +228,12 @@ setenv CRDS_USE_PICKLED_CONTEXTS 1
 # -----------------------------------------------------------------------------
 setenv CRDS_READONLY_CACHE 1
 
+setenv DJANGO_SETTINGS_MODULE crds_server.settings
+
 setenv XDG_CONFIG_HOME $CRDS/xdg_config
 mkdir -p $XDG_CONFIG_HOME/astropy
+
+setenv OPENSSL_NO_DEFAULT_ZLIB 1
 
 setenv URP_TYPE crds
 

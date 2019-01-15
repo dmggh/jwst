@@ -4,22 +4,10 @@
 # CRDS is intended to use the same LAMP stack as pyetc, with emphasis on Python
 
 # ----------------------------------------------------------
-#  CRDS Environment setup
-# ----------------------------------------------------------
-
-rm env.*
-
-# Create make_env.tmp
-source ./make_env
-
-. ./make_env.tmp
-rm make_env.tmp
-
-# ----------------------------------------------------------
 #  CRDS file system setup
 # ----------------------------------------------------------
 
-source ./_file_system_setup
+./_file_system_setup
 
 # ----------------------------------------------------------
 #  CRDS Server systemd service setup
@@ -43,12 +31,8 @@ source ./_meta_server_setup
 # ----------------------------------------------------------
 #  CRDS Code Installation and static file
 # ----------------------------------------------------------
-
-if [ "$CRDS_USECASE" != "django" ]
-then
-    rm -rf $CRDS_INSTALL_DIR/python/lib/python/crds*
-    rm -rf $CRDS/static
-fi
+rm -rf $CRDS_INSTALL_DIR/python/lib/python/crds*    # XXXXX
+rm -rf $CRDS/static   # XXXXXX
 
 #  INSTALL CORE CRDS CLIENT LIBRARY
 (
@@ -57,6 +41,8 @@ fi
 
 # INSTALL crds_server 
 (./save_version >sources/git_version.py; 
+
+cp host/* ${CRDS_SERVER_SCRIPTS}
 
 config="sources/configs/config.${server_mode}.${observatory}.py"
 echo "Using configuration " ${config}

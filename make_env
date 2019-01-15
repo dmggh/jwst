@@ -23,29 +23,11 @@ export SERVER_SOURCES=sources   # CRDS_server/sources
 ### gather config values that we need in this script
 ###
 
-python -m sources.sh_config install_dir CRDS_PATH server_files port PYSYN_CDBS\
- servertype dbtype debug data_dir debug_javascript noreload map_path map_path_full ref_path ref_path_full \
- CRDS_URL CRDS_CATALOG_DIR CRDS_DELIVERY_DIR FILE_UPLOAD_TEMP_DIR CRDS_INGEST_DIR CRDS_ARCHIVE_CACHE_DIR apachemod > make_env.tmp
-. ./make_env.tmp
-
-PYTHONPATH=$install_dir/python/lib/python/crds_server:$install_dir/python/lib/python
-export PYTHONPATH
-
-PATH=$install_dir/python/bin:$install_dir/bin:$PATH
-export PATH
-
 (
         echo '#! /bin/csh'
         echo 'setenv PYTHONPATH '$PYTHONPATH
         echo 'unsetenv DJANGO_SETTINGS_MODULE PYSYN_CDBS CRDS_DJANGO_SERVER'
-	echo 'setenv SERVER_PORT '$port
-	echo 'setenv PATH '$PATH
-	echo 'setenv CRDS_INSTALL_DIR ' $install_dir
-	echo 'setenv CRDS_SERVER_URL ' $CRDS_URL
-	echo 'setenv CRDS_PATH ' $CRDS_PATH
-	echo 'setenv CRDS_SERVER_FILES ' ${server_files}
-	echo 'setenv DJANGO_SETTINGS_MODULE crds_server.settings'
-	echo 'setenv OPENSSL_NO_DEFAULT_ZLIB 1'
+	echo 'setenv SERVER_PORT ' $port
 ) > env.csh
 
 perl -p -e's/^setenv (\w+)\s+(.*)/export \1="\2"/g' env.csh >env.sh

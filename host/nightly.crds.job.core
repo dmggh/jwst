@@ -25,8 +25,8 @@ system_status
 #     echo "Stack Build"
 #     echo "=========================================================="
 #     cd ${CRDS}/CRDS_server/stack_build
-#     ./build_conda3 >& ${CRDS_CRON}/build_conda.${ETAIL}
-#     tail -100 ${CRDS_CRON}/build_conda.${ETAIL}
+#     ./build_conda3 >& ${CRDS_CRON_LOGS}/build_conda.${ETAIL}
+#     tail -100 ${CRDS_CRON_LOGS}/build_conda.${ETAIL}
 
 #     echo "=========================================================="
 #     echo "Re-enabling Cron now"
@@ -39,24 +39,24 @@ system_status
 #     echo "Server re-install and re-start"
 #     echo "==========================================================="
 #     cd ${CRDS}/CRDS_server
-#     ./rerun >& ${CRDS_CRON}/rerun.${ETAIL}
-#     tail -100 ${CRDS_CRON}/rerun.${ETAIL}
+#     ./rerun >& ${CRDS_CRON_LOGS}/rerun.${ETAIL}
+#     tail -100 ${CRDS_CRON_LOGS}/rerun.${ETAIL}
 # else
 #     echo "==========================================================="
 #     echo "Server restart"
 #     echo "==========================================================="
 #     cd ${CRDS}/CRDS_server
-#     ./stop >& ${CRDS_CRON}/restart.${ETAIL}
+#     ./stop >& ${CRDS_CRON_LOGS}/restart.${ETAIL}
 #     sleep 10
-#     ./run >>& ${CRDS_CRON}/restart.${ETAIL}
+#     ./run >>& ${CRDS_CRON_LOGS}/restart.${ETAIL}
 # endif
 
 echo "============================================================"
 echo "Backing up server"
 echo "============================================================"
 cd ${CRDS}/CRDS_server
-backup_server >& ${CRDS_CRON}/backup.${ETAIL}
-tail -100 ${CRDS_CRON}/backup.${ETAIL}
+backup_server >& ${CRDS_CRON_LOGS}/backup.${ETAIL}
+tail -100 ${CRDS_CRON_LOGS}/backup.${ETAIL}
 
 echo "==========================================================="
 echo "Stopping,  Rotating Logs And Backups,  Restarting"
@@ -86,22 +86,22 @@ echo "==========================================================="
 echo "Clearing expired locks"
 echo "==========================================================="
 cd ${CRDS}/CRDS_server
-clear_expired_locks  >& ${CRDS_CRON}/clear_expired_locks.${ETAIL}
-tail -100 ${CRDS_CRON}/clear_expired_locks.${ETAIL}
+clear_expired_locks  >& ${CRDS_CRON_LOGS}/clear_expired_locks.${ETAIL}
+tail -100 ${CRDS_CRON_LOGS}/clear_expired_locks.${ETAIL}
 
 echo "==========================================================="
 echo "Server cache certify check, last 5 contexts"
 echo "==========================================================="
 cd ${CRDS}/CRDS_server
-crds_certify_cache 1 --exist >& ${CRDS_CRON}/crds_certify_cache.${ETAIL}
-snip ${CRDS_CRON}/crds_certify_cache.${ETAIL} 100
+crds_certify_cache 1 --exist >& ${CRDS_CRON_LOGS}/crds_certify_cache.${ETAIL}
+snip ${CRDS_CRON_LOGS}/crds_certify_cache.${ETAIL} 100
 
 echo "==========================================================="
 echo "Server orphan files check"
 echo "==========================================================="
 cd ${CRDS}/CRDS_server
-orphan_files --verbose >& ${CRDS_CRON}/orphan_files.${ETAIL}
-tail -100 ${CRDS_CRON}/orphan_files.${ETAIL}
+orphan_files --verbose >& ${CRDS_CRON_LOGS}/orphan_files.${ETAIL}
+tail -100 ${CRDS_CRON_LOGS}/orphan_files.${ETAIL}
 
 echo "==========================================================="
 echo "Server model defects check"

@@ -1,15 +1,15 @@
-#! /bin/csh
+#! /bin/csh -x
 
 # Enable cache updates in server environment set globally to readonly.
 setenv CRDS_READONLY_CACHE 0
 
 add_meta_event "Mirrored server with parameters:" $*
 
-# set BACKUP_DIR=/eng/ssb/crds/latest_backups
-set BACKUP_DIR=${CRDS}/server/db_backups/eng_crds
+# Link from CRDS VM storage to Central Store required to make it appear
+# that backup storage is within the Django tree.
+set BACKUP_DIR=${CRDS_BACKUPS}/eng_crds
 rm -f ${BACKUP_DIR}
 ln -s /eng/ssb/crds/latest_backups ${BACKUP_DIR}
-# $HOME/backups
 
 set observatory=$1
 set server_mode=$2
@@ -31,7 +31,6 @@ crontab </dev/null
 echo "-----------------------------------------------------------"
 echo "Moving server ${CRDS_PROJECT} ${CRDS_USECASE} to backup URL"
 echo "-----------------------------------------------------------"
-cd ${CRDS}/CRDS_server
 set_backup_url True
 source env.csh
 
@@ -40,8 +39,7 @@ echo "-----------------------------------------------------"
 # echo "Restoring database from ${BACKUP_DIR}/$database_backup_file"
 echo "Restoring database from $database_backup_file"
 echo "-----------------------------------------------------"
-cd ${CRDS}/CRDS_server
-./manage dbrestore --noinput --input-file $database_backup_file -v3 --database default # crds_${CRDS_PROJECT}_${CRDS_USECASE}
+./manage dbrestore --noinput --input-file $database_backup_file -v3 --database default
 
 # This synchronizes the local cache to the master server
 setenv CRDS_SERVER_URL $mirrored_server_url
@@ -55,7 +53,6 @@ python -m crds.sync --clear-pickles --verbose --stats
 echo "-----------------------------------------------------"
 echo "Syncing mappings from $mirrored_server_url"
 echo "-----------------------------------------------------"
-cd ${CRDS}/CRDS_server
 python -m crds.sync --all --repair-files --check-sha1sum --purge-mappings --organize=flat --verbose --stats
 echo "Chmod'ing mappings to readonly."
 chmod 444 $CRDS_PATH/mappings/${CRDS_PROJECT}/*
@@ -64,7 +61,6 @@ echo "-----------------------------------------------------"
 echo "Fast-Syncing references from $mirrored_server_url"
 echo "-----------------------------------------------------"
 # setenv CRDS_DOWNLOAD_CHECKSUMS 0    # Omit sha1sum verification on initial download
-cd ${CRDS}/CRDS_server
 python -m crds.sync --all --repair-files --fetch-references --purge-references --purge-mappings --verbose --stats
 echo "Chmod'ing references to readonly."
 chmod 444 $CRDS_PATH/references/${CRDS_PROJECT}/*
@@ -72,25 +68,20 @@ chmod 444 $CRDS_PATH/references/${CRDS_PROJECT}/*
 echo "-----------------------------------------------------"
 echo "Restoring pickles from $mirrored_server_url"
 echo "-----------------------------------------------------"
-cd ${CRDS}/CRDS_server
-
-# XXXX assumes canonical cache structure
-# rm -fv ${CRDS_PATH}/pickles/${CRDS_PROJECT}/*
 python -m crds.sync --all --clear-pickles --save-pickles --verbose --stats
 
 # This checks the consistency of the database and server cache and delivery areas
 echo "-----------------------------------------------------"
 echo "Checking and purging orphan files."
 echo "-----------------------------------------------------"
-cd ${CRDS}/CRDS_server
 orphan_files #  --purge-delivery-errors
 
 # This recreates the catalogs directory from a backup tarball.
 echo "-----------------------------------------------------"
 echo "Copying catalog files from backup"
 echo "-----------------------------------------------------"
-cd ${CRDS_PATH}/../server_files
-rm -rf catalogs
+cd ${CRDS_CATALOGS}/..
+rm -rf ${CRDS_CATALOGS}
 tar zxvf $catalog_file
 
 # This recreates the delivery directory with files from the database which are
@@ -98,17 +89,14 @@ tar zxvf $catalog_file
 echo "-----------------------------------------------------"
 echo "Recreating delivery directory and delivering files in state 'delivered'."
 echo "-----------------------------------------------------"
-cd ${CRDS_PATH}/../server_files
-rm -rf deliveries
+cd ${CRDS_DELIVERIES}/..
+rm -rf ${CRDS_DELIVERIES}
 mkdir deliveries
-cd ${CRDS}/CRDS_server
-# redeliver_catalogs --find-undelivered-catalogs
 redeliver_catalogs --files `cat $deliveries_file`
 
 echo "-----------------------------------------------------"
 echo "Rechecking orphan files."
 echo "-----------------------------------------------------"
-cd ${CRDS}/CRDS_server
 orphan_files
 
 echo "-----------------------------------------------------"
@@ -125,7 +113,6 @@ endif
 echo "-----------------------------------------------------"
 echo "Re-installing and restarting server ${CRDS_PROJECT} ${CRDS_USECASE}"
 echo "-----------------------------------------------------"
-cd ${CRDS}/CRDS_server
 set_backup_url False
 
 echo "-----------------------------------------------------------"
@@ -136,8 +123,7 @@ query_affected_datasets --reset
 echo "-----------------------------------------------------------"
 echo "Restarting cron activities."
 echo "-----------------------------------------------------------"
-cd ${CRDS}/CRDS_server
-crontab <host/crontab
+crontab <${CRDS_SERVER_SCRIPTS}/crontab
 
 echo "-----------------------------------------------------------"
 echo "IMPORTANT:  If this mirroring is being run in a TEST or I&T"
