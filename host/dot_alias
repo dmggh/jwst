@@ -30,17 +30,15 @@ endif
 # 
 
 #  Source code areas
-alias crdsd       "cd ${CRDS}/CRDS"
-alias server     "cd ${CRDS}/CRDS_server"
+alias crdsd       "cd ${CRDS_CLIENT_SOURCES}"
+alias server     "cd ${CRDS_SERVER_SOURCES}"
 alias stack      "cd /eng/ssb/crds/installer4/build"
-alias installer "cd ${CRDS}/crds_stacks/installer4/build"
+alias installer "cd ${CRDS_STACK_SOURCES}/installer4/build"
 
 # Server maintenance areas
-alias logs       "cd ${CRDS}/server/logs"
-alias backups    "cd ${CRDS}/server/db_backups"
-
-# CRDS code area
-alias libpython  "cd ${CRDS}/python/lib/python"
+alias logs       "cd ${CRDS_SERVER_LOGS}"
+alias cronlogs   "cd ${CRDS_CRON_LOGS}"
+alias backups    "cd ${CRDS_BACKUPS}"
 
 # Server working data files areas
 alias deliveries "cd ${CRDS_SERVER_FILES}/deliveries"
@@ -50,5 +48,5 @@ alias file_cache "cd ${CRDS_FILE_CACHE}"
 
 # Isilon and VM file systems
 alias ifs        "cd ${CRDS_IFS}"
-alias data1      "cd ${CRDS}"
+alias data1      "cd ${CRDS_ROOT}"
 

@@ -26,7 +26,7 @@ chmod 500 /home/crds/crds_stop
 #  CRDS Server Apache configuration and setup
 # ----------------------------------------------------------
 
-source ./_meta_server_setup
+./_meta_server_setup
 
 # ----------------------------------------------------------
 #  CRDS Code Installation and static file
@@ -43,12 +43,13 @@ rm -rf $CRDS/static   # XXXXXX
 (./save_version >sources/git_version.py; 
 
 cp host/* ${CRDS_SERVER_SCRIPTS}
+cp host/logrotate.cfg ${CRDS_SERVER_LOGS}
 
-config="sources/configs/config.${server_mode}.${observatory}.py"
+config="sources/configs/config.${CRDS_USECASE}.${CRDS_PROJECT}.py"
 echo "Using configuration " ${config}
 cp ${config} sources/site_config.py
 
-crds_database="sources/configs/database.${server_mode}.${observatory}.py"
+crds_database="sources/configs/database.${CRDS_USECASE}.${CRDS_PROJECT}.py"
 echo "Using crds_database" ${crds_database}
 cp ${crds_database} sources/crds_database.py
 
@@ -58,7 +59,7 @@ python setup.py install --force |& grep -v /static |& grep -v /test_data |& grep
 )
 
 echo "Silently installing static files."
-./manage collectstatic  |& grep -v /static |& grep -v /test_data |& grep -v /templates <<EOF
+./manage collectstatic  <<EOF |& grep -v /static |& grep -v /test_data |& grep -v /templates
 yes
 EOF
 

@@ -22,6 +22,7 @@ create_dir $secret $CRDS_SERVER_LOGS
 create_dir $secret $CRDS_CRON_LOGS
 create_dir $secret $CRDS_BACKUPS
 create_dir $secret $CRDS_SECRETS
+create_dir $secret $CRDS_STATIC_DIR
 
 chmod $private_ro $CRDS_IFS
 

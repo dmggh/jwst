@@ -7,7 +7,7 @@ PROXY = "hst-crds-dev"
 observatory = 'hst'
 server_usecase = 'dev'
 CRDS_SERVER_IP = "10.128.19.71"
-port = 8001
+CRDS_PORT = int(os.environ("CRDS_PORT"))
 
 # This is a VM-related storage partition used as server space
 # install_root = '/crds/data1/' + HOST
@@ -39,18 +39,16 @@ CRDS_DISTRIBUTION_STATES =  [ "archived", "operational", "delivered", "submitted
 # assigns more user-friendly URLs based on standard ports 443.
 # Server backup restorate occurs on an alternate port
 
-BACKUP_URL_SCHEME = False
-
-if BACKUP_URL_SCHEME:
-    port += 1  # need backup port elsewhere
-    CRDS_URL = "https://" + HOST + ".stsci.edu:" + str(port) + "/"
+if CRDS_BACKUP_MODE:
+    CRDS_PORT += 1
+    CRDS_URL = "https://" + HOST + ".stsci.edu:" + str(CRDS_PORT) + "/"
 else:
     CRDS_URL = "https://" + PROXY + ".stsci.edu/" 
 
 # The base server provides HTTPS on a non-standard port with a URL
 # not normally used by end-users and possibly inaccessible offsite.
 # The direct URL bypasses the proxy.
-CRDS_DIRECT_URL = "https://" + HOST + ".stsci.edu:" + str(port) + "/"
+CRDS_DIRECT_URL = "https://" + HOST + ".stsci.edu:" + str(CRDS_PORT) + "/"
 
 # These should be relatively static and go through Django
 CRDS_REFERENCE_URL = CRDS_URL + "get/"

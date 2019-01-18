@@ -1,4 +1,8 @@
-with open("/crds/data1/database/dev_test_django_jwst.dat") as db_file:
+import os
+
+SECRETS = os.environ["CRDS_SECRETS"]
+
+with open(f"{SECRETS}/dev_test_django_jwst.dat") as db_file:
     DB_WORD = db_file.read().strip()
 
 DATABASES = {

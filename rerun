@@ -4,7 +4,7 @@
 
 cd `dirname $0`
 
-source env.csh
+source $HOME/.setenv
 
 # (cd ../CRDS; svn update)
 

@@ -5,6 +5,7 @@ import re
 import os.path
 import traceback
 import io
+import os
 
 # ===================================================================
 
@@ -78,7 +79,7 @@ def profile(filename=None):
     """Decorate a view with @profile to run cProfile when the function is called.
     """
     if not os.path.dirname(filename):
-        filename = os.path.join(crds_server_log_dir, "..", "profiles", filename)
+        filename = os.path.join(os.environ["CRDS_PROFILES"], filename)
     def decomaker(func):
         """Decorator function maker
         """

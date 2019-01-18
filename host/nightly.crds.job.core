@@ -70,7 +70,7 @@ sleep 10
 echo "Rotating logs and backups..."
 cd ${CRDS}/server/db_backups
 find . -mtime +550  | grep -v eng_crds | xargs rm -rf
-/sbin/logrotate -s ${CRDS}/server/rotate.state ${CRDS}/CRDS_server/host/logrotate.cfg
+/sbin/logrotate -s ${CRDS_SERVER_LOGS}/logrotate.state ${CRDS_SERVER_LOGS}/logrotate.cfg
 
 echo "Restarting CRDS server..."
 cd ${CRDS}/CRDS_server

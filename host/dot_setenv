@@ -34,10 +34,13 @@ setenv CRDS ${CRDS_VOLATILE_LOCAL}
 # Default location of CRDS custom Python stack
 setenv CRDS_STACK ${CRDS_VOLATILE_LOCAL}/stack
 setenv CRDS_STACK_SOURCES ${CRDS_VOLATILE_LOCAL}/stack_sources
-
+setenv CRDS_CLIENT_SOURCES ${CRDS_VOLATILE_LOCAL}/CRDS
+setenv CRDS_SERVER_SOURCES ${CRDS_VOLATILE_LOCAL}/CRDS_server
 setenv CRDS_SERVER_SETUP ${CRDS_VOLATILE_LOCAL}/server
-setenv CRDS_APACHEMOD ${CRDS_SERVER_SETUP}/lib
+setenv CRDS_STATIC_DIR  ${CRDS_SERVER_SETUP}/static
 setenv CRDS_SERVER_SCRIPTS ${CRDS_SERVER_SETUP}/bin
+
+setenv CRDS_PYTHON python3.6
 
 switch ($CRDS_SERVER)
        case tlcrdsswys:
@@ -52,7 +55,19 @@ switch ($CRDS_SERVER)
         setenv CRDS_USECASE dev
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
         setenv CRDS_SERVER_URL https://jwst-crds-dev.stsci.edu
+        setenv CRDS_PORT 8001
+        setenv CRDS_SERVER_IP 10.128.19.170
+        setenv CRDS_MOCK_ARCHIVE_PARAMETERS jwst-b7.2-iljwdmscarc1-2018-11-19.json
+        setenv CRDS_DISTRIBUTION_STATES archived,operational,delivered,submitted,archiving
+        setenv CRDS_STATUS_TO_ADDRESSES jmiller@stsci.edu
+        setenv CRDS_STATUS_CONFIRM_ADDRESSES jmiller@stsci.edu
+        setenv CRDS_DEBUG 1
+        setenv CRDS_DEBUG_EXTRAS 0
+        setenv CRDS_FORCE_REMOTE_MODE 0
+        setenv CRDS_BACKUP_MODE 0
+        setenv CRDS_INSTALL_DIR ${CRDS_STACK}/lib/${CRDS_PYTHON}/site-packages/crds_server
        breaksw
+
        case dlhstcrds:
         setenv CRDS_PROJECT hst
         setenv CRDS_USECASE dev
@@ -127,7 +142,7 @@ endsw
 # overlap with and synonymous to the conda stack.
 # ----------------------------------------------------------------------
 setenv META_PREFIX ${CRDS_STACK}
-setenv PATH ${CRDS_STACK}/bin:/usr/kerberos/bin:/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin
+setenv PATH ${CRDS_SERVER_SCRIPTS}:${CRDS_STACK}/bin:/usr/kerberos/bin:/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin
 
 # ----------------------------------------------------------------------
 # Persistent mutable server files,  stored outside containers,  higher security
@@ -156,15 +171,16 @@ setenv CRDS_FILE_CACHE ${CRDS_IFS}/file_cache
 setenv CRDS_PATH  ${CRDS_ISILON}/file_cache
 
 # High volume mutable files like deliveries to the CRDS poller, ingests, and uploads
-setenv CRDS_SERVER_DATA ${CRDS_IFS}/server_files
+# This would have been better named CRDS_SERVER_FILES, for large scale server data.
+setenv CRDS_SERVER_FILES ${CRDS_IFS}/server_files
 
 # Externally exposed / cross-mounted Isilon directories
-setenv CRDS_DELIVERY_DIR ${CRDS_SERVER_DATA}/deliveries #  To DMS CRDS poller VM,  contents deleted when deliveries complete
-setenv CRDS_INGEST_DIR ${CRDS_SERVER_DATA}/ingest       #  To machines doing submissions via command line, web upload widget
+setenv CRDS_DELIVERY_DIR ${CRDS_SERVER_FILES}/deliveries #  To DMS CRDS poller VM,  contents deleted when deliveries complete
+setenv CRDS_INGEST_DIR ${CRDS_SERVER_FILES}/ingest       #  To machines doing submissions via command line, web upload widget
 
 # Private internal server directories
-setenv CRDS_CATALOG_DIR ${CRDS_SERVER_DATA}/catalogs   # Permanent file manifests for CRDS poller deliveries,  never deleted
-setenv CRDS_UPLOADS_DIR ${CRDS_SERVER_DATA}/uploads    # Simple web file uploads    
+setenv CRDS_CATALOG_DIR ${CRDS_SERVER_FILES}/catalogs   # Permanent file manifests for CRDS poller deliveries,  never deleted
+setenv CRDS_UPLOADS_DIR ${CRDS_SERVER_FILES}/uploads    # Simple web file uploads    
 
 # ----------------------------------------------------------------------
 # These keys correspond to sync echoes from CRDS cache syncs which are
