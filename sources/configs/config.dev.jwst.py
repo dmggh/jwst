@@ -70,6 +70,9 @@ FORCE_REMOTE_MODE = int(os.environ["CRDS_FORCE_REMOTE_MODE"])
 
 # ARCHIVE_PARAMETER_SERVICE_URL = "http://dljwdmsv2.stsci.edu:8888/crds"
 
+# Path to mock parameters file,  if any
+CRDS_MOCK_ARCHIVE_PARAMETERS = os.environ.get("CRDS_MOCK_ARCHIVE_PARAMETERS", None)
+
 CRDS_STATUS_TO_ADDRESSES = os.environ["CRDS_STATUS_TO_ADDRESSES"].split(",")
 CRDS_STATUS_CONFIRM_ADDRESSES  = os.environ["CRDS_STATUS_CONFIRM_ADDRESSES"].split(",")
 
