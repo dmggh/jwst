@@ -1777,7 +1777,7 @@ def get_delivery_status():
 
 # =============================================================================
 
-META_EVENTS_FILE = os.path.join(config.install_root, "server", "logs", "meta_events.log")
+META_EVENTS_FILE = os.path.join(config.CRDS_SERVER_LOGS, "meta_events.log")
 
 def add_meta_event(*args, **keys):
     """Format the log message specified by *args, **keys and add it

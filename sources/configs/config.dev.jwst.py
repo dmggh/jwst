@@ -76,3 +76,9 @@ CRDS_MOCK_ARCHIVE_PARAMETERS = os.environ.get("CRDS_MOCK_ARCHIVE_PARAMETERS", No
 CRDS_STATUS_TO_ADDRESSES = os.environ["CRDS_STATUS_TO_ADDRESSES"].split(",")
 CRDS_STATUS_CONFIRM_ADDRESSES  = os.environ["CRDS_STATUS_CONFIRM_ADDRESSES"].split(",")
 
+# Directory where reprocessing system maintains state and store results
+CRDS_REPROCESSING = os.environ["CRDS_REPROCESSING"]
+
+CRDS_SERVER_LOGS = os.environ["CRDS_SERVER_LOGS"]
+CRDS_CRON_LOGS = os.environ["CRDS_CRON_LOGS"]
+

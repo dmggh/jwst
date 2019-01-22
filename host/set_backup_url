@@ -12,17 +12,15 @@ is_backup = (sys.argv[1].upper() in ["1","T","TRUE"])
 print("="*80, file=sys.stderr)
 if is_backup:
     print("Switching to backup port, server offline.", file=sys.stderr)
-    open("CRDS_SERVER_OFFLINE","w+").write("The server is on the backup port,  offline.")
-    sh("rm -f CRDS_SERVER_ONLINE")
+    open("/home/crds/CRDS_SERVER_OFFLINE","w+").write("The server is on the backup port,  offline.")
+    sh("rm -f /home/crds/CRDS_SERVER_ONLINE")
     sh("crontab </dev/null")
 else:
     print("Switching to nominal operating port, server online.", file=sys.stderr)
-    open("CRDS_SERVER_ONLINE","w+").write("The server is on the backup port,  offline.")
-    sh("rm -f CRDS_SERVER_OFFLINE")
+    open("/home/crds/CRDS_SERVER_ONLINE","w+").write("The server is on the operational port,  online for users.")
+    sh("rm -f /home/crds/CRDS_SERVER_OFFLINE")
     sh("crontab < host/crontab")
 print("="*80, file=sys.stderr)
-
-sh("perl -pi -e's/BACKUP_URL_SCHEME = (True|False|0|1)/BACKUP_URL_SCHEME = $is_backup/g' sources/configs/config.${CRDS_USECASE}.${CRDS_PROJECT}.py") #, trace_commands=True) 
 
 sh("./rerun >& /dev/null") #, trace_commands=True)
 

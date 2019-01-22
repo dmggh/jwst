@@ -13,7 +13,6 @@ foreach obj (_files _references _mappings)
 end
 
 rm -f servers/httpd.conf*
-rm -f make_env.tmp
 rm -f ssl.tmp
 
 if ("$#argv" == "3" && "$3" == "wipe") then

@@ -809,13 +809,12 @@ MAX_BESTREFS_ERR_LINES = 1000
 @jsonrpc_method('get_affected_datasets(observatory=String, old_context=Object, new_context=Object)')
 def get_affected_datasets(request, observatory, old_context, new_context):
     observatory = check_observatory(observatory)   #  XXXX observatory ignored
-    reprocessing_dir = os.path.join(os.environ["CRDS"], "monitor_reprocessing")
     old_serial_num = check_for_serial_num(old_context)
     new_serial_num = check_for_serial_num(new_context)
     old_serial_patt = "*[0-9]" if old_serial_num is None else old_serial_num
     new_serial_patt = "[0-9]*" if new_serial_num is None else new_serial_num
     dir_patt = "*" + old_serial_patt + "_" + new_serial_patt
-    transitions_glob = os.path.join(reprocessing_dir, dir_patt)
+    transitions_glob = os.path.join(config.CRDS_REPROCESSING, dir_patt)
     not_ready = "No precomputed affected datasets results exist for old_context='{}' and new_context='{}'".format(old_context, new_context)
     try:
         computation_dir  = sorted(glob.glob(transitions_glob))[-1]

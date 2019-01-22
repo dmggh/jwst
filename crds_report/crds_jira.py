@@ -33,7 +33,9 @@ FIELDS = [
 
 FIELD_NAMES = [ field[0] for field in FIELDS ]
 
-JIRA_AUTHENTICATION_INFO = "/crds/data1/database/jira_auth_info.txt"
+from crds_server.config import CRDS_SECRETS
+
+JIRA_AUTHENTICATION_INFO = f"{CRDS_SECRETS}/jira_auth_info.txt"
 
 # =================================================================
 

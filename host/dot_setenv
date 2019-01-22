@@ -31,16 +31,27 @@ setenv CRDS_PERSISTENT_LOCAL ${CRDS_ROOT}/persistent_local
 # Classic name for both persistent and volatile prior to partitioning
 setenv CRDS ${CRDS_VOLATILE_LOCAL}
 
-# Default location of CRDS custom Python stack
-setenv CRDS_STACK ${CRDS_VOLATILE_LOCAL}/stack
+# Development sources used for image construction
 setenv CRDS_STACK_SOURCES ${CRDS_VOLATILE_LOCAL}/stack_sources
 setenv CRDS_CLIENT_SOURCES ${CRDS_VOLATILE_LOCAL}/CRDS
 setenv CRDS_SERVER_SOURCES ${CRDS_VOLATILE_LOCAL}/CRDS_server
+
+# Installed code and configuration for CRDS image
+setenv CRDS_STACK ${CRDS_VOLATILE_LOCAL}/stack
 setenv CRDS_SERVER_SETUP ${CRDS_VOLATILE_LOCAL}/server
 setenv CRDS_STATIC_DIR  ${CRDS_SERVER_SETUP}/static
 setenv CRDS_SERVER_SCRIPTS ${CRDS_SERVER_SETUP}/bin
 
 setenv CRDS_PYTHON python3.6
+
+# Provide defaults for the CRDS Apache port depending on mode flag file in $HOME
+if ( -f /home/crds/CRDS_SERVER_OFFLINE ) then
+    setenv CRDS_PORT 8002
+    setenv CRDS_BACKUP_MODE 1
+else
+    setenv CRDS_PORT 8001
+    setenv CRDS_BACKUP_MODE 0
+endif
 
 switch ($CRDS_SERVER)
        case tlcrdsswys:
@@ -55,7 +66,6 @@ switch ($CRDS_SERVER)
         setenv CRDS_USECASE dev
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
         setenv CRDS_SERVER_URL https://jwst-crds-dev.stsci.edu
-        setenv CRDS_PORT 8001
         setenv CRDS_SERVER_IP 10.128.19.170
         setenv CRDS_MOCK_ARCHIVE_PARAMETERS jwst-b7.2-iljwdmscarc1-2018-11-19.json
         setenv CRDS_DISTRIBUTION_STATES archived,operational,delivered,submitted,archiving
@@ -64,7 +74,6 @@ switch ($CRDS_SERVER)
         setenv CRDS_DEBUG 1
         setenv CRDS_DEBUG_EXTRAS 0
         setenv CRDS_FORCE_REMOTE_MODE 0
-        setenv CRDS_BACKUP_MODE 0
         setenv CRDS_INSTALL_DIR ${CRDS_STACK}/lib/${CRDS_PYTHON}/site-packages/crds_server
        breaksw
 
@@ -153,7 +162,7 @@ setenv CRDS_SERVER_LOGS ${CRDS_PERSISTENT_LOCAL}/server_logs
 setenv CRDS_CRON_LOGS ${CRDS_PERSISTENT_LOCAL}/cron_logs
 setenv CRDS_PROFILES ${CRDS_PERSISTENT_LOCAL}/profiles
 setenv CRDS_REGRESSIONS ${CRDS_PERSISTENT_LOCAL}/regressions
-setenv CRDS_REPROCESSING ${CRDS_PERSISTENT_LOCAL}/reprocessing
+setenv CRDS_REPROCESSING ${CRDS_PERSISTENT_LOCAL}/monitor_reprocessing
 setenv CRDS_BACKUPS ${CRDS_PERSISTENT_LOCAL}/backups
 setenv CRDS_SECRETS ${CRDS_PERSISTENT_LOCAL}/secrets
 
@@ -264,5 +273,4 @@ limit stacksize 64000k
 setenv TZ 'America/New_York'
 
 source /home/crds/.alias
-
 

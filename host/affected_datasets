@@ -1,8 +1,6 @@
 #! /bin/csh
 
-# server
-cd $CRDS/CRDS_server
-source env.csh
+source /home/crds/.setenv
 
 if ($#argv < 2) then
     echo "usage: `basename $0` <old_context> <new_context> [fast] [mail] [official] [extra bestrefs switches...]"

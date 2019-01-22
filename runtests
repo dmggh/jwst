@@ -15,7 +15,7 @@ else
     set switch_port=1
 endif
 
-cd ${CRDS}/CRDS_server
+cd ${CRDS_SERVER_SOURCES}
 
 if ($switch_port) then
     set_backup_url True
@@ -25,9 +25,9 @@ else
     echo "================================================================================"
 endif
 
-source env.csh
+source /home/crds/.setenv
 
-setenv LOG ${CRDS}/CRDS_server/runtests.${CRDS_PROJECT}.${CRDS_USECASE}.err
+setenv LOG ${CRDS_SERVER_SOURCES}/runtests.${CRDS_PROJECT}.${CRDS_USECASE}.err
 
 echo "Removing any stale test databases"
 ./manage dbshell <<EOF  >& /dev/null
@@ -50,7 +50,7 @@ else
     echo "================================================================================"
 endif
 setenv PROJ `capitalize $CRDS_PROJECT`
-cd ${CRDS_INSTALL_DIR}/python/lib/python/crds_server
+cd ${CRDS_INSTALL_DIR}
 
 if ("$*" != "") then    
     $TEST_CMD $* |& tee $LOG
@@ -59,6 +59,5 @@ else
 endif
 
 if ($switch_port) then
-    cd ${CRDS}/CRDS_server
     set_backup_url False
 endif
