@@ -6,12 +6,10 @@
 #
 source /home/crds/.setenv   # or skip this and just use a standard login environment for /bin/tcsh
 
-cd ${CRDS}/CRDS_server
-
-source env.csh
-
 crontab </dev/null
-./stop
+
+kill `cat ${CRDS_SERVER_SETUP}/run/httpd.pid` 
+killall memcached
 
 exit 0
 

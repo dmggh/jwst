@@ -30,7 +30,7 @@ source /home/crds/.setenv
 setenv LOG ${CRDS_SERVER_SOURCES}/runtests.${CRDS_PROJECT}.${CRDS_USECASE}.err
 
 echo "Removing any stale test databases"
-./manage dbshell <<EOF  >& /dev/null
+crds_manage dbshell <<EOF  >& /dev/null
 drop database test_crds_${CRDS_PROJECT}_${CRDS_USECASE};
 EOF
 

@@ -1,10 +1,8 @@
-#! /bin/csh
+#! /bin/tcsh
 
 # usage:   restore_server
 # restores the last nightly backup for this server.
 
-cd ${CRDS}/CRDS_server
-source env.csh
+source $HOME/.setenv
 set_backup_url True
-source env.csh
 mirror_server ${CRDS_PROJECT} ${CRDS_USECASE} ${CRDS_SERVER_URL}

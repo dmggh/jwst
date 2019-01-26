@@ -59,7 +59,7 @@ python setup.py install --force |& grep -v /static |& grep -v /test_data |& grep
 )
 
 echo "Silently installing static files."
-./manage collectstatic  <<EOF |& grep -v /static |& grep -v /test_data |& grep -v /templates
+crds_manage collectstatic  <<EOF |& grep -v /static |& grep -v /test_data |& grep -v /templates
 yes
 EOF
 

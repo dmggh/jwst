@@ -1,7 +1,6 @@
 #! /bin/tcsh
 
-cd ${CRDS}/CRDS_server
-source env.csh
+cd ${CRDS_SERVER_SOURCES}
 
 setenv TAIL ${CRDS_PROJECT}.${CRDS_USECASE}
 setenv ETAIL ${TAIL}.err
@@ -12,49 +11,18 @@ echo "==========================================================="
 echo >$HOME/isolate.$TAIL
 ls -lt $HOME/isolate.*
 
-system_status
+echo >/crds/data1/isolate.$TAIL
+ls -lt /crds/data1/isolate.*
 
-# if ( ( "$CRDS_USECASE" == "dev" ) ) then
-#     echo "=========================================================="
-#     echo "Disabling Cron for max 90 minutes"
-#     echo "=========================================================="
-#     # no_cron_til now + 90 minutes  # backup in case script is killed
-#     crontab </dev/null
+echo >${CRDS_IFS}/isolate.$TAIL
+ls -lt ${CRDS_IFS}/isolate.*
 
-#     echo "=========================================================="
-#     echo "Stack Build"
-#     echo "=========================================================="
-#     cd ${CRDS}/CRDS_server/stack_build
-#     ./build_conda3 >& ${CRDS_CRON_LOGS}/build_conda.${ETAIL}
-#     tail -100 ${CRDS_CRON_LOGS}/build_conda.${ETAIL}
-
-#     echo "=========================================================="
-#     echo "Re-enabling Cron now"
-#     echo "=========================================================="
-#     cd ${CRDS}/CRDS_server 
-#     crontab <host/crontab
-#     crontab -l
-
-#     echo "==========================================================="
-#     echo "Server re-install and re-start"
-#     echo "==========================================================="
-#     cd ${CRDS}/CRDS_server
-#     ./rerun >& ${CRDS_CRON_LOGS}/rerun.${ETAIL}
-#     tail -100 ${CRDS_CRON_LOGS}/rerun.${ETAIL}
-# else
-#     echo "==========================================================="
-#     echo "Server restart"
-#     echo "==========================================================="
-#     cd ${CRDS}/CRDS_server
-#     ./stop >& ${CRDS_CRON_LOGS}/restart.${ETAIL}
-#     sleep 10
-#     ./run >>& ${CRDS_CRON_LOGS}/restart.${ETAIL}
-# endif
+crds_system_status
 
 echo "============================================================"
 echo "Backing up server"
 echo "============================================================"
-cd ${CRDS}/CRDS_server
+cd ${CRDS_SERVER_SOURCES}
 backup_server >& ${CRDS_CRON_LOGS}/backup.${ETAIL}
 tail -100 ${CRDS_CRON_LOGS}/backup.${ETAIL}
 
@@ -63,57 +31,52 @@ echo "Stopping,  Rotating Logs And Backups,  Restarting"
 echo "==========================================================="
 
 echo "Stopping CRDS server..."
-cd ${CRDS}/CRDS_server
-./stop
+crds_stop
 sleep 10
 
+echo "==========================================================="
 echo "Rotating logs and backups..."
-cd ${CRDS}/server/db_backups
+cd ${CRDS_BACKUPS}
 find . -mtime +550  | grep -v eng_crds | xargs rm -rf
 /sbin/logrotate -s ${CRDS_SERVER_LOGS}/logrotate.state ${CRDS_SERVER_LOGS}/logrotate.cfg
 
+echo "==========================================================="
 echo "Restarting CRDS server..."
-cd ${CRDS}/CRDS_server
-./run
+crds_start
 
 echo "==========================================================="
 echo "Clearing session table"
 echo "==========================================================="
-cd ${CRDS}/CRDS_server
-./manage clearsessions
+crds_manage clearsessions
 
 echo "==========================================================="
 echo "Clearing expired locks"
 echo "==========================================================="
-cd ${CRDS}/CRDS_server
 clear_expired_locks  >& ${CRDS_CRON_LOGS}/clear_expired_locks.${ETAIL}
 tail -100 ${CRDS_CRON_LOGS}/clear_expired_locks.${ETAIL}
 
 echo "==========================================================="
 echo "Server cache certify check, last 5 contexts"
 echo "==========================================================="
-cd ${CRDS}/CRDS_server
 crds_certify_cache 1 --exist >& ${CRDS_CRON_LOGS}/crds_certify_cache.${ETAIL}
 snip ${CRDS_CRON_LOGS}/crds_certify_cache.${ETAIL} 100
 
 echo "==========================================================="
 echo "Server orphan files check"
 echo "==========================================================="
-cd ${CRDS}/CRDS_server
 orphan_files --verbose >& ${CRDS_CRON_LOGS}/orphan_files.${ETAIL}
 tail -100 ${CRDS_CRON_LOGS}/orphan_files.${ETAIL}
 
 echo "==========================================================="
 echo "Server model defects check"
 echo "==========================================================="
-cd ${CRDS}/CRDS_server
-host/check_defects --all --references
+crds_check_defects --all --references
 
 if ( "$CRDS_USECASE" == "dev" ) then
     echo "==========================================================="
     echo "Server self-test"
     echo "==========================================================="
-    cd ${CRDS}/CRDS_server
+    cd ${CRDS_SERVER_SOURCES}
     ./runtests 
     tail -100 runtests.${ETAIL}
 endif

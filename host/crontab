@@ -7,29 +7,29 @@ MAILTO="crds-servers@stsci.edu"
 5 7 * * *       source $HOME/.setenv;      nightly.crds.job 
 
 # every 2 hours, no e-mail
-# 0 */2 * * *  source $HOME/.setenv;        background_chown $CRDS_PATH 640 |& cat  >>  ${CRDS_CRON}/background_chown.log;  
+# 0 */2 * * *  source $HOME/.setenv;        background_chown $CRDS_PATH 640 |& cat  >>  ${CRDS_CRON_LOGS}/background_chown.log;  
 
 # every 10 minutes, e-mail
 */10 * * * *     source $HOME/.setenv;     cron_query_affected_datasets -q -i
 
 # every 5 minutes, no e-mail
-*/5 * * * *     source $HOME/.setenv;      monitor_reprocessing >& ${CRDS_CRON}/monitor_reprocessing.log
+*/5 * * * *     source $HOME/.setenv;      monitor_reprocessing >& ${CRDS_CRON_LOGS}/monitor_reprocessing.log
 
 # Obsoleted by switch to shared cache and inclusion of "update_server_cache" subprocess in Set Context view.
 # every 5 minutes, no e-mail
-# */5 * * * *     source $HOME/.setenv;      cron_sync --last 1  --save-pickles --verbose --push-context $CRDS_SERVER_CACHE_KEY >& ${CRDS_CRON}/server_cache_sync.log
+# */5 * * * *     source $HOME/.setenv;      cron_sync --last 1  --save-pickles --verbose --push-context $CRDS_SERVER_CACHE_KEY >& ${CRDS_CRON_LOGS}/server_cache_sync.log
 
 # every 5 minutes, no e-mail
-*/5 * * * *     source $HOME/.setenv;      update_delivery_status >& ${CRDS_CRON}/update_delivery_status.log
+*/5 * * * *     source $HOME/.setenv;      update_delivery_status >& ${CRDS_CRON_LOGS}/update_delivery_status.log
 
 # every 10 minutes, no e-mail, only on the OPS server
-*/10 * * * *  source $HOME/.setenv;   ops_only sync_ops_to_grp >& ${CRDS_CRON}/sync_ops_to_grp.log
+*/10 * * * *  source $HOME/.setenv;   ops_only sync_ops_to_grp >& ${CRDS_CRON_LOGS}/sync_ops_to_grp.log
 
 # every 12 hours, no e-mail, 
-0 */12 * * * source $HOME/.setenv;   ops_only set_grp_cache_permissions  >& ${CRDS_CRON}/set_grp_cache_permissions.log
+0 */12 * * * source $HOME/.setenv;   ops_only set_grp_cache_permissions  >& ${CRDS_CRON_LOGS}/set_grp_cache_permissions.log
 
 # every 4 hours, no e-mail, all servers
-0 */4 * * *    source $HOME/.setenv;      (clear_web_cache; prime_web_cache; update_server_cache) >& ${CRDS_CRON}/clear_web_cache.log
+0 */4 * * *    source $HOME/.setenv;      (clear_web_cache; prime_web_cache; update_server_cache) >& ${CRDS_CRON_LOGS}/clear_web_cache.log
 
 # run at 2:15pm on the first of every month
 #   15 14 1 * *     $HOME/bin/monthly
@@ -42,19 +42,19 @@ MAILTO="crds-servers@stsci.edu"
 
 # runs ~ small hours,  every week,  e-mail
 # certify local cache only
-0 12 * * sun     source $HOME/.setenv;  crds_certify_cache 1 --exist   >& ${CRDS_CRON}/crds_certify_cache.log; snip ${CRDS_CRON}/crds_certify_cache.log 500
+0 12 * * sun     source $HOME/.setenv;  crds_certify_cache 1 --exist   >& ${CRDS_CRON_LOGS}/crds_certify_cache.log; snip ${CRDS_CRON_LOGS}/crds_certify_cache.log 500
 
 # runs ~1 hours,  every week, e-mail
 
-0 4 * * sat      source $HOME/.setenv;  crds_verify_cache  shared   >& ${CRDS_CRON}/crds_verify_cache.shared.log;  snip ${CRDS_CRON}/crds_verify_cache.shared.log 500
+0 4 * * sat      source $HOME/.setenv;  crds_verify_cache  shared   >& ${CRDS_CRON_LOGS}/crds_verify_cache.shared.log;  snip ${CRDS_CRON_LOGS}/crds_verify_cache.shared.log 500
 
-0 4 * * sun      source $HOME/.setenv;  crds_verify_cache  local    >& ${CRDS_CRON}/crds_verify_cache.local.log;   snip ${CRDS_CRON}/crds_verify_cache.local.log 500
+0 4 * * sun      source $HOME/.setenv;  crds_verify_cache  local    >& ${CRDS_CRON_LOGS}/crds_verify_cache.local.log;   snip ${CRDS_CRON_LOGS}/crds_verify_cache.local.log 500
 
 # runs weekly on midnight Sunday/Monday,  no log e-mail,  status e-mail
 
-0 7 * * mon      source $HOME/.setenv;  cd crds_report;   ./crds_weekly >& ${CRDS_CRON}/crds_weekly_report.log;
+0 7 * * mon      source $HOME/.setenv;  cd crds_report;   ./crds_weekly >& ${CRDS_CRON_LOGS}/crds_weekly_report.log;
 
 # runs monthly at midnight of the 1st,  no log e-mail,  status e-mail
 
-0 7 1 * *      source $HOME/.setenv;  cd crds_report;   ./crds_monthly >& ${CRDS_CRON}/crds_monthly_report.log;
+0 7 1 * *      source $HOME/.setenv;  cd crds_report;   ./crds_monthly >& ${CRDS_CRON_LOGS}/crds_monthly_report.log;
 

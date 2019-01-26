@@ -1,25 +1,22 @@
 #! /bin/tcsh
 
-cd ${CRDS}/CRDS_server
-source env.csh
-
 setenv TAIL ${CRDS_PROJECT}.${CRDS_USECASE}
 setenv ETAIL ${TAIL}.err
 
 echo "==========================================================="
 echo "CRDS client git status"
 echo "==========================================================="
-cd ${CRDS}/CRDS
-echo "UPDATING GIT for CRDS"
-# svn update --accept theirs-full
+cd ${CRDS_CLIENT_SOURCES}
 ./clean
-git_update
+git status
+git remote -v
+git branch
 
 echo "==========================================================="
 echo "CRDS server git status"
 echo "==========================================================="
-cd ${CRDS}/CRDS_server
-echo "Checking GIT for CRDS_server"
+cd ${CRDS_SERVER_SOURCES}
+./clean
 git status
 git remote -v
 git branch
@@ -32,26 +29,10 @@ echo "==========================================================="
 tail -200 install.${ETAIL}
 
 echo "==========================================================="
-echo "Post-reinstall CRDS client git status"
-echo "==========================================================="
-cd ${CRDS}/CRDS
-./clean
-git_update
-
-echo "==========================================================="
-echo "Post-reinstall CRDS server git status"
-echo "==========================================================="
-cd ${CRDS}/CRDS_server
-echo "UPDATING SUBVERSION for CRDS_server"
-git status
-git remote -v
-git branch
-
-echo "==========================================================="
 echo "Updating crontab"
 echo "==========================================================="
-crontab host/crontab
+crontab ${CRDS_SERVER_SCRIPTS}/crontab
+crontab -l
 
 # Anything done in the core will be added the first night it's in the core.
 host/nightly.crds.job.core
-

@@ -1,4 +1,6 @@
-#! /bin/csh -x
+#! /bin/tcsh 
+ 
+source $HOME/.setenv
 
 # Enable cache updates in server environment set globally to readonly.
 setenv CRDS_READONLY_CACHE 0
@@ -18,7 +20,6 @@ set mirrored_server_url=$3
 set TAIL="${observatory}.${server_mode}"
 
 set database_backup_file=${BACKUP_DIR}/backup.${TAIL}.mysql 
-# set database_backup_file=backup.${TAIL}.mysql 
 set catalog_file=${BACKUP_DIR}/catalogs.${TAIL}.tar.gz
 set deliveries_file=${BACKUP_DIR}/deliveries.${TAIL}.txt
 set monitor_reprocessing_file=${BACKUP_DIR}/monitor_reprocessing.${TAIL}.tar.gz
@@ -32,14 +33,13 @@ echo "-----------------------------------------------------------"
 echo "Moving server ${CRDS_PROJECT} ${CRDS_USECASE} to backup URL"
 echo "-----------------------------------------------------------"
 set_backup_url True
-source env.csh
 
 # This replaces the local database with the specified backup, presumably from the master server
 echo "-----------------------------------------------------"
 # echo "Restoring database from ${BACKUP_DIR}/$database_backup_file"
 echo "Restoring database from $database_backup_file"
 echo "-----------------------------------------------------"
-./manage dbrestore --noinput --input-file $database_backup_file -v3 --database default
+crds_manage dbrestore --noinput --input-file $database_backup_file -v3 --database default
 
 # This synchronizes the local cache to the master server
 setenv CRDS_SERVER_URL $mirrored_server_url
@@ -80,8 +80,8 @@ orphan_files #  --purge-delivery-errors
 echo "-----------------------------------------------------"
 echo "Copying catalog files from backup"
 echo "-----------------------------------------------------"
-cd ${CRDS_CATALOGS}/..
-rm -rf ${CRDS_CATALOGS}
+cd ${CRDS_CATALOG_DIR}/..
+rm -rf ${CRDS_CATALOG_DIR}
 tar zxvf $catalog_file
 
 # This recreates the delivery directory with files from the database which are
@@ -89,8 +89,8 @@ tar zxvf $catalog_file
 echo "-----------------------------------------------------"
 echo "Recreating delivery directory and delivering files in state 'delivered'."
 echo "-----------------------------------------------------"
-cd ${CRDS_DELIVERIES}/..
-rm -rf ${CRDS_DELIVERIES}
+cd ${CRDS_DELIVERY_DIR}/..
+rm -rf ${CRDS_DELIVERY_DIR}
 mkdir deliveries
 redeliver_catalogs --files `cat $deliveries_file`
 
@@ -103,8 +103,8 @@ echo "-----------------------------------------------------"
 echo "Copying monitor_reprocessing files from backup"
 echo "-----------------------------------------------------"
 if ( -e $monitor_reprocessing_file ) then
-    cd ${CRDS}
-    rm -rf monitor_reprocessing
+    cd ${CRDS_REPROCESSING}/..
+    rm -rf ${CRDS_REPROCESSING}
     tar zxvf $monitor_reprocessing_file
 else
     echo "No monitor_reprocessing backup file,  skipping."

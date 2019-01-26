@@ -42,20 +42,4 @@ ln -fs /etc/httpd/conf/magic ${CRDS_SERVER_SETUP}/conf/
 sed -e "s?SUB_SERVER_SETUP?$CRDS_SERVER_SETUP?g" -e "s?SUB_PORT?$CRDS_PORT?g" -e "s?SUB_CDBS?$PYSYN_CDBS?g"  -e "s?SUB_CRDS_PATH?$CRDS_PATH?g" -e "s?SUB_PERSISTENT?${CRDS_PERSISTENT_LOCAL}?g" < ${CRDS_SERVER_SETUP}/conf/httpd.conf > tmp
 mv tmp ${CRDS_SERVER_SETUP}/conf/httpd.conf
 
-# Create the shell script that runs the server.
-(
-    echo '#! /bin/tcsh'
-	echo "nohup memcached -m 32M -s /tmp/memcached.sock </dev/null |& cat >>${CRDS_SERVER_LOGS}/memcached.log &"
-    echo "/usr/sbin/httpd -f ${CRDS_SERVER_SETUP}/conf/httpd.conf"
-) > run
-
-# Create shell script which stops the server
-(
-    echo '#! /bin/tcsh'
-    echo 'kill `cat '${CRDS_SERVER_SETUP}'/run/httpd.pid` '
-	echo 'killall memcached'
-)  > stop
-
-#
-chmod 755 ./run ./stop
 

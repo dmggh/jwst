@@ -1,3 +1,0 @@
-#!/bin/csh
-cd ${CRDS_INSTALL_DIR}
-exec python manage.py $*

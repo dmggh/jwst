@@ -1,4 +1,0 @@
-
-# The last time I delivered JWST references and rules en masse, I did this.
-
-python tools/add_files.py -S -D "First Drizzle Parameters references for MIRI and NIRCAM." -U jmiller -E jmiller@stsci.edu -P --deliver -C @drizpar.files

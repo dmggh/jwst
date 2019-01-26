@@ -1,11 +1,13 @@
-#! /bin/sh
+#! /bin/tcsh
 
-export DATETAG=`date "+%Y-%m-%d-%H%M%S"`
+source $HOME/.setenv
 
-export TAIL=${CRDS_PROJECT}.${CRDS_USECASE}
-export ETAIL=${TAIL}.err
+setenv DATETAG `date "+%Y-%m-%d-%H%M%S"`
 
-export DATED_CRDS_BACKUP ${CRDS_BACKUPS}/${DATETAG}
+setenv TAIL ${CRDS_PROJECT}.${CRDS_USECASE}
+setenv ETAIL ${TAIL}.err
+
+setenv DATED_CRDS_BACKUP ${CRDS_BACKUPS}/${DATETAG}
 
 setenv SHARED_LATEST_BACKUPS /eng/ssb/crds/latest_backups
 
@@ -23,7 +25,7 @@ update_delivery_status
 echo "============================================================"
 echo "Database backup"
 echo "============================================================"
-./manage dbbackup
+crds_manage dbbackup
 set backup_file=`ls -1 ${CRDS_BACKUPS}/*.dump | tail -1`
 chmod 600 $backup_file
 cp $backup_file ${DATED_CRDS_BACKUP}/backup.${TAIL}.mysql
@@ -42,7 +44,7 @@ echo "Tarring server directories."
 echo "============================================================"
 # Created dated backup copies in ${DATED_CRDS_BACKUP}
 # Create a single generic copy in ${SHARED_LATEST_BACKUPS} for mirroring "yesterday".
-cd ${CRDS_CATALOGS}/..
+cd ${CRDS_CATALOG_DIR}/..
 tar zcf ${SHARED_LATEST_BACKUPS}/catalogs.${TAIL}.tar.gz catalogs
 tar zcf ${DATED_CRDS_BACKUP}/catalogs.${TAIL}.tar.gz catalogs
 

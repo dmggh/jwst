@@ -1,4 +1,4 @@
-#-*-sh-*-
+#-*sh-*-
 
 # /crds/data1/isilon
 #    server_files
@@ -172,7 +172,9 @@ setenv CRDS_SECRETS ${CRDS_PERSISTENT_LOCAL}/secrets
 # ----------------------------------------------------------------------
 # "Physical" VM Isilon allocation and mount point
 setenv CRDS_ISILON /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}
+
 # Abstract link or container mount point to for Isilon
+# By putting this outside Isilon,  can point to Isilon in generic way
 setenv CRDS_IFS  ${CRDS_ROOT}/server_isilon
 
 # Abstract CRDS_PATH for Isilon subdirectory for server CRDS cache

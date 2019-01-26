@@ -1,6 +1,4 @@
-#! /bin/bash
-
-# Transition to bash postponed for now.
+#! /bin/bssh
 
 # Original RC scripts based on STScI checkenv and tcsh, obsolete
 # Adapted to no-checkenv by linking .cshrc to checkenv's .setenv
@@ -10,9 +8,63 @@ cp host/dot_alias $HOME/.alias
 rm -f ~/.cshrc
 ln -s $HOME/.setenv $HOME/.cshrc
 
-# Revised approach based on no-checkenv and using bash
-# cp host/dot_bashrc $HOME/.bashrc
-# . $HOME/.bashrc
+# ----------------------------------------------------------
+#  CRDS file system setup
+# ----------------------------------------------------------
 
-./_install $*
+./_file_system_setup
+
+# ----------------------------------------------------------
+#  CRDS Server systemd service setup
+# ----------------------------------------------------------
+
+# Done by ITSD:    cp host/crds.service  /etc/systemd/system
+rm -f /home/crds/crds_start
+cp host/crds_start /home/crds
+chmod 500 /home/crds/crds_start
+
+rm -f /home/crds/crds_stop
+cp host/crds_stop /home/crds
+chmod 500 /home/crds/crds_stop
+
+# ----------------------------------------------------------
+#  CRDS Server Apache configuration and setup
+# ----------------------------------------------------------
+
+./_meta_server_setup
+
+# ----------------------------------------------------------
+#  CRDS Code Installation and static file
+# ----------------------------------------------------------
+rm -rf $CRDS_INSTALL_DIR/python/lib/python/crds*    # XXXXX
+rm -rf $CRDS/static   # XXXXXX
+
+#  INSTALL CORE CRDS CLIENT LIBRARY
+(
+    cd ../CRDS; ./install
+)   # --home $install_dir/python)
+
+# INSTALL crds_server 
+(./save_version >sources/git_version.py; 
+
+cp host/* ${CRDS_SERVER_SCRIPTS}
+cp host/logrotate.cfg ${CRDS_SERVER_LOGS}
+
+config="sources/configs/config.${CRDS_USECASE}.${CRDS_PROJECT}.py"
+echo "Using configuration " ${config}
+cp ${config} sources/site_config.py
+
+crds_database="sources/configs/database.${CRDS_USECASE}.${CRDS_PROJECT}.py"
+echo "Using crds_database" ${crds_database}
+cp ${crds_database} sources/crds_database.py
+
+cd sources; 
+# python setup.py install --force --home $install_dir/python |& grep -v /static |& grep -v /test_data |& grep -v /templates)
+python setup.py install --force |& grep -v /static |& grep -v /test_data |& grep -v /templates
+)
+
+echo "Silently installing static files."
+crds_manage collectstatic  <<EOF |& grep -v /static |& grep -v /test_data |& grep -v /templates
+yes
+EOF
 

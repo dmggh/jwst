@@ -10,14 +10,14 @@ Setup the server python stack by going to CRDS_sever/servers/stack_build
 and running build_conda3::
 
 $ server
-$ cd servers/stack_build
+$ cd stack_build
 $ ./build_conda3 |& tee build_conda3.err
 
 build_conda3 installs a mixture of private CRDS downloads that are CM'ed at
 /eng/ssb/crds/installer4 and conda packages.  Copies of installer 4 are made
 on each VM during installation.
 
-Classically tere 4 CRDS server "use cases"::
+Classically the  4 CRDS server "use cases"::
 
 django    Django/SQLite django server
 dev  Apache/VM/Isilon/MySQL/Proxy/mod_wsgi development server
@@ -43,36 +43,35 @@ This creates CRDS_server/env.csh as well as ./run and ./stop scripts.
 
 2. Procedure for starting the sever:
 
-% ./run
+% crds_start
 
 3. Procedure for installing and restarting the server:
 
-% ./rerun
+% crds_rerun
 
 4. Procedure for running a command line / ipython environment for debug
 
-% ./manage shell
+% crds_manage shell
 
 5. Procedure for running server self-tests:
 
-% ./rerun
-% ./runtests
+% crds_runtests
 
 or 
 
 6. Procedure for running Django management commands
 
-% ./manage <additional parameters to django-admin.py>
+% ./crds_manage <additional parameters to django-admin.py>
 
 e.g.
 
 
 7. Database commands
 
-% ./manage dbshell  # to open a SQL prompt to the CRDS server database
+% ./crds_manage dbshell  # to open a SQL prompt to the CRDS server database
 
-% ./manage dbbackup  # to create a django-dbbackup server database backup
-% ./manage dbrestore <backup file>   # to revert to an older version of the database
+% ./crds_manage dbbackup  # to create a django-dbbackup server database backup
+% ./crds_manage dbrestore <backup file>   # to revert to an older version of the database
 
 Typically dbbackup and restore are done by wrapper scripts in the tools directory:
 

@@ -19,10 +19,10 @@ else:
     print("Switching to nominal operating port, server online.", file=sys.stderr)
     open("/home/crds/CRDS_SERVER_ONLINE","w+").write("The server is on the operational port,  online for users.")
     sh("rm -f /home/crds/CRDS_SERVER_OFFLINE")
-    sh("crontab < host/crontab")
+    sh("crontab ${CRDS_SERVER_SCRIPTS}/crontab")
 print("="*80, file=sys.stderr)
 
-sh("./rerun >& /dev/null") #, trace_commands=True)
+sh("crds_rerun >& /dev/null") #, trace_commands=True)
 
 print("="*80, file=sys.stderr)
 
