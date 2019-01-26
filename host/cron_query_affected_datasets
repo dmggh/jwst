@@ -4,7 +4,7 @@ if ($CRDS_PROJECT != "hst") then
    exit -1
 endif
 
-source $HOME/cronenv.csh
+source $HOME/.setenv
 
 query_affected_datasets $*
 
