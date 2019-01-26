@@ -1,9 +1,6 @@
 #! /bin/csh -f
 
-cd $CRDS/CRDS_server
-source env.csh
+cd ${CRDS_SERVER_LOGS}
 
-cd $CRDS/server/logs
-
-tail -$1 ssl_error_log | resolve_ip
+tail -$1 ssl_error_log | crds_resolve_ip
 

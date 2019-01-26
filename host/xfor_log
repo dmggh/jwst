@@ -1,9 +1,9 @@
 #! /bin/csh -f
 
-cd $CRDS/CRDS_server
-source env.csh
+# usage:  xfor_log  <lines back from end of log>
+#    e.g.   xfor_log 4000   prints last 4000 lines of log
 
-cd $CRDS/server/logs
+cd ${CRDS_SERVER_LOGS}
 
-tail -$1 xfor_request_log | resolve_ip
+tail -$1 xfor_request_log | crds_resolve_ip
 
