@@ -1,4 +1,4 @@
-#! /bin/bssh
+#! /bin/bash
 
 # Original RC scripts based on STScI checkenv and tcsh, obsolete
 # Adapted to no-checkenv by linking .cshrc to checkenv's .setenv
