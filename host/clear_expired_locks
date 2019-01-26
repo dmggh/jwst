@@ -3,9 +3,6 @@
 # This utility is intended to be run in a cronjob to periodically clear expired server
 # instrument locks.
 
-cd ${CRDS_INSTALL_DIR}/CRDS_server
-source env.csh
-
 python <<EOF
 import django
 django.setup()

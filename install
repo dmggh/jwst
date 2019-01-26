@@ -47,7 +47,10 @@ rm -rf $CRDS/static   # XXXXXX
 # INSTALL crds_server 
 (./save_version >sources/git_version.py; 
 
+rm -rf ${CRDS_SERVER_SCRIPTS}
+mkdir -p ${CRDS_SERVER_SCRIPTS}
 cp host/* ${CRDS_SERVER_SCRIPTS}
+
 cp host/logrotate.cfg ${CRDS_SERVER_LOGS}
 
 config="sources/configs/config.${CRDS_USECASE}.${CRDS_PROJECT}.py"
