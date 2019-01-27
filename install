@@ -53,9 +53,9 @@ cp host/* ${CRDS_SERVER_SCRIPTS}
 
 cp host/logrotate.cfg ${CRDS_SERVER_LOGS}
 
-config="sources/configs/config.${CRDS_USECASE}.${CRDS_PROJECT}.py"
-echo "Using configuration " ${config}
-cp ${config} sources/site_config.py
+# config="sources/configs/config.${CRDS_USECASE}.${CRDS_PROJECT}.py"
+# echo "Using configuration " ${config}
+#  cp ${config} sources/site_config.py
 
 crds_database="sources/configs/database.${CRDS_USECASE}.${CRDS_PROJECT}.py"
 echo "Using crds_database" ${crds_database}
