@@ -78,8 +78,8 @@ CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/mappings/hst/"
 # XXX TODO restrict to archived or operational
 CRDS_DISTRIBUTION_STATES = ["delivered", "submitted", "archiving", "archived", "operational"]
 
-CATALOG_DB_USER = "jmiller"
-CATALOG_DB_PFILE = "/home/jmiller/.crds_db"
-CATALOG_DB_DSN = "HarpoDadsopsRepDsn"
+CRDS_REPRO_DB_USER = "jmiller"
+CRDS_REPRO_DB_PFILE = "/home/jmiller/.crds_db"
+CRDS_REPRO_DB_DSN = "HarpoDadsopsRepDsn"
 REFFILE_DB_DSN = "HarpoReffileOpsRepDsn"
 

@@ -15,16 +15,16 @@ port = 8001
 # This is a Isilon storage /crds/hst/production used as file space
 # storage_path = '/ifs/crds/' + observatory + '/' + server_usecase
 
-# CATALOG_DB_USER = "crds"
-# CATALOG_DB_KEYTAB = "/crds/data1/database/crds_krb5.keytab"
-# CATALOG_DB_DSN = "GROUCHOAG"   # availability group
-# CATALOG_DB_DSN = "GROUCHO"   # original  test server
-# CATALOG_DB_NAME = "dadsops_rep"   # or dadstest2
+# CRDS_REPRO_DB_USER = "crds"
+# CRDS_REPRO_DB_KEYTAB = "/crds/data1/database/crds_krb5.keytab"
+# CRDS_REPRO_DB_DSN = "GROUCHOAG"   # availability group
+# CRDS_REPRO_DB_DSN = "GROUCHO"   # original  test server
+# CRDS_REPRO_DB_NAME = "dadsops_rep"   # or dadstest2
 
-CATALOG_DB_USER = "crds"
-CATALOG_DB_KEYTAB = "/crds/data1/database/crds_krb5.keytab"
-CATALOG_DB_DSN = "HARPO"            # replicated OPS server
-CATALOG_DB_NAME = "dadsops_rep"
+CRDS_REPRO_DB_USER = "crds"
+CRDS_REPRO_DB_KEYTAB = "/crds/data1/database/crds_krb5.keytab"
+CRDS_REPRO_DB_DSN = "HARPO"            # replicated OPS server
+CRDS_REPRO_DB_NAME = "dadsops_rep"
 
 servertype = 'mod_wsgi'
 dbtype = 'mysql'
