@@ -228,6 +228,18 @@ setenv CRDS_REPRO_DB_PFILE "${CRDS_SECRETS}/crds.dat"
 setenv CRDS_REPRO_DB_DSN HarpoDadsopsRepDsn
 
 # -----------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------
+
+ # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+setenv CRDS_DJANGO_DB_ENGINE         django.db.backends.mysql
+setenv CRDS_DJANGO_DB_NAME           crds_jwst_dev
+setenv CRDS_DJANGO_DB_USER           jwstcrds
+setenv CRDS_DJANGO_DB_PASSWORD_FILE  ${CRDS_SECRETS}/dev_test_django_jwst.dat
+setenv CRDS_DJANGO_DB_HOST           goldtst.stsci.edu
+setenv CRDS_DJANGO_DB_PORT           23306
+setenv CRDS_DJANGO_DB_OPTIONS_INIT   'SET default_storage_engine=INNODB;'
+
+# -----------------------------------------------------------------------------------------
 # Server string customization vars,  can override preceding generic default settings
 # string-by-string.
 # -----------------------------------------------------------------------------------------

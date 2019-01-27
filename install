@@ -53,14 +53,6 @@ cp host/* ${CRDS_SERVER_SCRIPTS}
 
 cp host/logrotate.cfg ${CRDS_SERVER_LOGS}
 
-# config="sources/configs/config.${CRDS_USECASE}.${CRDS_PROJECT}.py"
-# echo "Using configuration " ${config}
-#  cp ${config} sources/site_config.py
-
-crds_database="sources/configs/database.${CRDS_USECASE}.${CRDS_PROJECT}.py"
-echo "Using crds_database" ${crds_database}
-cp ${crds_database} sources/crds_database.py
-
 cd sources; 
 # python setup.py install --force --home $install_dir/python |& grep -v /static |& grep -v /test_data |& grep -v /templates)
 python setup.py install --force |& grep -v /static |& grep -v /test_data |& grep -v /templates
