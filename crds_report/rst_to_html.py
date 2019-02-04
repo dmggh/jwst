@@ -8,11 +8,15 @@ from docutils.core import publish_string
 
 from crds import pysh
 
-HEAD_ADDITIONS = """
+HERE = os.path.dirname(__file__) or "."
+
+CSS  = open(f"{HERE}/rst_to_html.css").read()
+
+HEAD_ADDITIONS = f"""
 <style>
-{}
+{CSS}
 </style>
-""".format(open("rst_to_html.css").read())
+"""
 
 def rst_to_html(rst):
    html = publish_string(

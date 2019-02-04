@@ -9,7 +9,7 @@ import jira   # current recommendation "pip install jira"
 
 # =================================================================
 
-import crds_rst
+from . import crds_rst
 
 # =================================================================
 

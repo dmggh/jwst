@@ -139,8 +139,9 @@ def quote(text):
 # =======================================================================
 
 def test():
-    import doctest, crds_rst
-    return doctest.testmod(crds_rst)
+    import doctest
+    from . import crds_rst
+    return doctest.testmod(crds_report.crds_rst)
 
 if __name__ == "__main__":
     print(test())

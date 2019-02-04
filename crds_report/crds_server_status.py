@@ -15,7 +15,7 @@ from crds.core import log
 
 from crds.client import api
 
-import crds_rst
+from . import crds_rst
 
 # ==============================================================================
 
