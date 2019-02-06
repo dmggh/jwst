@@ -26,6 +26,8 @@ create_dir $secret $CRDS_STATIC_DIR
 
 chmod $private_ro $CRDS_IFS
 
+chmod $private_ro $CRDS_SERVER_FILES
+
 # The primary working copy for deliveries, nominally owned by CRDS.
 # Delivery files are links which last until received by OPUS.
 create_dir $private_rw $CRDS_DELIVERY_DIR
@@ -56,6 +58,7 @@ create_dir $secret ${CRDS_SERVER_SETUP}/conf
 create_dir $secret ${CRDS_SERVER_SETUP}/wsgi-scripts
 
 create_dir $secret ${CRDS_SERVER_SCRIPTS}
+
 
 case ${server_mode} in
 
