@@ -27,6 +27,119 @@ setenv CRDS_SERVER_TYPE mod_wsgi
 setenv CRDS_ROOT  /crds/data1
 setenv CRDS_SERVER `uname -n | cut -d'.' -f1`
 
+# -----------------------------------------------------------------------------------------
+# Server string customization vars,  can override preceding generic default settings
+# string-by-string.
+# -----------------------------------------------------------------------------------------
+
+switch ($CRDS_SERVER)
+       case tlcrdsswys:
+        setenv CRDS_PROJECT jwst
+        setenv CRDS_USECASE syslab
+        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
+        setenv CRDS_SERVER_URL https://tlcrdssys.actlab.stsci.edu:8001
+       breaksw
+
+       case dljwcrds:
+        setenv CRDS_PROJECT jwst
+        setenv CRDS_USECASE dev
+
+        setenv CRDS_SERVER_URL https://jwst-crds-dev.stsci.edu
+        setenv CRDS_SERVER_IP 10.128.19.170
+       
+        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
+        setenv CRDS_MOCK_ARCHIVE_PARAMETERS jwst-b7.2-iljwdmscarc1-2018-11-19.json
+
+        # Including all states ignores status of downstream archive "CRDS poller"
+        # and archive delivery.
+        setenv CRDS_DISTRIBUTION_STATES archived,operational,delivered,submitted,archiving
+
+        setenv CRDS_STATUS_TO_ADDRESSES jmiller@stsci.edu
+        setenv CRDS_STATUS_CONFIRM_ADDRESSES jmiller@stsci.edu
+
+        # Basic Django debug mode
+        setenv CRDS_DEBUG 1
+
+        # Install additional packages 
+        setenv CRDS_DEBUG_EXTRAS 0
+
+       breaksw
+
+       case dlhstcrds:
+        setenv CRDS_PROJECT hst
+        setenv CRDS_USECASE dev
+        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
+        setenv CRDS_SERVER_URL https://hst-crds-dev.stsci.edu
+       breaksw
+
+       case tljwcrds:
+        setenv CRDS_PROJECT jwst
+        setenv CRDS_USECASE test
+        setenv CRDS_SERVER_URL https://jwst-crds-test.stsci.edu
+        # setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
+        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
+       breaksw
+       case tlhstcrds:
+        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-11
+        setenv CRDS_PROJECT hst
+        setenv CRDS_USECASE test
+        setenv CRDS_SERVER_URL https://hst-crds-test.stsci.edu
+        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
+       breaksw
+
+       case pljwcrds:
+        setenv CRDS_PROJECT jwst
+        setenv CRDS_USECASE ops
+        setenv CRDS_SERVER_URL https://jwst-crds.stsci.edu
+        # setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
+        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
+        setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
+       breaksw
+
+       case plhstcrds:
+        setenv CRDS_PROJECT hst
+        setenv CRDS_USECASE ops
+        setenv CRDS_SERVER_URL https://hst-crds.stsci.edu
+        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
+        setenv CRDS_GRP_CACHE_KEY 78b96cd6-4295-4215-89ff-a588b2ea831a
+       breaksw
+
+       # ATM pljwcrds is A-string,  not integrated with DMS A-string
+       case iljwdmsacrds:
+        setenv CRDS_PROJECT jwst
+        setenv CRDS_USECASE ait
+        setenv CRDS_SERVER_URL https://jwst-crds-ait.stsci.edu
+        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu"
+        setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
+       breaksw
+
+       case iljwdmsbcrds:
+        setenv CRDS_PROJECT jwst
+        setenv CRDS_USECASE bit
+        setenv CRDS_SERVER_URL https://jwst-crds-bit.stsci.edu
+        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu"
+        setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
+       breaksw
+
+       case iljwdmsccrds:
+        setenv CRDS_PROJECT jwst
+        setenv CRDS_USECASE cit
+        setenv CRDS_SERVER_URL https://jwst-crds-cit.stsci.edu
+        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu"
+        setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
+       breaksw
+       
+       # tlcrds
+endsw
+
+# ----------------------------------------------------------------------
+# Isilon files,  high volume, cross-mounted to DMS,  lower security + interfaces
+# 2T - 5T total, depending on project needs.
+# ----------------------------------------------------------------------
+# "Physical" VM Isilon allocation and mount point
+setenv CRDS_ISILON /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}
+setenv CRDS_PATH  ${CRDS_ISILON}/file_cache
+
 # ---------------------------------------------------------------------------------
 # Generic Isilong path setup,  including generic CRDS cache and large file support
 # ---------------------------------------------------------------------------------------
@@ -39,7 +152,7 @@ setenv CRDS_FILE_CACHE ${CRDS_IFS}/file_cache
 
 # High volume mutable files like deliveries to the CRDS poller, ingests, and uploads
 # This would have been better named CRDS_SERVER_FILES, for large scale server data.
-setenv CRDS_SERVER_FILES ${CRDS_IFS}/server_files
+setenv CRDS_SERVER_FILES ${CRDS_ISILON}/server_files
 
 # Externally exposed / cross-mounted Isilon directories
 setenv CRDS_DELIVERY_DIR ${CRDS_SERVER_FILES}/deliveries #  To DMS CRDS poller VM,  contents deleted when deliveries complete
@@ -100,7 +213,6 @@ setenv CRDS_SECRETS ${CRDS_PERSISTENT_LOCAL}/secrets
 # ---------------------------------------------------------------------------------------
 setenv CRDS_PYTHON python3.6
 setenv CRDS_INSTALL_DIR ${CRDS_STACK}/lib/${CRDS_PYTHON}/site-packages/crds_server
-
 
 # ---------------------------------------------------------------------------------------
 # Provide defaults for the CRDS Apache port depending on mode flag file in $HOME
@@ -238,119 +350,6 @@ setenv CRDS_DJANGO_DB_PASSWORD_FILE  ${CRDS_SECRETS}/dev_test_django_jwst.dat
 setenv CRDS_DJANGO_DB_HOST           goldtst.stsci.edu
 setenv CRDS_DJANGO_DB_PORT           23306
 setenv CRDS_DJANGO_DB_OPTIONS_INIT   'SET default_storage_engine=INNODB;'
-
-# -----------------------------------------------------------------------------------------
-# Server string customization vars,  can override preceding generic default settings
-# string-by-string.
-# -----------------------------------------------------------------------------------------
-
-switch ($CRDS_SERVER)
-       case tlcrdsswys:
-        setenv CRDS_PROJECT jwst
-        setenv CRDS_USECASE syslab
-        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
-        setenv CRDS_SERVER_URL https://tlcrdssys.actlab.stsci.edu:8001
-       breaksw
-
-       case dljwcrds:
-        setenv CRDS_PROJECT jwst
-        setenv CRDS_USECASE dev
-
-        setenv CRDS_SERVER_URL https://jwst-crds-dev.stsci.edu
-        setenv CRDS_SERVER_IP 10.128.19.170
-       
-        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
-        setenv CRDS_MOCK_ARCHIVE_PARAMETERS jwst-b7.2-iljwdmscarc1-2018-11-19.json
-
-        # Including all states ignores status of downstream archive "CRDS poller"
-        # and archive delivery.
-        setenv CRDS_DISTRIBUTION_STATES archived,operational,delivered,submitted,archiving
-
-        setenv CRDS_STATUS_TO_ADDRESSES jmiller@stsci.edu
-        setenv CRDS_STATUS_CONFIRM_ADDRESSES jmiller@stsci.edu
-
-        # Basic Django debug mode
-        setenv CRDS_DEBUG 1
-
-        # Install additional packages 
-        setenv CRDS_DEBUG_EXTRAS 0
-
-       breaksw
-
-       case dlhstcrds:
-        setenv CRDS_PROJECT hst
-        setenv CRDS_USECASE dev
-        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
-        setenv CRDS_SERVER_URL https://hst-crds-dev.stsci.edu
-       breaksw
-
-       case tljwcrds:
-        setenv CRDS_PROJECT jwst
-        setenv CRDS_USECASE test
-        setenv CRDS_SERVER_URL https://jwst-crds-test.stsci.edu
-        # setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
-        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
-       breaksw
-       case tlhstcrds:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-11
-        setenv CRDS_PROJECT hst
-        setenv CRDS_USECASE test
-        setenv CRDS_SERVER_URL https://hst-crds-test.stsci.edu
-        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
-       breaksw
-
-       case pljwcrds:
-        setenv CRDS_PROJECT jwst
-        setenv CRDS_USECASE ops
-        setenv CRDS_SERVER_URL https://jwst-crds.stsci.edu
-        # setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
-        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
-        setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
-       breaksw
-
-       case plhstcrds:
-        setenv CRDS_PROJECT hst
-        setenv CRDS_USECASE ops
-        setenv CRDS_SERVER_URL https://hst-crds.stsci.edu
-        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
-        setenv CRDS_GRP_CACHE_KEY 78b96cd6-4295-4215-89ff-a588b2ea831a
-       breaksw
-
-       # ATM pljwcrds is A-string,  not integrated with DMS A-string
-       case iljwdmsacrds:
-        setenv CRDS_PROJECT jwst
-        setenv CRDS_USECASE ait
-        setenv CRDS_SERVER_URL https://jwst-crds-ait.stsci.edu
-        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu"
-        setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
-       breaksw
-
-       case iljwdmsbcrds:
-        setenv CRDS_PROJECT jwst
-        setenv CRDS_USECASE bit
-        setenv CRDS_SERVER_URL https://jwst-crds-bit.stsci.edu
-        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu"
-        setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
-       breaksw
-
-       case iljwdmsccrds:
-        setenv CRDS_PROJECT jwst
-        setenv CRDS_USECASE cit
-        setenv CRDS_SERVER_URL https://jwst-crds-cit.stsci.edu
-        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu"
-        setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
-       breaksw
-       
-       # tlcrds
-endsw
-
-# ----------------------------------------------------------------------
-# Isilon files,  high volume, cross-mounted to DMS,  lower security + interfaces
-# 2T - 5T total, depending on project needs.
-# ----------------------------------------------------------------------
-# "Physical" VM Isilon allocation and mount point
-setenv CRDS_ISILON /ifs/crds/${CRDS_PROJECT}/${CRDS_USECASE}
-setenv CRDS_PATH  ${CRDS_ISILON}/file_cache
 
 # These are generic,  keep syntax errors from crashing dot_setenv early
 source /home/crds/.alias
