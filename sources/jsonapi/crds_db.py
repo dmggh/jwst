@@ -4,7 +4,7 @@ can be distributed.
 import tempfile
 
 from crds.core import pysh, config
-from crds_server.crds_database import DATABASES
+from crds_server.settings import DATABASES
 
 def dump_sqlite_db(observatory):
     """Dump the CRDS database to a SQLite db file in the CRDS cache config directory."""

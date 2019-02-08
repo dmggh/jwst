@@ -44,6 +44,12 @@ rm -rf $CRDS/static   # XXXXXX
     cd ../CRDS; ./install
 )   # --home $install_dir/python)
 
+# INSTALL WEEKLY / MONTHLY AUTOMATED REPORTS
+(
+cd crds_report;
+python setup.py install --force
+)
+
 # INSTALL crds_server 
 (./save_version >sources/git_version.py; 
 
@@ -56,6 +62,7 @@ cp host/logrotate.cfg ${CRDS_SERVER_LOGS}
 cd sources; 
 # python setup.py install --force --home $install_dir/python |& grep -v /static |& grep -v /test_data |& grep -v /templates)
 python setup.py install --force |& grep -v /static |& grep -v /test_data |& grep -v /templates
+
 )
 
 echo "Silently installing static files."

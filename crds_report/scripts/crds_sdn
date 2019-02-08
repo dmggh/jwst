@@ -7,7 +7,7 @@ TO_ADDR="jmiller@stsci.edu"
 DATE=`date --rfc-3339=date`
 TITLE="CRDS ${FREQUENCY} Status for $DATE"
 
-./crds_report "${DAYS_BACK}" "${TITLE}" "Issue,Summary" >report.rst
-./rst_to_html report.rst
-./crds_mail crds@stsci.edu "${TO_ADDR}" "${TITLE}"  report.html 
+crds_report "${DAYS_BACK}" "${TITLE}" "Issue,Summary" >report.rst
+crds_rst_to_html report.rst
+crds_mail crds@stsci.edu "${TO_ADDR}" "${TITLE}"  report.html 
 

@@ -52,9 +52,9 @@ MAILTO="crds-servers@stsci.edu"
 
 # runs weekly on midnight Sunday/Monday,  no log e-mail,  status e-mail
 
-0 7 * * mon      source $HOME/.setenv;  cd crds_report;   ./crds_weekly >& ${CRDS_CRON_LOGS}/crds_weekly_report.log;
+0 7 * * mon      source $HOME/.setenv;  crds_weekly >& ${CRDS_CRON_LOGS}/crds_weekly_report.log;
 
 # runs monthly at midnight of the 1st,  no log e-mail,  status e-mail
 
-0 7 1 * *      source $HOME/.setenv;  cd crds_report;   ./crds_monthly >& ${CRDS_CRON_LOGS}/crds_monthly_report.log;
+0 7 1 * *      source $HOME/.setenv;  crds_monthly >& ${CRDS_CRON_LOGS}/crds_monthly_report.log;
 

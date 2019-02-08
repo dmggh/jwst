@@ -1,0 +1,802 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.14: http://docutils.sourceforge.net/" />
+<title>CRDS Developer -7 Days Status for 2019-02-08</title>
+<style type="text/css">
+
+/*
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: html4css1.css 7952 2016-07-26 18:15:59Z milde $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+
+See http://docutils.sf.net/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+.subscript {
+  vertical-align: sub;
+  font-size: smaller }
+
+.superscript {
+  vertical-align: super;
+  font-size: smaller }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+object[type="image/svg+xml"], object[type="application/x-shockwave-flash"] {
+  overflow: hidden;
+}
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title, .code .error {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin: 0 0 0.5em 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left, .figure.align-left, object.align-left, table.align-left {
+  clear: left ;
+  float: left ;
+  margin-right: 1em }
+
+img.align-right, .figure.align-right, object.align-right, table.align-right {
+  clear: right ;
+  float: right ;
+  margin-left: 1em }
+
+img.align-center, .figure.align-center, object.align-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+table.align-center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.align-left {
+  text-align: left }
+
+.align-center {
+  clear: both ;
+  text-align: center }
+
+.align-right {
+  text-align: right }
+
+/* reset inner alignment in figures */
+div.align-right {
+  text-align: inherit }
+
+/* div.align-center * { */
+/*   text-align: left } */
+
+.align-top    {
+  vertical-align: top }
+
+.align-middle {
+  vertical-align: middle }
+
+.align-bottom {
+  vertical-align: bottom }
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font: inherit }
+
+pre.literal-block, pre.doctest-block, pre.math, pre.code {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+pre.code .ln { color: grey; } /* line numbers */
+pre.code, code { background-color: #eeeeee }
+pre.code .comment, code .comment { color: #5C6576 }
+pre.code .keyword, code .keyword { color: #3B0D06; font-weight: bold }
+pre.code .literal.string, code .literal.string { color: #0C5404 }
+pre.code .name.builtin, code .name.builtin { color: #352B84 }
+pre.code .deleted, code .deleted { background-color: #DEB0A1}
+pre.code .inserted, code .inserted { background-color: #A3D289}
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+/* "booktabs" style (no vertical lines) */
+table.docutils.booktabs {
+  border: 0px;
+  border-top: 2px solid;
+  border-bottom: 2px solid;
+  border-collapse: collapse;
+}
+table.docutils.booktabs * {
+  border: 0px;
+}
+table.docutils.booktabs th {
+  border-bottom: thin solid;
+  text-align: left;
+}
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+
+<style>
+/*
+:Author: Todd Miller
+:Contact: jmiller@stsci.edu
+:Copyright: This stylesheet has been placed in the public domain.
+
+Stylesheet for use with Docutils.  [Optionally place a more
+detailed description here.]
+*/
+
+@import url(html4css1.css);
+
+/* Your customizations go here.  For example: */
+
+
+h1 {
+    color: #191970;
+    font-family: sans-serif;
+}
+
+h2 {
+    color: darkblue;
+    font-family: sans-serif;
+}
+
+h3 {
+    color: darkblue;
+    font-style: italic;
+    font-family: sans-serif;
+}
+
+h4 {
+   color: darkgreen;
+        text-decoration: underline;
+   font-family: sans-serif;
+}
+
+p {
+  color: #808080;
+}
+
+</style>
+
+</head>
+<body>
+<div class="document" id="crds-developer-7-days-status-for-2019-02-08">
+<h1 class="title">CRDS Developer -7 Days Status for 2019-02-08</h1>
+
+<div class="section" id="crds-development">
+<h1>CRDS Development</h1>
+<table border="1" class="docutils">
+<colgroup>
+<col width="7%" />
+<col width="8%" />
+<col width="7%" />
+<col width="8%" />
+<col width="6%" />
+<col width="50%" />
+<col width="7%" />
+<col width="7%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Issue</th>
+<th class="head">Status</th>
+<th class="head">Resolution</th>
+<th class="head">Type</th>
+<th class="head">Priority</th>
+<th class="head">Summary</th>
+<th class="head">Created</th>
+<th class="head">Resolved</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><a class="reference external" href="https://jira.stsci.edu/projects/CCD/issues/CCD-148?filter=allissues">CCD-148</a></td>
+<td>In Progress</td>
+<td>None</td>
+<td>Story</td>
+<td>Major</td>
+<td><tt class="docutils literal">Discuss / analyze CRDS support for synphot files.</tt></td>
+<td>2018-09-06</td>
+<td>None</td>
+</tr>
+<tr><td><a class="reference external" href="https://jira.stsci.edu/projects/CCD/issues/CCD-183?filter=allissues">CCD-183</a></td>
+<td>In Progress</td>
+<td>None</td>
+<td>Task</td>
+<td>Trivial</td>
+<td><tt class="docutils literal">Update 7.2.1 patch release server docs</tt></td>
+<td>2018-12-10</td>
+<td>None</td>
+</tr>
+<tr><td><a class="reference external" href="https://jira.stsci.edu/projects/CCD/issues/CCD-18?filter=allissues">CCD-18</a></td>
+<td>In Progress</td>
+<td>None</td>
+<td>New Feature</td>
+<td>Major</td>
+<td><tt class="docutils literal"><span class="pre">CRDS-7.2-03</span> <span class="pre">level-3</span> reprocessing affects for new references</tt></td>
+<td>2018-03-01</td>
+<td>None</td>
+</tr>
+<tr><td><a class="reference external" href="https://jira.stsci.edu/projects/CCD/issues/CCD-193?filter=allissues">CCD-193</a></td>
+<td>In Progress</td>
+<td>None</td>
+<td>Task</td>
+<td>Minor</td>
+<td><tt class="docutils literal">Discuss/Drop missing table check warning</tt></td>
+<td>2018-12-21</td>
+<td>None</td>
+</tr>
+<tr><td><a class="reference external" href="https://jira.stsci.edu/projects/CCD/issues/CCD-196?filter=allissues">CCD-196</a></td>
+<td>In Progress</td>
+<td>None</td>
+<td>Task</td>
+<td>Minor</td>
+<td><tt class="docutils literal">Setup JWST SYSLAB VM in ACTLAB</tt></td>
+<td>2019-01-03</td>
+<td>None</td>
+</tr>
+<tr><td><a class="reference external" href="https://jira.stsci.edu/projects/CCD/issues/CCD-199?filter=allissues">CCD-199</a></td>
+<td>In Progress</td>
+<td>None</td>
+<td>Task</td>
+<td>Major</td>
+<td><tt class="docutils literal">Reorganize CRDS server storage to support containers</tt></td>
+<td>2019-01-11</td>
+<td>None</td>
+</tr>
+<tr><td><a class="reference external" href="https://jira.stsci.edu/projects/CCD/issues/CCD-200?filter=allissues">CCD-200</a></td>
+<td>In Progress</td>
+<td>None</td>
+<td>Task</td>
+<td>Major</td>
+<td><tt class="docutils literal">Simplify and consolidate CRDS server configuration and installation</tt></td>
+<td>2019-01-11</td>
+<td>None</td>
+</tr>
+<tr><td><a class="reference external" href="https://jira.stsci.edu/projects/CCD/issues/CCD-204?filter=allissues">CCD-204</a></td>
+<td>In Progress</td>
+<td>None</td>
+<td>Task</td>
+<td>Major</td>
+<td><tt class="docutils literal">Discuss JWST ETC support in CRDS</tt></td>
+<td>2019-01-18</td>
+<td>None</td>
+</tr>
+<tr><td><a class="reference external" href="https://jira.stsci.edu/projects/CCD/issues/CCD-205?filter=allissues">CCD-205</a></td>
+<td>In Progress</td>
+<td>None</td>
+<td>Task</td>
+<td>Major</td>
+<td><tt class="docutils literal">Discuss reference file coverage</tt></td>
+<td>2019-01-23</td>
+<td>None</td>
+</tr>
+<tr><td><a class="reference external" href="https://jira.stsci.edu/projects/CCD/issues/CCD-207?filter=allissues">CCD-207</a></td>
+<td>In Progress</td>
+<td>None</td>
+<td>Task</td>
+<td>Major</td>
+<td><tt class="docutils literal">CRDS HST SYNPHOT get_synphot missing files</tt></td>
+<td>2019-02-01</td>
+<td>None</td>
+</tr>
+<tr><td><a class="reference external" href="https://jira.stsci.edu/projects/CCD/issues/CCD-210?filter=allissues">CCD-210</a></td>
+<td>In Progress</td>
+<td>None</td>
+<td>Task</td>
+<td>Critical</td>
+<td><tt class="docutils literal">Scrum team <span class="pre">on-boarding</span></tt></td>
+<td>2019-02-04</td>
+<td>None</td>
+</tr>
+<tr><td><a class="reference external" href="https://jira.stsci.edu/projects/CCD/issues/CCD-218?filter=allissues">CCD-218</a></td>
+<td>CLOSED</td>
+<td>Done</td>
+<td>Task</td>
+<td>Critical</td>
+<td><tt class="docutils literal"><span class="pre">Walk-through</span> of reference file delivery</tt></td>
+<td>2019-02-04</td>
+<td>2019-02-08</td>
+</tr>
+<tr><td><a class="reference external" href="https://jira.stsci.edu/projects/CCD/issues/CCD-220?filter=allissues">CCD-220</a></td>
+<td>CLOSED</td>
+<td>Done</td>
+<td>Task</td>
+<td>Critical</td>
+<td><tt class="docutils literal">Organize Introducition to REDCAT tools</tt></td>
+<td>2019-02-04</td>
+<td>2019-02-08</td>
+</tr>
+<tr><td><a class="reference external" href="https://jira.stsci.edu/projects/CCD/issues/CCD-232?filter=allissues">CCD-232</a></td>
+<td>CLOSED</td>
+<td>None</td>
+<td>Task</td>
+<td>Minor</td>
+<td><tt class="docutils literal">Debug get_synphot HST TEST anomalies</tt></td>
+<td>2019-02-05</td>
+<td>None</td>
+</tr>
+<tr><td><a class="reference external" href="https://jira.stsci.edu/projects/CCD/issues/CCD-234?filter=allissues">CCD-234</a></td>
+<td>Reopened</td>
+<td>None</td>
+<td>Task</td>
+<td>Critical</td>
+<td><tt class="docutils literal">Determine content of the submission page</tt></td>
+<td>2019-02-06</td>
+<td>None</td>
+</tr>
+<tr><td><a class="reference external" href="https://jira.stsci.edu/projects/CCD/issues/CCD-237?filter=allissues">CCD-237</a></td>
+<td>CLOSED</td>
+<td>Done</td>
+<td>Task</td>
+<td>Critical</td>
+<td><tt class="docutils literal"><span class="pre">Walk-through</span> of reference file delivery: INS viewpoint</tt></td>
+<td>2019-02-06</td>
+<td>2019-02-08</td>
+</tr>
+<tr><td><a class="reference external" href="https://jira.stsci.edu/projects/CCD/issues/CCD-58?filter=allissues">CCD-58</a></td>
+<td>CLOSED</td>
+<td>None</td>
+<td>Task</td>
+<td>Major</td>
+<td><tt class="docutils literal">Document reference file arrays</tt></td>
+<td>2018-04-17</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="crds-jwst-ops">
+<h1>CRDS JWST OPS</h1>
+<div class="section" id="jwst-ops-deliveries">
+<h2>JWST OPS Deliveries</h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="32%" />
+<col width="17%" />
+<col width="15%" />
+<col width="27%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Date</th>
+<th class="head">Context Table</th>
+<th class="head">Actions</th>
+<th class="head">Status</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="jwst-ops-context-settings">
+<h2>JWST OPS Context Settings</h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="16%" />
+<col width="67%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Location</th>
+<th class="head">Context Table</th>
+<th class="head">Notes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>Last Delivered</td>
+<td><a class="reference external" href="https://jwst-crds.stsci.edu/context_table/jwst_0500.pmap/">jwst_ops_table_0500</a></td>
+<td>AKA the 'edit' context new deliveries add to.</td>
+</tr>
+<tr><td>Server Default, Offsite</td>
+<td><a class="reference external" href="https://jwst-crds.stsci.edu/context_table/jwst_0500.pmap/">jwst_ops_table_0500</a></td>
+<td>AKA the 'operational' context used by any system syncing to the CRDS Server.</td>
+</tr>
+<tr><td>Onsite Default</td>
+<td><a class="reference external" href="https://jwst-crds.stsci.edu/context_table/jwst_0500.pmap/">jwst_ops_table_0500</a></td>
+<td>AKA /grp/crds/cache. Default cache for onsite users with no CRDS_PATH and CRDS_SERVER_URL.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="jwst-ops-links">
+<h2>JWST OPS Links</h2>
+<p><a class="reference external" href="https://jwst-crds.stsci.edu">JWST OPS Server</a></p>
+<p><a class="reference external" href="https://jwst-crds.stsci.edu/display_context_history/">JWST OPS Default Context History</a></p>
+<p><a class="reference external" href="https://jwst-crds.stsci.edu/display_all_contexts/">JWST OPS All Contexts</a></p>
+<p><a class="reference external" href="https://jwst-crds.stsci.edu/static/users_guide/index.html">JWST OPS User's Guide</a></p>
+</div>
+</div>
+<div class="section" id="crds-hst-ops">
+<h1>CRDS HST OPS</h1>
+<div class="section" id="hst-ops-deliveries">
+<h2>HST OPS Deliveries</h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="3%" />
+<col width="6%" />
+<col width="7%" />
+<col width="3%" />
+<col width="81%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Date</th>
+<th class="head">Context Table</th>
+<th class="head">Actions</th>
+<th class="head">Status</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>2019-02-06</td>
+<td><a class="reference external" href="https://hst-crds.stsci.edu/context_table/hst_0684.pmap/">hst_ops_table_0684</a></td>
+<td><a class="reference external" href="https://hst-crds.stsci.edu/recent_activity_query/?filename=hst_0684.pmap">hst_ops_actions_0684</a></td>
+<td>operational</td>
+<td><tt class="docutils literal">Standard delivery of ACS WFC superbias, superdark, and sink pixel reference files following the anneal on January 31, 2019. These files will be used to calibrate ACS WFC observations taken between January 2, 2019 and January 31, 2019. Delivered by Tyler Desjardins for ACS.</tt></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="hst-ops-context-settings">
+<h2>HST OPS Context Settings</h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="16%" />
+<col width="67%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Location</th>
+<th class="head">Context Table</th>
+<th class="head">Notes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>Last Delivered</td>
+<td><a class="reference external" href="https://hst-crds.stsci.edu/context_table/hst_0684.pmap/">hst_ops_table_0684</a></td>
+<td>AKA the 'edit' context new deliveries add to.</td>
+</tr>
+<tr><td>Server Default, Offsite</td>
+<td><a class="reference external" href="https://hst-crds.stsci.edu/context_table/hst_0684.pmap/">hst_ops_table_0684</a></td>
+<td>AKA the 'operational' context used by any system syncing to the CRDS Server.</td>
+</tr>
+<tr><td>Pipeline Echo</td>
+<td><a class="reference external" href="https://hst-crds.stsci.edu/context_table/hst_0684.pmap/">hst_ops_table_0684</a></td>
+<td>The context echoed by the pipeline after its last sync to the CRDS server.</td>
+</tr>
+<tr><td>Onsite Default</td>
+<td><a class="reference external" href="https://hst-crds.stsci.edu/context_table/hst_0684.pmap/">hst_ops_table_0684</a></td>
+<td>AKA /grp/crds/cache. Default cache for onsite users with no CRDS_PATH and CRDS_SERVER_URL.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="hst-ops-links">
+<h2>HST OPS Links</h2>
+<p><a class="reference external" href="https://hst-crds.stsci.edu">HST OPS Server</a></p>
+<p><a class="reference external" href="https://hst-crds.stsci.edu/display_context_history/">HST OPS Default Context History</a></p>
+<p><a class="reference external" href="https://hst-crds.stsci.edu/display_all_contexts/">HST OPS All Contexts</a></p>
+<p><a class="reference external" href="https://hst-crds.stsci.edu/static/users_guide/index.html">HST OPS User's Guide</a></p>
+</div>
+</div>
+<div class="section" id="crds-hst-test">
+<h1>CRDS HST TEST</h1>
+<div class="section" id="hst-test-deliveries">
+<h2>HST TEST Deliveries</h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="32%" />
+<col width="17%" />
+<col width="15%" />
+<col width="27%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Date</th>
+<th class="head">Context Table</th>
+<th class="head">Actions</th>
+<th class="head">Status</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="hst-test-context-settings">
+<h2>HST TEST Context Settings</h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="18%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Location</th>
+<th class="head">Context Table</th>
+<th class="head">Notes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>Last Delivered</td>
+<td><a class="reference external" href="https://hst-crds-test.stsci.edu/context_table/hst_0680.pmap/">hst_test_table_0680</a></td>
+<td>AKA the 'edit' context new deliveries add to.</td>
+</tr>
+<tr><td>Server Default, Offsite</td>
+<td><a class="reference external" href="https://hst-crds-test.stsci.edu/context_table/hst_0675.pmap/">hst_test_table_0675</a></td>
+<td>AKA the 'operational' context used by any system syncing to the CRDS Server.</td>
+</tr>
+<tr><td>Pipeline Echo</td>
+<td><a class="reference external" href="https://hst-crds-test.stsci.edu/context_table/hst_0675.pmap/">hst_test_table_0675</a></td>
+<td>The context echoed by the pipeline after its last sync to the CRDS server.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="hst-test-links">
+<h2>HST TEST Links</h2>
+<p><a class="reference external" href="https://hst-crds-test.stsci.edu">HST TEST Server</a></p>
+<p><a class="reference external" href="https://hst-crds-test.stsci.edu/display_context_history/">HST TEST Default Context History</a></p>
+<p><a class="reference external" href="https://hst-crds-test.stsci.edu/display_all_contexts/">HST TEST All Contexts</a></p>
+<p><a class="reference external" href="https://hst-crds-test.stsci.edu/static/users_guide/index.html">HST TEST User's Guide</a></p>
+</div>
+</div>
+</div>
+</body>
+</html>
+
