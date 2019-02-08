@@ -14,6 +14,7 @@ end
 
 rm -f servers/httpd.conf*
 rm -f ssl.tmp
+rm -rf crds_report/dist crds_report/build crds_report/crds_report.egg-info
 
 if ("$#argv" == "3" && "$3" == "wipe") then
     ../CRDS/clean
