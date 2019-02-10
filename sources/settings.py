@@ -24,18 +24,19 @@ from crds_server.config import CRDS_SECRETS, CRDS_BACKUPS, CRDS_INSTALL_DIR, CRD
 # ===========================================================================
 
 SECRETS = os.environ["CRDS_SECRETS"]
+CRDS_DB_PASSWD = os.environ["CRDS_DB_PASSWD"]
 
-with open(f"{SECRETS}/dev_test_django_jwst.dat") as db_file:
+with open(os.path.join(SECRETS, CRDS_DB_PASSWD)) as db_file:
     DB_WORD = db_file.read().strip()
     
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'crds_jwst_dev',
-        'USER': 'jwstcrds',                      # Not used with sqlite3.
+        'NAME': os.environ["CRDS_DB_NAME"],
+        'USER': os.environ["CRDS_DB_USER"],                      # Not used with sqlite3.
         'PASSWORD': DB_WORD,                  # Not used with sqlite3.
-        'HOST': 'goldtst.stsci.edu',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '23306',                      # Set to empty string for default. Not used with sqlite3.
+        'HOST': os.environ["CRDS_DB_HOST"],                      # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': os.environ["CRDS_DB_PORT"],                      # Set to empty string for default. Not used with sqlite3.
         
         "OPTIONS": {
             'init_command': 'SET default_storage_engine=INNODB;',

@@ -84,9 +84,8 @@ CRDS_DIRECT_URL = "https://" + HOST + ".stsci.edu:" + str(CRDS_PORT) + "/"
 CRDS_REFERENCE_URL = CRDS_URL + "get/"
 CRDS_MAPPING_URL   = CRDS_URL + "get/"
 
-# These may get redirected to the archive or a static file server
-CRDS_UNCHECKED_REFERENCE_URL = CRDS_URL + "unchecked_get/references/" + CRDS_PROJECT + "/"
-CRDS_UNCHECKED_MAPPING_URL   = CRDS_URL + "unchecked_get/mappings/" + CRDS_PROJECT + "/"
+CRDS_UNCHECKED_REFERENCE_URL = os.environ["CRDS_UNCHECKED_REFERENCE_URL"]
+CRDS_UNCHECKED_MAPPING_URL = os.environ["CRDS_UNCHECKED_MAPPING_URL"]
 
 FORCE_REMOTE_MODE = int(os.environ["CRDS_FORCE_REMOTE_MODE"])
 
@@ -101,9 +100,6 @@ FORCE_REMOTE_MODE = int(os.environ["CRDS_FORCE_REMOTE_MODE"])
 # Path to mock CRDS repro parameters,  if any
 CRDS_MOCK_ARCHIVE_PARAMETERS = os.environ.get("CRDS_MOCK_ARCHIVE_PARAMETERS", None)
 
-CRDS_STATUS_TO_ADDRESSES = os.environ["CRDS_STATUS_TO_ADDRESSES"].split(",")
-CRDS_STATUS_CONFIRM_ADDRESSES  = os.environ["CRDS_STATUS_CONFIRM_ADDRESSES"].split(",")
-
 # Directory where reprocessing system maintains state and store results
 CRDS_REPROCESSING = os.environ["CRDS_REPROCESSING"]
 
@@ -111,8 +107,11 @@ CRDS_SERVER_LOGS = os.environ["CRDS_SERVER_LOGS"]
 CRDS_CRON_LOGS = os.environ["CRDS_CRON_LOGS"]
 
 CRDS_STATUS_FROM_ADDRESS = "crds-servers@stsci.edu"
-CRDS_STATUS_TO_ADDRESSES = ["crds-servers@stsci.edu"]
-CRDS_STATUS_CONFIRM_ADDRESSES =  ["crds-servers@stsci.edu", "crds_datamng@stsci.edu"]
+# CRDS_STATUS_TO_ADDRESSES = ["crds-servers@stsci.edu"]
+# CRDS_STATUS_CONFIRM_ADDRESSES =  ["crds-servers@stsci.edu", "crds_datamng@stsci.edu"]
+
+CRDS_STATUS_TO_ADDRESSES = os.environ["CRDS_STATUS_TO_ADDRESSES"].split(",")
+CRDS_STATUS_CONFIRM_ADDRESSES  = os.environ["CRDS_STATUS_CONFIRM_ADDRESSES"].split(",")
 
 # install_dir is the server installation location,  with the exceptions of logs
 # this should be kept small.

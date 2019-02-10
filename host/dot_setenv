@@ -28,6 +28,31 @@ setenv CRDS_ROOT  /crds/data1
 setenv CRDS_SERVER `uname -n | cut -d'.' -f1`
 
 # -----------------------------------------------------------------------------------------
+# Django DEBUG config,  set to 0 for TEST and OPS systems
+# Security risk,  only override "off" for specific strings
+# -----------------------------------------------------------------------------------------
+
+# Basic Django debug mode
+setenv CRDS_DEBUG 0
+
+# Install additional debug packages 
+setenv CRDS_DEBUG_EXTRAS 0
+
+# Forces bestrefs clients not explicitly configured for CRDS_MODE=LOCAL
+# to make server service calls instead of running bestrefs locally.
+# Probably dead code at this stage due to normal end-user and pipeline
+# configurations which don't set CRDS_SERVER_URL required for doing
+# service calls.
+setenv CRDS_FORCE_REMOTE_MODE 0
+
+# File states for which CRDS is permitted to distribute references.
+# Full utilization of archive deliveries and servers omits the states
+# which are commented out.  DEV, sometimes TEST,  sometimes I&T systems
+# can optionally skip archiving and use CRDS server static file distribution
+# to distribute rules and references.
+setenv CRDS_DISTRIBUTION_STATES archived,operational  # submitted,delivered,archiving
+
+# -----------------------------------------------------------------------------------------
 # Server string customization vars,  can override preceding generic default settings
 # string-by-string.
 # -----------------------------------------------------------------------------------------
@@ -36,17 +61,43 @@ switch ($CRDS_SERVER)
        case tlcrdsswys:
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE syslab
-        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
+        setenv CRDS_SERVER_IP "10.128.17.11"
         setenv CRDS_SERVER_URL https://tlcrdssys.actlab.stsci.edu:8001
+
+        setenv CRDS_DB_NAME crds_jwst_syslab
+        setenv CRDS_DB_PASSWD syslab_django_jwst.dat
+        setenv CRDS_DB_USER jwstcrds
+        setenv CRDS_DB_HOST localhost
+        setenv CRDS_DB_PORT 3306
+
+        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
+        setenv CRDS_MOCK_ARCHIVE_PARAMETERS "jwst-b7.2-iljwdmscarc1-2018-11-19.json"
+
+        setenv CRDS_DISTRIBUTION_STATES archived,operational,delivered,submitted,archiving
+
+        setenv CRDS_STATUS_TO_ADDRESSES jmiller@stsci.edu
+        setenv CRDS_STATUS_CONFIRM_ADDRESSES jmiller@stsci.edu
+
+        # Basic Django debug mode
+        setenv CRDS_DEBUG 1
+
+        # Install additional packages 
+        setenv CRDS_DEBUG_EXTRAS 0
        breaksw
 
+       # .............................................................................
        case dljwcrds:
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE dev
-
         setenv CRDS_SERVER_URL https://jwst-crds-dev.stsci.edu
         setenv CRDS_SERVER_IP 10.128.19.170
        
+        setenv CRDS_DB_NAME crds_jwst_dev
+        setenv CRDS_DB_PASSWD dev_test_django_jwst.dat
+        setenv CRDS_DB_USER jwstcrds
+        setenv CRDS_DB_HOST goldtst.stsci.edu
+        setenv CRDS_DB_PORT 23306
+
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
         setenv CRDS_MOCK_ARCHIVE_PARAMETERS jwst-b7.2-iljwdmscarc1-2018-11-19.json
 
@@ -65,71 +116,179 @@ switch ($CRDS_SERVER)
 
        breaksw
 
+       # .............................................................................
        case dlhstcrds:
         setenv CRDS_PROJECT hst
         setenv CRDS_USECASE dev
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
         setenv CRDS_SERVER_URL https://hst-crds-dev.stsci.edu
+        setenv CRDS_SERVER_IP 10.128.19.71
+       
+        setenv CRDS_DB_NAME crds_hst_dev
+        setenv CRDS_DB_PASSWD dev_test_django_hst.dat
+        setenv CRDS_DB_USER hstcrds
+        setenv CRDS_DB_HOST goldtst.stsci.edu
+        setenv CRDS_DB_PORT 23306
+
+        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
+        setenv CRDS_MOCK_ARCHIVE_PARAMETERS jwst-b7.2-iljwdmscarc1-2018-11-19.json
+
+        # Including all states ignores status of downstream archive "CRDS poller"
+        # and archive delivery.
+        setenv CRDS_DISTRIBUTION_STATES archived,operational  #,delivered,submitted,archiving
+
+        setenv CRDS_STATUS_TO_ADDRESSES jmiller@stsci.edu
+        setenv CRDS_STATUS_CONFIRM_ADDRESSES jmiller@stsci.edu
+
+        # Basic Django debug mode
+        setenv CRDS_DEBUG 1
+        # Install additional packages 
+        setenv CRDS_DEBUG_EXTRAS 0
        breaksw
 
+       # .............................................................................
        case tljwcrds:
+        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE test
-        setenv CRDS_SERVER_URL https://jwst-crds-test.stsci.edu
-        # setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
+        setenv CRDS_SERVER_URL https://jwst-crds-test.stsci.edu
+        setenv CRDS_SERVER_IP 10.128.19.65
+       
+        setenv CRDS_DB_PASSWD dev_test_django_jwst.dat
+        setenv CRDS_DB_NAME crds_jwst_dev
+        setenv CRDS_DB_USER jwstcrds
+        setenv CRDS_DB_HOST goldtst.stsci.edu
+        setenv CRDS_DB_PORT 23306
+
+        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
+        setenv CRDS_MOCK_ARCHIVE_PARAMETERS jwst-b7.2-iljwdmscarc1-2018-11-19.json
+
+        # Including all states ignores status of downstream archive "CRDS poller"
+        # and archive delivery.
+        setenv CRDS_DISTRIBUTION_STATES archived,operational,delivered,submitted,archiving
+
+        setenv CRDS_STATUS_TO_ADDRESSES jmiller@stsci.edu
+        setenv CRDS_STATUS_CONFIRM_ADDRESSES jmiller@stsci.edu
        breaksw
+
+       # .............................................................................
        case tlhstcrds:
-        setenv CRDS_STACK ${CRDS}/crds_stacks/crds_conda3-11
         setenv CRDS_PROJECT hst
         setenv CRDS_USECASE test
         setenv CRDS_SERVER_URL https://hst-crds-test.stsci.edu
+        setenv CRDS_SERVER_IP 10.128.19.153
+       
+        setenv CRDS_DB_NAME crds_hst_test
+        setenv CRDS_DB_PASSWD dev_test_django_hst.dat
+        setenv CRDS_DB_USER hstcrds
+        setenv CRDS_DB_HOST goldtst.stsci.edu
+        setenv CRDS_DB_PORT 23306
+
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
+        setenv CRDS_MOCK_ARCHIVE_PARAMETERS jwst-b7.2-iljwdmscarc1-2018-11-19.json
+
+        # Including all states ignores status of downstream archive "CRDS poller"
+        # and archive delivery.
+        setenv CRDS_DISTRIBUTION_STATES archived,operational,delivered,submitted,archiving
+
+        setenv CRDS_STATUS_TO_ADDRESSES jmiller@stsci.edu
+        setenv CRDS_STATUS_CONFIRM_ADDRESSES jmiller@stsci.edu
        breaksw
 
+       # .............................................................................
        case pljwcrds:
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE ops
         setenv CRDS_SERVER_URL https://jwst-crds.stsci.edu
-        # setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
-        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu"
+        setenv CRDS_SERVER_IP 10.128.19.61
+
         setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
+
+        setenv CRDS_DB_NAME crds_jwst
+        setenv CRDS_DB_PASSWD production_django_jwst.dat
+        setenv CRDS_DB_USER jwstcrds
+        setenv CRDS_DB_HOST tanops.stsci.edu
+        setenv CRDS_DB_PORT 33306
+
+        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
+        setenv CRDS_MOCK_ARCHIVE_PARAMETERS jwst-b7.2-iljwdmscarc1-2018-11-19.json
+
+        # Including all states ignores status of downstream archive "CRDS poller"
+        # and archive delivery.
+        setenv CRDS_DISTRIBUTION_STATES archived,operational # ,delivered,submitted,archiving
+
+        setenv CRDS_STATUS_TO_ADDRESSES crds-servers@stsci.edu,redcat@stsci.edu
+        setenv CRDS_STATUS_CONFIRM_ADDRESSES crds-servers@stsci.edu,redcat@stsci.edu,crds_datamng@stsci.edu
        breaksw
 
+       # .............................................................................
        case plhstcrds:
         setenv CRDS_PROJECT hst
         setenv CRDS_USECASE ops
         setenv CRDS_SERVER_URL https://hst-crds.stsci.edu
-        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
         setenv CRDS_GRP_CACHE_KEY 78b96cd6-4295-4215-89ff-a588b2ea831a
+
+        setenv CRDS_DB_NAME crds_hst
+        setenv CRDS_DB_PASSWD production_django_hst.dat
+        setenv CRDS_DB_USER hstcrds
+        setenv CRDS_DB_HOST tanops.stsci.edu
+        setenv CRDS_DB_PORT 23306
+
+        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu   crds_datamng@stsci.edu"
+        setenv CRDS_MOCK_ARCHIVE_PARAMETERS jwst-b7.2-iljwdmscarc1-2018-11-19.json
+
+        # Including all states ignores status of downstream archive "CRDS poller"
+        # and archive delivery.
+        setenv CRDS_DISTRIBUTION_STATES archived,operational # ,delivered,submitted,archiving
+
+        setenv CRDS_STATUS_TO_ADDRESSES crds-servers@stsci.edu,redcat@stsci.edu
+        setenv CRDS_STATUS_CONFIRM_ADDRESSES crds-servers@stsci.edu,redcat@stsci.edu,crds_datamng@stsci.edu
        breaksw
 
-       # ATM pljwcrds is A-string,  not integrated with DMS A-string
-       case iljwdmsacrds:
-        setenv CRDS_PROJECT jwst
-        setenv CRDS_USECASE ait
-        setenv CRDS_SERVER_URL https://jwst-crds-ait.stsci.edu
-        setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu"
-        setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
-       breaksw
 
+       # .............................................................................
        case iljwdmsbcrds:
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE bit
         setenv CRDS_SERVER_URL https://jwst-crds-bit.stsci.edu
+        setenv CRDS_SERVER_IP "130.167.252.144"
+
+        setenv CRDS_DB_NAME crds_jwst_bit
+        setenv CRDS_DB_PASSWD production_django_jwst.dat
+        setenv CRDS_DB_USER jwstcrds
+        setenv CRDS_DB_HOST iljwdmsbcrdsdb.stsci.edu
+        setenv CRDS_DB_PORT 3306
+
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu"
         setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
+
+        setenv ARCHIVE_PARAMETER_SERVICE_URL http://iljwdmsbarc1.stsci.edu:8888/crds
+
+        setenv CRDS_DISTRIBUTION_STATES archived,operational # ,delivered,submitted,archiving
        breaksw
 
+       # .............................................................................
        case iljwdmsccrds:
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE cit
         setenv CRDS_SERVER_URL https://jwst-crds-cit.stsci.edu
+        setenv CRDS_SERVER_IP "10.128.19.148"
+
+        setenv CRDS_DB_NAME crds_jwst_cit
+        setenv CRDS_DB_PASSWD production_django_jwst.dat
+        setenv CRDS_DB_USER jwstcrds
+        setenv CRDS_DB_HOST iljwdmsccrdsdb.stsci.edu
+        setenv CRDS_DB_PORT 3306
+
         setenv CRDS_AFFECTED_DATASETS_RECIPIENTS "jmiller@stsci.edu  crds_${CRDS_PROJECT}_${CRDS_USECASE}_reprocessing@maillist.stsci.edu"
         setenv CRDS_GRP_CACHE_KEY 3d15844c-62a0-4a00-bedc-fafdb34f4a2c
+
+        setenv ARCHIVE_PARAMETER_SERVICE_URL http://iljwdmscarc1.stsci.edu:8888/crds
+
+        setenv CRDS_DISTRIBUTION_STATES archived,operational # ,delivered,submitted,archiving
        breaksw
        
-       # tlcrds
 endsw
 
 # ----------------------------------------------------------------------
@@ -306,31 +465,6 @@ limit stacksize 64000k
 setenv TZ 'America/New_York'
 
 # -----------------------------------------------------------------------------------------
-# Django DEBUG config,  set to 0 for TEST and OPS systems
-# Security risk,  only override "off" for specific strings
-# -----------------------------------------------------------------------------------------
-
-# Basic Django debug mode
-setenv CRDS_DEBUG 0
-
-# Install additional debug packages 
-setenv CRDS_DEBUG_EXTRAS 0
-
-# Forces bestrefs clients not explicitly configured for CRDS_MODE=LOCAL
-# to make server service calls instead of running bestrefs locally.
-# Probably dead code at this stage due to normal end-user and pipeline
-# configurations which don't set CRDS_SERVER_URL required for doing
-# service calls.
-setenv CRDS_FORCE_REMOTE_MODE 0
-
-# File states for which CRDS is permitted to distribute references.
-# Full utilization of archive deliveries and servers omits the states
-# which are commented out.  DEV, sometimes TEST,  sometimes I&T systems
-# can optionally skip archiving and use CRDS server static file distribution
-# to distribute rules and references.
-setenv CRDS_DISTRIBUTION_STATES archived,operational  # submitted,delivered,archiving
-
-# -----------------------------------------------------------------------------------------
 # Auth for Archive database (readonly harpo replicated) used for CRDS
 # repro parameters for HST.  Defaults use OPS server for full parameters
 # versus TEST servers which only contain parameters for regression cases.
@@ -340,17 +474,39 @@ setenv CRDS_REPRO_DB_PFILE "${CRDS_SECRETS}/crds.dat"
 setenv CRDS_REPRO_DB_DSN HarpoDadsopsRepDsn
 
 # -----------------------------------------------------------------------------------------
+# Shell aliases for convenience.  (May be used in some scripts)
 # -----------------------------------------------------------------------------------------
-
- # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-setenv CRDS_DJANGO_DB_ENGINE         django.db.backends.mysql
-setenv CRDS_DJANGO_DB_NAME           crds_jwst_dev
-setenv CRDS_DJANGO_DB_USER           jwstcrds
-setenv CRDS_DJANGO_DB_PASSWORD_FILE  ${CRDS_SECRETS}/dev_test_django_jwst.dat
-setenv CRDS_DJANGO_DB_HOST           goldtst.stsci.edu
-setenv CRDS_DJANGO_DB_PORT           23306
-setenv CRDS_DJANGO_DB_OPTIONS_INIT   'SET default_storage_engine=INNODB;'
-
-# These are generic,  keep syntax errors from crashing dot_setenv early
 source /home/crds/.alias
 
+# -----------------------------------------------------------------------------------------
+# Static file download URLs for references and rules, i.e. for syncing to remote caches
+# -----------------------------------------------------------------------------------------
+
+if ( ${CRDS_BACKUP_MODE} != 0 ) then
+    setenv CRDS_URL https://${CRDS_SERVER}.stsci.edu:8002/
+else
+    setenv CRDS_URL ${CRDS_SERVER_URL}
+endif
+
+setenv CRDS_UNCHECKED_MAPPING_URL ${CRDS_URL}/unchecked_get/mappings/${CRDS_PROJECT}/
+setenv CRDS_UNCHECKED_REFERENCE_URL ${CRDS_URL}/unchecked_get/references/${CRDS_PROJECT}/
+
+# -----------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------
+# Final customizations now that most information is defined
+# -----------------------------------------------------------------------------------------
+# Note that URLs for the AUI only use a combined "reference" directory which includes rules.
+# -----------------------------------------------------------------------------------------
+switch ($CRDS_SERVER)
+
+       case iljwdmsbcrds:
+          setenv CRDS_UNCHECKED_REFERENCE_URL https://iwjwdmsbauiweb.stsci.edu/portal/Download/file/JWST/reference/
+          setenv CRDS_UNCHECKED_MAPPING_URL https://iwjwdmsbauiweb.stsci.edu/portal/Download/file/JWST/reference/
+       breaksw
+
+       case iljwdmsccrds:
+          setenv CRDS_UNCHECKED_REFERENCE_URL https://iwjwdmscauiweb.stsci.edu/portal/Download/file/JWST/reference/
+          setenv CRDS_UNCHECKED_MAPPING_URL https://iwjwdmscauiweb.stsci.edu/portal/Download/file/JWST/reference/
+       breaksw
+
+endsw
