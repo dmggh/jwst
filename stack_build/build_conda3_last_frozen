@@ -1,19 +1,18 @@
 #! /bin/tcsh -fx
 
-setenv CONDA_NAME crds_conda3-11
-
-setenv CRDS_STACK ${CRDS}/crds_stacks/${CONDA_NAME}
-setenv META_PREFIX ${CRDS_STACK}
+setenv CONDA_NAME crds_conda3-12
 
 setenv MASTER_REMOTE_SOURCE /eng/ssb/crds/installer4
 setenv SOURCE_NAME installer4.${CONDA_NAME} 
-setenv LOCAL_SOURCE  ${CRDS}/crds_stacks/${SOURCE_NAME}
+setenv LOCAL_SOURCE  ${CRDS_STACK_SOURCES}/${SOURCE_NAME}
 setenv FROZEN_REMOTE_SOURCE /eng/ssb/crds/${SOURCE_NAME}
 
 # Copy frozen versioned source from /eng/ssb/crds to local server copy
-cd ${CRDS}/crds_stacks
+cd ${CRDS_STACK_SOURCES}
 rm -rf ${CRDS_STACK}.old
 mv ${CRDS_STACK} ${CRDS_STACK}.old
+
+# Use frozen sources from shared area
 rm -rf ${LOCAL_SOURCE}
 cp -r ${FROZEN_REMOTE_SOURCE} ${LOCAL_SOURCE}
 

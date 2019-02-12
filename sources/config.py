@@ -11,7 +11,7 @@ CRDS_MOCK_ARCHIVE_PARAMETERS = None
 ARCHIVE_PARAMETER_SERVICE_URL = "https://undefined-archive-parameter-service.stsci.edu"
 
 # This is a VM-related storage partition used as server space
-install_root = '/crds/data1/server_local'
+install_root = '/crds/data1/persistent_local'
 
 CRDS_SECRETS = os.environ["CRDS_SECRETS"]
 CRDS_BACKUPS = os.environ["CRDS_BACKUPS"]
@@ -60,8 +60,9 @@ PYSYN_CDBS = ""
 # This is a Isilon storage /crds/hst/production used as file space
 # storage_path = '/ifs/crds/' + observatory + '/' + server_usecase
 CRDS_REPRO_DB_USER = os.environ["CRDS_REPRO_DB_USER"]
-CRDS_REPRO_DB_PFILE = os.environ["CRDS_REPRO_DB_PFILE"]
+CRDS_REPRO_DB_KEYTAB = os.environ["CRDS_REPRO_DB_KEYTAB"]
 CRDS_REPRO_DB_DSN = os.environ["CRDS_REPRO_DB_DSN"]
+CRDS_REPRO_DB_NAME = os.environ["CRDS_REPRO_DB_NAME"]
 
 # These are the file states which are available for download or rpc.
 # XXX TODO restrict to archived or operational

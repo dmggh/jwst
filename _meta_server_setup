@@ -1,7 +1,8 @@
 #! /bin/sh -x
 
 # This script handles creating and customizing Apache/server
-# configuration and startup scripts.
+# configuration and startup scripts.  Apache ultimately hands
+# off processing to Django via the mod_wsgi interface.
 
 ###
 ### special cases for each type of web server we might be using

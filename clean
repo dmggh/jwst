@@ -2,25 +2,7 @@
 
 # Script to remove temporary install files which show up as ? in svn status
 
-# rm -f run stop env.csh
-foreach obj (build git_version.py crds_database.py site_config.py)
-        rm -rf sources/$obj
-end
-
-foreach obj (_files _references _mappings)
-    rm -f tools/hst$obj
-    rm -f tools/jwst$obj
-end
-
+rm -rf sources/build
 rm -f servers/httpd.conf*
 rm -f ssl.tmp
-rm -rf crds_report/dist crds_report/build crds_report/crds_report.egg-info
-
-if ("$#argv" == "3" && "$3" == "wipe") then
-    ../CRDS/clean
-    rm -rf sources/build
-    rm -f ./run ./stop ./env.csh
-    find ../django_servers/hst $1 -name '*.db' | xargs rm -fv
-    rm -rf $1
-    rm -rf ../django_servers/$1
-endif
+rm -rf crds_report/dist crds_report/build crds_report/crds_report.egg-info*

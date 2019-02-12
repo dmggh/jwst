@@ -5,21 +5,31 @@
 #       ingest
 #       uploads
 #       deliveries
+#       catalogs
 #    file_cache
+#       references
+#          hst
+#          jwst
+#       mappings
+#          hst
+#          jwst
+#       config
+#          hst
+#          jwst
 # /crds/data1/persistent_local
-#   logs
-#   backups
-#   reprocessing
-#   regressions
-#   secrets
+#     logs
+#     cron_logs
+#     profiles
+#     backups
+#     reprocessing
+#     regressions
+#     secrets
 # /crds/data1/volatile_local
-#   CRDS code        (removed after Image build?) 
-#   CRDS_server code (removed after Image build?)
-#   Python stack code (removed after Image build?)
-#   Installed stack + CRDS + CRDS_server
-#   ... Docker Image / Container only files, ephemeral
-
-# setenv CRDS /crds/data1/server_local
+#     CRDS client source       (removed after Image build?) 
+#     CRDS_server source       (removed after Image build?)
+#     (Python) stack source    (removed after Image build?)
+#     Installed stack + CRDS + CRDS_server
+#     ... Docker Image / Container only files, ephemeral
 
 setenv CRDS_SERVER_TYPE mod_wsgi
 
@@ -370,8 +380,9 @@ setenv CRDS_SECRETS ${CRDS_PERSISTENT_LOCAL}/secrets
 # Define Python version,   location of installed CRDS package which may be outside stack
 # provided PYTHON_PATH is modified or some other accomodation is made.
 # ---------------------------------------------------------------------------------------
-setenv CRDS_PYTHON python3.6
-setenv CRDS_INSTALL_DIR ${CRDS_STACK}/lib/${CRDS_PYTHON}/site-packages/crds_server
+setenv PY_VER 3.7
+
+setenv CRDS_INSTALL_DIR ${CRDS_STACK}/lib/python${PY_VER}/site-packages/crds_server
 
 # ---------------------------------------------------------------------------------------
 # Provide defaults for the CRDS Apache port depending on mode flag file in $HOME
@@ -469,9 +480,21 @@ setenv TZ 'America/New_York'
 # repro parameters for HST.  Defaults use OPS server for full parameters
 # versus TEST servers which only contain parameters for regression cases.
 # -----------------------------------------------------------------------------------------
-setenv CRDS_REPRO_DB_USER "crds"
-setenv CRDS_REPRO_DB_PFILE "${CRDS_SECRETS}/crds.dat"
-setenv CRDS_REPRO_DB_DSN HarpoDadsopsRepDsn
+setenv CRDS_REPRO_DB_USER   crds
+setenv CRDS_REPRO_DB_KEYTAB ${CRDS_SECRETS}/crds_krb5.keytab
+setenv CRDS_REPRO_DB_DSN    HARPO    # HarpoDadsopsRepDsn
+setenv CRDS_REPRO_DB_NAME   dadsops_rep
+
+#
+# Settings for HST archive TEST database, generally not used.
+#
+# setenv CRDS_REPRO_DB_USER "crds"
+# setenv CRDS_REPRO_DB_KEYTAB "/crds/data1/database/crds_krb5.keytab"
+# setenv CRDS_REPRO_DB_DSN "GROUCHOAG"   # availability group
+# setenv CRDS_REPRO_DB_DSN "GROUCHO"   # original  test server
+# setenv CRDS_REPRO_DB_NAME "dadsops_rep"   # or dadstest2
+#
+
 
 # -----------------------------------------------------------------------------------------
 # Shell aliases for convenience.  (May be used in some scripts)

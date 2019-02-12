@@ -1,8 +1,39 @@
 #! /bin/sh -x
 
-###
-### create the install directory
-###
+# This script is used to construct CRDS file system storage directory
+# organizations and to set their permissions.
+
+
+# /crds/data1/isilon
+#    server_files
+#       ingest
+#       uploads
+#       deliveries
+#       catalogs
+#    file_cache
+#       references
+#          hst
+#          jwst
+#       mappings
+#          hst
+#          jwst
+#       config
+#          hst
+#          jwst
+# /crds/data1/persistent_local
+#     logs
+#     cron_logs
+#     profiles
+#     backups
+#     reprocessing
+#     regressions
+#     secrets
+# /crds/data1/volatile_local
+#     CRDS client source       (removed after Image build?) 
+#     CRDS_server source       (removed after Image build?)
+#     (Python) stack source    (removed after Image build?)
+#     Installed stack + CRDS + CRDS_server
+#     ... Docker Image / Container only files, ephemeral
 
 secret=6700
 private_ro=6750
