@@ -15,9 +15,8 @@ MAILTO="crds-servers@stsci.edu"
 # every 5 minutes, no e-mail
 */5 * * * *     source $HOME/.setenv;      monitor_reprocessing >& ${CRDS_CRON_LOGS}/monitor_reprocessing.log
 
-# Obsoleted by switch to shared cache and inclusion of "update_server_cache" subprocess in Set Context view.
 # every 5 minutes, no e-mail
-# */5 * * * *     source $HOME/.setenv;      cron_sync --last 1  --save-pickles --verbose --push-context $CRDS_SERVER_CACHE_KEY >& ${CRDS_CRON_LOGS}/server_cache_sync.log
+*/5 * * * *     source $HOME/.setenv;      cron_sync --last 1  --save-pickles --verbose --push-context $CRDS_SERVER_CACHE_KEY >& ${CRDS_CRON_LOGS}/server_cache_sync.log
 
 # every 5 minutes, no e-mail
 */5 * * * *     source $HOME/.setenv;      update_delivery_status >& ${CRDS_CRON_LOGS}/update_delivery_status.log

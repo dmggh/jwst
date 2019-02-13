@@ -1991,8 +1991,24 @@ def mark_bad_core(user, blacklist_root, badflag, why):
         "marked as " + srepr(badflag.upper()),
         instrument=instrument, filekind=filekind)
 
+    #
     # see CRDS_server/hosts scripts directory,  runs cron_sync pushing context
-    pysh.sh("update_server_cache")
+    #
+    # XXXX: doing this direct cache sync has multiple issues with unit tests.
+    #
+    # For starters,  the server is no longer at the standard URL so given the
+    # default (login? .setenv) shell environment the CRDS client's cron_sync 
+    # hangs for 10 minutes retrying before timing out.
+    #
+    # Second,  even if the server was available,  it would never be appropriate
+    # to sync the cache to the unit test database unless a test cache was in use.
+    # Just like the server URL,  the full-up cache is used... which would potentially
+    # change the server's active context to a test value.
+    #
+    # Hence,  commenting this out since a cron_job update once every few minutes or so
+    # should be adequate.
+    #
+    # pysh.sh("update_server_cache")
 
     return affected_files
 
@@ -2079,8 +2095,24 @@ def update_default_context(new_default, description, context_type, user):
                          context_type + " context changed from " +
                          srepr(old_default) + " to " + srepr(new_default))
 
+    #
     # see CRDS_server/hosts scripts directory,  runs cron_sync pushing context
-    pysh.sh("update_server_cache")
+    #
+    # XXXX: doing this direct cache sync has multiple issues with unit tests.
+    #
+    # For starters,  the server is no longer at the standard URL so given the
+    # default (login? .setenv) shell environment the CRDS client's cron_sync 
+    # hangs for 10 minutes retrying before timing out.
+    #
+    # Second,  even if the server was available,  it would never be appropriate
+    # to sync the cache to the unit test database unless a test cache was in use.
+    # Just like the server URL,  the full-up cache is used... which would potentially
+    # change the server's active context to a test value.
+    #
+    # Hence,  commenting this out since a cron_job update once every few minutes or so
+    # should be adequate.
+    #
+    # pysh.sh("update_server_cache")
 
     with log.error_on_exception("Failed Update Default Context e-mail"):
         username = user.first_name + " " + user.last_name
