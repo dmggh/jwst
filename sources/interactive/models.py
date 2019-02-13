@@ -97,10 +97,10 @@ def retrieve_cache(key):
         pick = ""
         while 1:
             chunk_key = key + "_{:02d}".format(i)
-            fetch = CRDS_CACHE.get(chunk_key)  # .decode("utf-8")
+            fetch = CRDS_CACHE.get(chunk_key)
             if fetch is None:
                 break
-            pick += fetch
+            pick += fetch.decode("utf-8")
             i += 1
             log.verbose("retrieve_cache", chunk_key, len(fetch))
         if fetch is None and len(pick) == 0:
