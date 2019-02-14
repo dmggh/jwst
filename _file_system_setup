@@ -1,0 +1,108 @@
+#! /bin/sh -x
+
+# This script is used to construct CRDS file system storage directory
+# organizations and to set their permissions.
+
+
+# /crds/data1/isilon
+#    server_files
+#       ingest
+#       uploads
+#       deliveries
+#       catalogs
+#    file_cache
+#       references
+#          hst
+#          jwst
+#       mappings
+#          hst
+#          jwst
+#       config
+#          hst
+#          jwst
+# /crds/data1/persistent_local
+#     logs
+#     cron_logs
+#     profiles
+#     backups
+#     reprocessing
+#     regressions
+#     secrets
+# /crds/data1/volatile_local
+#     CRDS client source       (removed after Image build?) 
+#     CRDS_server source       (removed after Image build?)
+#     (Python) stack source    (removed after Image build?)
+#     Installed stack + CRDS + CRDS_server
+#     ... Docker Image / Container only files, ephemeral
+
+secret=6700
+private_ro=6750
+private_rw=6770
+public=6744
+immutable=444
+
+function create_dir {
+    mkdir -p $2 $3 $4 $5 $6 $7 $8 $9
+    chmod $1 $2
+}
+
+# CRDS log files from e.g. Apache and cron
+create_dir $secret $CRDS_VOLATILE_LOCAL
+create_dir $secret $CRDS_PERSISTENT_LOCAL
+create_dir $secret $CRDS_SERVER_LOGS
+create_dir $secret $CRDS_CRON_LOGS
+create_dir $secret $CRDS_BACKUPS
+create_dir $secret $CRDS_SECRETS
+create_dir $secret $CRDS_STATIC_DIR
+
+chmod $private_ro $CRDS_IFS
+
+chmod $private_ro $CRDS_SERVER_FILES
+
+# The primary working copy for deliveries, nominally owned by CRDS.
+# Delivery files are links which last until received by OPUS.
+create_dir $private_rw $CRDS_DELIVERY_DIR
+
+# The temporary directory where CRDS/CDBS team deliverers can scp files.
+create_dir $private_rw $CRDS_INGEST_DIR
+
+# Where CRDS writes out delivery catalog files when delivering files
+# to downstream systems like the archive.  Catalog files persist.
+create_dir $private_ro $CRDS_CATALOG_DIR
+
+# The temporary directory where uploaded files are initially stored.
+create_dir $private_ro $CRDS_UPLOADS_DIR
+
+# This is the server cache and reference staging area.
+create_dir $public ${CRDS_PATH}/mappings/${CRDS_PROJECT}
+create_dir $public ${CRDS_PATH}/references/${CRDS_PROJECT}
+create_dir $public ${CRDS_PATH}/config/${CRDS_PROJECT}
+
+# This is a place for matplotlib to store cache files.  We don't actually
+# try to put any config there, and only the apache server knows to use it.
+create_dir $secret ${CRDS_VOLATILE_LOCAL}/mplconfigdir
+
+create_dir $secret ${CRDS_SERVER_SETUP}
+create_dir $secret ${CRDS_SERVER_SETUP}/lib 
+create_dir $secret ${CRDS_SERVER_SETUP}/run 
+create_dir $secret ${CRDS_SERVER_SETUP}/conf  
+create_dir $secret ${CRDS_SERVER_SETUP}/wsgi-scripts
+
+create_dir $secret ${CRDS_SERVER_SCRIPTS}
+
+
+case ${server_mode} in
+
+    "django" )
+	;;
+
+    *) 
+	echo "Setting permissions"
+	for dir in ${CRDS_DELIVERY_DIR} ${CRDS_INGEST_DIR} ${CRDS_UPLOADS_DIR}
+	do
+	    chmod $private_rw $dir
+	    chmod g+s $dir
+	done
+	;;
+esac
+

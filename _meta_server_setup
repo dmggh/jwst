@@ -1,0 +1,46 @@
+#! /bin/sh -x
+
+# This script handles creating and customizing Apache/server
+# configuration and startup scripts.  Apache ultimately hands
+# off processing to Django via the mod_wsgi interface.
+
+###
+### special cases for each type of web server we might be using
+###
+apache_version=`/usr/sbin/httpd -v | sed -n 's?Server version: Apache/??p' | cut -d " " -f1`
+case "$apache_version"
+	in
+	2.4.*)
+		dso_version=2.4
+		;;
+	2.2.*)
+		dso_version=2.2
+		;;
+	2.0.*)
+		dso_version=2.0
+		;;
+	*)
+		echo do not have a config for this apache version -"$apache_version"-
+		exit 1
+		;;
+esac
+
+cp servers/httpd.mod_wsgi.conf ${CRDS_SERVER_SETUP}/conf/httpd.conf
+cat servers/apache_dso.$dso_version >>  ${CRDS_SERVER_SETUP}/conf/httpd.conf
+
+sed -e "s?SUB_PORT?$CRDS_PORT?g" -e "s?SUB_SERVER_SETUP?${CRDS_SERVER_SETUP}?g" -e "s?SUB_SERVER_LOGS?$CRDS_SERVER_LOGS?g" <servers/ssl.${dso_version}.conf >ssl.tmp
+mv ssl.tmp ${CRDS_SERVER_SETUP}/conf/ssl.conf
+
+cp servers/*.wsgi ${CRDS_SERVER_SETUP}/wsgi-scripts
+
+rm -f $CRDS_SERVER_SETUP/lib/mod_wsgi.so
+mkdir -p $CRDS_SERVER_SETUP/lib
+ln -s ${CRDS_STACK}/lib/mod_wsgi.so ${CRDS_SERVER_SETUP}/lib
+
+ln -fs /etc/httpd/modules ${CRDS_SERVER_SETUP}/
+ln -fs /etc/httpd/conf/magic ${CRDS_SERVER_SETUP}/conf/
+
+sed -e "s?SUB_SERVER_SETUP?$CRDS_SERVER_SETUP?g" -e "s?SUB_PORT?$CRDS_PORT?g" -e "s?SUB_CDBS?$PYSYN_CDBS?g"  -e "s?SUB_CRDS_PATH?$CRDS_PATH?g" -e "s?SUB_PERSISTENT?${CRDS_PERSISTENT_LOCAL}?g" < ${CRDS_SERVER_SETUP}/conf/httpd.conf > tmp
+mv tmp ${CRDS_SERVER_SETUP}/conf/httpd.conf
+
+

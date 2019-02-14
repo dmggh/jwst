@@ -1,4 +1,5 @@
 # Django settings for crds project.
+import os
 import os.path
 
 # ===========================================================================
@@ -18,7 +19,32 @@ warnings.filterwarnings(action="ignore", category=RemovedInDjango21Warning)
 # ===========================================================================
 
 from crds_server.config import install_dir, DEBUG, DEBUG_EXTRAS, FILE_UPLOAD_TEMP_DIR, crds_server_dir
-from crds_server.crds_database import DATABASES
+from crds_server.config import CRDS_SECRETS, CRDS_BACKUPS, CRDS_INSTALL_DIR, CRDS_STATIC_DIR
+
+# ===========================================================================
+
+SECRETS = os.environ["CRDS_SECRETS"]
+CRDS_DB_PASSWD = os.environ["CRDS_DB_PASSWD"]
+
+with open(os.path.join(SECRETS, CRDS_DB_PASSWD)) as db_file:
+    DB_WORD = db_file.read().strip()
+    
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': os.environ["CRDS_DB_NAME"],
+        'USER': os.environ["CRDS_DB_USER"],                      # Not used with sqlite3.
+        'PASSWORD': DB_WORD,                  # Not used with sqlite3.
+        'HOST': os.environ["CRDS_DB_HOST"],                      # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': os.environ["CRDS_DB_PORT"],                      # Set to empty string for default. Not used with sqlite3.
+        
+        "OPTIONS": {
+            'init_command': 'SET default_storage_engine=INNODB;',
+        },
+    }
+}
+
+# ===========================================================================
 
 ALLOWED_HOSTS = ['*']
 
@@ -51,13 +77,11 @@ USE_L10N = True
 
 # Django dbbackup settings
 DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
-DBBACKUP_STORAGE_OPTIONS = {'location': install_dir + "/server/db_backups"}
+DBBACKUP_STORAGE_OPTIONS = {'location': CRDS_BACKUPS}
 
-# DBBACKUP_FILESYSTEM_DIRECTORY = install_dir + "/server/db_backups"
-    
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = install_dir + '/media'
+MEDIA_ROOT = CRDS_INSTALL_DIR + '/media'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
@@ -65,13 +89,10 @@ MEDIA_ROOT = install_dir + '/media'
 MEDIA_URL = '/media/'
 
 STATIC_URL = '/static/'
+STATIC_ROOT = CRDS_STATIC_DIR
 
-STATIC_ROOT = install_dir + "/static"
-
-HERE = os.path.dirname(__file__) or "."
-
-# Used by STATICFILES_FINDERS
-STATICFILES_DIRS = [os.path.abspath("static")]
+# Used by STATICFILES_FINDERS for additional files not in standard locations
+STATICFILES_DIRS = [os.path.abspath("static")]  #  crds_server/static 
 
 # List of finder classes that know how to find static files in
 # various locations.
@@ -87,7 +108,7 @@ STATICFILES_FINDERS = (
 ADMIN_MEDIA_PREFIX = '/static/'
 
 # Make this unique, and don't share it with anybody.
-with open("/crds/data1/database/session_key") as secret_file:
+with open(f"{CRDS_SECRETS}/session_key") as secret_file:
     SECRET_KEY = secret_file.read().strip()
 
 

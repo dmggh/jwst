@@ -6,73 +6,74 @@
 % source ~/.setenv  
 % server  # alias to cd to CRDS_server source code
 
+Following the CRDS server simplify-install-config effort, the .setenv/.cshrc
+file should be used to define all server configuration parameters, currently
+based on the hostname to define the string identity.  Environment variables in
+turn are passed into install scripts and Python's os.environ for use defining
+global constants which mirror the environment.
+
+The CRDS server "Python stack" consists of relatively slowly changing CRDS
+dependencies like the astropy, asdf, Django, memcached, fitsverify, and the
+JWST CAL code.   The key property of these packages is that they are not 
+constantly re-installed as CRDS application code is modified and run.
+
 Setup the server python stack by going to CRDS_sever/servers/stack_build
 and running build_conda3::
 
 $ server
-$ cd servers/stack_build
+$ cd stack_build
 $ ./build_conda3 |& tee build_conda3.err
 
 build_conda3 installs a mixture of private CRDS downloads that are CM'ed at
 /eng/ssb/crds/installer4 and conda packages.  Copies of installer 4 are made
 on each VM during installation.
 
-Classically tere 4 CRDS server "use cases"::
+Classically the  4 CRDS server "use cases"::
 
-django    Django/SQLite django server
-dev  Apache/VM/Isilon/MySQL/Proxy/mod_wsgi development server
-test   Apache/VM/Isilon/MySQL/Proxy/mod_wsgi pipeline test server
-ops   Apache/VM/Isilon/MySQL/Proxy/mod_wsgi pipeline production server
+dev    Apache / VM / Isilon / MySQL / Proxy / mod_wsgi development server
+test   Apache / VM / Isilon / MySQL / Proxy / mod_wsgi pipeline test server
+ops    Apache / VM / Isilon / MySQL / Proxy / mod_wsgi pipeline production server
 
-JWST uniquely has an additional I&T usecases:
+JWST uniquely has an additional I&T usecases with similar components:
 
-dit   build 7 i&t server     (string D)
 bit   build 7.1 i&t server   (string B)
 cit   build 7.1.3 i&t server   (string C)
 
-During a brief test period in winter/spring 2018 the JWST TEST server was
-utilized as part of an ad hoc A-string given to DPAS for practice/testing.
-During that period it was interfaced to the A-string pipeline and TEST version
-of the AUI.
+Install the CRDS client and server code, as well as Apache config files:
 
-# Install the code as indicated by the appropriate config file from
-# sources/configs/config.<observatory>.<server_kind>
-./install [hst|jwst]  [django|dev|test|ops|dit|bit|cit|ait]
-
-This creates CRDS_server/env.csh as well as ./run and ./stop scripts.
+./install
 
 2. Procedure for starting the sever:
 
-% ./run
+% crds_start
 
 3. Procedure for installing and restarting the server:
 
-% ./rerun
+% crds_rerun
 
 4. Procedure for running a command line / ipython environment for debug
 
-% ./manage shell
+% crds_manage shell
 
 5. Procedure for running server self-tests:
 
-% ./rerun
-% ./runtests
+% crds_runtests
 
 or 
 
 6. Procedure for running Django management commands
 
-% ./manage <additional parameters to django-admin.py>
+% ./crds_manage <additional parameters to django-admin.py>
 
 e.g.
 
 
 7. Database commands
 
-% ./manage dbshell  # to open a SQL prompt to the CRDS server database
+% ./crds_manage dbshell  # to open a SQL prompt to the CRDS server database
 
-% ./manage dbbackup  # to create a django-dbbackup server database backup
-% ./manage dbrestore <backup file>   # to revert to an older version of the database
+% ./crds_manage dbbackup  # to create a django-dbbackup server database backup
+% ./crds_manage dbrestore <backup file>   # to revert to an older version of the database
 
 Typically dbbackup and restore are done by wrapper scripts in the tools directory:
 

@@ -1,0 +1,12 @@
+#! /bin/sh
+
+DAYS_BACK=$1   # negative number
+TITLE="${2}"   # E-mail subject and report titles
+FIELDS="${3}"
+
+python -m crds_report.crds_underline "${TITLE}"
+python -m crds_report.crds_jira ${DAYS_BACK} ${FIELDS}
+python -m crds_report.crds_server_status jwst ops https://jwst-crds.stsci.edu $DAYS_BACK
+python -m crds_report.crds_server_status hst ops https://hst-crds.stsci.edu $DAYS_BACK
+python -m crds_report.crds_server_status hst test https://hst-crds-test.stsci.edu $DAYS_BACK
+

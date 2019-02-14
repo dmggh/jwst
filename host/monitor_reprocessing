@@ -6,11 +6,10 @@
 # script is run to asssess which datasets have new references and are
 # candidates for reprocessing.
 
-cd $CRDS/CRDS_server
-source env.csh
+source /home/crds/.setenv
 
-if ( -f $CRDS/CRDS_server/CRDS_SERVER_OFFLINE ) then
-    echo "Unit tests are running, skipping reprocessing checks."
+if ( -f /home/crds/CRDS_SERVER_OFFLINE ) then
+    echo "Unit tests or backups are running, skipping reprocessing checks."
     exit 0
 endif
 
@@ -21,7 +20,7 @@ echo "Monitoring reprocessing opportunities based on context changes."
 #    exit 0   # no JWST reprocessing until equivalent of DADSOPS exists and is interfaced.
 # endif
 
-cd ${CRDS}/monitor_reprocessing
+cd ${CRDS_REPROCESSING}
 
 echo "Determining current operational context."
 

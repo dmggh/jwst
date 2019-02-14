@@ -1,12 +1,13 @@
-The CRDS Python stack build is a relatively complicated hybrid consisting of:
+The CRDS Python stack build is a hybrid consisting of:
 
 1. A miniconda base install which includes most CAL supporting packages like
-numpy, scipy, etc.
+numpy, scipy, astropy, etc.
 
-2. A CRDS meta-package install which provides packages or frozen versions not
-available from conda.  These aren't necessarily Python packages.  The
-meta-package tool is a little like a poor man's rpm and dates back to a need
-for Windows compatibility with package management.
+2. CRDS meta-package installs which provide packages not available from conda
+or frozen versions.  These aren't necessarily Python packages.  The ./meta
+script is a homemade package manager which handles rote tasks like unpacking
+source tarballs, running ./configure and make install, or running setup.py
+install.
 
 3. The CRDS and CRDS_server source directory installs, local github clones used
 to do direct development pulls and pushes.  Strictly speaking these are NOT
@@ -17,10 +18,19 @@ they're a critical part of the s/w installation being handled in their own way.
 The master source repo for CRDS meta packages is at /eng/ssb/crds/installer4.
 Each VM makes a copy for each stack version.  This is a file-only repo because
 of its size, roughly 4.5G.  /eng/ssb/crds/installer4 is updated with package
-changes.  The plan is to maintain copies of the last 3 stacks, roughly:
-development, test, and operational.
+changes.
 
-The CRDS build process has two stages:
+The CRDS build process evolution has 4 potential stages:
+
+  build_conda3         --   a dynamic conda build + extras,  like winging it on a laptop
+  build_conda3_frozen  --   a static build from escrowed sources from the above
+  build_conda3_last    --   a dynamic build from a SCSB release package list
+  build_conda3_last_frozen -- a static build from escrowed sources from _last above.
+
+The general idea is that the two dynamic builds interact with online server
+repos and download sources,  while the static builds take the escrowed sources
+from the dynamic builds and install those.  The static builds are intended to be
+independent of external sources.
 
 1. The build_conda3 script is executed to make a "demand based" bleeding edge
 conda stack.  This creates a versioned installer4 directory exported back to
@@ -30,23 +40,20 @@ also be modified to cerate any version of escrowed packages.
 2. The build_conda3_frozen script is executed on the same or other VMs to build
 from content stored in, e.g. /eng/ssb/crds/installer4.crds_conda3-8
 
-As build_conda3 executes, it creates a live Python stack, and also creates a
-copy of the current installer4 with downloaded conda packages.  A version tail
-is added so installer4 becomes e.g. installer4.crds_conda3-8 and the sources
-are exported back to Central Store /eng/ssb/crds.
-
-When build_conda3_frozen execute, it instead copies the versioned sources from
-/eng/ssb/crds to the VM's local storage, and then installs from those
-configured and/or pre-downloaded packages.
-
 The ultimate purpose of build_conda3_frozen is to reproduce (as near as
 possible given any VM differences) the exact version of packages installed by
-the previous build_conda3 on other VMs.
+the previous build_conda3 on other VMs.   This approach will very possibly
+be obsoleted by the use of Docker images.
 
-For each build, the scripts build_conda3 and build_conda3_frozen need to be
-updated with a new version / stack-name.  Likewise, the
-CRDS_server/host/dot_setenv script needs to be modified to identify the new
-stack being used,  add it to PATH, etc.
+For each build, the scripts need to be updated with new P_VER, CONDA_NAME, and
+if applicable, release package list.  The scripts are designed so that they can
+build "future" stacks without disrupting a running server.  
+
+To activate a new "future" stack, appropriate settings in the
+dot_setenv/.setenv/.cshrc script also need to be updated to point to the new
+stack version.  During development, it's possible to make dot_setenv and the 
+build scripts point to the same version;  this does however lead to downed
+servers and cron failures during the stack builds.
 
 The scripts are designed to avoid operator input error (none required) since
 part of their action is to blow away local or remote versioned copies of
@@ -59,3 +66,7 @@ or on the same or another VM, to build the frozen version:
 
     % cd CRDS_server/stack_build
     % ./build_conda3_frozen  |& tee frozen.err
+
+As part of their operation,  the scripts move the previous "stack" directory
+to a "stack.old" directory.
+

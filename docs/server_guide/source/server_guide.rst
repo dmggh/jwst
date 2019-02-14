@@ -160,35 +160,6 @@ ${CRDS}/CRDS_server/env.csh.
 META_PREFIX is roughly equivalent to /usr/local,  the common value passed to --prefix in ./configure,  etc.,
 for building the server Python stack.
 
-.alias
-++++++
-
-CRDS augments the standard .alias file with these aliases for moving around the file system::
-
-    #  Source code areas
-    alias crds       "cd ${CRDS}/CRDS"
-    alias server     "cd ${CRDS}/CRDS_server"
-    alias stack      "cd ${CRDS_STACK}"
-    alias installer "cd ${CRDS}/crds_stacks/installer3/build"
-    
-    # Server maintenance areas
-    alias logs       "cd ${CRDS}/server/logs"
-    alias backups    "cd ${CRDS}/server/db_backups"
-    
-    # CRDS code area
-    alias libpython  "cd ${CRDS}/python/lib/python"
-    
-    # Server working data files areas
-    alias deliveries "cd ${CRDS_SERVER_FILES}/deliveries"
-    alias catalogs   "cd ${CRDS_SERVER_FILES}/catalogs"
-    alias ingest     "cd ${CRDS_SERVER_FILES}/ingest"
-    alias file_cache "cd ${CRDS_FILE_CACHE}"
-    
-    # Isilon and VM file systems
-    alias ifs        "cd ${CRDS_IFS}"
-    alias data1      "cd ${CRDS}"
-
-
 rc_script
 +++++++++
 

@@ -1,0 +1,6 @@
+#! /bin/sh
+
+export rst=`pwd`/$1
+export html=`echo ${rst} | sed -e 's/\.rst/\.html/g'`
+
+python -m crds_report.rst_to_html ${rst} >${html}

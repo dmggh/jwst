@@ -6,12 +6,11 @@
 #
 source /home/crds/.setenv   # or skip this and just use a standard login environment for /bin/tcsh
 
-cd ${CRDS}/CRDS_server
+nohup memcached -m 32M -s /tmp/memcached.sock </dev/null |& cat >>${CRDS_SERVER_LOGS}/memcached.log &
 
-source env.csh
+/usr/sbin/httpd -f ${CRDS_SERVER_SETUP}/conf/httpd.conf
 
-./run
-crontab <host/crontab
+crontab <${CRDS_SERVER_SCRIPTS}/crontab
 
 exit 0
 

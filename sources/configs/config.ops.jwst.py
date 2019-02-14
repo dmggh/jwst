@@ -15,9 +15,9 @@ port = 8001
 # This is a Isilon storage /crds/jwst/production used as file space
 # storage_path = '/ifs/crds/' + observatory + '/' + server_usecase
 
-CATALOG_DB_USER = "crds"
-CATALOG_DB_PFILE = "/crds/data1/database/crds.dat"
-CATALOG_DB_DSN = "HarpoDadsopsRepDsn"
+CRDS_REPRO_DB_USER = "crds"
+CRDS_REPRO_DB_PFILE = "/crds/data1/database/crds.dat"
+CRDS_REPRO_DB_DSN = "HarpoDadsopsRepDsn"
 REFFILE_DB_DSN = "HarpoReffileOpsRepDsn"
 
 servertype = 'mod_wsgi'

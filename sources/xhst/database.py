@@ -147,7 +147,7 @@ class DB(object):
         self.dsn = dsn
         self.user = user
         self.database = database
-        os.system("kinit crds -k -t " + sconfig.CATALOG_DB_KEYTAB)
+        os.system("kinit crds -k -t " + sconfig.CRDS_REPRO_DB_KEYTAB)
         self.connection = pyodbc.connect("DSN=%s; DATABASE=%s" % (dsn, database), autocommit=True)
         self.cursor = self.connection.cursor()
 
@@ -202,10 +202,10 @@ class DB(object):
 # ---------------------------------------------------------------------------------------------
 
 def get_catalog():
-    """Cache and return a database connection to CATALOG."""
+    """Cache and return a database connection to REPRO."""
     if not hasattr(get_catalog, "_catalog"):
         get_catalog._catalog = DB(
-            sconfig.CATALOG_DB_DSN, sconfig.CATALOG_DB_USER, sconfig.CATALOG_DB_NAME)
+            sconfig.CRDS_REPRO_DB_DSN, sconfig.CRDS_REPRO_DB_USER, sconfig.CRDS_REPRO_DB_NAME)
     return get_catalog._catalog
 
 # ---------------------------------------------------------------------------------------------
@@ -279,7 +279,7 @@ def clean_scan(instr):
 
 def scan_tables(instr):
     """scan_tables() automatically matches the required parameters for each
-    instrument against the available instrument tables and columns in CATALOG,
+    instrument against the available instrument tables and columns in REPRO,
     returning a map  { parameter : [ "table.column", ...] } finding plausible
     locations for each CRDS best refs parameter in the dataset catalog.
     """

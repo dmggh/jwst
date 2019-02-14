@@ -7,7 +7,8 @@ PROXY = "hst-crds-dev"
 observatory = 'hst'
 server_usecase = 'dev'
 CRDS_SERVER_IP = "10.128.19.71"
-port = 8001
+CRDS_PORT = int(os.environ["CRDS_PORT"])
+CRDS_BACKUP_MODE = int(os.environ["CRDS_BACKUP_MODE"])
 
 # This is a VM-related storage partition used as server space
 # install_root = '/crds/data1/' + HOST
@@ -15,16 +16,16 @@ port = 8001
 # This is a Isilon storage /crds/hst/production used as file space
 # storage_path = '/ifs/crds/' + observatory + '/' + server_usecase
 
-# CATALOG_DB_USER = "crds"
-# CATALOG_DB_KEYTAB = "/crds/data1/database/crds_krb5.keytab"
-# CATALOG_DB_DSN = "GROUCHOAG"   # availability group
-# CATALOG_DB_DSN = "GROUCHO"   # original  test server
-# CATALOG_DB_NAME = "dadsops_rep"   # or dadstest2
+# CRDS_REPRO_DB_USER = "crds"
+# CRDS_REPRO_DB_KEYTAB = "/crds/data1/database/crds_krb5.keytab"
+# CRDS_REPRO_DB_DSN = "GROUCHOAG"   # availability group
+# CRDS_REPRO_DB_DSN = "GROUCHO"   # original  test server
+# CRDS_REPRO_DB_NAME = "dadsops_rep"   # or dadstest2
 
-CATALOG_DB_USER = "crds"
-CATALOG_DB_KEYTAB = "/crds/data1/database/crds_krb5.keytab"
-CATALOG_DB_DSN = "HARPO"            # replicated OPS server
-CATALOG_DB_NAME = "dadsops_rep"
+CRDS_REPRO_DB_USER = "crds"
+CRDS_REPRO_DB_KEYTAB = "/crds/data1/database/crds_krb5.keytab"
+CRDS_REPRO_DB_DSN = "HARPO"            # replicated OPS server
+CRDS_REPRO_DB_NAME = "dadsops_rep"
 
 servertype = 'mod_wsgi'
 dbtype = 'mysql'   # this is related to the CRDS server database,  not xhst
@@ -35,22 +36,18 @@ PYSYN_CDBS = ""
 # XXX TODO restrict to archived or operational
 CRDS_DISTRIBUTION_STATES =  [ "archived", "operational", "delivered", "submitted", "archiving"]
 
-# The primary URL used by end-users which passes through a proxy which
-# assigns more user-friendly URLs based on standard ports 443.
-# Server backup restorate occurs on an alternate port
-
-BACKUP_URL_SCHEME = False
-
-if BACKUP_URL_SCHEME:
-    port += 1  # need backup port elsewhere
-    CRDS_URL = "https://" + HOST + ".stsci.edu:" + str(port) + "/"
-else:
-    CRDS_URL = "https://" + PROXY + ".stsci.edu/" 
-
 # The base server provides HTTPS on a non-standard port with a URL
 # not normally used by end-users and possibly inaccessible offsite.
 # The direct URL bypasses the proxy.
-CRDS_DIRECT_URL = "https://" + HOST + ".stsci.edu:" + str(port) + "/"
+CRDS_DIRECT_URL = "https://" + HOST + ".stsci.edu:" + str(CRDS_PORT) + "/"
+
+# The primary URL used by end-users which passes through a proxy which assigns
+# more user-friendly URLs based on standard ports 443.  Server backups,
+# restore, unit tests occur while server is on an alternate port, offline
+if CRDS_BACKUP_MODE:
+    CRDS_URL = CRDS_DIRECT_URL
+else:
+    CRDS_URL = "https://" + PROXY + ".stsci.edu/" 
 
 # These should be relatively static and go through Django
 CRDS_REFERENCE_URL = CRDS_URL + "get/"

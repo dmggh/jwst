@@ -1,0 +1,32 @@
+#! /bin/tcsh
+
+# Script to stop, re-install, and restart CRDS server
+
+cd `dirname $0`
+
+source $HOME/.setenv
+
+echo "==========================================================="
+echo "Stopping server"
+echo "==========================================================="
+crds_stop
+sleep 5
+crds_stop  >& /dev/null
+sleep 5
+
+
+echo "==========================================================="
+echo "Installing crds_server Python Django application"
+echo "==========================================================="
+cd ${CRDS_SERVER_SOURCES}
+./install $CRDS_PROJECT $CRDS_USECASE  |& tee install.${CRDS_PROJECT}.${CRDS_USECASE}.err
+
+echo "==========================================================="
+echo "Re-starting server"
+echo "==========================================================="
+crds_start $CRDS_PROJECT $CRDS_USECASE
+
+if ($CRDS_USECASE != "dev") then
+    sleep 10
+    prime_web_cache
+endif
