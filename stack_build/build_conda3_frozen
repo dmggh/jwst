@@ -1,9 +1,7 @@
 #! /bin/tcsh -fx
 
 setenv CONDA_NAME crds_conda3-12
-
-# setenv CRDS_STACK ${CRDS}/crds_stacks/${CONDA_NAME}
-# setenv META_PREFIX ${CRDS_STACK}
+setenv PY_VER 3.7
 
 mkdir -p ${CRDS_STACK}
 mkdir -p ${CRDS_STACK_SOURCES}
@@ -33,12 +31,12 @@ setenv PATH ${CRDS_STACK}/bin:${PATH}
 rehash 
 
 conda config --add channels http://ssb.stsci.edu/conda-dev 
-# conda config --add channels http://ssb.stsci.edu/astroconda
-# conda create --name $CONDA_NAME --file $CONDA_NAME.files.txt
 
 # Install all the escrowed conda packages
 cd ${LOCAL_SOURCE}/conda-sources/linux-64
-conda install --quiet --use-local ./*.bz2
+foreach pkg ( ./*.bz2 )
+    conda install --quiet --use-local $pkg
+end
 
 # Install the CRDS meta-packages for things not taken from conda
 cd ${LOCAL_SOURCE}/build
