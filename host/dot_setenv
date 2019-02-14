@@ -166,7 +166,7 @@ switch ($CRDS_SERVER)
         setenv CRDS_SERVER_IP 10.128.19.65
        
         setenv CRDS_DB_PASSWD dev_test_django_jwst.dat
-        setenv CRDS_DB_NAME crds_jwst_dev
+        setenv CRDS_DB_NAME crds_jwst_test
         setenv CRDS_DB_USER jwstcrds
         setenv CRDS_DB_HOST goldtst.stsci.edu
         setenv CRDS_DB_PORT 23306
