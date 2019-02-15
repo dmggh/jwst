@@ -391,6 +391,9 @@ if server_config.observatory == "hst":
             with self.assertRaises(crds.CrdsLookupError):
                 bestrefs = self.getreferences(header)
             
+        def test_get_affected_datasets(self):
+            api.get_affected_datasets("hst", "hst_0683.pmap", "hst_0684.pmap")
+
 # ===========================================================================
 
 if server_config.observatory == "jwst":
@@ -466,4 +469,6 @@ if server_config.observatory == "jwst":
         def test_get_system_versions(self):
             versions = api.get_system_versions("0.6.0noop.dev331", "jwst_0209.pmap")
 
+        def test_get_affected_datasets(self):
+            api.get_affected_datasets("jwst", "jwst_0497.pmap", "jwst_0499.pmap")
 

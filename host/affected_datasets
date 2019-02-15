@@ -47,7 +47,7 @@ set old = `echo ${old} | cut -d'.' -f1`
 set new = `echo ${new_context} | cut -d'_' -f2`
 set new = `echo ${new} | cut -d'.' -f1`
 if ( $official ) then
-    set output_dir="${CRDS}/monitor_reprocessing/`datetag`_${old}_${new}"
+    set output_dir="${CRDS_PERSISTENT_LOCAL}/monitor_reprocessing/`datetag`_${old}_${new}"
 else
     set output_dir="`pwd`/`datetag`_${old}_${new}"
 endif

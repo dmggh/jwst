@@ -8,7 +8,7 @@ if ( $#argv < 1 ) then
 endif
 
 # setenv REGRESS $CRDS/regress/`echo $1 | cut -d'.' -f1`
-setenv REGRESS $CRDS/regress/`datetag`
+setenv REGRESS $CRDS_PERSISTENT_LOCAL/regress/`datetag`
 echo "Capturing regression inputs and results to $REGRESS"
 
 rm -rf $REGRESS

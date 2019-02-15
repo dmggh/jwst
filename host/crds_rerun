@@ -24,7 +24,7 @@ cd ${CRDS_SERVER_SOURCES}
 echo "==========================================================="
 echo "Re-starting server"
 echo "==========================================================="
-crds_start $CRDS_PROJECT $CRDS_USECASE
+crds_start
 
 if ($CRDS_USECASE != "dev") then
     sleep 10

@@ -59,6 +59,12 @@ PYSYN_CDBS = ""
 
 # This is a Isilon storage /crds/hst/production used as file space
 # storage_path = '/ifs/crds/' + observatory + '/' + server_usecase
+
+
+# Directory where reprocessing system maintains state and store results
+CRDS_REPROCESSING = os.environ["CRDS_REPROCESSING"]
+
+# Parameters for connecting to HST archive database for CRDS repro
 CRDS_REPRO_DB_USER = os.environ["CRDS_REPRO_DB_USER"]
 CRDS_REPRO_DB_KEYTAB = os.environ["CRDS_REPRO_DB_KEYTAB"]
 CRDS_REPRO_DB_DSN = os.environ["CRDS_REPRO_DB_DSN"]
@@ -100,9 +106,6 @@ FORCE_REMOTE_MODE = int(os.environ["CRDS_FORCE_REMOTE_MODE"])
 
 # Path to mock CRDS repro parameters,  if any
 CRDS_MOCK_ARCHIVE_PARAMETERS = os.environ.get("CRDS_MOCK_ARCHIVE_PARAMETERS", None)
-
-# Directory where reprocessing system maintains state and store results
-CRDS_REPROCESSING = os.environ["CRDS_REPROCESSING"]
 
 CRDS_SERVER_LOGS = os.environ["CRDS_SERVER_LOGS"]
 CRDS_CRON_LOGS = os.environ["CRDS_CRON_LOGS"]

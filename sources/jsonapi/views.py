@@ -814,7 +814,7 @@ def get_affected_datasets(request, observatory, old_context, new_context):
     old_serial_patt = "*[0-9]" if old_serial_num is None else old_serial_num
     new_serial_patt = "[0-9]*" if new_serial_num is None else new_serial_num
     dir_patt = "*" + old_serial_patt + "_" + new_serial_patt
-    transitions_glob = os.path.join(config.CRDS_REPROCESSING, dir_patt)
+    transitions_glob = os.path.join(sconfig.CRDS_REPROCESSING, dir_patt)
     not_ready = "No precomputed affected datasets results exist for old_context='{}' and new_context='{}'".format(old_context, new_context)
     try:
         computation_dir  = sorted(glob.glob(transitions_glob))[-1]
