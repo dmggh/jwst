@@ -106,8 +106,8 @@ PACKAGE_DATA[''].extend(static_files)
 # DATA_FILES = [("", static_files)]
 
 setup(name="crds_server",
-      version= "7.3.0",
-      description="CRDS server,  HST SYNPHOT",
+      version= "7.3.1",
+      description="CRDS server, Q1 2019, Submission Streamlining",
       author="Todd Miller",
       author_email="jmiller@stsci.edu",
 
