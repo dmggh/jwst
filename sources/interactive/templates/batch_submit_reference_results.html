@@ -9,6 +9,9 @@
     <h3>Starting Context</h3>
     <p>{{pmap|browse}}</p>
 
+    {% block extra_results %}
+    {% endblock extra_results %}
+ 
     {% include "certify_include.html" %}
     
     {% if diff_results %}

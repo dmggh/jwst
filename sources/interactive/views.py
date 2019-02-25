@@ -971,7 +971,8 @@ def batch_submit_references(request):
         return batch_submit_references_post(request)
 
 @profile("batch_submit_post.stats")
-def batch_submit_references_post(request):
+def batch_submit_references_post(
+        request, redcat_parameters={}, results_template="batch_submit_reference_results.html" ):
     """View fragment to process file batch reference submission POSTs."""
     # For the initial submission, pmap_name is predictive,  not definitive
     # It can change after confirmation if other subnmissions occured which
@@ -1032,9 +1033,10 @@ def batch_submit_references_post(request):
                 "more_submits" : "/batch_submit_references/",
                 "disposition": disposition,
             }
+    bsr_results.update(redcat_parameters)
 
     result = render_repeatable_result(
-        request, "batch_submit_reference_results.html", bsr_results)
+        request, results_template, bsr_results)
 
     renamed_uploads = list(new_references_map.items())
     mail.crds_notification(body=mail.GENERIC_READY_BODY, status=status,

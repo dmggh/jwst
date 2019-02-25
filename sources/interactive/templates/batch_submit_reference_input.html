@@ -17,6 +17,9 @@
           id="batch_submit_form" class="jpoll_ajax_html_form"
     	  onsubmit="return crds.validate_and_confirm_file_submit(this);">  {% csrf_token %}
 
+      {% block extra_parameters %}
+      {% endblock extra_parameters %}
+
       <div>
               <h3 title="Context new references will be added to generating new rules.">Derive From Context:</h3>
       {% include "select_pmap.html" %}
