@@ -961,18 +961,23 @@ def monitor_process(request, process_key):
 @login_required
 @group_required("file_submission")
 @instrument_lock_required
-def batch_submit_references(request):
+def batch_submit_references(request,  extra_parameters={}, template=None):
     """View to return batch submit reference form or process POST."""
     if request.method == "GET":
-        return crds_render(request, "batch_submit_reference_input.html", {
-                           "compare_old_reference" : "checked",
-                          }, requires_pmaps=True)
+        pars = {
+            "compare_old_reference" : "checked",
+        }
+        pars.update(extra_parameters)
+        template = template or "batch_submit_reference_input.html"
+        return crds_render(request, template, pars, requires_pmaps=True)
     else:
-        return batch_submit_references_post(request)
+        return batch_submit_references_post(request, extra_parameters, template)
 
 @profile("batch_submit_post.stats")
-def batch_submit_references_post(
-        request, redcat_parameters={}, results_template="batch_submit_reference_results.html" ):
+def batch_submit_references_post(request, extra_parameters={}, template=None):
+
+    template = template or "batch_submit_reference_results.html"
+
     """View fragment to process file batch reference submission POSTs."""
     # For the initial submission, pmap_name is predictive,  not definitive
     # It can change after confirmation if other subnmissions occured which
@@ -1033,10 +1038,9 @@ def batch_submit_references_post(
                 "more_submits" : "/batch_submit_references/",
                 "disposition": disposition,
             }
-    bsr_results.update(redcat_parameters)
+    bsr_results.update(extra_parameters)
 
-    result = render_repeatable_result(
-        request, results_template, bsr_results)
+    result = render_repeatable_result(request, template, bsr_results)
 
     renamed_uploads = list(new_references_map.items())
     mail.crds_notification(body=mail.GENERIC_READY_BODY, status=status,
