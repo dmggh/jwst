@@ -182,7 +182,7 @@ TEMPLATES = [
             
             crds_server_dir + "/templates",
             crds_server_dir + "/interactive/templates",
-            crds_server_dir + "/xxxx/templates",
+            crds_server_dir + "/submission_form/templates",
             crds_server_dir + "/interactive/templates/registration",
             crds_server_dir + "/fileupload/templates",
             crds_server_dir + "/jsonapi/templates",
@@ -214,7 +214,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     
     "crds_server.interactive.apps.InteractiveConfig",
-    "crds_server.xxxx.apps.XxxxConfig",
+    "crds_server.submission_form.apps.Submission_formConfig",
     "crds_server.jpoll",
     "crds_server.jsonapi",
     

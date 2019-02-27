@@ -10,9 +10,9 @@ PACKAGES = [
     'crds_server.interactive.templatetags',
     'crds_server.interactive.migrations',
 
-    'crds_server.xxxx',
-#    'crds_server.xxxx.templatetags',
-    'crds_server.xxxx.migrations',
+    'crds_server.submission_form',
+#    'crds_server.submission_form.templatetags',
+    'crds_server.submission_form.migrations',
 
 
     'crds_server.jsonapi',
@@ -51,9 +51,9 @@ PACKAGE_DIR = {
     'crds_server.interactive.migrations':'./interactive/migrations',
     'crds_server.interactive.templatetags':'./interactive/templatetags',
 
-    'crds_server.xxxx':'./xxxx',
-    'crds_server.xxxx.migrations':'./xxxx/migrations',
-    'crds_server.xxxx.templatetags':'./xxxx/templatetags',
+    'crds_server.submission_form':'./submission_form',
+    'crds_server.submission_form.migrations':'./submission_form/migrations',
+    'crds_server.submission_form.templatetags':'./submission_form/templatetags',
     
     'crds_server.fileupload' : './fileupload',
     'crds_server.fileupload.templatetags' : './fileupload/templatetags',
@@ -75,7 +75,7 @@ PACKAGE_DATA = {
         "interactive/templates/registration/*",
         "interactive/*.dat",
 
-        "xxxx/templates/*",
+        "submission_form/templates/*",
 
         "xhst/*.bdf",
 

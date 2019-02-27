@@ -7,7 +7,7 @@ from jsonrpc import jsonrpc_site
 import crds_server.jsonapi.views
 import crds_server.interactive.views
 import crds_server.jpoll.views
-import crds_server.xxxx.views
+import crds_server.submission_form.views
 
 from crds_server.jpoll.views import JPOLL_KEY_RE_STR
 from crds_server import settings, config
@@ -119,7 +119,7 @@ urlpatterns = [
     url(r'^jpoll/pull_messages/(?P<channel_id>{})/(?P<since_id>\-?\d+)/$'.format(UUID_RE_STR), 
         crds_server.jpoll.views.pull_messages),
     
-    url(r'^xxxx/test_batch_submit_references/$', crds_server.xxxx.views.test_batch_submit_references),
+    url(r'^submission_form/test_batch_submit_references/$', crds_server.submission_form.views.test_batch_submit_references),
 
 #     url(r'^jpoll/test_page/$', 'crds_server.jpoll.views.test_page'),
 #     url(r'^jpoll/test_worker/$', 'crds_server.jpoll.views.test_worker'),
