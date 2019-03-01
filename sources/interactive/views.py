@@ -956,11 +956,11 @@ def monitor_process(request, process_key):
     
 # ===========================================================================
 
-@error_trap("batch_submit_reference_input.html")
-@log_view
-@login_required
-@group_required("file_submission")
-@instrument_lock_required
+#@error_trap("batch_submit_reference_input.html")
+#@log_view
+#@login_required
+#@group_required("file_submission")
+#@instrument_lock_required
 def batch_submit_references(request,  extra_parameters={}, template=None):
     """View to return batch submit reference form or process POST."""
     if request.method == "GET":

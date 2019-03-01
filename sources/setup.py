@@ -75,6 +75,7 @@ PACKAGE_DATA = {
         "interactive/templates/registration/*",
         "interactive/*.dat",
 
+        "submission_form/*.yml",
         "submission_form/templates/*",
 
         "xhst/*.bdf",

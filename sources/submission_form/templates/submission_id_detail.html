@@ -1,0 +1,22 @@
+<html>
+<body>
+
+<style>
+table, th, td { border: 1px solid #999b9e; }
+</style>
+
+<table id="results">
+  <tr>
+    <th>DB Column</th>
+    <th>Value</th>
+  </tr>
+  {% for key, value in submission.items %}
+    <tr>
+      <td>{{ key }}</td>
+      <td>{{ value }}</td>
+    </tr>
+  {% endfor %}
+</table>
+
+</body>
+</html>

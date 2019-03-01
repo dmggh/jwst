@@ -119,7 +119,10 @@ urlpatterns = [
     url(r'^jpoll/pull_messages/(?P<channel_id>{})/(?P<since_id>\-?\d+)/$'.format(UUID_RE_STR), 
         crds_server.jpoll.views.pull_messages),
     
-    url(r'^submission_form/test_batch_submit_references/$', crds_server.submission_form.views.test_batch_submit_references),
+    url(r'^submission_form/redcat_submit/$', crds_server.submission_form.views.redcat_submit),
+    url(r'^submission_form/(?P<id>[0-9]+)/$', crds_server.submission_form.views.redcat_id_detail, name='redcat_id_detail'),
+
+    url(r'^submission_form/redcat_list/$', crds_server.submission_form.views.redcat_list),
 
 #     url(r'^jpoll/test_page/$', 'crds_server.jpoll.views.test_page'),
 #     url(r'^jpoll/test_worker/$', 'crds_server.jpoll.views.test_worker'),

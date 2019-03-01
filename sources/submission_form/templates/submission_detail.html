@@ -1,0 +1,16 @@
+{% extends "batch_submit_reference_results.html" %}
+
+{% block extra_results %}
+  <table id="results">
+    <tr>
+      <th>DB Column</th>
+      <th>Value</th>
+    </tr>
+    {% for key, value in submission.items %}
+      <tr>
+        <td>{{ key }}</td>
+        <td>{{ value }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock extra_results %}

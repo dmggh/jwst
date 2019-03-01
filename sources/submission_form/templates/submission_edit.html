@@ -1,0 +1,15 @@
+{% extends "batch_submit_reference_input.html" %}
+
+{% block extra_parameters %}  
+    {% for field in form %}
+    <p>
+        {{ field.errors }}
+        {% if field.help_text %}
+          <span title="{{ field.help_text|safe }}">{{ field.label_tag }}</span><br>
+        {% else %}
+          {{ field.label_tag }}<br>
+        {% endif %}
+        {{ field }}
+    </p>
+    {% endfor %}
+{% endblock extra_parameters %}

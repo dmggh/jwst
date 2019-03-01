@@ -1,0 +1,18 @@
+<html>
+<body>
+
+<div>
+    <h1><ReDCaT Submission List</h1>
+</div>
+
+{% for submission in submissions %}
+    <div>
+        <h3><a href="{% url 'redcat_id_detail' id=submission.id %}">{{ submission.id }}</a></h3>
+        <p>{{ submission.deliverer }}  {{ submission.instrument }}<br>
+        {{ submission.published_date }} </p>
+    <hr>
+    </div>
+{% endfor %}
+
+</body>
+</html>
