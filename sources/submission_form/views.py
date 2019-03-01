@@ -50,12 +50,12 @@ def redcat_submit(request):
             print (s)
             
             output_pars = {"submission" : s}
-            return crds_server.interactive.views._batch_submit_references_post(
+            return crds_server.interactive.views._batch_submit_references(
                 request, output_pars, "submission_detail.html")
 
     # else GET or invalid form;  form is either empty or has higlighted bad inputs
     input_pars = {"form":form}
     request.method = 'GET'
     return crds_server.interactive.views._batch_submit_references(
-        request, input_pars, "submission_edit.html", post_url="/submission_form/recat_submit/")
+        request, input_pars, "submission_edit.html")
 

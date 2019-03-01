@@ -13,7 +13,7 @@
 
     {% include "select_files.html" %}        
 
-    <form method="post" action="{{ post_url }}" enctype="multipart/form-data"
+    <form method="post" action="" enctype="multipart/form-data"
           id="batch_submit_form" class="jpoll_ajax_html_form"
     	  onsubmit="return crds.validate_and_confirm_file_submit(this);">  {% csrf_token %}
 
