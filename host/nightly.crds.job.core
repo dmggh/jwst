@@ -72,12 +72,13 @@ echo "Server model defects check"
 echo "==========================================================="
 crds_check_defects --all --references
 
-if ( "$CRDS_USECASE" == "dev" ) then
+if ( $CRDS_RUN_NIGHTLY_UNIT_TESTS ) then
     echo "==========================================================="
     echo "Server self-test"
     echo "==========================================================="
     cd ${CRDS_SERVER_SOURCES}
-    ./runtests 
-    tail -100 runtests.${ETAIL}
+    crds_runtests | tail -100
+else
+    echo "Skipping nightly unit tests."
 endif
 

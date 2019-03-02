@@ -62,6 +62,11 @@ setenv CRDS_FORCE_REMOTE_MODE 0
 # to distribute rules and references.
 setenv CRDS_DISTRIBUTION_STATES archived,operational  # submitted,delivered,archiving
 
+
+# Run the Django unit tests for this server,  roughly 10-20 minutes offline during
+# nighly cron,  do crontab -l or review CRDS_server/host/crontab for when.
+setenv CRDS_RUN_NIGHTLY_UNIT_TESTS 0
+
 # -----------------------------------------------------------------------------------------
 # Server string customization vars,  can override preceding generic default settings
 # string-by-string.
@@ -100,8 +105,8 @@ switch ($CRDS_SERVER)
         setenv CRDS_PROJECT jwst
         setenv CRDS_USECASE dev
         setenv CRDS_SERVER_URL https://jwst-crds-dev.stsci.edu
-        setenv CRDS_SERVER_IP 10.128.19.170
-       
+        setenv CRDS_SERVER_IP 10.128.19.170 
+      
         setenv CRDS_DB_NAME crds_jwst_dev
         setenv CRDS_DB_PASSWD dev_test_django_jwst.dat
         setenv CRDS_DB_USER jwstcrds
@@ -124,6 +129,7 @@ switch ($CRDS_SERVER)
         # Install additional packages 
         setenv CRDS_DEBUG_EXTRAS 0
 
+        setenv CRDS_RUN_NIGHTLY_UNIT_TESTS 1
        breaksw
 
        # .............................................................................
@@ -154,6 +160,8 @@ switch ($CRDS_SERVER)
         setenv CRDS_DEBUG 1
         # Install additional packages 
         setenv CRDS_DEBUG_EXTRAS 0
+
+        setenv CRDS_RUN_NIGHTLY_UNIT_TESTS 1
        breaksw
 
        # .............................................................................
@@ -180,6 +188,8 @@ switch ($CRDS_SERVER)
 
         setenv CRDS_STATUS_TO_ADDRESSES jmiller@stsci.edu
         setenv CRDS_STATUS_CONFIRM_ADDRESSES jmiller@stsci.edu
+
+        setenv CRDS_RUN_NIGHTLY_UNIT_TESTS 1
        breaksw
 
        # .............................................................................
@@ -204,6 +214,8 @@ switch ($CRDS_SERVER)
 
         setenv CRDS_STATUS_TO_ADDRESSES jmiller@stsci.edu
         setenv CRDS_STATUS_CONFIRM_ADDRESSES jmiller@stsci.edu
+
+        setenv CRDS_RUN_NIGHTLY_UNIT_TESTS 1
        breaksw
 
        # .............................................................................
