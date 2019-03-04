@@ -956,13 +956,20 @@ def monitor_process(request, process_key):
     
 # ===========================================================================
 
-#@error_trap("batch_submit_reference_input.html")
-#@log_view
-#@login_required
-#@group_required("file_submission")
-#@instrument_lock_required
-def batch_submit_references(request,  extra_parameters={}, template=None):
-    """View to return batch submit reference form or process POST."""
+@error_trap("batch_submit_reference_input.html")
+@log_view
+@login_required
+@group_required("file_submission")
+@instrument_lock_required
+def batch_submit_references(*args, **keys):
+    """Decorated / protected version of _batch_submit_references() for direct use."""
+    return _batch_submit_references(*args, **keys)
+
+def _batch_submit_references(request,  extra_parameters={}, template=None):
+    """Undecorated / unprotected view to return batch submit reference
+    form or process POST, intended only for chaining from other
+    extended views, not direct exposure in urls.py
+    """
     if request.method == "GET":
         pars = {
             "compare_old_reference" : "checked",
