@@ -27,7 +27,7 @@ class SubmissionForm(forms.ModelForm):
                   'file_type', 'history_updated', 'keywords_checked', 'descrip_updated', 
                   'useafter_matches', 'compliance_verified', 'ingest_files', 'etc_delivery', 
                   'jwst_etc', 'calpipe_version', 'replacement_files', 'old_reference_files', 
-                  'replacing_badfiles', 'was_jira_issue_filed', 'jira_issue', 'change_level', 
+                  'replacing_badfiles', 'was_jira_issue_filed', 'jira_issue', 
                   'table_rows_changed', 'modes_affected', 'correctness_testing', 
                   'additional_considerations']
         labels = QUESTIONS

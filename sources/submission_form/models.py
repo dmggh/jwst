@@ -4,7 +4,6 @@ from django.utils import timezone
 from functools import partial
 
 INSTR = ['ACS', 'COS', 'STIS', 'WFC3']
-CHANGE = ['SEVERE', 'MODERATE', 'TRIVIAL']
 TRINARY = ['N/A', 'Yes', 'No']  # Use models.NullBooleanField() instead of CharField?
 
 class Submission(models.Model):
@@ -30,7 +29,6 @@ class Submission(models.Model):
     replacing_badfiles        = models.CharField(max_length=20, choices=zip(TRINARY, TRINARY), default=TRINARY[0])
     was_jira_issue_filed      = models.BooleanField()
     jira_issue                = models.CharField(max_length=100, blank=True, null=True)  # Clean and search JIRA issues?
-    change_level              = models.CharField(max_length=100, choices=zip(CHANGE, CHANGE), default=CHANGE[0])
     table_rows_changed        = models.TextField()
     modes_affected            = models.TextField()
     correctness_testing       = models.TextField()
