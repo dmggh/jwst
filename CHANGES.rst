@@ -1,6 +1,11 @@
 0.17.0 (unreleased)
 ===================
 
+ami
+---
+
+- Added routine in ami_analyze to replace NaNs with the median of sourrounding pixels. [#5127]
+
 assign_mtwcs
 ------------
 
